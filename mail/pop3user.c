@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.11 1998/04/24 03:30:13 ahd v1-13a $
+ *       $Id: pop3user.c 1.12 1998/05/11 01:20:48 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.12  1998/05/11 01:20:48  ahd
+ *       Clarify mailbox deleted status at cleanup
+ *
  *       Revision 1.11  1998/04/24 03:30:13  ahd
  *       Use local buffers, not client->transmit.buffer, for output
  *       Rename receive buffer, use pointer into buffer rather than
@@ -82,7 +85,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.11 1998/04/24 03:30:13 ahd v1-13a $");
+RCSID("$Id: pop3user.c 1.12 1998/05/11 01:20:48 ahd Exp $");
 
 currentfile();
 
@@ -541,7 +544,7 @@ commandQUIT(SMTPClient *client,
 {
    char xmitBuf[XMIT_LENGTH];
    KWBoolean success = KWTrue;
-   long messages, ocets;
+   long messages, octets;
 
    octets = getMessageOctetCount(client->transaction->top, &messages);
 
