@@ -12,9 +12,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.4 1992/12/07 02:43:20 ahd Exp $
- *
+ *    $Id: ULIB.C 1.5 1992/12/12 16:12:13 ahd Exp $
  *    $Log: ULIB.C $
+ * Revision 1.5  1992/12/12  16:12:13  ahd
+ * Include header file for definition for memory avail routines
+ *
  * Revision 1.4  1992/12/07  02:43:20  ahd
  * Improve error message when low memory prevents COMM port install
  *
@@ -219,12 +221,29 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
          return 0;
       }
 
+      if ( !CD( ) )
+      {
+          printmsg( 0, "sread: Carrier lost" );
+          return 0;
+      }
+
       printmsg(20, "sread: pending=%d, wanted=%d", pending, wanted);
 
       if (pending >= wanted) {   /* got enough in the buffer? */
          unsigned int i;
          for (i = 0; i < wanted; i++)
-            *buffer++ = (char) receive_com();
+         {
+            int Received;
+
+            Received = receive_com();       /* Get character from com port */
+            if ( Received < 0 )
+            {
+                printmsg( 10, "sread: recv error" );
+                return 0;                   /* Indicate carrier loss */
+            }
+            *buffer++ = (char) Received;
+            printmsg( 19, "sread: char = %c", Received );
+         }
 
          if (log_handle != -1)
          {
@@ -254,7 +273,7 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
          time_t   now     = time(nil(time_t));
          time_t   elapsed = now - start;
 
-         if (elapsed >= (long) timeout)
+         if (elapsed >= ((time_t) timeout))
             return pending;
 
          ddelay(0);                    /* Surrender our time slice   */
@@ -295,7 +314,7 @@ int swrite(char *data, unsigned int len)
       int queue_size = s_count_size();
       int queue_free = s_count_free();
 
-      if ( len > queue_size )
+      if ( (int) len > queue_size )
       {
          printmsg(0,"swrite: Transmit buffer overflow; buffer size %d, "
                     "needed %d",
@@ -303,13 +322,13 @@ int swrite(char *data, unsigned int len)
          panic();
       }
 
-      while( (len > queue_free) && (spin < max_spin) )
+      while( ((int)len > queue_free) && (spin < max_spin) )
       {
          int wait;
          int needed;
          int new_free;
 
-         needed = max(queue_size/2, len-queue_free);
+         needed = max(queue_size/2, ((int)len)-queue_free);
                               /* Minimize thrashing by requiring
                                  big chunks */
 
@@ -333,7 +352,7 @@ int swrite(char *data, unsigned int len)
 
       } /* while( (len > queue_free) && spin ) */
 
-      if ( queue_free < len )
+      if ( queue_free < (int) len )
       {
          printmsg(0,"swrite: Transmit buffer overflow, needed %d bytes",
                      len);
@@ -427,7 +446,7 @@ void closeline(void)
    };
 
    stats = com_errors();
-   printmsg(3, "Buffer overflows: %-4d",stats[COM_EOVFLOW]);
+   printmsg(3, "Buffer overflows: %-4d", stats[COM_EOVFLOW]);
    printmsg(3, "Receive overruns: %-4d", stats[COM_EOVRUN]);
    printmsg(3, "Break characters: %-4d", stats[COM_EBREAK]);
    printmsg(3, "Framing errors:   %-4d", stats[COM_EFRAME]);
