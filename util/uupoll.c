@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.7 1993/04/14 10:29:53 ahd Exp $
+ *    $Id: UUPOLL.C 1.8 1993/05/11 03:25:17 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.8  1993/05/11  03:25:17  ahd
+ * Don't loop when sleeping for autoclean -- get it over with
+ *
  * Revision 1.7  1993/04/14  10:29:53  ahd
  * Correct invalid exit time if both -e and -f flags specified
  *
@@ -91,7 +94,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.7 1993/04/14 10:29:53 ahd Exp $";
+         "$Id: UUPOLL.C 1.8 1993/05/11 03:25:17 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -205,7 +208,6 @@ currentfile();
 
    tzset();
    time( &now );
-
 
     if( signal( SIGINT, Catcher ) == SIG_ERR )
     {
@@ -750,7 +752,7 @@ static time_t nextpoll( hhmm first, hhmm interval )
 
    sfirst = today + hhmm2sec(first);
 
-   while (sfirst < now)
+   while (sfirst <= now)         // Insure we never return "now" for next
       sfirst += sinterval;
 
 /*--------------------------------------------------------------------*/
