@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.7 1997/12/13 18:11:01 ahd Exp $
+ *       $Id: delivers.c 1.8 1997/12/14 00:43:16 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.8  1997/12/14 00:43:16  ahd
+ *       Further cleanup of new sender protocol
+ *
  *       Revision 1.7  1997/12/13 18:11:01  ahd
  *       Change parsing and passing of sender address information
  *
@@ -85,7 +88,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.7 1997/12/13 18:11:01 ahd Exp $");
+RCSID("$Id: delivers.c 1.8 1997/12/14 00:43:16 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -695,7 +698,7 @@ ConnectSMTP(
   {
       if (SendSMTPData(imf))         /* yes --> Transmit the message  */
       {
-          printmsg(0, "%s: Delivered %ld byte message from %s"
+          printmsg(0, "%s: Delivered %ld byte message from %s "
                       "to %ld addresses via relay %s",
                       mName,
                       imlength( imf ),
