@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.31 1995/02/26 02:53:34 ahd v1-12n $
+ *    $Id: uutypes.h 1.32 1995/03/11 02:06:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.32  1995/03/11 02:06:02  ahd
+ *    Delete obsolete F_COMPRESSBATCH
+ *
  *    Revision 1.31  1995/02/26 02:53:34  ahd
  *    Add FREE() macro to allow single path 16 bit/32 bit code
  *
@@ -192,30 +195,33 @@ typedef enum {
 /*                    Per system (GLOBAL) options                     */
 /*--------------------------------------------------------------------*/
 
-               F_BANG,        /* True = re-write addrs in bang (!) form*/
-               F_BOUNCE,      /* True = Bounce bad mail to sender     */
-               F_COLLECTSTATS,/* True = Report additional information in
-                                        various logs                   */
-               F_DIRECT,      /* True = Deliver to subdirectories, not
-                                        files                          */
+               F_BANG,        /* True = write addrs in bang (!) form */
+               F_BOUNCE,      /* True = Bounce bad mail to sender    */
+               F_COLLECTSTATS,/* True = Report additional
+                                        information in various logs  */
+               F_DIRECT,      /* True = Deliver to subdirectories,
+                                        not files                    */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
                F_ESCAPE,      /* True = ESCAPE acts as Ctrl-Break     */
                F_KANJI,       /* True = enable Kanji (Japanese) support*/
                F_LONGNAME,    /* True = Exploit OS/2 and NT long names */
                F_MULTI,       /* True = Deliver to multiple addresses
-                                        on one remote host at once     */
-               F_MULTITASK,   /* True = System is multitasking, watch
-                                        for race conditions            */
+                                        on one remote host at once   */
+               F_MULTITASK,   /* True = System is multitasking,
+                                        watch for race conditions     */
                F_NEWSRUN,     /* True = Run NEWSRUN from RNEWS        */
                F_NNS,         /* True = Use NNS  news delivery        */
                F_NEWSPANIC,   /* True = Panic UUXQT if RNEWS fails    */
                F_ONECASE,     /* True = Remote host is case insensitive*/
                F_SENDDEBUG,   /* True = Send -x flag to remote systems */
-               F_SHORTFROM,   /* True = Use short From remote header  */
+               F_SHORTFROM,   /* True = Use short From remote header   */
                F_SHOWSPOOL,   /* True = Print files xferred from spool */
-               F_SNEWS,       /* True = Use Simple news delivery      */
+               F_SNEWS,       /* True = Use Simple news delivery       */
                F_SUPPRESSFROM,/* Suppress writing From lines in Mail   */
+               F_SUPPRESSLOGININFO,
+                              /* Don't report UUCP/extended version,
+                                 domain name, etc. at login          */
                F_SYMMETRICGRADES,
                               /* True = Use send grade as receive grade*/
                F_SYSLOG,      /* True = Write syslog with name and
