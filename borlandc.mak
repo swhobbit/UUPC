@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.55 1994/02/13 04:44:52 ahd Exp $
+#     $Id: makefile 1.56 1994/02/20 19:03:21 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.56  1994/02/20  19:03:21  ahd
+#         IBM C/Set 2 Conversion, memory leak cleanup
+#
 #         Revision 1.55  1994/02/13  04:44:52  ahd
 #         Force UUCP to be .exe file
 #
@@ -559,14 +562,17 @@ windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe uucicow.exe        \
 prod:   $(REQUIRED:.com=.exe) $(OPTIONAL:.com=.exe) $(NEWS:.com=.exe)
         - $(ERASE) $(TIMESTMP)
         - $(ERASE) $(UUPCLIB)
+        - $(ERASE) *.sym
 !else
 prod:   $(INSTALL)
         - $(ERASE) $(TIMESTMP)
         - $(ERASE) $(UUPCLIB)
+        - $(ERASE) *.sym
 !endif
 
 winprod:  commonw $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
         - del *.tds
+        - $(ERASE) *.sym
 
 required: $(REQUIRED)
 
