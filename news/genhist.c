@@ -19,21 +19,19 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-#include "uupcmoah.h"
-
-static const char rcsid[] =
-         "$Id: genhist.c 1.15 1995/03/11 22:29:24 ahd Exp $";
-
 /* $Log: genhist.c $
-/* Revision 1.15  1995/03/11 22:29:24  ahd
-/* Use macro for file delete to allow special OS/2 processing
-/*
-/* Revision 1.14  1995/01/30 04:08:36  ahd
-/* Additional compiler warning fixes
-/*
-/* Revision 1.13  1995/01/29 14:03:29  ahd
-/* Clean up IBM C/Set compiler warnings
-/*
+ * Revision 1.16  1995/08/27 23:33:15  ahd
+ * Load and use ACTIVE file as tree structure
+ *
+ * Revision 1.15  1995/03/11 22:29:24  ahd
+ * Use macro for file delete to allow special OS/2 processing
+ *
+ * Revision 1.14  1995/01/30 04:08:36  ahd
+ * Additional compiler warning fixes
+ *
+ * Revision 1.13  1995/01/29 14:03:29  ahd
+ * Clean up IBM C/Set compiler warnings
+ *
 /* Revision 1.12  1995/01/15 19:48:35  ahd
 /* Allow active file to be optional
 /* Delete fullbatch global option
@@ -74,6 +72,11 @@ static const char rcsid[] =
  * Initial revision
  * */
 
+#include "uupcmoah.h"
+
+static const char rcsid[] =
+         "$Id: genhist.c 1.16 1995/08/27 23:33:15 ahd v1-12q ahd $";
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -96,6 +99,7 @@ static const char rcsid[] =
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
+#include "hdbm.h"
 
 currentfile();
 
@@ -117,6 +121,23 @@ long total_bytes = 0;
 
 void *history;
 
+void
+backupHistory( void )
+{
+
+   char file_old[FILENAME_MAX];
+   char file_new[FILENAME_MAX];
+   mkfilename(file_old, E_newsdir, "oldhist.dir");
+   mkfilename(file_new, E_newsdir, "history.dir");
+   REMOVE(file_old);
+   rename(file_new, file_old);
+
+   mkfilename(file_old, E_newsdir, "oldhist.pag");
+   mkfilename(file_new, E_newsdir, "history.pag");
+   REMOVE(file_old);
+   rename(file_new, file_old);
+}
+
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
 /*                                                                    */
@@ -126,7 +147,6 @@ void *history;
 main( int argc, char **argv)
 {
    extern char *optarg;
-   char file_old[FILENAME_MAX], file_new[FILENAME_MAX];
    int c;
 
 /*--------------------------------------------------------------------*/
@@ -169,37 +189,33 @@ main( int argc, char **argv)
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
 
-   tzset();                      /* Set up time zone information  */
-
    if (!configure( B_NEWS ))
       exit(1);   /* system configuration failed */
 
    openlog( NULL );
 
-   PushDir( E_newsdir );
-   atexit( PopDir );
-
    loadActive( KWTrue );
 
-   mkfilename(file_old, E_newsdir, "oldhist.dir");
-   mkfilename(file_new, E_newsdir, "history.dir");
-   REMOVE(file_old);
-   rename(file_new, file_old);
-   mkfilename(file_old, E_newsdir, "oldhist.pag");
-   mkfilename(file_new, E_newsdir, "history.pag");
-   REMOVE(file_old);
-   rename(file_new, file_old);
+   backupHistory();
+
+
+   PushDir( E_newsdir );            /* Save drive, directory name,
+                                       creates directoryt if needed  */
 
    history = open_history("history");
 
    IndexAll();
 
+   PopDir();
+
    close_history(history);
 
    writeActive();
+
    printmsg(1,"%s: Processed %ld total articles in %ld files (%ld bytes).",
                   argv[0], total_articles, total_files, total_bytes );
 
+   exit(0);
    return 0;
 
 } /* main */
@@ -214,6 +230,7 @@ static void IndexAll( void )
    char *groupName;
 
    startActiveWalk( );
+
 
    while( (groupName = walkActive( groupBuffer ) ) != NULL )
    {
@@ -230,7 +247,6 @@ static void IndexAll( void )
 static void IndexOneGroup( const char *groupName )
 {
    char groupdir[FILENAME_MAX];
-   char archdir[FILENAME_MAX];
 
    printmsg(3,"Processing news group %s", groupName );
 
@@ -239,7 +255,6 @@ static void IndexOneGroup( const char *groupName )
 /*--------------------------------------------------------------------*/
 
    ImportNewsGroup( groupdir, groupName, 0 );
-   mkfilename( archdir, E_archivedir, &groupdir[ strlen( E_newsdir) + 1] );
 
 /*--------------------------------------------------------------------*/
 /*            Process the directory                                   */
@@ -253,15 +268,15 @@ static void IndexOneGroup( const char *groupName )
 /*    G e t H i s t o r y D a t a                                     */
 /*--------------------------------------------------------------------*/
 
-static void GetHistoryData(const char *group, struct direct *dp,
-                           char *messageID, char *histentry)
+static void GetHistoryData(const char *group,
+                           struct direct *dp,
+                           char *messageID,
+                           char *histentry)
 {
-  FILE *article;
-  char line[BUFSIZ], *ptr, *item;
-  int first, b_xref = 0, b_msgid = 0;
-  size_t line_len;
 
-  article = FOPEN(dp->d_name, "r", TEXT_MODE);
+   KWBoolean bXref = KWFalse;
+   KWBoolean bMsgid = KWFalse;
+   FILE *article = FOPEN(dp->d_name, "r", TEXT_MODE);
 
   if ( article == NULL )
   {
@@ -271,8 +286,13 @@ static void GetHistoryData(const char *group, struct direct *dp,
 
   sprintf(histentry, "%ld %ld ", dp->d_modified, dp->d_size);
 
-  while ( !b_xref || !b_msgid )
+  while ( !bXref || !bMsgid )
   {
+    size_t line_len;
+    static const char messageIDLiteral[] = "Message-ID:";
+    static const char xrefLiteral[] = "Xref:";
+    char line[(DBM_BUFSIZ / 4) * 3];
+
     if ( fgets(line, sizeof(line), article) == NULL )
       break;
 
@@ -285,49 +305,54 @@ static void GetHistoryData(const char *group, struct direct *dp,
     if (line[line_len - 1] == '\r')
       line[(line_len--) - 1] = '\0';
 
-    ptr = "Message-ID:";
-    if (equalni(line, ptr, strlen(ptr)))
+    if (equalni(line, messageIDLiteral, sizeof messageIDLiteral - 1))
     {
-      ptr = line + strlen(ptr) + 1;
+      char *ptr = line + sizeof messageIDLiteral;
 
       while (isspace(*ptr))
         ptr++;
 
-      strcpy(messageID, ptr);
-      b_msgid++;
+      strncpy(messageID, ptr, FILENAME_MAX);
+      messageID[ FILENAME_MAX - 1] = '\0';
+
+      bMsgid = KWTrue;
       continue;
     }
 
-    ptr = "Xref:";
-
-    if (equalni(line, ptr, strlen(ptr)))
+    if (equalni(line, xrefLiteral, sizeof xrefLiteral - 1 ))
     {
-      ptr = line + strlen(ptr) + 1;
+      char *ptr = line + sizeof xrefLiteral;
+
+      KWBoolean first = KWTrue;
+
       while (isspace(*ptr))
         ptr++;
 
-      strtok(ptr, " "); /* strip off system name */
-      first = 1;
+      strtok(ptr, WHITESPACE); /* strip off system name */
 
-      while ((item = strtok(NULL, " ")) != NULL)
+      while ((ptr = strtok(NULL, WHITESPACE )) != NULL)
       {
         if (!first)
           strcat(histentry, ",");
-        first = 0;
-        strcat(histentry, item);
+
+        first = KWFalse;
+        strcat(histentry, ptr);
       }
 
-      b_xref++;
+      bXref = KWTrue;
       continue;
+
     }
-  }
+
+  } /* while ( !bXref || !bMsgid ) */
 
   fclose(article);
 
-  if ( !b_xref )
+  if ( !bXref )
     sprintf(histentry, "%ld %ld %s:%s",
             dp->d_modified, dp->d_size, group, dp->d_name);
-}
+
+} /* GetHistoryData */
 
 /*--------------------------------------------------------------------*/
 /*    I n d e x D i r e c t o r y                                     */
@@ -345,15 +370,13 @@ static void IndexDirectory( const char *groupName,
    DIR *dirp;
    struct direct *dp;
 
-   char messageID[BUFSIZ], histentry[BUFSIZ];
-
 /*--------------------------------------------------------------------*/
 /*                Open up the directory for processing                */
 /*--------------------------------------------------------------------*/
 
    if ((dirp = opendirx(directory,"*.*")) == nil(DIR))
    {
-      printmsg(3, "IndexDirectory: couldn't opendir() %s", directory);
+      printmsg(5, "IndexDirectory: couldn't opendir() %s", directory);
       return;
    } /* if */
 
@@ -376,6 +399,9 @@ static void IndexDirectory( const char *groupName,
 
       if ( numeric( dp->d_name ))/* Article format name?             */
       {                          /* Yes --> Examine it closer        */
+         char messageID[FILENAME_MAX];
+         char histentry[DBM_BUFSIZ];
+
          number = atol(dp->d_name);
 
          printmsg(6,"Processing file %s from %s",
@@ -399,7 +425,7 @@ static void IndexDirectory( const char *groupName,
         files++;
         bytes += dp->d_size;
 
-      }
+      } /* if ( numeric( dp->d_name )) */
 
    } /* while */
 
@@ -409,9 +435,13 @@ static void IndexDirectory( const char *groupName,
 
    closedir(dirp);
 
-   if ( files )
-      printmsg(2,"%s: %ld articles in %ld files (%ld bytes)",
-                  groupName, articles, files, bytes);
+   printmsg(files ? 1 : 2,"%s: %ld unique and %ld cross-posted articles "
+                  "in %ld files (%ld bytes)",
+                  groupName,
+                  articles,
+                  files - articles,
+                  files,
+                  bytes);
 
    total_articles += articles;
    total_files += files;
@@ -438,6 +468,7 @@ static KWBoolean numeric( char *start)
    }
 
    return KWTrue;
+
 } /* numeric */
 
 /*--------------------------------------------------------------------*/

@@ -25,9 +25,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.12 1995/03/11 22:29:41 ahd v1-12q $";
+      "$Id: history.c 1.13 1995/12/02 14:18:33 ahd Exp $";
 
 /* $Log: history.c $
+/* Revision 1.13  1995/12/02 14:18:33  ahd
+/* Use longer buffers, add new debugging messages
+/*
 /* Revision 1.12  1995/03/11 22:29:41  ahd
 /* Use macro for file delete to allow special OS/2 processing
 /*
@@ -211,10 +214,16 @@ int add_histentry(void *hdbm_file,
   val.dptr = (char *) hist_record;
   val.dsize = strlen(val.dptr) + 1;
 
+/*--------------------------------------------------------------------*/
+/*       Since the DBM_REPLACE keyword doesn't actually work, any     */
+/*       attempt to replace a history record will fail.  Thus, we     */
+/*       don't actually bother to print the error message below.      */
+/*--------------------------------------------------------------------*/
+
   if (dbm_store(hdbm_file, key, val, DBM_REPLACE))
   {
 
-#ifdef UDEBUG
+#ifdef UDEBUG2
      printmsg(2,"add_histentry: dbm_store failed for %s", messageID);
 #endif
 

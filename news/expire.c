@@ -101,6 +101,8 @@ static const char rcsid[] =
 
 #define ONE_DAY (60L*60L*24L)
 
+currentfile();
+
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
@@ -120,6 +122,68 @@ void *history;
 void *new_history;
 
 /*--------------------------------------------------------------------*/
+/*       b a c k u p N e w s F i l e                                  */
+/*                                                                    */
+/*       Delete an old news database file, and optionally rename a    */
+/*       newer file to the name of the just deleted file.             */
+/*--------------------------------------------------------------------*/
+
+static void
+backupNewsFile(  const char *new, const char *previous )
+{
+   char file_previous[FILENAME_MAX], file_new[FILENAME_MAX];
+
+   mkfilename(file_previous, E_newsdir, previous);
+
+/*--------------------------------------------------------------------*/
+/*       Punt the old file, and return if there is no new file        */
+/*--------------------------------------------------------------------*/
+
+   REMOVE(file_previous);
+
+   if ( new == NULL )
+      return;
+
+/*--------------------------------------------------------------------*/
+/*         Build the new file name and move into the old name         */
+/*--------------------------------------------------------------------*/
+
+   mkfilename(file_new, E_newsdir, new);
+
+   if ( rename(file_new, file_previous) )
+   {
+      printerr( file_new );
+   }
+#ifdef UDEBUG
+   else
+      printmsg(2, "Renamed %s to %s", file_new, file_previous );
+#endif
+
+
+} /* backupNewsFile */
+
+/*--------------------------------------------------------------------*/
+/*       r e s e t A r t i c l e R a n g e                            */
+/*                                                                    */
+/*       Reset lowest to highest article number until proven otherwise*/
+/*--------------------------------------------------------------------*/
+
+static void
+resetArticleRange( void )
+{
+   char groupBuffer[MAXGRP];
+   char *groupName;
+
+   startActiveWalk( );              /* Begin with first news group   */
+
+   while( (groupName = walkActive( groupBuffer ) ) != NULL )
+   {
+      setArticleOldest( groupName, getArticleNewest( groupName ));
+   }
+
+} /* resetArticleRange */
+
+/*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
 /*                                                                    */
 /*    Main program                                                    */
@@ -131,9 +195,6 @@ main( int argc, char **argv)
    extern char *optarg;
    extern int   optind;
    char **groups = NULL;
-   char *groupName;
-   char file_old[FILENAME_MAX], file_new[FILENAME_MAX];
-   char groupBuffer[MAXGRP];
 
    time_t expire_period  = 7; /* Seven days visible to users         */
    time_t expire_date;
@@ -188,10 +249,10 @@ main( int argc, char **argv)
       exit(1);   /* system configuration failed */
 
 /*--------------------------------------------------------------------*/
-/*                    Save our original directory                     */
+/*                    Switch to the news directory                    */
 /*--------------------------------------------------------------------*/
 
-   PushDir( "." );
+   PushDir( E_newsdir );
    atexit( PopDir );
 
 /*--------------------------------------------------------------------*/
@@ -204,10 +265,8 @@ main( int argc, char **argv)
 /*                 Load the history and active files                  */
 /*--------------------------------------------------------------------*/
 
-  mkfilename(file_old, E_newsdir, "newhist.dir");
-  REMOVE(file_old);                 /* Delete any junk history       */
-  mkfilename(file_old, E_newsdir, "newhist.pag");
-  REMOVE(file_old);                 /* Delete any junk history       */
+  backupNewsFile( NULL, "newhist.dir" );  /* Delete any junk history */
+  backupNewsFile( NULL, "newhist.pag" );  /* Delete any junk history */
 
    history = open_history("history");
    new_history = open_history("newhist");
@@ -216,15 +275,10 @@ main( int argc, char **argv)
                                  active file                      */
 
 /*--------------------------------------------------------------------*/
-/*                  Chain together groups to process                  */
+/*                       Reset article numbers                        */
 /*--------------------------------------------------------------------*/
 
-   startActiveWalk( );
-
-   while( (groupName = walkActive( groupBuffer ) ) != NULL )
-   {
-      setArticleOldest( groupName, getArticleNewest( groupName ));
-   }
+   resetArticleRange();
 
 /*--------------------------------------------------------------------*/
 /*                  Compute times for expiring files                  */
@@ -244,27 +298,24 @@ main( int argc, char **argv)
    HistoryExpireAll(groups, expire_date );
 
 /*--------------------------------------------------------------------*/
-/*                         Clean up and exit                          */
+/*       Backup our existing history files, and then move the new     */
+/*       history databases into place.                                */
 /*--------------------------------------------------------------------*/
-
-   writeActive();
 
    close_history(history);
    close_history(new_history);
 
-   mkfilename(file_old, E_newsdir, "oldhist.dir");
-   mkfilename(file_new, E_newsdir, "history.dir");
-   REMOVE(file_old);
-   rename(file_new, file_old);
-   mkfilename(file_old, E_newsdir, "newhist.dir");
-   rename(file_old, file_new);
+   backupNewsFile( "history.dir", "oldhist.dir" );
+   backupNewsFile( "history.pag", "oldhist.pag" );
 
-   mkfilename(file_old, E_newsdir, "oldhist.pag");
-   mkfilename(file_new, E_newsdir, "history.pag");
-   REMOVE(file_old);
-   rename(file_new, file_old);
-   mkfilename(file_old, E_newsdir, "newhist.pag");
-   rename(file_old, file_new);
+   backupNewsFile( "newhist.dir","history.dir" );
+   backupNewsFile( "newhist.pag","history.pag" );
+
+/*--------------------------------------------------------------------*/
+/*                         Clean up and exit                          */
+/*--------------------------------------------------------------------*/
+
+   writeActive();
 
    if ( total_articles_purged)
       printmsg(1,"Purged %ld articles, %ld cross postings (%ld bytes).",
