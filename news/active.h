@@ -19,8 +19,6 @@ void get_active(void);     /* Read in the active newsgroups file */
 
 void put_active(void);     /* Write the active newsgroups file */
 
-void validate_newsgroups(void);  /* Make sure the directory structure exists */
-
 struct grp *find_newsgroup(const char *grp); /* Find pointer for group     */
 
 boolean add_newsgroup(const char *grp, const boolean moderated);
