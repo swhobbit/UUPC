@@ -19,22 +19,26 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Log: genhist.c $
-/* Revision 1.23  1997/12/14 21:17:03  ahd
-/* Don't abort generation of history file if single article
-/* cannot be opened.
 /*
-/* Revision 1.22  1997/04/24 01:39:02  ahd
-/* Annual Copyright Update
-/*
-/* Revision 1.21  1996/11/22 03:12:25  ahd
-/* Correct compile warning
-/*
-/* Revision 1.20  1996/11/18 04:46:49  ahd
-/* Normalize arguments to bugout
-/* Reset title after exec of sub-modules
-/* Normalize host status names to use HS_ prefix
-/*
+ *       $Log: genhist.c $
+ * Revision 1.24  1998/03/01 01:30:12  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.23  1997/12/14 21:17:03  ahd
+ * Don't abort generation of history file if single article
+ * cannot be opened.
+ *
+ * Revision 1.22  1997/04/24 01:39:02  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.21  1996/11/22 03:12:25  ahd
+ * Correct compile warning
+ *
+ * Revision 1.20  1996/11/18 04:46:49  ahd
+ * Normalize arguments to bugout
+ * Reset title after exec of sub-modules
+ * Normalize host status names to use HS_ prefix
+ *
  * Revision 1.19  1996/01/01 21:08:50  ahd
  * Annual Copyright Update
  *
@@ -58,24 +62,24 @@
  * Revision 1.13  1995/01/29 14:03:29  ahd
  * Clean up IBM C/Set compiler warnings
  *
-/* Revision 1.12  1995/01/15 19:48:35  ahd
-/* Allow active file to be optional
-/* Delete fullbatch global option
-/* Add "local" and "batch" flags to SYS structure for news
-/*
-/* Revision 1.11  1995/01/07 16:21:14  ahd
-/* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
-/*
-/* Revision 1.10  1995/01/02 05:03:27  ahd
-/* Pass 2 of integrating SYS file support from Mike McLagan
-/*
-/* Revision 1.9  1994/12/22 00:24:30  ahd
-/* Annual Copyright Update
-/*
-/* Revision 1.8  1994/06/14 01:19:24  ahd
-/* Clean yp RCS information
-/* patches from Kai Uwe Rommel
-/*
+ * Revision 1.12  1995/01/15 19:48:35  ahd
+ * Allow active file to be optional
+ * Delete fullbatch global option
+ * Add "local" and "batch" flags to SYS structure for news
+ *
+ * Revision 1.11  1995/01/07 16:21:14  ahd
+ * Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
+ * Revision 1.10  1995/01/02 05:03:27  ahd
+ * Pass 2 of integrating SYS file support from Mike McLagan
+ *
+ * Revision 1.9  1994/12/22 00:24:30  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.8  1994/06/14 01:19:24  ahd
+ * Clean yp RCS information
+ * patches from Kai Uwe Rommel
+ *
  * Revision 1.7  1994/03/20  23:35:57  rommel
  * Also update active file with discovered information
  *
@@ -96,12 +100,13 @@
  *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
- * */
+ *
+ */
 
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.23 1997/12/14 21:17:03 ahd v1-12u $");
+RCSID("$Id: genhist.c 1.24 1998/03/01 01:30:12 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
