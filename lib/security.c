@@ -12,10 +12,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.10 1993/10/12 00:46:16 ahd Exp $
+ *    $Id: security.c 1.11 1993/10/30 02:29:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.11  1993/10/30  02:29:46  ahd
+ *     Trim trailing slash from root directories
+ *
+ *     Revision 1.11  1993/10/30  02:29:46  ahd
+ *     Trim trailing slash from root directories
+ *
  *     Revision 1.10  1993/10/12  00:46:16  ahd
  *     Normalize comments
  *
@@ -108,7 +114,6 @@ currentfile();
 
 boolean LoadSecurity( void )
 {
-   char fname[FILENAME_MAX];
    char buffer[BUFSIZ*4];     /* Allows around 2K for the data        */
    struct HostTable *hostp;
    FILE *stream;
@@ -117,12 +122,11 @@ boolean LoadSecurity( void )
 /*      Generate a filename for the permissions file and open it      */
 /*--------------------------------------------------------------------*/
 
-   mkfilename(fname, E_confdir, PERMISSIONS);
-   stream  = FOPEN( fname, "r",TEXT_MODE);
+   stream  = FOPEN( E_permissions, "r",TEXT_MODE);
 
    if ( stream == NULL )      /* Did the file open?                   */
    {                          /* No --> Report failure to caller      */
-      printerr( fname );
+      printerr( E_permissions );
       return FALSE;
    } /* ( stream == NULL ) */
 
@@ -160,7 +164,7 @@ boolean LoadSecurity( void )
          else if (!feof( stream ))  /* Did we hit EOF?                */
          {                    /* No --> Presume the buffer overflowed*/
             printmsg(0,"LoadSecurity: buffer overflow while reading %s",
-             fname);
+                       E_permissions );
             fclose( stream );
             return FALSE;
          }
@@ -180,7 +184,7 @@ boolean LoadSecurity( void )
 
       if (ferror( stream ))
       {
-         printerr( fname );
+         printerr( E_permissions );
          clearerr( stream );
          return FALSE;
       } /* if */
@@ -190,7 +194,7 @@ boolean LoadSecurity( void )
 /*--------------------------------------------------------------------*/
 
       printmsg(10,"Buffer is \"%s\"", buffer );
-      if ((*next != '\0') && !InitEntry( buffer , fname))
+      if ((*next != '\0') && !InitEntry( buffer , E_permissions))
       {
          fclose( stream );
          return FALSE;
