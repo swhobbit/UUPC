@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPRECV.C 1.12 1998/03/16 06:39:32 ahd Exp $
+ *       $Id: smtprecv.c 1.13 1998/04/24 03:30:13 ahd v1-13a $
  *
  *       Revision History:
- *       $Log: SMTPRECV.C $
+ *       $Log: smtprecv.c $
+ *       Revision 1.13  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.12  1998/03/16 06:39:32  ahd
  *       Add trumpet remote user support
  *
@@ -79,7 +88,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: SMTPRECV.C 1.12 1998/03/16 06:39:32 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.13 1998/04/24 03:30:13 ahd v1-13a $");
 
 currentfile();
 
@@ -180,6 +189,7 @@ commandMAIL(SMTPClient *client,
 
    client->transaction = malloc(sizeof *(client->transaction));
    checkref(client->transaction);
+   memset(client->transaction, 0, sizeof *(client->transaction));
 
    strcpy( client->transaction->sender, operands[0]);
 
@@ -516,6 +526,11 @@ cleanupTransaction(SMTPClient *client)
    if (client->transaction->imf)
    {
       imclose(client->transaction->imf);
+#ifdef UDEBUG
+   memset(client->transaction->address,
+                  0,
+                  sizeof *(client->transaction->address));
+#endif
       client->transaction->imf = NULL;
    }
 
@@ -535,10 +550,19 @@ cleanupTransaction(SMTPClient *client)
 
    if (client->transaction->address)
    {
+#ifdef UDEBUG
+   memset(client->transaction->address,
+                  0,
+                  sizeof *(client->transaction->address));
+#endif
       free(client->transaction->address);
       client->transaction->address = NULL;
    }
 
+#ifdef UDEBUG
+   memset(client->transaction, 0, sizeof *(client->transaction));
+#endif
+   free(client->transaction);
    client->transaction = NULL;
 
 } /* cleanupTransaction */
