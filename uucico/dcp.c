@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.7 1992/12/18 12:05:57 ahd Exp $
+ *    $Id: DCP.C 1.8 1993/01/23 19:08:09 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.8  1993/01/23  19:08:09  ahd
+ * Don't update host status at sysend() if hostp is not initialized
+ *
  * Revision 1.7  1992/12/18  12:05:57  ahd
  * Suppress duplicate machine state messages to improve OS/2 scrolling
  *
@@ -122,7 +125,8 @@ typedef enum {
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-size_t pktsize;                  /* packet size for this protocol*/
+size_t s_pktsize;             /* send packet size for protocol       */
+size_t r_pktsize;             /* receive packet size for protocol    */
 
 FILE *xfer_stream = NULL;        /* stream for file being handled    */
 boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS        */

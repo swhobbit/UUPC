@@ -1,5 +1,5 @@
 /*
-   dcpgpkt.c
+   d c p g p k t . c
 
    Revised edition of dcp
 
@@ -8,7 +8,7 @@
    Copyright (c) Richard H. Lamb 1985, 1986, 1987
    Changes Copyright (c) Stuart Lynne 1987
    Changes Copyright (c) Andrew H. Derbyshire 1989
-   Changes Copyright (c) Kendra Electronic Wonderworks 1990-1992
+   Changes Copyright (c) Kendra Electronic Wonderworks 1990-1993
 
    Maintenance notes:
 
@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.7 1992/11/21 05:55:11 ahd Exp $
+ *      $Id: DCPGPKT.C 1.8 1993/03/06 23:04:54 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.8  1993/03/06  23:04:54  ahd
+ * Make state names more descriptive
+ *
  * Revision 1.7  1992/11/21  05:55:11  ahd
  * Use single bit field for gopenpk flag bits, add debugging info
  *
@@ -163,18 +166,18 @@ typedef enum {
 
 currentfile();
 
-static int rwl, swl, swu, rwu, irec, lazynak;
-static unsigned nbuffers;
-static int rbl, sbl, sbu;
+static short rwl, swl, swu, rwu, irec, lazynak;
+static unsigned short nbuffers;
+static short rbl, sbl, sbu;
 static INTEGER nerr;
-static unsigned outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
+static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
 static boolean arrived[NBUF];
 static size_t nwindows;
 static char *outbuf[NBUF];
 static char *inbuf[NBUF];
 static time_t ftimer[NBUF];
-static int timeouts, outsequence, naksin, naksout, screwups;
-static int reinit, shifts, badhdr, resends;
+static short timeouts, outsequence, naksin, naksout, screwups;
+static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
 static boolean variablepacket;  /* "v" or in modem file              */
 
@@ -182,26 +185,26 @@ static boolean variablepacket;  /* "v" or in modem file              */
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static int initialize(const boolean caller, const char protocol );
+static short initialize(const boolean caller, const char protocol );
 
-static int  gmachine(const int timeout);
+static short  gmachine(const short timeout);
 
-static void gspack(int  type,
-                   int  yyy,
-                   int  xxx,
-                   int  len,
-                   unsigned xmit,
+static void gspack(short  type,
+                   short  yyy,
+                   short  xxx,
+                   short  len,
+                   unsigned short xmit,
                    char  *data);
 
-static int  grpack(int  *yyy,
-                   int  *xxx,
-                   int  *len,
+static short  grpack(short  *yyy,
+                   short  *xxx,
+                   short  *len,
                    char *data,
-                   const int timeout);
+                   const short timeout);
 
 static void gstats( void );
 
-static unsigned int checksum(char *data, int len);
+static unsigned short checksum(char *data, short len);
 
 /****************** SUB SUB SUB PACKET HANDLER ************/
 
@@ -211,7 +214,7 @@ static unsigned int checksum(char *data, int len);
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int Gopenpk(const boolean caller)
+short Gopenpk(const boolean caller)
 {
    return initialize(caller , 'G');
 } /* Gopenpk */
@@ -222,7 +225,7 @@ int Gopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int vopenpk(const boolean caller)
+short vopenpk(const boolean caller)
 {
    return initialize(caller, 'v');
 } /* vopenpk */
@@ -233,7 +236,7 @@ int vopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int gopenpk(const boolean caller)
+short gopenpk(const boolean caller)
 {
    return initialize(caller, 'g');
 } /* vopenpk */
@@ -244,9 +247,9 @@ int gopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-static int initialize(const boolean caller, const char protocol )
+static short initialize(const boolean caller, const char protocol )
 {
-   int i, xxx, yyy, len, maxwindows;
+   short i, xxx, yyy, len, maxwindows;
 
 #define B_SENT_INITA 0x01
 #define B_SENT_INITB 0x02
@@ -258,22 +261,24 @@ static int initialize(const boolean caller, const char protocol )
 #define B_INITB (B_SENT_INITB | B_RECV_INITB)
 #define B_INITC (B_SENT_INITC | B_RECV_INITC)
 
-   int  flags = 0x00;   /* Init state flags, as defined above  */
+   short  flags = 0x00;   /* Init state flags, as defined above  */
 
    I_STATE state;
+   char *p;
 
 /*--------------------------------------------------------------------*/
-/* Read modem file values for the number of windows and packet sizes  */
+/*    Read modem file values for the number of windows and packet     */
+/*    sizes                                                           */
 /*--------------------------------------------------------------------*/
 
-   pktsize = GetGPacket( MAXPACK, protocol );
+   r_pktsize = s_pktsize = GetGPacket( MAXPACK, protocol );
    maxwindows = GetGWindow(
-                     min( MAXWINDOW, RECV_BUF / (pktsize+HDRSIZE)),
+                     min( MAXWINDOW, RECV_BUF / (s_pktsize+HDRSIZE)),
                      protocol);
 
-   variablepacket = bmodemflag[MODEM_VARIABLEPACKET] | (protocol == 'v');
+   variablepacket = bmodemflag[MODEM_VARIABLEPACKET] || (protocol == 'v');
 
-   grpkt = malloc( pktsize + HDRSIZE );
+   grpkt = malloc( r_pktsize + HDRSIZE );
 
 /*--------------------------------------------------------------------*/
 /*                     Initialize error counters                      */
@@ -456,7 +461,7 @@ static int initialize(const boolean caller, const char protocol )
 /*--------------------------------------------------------------------*/
 
          case I_INITA_RECV:
-            if (yyy < (int) nwindows)
+            if (yyy < (short) nwindows)
             {
                nwindows = yyy;
                rwu = nwindows - 1;
@@ -466,7 +471,7 @@ static int initialize(const boolean caller, const char protocol )
             break;
 
          case I_INITA_SEND:
-            gspack(INITA, 0, 0, 0, pktsize, NULL);
+            gspack(INITA, 0, 0, 0, nwindows, NULL);
             flags = (flags & B_RECV_INITA) | B_SENT_INITA;
             state = I_GRPACK;
             break;
@@ -475,9 +480,9 @@ static int initialize(const boolean caller, const char protocol )
             if ((flags & (B_RECV_INITA | B_SENT_INITA)) ==
                          (B_RECV_INITA | B_SENT_INITA))
             {
-               i = (int) 8 * (2 << (yyy+1));
-               if (i < (int) pktsize)
-                  pktsize = i;
+               i = (short) 8 * (2 << (yyy+1));
+               if (i < (short) s_pktsize)
+                  s_pktsize = i;
                flags = (flags & B_SENT_INITB) | B_RECV_INITB;
                state = (flags & B_SENT_INITB) ? I_INITC_SEND : I_INITB_SEND;
             } /* if */
@@ -486,7 +491,7 @@ static int initialize(const boolean caller, const char protocol )
             break;
 
          case I_INITB_SEND:
-            gspack(INITB, 0, 0, 0, pktsize, NULL);
+            gspack(INITB, 0, 0, 0, r_pktsize, NULL);
                                        /* Data segment (packet) size    */
             flags = (flags & (B_INITA | B_RECV_INITB)) | B_SENT_INITB;
             state = I_GRPACK;
@@ -496,8 +501,10 @@ static int initialize(const boolean caller, const char protocol )
             if ((flags & (B_RECV_INITB | B_SENT_INITB)) ==
                            (B_RECV_INITB | B_SENT_INITB))
             {
-               if (yyy < (int) nwindows)
+               if (yyy < (short) nwindows)
                {
+                  printmsg(0,"Unexpected INITC window size of %d",
+                             nwindows );
                   nwindows = yyy;
                   rwu = nwindows - 1;
                }
@@ -509,7 +516,7 @@ static int initialize(const boolean caller, const char protocol )
             break;
 
          case I_INITC_SEND:
-            gspack(INITC, 0, 0, 0, pktsize, NULL);
+            gspack(INITC, 0, 0, 0, nwindows, NULL);
             flags = (flags & (B_INITB | B_RECV_INITC)) | B_SENT_INITC;
             state = (flags & B_RECV_INITC) ? I_COMPLETE : I_GRPACK;
             break;
@@ -559,37 +566,41 @@ static int initialize(const boolean caller, const char protocol )
 /*                    Allocate the needed buffers                     */
 /*--------------------------------------------------------------------*/
 
-   grpkt = realloc( grpkt, pktsize + HDRSIZE );
+   grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
 
-   i = 0;
-   while( i <= (int) nwindows)
+   p = malloc( (r_pktsize + s_pktsize) * (nwindows+1) );
+   checkref( p );
+
+   for ( i = 0; i <= (short) nwindows; i++)
    {
-
-      inbuf[i] = malloc( pktsize );
-      if (inbuf[i] == (char *) NULL ) checkref( NULL );
-                              /* Forces the regular error message */
-
-      outbuf[i] = malloc( pktsize );
-      checkref( outbuf[i] );
-
-      i ++;
-
-   } /* while */
+      inbuf[i]  = p;
+      p += r_pktsize;
+      outbuf[i] = p;
+      p += s_pktsize;
+   } /* for */
 
    nerr = 0;
    lazynak = 0;
 
 #ifdef WIN32
-   printmsg(2,"Short packets %sabled, "
+   printmsg(2,"%s packets, "
               "Window size %d, "
-              "Packet size %d\n",
-            variablepacket ? "en" : "dis", nwindows, pktsize );
+              "Receive packet %d\n, "
+              "Send packet %d\n",
+            variablepacket ? "Variable" : "Fixed",
+            nwindows,
+            r_pktsize,
+            s_pktsize );
 #else
-   printmsg(2,"Smart packets %sabled, "
+   printmsg(2,"%s packets, "
               "Window size %d, "
-              "Packet size %d, "
-              "Memory avail %u",
-            variablepacket ? "en" : "dis", nwindows, pktsize,
+              "Receive packet %d, "
+              "Send packet %d, "
+              "Memory avail %u,",
+            variablepacket ? "Variable" : "Fixed",
+            nwindows,
+            r_pktsize,
+            s_pktsize,
             memavail());
 #endif
 
@@ -603,7 +614,7 @@ static int initialize(const boolean caller, const char protocol )
 /*    Begin a file transfer (not used by "g" protocol)                */
 /*--------------------------------------------------------------------*/
 
-int gfilepkt( void )
+short gfilepkt( void )
 {
 
    return OK;
@@ -616,9 +627,9 @@ int gfilepkt( void )
 /*    Close packet machine                                            */
 /*--------------------------------------------------------------------*/
 
-int gclosepk()
+short gclosepk()
 {
-   unsigned i;
+   unsigned short i;
 
    for (i = 0; i < MAXTRY; i++)
    {
@@ -631,16 +642,7 @@ int gclosepk()
 /*                        Release our buffers                         */
 /*--------------------------------------------------------------------*/
 
-   i = 0;
-
-   while( i <= nwindows )
-   {
-      free( (void *)inbuf[i] );
-      free( outbuf[i] );
-      inbuf[i] = outbuf[i] = NULL;
-      i++;
-   } /* while( i < NBUF ) */
-
+   free( inbuf[0] );
    free( grpkt );
    grpkt = NULL;
 
@@ -694,12 +696,12 @@ static void gstats( void )
 /*    ret(-1) if problems (failed)                                    */
 /*--------------------------------------------------------------------*/
 
-int ggetpkt(char *data, int *len)
+short ggetpkt(char *data, short *len)
 {
-   int   retry = M_MaxErr;
+   short   retry = M_MaxErr;
    time_t start;
 #ifdef _DEBUG
-   int savedebug = debuglevel;
+   short savedebug = debuglevel;
 #endif
 
    irec = 1;
@@ -775,11 +777,11 @@ int ggetpkt(char *data, int *len)
    -1 if problems (failed)
 */
 
-int gsendpkt(char *data, int len)
+short gsendpkt(char *data, short len)
 {
-   int delta;
+   short delta;
 #ifdef _DEBUG
-   int savedebug = debuglevel;
+   short savedebug = debuglevel;
 #endif
 
    checkref( data );
@@ -800,9 +802,9 @@ int gsendpkt(char *data, int len)
 /*                       Handle short packets.                        */
 /*--------------------------------------------------------------------*/
 
-   xmitlen[sbu] = pktsize;
+   xmitlen[sbu] = s_pktsize;
    if (variablepacket)
-      while ( ((len * 2) < (int) xmitlen[sbu]) && (xmitlen[sbu] > MINPKT) )
+      while ( ((len * 2) < (short) xmitlen[sbu]) && (xmitlen[sbu] > MINPKT) )
          xmitlen[sbu] /= 2;
 
    if ( xmitlen[sbu] < MINPKT )
@@ -862,7 +864,7 @@ int gsendpkt(char *data, int len)
 /*    Transmit EOF to the other system                                */
 /*--------------------------------------------------------------------*/
 
-int geofpkt( void )
+short geofpkt( void )
 {
    if (gsendpkt("", 0))          /* Empty packet == EOF              */
       return FAILED;
@@ -876,10 +878,10 @@ int geofpkt( void )
 /*    Send a message to remote system                                 */
 /*--------------------------------------------------------------------*/
 
-int gwrmsg( char *s )
+short gwrmsg( char *s )
 {
-   for(; strlen(s) >= pktsize; s += pktsize) {
-      int result = gsendpkt(s, pktsize);
+   for(; strlen(s) >= s_pktsize; s += s_pktsize) {
+      short result = gsendpkt(s, s_pktsize);
       if (result)
          return result;
    }
@@ -893,12 +895,12 @@ int gwrmsg( char *s )
 /*    Read a message from the remote system                           */
 /*--------------------------------------------------------------------*/
 
-int grdmsg( char *s)
+short grdmsg( char *s)
 {
    for ( ;; )
    {
-      int len;
-      int result = ggetpkt( s, &len );
+      short len;
+      short result = ggetpkt( s, &len );
       if (result || (s[len-1] == '\0'))
          return result;
       s += len;
@@ -919,7 +921,7 @@ int grdmsg( char *s)
 /*    machine task.                                                   */
 /*--------------------------------------------------------------------*/
 
-static int gmachine(const int timeout )
+static short gmachine(const short timeout )
 {
    static time_t idletimer = 0;
 
@@ -934,7 +936,7 @@ static int gmachine(const int timeout )
       boolean donak  = FALSE;    /* True = NAK the other system      */
       unsigned long packet_no = remote_stats.packets;
 
-      int pkttype, rack, rseq, rlen, rbuf, i1;
+      short pkttype, rack, rseq, rlen, rbuf, i1;
       time_t now;
 
 #ifdef UDEBUG
@@ -1185,23 +1187,23 @@ static int gmachine(const int timeout )
 
    Send a packet
 
-   type=type yyy=pkrec xxx=timesent len=length<=pktsize data=*data
+   type=type yyy=pkrec xxx=timesent len=length<=s_pktsize data=*data
    ret(0) always
 */
 
-static void gspack(int type,
-                   int yyy,
-                   int xxx,
-                   int len,
-                   unsigned xmit,
+static void gspack(short type,
+                   short yyy,
+                   short xxx,
+                   short len,
+                   unsigned short xmit,
                    char *data)
 {
-   unsigned int check, i;
+   unsigned short check, i;
    unsigned char header[HDRSIZE];
 
 #ifdef   LINKTEST
    /***** Link Testing Mods *****/
-   unsigned char  dpkerr[10];
+   unsigned char dpkerr[10];
    /***** End Link Testing Mods *****/
 #endif   /* LINKTEST */
 
@@ -1239,7 +1241,7 @@ static void gspack(int type,
 
       case INITA:
       case INITC:
-         header[4] += nwindows;
+         header[4] += xmit;
          break;
 
       case INITB:
@@ -1253,7 +1255,7 @@ static void gspack(int type,
 
       case DATA:
          header[4] = (unsigned char) (0x80 + (xxx << 3) + yyy);
-         if (len < (int) xmit)      /* Short packet?              */
+         if (len < (short) xmit)      /* Short packet?              */
             header[4] |= 0x40;/* Count byte handled at higher level */
 
 #ifdef UDEBUG
@@ -1370,17 +1372,17 @@ static void gspack(int type,
 
 */
 
-static int grpack(int *yyy,
-                  int *xxx,
-                  int *len,
+static short grpack(short *yyy,
+                  short *xxx,
+                  short *len,
                   char *data,
-                  const int timeout)
+                  const short timeout)
 {
-   static int got_hdr  = FALSE;
-   static int received = 0;     /* Bytes already read into buffer */
-   int needed;
+   static short got_hdr  = FALSE;
+   static short received = 0;     /* Bytes already read into buffer */
+   short needed;
 
-   unsigned int type, check, checkchk, i, total = 0;
+   unsigned short type, check, checkchk, i, total = 0;
    unsigned char c, c2;
 
    time_t start;
@@ -1400,7 +1402,7 @@ static int grpack(int *yyy,
       needed = HDRSIZE - received;
       if ( needed > 0 )       /* Have enough bytes for header?       */
       {                       /* No --> Read as much as we need      */
-         int wait;
+         short wait;
 
          if ( start == 0 )    /* First pass through data?            */
          {                    /* Yes --> Set timers up               */
@@ -1408,12 +1410,13 @@ static int grpack(int *yyy,
             wait = timeout;
          } /* if ( start == 0 ) */
          else {
-            wait = (int) (time(NULL) - start) - timeout;
+            wait = (short) (time(NULL) - start) - timeout;
             if (wait < 0)     /* Negative timeout?                   */
                wait = 0;      /* Make it no time out                 */
          } /* else */
 
-         if (sread((char *) &grpkt[received], needed, wait ) < (unsigned) needed )
+         if (sread((char *) &grpkt[received], needed, wait ) <
+             (unsigned short) needed )
                               /* Did we get the needed data?         */
             return EMPTY;     /* No --> Return to caller             */
 
@@ -1449,7 +1452,7 @@ static int grpack(int *yyy,
 
       if ( received >= HDRSIZE )
       {
-         i = (unsigned) (grpkt[1] ^ grpkt[2] ^ grpkt[3] ^
+         i = (unsigned short) (grpkt[1] ^ grpkt[2] ^ grpkt[3] ^
                         grpkt[4] ^ grpkt[5]);
          i &= 0xff;
          printmsg(i ? 2 : 10, "prpkt %02x %02x %02x %02x %02x .. %02x ",
@@ -1502,7 +1505,7 @@ get_data:
 /*--------------------------------------------------------------------*/
 
       total = 8 * (2 << grpkt[1]);
-      if (total > pktsize)  /* Within the defined limits?          */
+      if (total > r_pktsize)  /* Within the defined limits?          */
       {                       /* No --> Other system has bad header,
                                  or the header got corrupted         */
          printmsg(0,"grpack: Invalid packet size %d (%d)",
@@ -1521,7 +1524,8 @@ get_data:
 /*--------------------------------------------------------------------*/
 
       if ((needed > 0) &&
-          (sread((char *) &grpkt[HDRSIZE+total-needed], needed , timeout) < (unsigned)needed))
+          (sread((char *) &grpkt[HDRSIZE+total-needed], needed, timeout) <
+           (unsigned short)needed))
          return(EMPTY);
 
       got_hdr = FALSE;           /* Must re-process header next pass */
@@ -1562,7 +1566,7 @@ get_data:
 
       if (c2 & 0x40)
       {
-         int ii;
+         short ii;
          if ( grpkt[HDRSIZE] & 0x80 )
          {
             ii = (grpkt[HDRSIZE] & 0x7f) + ((grpkt[HDRSIZE+1] & 0xff) << 7);
@@ -1601,10 +1605,10 @@ get_data:
    c h e c k s u m
 */
 
-static unsigned int checksum(char *data, int len)
+static unsigned short checksum(char *data, short len)
 {
-   int i, j;
-   unsigned int tmp, chk1, chk2;
+   short i, j;
+   unsigned short tmp, chk1, chk2;
    chk1 = 0xffff;
    chk2 = 0;
    j = len;
