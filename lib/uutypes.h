@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.10 1993/10/02 19:09:59 ahd Exp $
+ *    $Id: uutypes.h 1.11 1993/10/12 01:21:25 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.11  1993/10/12  01:21:25  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.10  1993/10/02  19:09:59  ahd
  *     Treat UUFAR as true FAR under Windows 3.x
  *
@@ -130,6 +133,8 @@ typedef enum {
                                  support                               */
                F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file  */
                               /* GMM - Batched ouytbound news support  */
+               F_UUPCNEWSSERV,
+                            /* TRUE = Our news server runs UUPC too      */
                F_LAST }       /* Dummy - Must be last - defines array size */
                B_FLAG;        /* Boolean flag array - ahd              */
 
