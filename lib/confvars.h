@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFVARS.H 1.3 1993/04/11 00:36:59 dmwatt Exp $
+ *    $Id: CONFVARS.H 1.4 1993/05/09 03:50:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFVARS.H $
+ *     Revision 1.4  1993/05/09  03:50:05  ahd
+ *     Support motd, banner strings in configuration
+ *
  * Revision 1.3  1993/04/11  00:36:59  dmwatt
  * Global edits for year, TEXT, etc.
  *
@@ -61,6 +64,8 @@ extern char *E_version;
 extern char *E_uncompress;
 extern char *E_banner;
 extern char *E_motd;
+extern char *E_systems;
+extern char *E_passwd;
 extern INTEGER E_priority;
 extern INTEGER E_prioritydelta;
 extern INTEGER E_maxhops;
