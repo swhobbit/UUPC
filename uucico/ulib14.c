@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.13 1994/12/22 00:36:31 ahd Exp $
+ *    $Id: ulib14.c 1.14 1995/01/07 16:40:16 ahd Exp $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.14  1995/01/07 16:40:16  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.13  1994/12/22 00:36:31  ahd
  *    Annual Copyright Update
  *
@@ -113,7 +116,6 @@ static unsigned char bps_table(int);
 
 static BPS currentBPS;
 static char currentDirect;
-static KWBoolean carrierDetect;
 
 currentfile();
 static KWBoolean hangupNeeded = KWTrue;

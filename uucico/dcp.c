@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.43 1995/01/30 04:08:36 ahd Exp $
+ *    $Id: dcp.c 1.44 1995/02/14 04:38:42 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.44  1995/02/14 04:38:42  ahd
+ *    Correct problems with directory processing under NT
+ *
  *    Revision 1.43  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *
@@ -861,7 +864,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
                               /* Initialized to any state but the
                                  original value of "state"           */
    XFER_STATE save_state = XFER_EXIT;
-   char currentGrade = (char) 0xff;
+   char currentGrade = (char) ((unsigned char) 0xff);
 
 /*--------------------------------------------------------------------*/
 /*  Yea old state machine for the high level file transfer procotol   */

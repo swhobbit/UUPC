@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.25 1995/01/07 16:14:45 ahd Exp $
+ *    $Id: ssleep.c 1.26 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.26  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.25  1995/01/07 16:14:45  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -531,7 +534,7 @@ void ddelay (const KEWSHORT interval )
 /*    Common routine to delay until n seconds have passed.            */
 /*--------------------------------------------------------------------*/
 
-void ssleep(time_t interval)
+void ssleep(const time_t interval)
 {
    time_t quit = time((time_t *)NULL) + interval;
    long left = (long) interval;

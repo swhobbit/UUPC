@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.h 1.3 1994/01/01 19:09:51 ahd v1-12k $
+ *    $Id: ssleep.h 1.4 1994/12/22 00:13:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.h $
+ *    Revision 1.4  1994/12/22 00:13:53  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/01/01 19:09:51  ahd
  *    Annual Copyright Update
  *
@@ -31,6 +34,6 @@
  *
  */
 
-void ssleep(time_t interval);
+void ssleep(const time_t interval);
 
-void ddelay(KEWSHORT milliseconds);
+void ddelay(const KEWSHORT milliseconds);

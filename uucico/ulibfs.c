@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.11 1994/12/22 00:36:47 ahd Exp $
+ *    $Id: ulibfs.c 1.12 1995/01/07 16:40:23 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.12  1995/01/07 16:40:23  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.11  1994/12/22 00:36:47  ahd
  *    Annual Copyright Update
  *
@@ -504,7 +507,7 @@ BPS fGetSpeed( void )
 
 KWBoolean fCD( void )
 {
-   KWBoolean newCarrierDetect;
+   KWBoolean newCarrierDetect = KWFalse;
 
    short status = FSStatus();
 
@@ -512,6 +515,11 @@ KWBoolean fCD( void )
 
    if ( status & FS_STAT_DCD )
       carrierDetect = newCarrierDetect = KWTrue;
+
+/*--------------------------------------------------------------------*/
+/*       If we previously has carrier detect, a loss of it is an      */
+/*       error; report it if so, otherwise report things are okay.    */
+/*--------------------------------------------------------------------*/
 
    if (carrierDetect)
       return newCarrierDetect;
