@@ -33,9 +33,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.47 1995/01/13 14:02:36 ahd Exp $
+ *       $Id: rnews.c 1.48 1995/01/14 14:08:59 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.48  1995/01/14 14:08:59  ahd
+ *       Always reopen input stream in batched mode to prevent loss of
+ *       information when running commands
+ *
  *       Revision 1.47  1995/01/13 14:02:36  ahd
  *       News debugging fixes from Dave Watt
  *       Add new checks for possible I/O errors
@@ -169,7 +173,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.47 1995/01/13 14:02:36 ahd Exp $";
+         "$Id: rnews.c 1.48 1995/01/14 14:08:59 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1108,7 +1112,9 @@ static void deliver_article( IMFILE *imf )
 
       if ( imgets(input, sizeof input, imf) == NULL )   /* eof ?    */
          searchHeader = KWFalse;     /* Yes --> Exit loop ...         */
-      else if ( *input == '\n' )    /* Last of the red hot headers?  */
+      else if ( *input == '\n' )     /* Last of the red hot headers?  */
+         searchHeader = KWFalse;     /* Yes --> Exit loop gracefully  */
+      else if ( equal(input, "\r\n"))/* Last of the DOS hot headers?  */
          searchHeader = KWFalse;     /* Yes --> Exit loop gracefully  */
       else for ( subscript = 0; table[subscript].name != NULL; subscript++ )
       {
@@ -1483,8 +1489,10 @@ static KWBoolean copy_file(IMFILE *imf,
       KWBoolean skipHeader = KWFalse;
 
       if ( ! header )
-         ;                 /* No operation after end of header        */
+         ;                          /* No op after end of header     */
       else if ( *buf == '\n' )
+         header = KWFalse;
+      else if ( equal(buf, "\r\n")) /* Trap DOS headers as well      */
          header = KWFalse;
       else if (equalni(buf, PATH, strlen(PATH)))
       {
@@ -1865,6 +1873,8 @@ static void copy_rmt_article(const char *filename,
      {
 
          if ( *buf == '\n' )        /* End of header?                */
+            searchHeaders = KWFalse;
+         else if ( equal( buf, "\r\n" ))  /* End of DOS header?      */
             searchHeaders = KWFalse;
          else if (equalni(buf, PATH, strlen(PATH)))
          {
