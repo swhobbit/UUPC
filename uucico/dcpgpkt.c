@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: dcpgpkt.c 1.6 1992/11/20 12:38:39 ahd Exp ahd $
+ *      $Id: DCPGPKT.C 1.7 1992/11/21 05:55:11 ahd Exp $
  *
- *      $Log: dcpgpkt.c $
+ *      $Log: DCPGPKT.C $
+ * Revision 1.7  1992/11/21  05:55:11  ahd
+ * Use single bit field for gopenpk flag bits, add debugging info
+ *
  * Revision 1.6  1992/11/20  12:38:39  ahd
  * Add additional flags to avoid prematurely ending init sequence
  *
@@ -138,11 +141,11 @@ typedef enum {
       I_CALLEE,
       I_CALLER,
       I_GRPACK,
-      I_INITA,
+      I_INITA_RECV,
       I_INITA_SEND,
-      I_INITB,
+      I_INITB_RECV,
       I_INITB_SEND,
-      I_INITC,
+      I_INITC_RECV,
       I_INITC_SEND,
       I_COMPLETE
       } I_STATE;
@@ -394,17 +397,17 @@ static int initialize(const boolean caller, const char protocol )
 
                case INITA:
                   printmsg(5, "**got INITA");
-                  state = I_INITA;
+                  state = I_INITA_RECV;
                   break;
 
                case INITB:
                   printmsg(5, "**got INITB");
-                  state = I_INITB;
+                  state = I_INITB_RECV;
                   break;
 
                case INITC:
                   printmsg(5, "**got INITC");
-                  state = I_INITC;
+                  state = I_INITC_RECV;
                   break;
 
                case EMPTY:
@@ -452,7 +455,7 @@ static int initialize(const boolean caller, const char protocol )
 /*                  Process received or sent packets                  */
 /*--------------------------------------------------------------------*/
 
-         case I_INITA:
+         case I_INITA_RECV:
             if (yyy < (int) nwindows)
             {
                nwindows = yyy;
@@ -468,7 +471,7 @@ static int initialize(const boolean caller, const char protocol )
             state = I_GRPACK;
             break;
 
-         case I_INITB:
+         case I_INITB_RECV:
             if ((flags & (B_RECV_INITA | B_SENT_INITA)) ==
                          (B_RECV_INITA | B_SENT_INITA))
             {
@@ -489,7 +492,7 @@ static int initialize(const boolean caller, const char protocol )
             state = I_GRPACK;
             break;
 
-         case I_INITC:
+         case I_INITC_RECV:
             if ((flags & (B_RECV_INITB | B_SENT_INITB)) ==
                            (B_RECV_INITB | B_SENT_INITB))
             {
