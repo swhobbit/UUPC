@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,7 +19,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.35 1996/01/01 21:21:51 ahd v1-12r $
+ *    $Id: nbstime.c 1.35 1996/01/01 21:21:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
@@ -271,6 +271,7 @@ setClock( struct tm *txp )
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
    DWORD dwError;
+   OSVERSIONINFO osvi;
    int rc;
 
    GetSystemTime( &dateTime );
@@ -300,29 +301,39 @@ setClock( struct tm *txp )
               (int) dateTime.wSecond ,
               (int) dateTime.wDayOfWeek );
 
-   if (!OpenProcessToken(GetCurrentProcess(),
-      TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-      &hToken))
-   {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: OpenProcessToken failed");
-      printNTerror("OpenProcessToken", dwError);
-      return 0;
-   }
+   /* Open the process token to get permission to adjust the time
+      on Windows NT;  on Windows 95, just party on...              */
 
-   LookupPrivilegeValue(NULL,
-                        "SeSystemtimePrivilege",
-                        &tkp.Privileges[0].Luid);
-   tkp.PrivilegeCount = 1;
-   tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+   osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
-      (PTOKEN_PRIVILEGES)NULL, 0))
+   GetVersionEx(&osvi);
+
+   if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
    {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
-      printNTerror("AdjustTokenPrivileges", dwError);
-      return 0;
+      if (!OpenProcessToken(GetCurrentProcess(),
+         TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+         &hToken))
+      {
+         dwError = GetLastError();
+         printmsg(0, "nbstime: OpenProcessToken failed");
+         printNTerror("OpenProcessToken", dwError);
+         return 0;
+      }
+
+      LookupPrivilegeValue(NULL,
+                           "SeSystemtimePrivilege",
+                           &tkp.Privileges[0].Luid);
+      tkp.PrivilegeCount = 1;
+      tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+      if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
+         (PTOKEN_PRIVILEGES)NULL, 0))
+      {
+         dwError = GetLastError();
+         printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
+         printNTerror("AdjustTokenPrivileges", dwError);
+         return 0;
+      }
    }
 
    rc = SetSystemTime( &dateTime );
@@ -334,15 +345,18 @@ setClock( struct tm *txp )
       printNTerror("SetSystemTime", dwError);
    }
 
-   tkp.Privileges[0].Attributes = 0;
-
-   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
-      (PTOKEN_PRIVILEGES)NULL, 0))
+   if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
    {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
-      printNTerror("AdjustTokenPrivileges", dwError);
-      return 0;
+      tkp.Privileges[0].Attributes = 0;
+
+      if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
+         (PTOKEN_PRIVILEGES)NULL, 0))
+      {
+         dwError = GetLastError();
+         printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
+         printNTerror("AdjustTokenPrivileges", dwError);
+         return 0;
+      }
    }
 
    return time( NULL );             /* Since we didn't set the time
