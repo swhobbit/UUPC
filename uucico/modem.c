@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.45 1994/03/09 04:17:41 ahd Exp $
+ *    $Id: modem.c 1.46 1994/04/27 00:02:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.46  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.45  1994/03/09  04:17:41  ahd
  * Don't force interactive mode when modem is sleeping
  *
@@ -236,7 +240,7 @@ static KEWSHORT M_prioritydelta = 999;
 boolean bmodemflag[MODEM_LAST];
 
 static FLAGTABLE modemFlags[] = {
-   { "carrierdetect",  MODEM_CD,          B_LOCAL },
+   { "carrierdetect",  MODEM_CARRIERDETECT,          B_LOCAL },
    { "direct",         MODEM_DIRECT,      B_LOCAL },
    { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
    { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL },
@@ -435,8 +439,7 @@ CONN_STATE callhot( const BPS xspeed, const int hotHandle )
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
 
-   if (bmodemflag[MODEM_CD])
-      CD();                   /* Set the carrier detect flags        */
+   CD();                      /* Set the carrier detect flags        */
 
    return CONN_HOTLOGIN;
 
@@ -834,8 +837,7 @@ static void autobaud( const BPS speed )
 
    ssleep(1);                 /*  Allow modem port to stablize       */
 
-   if (bmodemflag[MODEM_CD])
-      CD();                   /* Set the carrier detect flags        */
+   CD();                      /* Set the carrier detect flags        */
 
 /*--------------------------------------------------------------------*/
 /*                  Autobaud the modem if requested                   */
@@ -983,7 +985,7 @@ static boolean sendalt( char *exp, int timeout, char **failure)
       if (ok || (alternate == nil(char)))
          return (ok == 1);
 
-      if (bmodemflag[MODEM_CD] && ! CD())
+      if (!CD())
       {
          printmsg(0,"sendalt: Serial port reports modem not ready");
          return FALSE;

@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.31 1994/02/16 02:26:27 ahd Exp $
+ *      $Id: dcpgpkt.c 1.32 1994/02/19 05:09:02 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *        Revision 1.32  1994/02/19  05:09:02  ahd
+ *        Use standard first header
+ *
  * Revision 1.31  1994/02/16  02:26:27  ahd
  * Delete unneeded allocation of gspkt
  * Move grpkt to FAR memory
@@ -503,7 +506,7 @@ static short initialize(const boolean caller, const char protocol )
                   printmsg(GDEBUG, "**got EMPTY");
                   state = I_EMPTY;
 
-                  if (bmodemflag[MODEM_CD] && !CD())
+                  if (!CD())
                   {
                      printmsg(0,"gopenpk: Modem carrier lost");
                      return DCP_FAILED;
@@ -521,7 +524,7 @@ static short initialize(const boolean caller, const char protocol )
                   break;
             }
 
-            if (bmodemflag[MODEM_CD] && !CD())
+            if ( !CD())
             {
                printmsg(0,"gopenpk: Modem carrier lost");
                return DCP_FAILED;
@@ -1055,7 +1058,7 @@ static short gmachine(const short timeout )
          case DCP_EMPTY:
             printmsg(timeout ? GDEBUG : 8, "**got EMPTY");
 
-            if (bmodemflag[MODEM_CD] && !CD())
+            if (!CD())
             {
                printmsg(0,"gmachine: Modem carrier lost");
                nerr++;
