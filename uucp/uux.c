@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.8 1993/10/03 20:43:08 ahd Exp $
+ *    $Id: uux.c 1.9 1993/10/12 01:33:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.9  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.8  1993/10/03  20:43:08  ahd
  * Normalize comments to C++ double slash
  *
@@ -127,8 +130,8 @@
 #include  "expath.h"
 #include  "import.h"
 #include  "pushpop.h"
-#include  "security.h"
 #include  "hostable.h"
+#include  "security.h"
 #include  "timestmp.h"
 
 #ifdef _Windows
@@ -220,10 +223,10 @@ static char subseq( void );
 
 static void usage()
 {
-      fprintf(stderr, "Usage: uux\t[-c|-C] [-e|-E] [-b] [-gGRADE] "
-                      "[-p] [-j] [-n] [-r] [-sFILE]\\\n"
-                      "\t\t[-aNAME] [-z] [-] [-xDEBUG_LEVEL] "
-                      "command-string\n");
+   fprintf(stderr, "Usage: uux\t[-c|-C] [-e|-E] [-b] [-gGRADE] "
+                   "[-p] [-j] [-n] [-r] [-sFILE]\\\n"
+                   "\t\t[-aNAME] [-z] [-] [-xDEBUG_LEVEL] "
+                   "command-string\n");
 }
 
 
@@ -235,14 +238,14 @@ static void usage()
 
 static char *SwapSlash(char *p)
 {
-     char *q = p;
+   char *q = p;
 
-     while (*q) {
-        if (*q ==  '\\')
-           *q = '/';
-        q++;
-     }
-     return p;
+   while (*q) {
+      if (*q ==  '\\')
+         *q = '/';
+      q++;
+   }
+   return p;
 };
 
 /*--------------------------------------------------------------------*/
@@ -253,37 +256,37 @@ static char *SwapSlash(char *p)
 
 static boolean cp(char *from, char *to)
 {
-      int  fd_from, fd_to;
-      int  nr;
-      int  nw = -1;
-      char buf[BUFSIZ];            /* faster if we alloc a big buffer  */
+   int  fd_from, fd_to;
+   int  nr;
+   int  nw = -1;
+   char buf[BUFSIZ];            /* faster if we alloc a big buffer    */
 
-      /* This would be even faster if we determined that both files
-         were on the same device, dos >= 3.0, and used the dos move
-         function */
+   /* This would be even faster if we determined that both files
+      were on the same device, dos >= 3.0, and used the dos move
+      function */
 
-      if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-         return FALSE;        /* failed                                */
+   if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
+      return FALSE;        /* failed                                  */
 
-      /* what if the to is a directory? */
-      /* possible with local source & dest uucp */
+   /* what if the to is a directory? */
+   /* possible with local source & dest uucp */
 
-      if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
-         close(fd_from);
-         return FALSE;        /* failed                                */
-         /* NOTE - this assumes all the required directories exist!  */
-      }
-
-      while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
-         (nw = write(fd_to, buf, nr)) == nr)
-         ;
-
-      close(fd_to);
+   if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
       close(fd_from);
+      return FALSE;        /* failed                                  */
+      /* NOTE - this assumes all the required directories exist!      */
+   }
 
-      if (nr != 0 || nw == -1)
-         return FALSE;        /* failed in copy                       */
-      return TRUE;
+   while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
+      (nw = write(fd_to, buf, nr)) == nr)
+      ;
+
+   close(fd_to);
+   close(fd_from);
+
+   if (nr != 0 || nw == -1)
+      return FALSE;        /* failed in copy                          */
+   return TRUE;
 }
 
 
@@ -572,13 +575,10 @@ static boolean do_copy(char *src_syst,
             return FALSE;
          }
 
-         fprintf(cfile, "R %s %s %s -c D.0 0666", src_file, dest_file,
-                  E_mailbox);
-
-         if (flags[FLG_USE_USERID])
-             fprintf(cfile, " %s\n", user_id);
-         else
-             fprintf(cfile, " %s\n", E_mailbox);
+         fprintf(cfile, "R %s %s %s -c D.0 0666 %s\n",
+                        src_file, dest_file,
+                        E_mailbox,
+                        flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
 
          fclose(cfile);
@@ -632,13 +632,12 @@ static boolean do_copy(char *src_syst,
             return FALSE;
          } /* if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL) */
 
-         fprintf(cfile, "S %s %s %s -%s %s 0666", src_file, dest_file,
-                  E_mailbox, flags[FLG_COPY_SPOOL] ? "c" : " ", idfile);
-
-         if (flags[FLG_USE_USERID])
-             fprintf(cfile, " %s\n", user_id);
-         else
-             fprintf(cfile, " %s\n", E_mailbox);
+         fprintf(cfile, "S %s %s %s -%s %s 0666 %s\n",
+                        src_file, dest_file,
+                        E_mailbox,
+                        flags[FLG_COPY_SPOOL] ? "c" : "",
+                        idfile,
+                        flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
          fclose(cfile);
 
@@ -671,46 +670,46 @@ static boolean do_copy(char *src_syst,
 static void preamble(FILE* stream)
 {
 
-     fprintf(stream, "U %s %s\n", E_mailbox, E_nodename);
+   fprintf(stream, "U %s %s\n", E_mailbox, E_nodename);
 
-     if (flags[FLG_RETURN_STDIN]) {
-         fprintf(stream, "# return input on abnormal exit\n");
-         fprintf(stream, "B\n");
-     }
+   if (flags[FLG_RETURN_STDIN]) {
+       fprintf(stream, "# return input on abnormal exit\n");
+       fprintf(stream, "B\n");
+   }
 
-     if (flags[FLG_NOTIFY_SUCCESS]) {
-         fprintf(stream, "# return status on success\n");
-         fprintf(stream, "n\n");
-     }
+   if (flags[FLG_NOTIFY_SUCCESS]) {
+       fprintf(stream, "# return status on success\n");
+       fprintf(stream, "n\n");
+   }
 
-     if (flags[FLG_NONOTIFY_FAIL]) {
-         fprintf(stream, "# don't return status on failure\n");
-         fprintf(stream, "N\n");
-     } else {
-         fprintf(stream, "# return status on failure\n");
-         fprintf(stream, "Z\n");
-     }
+   if (flags[FLG_NONOTIFY_FAIL]) {
+       fprintf(stream, "# don't return status on failure\n");
+       fprintf(stream, "N\n");
+   } else {
+       fprintf(stream, "# return status on failure\n");
+       fprintf(stream, "Z\n");
+   }
 
-     if (flags[FLG_USE_EXEC]) {
-         fprintf(stream, "# use exec to execute\n");
-         fprintf(stream, "E\n");
-     } else {
-         fprintf(stream, "# use sh execute\n");
-         fprintf(stream, "e\n");
-     }
+   if (flags[FLG_USE_EXEC]) {
+       fprintf(stream, "# use exec to execute\n");
+       fprintf(stream, "E\n");
+   } else {
+       fprintf(stream, "# use sh execute\n");
+       fprintf(stream, "e\n");
+   }
 
-     if (flags[FLG_STATUS_FILE]) {
-        fprintf(stream, "M %s\n", st_out );
-     }
+   if (flags[FLG_STATUS_FILE]) {
+      fprintf(stream, "M %s\n", st_out );
+   }
 
-     if (flags[FLG_USE_USERID]) {
-         fprintf(stream, "# return address for status or input return\n");
-         fprintf(stream, "R %s\n", user_id );
-     }
+   if (flags[FLG_USE_USERID]) {
+       fprintf(stream, "# return address for status or input return\n");
+       fprintf(stream, "R %s\n", user_id );
+   }
 
-     fprintf(stream, "# job id for status reporting\n");
-     fprintf(stream, "J %s\n", job_id );
-     return;
+   fprintf(stream, "# job id for status reporting\n");
+   fprintf(stream, "J %s\n", job_id );
+   return;
 } /* preamble */
 
 /*--------------------------------------------------------------------*/
@@ -728,6 +727,7 @@ static boolean do_remote(int optind, int argc, char **argv)
    boolean d_remote;
    boolean i_remote = FALSE;
    boolean o_remote = FALSE;
+   boolean p_remote = FALSE;
 
    long    sequence;
 
@@ -786,277 +786,287 @@ static boolean do_remote(int optind, int argc, char **argv)
 /*                     create remote X (xqt) file                     */
 /*--------------------------------------------------------------------*/
 
-      sprintf(rxfile, dataf_fmt, 'X', E_nodename, sequence_s, subseq());
-      sprintf(lxfile, dataf_fmt, d_remote ? 'D' : 'X', E_nodename,
-              sequence_s, subseq());
+   sprintf(rxfile, dataf_fmt, 'X', E_nodename, sequence_s, subseq());
+   sprintf(lxfile, dataf_fmt, d_remote ? 'D' : 'X', E_nodename,
+           sequence_s, subseq());
 
-      importpath( msname, lxfile, dest_system);
-      mkfilename( msfile, E_spooldir, msname);
+   importpath( msname, lxfile, dest_system);
+   mkfilename( msfile, E_spooldir, msname);
 
-      if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
-         printerr(msfile);
-         printmsg(0, "uux: cannot open X file %s", msfile);
-         return FALSE;
-      } /* if */
+   if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
+      printerr(msfile);
+      printmsg(0, "uux: cannot open X file %s", msfile);
+      return FALSE;
+   } /* if */
 
-      preamble(stream);
+   preamble(stream);
 
 /*--------------------------------------------------------------------*/
 /*           Process options for the remote command                   */
 /*--------------------------------------------------------------------*/
 
-      for (; optind < argc; optind++)
+   for (; optind < argc; optind++)
+   {
+
+      FileType f_remote = DATA_FILE;
+      char *remote_file;
+
+      switch (*argv[optind])
       {
 
-         FileType f_remote = DATA_FILE;
-         char *remote_file;
-
-         switch (*argv[optind])
-         {
-             case '-':
-             strcat(command," ");
-             strcat(command,argv[optind]);
-             printmsg(9, "prm -> %s", argv[optind]);
-             continue;
-
-             case '<':
-             if (i_remote) {
-                 printmsg(0, "uux - multiple input files specified");
-                 return FALSE;
-             }
-             else
-                 i_remote = TRUE;
-             f_remote = INPUT_FILE;
-             printmsg(9, "prm -> %c", *argv[optind]);
-             if (!*++argv[optind])
-                 if (++optind >= argc)
-                 {
-                 printmsg(0, "uux - no input file specified after <");
-                 return FALSE;
-                 }
-             break;
-
-             case '>':
-             if (o_remote) {
-                 printmsg(0, "uux - multiple output files specified");
-                 return FALSE;
-             } else
-                 o_remote = TRUE;
-             f_remote = OUTPUT_FILE;
-             printmsg(9, "prm -> %c", *argv[optind]);
-             if (!*++argv[optind])
-                 if (++optind >= argc)
-                 {
-                 printmsg(0, "uux - no output file specified after >");
-                 return FALSE;
-                 }
-             break;
-
-             case '|':
-             printmsg(9, "prm -> %c", *argv[optind]);
-             if (!*++argv[optind])
-                 if (++optind >= argc)
-                 {
-                 printmsg(0, "uux - no command specified after |");
-                 return FALSE;
-                 }
-             if (strchr(argv[optind], '!'))
-                 {
-                 printmsg(0, "uux - no host name allowed after |");
-                 return FALSE;
-                 }
-             strcat(command," | ");
-             strcat(command, argv[optind]);
-             continue;
-
-             case '(':
-             {
-                 size_t len = strlen(argv[optind] + 1);
-
-                 if (argv[optind][len] != ')')
-                 {
-                 printmsg(0, "uux - missing close parenthesis in %s",
-                         argv[optind] + 1);
-                 return FALSE;
-                 }
-                 argv[optind][len] = '\0';
-             }
-
-             printmsg(9, "prm -> %s", argv[optind]);
-             strcat(command," ");
-             strcat(command, argv[optind] + 1);
-             continue;
-
-             /* default: fall through */
-         } /* switch (*argv[optind]) */
-
-
+      case '-':
+         strcat(command," ");
+         strcat(command,argv[optind]);
          printmsg(9, "prm -> %s", argv[optind]);
+         continue;
+
+      case '<':
+         if (p_remote) {
+            printmsg(0, "uux - input file specified after pipe");
+            return FALSE;
+         }
+         else if (i_remote) {
+            printmsg(0, "uux - multiple input files specified");
+            return FALSE;
+         }
+         else
+            i_remote = TRUE;
+         f_remote = INPUT_FILE;
+         printmsg(9, "prm -> %c", *argv[optind]);
+         if (!*++argv[optind])
+            if (++optind >= argc)
+            {
+               printmsg(0, "uux - no input file specified after <");
+               return FALSE;
+            }
+         break;
+
+      case '>':
+         if (o_remote) {
+            printmsg(0, "uux - multiple output files specified");
+            return FALSE;
+         } else
+            o_remote = TRUE;
+         f_remote = OUTPUT_FILE;
+         printmsg(9, "prm -> %c", *argv[optind]);
+         if (!*++argv[optind])
+             if (++optind >= argc)
+             {
+                printmsg(0, "uux - no output file specified after >");
+                return FALSE;
+             }
+         break;
+
+       case '|':
+          if (o_remote) {
+             printmsg(0, "uux - pipe specified after output file");
+             return FALSE;
+          } else
+             p_remote = TRUE;
+          printmsg(9, "prm -> %c", *argv[optind]);
+          if (!*++argv[optind])
+             if (++optind >= argc)
+             {
+                printmsg(0, "uux - no command specified after |");
+                return FALSE;
+             }
+          if (strchr(argv[optind], '!'))
+          {
+             printmsg(0, "uux - no host name allowed after |");
+             return FALSE;
+          }
+          strcat(command," | ");
+          strcat(command, argv[optind]);
+          continue;
+
+       case '(':
+       {
+          size_t len = strlen(argv[optind] + 1);
+
+          if (argv[optind][len] != ')')
+          {
+             printmsg(0, "uux - missing close parenthesis in %s",
+                         argv[optind] + 1);
+             return FALSE;
+          }
+          argv[optind][len] = '\0';
+       }
+
+          printmsg(9, "prm -> %s", argv[optind]);
+          strcat(command," ");
+          strcat(command, argv[optind] + 1);
+          continue;
+
+       /* default: fall through */
+      } /* switch (*argv[optind]) */
+
+
+      printmsg(9, "prm -> %s", argv[optind]);
 
 /*--------------------------------------------------------------------*/
 /*        Hmmm.  Do we want the remote to have DOS style path?        */
 /*--------------------------------------------------------------------*/
 
-         if (!split_path(argv[optind], src_system, src_file, FALSE, dest_system))
-         {
-            printmsg(0, "uux - illegal syntax %s", argv[optind]);
-            return FALSE;
-         } /* if (!split_path()) */
+      if (!split_path(argv[optind], src_system, src_file, FALSE, dest_system))
+      {
+         printmsg(0, "uux - illegal syntax %s", argv[optind]);
+         return FALSE;
+      } /* if (!split_path()) */
 
-         s_remote = equal(src_system, E_nodename) ? FALSE : TRUE ;
+      s_remote = equal(src_system, E_nodename) ? FALSE : TRUE ;
 
 /*--------------------------------------------------------------------*/
 /*                   Do we know the source system?                    */
 /*--------------------------------------------------------------------*/
 
-         if ((s_remote) && (checkreal(src_system) == BADHOST))
-         {
-            printmsg(0, "uux - bad system %s\n", src_system);
-            return FALSE;
-         } /* if ((s_remote) && (checkreal(src_system) == BADHOST)) */
+      if ((s_remote) && (checkreal(src_system) == BADHOST))
+      {
+         printmsg(0, "uux - bad system %s\n", src_system);
+         return FALSE;
+      } /* if ((s_remote) && (checkreal(src_system) == BADHOST)) */
 
-         if (f_remote == OUTPUT_FILE)
-         {
-            fprintf(stream, "O %s %s\n", src_file,
-                (equal(src_system, dest_system) ? " " : src_system) );
-            continue;
-         } /* if (f_remote == OUTPUT_FILE) */
+      if (f_remote == OUTPUT_FILE)
+      {
+         fprintf(stream, "O %s %s\n", src_file,
+             (equal(src_system, dest_system) ? " " : src_system) );
+         continue;
+      } /* if (f_remote == OUTPUT_FILE) */
 
-         remote_file = src_file;
-         if (!equal(src_system, dest_system))
-         {
-             remote_file += strlen(src_file);
-             while (remote_file > src_file  /* Keep trailing / and :  */
-             && (*--remote_file == '/'
-                 /* || *remote_file == '\\' */
-                 || *remote_file == ':'))
+      remote_file = src_file;
+      if (!equal(src_system, dest_system))
+      {
+         remote_file += strlen(src_file);
+         while (remote_file > src_file  /* Keep trailing / and :  */
+                && (*--remote_file == '/'
+                    /* || *remote_file == '\\' */
+                    || *remote_file == ':'))
             ;
-             while (remote_file > src_file  /* Stop at other / and :  */
+         while (remote_file > src_file  /* Stop at other / and :  */
                 && remote_file[-1] != '/'
                 /* && remote_file[-1] != '\\' */
                 && remote_file[-1] != ':')
             --remote_file;
-             /* remote_file is now src_file without any leading drive/path */
-        } /* if (!equal(src_system, dest_system)) */
+         /* remote_file is now src_file without any leading drive/path */
+      } /* if (!equal(src_system, dest_system)) */
 
-        if (f_remote == DATA_FILE)
-        {
+      if (f_remote == DATA_FILE)
+      {
 
-           strcat(command, " ");
-           strcat(command, remote_file);
+         strcat(command, " ");
+         strcat(command, remote_file);
 
-        } /* if (f_remote == DATA_FILE) */
-        else if (f_remote == INPUT_FILE)
-           fprintf(stream, "I %s\n", remote_file);
+      } /* if (f_remote == DATA_FILE) */
 
 /*--------------------------------------------------------------------*/
 /*    if both source & dest are not the same we must copy src_file    */
 /*--------------------------------------------------------------------*/
 
-         if ( !equal(src_system, dest_system) )
-         {
+      if ( !equal(src_system, dest_system) )
+      {
 
-            sprintf(dest_file, dataf_fmt, 'D', src_system, sequence_s,
-                    subseq());
+         sprintf(dest_file, dataf_fmt, 'D', src_system, sequence_s, subseq());
 
-            fprintf(stream, "F %s %s\n", dest_file, remote_file );
+         if (f_remote == DATA_FILE)
+            fprintf(stream, "F %s %s\n", dest_file, remote_file);
+         else
+            fprintf(stream, "F %s\nI %s\n", dest_file, dest_file );
 
 /*--------------------------------------------------------------------*/
 /*      if source is remote and dest is local copy source to local    */
 /*      if source is local and dest is remote copy source to remote   */
 /*--------------------------------------------------------------------*/
 
-            if ((s_remote && !d_remote) || (!s_remote && d_remote))
-            {
-               if (!do_copy(src_system, src_file, dest_system, dest_file))
-                   return FALSE;
-            } /* if ((s_remote && !d_remote) || (!s_remote && d_remote)) */
+         if ((s_remote && !d_remote) || (!s_remote && d_remote))
+         {
+            if (!do_copy(src_system, src_file, dest_system, dest_file))
+               return FALSE;
+         } /* if ((s_remote && !d_remote) || (!s_remote && d_remote)) */
 
 /*--------------------------------------------------------------------*/
 /*      if both source & dest are on remote nodes we need uuxqt       */
 /*--------------------------------------------------------------------*/
 
-            else if (s_remote && d_remote)
-            {
-               if (!do_uuxqt(job_id,
-                             src_system,
-                             remote_file,
-                             dest_system,
-                             dest_file))
-                   return FALSE;
+         else if (s_remote && d_remote)
+         {
+            if (!do_uuxqt(job_id,
+                          src_system,
+                          remote_file,
+                          dest_system,
+                          dest_file))
+               return FALSE;
 
-               if (!do_copy(src_system, src_file, E_nodename, dest_file))
-                   return FALSE;
+            if (!do_copy(src_system, src_file, E_nodename, dest_file))
+               return FALSE;
 
-            } /* else if (s_remote && d_remote) */
+         } /* else if (s_remote && d_remote) */
 
             continue;
-         } /* if ( !equal(src_system, dest_system) ) */
+      } /* if ( !equal(src_system, dest_system) ) */
+      else if (f_remote == INPUT_FILE)
+         fprintf(stream, "I %s\n", src_file);
 
-         printmsg(4, "system \"%s\", rest \"%s\"", src_system, src_file);
+      printmsg(4, "system \"%s\", rest \"%s\"", src_system, src_file);
 
-      } /* for (; optind < argc; optind++) */
+   } /* for (; optind < argc; optind++) */
 
 /*--------------------------------------------------------------------*/
 /*  Create the data file if any to send to the remote system          */
 /*--------------------------------------------------------------------*/
 
-      if (flags[FLG_READ_STDIN]) {
-          if (i_remote) {
-              printmsg(0, "uux - multiple input files specified");
-              return FALSE;
-          }
-
-          sprintf(rifile, dataf_fmt, 'D', E_nodename, sequence_s,
-                  subseq());
-          sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s,
-                  subseq());
-
-          importpath(msname, lifile, dest_system);
-          mkfilename(msfile, E_spooldir, msname);
-
-          if (!CopyData( NULL, msfile )) {
-              remove( msfile );
-              return FALSE;
-          }
-
-          fprintf(stream, "F %s\n", rifile);
-          fprintf(stream, "I %s\n", rifile);
+   if (flags[FLG_READ_STDIN]) {
+      if (i_remote) {
+         printmsg(0, "uux - multiple input files specified");
+         return FALSE;
       }
+
+      sprintf(rifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
+      sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
+
+      importpath(msname, lifile, dest_system);
+      mkfilename(msfile, E_spooldir, msname);
+
+      if (!CopyData( NULL, msfile )) {
+         remove( msfile );
+         return FALSE;
+      }
+
+      fprintf(stream, "F %s\n", rifile);
+      fprintf(stream, "I %s\n", rifile);
+   }
 
 /*--------------------------------------------------------------------*/
 /*           here finish writing parameters to the X file             */
 /*--------------------------------------------------------------------*/
 
-      printmsg(4, "command \"%s\"", command);
+   printmsg(4, "command \"%s\"", command);
 
 
-      fprintf(stream, "C %s\n", command);
-      fclose(stream);
+   fprintf(stream, "C %s\n", command);
+   fclose(stream);
 
 /*--------------------------------------------------------------------*/
 /*                     create local C (call) file                     */
 /*--------------------------------------------------------------------*/
 
-     if (d_remote) {
-          sprintf(tmfile, spool_fmt, 'C', dest_system,  grade, sequence_s);
-          importpath( msname, tmfile, dest_system);
-          mkfilename( msfile, E_spooldir, msname);
+   if (d_remote) {
+      sprintf(tmfile, spool_fmt, 'C', dest_system,  grade, sequence_s);
+      importpath( msname, tmfile, dest_system);
+      mkfilename( msfile, E_spooldir, msname);
 
-          if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL) {
-             printerr( msname );
-             printmsg(0, "uux: cannot write/append to C file %s", msfile);
-             return FALSE;
-          }
+      if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL) {
+         printerr( msname );
+         printmsg(0, "uux: cannot write/append to C file %s", msfile);
+         return FALSE;
+      }
 
-          if (flags[FLG_READ_STDIN])
-              fprintf(stream, send_cmd, lifile, rifile, E_mailbox, lifile);
+      if (flags[FLG_READ_STDIN])
+         fprintf(stream, send_cmd, lifile, rifile, E_mailbox, lifile);
 
-          fprintf(stream, send_cmd, lxfile, rxfile, E_mailbox, lxfile);
+      fprintf(stream, send_cmd, lxfile, rxfile, E_mailbox, lxfile);
 
-          fclose(stream);
-     }
-     return TRUE;
+      fclose(stream);
+   }
+   return TRUE;
 } /* do_remote */
 
 /*--------------------------------------------------------------------*/

@@ -4,9 +4,13 @@
       Email:      mitch@harlie.lonestar.org
 
       This is a re-write of the (much cleaner) UUXQT.C originally
-      distributed with UUPC/Extended.  The modifications are
+      distributed with UUPC/Extended.  The modifications were
       intended primarily to lay a foundation for support for the
       more advanced features of UUX.
+
+      Richard H. Gumpertz (RHG@CPS.COM) built upon that foundation
+      and added most of the code necessary for implementing UUXQT
+      correctly, but there may still be many minor problems.
 
       Usage:      uuxqt -xDEBUG -sSYSTEM
 */
@@ -28,6 +32,9 @@
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.20  1993/10/24  12:48:56  ahd
+ * Trap RNEWS bad return code
+ *
  * Revision 1.19  1993/10/12  01:34:47  ahd
  * Normalize comments to PL/I style
  *
@@ -145,10 +152,13 @@ typedef enum {
         X_STATFIL,    /* 'M' return status to file on remote  */
 
         S_CORRUPT,
-        S_EMPTY,
         S_NOREAD,
         S_NOWRITE,
-        S_STDIN,
+
+        F_CORRUPT,
+        F_NOCHDIR,
+        F_NOCOPY,
+        F_BADF,
 
         E_NORMAL,
         E_NOACC,
@@ -167,7 +177,6 @@ typedef enum {
 
 static char *spool_fmt = SPOOLFMT;
 static char *dataf_fmt = DATAFFMT;
-static char *send_cmd  = "S %s %s %s -%s %s 0666 %s\n";
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -270,7 +279,7 @@ void main( int argc, char **argv)
          usage();
          exit(2);
          break;
-   }
+      }
 
    if (optind != argc) {
       fputs("Extra parameter(s) at end.\n", stderr);
@@ -292,7 +301,7 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    PushDir( E_spooldir );
-   atexit( PopDir );
+   atexit( PopAll );
 
 /*--------------------------------------------------------------------*/
 /*                     Initialize logging file                        */
@@ -488,13 +497,12 @@ static void process( const char *fname,
         *input = NULL,
         *output = NULL,
         *job_id = NULL,
-        *token = NULL,
         line[BUFSIZ];
    char hostfile[FILENAME_MAX];
    boolean skip = FALSE;
    boolean reject = FALSE;
    FILE *fxqt;
-   int   status;
+   int status = 0;      /* initialized ONLY to suppress compiler warning */
 
    char *outnode = NULL;
    char *outname = NULL;
@@ -502,7 +510,12 @@ static void process( const char *fname,
    char *requestor = NULL;
    char *statfil = NULL;
    char *machine = NULL;
-   char **envp;
+
+   struct F_list {
+      struct F_list *next;
+      char *spoolname;
+      char *xqtname;
+   } *F_list = NULL;
 
    boolean xflag[UU_LAST - 1] = { 0 };
    time_t jtime = time(NULL);
@@ -536,7 +549,7 @@ static void process( const char *fname,
 /*            Process the input line according to its type            */
 /*--------------------------------------------------------------------*/
 
-      switch (line[0])
+      switch (*line)
       {
 
       case '#':
@@ -547,18 +560,17 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'U':
-         if ( (cp = strtok(line + 1,WHITESPACE)) == NULL )
+         if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No user on U line in file \"%s\"", fname );
-            reject = TRUE;
+            reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
-         else {
-             user = strdup(cp);
-             checkref(user);
-         };
+
+         user = strdup(cp);
+         checkref(user);
                                     /* Get the system name            */
-         if ( (cp = strtok(NULL,WHITESPACE)) == NULL)
+         if ( (cp = strtok(NULL, WHITESPACE)) == NULL)
          {                          /* Did we get a string?           */
             printmsg(2,"No node on U line in file \"%s\"", fname );
             cp = (char *) remote;
@@ -570,6 +582,7 @@ static void process( const char *fname,
             cp = (char * ) remote;
          };
          machine = newstr(cp);
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -577,22 +590,40 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'I':
-         cp = strtok( line + 1, WHITESPACE );
+         cp = strtok(line + 1, WHITESPACE );
          if ( cp == NULL )
          {
             printmsg(0,"No input file name on I line");
-            reject = TRUE;
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
          }
-         else {
-            input = strdup( cp );
-            checkref(input);
-            if (!equal(remote, E_nodename) &&
-                !(equaln(input,"D.",2) || ValidateFile( input, ALLOW_READ)))
-            {
-                reject = TRUE;
-                xflag[S_NOREAD] = TRUE;
-            }
-         } /* else */
+
+         if (equaln(cp,"D.",2)
+             && (strchr(cp, '/') == NULL)
+             && (strchr(cp, '\\') == NULL))
+         {
+            char temp[FILENAME_MAX];
+
+            importpath(temp, cp, remote);
+            mkfilename(hostfile, E_spooldir, temp);
+         }
+         else
+         {
+            strcpy(hostfile, cp);
+            expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
+
+            /* Should the following "if (...)" be deleted?  --RHG */
+            if (!equal(remote, E_nodename))
+               if (!ValidateFile( hostfile, ALLOW_READ))
+               {
+                  reject = xflag[S_NOREAD] = TRUE;
+                  break;
+               }
+         }
+
+         input = strdup(hostfile);
+         checkref(input);
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -600,27 +631,40 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'O':
-         if ( (cp = strtok(line + 1, WHITESPACE)) != NULL )
+         cp = strtok(line + 1, WHITESPACE);
+         if ( cp == NULL )
          {
-             outname = strdup(cp);
-             checkref(outname);
-             xflag[X_OUTPUT] = TRUE;  /* return output to "outnode"   */
+            printmsg(0,"No output file name on O line");
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
+         }
 
-             if ( (cp = strtok(NULL,WHITESPACE)) != NULL)
-             {                /* Did we get a string?                 */
-                   outnode = strdup(cp);
-                   checkref(outnode);
-                   checkreal(outnode);
-             }
-             else if (!equal(remote, E_nodename))
-             {
-                if (!(equaln(outname,"D.",2) || ValidateFile( outname, ALLOW_WRITE)))
-                {
-                    reject = TRUE;
-                    xflag[S_NOWRITE] = TRUE;
-                } /* if */
-             } /* else if (!equal(remote, E_nodename)) */
-         } /* if ( (cp = strtok(NULL,WHITESPACE)) != NULL ) */
+         strcpy(hostfile, cp);
+
+         if ( (cp = strtok(NULL, WHITESPACE)) != NULL
+              && !equal(cp, E_nodename) )
+         {                /* Did we get a string indicating ANOTHER host? */
+            outnode = strdup(cp);
+            checkref(outnode);
+            checkreal(outnode);
+         }
+         else
+         {
+            expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
+
+            /* Should the following "if (...)" be deleted?  --RHG */
+            if (!equal(remote, E_nodename))
+               if (ValidateFile( hostfile, ALLOW_WRITE))
+               {
+                  reject = xflag[S_NOWRITE] = TRUE;
+                  break;
+               }
+         }
+
+         outname = strdup(hostfile);
+         checkref(outname);
+         xflag[X_OUTPUT] = TRUE;  /* return output to "outnode"   */
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -628,16 +672,16 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'C':
-         cp = strtok( line + 2, "\r\n" );
-         if ( cp == NULL )
+         cp = line + 1 + strspn(line + 1, WHITESPACE);
+         if ( *cp == '\0' )
          {
             printmsg(0,"No command name on C line");
-            reject = TRUE;
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
          }
-         else {
-            command = strdup( cp );
-            checkref(command);
-         }
+         command = strdup( cp );
+         checkref(command);
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -648,12 +692,13 @@ static void process( const char *fname,
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No job id on J line in file \"%s\"", fname );
-            reject = TRUE;
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
          }
-         else {
-            job_id = strdup( cp );
-            checkref( job_id );
-         } /* else */
+
+         job_id = strdup( cp );
+         checkref( job_id );
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -661,15 +706,86 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'F':
-         token = strtok(line + 1, WHITESPACE);
-         importpath(hostfile, token, remote);
-
-         if ( access( hostfile, 0 ))   /* Does the host file exist?   */
-         {                             /* No --> Skip the file        */
-            printmsg(0,"Missing file %s (%s) for %s, command skipped",
-                     token, hostfile, fname);
-            skip = TRUE;
+         cp = strtok(line + 1, WHITESPACE);
+         if (cp == NULL)
+         {
+            printmsg(0,"Missing F parameter in file \"%s\", command rejected",
+                       fname);
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
          }
+
+         if (equaln(cp,"D.",2)
+             && (strchr(cp,'/') == NULL)
+             && (strchr(cp,'\\') == NULL))
+         {
+            char temp[FILENAME_MAX];
+            struct F_list *p;
+
+            importpath(temp, cp, remote);
+            mkfilename(hostfile, E_spooldir, temp);
+
+            if ( access( hostfile, 0 ))   /* Does the host file exist?   */
+            {                             /* No --> Skip the file        */
+               printmsg(0,"Missing file %s (%s) for %s, command skipped",
+                        cp, hostfile, fname);
+               skip = TRUE;
+               break;
+            }
+
+            p = malloc(sizeof *F_list);
+            checkref(p);
+            p->next = F_list;
+            F_list = p;
+
+            F_list->spoolname = strdup(hostfile);
+            checkref(F_list->spoolname);
+
+            F_list->xqtname = NULL;
+         }
+         else
+         {
+            printmsg(0,"Invalid F parameter in file \"%s\", command rejected",
+                       fname);
+            reject = xflag[F_BADF] = TRUE;
+            break;
+         }
+
+         cp = strtok(NULL, WHITESPACE);
+         if (cp != NULL)
+         {
+#if 1
+            if (!ValidDOSName(cp, FALSE))
+#else
+            size_t len, before_dot;
+            const char *dot;
+
+            len = strlen(cp);
+            before_dot = ((dot = strchr(cp, '.')) == NULL)
+                          ? len
+                          : dot - cp;
+
+            if (before_dot == 0                         /* 0 chars in name */
+                || before_dot > 8                       /* >8 chars in name */
+                || len > before_dot + 1 + 3             /* >3 chars in ext */
+                || strspn(cp, DOSCHARS ".") != len      /* illegal chars. */
+                || (dot && strchr(dot + 1, '.'))        /* more than one dot */
+               )
+#endif
+            {  /* Illegal filename --> reject the whole request */
+               printmsg(0,"Illegal filename \"%s\" in file \"%s\", command rejected",
+                          cp, fname);
+               reject = xflag[F_BADF] = TRUE;
+               break;
+            }
+            else
+            {
+               mkfilename(hostfile, executeDirectory, cp);
+               F_list->xqtname = strdup(hostfile);
+               checkref(F_list->xqtname);
+            }
+         }
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -677,15 +793,16 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       case 'R':
-         if ( (cp = strtok(line + 1,WHITESPACE)) == NULL )
+         if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No requestor on R line in file \"%s\"", fname );
-            reject = TRUE;
+            reject = xflag[F_CORRUPT] = TRUE;
+            break;
          }
-         else {
-            requestor = strdup(cp);
-            checkref(requestor);
-         }
+
+         requestor = strdup(cp);
+         checkref(requestor);
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -694,12 +811,15 @@ static void process( const char *fname,
 
       case 'M':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
+         {
             printmsg(0,"No file name on M line in file \"%s\"", fname);
-         else {
-            statfil = strdup(cp);
-            checkref(statfil);
-            xflag[X_STATFIL] = TRUE;     /* return status to remote file  */
+            break;
          }
+
+         statfil = strdup(cp);
+         checkref(statfil);
+         xflag[X_STATFIL] = TRUE;    /* return status to remote file  */
+
          break;
 
 /*--------------------------------------------------------------------*/
@@ -709,19 +829,19 @@ static void process( const char *fname,
       case 'Z': xflag[X_FAILED] = TRUE;   /* send status if command failed  */
          break;
 
-      case 'N': xflag[X_FAILED] = FALSE;  /* send NO status if command failed  */
+      case 'N': xflag[X_FAILED] = FALSE;  /* send NO status if command failed */
          break;
 
-      case 'n': xflag[X_SUCCESS] = TRUE;  /* send status if command succeeded  */
+      case 'n': xflag[X_SUCCESS] = TRUE;  /* send status if command succeeded */
          break;
 
-      case 'z': xflag[X_SUCCESS] = FALSE; /* NO status if command succeeded  */
+      case 'z': xflag[X_SUCCESS] = FALSE; /* NO status if command succeeded */
          break;
 
       case 'B': xflag[X_INPUT] = TRUE;    /* return command input on error  */
          break;
 
-      case 'e': xflag[X_USEEXEC] = FALSE; /* process command using sh(1)  */
+      case 'e': xflag[X_USEEXEC] = FALSE; /* process command using sh(1)    */
          break;
 
       case 'E': xflag[X_USEEXEC] = TRUE;  /* process command using exec(2)  */
@@ -743,79 +863,173 @@ static void process( const char *fname,
 
    if ((command == NULL) && !skip)
    {
-      printmsg(0,"No command supplied for X.* file %s, skipped", fname);
-      reject = TRUE;
+      printmsg(0,"No command supplied for X.* file %s, rejected", fname);
+      reject = xflag[F_CORRUPT] = TRUE;
    }
 
 /*--------------------------------------------------------------------*/
 /*           We have the data for this command; process it            */
 /*--------------------------------------------------------------------*/
 
-   if ( ! (skip || reject ))
+   if ( !skip )
    {
-      if ( user == NULL )
+      if ( !reject )
       {
-         user = strdup("uucp");    /* User if none given              */
-         checkref(user);
-      }
+         if ( user == NULL )
+         {
+            user = strdup("uucp"); /* User if none given              */
+            checkref(user);
+         }
 
-      if (requestor == NULL)
-      {
-         requestor = strdup(user);
-         checkref(requestor);
-      }
+         if (requestor == NULL)
+         {
+            requestor = strdup(user);
+            checkref(requestor);
+         }
 
-      if (input == NULL)
-         input = strdup("/dev/nul");
+         if (input == NULL)
+            input = strdup("/dev/nul"); /* NOTE: DOS uses only one L in NUL */
 
-      if (output == NULL)
          output = mktempname(NULL, "OUT");
 
-      printmsg(equaln(command,RMAIL,5) ? 2 : 0,
-               "uuxqt: executing \"%s\" for user \"%s\" at  \"%s\"",
-                   command, user, machine);
+         printmsg(equaln(command,RMAIL,5) ? 2 : 0,
+                  "uuxqt: executing \"%s\" for user \"%s\" at  \"%s\"",
+                      command, user, machine);
 
 /*--------------------------------------------------------------------*/
-/*             Create the environment and run the command             */
+/*           Copy the input files to the execution directory          */
 /*--------------------------------------------------------------------*/
 
-      envp = create_environment("uucp", requestor);
-      status = shell(command, input, output, remote, xflag );
-      delete_environment(envp);
+         /* Make sure the directory exists before we copy the files */
+         if (PushDir(executeDirectory))
+         {
+            printmsg(0, "Unable to change to directory \"%s\"",
+                        executeDirectory);
+            reject = xflag[F_NOCHDIR] = TRUE;
+         }
+         else
+         {
+            struct F_list *p;
 
-      ReportResults( status, input, output, command, job_id,
-                     jtime, requestor, outnode, outname, xflag,
-                     statfil, machine, user);
+            for (p = F_list; p != NULL; p = p->next)
+               if (p->xqtname != NULL)
+                  if (!copylocal(p->spoolname, p->xqtname))
+                  {
+                     printmsg(0, "Copy \"%s\" to \"%s\" failed",
+                                 p->spoolname, p->xqtname);
+                     reject = xflag[F_NOCOPY] = TRUE;
+                     break;
+                  }
+         }
+
+/*--------------------------------------------------------------------*/
+/*            Create the environment and run the command(s)           */
+/*--------------------------------------------------------------------*/
+
+         if (!reject)
+         {
+            char **envp = create_environment("uucp", requestor);
+            char *pipe;
+
+            /* The following code INTENTIONALLY ignores quoting of '|'
+               (with \ or "..." or '...') because we can't count on the DOS
+               shell (or spawnlp, etc.) to also handle quoting of '|' the
+               exact same way (or even at all).  We also prohibit '<' and '>'
+               for similar reasons.  (By the way, uux should have changed
+               I/O redirecting '<' and '>' to I and O lines, respectively.) */
+
+            if (strchr(command, '<') != NULL || strchr(command, '>') != NULL)
+            {
+               printmsg(0,"The characters \'<\' and \'>\' are not supported in remote commands");
+               reject = xflag[F_CORRUPT] = TRUE;
+            }
+            else if ((pipe = strchr(command, '|')) == NULL) /* Any pipes? */
+               status = shell(command, input, output, remote, xflag); /* No */
+            else
+            { /* We currently do pipes by simulating them using files */
+               char *cmd = command;
+
+               char *pipefile = mktempname(NULL, "PIP");
+
+               *pipe = '\0';
+               status = shell(command, input, pipefile, remote, xflag );
+               *pipe = '|';
+
+               while (status == 0
+                      && (pipe = strchr(cmd = pipe + 1, '|')) != NULL)
+               {
+                  /* Swap the output and pipe files for the next pass */
+                  char *p = pipefile; pipefile = output; output = p;
+
+                  xflag[E_NORMAL] = FALSE;
+                  *pipe = '\0';
+                  status = shell(cmd, output, pipefile, remote, xflag);
+                  *pipe = '|';
+               }
+
+               if (status == 0)
+               {
+                  xflag[E_NORMAL] = FALSE;
+                  status = shell(cmd, pipefile, output, remote, xflag);
+               }
+
+               unlink(pipefile);
+               free(pipefile);
+            }
+
+            delete_environment(envp);
+         }
 
 /*--------------------------------------------------------------------*/
 /*                  Clean up files after the command                  */
 /*--------------------------------------------------------------------*/
 
-      if ( status > -2 )
+         PopDir();
+
+         {
+            struct F_list *p;
+
+            for (p = F_list; p != NULL; p = p->next)
+               if (p->xqtname != NULL)
+                  unlink(p->xqtname);
+         }
+
+         unlink(output);
+
+      } /* if (!reject) */
+
+
+      ReportResults( status, input, output, command, job_id,
+                     jtime, requestor, outnode, outname, xflag,
+                     statfil, machine, user);
+
+      unlink(fname);
+
       {
-         unlink(fname);       /* Already a local file name            */
+         struct F_list *p;
 
-         if (equaln(input,"D.",2))
-         {
-             importpath(hostfile, input, remote);
-             unlink(hostfile);
-         }
+         for (p = F_list; p != NULL; p = p->next)
+            unlink(p->spoolname);
+      }
 
-         if (xflag[X_OUTPUT])
-         {
-             importpath(hostfile, output, remote);
-             unlink(hostfile);
-         }
-
-      } /* if ( status > -2 ) */
-
-   }
-   else if (reject && !skip)
-        unlink(fname);       /* Already a local file name              */
+   } /* (!skip) */
 
 /*--------------------------------------------------------------------*/
 /*              Free various temporary character strings              */
 /*--------------------------------------------------------------------*/
+
+   while (F_list != NULL)
+   {
+      struct F_list *next;
+
+      free(F_list->spoolname);
+      if (F_list->xqtname != NULL)
+         free(F_list->xqtname);
+
+      next = F_list->next;
+      free(F_list);
+      F_list = next;
+   }
 
    if (command    != NULL) free(command);
    if (input      != NULL) free(input);
@@ -841,8 +1055,6 @@ static int shell(char *command,
                  boolean xflag[])
 {
    int    result = 0;
-   char   inlocal[FILENAME_MAX];
-   char   outlocal[FILENAME_MAX];
    char   buf[255];
 
    char   *cmdname;
@@ -860,12 +1072,19 @@ static int shell(char *command,
 
    if ( parameters != NULL )
    {
-      while (isspace( *parameters ) || iscntrl( *parameters ))
-         parameters++;
+      parameters += strspn(parameters, WHITESPACE); /* drop leading whitespace */
 
-      if ( !strlen( parameters ))
+      if ( *parameters == '\0' )
          parameters = NULL;
-
+      else
+      {
+         /* MISSING CODE: we should check the parameters to see that all file
+            references are legitimate.  What do other implementations of uuxqt
+            do for this access check?  Maybe check for READ access if a path
+            is specified but accept anything that isn't a pathname (such as a
+            username for an RMAIL command)?  I'm not yet completely sure.
+                                                                     --RHG */
+      }
    } /* if ( parameters != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -878,16 +1097,6 @@ static int shell(char *command,
       xflag[E_NOEXE] = TRUE;
       return 99;
    }
-
-/*--------------------------------------------------------------------*/
-/*                     Open files for processing                      */
-/*--------------------------------------------------------------------*/
-
-   if (inname != NULL)
-      importpath(inlocal, inname, remotename);
-
-   if ( outname != NULL )
-      importpath(outlocal, outname, remotename);
 
 /*--------------------------------------------------------------------*/
 /*               We support the command; execute it                   */
@@ -904,14 +1113,14 @@ static int shell(char *command,
        ( inname != NULL ))       /* rnews w/input?                    */
    {
       strcpy( buf, "-f " );
-      strcat( buf, inlocal );
+      strcat( buf, inname );
       parameters = buf;          /* We explicitly ignore all parameters  */
                                  /* on the RNEWS command              */
 
       result = execute( RNEWS,
                         buf,
                         NULL,
-                        outname == NULL ? NULL : outlocal,
+                        outname,
                         TRUE,
                         FALSE );
    }
@@ -928,7 +1137,7 @@ static int shell(char *command,
       {
 
          boolean firstPass = TRUE;
-         int left = 0;
+         int left;
 
 #if defined(__OS2__) || defined(WIN32)
          int rlen =  254 ;
@@ -942,7 +1151,7 @@ static int shell(char *command,
          if ( bflag[F_WINDOWS] )
          {
             strcpy( buf, "-f ");
-            strcat( buf, inlocal);
+            strcat( buf, inname);
             strcat( buf, " ");
          }
          else
@@ -1002,8 +1211,8 @@ static int shell(char *command,
 
       result = execute( RMAIL,
                         buf,
-                        bflag[F_WINDOWS] ? NULL : inlocal,
-                        outname == NULL ? NULL : outlocal,
+                        bflag[F_WINDOWS] ? NULL : inname,
+                        outname,
                         TRUE,
                         FALSE );
 
@@ -1018,8 +1227,8 @@ static int shell(char *command,
    else
       result = execute( command,
                         parameters,
-                        inlocal,
-                        outlocal,
+                        inname,
+                        outname,
                         TRUE,
                         FALSE );
 
@@ -1053,7 +1262,7 @@ static int shell(char *command,
 
 static void usage( void )
 {
-   fputs("Usage:\tuuxqt\t[-xDEBUG] [-sSYSTEM]", stderr);
+   fputs("Usage: uuxqt [-xDEBUG] [-sSYSTEM]", stderr);
    exit(1);
 } /* usage */
 
@@ -1072,7 +1281,7 @@ static boolean copylocal(const char *from, const char *to)
 
       /* This would be even faster if we determined that both files
          were on the same device, dos >= 3.0, and used the dos move
-         function */
+         function EXCEPT that we want a COPY, not a MOVE! */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
          return FALSE;        /* failed                                */
@@ -1239,9 +1448,9 @@ static boolean do_copy(char *localfile,
              return FALSE;
           }
 
-          fprintf(cfile, send_cmd, localfile, remotefile,
-                   "uucp" , success ? "n" : " ", idfile,
-                    success ? requestor : " ");
+          fprintf(cfile, success ? "S %s %s uucp -n %s 0666 %s\n"
+                                 : "S %s %s uucp - %s 0666\n",
+                         localfile, remotefile, idfile, requestor);
 
           fclose(cfile);
     };
@@ -1270,94 +1479,102 @@ static void ReportResults(const int status,
                           const char *machine,
                           const char *user)
 {
-     char address[MAXADDR];
-     char subject[80];
-     FILE *mailtmp = NULL;
-     char *tempmail;
+   char address[MAXADDR];
+   char subject[80];
+   FILE *mailtmp = NULL;
+   char *tempmail;
 
 
-     if (!(xflag[X_FAILED] | xflag[X_SUCCESS] |
-           xflag[X_INPUT]  | xflag[X_STATFIL]))
-     {  /* default actions */
-         unlink(output);
-         return;
-     }
+   if (!(xflag[X_FAILED] | xflag[X_SUCCESS] |
+         xflag[X_INPUT]  | xflag[X_STATFIL] ))
+   {  /* default actions */
+      return;
+   }
 
-     tempmail = mktempname(NULL, "TMP");
+   tempmail = mktempname(NULL, "TMP");
 
-     if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
-         printerr(tempmail);
-         return;
-     }
+   if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
+      printerr(tempmail);
+      return;
+   }
 
-     sprintf(subject, "\"[uucp job %s (%s)]\"", job_id, dater(jtime, NULL) );
+   sprintf(subject, "\"[uucp job %s (%s)]\"", job_id, dater(jtime, NULL) );
 
-     fprintf(mailtmp,"remote execution\n");
-     fprintf(mailtmp,"%s\n", command);
+   fprintf(mailtmp,"remote execution\n");
+   fprintf(mailtmp,"%s\n", command);
 
 #ifdef BETA_TEST
-     strcpy(address,"postmaster");
+   strcpy(address,"postmaster");
 #else
-     if (equal(machine, E_nodename))
-        strcpy(address, requestor);
-     else
-        sprintf(address,"%s!%s", machine, requestor);
+   if (equal(machine, E_nodename))
+      strcpy(address, requestor);
+   else
+      sprintf(address,"%s!%s", machine, requestor);
 #endif
 
-     if (xflag[E_NORMAL])
-     {                        /* command succeded, process appropriate flags  */
+   if (xflag[E_NORMAL])
+   {                        /* command succeded, process appropriate flags */
 
-       fprintf(mailtmp,"exited normally\n");
+      fprintf(mailtmp,"exited normally\n");
 
-       if (xflag[X_OUTPUT])
-           do_copy(output, outnode, outname, requestor, xflag[X_SUCCESS]);
-       else
-           unlink(output);
+      if (xflag[X_OUTPUT])
+         do_copy(output, outnode, outname, requestor, xflag[X_SUCCESS]);
 
-       fclose(mailtmp);
+      fclose(mailtmp);
 
-       if (xflag[X_SUCCESS]) {
-          if (xflag[X_STATFIL]) {
-              do_copy(tempmail, outnode, statfil, requestor, xflag[X_SUCCESS]);
-          } else {
-              MailStatus(tempmail, address, subject);
-          }
-       };
+      if (xflag[X_SUCCESS]) {
+         if (xflag[X_STATFIL]) {
+            do_copy(tempmail, outnode, statfil, requestor, xflag[X_SUCCESS]);
+         } else {
+            MailStatus(tempmail, address, subject);
+         }
+      }
 
    } else {            /* command failed, process appropriate flags   */
+     if (xflag[F_CORRUPT])
+        fprintf(mailtmp,"the X file was badly formatted\n");
+     if (xflag[S_NOREAD])
+        fprintf(mailtmp,"stdin was denied read permission\n");
+     if (xflag[S_NOWRITE])
+        fprintf(mailtmp,"stdout was denied write permission\n");
+     if (xflag[F_NOCHDIR])
+        fprintf(mailtmp,"unable to change directory to the execution directory\n");
+     if (xflag[F_NOCOPY])
+        fprintf(mailtmp,"unable to copy file(s) to the execution directory\n");
+     if (xflag[F_BADF])
+        fprintf(mailtmp,"invalid file name\n");
      if (xflag[E_NOACC])
-         fprintf(mailtmp,"file access denied to %s!%s", machine, user);
-     else if (xflag[E_NOEXE])
+         fprintf(mailtmp,"file access denied to %s!%s\n", machine, user);
+     if (xflag[E_NOEXE])
         fprintf(mailtmp,"execution permission denied to %s!%s\n",
                 machine, requestor);
-     else if (xflag[E_SIGNAL])
+     if (xflag[E_SIGNAL])
         fprintf(mailtmp,"terminated by signal\n");
-     else if (xflag[E_STATUS])
+     if (xflag[E_STATUS])
         fprintf(mailtmp,"exited with status %d\n", status);
-     else /* xflag->e & E_FAILED */
+     if (xflag[E_FAILED])
         fprintf(mailtmp,"failed completely\n");
 
+     if (xflag[E_STATUS])
+     {
+        if (xflag[X_FAILED])
+        {
+           if (xflag[X_INPUT])
+           {
+              fprintf(mailtmp,"===== stdin was ");
 
-     if (xflag[E_STATUS]) {
-       if ((xflag[X_FAILED]) && !(xflag[X_INPUT])) {
-           fprintf(mailtmp,"===== error output not available =====\n");
-       } else if ((xflag[X_FAILED]) && (xflag[X_INPUT])) {
-           fprintf(mailtmp,"===== stdin was ");
+              if (xflag[S_CORRUPT])
+                  fprintf(mailtmp,"unreadable =====\n");
+              else if (!xflag[S_NOREAD])
+              {
+                  fprintf(mailtmp,"=====\n");
+                  AppendData( input, mailtmp);
+              };
 
-           if (xflag[S_CORRUPT])
-               fprintf(mailtmp,"unreadable =====\n");
-           else if (xflag[S_EMPTY])
-               fprintf(mailtmp,"empty =====\n");
-           else if (xflag[S_NOREAD])
-               fprintf(mailtmp,"denied read permission =====\n");
-           else {
-               fprintf(mailtmp,"=====\n");
-               AppendData( input, mailtmp);
-           };
-           unlink(input);
+           }
 
            fprintf(mailtmp,"===== stderr is unavailable =====\n");
-       }
+        }
      }
 
      fclose(mailtmp);
@@ -1369,9 +1586,6 @@ static void ReportResults(const int status,
      }
 
    }
-
-   if (xflag[X_OUTPUT])
-       unlink(output);
 
    unlink(tempmail);
    return;
