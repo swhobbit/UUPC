@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.63 1994/05/06 03:54:32 ahd Exp $
+#     $Id: makefile 1.64 1994/05/30 02:17:54 ahd Exp ahd $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.64  1994/05/30  02:17:54  ahd
+#         Go to version 1.12k
+#
 #         Revision 1.63  1994/05/06  03:54:32  ahd
 #         Delete BC++ precompiled headers when done
 #
@@ -286,7 +289,7 @@ TDSTRIP=tdstrip
 !if $d(__OS2__)
 SRCSLASH=
 !else
-SRC      = e:/src/uupc/
+SRC      = d:/src/uupc/
 SRCSLASH = $(SRC:/=\)
 !endif
 !endif
