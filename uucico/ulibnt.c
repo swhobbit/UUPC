@@ -21,8 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.23 1994/05/06 03:55:50 ahd Exp $
+ *       $Id: ulibnt.c 1.24 1994/05/07 21:45:33 ahd Exp $
  *       $Log: ulibnt.c $
+ *        Revision 1.24  1994/05/07  21:45:33  ahd
+ *        Correct CD() processing to be sticky -- once it fails, it
+ *        keeps failing until reset by close or hangup.
+ *
  *        Revision 1.23  1994/05/06  03:55:50  ahd
  *        Hot login support
  *
@@ -201,6 +205,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 {
    DWORD dwError;
    BOOL rc;
+   SECURITY_ATTRIBUTES sa;
 
    if (portActive)              /* Was the port already active?     ahd  */
       closeline();               /* Yes --> Shutdown it before open  ahd  */
@@ -236,10 +241,14 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( hCom == INVALID_HANDLE_VALUE)
    {
+      sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+      sa.bInheritHandle = TRUE;
+      sa.lpSecurityDescriptor = NULL;
+
       hCom = CreateFile( name,
            GENERIC_READ | GENERIC_WRITE,
            0,
-           NULL,
+           &sa,
            OPEN_EXISTING,
            FILE_FLAG_OVERLAPPED,
            NULL);
