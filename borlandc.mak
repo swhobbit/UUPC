@@ -31,10 +31,15 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.84 1997/04/24 01:00:57 ahd v1-12u $
+#     $Id: borlandc.mak 1.85 1997/12/22 16:46:45 ahd Exp $
 #
 #     Revision history:
-#     $Log: makefile $
+#     $Log: borlandc.mak $
+#     Revision 1.85  1997/12/22 16:46:45  ahd
+#     Delete BC++ OS/2 support (the compiler stank)
+#     Move to 1.12u
+#     Make RMAIL a medium model executable
+#
 #     Revision 1.84  1997/04/24 01:00:57  ahd
 #     Annual Copyright Update
 #
@@ -134,7 +139,7 @@ TDSTRIP=tdstrip
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12u
+VERS = 1.12v
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
@@ -834,7 +839,10 @@ help@kew.com.
 # *       UUPCWIN.ZIP - Word for Windows unformatted documents         *
 # *--------------------------------------------------------------------*
 
-$(WFWZIPV):  $(WINWORD)\uupcuser.doc $(WINWORD)\manual.dot $(README)
+$(WFWZIPV):  $(WINWORD)\uupcmstr.doc \
+             $(WINWORD)\uupcindx.doc \
+             $(WINWORD)\manual.dot  \
+             $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT2) < &&%
 $?
@@ -907,7 +915,7 @@ help@kew.com.
 # *        UUPCDOC.ZIP - Formatted (Human readable) documents          *
 # *--------------------------------------------------------------------*
 
-docs: $(DOCZIPV) $(WFWZIPV) $(PSZIPV)
+docs: $(DOCZIPV) $(WFWZIPV) $(PSZIPV) $(HTMLZIPV)
 
 $(DOCZIPV): $(SAMPLES) $(LIVEFILES) $(LISTFILES) $(README)
         - mkdir $:.
