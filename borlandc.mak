@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: Makefile 1.9 1992/12/30 12:40:31 plummer Exp $
+#     $Id: makefile 1.10 1993/04/11 21:09:10 ahd Exp ahd $
 #
 #     Revision history:
-#     $Log: Makefile $
+#     $Log: makefile $
+#         Revision 1.10  1993/04/11  21:09:10  ahd
+#         Drop GNU oriented Makefile
+#
 #       Revision 1.9  1992/12/30  12:40:31  plummer
 #       Update version
 #
@@ -218,8 +221,8 @@ OPTIONAL= $(PROD)\uucp.com $(PROD)\uuname.com $(PROD)\uupoll.exe\
           $(PROD)\uustat.com $(PROD)\uusub.com $(PROD)\comm34.com\
           $(PROD)\uux.com $(FMT) $(PROD)\gensig.com $(PROD)\novrstrk.com \
           $(SCRIPTS)
-NEWS    = $(PROD)\rnews.exe $(PROD)\expire.exe $(PROD)\rn.exe\
-          $(PROD)\newsetup.exe
+NEWS    = $(PROD)\rnews.exe $(PROD)\expire.exe
+#         $(PROD)\rn.exe $(PROD)\newsetup.exe
 
 INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWS)
 
