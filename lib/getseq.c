@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.12 1995/01/09 01:39:22 ahd Exp $
+ *    $Id: getseq.c 1.13 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.13  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.12  1995/01/09 01:39:22  ahd
  *    Optimize retrieval of UUCP sequence number
  *
@@ -108,7 +111,12 @@ long getSeq()
    }
 
    if ( ! seq++ )
+   {
       seq = getpid();
+      printmsg(0,"Resetting sequence number to %ld (0x%08lx)",
+                  seq,
+                  seq );
+   }
 
 /*--------------------------------------------------------------------*/
 /*                       Update sequence number                       */
