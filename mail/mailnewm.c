@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: mailnewm.c 1.1 1998/03/03 03:51:53 ahd v1-12v $
+ *       $Id: mailnewm.c 1.2 1998/03/09 01:18:19 ahd Exp $
  *
  *       Revision History:
  *       $Log: mailnewm.c $
+ *       Revision 1.2  1998/03/09 01:18:19  ahd
+ *       Change debug level of file not found message
+ *
  *       Revision 1.1  1998/03/03 03:51:53  ahd
  *       Initial revision
  *
@@ -39,51 +42,11 @@
 /*                          Local constants                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: mailnewm.c 1.1 1998/03/03 03:51:53 ahd v1-12v $");
+RCSID("$Id: mailnewm.c 1.2 1998/03/09 01:18:19 ahd Exp $");
 
 currentfile();
 
 static const char sep[] = MESSAGESEP;
-static const char uidl[] = UIDL_HEADER;
-
-/*--------------------------------------------------------------------*/
-/*       m a k e U I D L                                              */
-/*                                                                    */
-/*       Generate Unique sequence number for this message             */
-/*--------------------------------------------------------------------*/
-
-static void
-makeUIDL(FILE *stream_out)
-{
-
-#ifdef UDEBUG
-   static const char mName[] = "makeUIDL";
-#endif
-
-   static long runNumber = 0;
-   static long subsequence = 0;
-   static time_t now;
-
-   if (runNumber == 0)
-   {
-      runNumber = getSeq();
-      time(&now);
-   }
-
-   fprintf(stream_out, "%s <%x.%x.%d@%.40s>\n",
-            uidl,
-            runNumber,
-            now,
-            ++subsequence,
-            E_domain);
-
-#ifdef UDEBUG
-    printmsg(6, "%s: Wrote UIDL for message %d",
-                  mName,
-                  subsequence);
-#endif
-
-} /* makeUIDL */
 
 /*--------------------------------------------------------------------*/
 /*       I n c l u d e N e w                                          */
@@ -102,8 +65,6 @@ IncludeNew(const char *target, const char *user)
    long size;
    FILE *stream_in;
    FILE *stream_out;
-   KWBoolean haveHeader = KWFalse;
-   KWBoolean haveUIDL = KWFalse;
 
    char sysbox[FILENAME_MAX];
    char buf[BUFSIZ];
@@ -155,21 +116,6 @@ IncludeNew(const char *target, const char *user)
    while ((fgets(buf, sizeof buf, stream_in)) != NULL)
    {
       size_t bytes = strlen(buf);
-
-      if (haveHeader && equal(buf, "\n"))
-      {
-         if (! haveUIDL)
-            makeUIDL(stream_out);
-         haveHeader = KWFalse;
-      }
-      else if (equaln(buf, sep, strlen(sep)))
-      {
-         haveHeader = KWTrue;
-         haveUIDL   = KWFalse;
-      }
-      else if (haveHeader &&
-                equaln(buf, uidl, sizeof uidl - 1))
-         haveUIDL = KWTrue;
 
       /* Now write it out, with error checking */
       if (fwrite(buf, sizeof(char), bytes, stream_out) != bytes)
