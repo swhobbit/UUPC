@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PUSHPOP.C 1.2 1992/11/22 21:06:14 ahd Exp $
+ *    $Id: pushpop.c 1.3 1993/06/13 14:06:00 ahd Exp $
  *
- *    $Log: PUSHPOP.C $
+ *    $Log: pushpop.c $
+ *     Revision 1.3  1993/06/13  14:06:00  ahd
+ *     Insure directories PUSHED are POPPED
+ *
  * Revision 1.2  1992/11/22  21:06:14  ahd
  * Use strpool for memory allocation
  *
@@ -71,12 +74,14 @@ void PushDir( const char *directory )
 
 #endif
 
+
    if (dirstack[depth] == NULL )
    {
       printerr("PushDir");
       panic();
    }
    CHDIR( directory );
+   E_cwd = directory;
    depth++;
    return;
 } /* PushDir */
@@ -91,6 +96,7 @@ void PopDir( void )
       panic();
 
    CHDIR( dirstack[--depth] );
+   E_cwd = dirstack[depth];
    return;
 
 } /* PopDir */
