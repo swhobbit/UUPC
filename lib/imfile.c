@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.17 1995/09/04 02:13:41 ahd v1-12o $
+ *    $Id: imfile.c 1.18 1995/09/11 00:20:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.18  1995/09/11 00:20:45  ahd
+ *    Close imfile on disk before passing it to executeCommand
+ *    prevent possible sharing error
+ *
  *    Revision 1.17  1995/09/04 02:13:41  ahd
  *    Suppress selected debugging messages
  *
@@ -117,10 +121,11 @@ currentfile();
 static void imStatus( IMFILE *imf )
 {
 
+#ifdef UDEBUG
    if ( imf->buffer == NULL )
-      printmsg(6,"imStatus: File resides on disk as %s", imf->filename );
+      printmsg(20,"imStatus: File resides on disk as %s", imf->filename );
    else
-      printmsg(5,"imStatus: "
+      printmsg(18,"imStatus: "
 #ifdef BIT32ENV
                "%p"
 #else
@@ -134,6 +139,7 @@ static void imStatus( IMFILE *imf )
                   imf->position,
                   imeof(imf)     ? ", EOF"   : "",
                   imerror( imf ) ? ", ERROR" : "" );
+#endif
 
 } /* imStatus */
 #else
