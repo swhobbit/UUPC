@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ACTIVE.C 1.3 1993/03/06 22:48:23 ahd Exp $
+ *    $Id: active.c 1.4 1993/04/11 00:31:31 dmwatt Exp $
  *
- *    $Log: ACTIVE.C $
+ *    $Log: active.c $
+ *     Revision 1.4  1993/04/11  00:31:31  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.3  1993/03/06  22:48:23  ahd
  * Correct header files
  *
@@ -60,22 +63,18 @@
 
 */
 
-#include <stdio.h>
 
 #ifndef __GNUC__
+
+#include "uupcmoah.h"
 #include <io.h>
 #include <conio.h>
 #endif
 
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "lib.h"
-#include "hlib.h"
 #include "timestmp.h"
 #include "active.h"
 #include "importng.h"
