@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.10 1994/12/22 04:14:54 ahd Exp $
+ *    $Id: trumpet.c 1.11 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.11  1995/02/20 17:28:43  ahd
+ *    16 bit compiler warning message clean up
+ *
  *    Revision 1.10  1994/12/22 04:14:54  ahd
  *    Correct inverted dos beep flag
  *
@@ -129,7 +132,11 @@ void trumpet( const char *tune)
    {
       tone = (KEWSHORT) atoi(token);
       token = strtok( NULL, ",");
-      duration = (token == NULL) ? 500 : (KEWSHORT) atoi(token);
+
+      if ( token == NULL )
+         duration = 500;
+      else
+         duration = (KEWSHORT) atoi(token);
 
 #ifdef WIN32
       Beep( tone, duration );

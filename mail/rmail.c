@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.42 1995/01/28 22:07:13 ahd v1-12n $
+ *    $Id: rmail.c 1.43 1995/03/11 22:28:40 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.43  1995/03/11 22:28:40  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.42  1995/01/28 22:07:13  ahd
  *    Correctly trap no From line on remote mail
  *
@@ -1148,8 +1151,8 @@ static KWBoolean CopyTemp( IMFILE *imf,
                            FILE *datain)
 {
    KWBoolean header = KWTrue;
-   char buf[BUFSIZ];
    KWBoolean newline = KWTrue;
+   char buf[BUFSIZ];
 
    while (fgets(buf, BUFSIZ, datain) != NULL)
    {
@@ -1161,7 +1164,10 @@ static KWBoolean CopyTemp( IMFILE *imf,
             hops++;
       }
 
-      newline = buf[ strlen( buf ) - 1 ] == '\n';
+      if ( buf[ strlen( buf ) - 1 ] == '\n' )
+         newline = KWTrue;
+      else
+         newline = KWFalse;
 
       if (imputs(buf, imf) == EOF)     /* I/O error?                 */
       {

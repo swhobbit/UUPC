@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.8 1995/01/07 16:37:40 ahd Exp $
+ *    $Id: checktim.c 1.9 1995/02/12 23:37:04 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.9  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.8  1995/01/07 16:37:40  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -72,7 +75,7 @@ currentfile();
 /*                          Local functions                           */
 /*--------------------------------------------------------------------*/
 
-static char checkone( char *input, size_t hhmm, int weekday );
+static char checkone( char *input, size_t hhmm, const unsigned int weekday );
 
 /*--------------------------------------------------------------------*/
 /*   The following day values are based on the fact the               */
@@ -123,7 +126,7 @@ static char checkone( char *input, size_t hhmm, int weekday );
 
 static struct Table {
    char *keyword;
-   int wdays;
+   unsigned int wdays;
    unsigned int start;
    unsigned int end;
 
@@ -167,15 +170,15 @@ char checktime(const char *xtime)
    char  *token;
    char  *nexttoken;
    char  bestgrade = '\0';    /* No grade found yet                  */
-   int   weekday;
+   unsigned int   weekday;
 
-   strcpy(buf,xtime);         /* Copy time to local buffer we can alter */
+   strcpy(buf, xtime);              /* Copy to buffer we can alter   */
    time(&secs_now);
-   tm_now = localtime(&secs_now);
-                                       /* Create structure with time   */
-   weekday = SUN >> tm_now->tm_wday;   /* Get day of week as single bit */
+   tm_now = localtime(&secs_now);   /* Create structure with time    */
+   weekday = ((unsigned) (SUN)) >> tm_now->tm_wday;
+                                    /* Get day of week as single bit */
    hhmm = tm_now->tm_hour*100 + tm_now->tm_min;
-   nexttoken = buf;           /* First pass, look at start of buffer   */
+   nexttoken = buf;                 /* First pass, begin at front    */
 
    while ((bestgrade < ALL_GRADES) &&
           ((token = strtok(nexttoken,",")) != NULL))
@@ -207,7 +210,8 @@ char checktime(const char *xtime)
 /*    Process one time field for checktime                            */
 /*--------------------------------------------------------------------*/
 
-static char checkone( char *input, size_t hhmm, int weekday )
+static char checkone( char *input, size_t hhmm,
+                      const unsigned int weekday )
 {
    char  tdays[20];           /* String version of user tokens       */
    char  tstart[20];
@@ -311,6 +315,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
       if (equal(tptr->keyword,tdays))
       {
          found = KWTrue;    /* Win or Lose, keyword is valid          */
+
          if (weekday & tptr->wdays)    /* Can we dial out today?     */
          {                             /* Yes --> Check the time     */
 
@@ -335,8 +340,11 @@ static char checkone( char *input, size_t hhmm, int weekday )
                dial = (istart == hhmm) && dial;
             else
                dial = (istart <= hhmm) && (iend >= hhmm) && dial;
+
          } /* if */
+
       } /* if */
+
    } /* for */
 
    if (!found)
