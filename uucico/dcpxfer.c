@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.16 1993/05/09 03:41:47 ahd Exp $
+ *       $Id: DCPXFER.C 1.17 1993/05/30 00:04:53 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.17  1993/05/30  00:04:53  ahd
+ * Multiple communications drivers support
+ *
  * Revision 1.16  1993/05/09  03:41:47  ahd
  * Don't expand path of files destined for UUCP spool
  * Correct syslog processing to not close when not multitasking
@@ -1106,6 +1109,7 @@ XFER_STATE rsfile( void )
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, spolname, tname);
 
    lname = spolname;       // Remember name of file to log
+
    return XFER_SENDDATA;   /* Switch to send data state        */
 
 } /*rsfile*/
