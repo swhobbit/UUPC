@@ -22,10 +22,42 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.21 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: configur.c 1.31 1993/11/14 20:51:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.31  1993/11/14  20:51:37  ahd
+ *     Add showspool
+ *
+ *     Revision 1.30  1993/11/13  17:37:02  ahd
+ *     Add new options supporting mail formats and new windows under OS/2
+ *
+ *     Revision 1.29  1993/10/31  15:51:11  ahd
+ *     Allow configuring permissions file name
+ *     Restore period in names before printing error messages
+ *
+ *     Revision 1.28  1993/10/30  22:27:57  rommel
+ *     News history support
+ *
+ *     Revision 1.27  1993/10/26  12:46:10  ahd
+ *     Add include for setstdin.h
+ *
+ *     Revision 1.26  1993/10/25  02:39:44  ahd
+ *     Delete OBSOLETE keyword from aliases, it breaks it
+ *
+ *     Revision 1.25  1993/10/25  01:21:22  ahd
+ *     Rename Aliases to Nickname to make more unique for end users; allow
+ *     Aliases as obsolete alias for now.
+ *
+ *     Revision 1.24  1993/10/12  00:47:04  ahd
+ *     Normalize comments
+ *
+ *     Revision 1.23  1993/10/09  15:47:16  ahd
+ *     Add run time IsDOS query function
+ *
+ *     Revision 1.22  1993/09/29  23:29:56  ahd
+ *     Add xqtrootdir for UUXQT
+ *
  *     Revision 1.21  1993/09/29  04:49:20  ahd
  *     Move priority variables to modem file
  *
@@ -103,10 +135,7 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-
-#ifndef __GNUC__
 #include <io.h>
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -117,16 +146,20 @@
 #include "timestmp.h"
 #include "pushpop.h"
 
+#ifdef WIN32
+#include "setstdin.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
 currentfile();
 
-boolean bflag[F_LAST];        /* Initialized to zero by compiler     */
+boolean bflag[F_LAST];        /* Initialized to zero by compiler      */
 
 char **E_internal = NULL;
-char *E_aliases = NULL;
+char *E_nickname = NULL;
 char *E_altsignature = NULL;
 char *E_anonymous = NULL;
 char *E_archivedir = NULL;
@@ -154,6 +187,7 @@ char *E_newsserv = NULL;
 char *E_nodename = NULL;
 char *E_organization = NULL;
 char *E_pager = NULL;
+char *E_permissions = NULL;
 char *E_postmaster = NULL;
 char *E_pubdir = NULL;
 char *E_replyto = NULL;
@@ -203,7 +237,7 @@ static boolean getrcnames(char **sysp,char **usrp);
 /*--------------------------------------------------------------------*/
 
 static CONFIGTABLE envtable[] = {
-   {"aliases",      &E_aliases,      B_TOKEN|B_MUA},
+   {"aliases",      &E_nickname,     B_TOKEN|B_MUA},
    {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
    {"anonymouslogin", &E_anonymous,  B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
    {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
@@ -228,6 +262,7 @@ static CONFIGTABLE envtable[] = {
    {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
+   {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
    {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
    {"nodename",     &E_nodename,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
@@ -235,7 +270,8 @@ static CONFIGTABLE envtable[] = {
    {"organization", &E_organization, B_STRING|B_MAIL|B_NEWS},
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
    {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
-   {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_MTA},
+   {"permissions",  &E_permissions,  B_GLOBAL|B_PATH|B_ALL},
+   {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"priority",     &dummy,          B_OBSOLETE },
    {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
@@ -270,6 +306,12 @@ FLAGTABLE configFlags[] = {
  { "expert",      F_EXPERT,      B_LOCAL},
  { "forwardsave", F_SAVERESENT,  B_LOCAL},
  { "fromsep",     F_FROMSEP,     B_LOCAL},
+ { "neweditorwindow",
+                  F_NEWEDITORSESSION,
+                                 B_LOCAL},
+ { "newpagerwindow",
+                  F_NEWPAGERSESSION,
+                                 B_LOCAL},
  { "pager",       F_PAGER,       B_LOCAL},
  { "purge",       F_PURGE,       B_LOCAL},
  { "save",        F_SAVE,        B_LOCAL},
@@ -291,17 +333,18 @@ FLAGTABLE configFlags[] = {
  { "history",     F_HISTORY,     B_GLOBAL},
  { "honordebug",  F_HONORDEBUG,  B_GLOBAL},
  { "kanji",       F_KANJI,       B_GLOBAL},
- { "longname",    B_LONGNAME,      B_GLOBAL},
+ { "longname",    B_LONGNAME,    B_GLOBAL},
  { "monocase",    F_ONECASE,     B_GLOBAL},
  { "multiqueue",  F_MULTI,       B_GLOBAL},
  { "multitask",   F_MULTITASK,   B_GLOBAL},
  { "senddebug",   F_SENDDEBUG,   B_GLOBAL},
+ { "shortfrom",   F_SHORTFROM,   B_GLOBAL},
+ { "showspool",   F_SHOWSPOOL,   B_GLOBAL},
  { "snews",       F_SNEWS,       B_GLOBAL},
+ { "suppressfrom",F_SUPPRESSFROM,B_GLOBAL},
  { "syslog",      F_SYSLOG,      B_GLOBAL},
- { "symmetricgrades",
-                  F_SYMMETRICGRADES,
-                                 B_GLOBAL},
-
+ { "symmetricgrades", F_SYMMETRICGRADES, B_GLOBAL},
+ { "uupcnewsserv", F_UUPCNEWSSERV, B_GLOBAL},
  { nil(char) }
 }           ;
 
@@ -319,6 +362,7 @@ boolean processconfig(char *buff,
 {
    CONFIGTABLE *tptr;
    char *cp;
+   char *period;
    char *keyword;
    ENV_TYPE target_env;
 
@@ -339,11 +383,12 @@ boolean processconfig(char *buff,
 /*    Determine if the keyword should processed in this environment   */
 /*--------------------------------------------------------------------*/
 
-   keyword = strchr( buff, '.' );   /* Look for environment          */
+   period = keyword = strchr( buff, '.' );
+                              /* Look for environment prefix          */
 
-   if ( keyword == NULL )     /* No environment?                     */
+   if ( keyword == NULL )     /* No environment?                      */
    {
-      keyword = buff;         /* Then buffer starts with keyword     */
+      keyword = buff;         /* Then buffer starts with keyword      */
       target_env = active_env;
    }
    else {
@@ -370,7 +415,7 @@ boolean processconfig(char *buff,
 
       short subscript = 0;
 
-      *keyword++ = '\0';      /* Terminate environment string        */
+      *keyword++ = '\0';      /* Terminate environment string         */
       target_env = ENV_UNKNOWN;
 
       while( envtable[subscript].name != NULL)
@@ -462,9 +507,9 @@ boolean processconfig(char *buff,
 
                checkref( list );
 
-               if (tptr->bits & B_CLIST)  /* Use colon as delimiter? */
+               if (tptr->bits & B_CLIST)  /* Use colon as delimiter?  */
                   while ( (colon = strchr( cp , ':')) != NULL)
-                     *colon = ' ';     /* Make colons spaces ...           */
+                     *colon = ' ';     /* Make colons spaces ...      */
 
                words = getargs(cp, list);
                if( words > MAXLIST)
@@ -501,7 +546,7 @@ boolean processconfig(char *buff,
 /*--------------------------------------------------------------------*/
             else if (tptr->bits & program)
             {
-               while( *cp == ' ' )     /* Trim leading whitespace    */
+               while( *cp == ' ' )     /* Trim leading whitespace     */
                   cp++;
 
                if (*cp == '\0')
@@ -520,11 +565,11 @@ boolean processconfig(char *buff,
 
                if (tptr->bits & B_MALLOC)  /* Allocate normally?  */
                {
-                  *(tptr->loc) = strdup(cp); /* Save string          */
-                  checkref( *(tptr->loc) );  /* Verify malloc()      */
+                  *(tptr->loc) = strdup(cp); /* Save string           */
+                  checkref( *(tptr->loc) );  /* Verify malloc()       */
                }
                else
-                  *(tptr->loc) = newstr(cp); /* Save string          */
+                  *(tptr->loc) = newstr(cp); /* Save string           */
 
             } /* else */
          } /* else */
@@ -538,6 +583,9 @@ boolean processconfig(char *buff,
 /*--------------------------------------------------------------------*/
 /*      We didn't find the keyword; report failure to the caller      */
 /*--------------------------------------------------------------------*/
+
+   if ( period )
+      *period = '.';          /* Restore period in keyword           */
 
    return FALSE;
 
@@ -668,6 +716,8 @@ boolean configure( CONFIGBITS program)
                               "HOME",     "HOME",
                               "NAME",     "NAME",
                               "MAILBOX",  "MAILBOX",
+                              "LOGNAME",  "MAILBOX",  /* Same as rcs   */
+                              "USERNAME", "MAILBOX",  /* Useful for NT */
                               "TEMP",     "TEMPDIR",
                               "TMP",      "TEMPDIR",
                               NULL } ;
@@ -686,6 +736,7 @@ boolean configure( CONFIGBITS program)
         {&E_tempdir,      "tmp"     },
         {&E_systems,      "systems" },
         {&E_passwd,       "passwd"  },
+        {&E_permissions,  "permissn"},
         {&E_tz,           "tz"      },
         { NULL  }
         } ;
@@ -721,29 +772,51 @@ boolean configure( CONFIGBITS program)
       if (s != NULL )
       {
          sprintf(buf,"%s=%s",envlist[subscript], s );
-         processconfig( buf, SYSTEM_CONFIG, program, envtable, configFlags);
+         if ( !processconfig( buf,
+                              SYSTEM_CONFIG,
+                              program,
+                              envtable,
+                              configFlags))
+         {
+            printmsg(0,"Internal error: Invalid keyword %s",
+                       envlist[subscript]  );
+            panic();
+         }
       } /* if (sysrc != NULL ) */
 
-      subscript++;            /* Step to next environment var in list   */
+      subscript++;            /* Step to next environment var in list */
+   }
+
+/*--------------------------------------------------------------------*/
+/*       If the user specified a user name in the environment but     */
+/*       not a UUPCUSRRC variable, build a UUPCUSRRC variable         */
+/*--------------------------------------------------------------------*/
+
+   if ((usrrc == nil(char)) && ( E_mailbox != NULL ))
+   {                             /* Can build from the environment?  */
+      strcpy( buf, E_mailbox );
+      strcat( buf, ".rc" );
+      usrrc = newstr( buf );
+      printmsg(2,"Using UUPCUSRC=%s", usrrc );
    }
 
 /*--------------------------------------------------------------------*/
 /*          Determine configuration directory from UUPCSYSRC          */
 /*--------------------------------------------------------------------*/
 
-   E_confdir = normalize( sysrc );     // Make 'em all slashes
+   E_confdir = normalize( sysrc );     /* Make 'em all slashes        */
 
-   s = strrchr( E_confdir, '/' );      // Get end of path component
-   if ( s == NULL )                    // There WAS one, right?
-   {                                   // Er, no, sorry.
+   s = strrchr( E_confdir, '/' );      /* Get end of path component   */
+   if ( s == NULL )                    /* There WAS one, right?       */
+   {                                   /* Er, no, sorry.              */
       printmsg(0,"No path name in UUPCSYSRC: %s", sysrc);
       panic();
    }
 
-   *(s+1) = '\0';                      // Terminate for Config Directory
+   *(s+1) = '\0';                      /* Terminate for Config Directory */
    E_confdir = newstr(normalize( E_confdir ));
-                                       // Drop trailing slash unless
-                                       // root directory and save
+                                       /* Drop trailing slash unless  */
+                                       /* root directory and save     */
 
 /*--------------------------------------------------------------------*/
 /*               Process the system configuration file                */
@@ -770,6 +843,7 @@ boolean configure( CONFIGBITS program)
 /*--------------------------------------------------------------------*/
 /*                Process the user configuration value                */
 /*--------------------------------------------------------------------*/
+
 
    if (usrrc != nil(char))
    {
@@ -800,7 +874,7 @@ boolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1990-1993 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed if original documentation and\n"
 "source is included.\n" );
 
@@ -861,7 +935,7 @@ boolean configure( CONFIGBITS program)
 
 static boolean getrcnames(char **sysp,char **usrp)
 {
-   char *debugp = NULL;      /* Pointer to debug environment variable  */
+   char *debugp = NULL;      /* Pointer to debug environment variable */
 
    if ((*sysp = getenv(SYSRCSYM)) == nil(char))
    {
@@ -873,9 +947,24 @@ static boolean getrcnames(char **sysp,char **usrp)
 
    debugp = getenv(SYSDEBUG);
 
-   if ( debugp != nil(char))        /* Debug specified in environment?     */
-      debuglevel = atoi(debugp);    /* Yes --> preset debuglevel for user  */
+   if ( debugp != nil(char))        /* Debug specified in environment? */
+      debuglevel = atoi(debugp);    /* Yes --> preset debuglevel for user */
 
    return TRUE;
 
 } /*getrcnames*/
+
+/*--------------------------------------------------------------------*/
+/*       I s D O S                                                    */
+/*                                                                    */
+/*       Reports if current enviroment is DOS                         */
+/*--------------------------------------------------------------------*/
+
+boolean IsDOS( void )
+{
+   if ( active_env & ENV_DOS )
+      return TRUE;
+   else
+      return FALSE;
+
+} /* IsDOS */
