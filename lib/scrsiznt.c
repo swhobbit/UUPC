@@ -1,3 +1,9 @@
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -27,7 +33,7 @@ short scrsize( void )
 
    result = GetConsoleScreenBufferInfo(hStdout, &info);
 
-   if ( result != 0 )
+   if ( result != TRUE )
    {
       printmsg(0,"Windows/NT error code %d retrieving console information",
                GetLastError() );
