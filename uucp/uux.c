@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.18 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: uux.c 1.19 1995/02/20 00:40:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.19  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.18  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -303,7 +306,7 @@ static KWBoolean cp(char *from, char *to)
    }
 
    while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
-      (nw = write(fd_to, buf, nr)) == nr)
+      (nw = write(fd_to, buf, (size_t) nr)) == nr)
       ;
 
    close(fd_to);
@@ -480,9 +483,10 @@ static KWBoolean split_path(char *path,
 /*             It's not a local file, continue processing             */
 /*--------------------------------------------------------------------*/
 
-      strcpy(file, p_right + 1);      /* and thats our filename        */
+      strcpy(file, p_right + 1);    /* and thats our filename        */
 
-      strncpy(sysname, p, p_left - p); /* and we have a system thats not us  */
+      strncpy(sysname, p, (size_t) (p_left - p));
+                                    /* and we have a remote system   */
       sysname[p_left - p] = '\0';
 
 /*--------------------------------------------------------------------*/
@@ -814,7 +818,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
       return KWFalse;
    }
 
-   d_remote = equal(dest_system, E_nodename) ? KWFalse : KWTrue ;
+   d_remote = (KWBoolean) (equal(dest_system, E_nodename) ? KWFalse : KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*        OK - we have a destination system - do we know him?         */
@@ -964,7 +968,8 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
          return KWFalse;
       } /* if (!split_path()) */
 
-      s_remote = equal(src_system, E_nodename) ? KWFalse : KWTrue ;
+      s_remote = (KWBoolean) (equal(src_system, E_nodename) ?
+                                                KWFalse : KWTrue) ;
 
 /*--------------------------------------------------------------------*/
 /*                   Do we know the source system?                    */
@@ -1130,7 +1135,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main(int  argc, char  **argv)
+main(int  argc, char  **argv)
 {
    int         c;
    extern char *optarg;
@@ -1256,7 +1261,7 @@ void main(int  argc, char  **argv)
    if (flags[FLG_OUTPUT_JOBID])
        printf("%s\n", job_id);
 
-   exit(0);
+   return 0;
 
 } /* main */
 
@@ -1281,7 +1286,7 @@ static char subseq( void )
          break;
 
       default:
-         next += 1;
+         next++;
    } /* switch */
 
    printmsg(4,"subseq: Next subsequence is %c", next);

@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.42 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: uuxqt.c 1.43 1995/02/20 00:40:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.43  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.42  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -1031,9 +1034,16 @@ static void process( const char *fname,
          /* Make sure the directory exists before we copy the files */
          PushDir(executeDirectory);
 
-   //    purify( executeDirectory );
-   //    This needs to be enabled after we allow multiple directory
-   //    searches at once.  The MS C compiler warning is a reminder.
+#ifdef RECURSIVE_PURIFY
+
+/*--------------------------------------------------------------------*/
+/*       This needs to be enabled after we allow multiple directory   */
+/*       searches at once.                                            */
+/*--------------------------------------------------------------------*/
+
+         purify( executeDirectory );
+
+#endif
 
          for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
          {
@@ -1371,7 +1381,7 @@ static int shell(char *command,
 
    if ( result == 0 )
       xflag[E_NORMAL] = KWTrue;
-   else if ( equal(cmdname, RNEWS) )
+   else if ( equal(cmdname, RNEWS) && bflag[F_RNEWSPANIC] )
                            /* Did command execution fail?            */
    {
       printmsg(0,"shell: command %s returned error code %d",
@@ -1380,8 +1390,6 @@ static int shell(char *command,
    }
    else if ( result > 0 )
       xflag[E_STATUS] = KWTrue;
-
-   fflush(logfile);
 
    return result;
 

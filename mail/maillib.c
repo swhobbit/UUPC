@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.19 1994/12/22 00:19:27 ahd Exp $
+ *    $Id: maillib.c 1.20 1995/01/07 16:19:01 ahd Exp $
  *
  *    $Log: maillib.c $
+ *    Revision 1.20  1995/01/07 16:19:01  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.19  1994/12/22 00:19:27  ahd
  *    Annual Copyright Update
  *
@@ -149,13 +152,14 @@ KWBoolean Pager(const int msgnum,
               copyopt received,
               const KWBoolean reset)
 {
-   KWBoolean exitNow  = KWFalse;   /* Flag for PRE-MATURE exit   ahd   */
+   KWBoolean normalExit = KWTrue;
 
    if (msgnum == -1)
       return KWFalse;
 
    if (bflag[F_PAGER])           /* User want pager option inverted? */
-      external = ! external;     /* Yes --> Do the inversion         */
+      external = (KWBoolean) ((! external) ? KWTrue : KWFalse );
+                                 /* Yes --> Do the inversion         */
 
    if (letters[msgnum].status < M_READ)
       letters[msgnum].status = M_READ;
@@ -186,7 +190,7 @@ KWBoolean Pager(const int msgnum,
       char buf[BUFSIZ];
       long nextloc = letters[msgnum + 1].adr;
 
-      fseek(fmailbox, letters[msgnum].adr, SEEK_SET);
+      imseek(imBox, letters[msgnum].adr, SEEK_SET);
 
       if ( reset )
          ClearScreen();
@@ -196,16 +200,17 @@ KWBoolean Pager(const int msgnum,
       sprintf(buf,"Mailbox item %d:\n",msgnum + 1);
       PageLine(buf);
 
-      while ((ftell(fmailbox) < nextloc) &&
-             (!exitNow) &&
-             (fgets(buf, sizeof buf, fmailbox) != nil(char)))
+      while ((imtell(imBox) < nextloc) &&
+             ( normalExit ) &&
+             (imgets(buf, sizeof buf, imBox ) != nil(char)))
       {
          KWBoolean print = KWTrue;
 
          switch(received)
          {
             case nocontinue:
-               if ((*buf != '\n') && !isgraph(*buf)) {
+               if ((*buf != '\n') && !isgraph(*buf))
+               {
                   print = KWFalse;
                   break;
                }
@@ -216,6 +221,7 @@ KWBoolean Pager(const int msgnum,
             case ignoresome:
             {
                char entry = 0;
+
                while ( E_ignoreList[entry] && print )
                {
                   if (equalni(E_ignoreList[entry],
@@ -227,6 +233,7 @@ KWBoolean Pager(const int msgnum,
                   }
                   else
                      entry++;
+
                } /* while */
 
             } /* case ignoresome */
@@ -237,16 +244,16 @@ KWBoolean Pager(const int msgnum,
                received = seperators;
 
          if (print && PageLine(buf))   /* Exit if the user hits Q    */
-               exitNow = KWTrue;
+            normalExit = KWFalse;
 
       } /* while */
 
-      if (equal(buf,"\n") && (!exitNow))
-         putchar('\n');
+      if (equal(buf,"\n") && ( normalExit ))
+         fputc('\n', stdout);
 
    } /* else */
 
-   return ! exitNow;
+   return normalExit;
 
 } /*Pager*/
 
@@ -264,7 +271,7 @@ void Sub_Pager(const char *tinput,
    KWBoolean exitNow  = KWFalse;   /* Flag for PRE-MATURE exit   ahd   */
 
    if (bflag[ F_PAGER ])
-      external = ! external;
+      external = (KWBoolean) ((! external) ? KWTrue : KWFalse);
 
    if ( external && (E_pager != nil(char)) )
       Invoke(E_pager, tinput );
@@ -273,7 +280,8 @@ void Sub_Pager(const char *tinput,
       char buf[BUFSIZ];
 
       finput = FOPEN(tinput, "r",TEXT_MODE);
-      if (finput == NULL) {
+      if (finput == NULL)
+      {
          printmsg(0,"Cannot open file %s for display",tinput);
          printerr(tinput);
          return;
@@ -318,7 +326,8 @@ KWBoolean PageLine(char *line)
 
    fputs(line, stdout);
 
-   PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines */
+   PageCount = PageCount + 1 + (int) strlen(line) / 81;
+                                    /* Handle long lines             */
 
    if (PageCount > pagesize)
    {
@@ -427,11 +436,12 @@ KWBoolean CopyMsg(const int msgnum,
 /*              Now position to the front of the letter               */
 /*--------------------------------------------------------------------*/
 
-   fseek(fmailbox, letters[msgnum].adr, SEEK_SET);
+   imseek(imBox, letters[msgnum].adr, SEEK_SET);
    nextloc = letters[msgnum + 1].adr;
 
-   while (ftell(fmailbox) < nextloc &&
-      fgets(buf, sizeof buf, fmailbox) != nil(char)) {
+   while (imtell(imBox) < nextloc &&
+      imgets(buf, sizeof buf, imBox) != nil(char))
+   {
 
 /*--------------------------------------------------------------------*/
 /*               Determine if we should write the line                */
@@ -447,7 +457,8 @@ KWBoolean CopyMsg(const int msgnum,
             break;
 
          case nocontinue:
-            if ((*buf != '\n') && !isgraph(*buf)) {
+            if ((*buf != '\n') && !isgraph(*buf))
+            {
                print = KWFalse;
                break;
             }
@@ -550,9 +561,12 @@ KWBoolean CopyMsg(const int msgnum,
 
    while( isdigit(*column) )  /* Scan to string end or 1st non-digit */
       column++;
-
-   return *column == '\0';    /* Success if whole string was made of
+   if ( *column == '\0' )
+      return KWTrue;          /* Success if whole string was made of
                                  digits                              */
+   else
+      return KWFalse;
+
  } /* Numeric */
 
 /*--------------------------------------------------------------------*/
@@ -571,9 +585,9 @@ KWBoolean RetrieveLine(const long adr,
    *line = '\0';              /* Insure nothing to find              */
 
    if (adr == MISSING)        /* No information to read?             */
-      return KWFalse;          /* Report this to caller               */
+      return KWFalse;         /* Report this to caller               */
 
-   if (fseek(fmailbox, adr, SEEK_SET)) /* Position to data           */
+   if (imseek(imBox, adr, SEEK_SET)) /* Position to data           */
    {                          /* Have a problem?                     */
       printmsg(0,"Failure seeking to %ld offset in mailbox ...",
                adr );
@@ -586,19 +600,11 @@ KWBoolean RetrieveLine(const long adr,
 /*                     Actually read the data in                      */
 /*--------------------------------------------------------------------*/
 
-   count = fread(line, sizeof *line, len-1, fmailbox);
+   count = imread(line, sizeof *line, len-1, imBox);
 
-   if ( count > (len-1))
+   if ((count < (len-1)) && imerror( imBox ))
    {
-      printmsg(0,"Zouns!  fread read %d bytes when we only asked for %d",
-                 count,
-                 len - 1 );
-      panic();
-   }
-
-   if ((count < (len-1)) && ferror( fmailbox ))
-   {
-      printerr( "RetrieveLine");
+      printerr( "imread");
       return KWFalse;
    }
 
@@ -701,11 +707,13 @@ void sayoptions( FLAGTABLE *flags)
          {
             if ( used > 79 )
             {
-               putchar('\n');
+
+               fputc( '\n', stdout);
                used = width;
+
             } /* if ( used > 79 ) */
             else
-               putchar(' ');
+               fputc( ' ', stdout);
          } /* if ( subscript > 0 ) */
 
          printf("%s%s",
@@ -714,6 +722,6 @@ void sayoptions( FLAGTABLE *flags)
 
    } /* for */
 
-   putchar('\n');
+   fputc( '\n', stdout);
 
 } /* sayoptions */

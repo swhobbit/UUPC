@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.56 1995/02/15 01:56:18 ahd Exp $
+ *       $Id: rnews.c 1.57 1995/02/15 02:03:39 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.57  1995/02/15 02:03:39  ahd
+ *       Insure snews/nns support generates SYS file if needed for shadow
+ *       systems.
+ *
  *       Revision 1.56  1995/02/15 01:56:18  ahd
  *       Allow concurrent exploiting of NNS. SNEWS, and SYS file support
  *
@@ -36,7 +40,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.56 1995/02/15 01:56:18 ahd Exp $";
+         "$Id: rnews.c 1.57 1995/02/15 02:03:39 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -85,7 +89,7 @@ static void
 queueNews( const char *inputName )
 {
 
-   char commandOptions[BUFSIZ];
+   char commandOptions[FILENAME_MAX];
    int status;
    const char *command = bflag[ F_NEWSRUN ] ? "newsrun" : "uux";
 

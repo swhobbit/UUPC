@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.20 1995/01/07 16:21:30 ahd Exp $
+ *       $Id: inews.c 1.21 1995/02/12 23:37:04 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.21  1995/02/12 23:37:04  ahd
+ * compiler cleanup, NNS C/news support, optimize dir processing
+ *
  * Revision 1.20  1995/01/07 16:21:30  ahd
  * Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -100,7 +103,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.20 1995/01/07 16:21:30 ahd Exp $";
+      "$Id: inews.c 1.21 1995/02/12 23:37:04 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -146,7 +149,11 @@ void main( int argc, char **argv)
   extern char *optarg;
   extern int   optind;
   int c;
+
   char tempname[FILENAME_MAX];  /* temporary input file     */
+  const char *command = bflag[ F_NEWSRUN ] ? "newsrun" : "uux";
+  char commandOptions[FILENAME_MAX];
+
   FILE *article;
   struct stat st;
 
@@ -237,7 +244,28 @@ void main( int argc, char **argv)
 /*                         deliver locally                            */
 /*--------------------------------------------------------------------*/
 
-  result = execute("NEWSRUN", NULL, tempname, NULL, KWTrue, KWFalse);
+
+   if ( bflag[ F_NEWSRUN ] )
+      *commandOptions = '\0';
+   else
+      sprintf(commandOptions, "-p -g%c -n -x %d -C %s!newsrun",
+              E_newsGrade,
+              debuglevel,
+              E_nodename );
+
+   result = execute( command,
+                     commandOptions,
+                     tempname,
+                     NULL,
+                     KWTrue,
+                     KWFalse);
+
+   if ( result )
+   {
+      printmsg(0, "%s command failed with status %d",
+                  command,
+                  result );
+   }
 
 /*--------------------------------------------------------------------*/
 /*                             cleanup                                */

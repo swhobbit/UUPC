@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.18 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: uucp.c 1.19 1995/02/20 00:40:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.19  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.18  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -575,7 +578,7 @@ int   do_copy(char *src_syst,
 /*    main program, of course                                         */
 /*--------------------------------------------------------------------*/
 
-void  main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
       int         i;
       int         option;
@@ -776,7 +779,7 @@ void  main(int argc, char *argv[])
       if (j_flag)
          printmsg(1,"j_flag");
 
-      exit(0);
+      return 0;
 
 } /* main */
 

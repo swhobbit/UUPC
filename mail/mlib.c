@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.14 1995/01/07 16:19:13 ahd Exp $
+ *    $Id: mlib.c 1.15 1995/01/07 16:35:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.15  1995/01/07 16:35:54  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.14  1995/01/07 16:19:13  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -126,7 +129,7 @@ static int DOSKeyRead( char *buff , int buflen );
 /*       Get a single character from the console                      */
 /*--------------------------------------------------------------------*/
 
-int Get_One()
+int Get_One( void )
 {
 
    return getch();
@@ -195,7 +198,10 @@ int Invoke(const char *ecmd,
 KWBoolean Is_Console(FILE *stream)
 {
 
-   return isatty(fileno(stream));
+   if (isatty(fileno(stream)) )
+      return KWTrue;
+   else
+      return KWFalse;
 
 } /*Is_Console*/
 
@@ -219,7 +225,10 @@ KWBoolean Console_fgets(char *buff, int buflen, char *prompt)
    fputs(prompt, stdout);
    fflush(stdout);
 
-   return (fgets(buff, buflen, stdin) != nil(char)) ? KWTrue : KWFalse;
+   if (fgets(buff, buflen, stdin) == NULL)
+      return KWFalse;
+   else
+      return KWTrue;
 
 } /*Console_fgets*/
 
@@ -447,7 +456,7 @@ static int DOSKeyRead( char *buff , int buflen )
 /*       Clear the screen                                             */
 /*--------------------------------------------------------------------*/
 
-void ClearScreen()
+void ClearScreen( void )
 {
 
 #ifdef __TURBOC__

@@ -73,10 +73,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.15 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: sys.c 1.16 1995/02/15 02:03:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.16  1995/02/15 02:03:39  ahd
+ *    Treat mail server as default news server when generating a
+ *    default SYS file.
+ *    ./
+ *
  *    Revision 1.15  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -232,6 +237,7 @@ process_sys( char *buf)
   KWBoolean success = KWTrue;
   int batchOptions = 0;
 
+  checkref( node );
   memset(node, 0, sizeof(struct sys));
 
 /*--------------------------------------------------------------------*/
@@ -345,7 +351,6 @@ process_sys( char *buf)
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended specific options.                 */
 /*--------------------------------------------------------------------*/
-
 
     node->flag.c = setBooleanOption(f3, 'c' );
                                     /* Do _not_ compress batches     */
@@ -537,8 +542,6 @@ static void bootStrap( const char *fileName )
 /*         Everyone else gets our full feed sans-local stuff.         */
 /*--------------------------------------------------------------------*/
 
-
-
    fprintf( stream, "# Our news feed, not batched to speed our posts\n");
    fprintf( stream, "%s:all/!local::\n\n",
                     E_newsserv ? E_newsserv : E_mailserv );
@@ -618,7 +621,6 @@ init_sys( void )
   }
 
   printmsg(3, "init_sys: reading system file %s", sysFileName);
-  fseek(sysFileStream, 0, SEEK_SET);
 
   memset(buf, 0, sizeof buf);
 

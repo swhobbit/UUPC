@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.18 1994/12/22 00:19:20 ahd Exp $
+ *    $Id: mailblib.c 1.19 1995/01/07 16:18:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.19  1995/01/07 16:18:55  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.18  1994/12/22 00:19:20  ahd
  *    Annual Copyright Update
  *
@@ -97,7 +100,7 @@
 /*--------------------------------------------------------------------*/
 
 static int *item_list = NULL;
-static size_t next_item;
+static int next_item;
 
 currentfile();
 
@@ -105,12 +108,14 @@ currentfile();
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean SearchUser( char *token , char **input, const int bits);
+static KWBoolean SearchUser( char *token,
+                             char **input,
+                             const unsigned int bits);
 
 static KWBoolean SearchSubject( char *token,
                               char **input,
                               char *trailing,
-                              const int bits);
+                              const unsigned int bits);
 
 /*--------------------------------------------------------------------*/
 /*                     Externally known functions                     */
@@ -139,7 +144,7 @@ void ShowAlias( const char *alias)
 /*--------------------------------------------------------------------*/
 
    while(column-- > 0 )
-      putchar(' ');
+      fputc(' ', stdout );
 
 /*--------------------------------------------------------------------*/
 /*       Show the alias, breaking it down recursively if need be      */
@@ -155,7 +160,7 @@ void ShowAlias( const char *alias)
 
       column = level * 2 + 2;
       while(column-- > 0 )
-         putchar(' ');
+         fputc(' ', stdout );
 
       user_at_node(alias, path, node, user);
                               /* Reduce address to basics */
@@ -174,12 +179,12 @@ void ShowAlias( const char *alias)
             char path[MAXADDR];
             char node[MAXADDR];
 
-            ExtractAddress(user,fullname, KWFalse);
+            ExtractAddress(user,fullname, ADDRESSONLY);
             user_at_node(user,path,node,user);
                                     /* Reduce address to basics */
             column = level * 2 + 2;
             while(column-- > 0 )
-               putchar(' ');
+               fputc(' ', stdout );
 
             printf("(%s@%s via %s)\n", user, node, path);
          }
@@ -188,15 +193,15 @@ void ShowAlias( const char *alias)
          char buf[LSIZE];
 
          strcpy( buf, fullname );
-         fullname = strtok( buf , WHITESPACE "," );
+         fullname = strtok( buf, WHITESPACE "," );
 
          while (fullname != NULL )
          {
-            char *save = strtok( NULL , "");
+            char *save = strtok( NULL, "");
             level++;             /* Bump up a level for recursive calls */
             ShowAlias(fullname);
             level--;             /* Restore indent level               */
-            fullname = strtok( save , " ," );
+            fullname = strtok( save, " ," );
          } /* while */
       } /* else */
    } /* else */
@@ -239,7 +244,7 @@ KWBoolean SaveItem( const int item,
 
       default:          /* No special character?                  */
       case '~':         /* Relative to home directory?            */
-            strcpy( filename , fname );
+            strcpy( filename, fname );
             if ( filename[ strlen( filename ) - 1 ] == ':' ) /* Device? */
             {
                if ( headers == seperators ) /* Default to insert sep?  */
@@ -272,7 +277,7 @@ KWBoolean SaveItem( const int item,
          break;
    } /* switch */
 
-   printf("%s item %d to %s\n", s , item + 1, filename );
+   printf("%s item %d to %s\n", s, item + 1, filename );
 
 /*--------------------------------------------------------------------*/
 /*                     Open the mailox to save to                     */
@@ -292,7 +297,7 @@ KWBoolean SaveItem( const int item,
 /*--------------------------------------------------------------------*/
 
    if (letters[item].status < M_DELETED)
-      letters[item].status = delete ? M_DELETED : M_SAVED;
+      letters[item].status = (MSTATUS) (delete ? M_DELETED : M_SAVED);
 
    return KWTrue;
 } /* SaveItem */
@@ -318,7 +323,7 @@ int Position(int absolute, int relative, int start)
          return current - 1;
       else if ( current >= letternum )
          printf("Item %d does not exist, last item in mailbox is %d\n",
-               current , letternum);
+               current, letternum);
       else
          printf("Cannot backup beyond top of mailbox\n");
 
@@ -388,13 +393,13 @@ int Position(int absolute, int relative, int start)
 /*    Compose interactive outgoing mail                               */
 /*--------------------------------------------------------------------*/
 
-KWBoolean DeliverMail( char *addresses , int item)
+KWBoolean DeliverMail( char *addresses, int item)
 {
    char *Largv[MAXADDRS];
    int   Largc;
 
-   Largc = getargs(addresses , Largv );
-   return Collect_Mail(stdin, Largc , Largv, item , KWFalse);
+   Largc = getargs(addresses, Largv );
+   return Collect_Mail(stdin, Largc, Largv, item , KWFalse);
 } /* DeliverMail */
 
 /*--------------------------------------------------------------------*/
@@ -474,7 +479,7 @@ KWBoolean Reply( const int current )
 /*    Forward (resend) mail to another address                        */
 /*--------------------------------------------------------------------*/
 
-KWBoolean ForwardItem( const int item , const char *string )
+KWBoolean ForwardItem( const int item, const char *string )
 {
    FILE *stream;
    char  *Largv[MAXADDRS];
@@ -510,16 +515,17 @@ KWBoolean ForwardItem( const int item , const char *string )
       panic();
    }
 
-   strcpy( buf , string );
-   Largc = getargs( buf , Largv );
-   success = Send_Mail(stream, Largc , Largv, NULL, KWTrue);
+   strcpy( buf, string );
+   Largc = getargs( buf, Largv );
+   success = Send_Mail(stream, Largc, Largv, NULL, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*                   Clean up and return to caller                    */
 /*--------------------------------------------------------------------*/
 
-   if (letters[item].status < (int) M_FORWARDED)
-      letters[item].status = (int) M_FORWARDED;
+   if (letters[item].status < M_FORWARDED)
+      letters[item].status = M_FORWARDED;
+
    remove(tmailbag);
 
    return success;
@@ -550,7 +556,7 @@ void subshell( char *command )
          new_prompt = malloc( strlen( old_prompt ) + strlen( exit_prompt ) + 1);
          checkref( new_prompt );
 
-         strcpy( new_prompt , exit_prompt );
+         strcpy( new_prompt, exit_prompt );
          strcat( new_prompt, old_prompt );
 
          if (putenv( new_prompt ) )
@@ -583,7 +589,7 @@ void subshell( char *command )
 /*    Select mail items to be processed by the current command        */
 /*--------------------------------------------------------------------*/
 
-KWBoolean SelectItems( char **input, int current , int bits)
+KWBoolean SelectItems( char **input, int current, unsigned int bits)
 {
    char *next_token = *input;
    char *token = NULL;
@@ -604,23 +610,23 @@ KWBoolean SelectItems( char **input, int current , int bits)
    if ( *input == NULL )
    {
       SetItem( current+1 );
-      return SetTrailing( input , bits );
+      return SetTrailing( input, bits );
    }
 
 /*--------------------------------------------------------------------*/
 /*             Select all items if the user requested so              */
 /*--------------------------------------------------------------------*/
 
-   strcpy( trailing , next_token );
-   token = strtok( next_token , WHITESPACE );
+   strcpy( trailing, next_token );
+   token = strtok( next_token, WHITESPACE );
    if (equal(token,"*"))      /* Select all items?                   */
    {
-      *input = strtok( NULL , "" );
+      *input = strtok( NULL, "" );
 
       for ( item = 1; item <= letternum; item++)
          SetItem( item );
 
-      return SetTrailing( input , bits );
+      return SetTrailing( input, bits );
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -638,7 +644,7 @@ KWBoolean SelectItems( char **input, int current , int bits)
    while ( token != NULL)
    {
       KWBoolean success = KWTrue;
-      next_token = strtok( NULL , "");
+      next_token = strtok( NULL, "");
                               /* Remember next of line for next pass */
 
       if (Numeric( token ))
@@ -656,8 +662,8 @@ KWBoolean SelectItems( char **input, int current , int bits)
       {                          /* Yes --> Handle it                */
          char *start, *end ;
          int  istart, iend;
-         start = strtok( token , "-");
-         end   = strtok( NULL , "");
+         start = strtok( token, "-");
+         end   = strtok( NULL, "");
 
          if (equal(start,"$"))
             istart = letternum;
@@ -692,7 +698,7 @@ KWBoolean SelectItems( char **input, int current , int bits)
          if ( iend < istart)
          {
             printf("Ending item (%d) is less than starting item (%d)\n",
-                   iend , istart );
+                   iend, istart );
             return KWFalse;
          } /* if */
 
@@ -708,7 +714,7 @@ KWBoolean SelectItems( char **input, int current , int bits)
 
       if ( next_token != NULL )
       {
-         strcpy( trailing , next_token );
+         strcpy( trailing, next_token );
                               /* Save current line so we can back up */
          token = strtok( next_token, WHITESPACE );
       }
@@ -754,7 +760,7 @@ KWBoolean SelectItems( char **input, int current , int bits)
    else
       *input = NULL ;
 
-   return SetTrailing( input , bits );
+   return SetTrailing( input, bits );
 
 } /* SelectItems */
 
@@ -767,7 +773,7 @@ KWBoolean SelectItems( char **input, int current , int bits)
 static KWBoolean SearchSubject( char *token,
                               char **input,
                               char *trailing,
-                              const int bits)
+                              const unsigned int bits)
 {
    char line[LSIZE];
    int item;
@@ -803,7 +809,7 @@ static KWBoolean SearchSubject( char *token,
          *input = NULL;
       else
          strcpy( *input, next_token );
-      return SetTrailing( input , bits ); /* Yes --> Success      */
+      return SetTrailing( input, bits ); /* Yes --> Success      */
    } /* if (hit) */
    else {
       printf("No mail items found with subject \"%s\"\n",token);
@@ -817,7 +823,9 @@ static KWBoolean SearchSubject( char *token,
 /*    Search for a user id on mail items                              */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean SearchUser( char *token , char **input, const int bits)
+static KWBoolean SearchUser( char *token,
+                             char **input,
+                             const unsigned int bits)
 {
    char line[LSIZE];
    int item;
@@ -898,7 +906,7 @@ static KWBoolean SearchUser( char *token , char **input, const int bits)
 /*--------------------------------------------------------------------*/
 
    if (hit)             /* Did we find the string for user?    */
-      return SetTrailing( input , bits ); /* Yes --> Success   */
+      return SetTrailing( input, bits ); /* Yes --> Success   */
    else {
       printf("No mail items found from \"%s\"\n",token);
       return KWFalse;
@@ -912,7 +920,7 @@ static KWBoolean SearchUser( char *token , char **input, const int bits)
 /*    Determine success of command parse based on trailing operands   */
 /*--------------------------------------------------------------------*/
 
-KWBoolean SetTrailing( char **input, int bits )
+KWBoolean SetTrailing( char **input, unsigned int bits )
 {
 
 /*--------------------------------------------------------------------*/
@@ -943,8 +951,8 @@ KWBoolean SetTrailing( char **input, int bits )
 
    if ( bits & FILE_OP )
    {
-      char *token = strtok( *input , WHITESPACE );
-      token = strtok( NULL , "" );
+      char *token = strtok( *input, WHITESPACE );
+      token = strtok( NULL, "" );
 
       if ( token == NULL )
          return KWTrue;
@@ -974,7 +982,7 @@ KWBoolean SetItem( int item )
 {
    if ( item_list == NULL )
    {
-      item_list = calloc( letternum, sizeof *item_list);
+      item_list = calloc( (size_t) letternum, sizeof *item_list);
       checkref( item_list );
    }
 
@@ -997,7 +1005,7 @@ KWBoolean SetItem( int item )
 
 KWBoolean Get_Operand( int *item,
                      char **token,
-                     int bits,
+                     unsigned int bits,
                      KWBoolean first_pass )
 {
 
@@ -1030,7 +1038,7 @@ KWBoolean Get_Operand( int *item,
 
    if ( bits & LETTER_OP )
    {
-      static size_t subscript;
+      static int subscript;
       subscript = first_pass ? 0 : subscript + 1;
 
       if (subscript < next_item)
@@ -1075,14 +1083,14 @@ KWBoolean Get_Operand( int *item,
          return first_pass;
       } /* if */
 
-      *token = strtok( rest , WHITESPACE );
+      *token = strtok( rest, WHITESPACE );
       if ( token == NULL )
       {
          rest = NULL;
          return first_pass;
       }
       else {
-         rest = strtok( NULL , "" );
+         rest = strtok( NULL, "" );
          return KWTrue;
       } /* else */
    } /* if */
@@ -1137,7 +1145,9 @@ int PushItemList( int **save_list )
 {
    *save_list = item_list;
    item_list = NULL;
+
    return next_item;
+
 } /* PushItemList */
 
 /*--------------------------------------------------------------------*/

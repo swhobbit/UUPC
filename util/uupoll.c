@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.24 1994/12/22 00:31:26 ahd Exp $
+ *    $Id: uupoll.c 1.25 1995/01/07 16:22:59 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.25  1995/01/07 16:22:59  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.24  1994/12/22 00:31:26  ahd
  *    Annual Copyright Update
  *
@@ -174,7 +177,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.24 1994/12/22 00:31:26 ahd Exp $";
+         "$Id: uupoll.c 1.25 1995/01/07 16:22:59 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -587,9 +590,14 @@ currentfile();
 
                if (returnCode == 0)
                {
-                  KWBoolean poll  =  (autowait != -1) &&
-                                   (now >= autonext) &&
-                                   (now < next);
+                  KWBoolean poll;
+
+                  if ( (autowait != -1) &&
+                       (now >= autonext) &&
+                       (now < next))
+                     poll = KWTrue;
+                  else
+                     poll = KWFalse;
 
                   if ( ! autoUUXQT )
                      uuxqt( debuglevel, KWTrue );

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.21 1995/01/30 04:08:36 ahd Exp ahd $
+ *    $Id: mailsend.c 1.22 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.22  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.21  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *
@@ -863,7 +866,7 @@ static KWBoolean Subcommand( char *buf,
          case 'I':
          case 'm':
          case 'M':
-            if (fmailbox == NULL)
+            if ( imBox == NULL)
                puts("Mailbox not accessible!");
             else {
                int *itemList;
