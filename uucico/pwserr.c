@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.1 1993/10/02 23:12:35 dmwatt Exp $
+ *    $Id: pwserr.c 1.2 1993/10/02 23:45:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ * Revision 1.2  1993/10/02  23:45:16  ahd
+ * Delete unneeded function
+ *
  * Revision 1.1  1993/10/02  23:12:35  dmwatt
  * Initial revision
  *
@@ -158,10 +161,18 @@ void pWSErr(const size_t lineno,
    printmsg(2,"Windows sockets error %d in %s at line %d ...",
             (int) rc, fname, lineno );
 
-   printmsg(0,"%fs: %fs", (char FAR *)prefix, msg);
+#ifdef _Windows
+   printmsg(0,"%s: %Fs", prefix, msg);
+#else
+   printmsg(0,"%s: %s", prefix, msg);
+#endif
 
    if ( redirect )
-      fprintf(stdout,"%fs: %fs\n", (char FAR *)prefix, msg);
+#ifdef _Windows
+     fprintf(stdout,"%s: %Fs\n", prefix, msg);
+#else
+     fprintf(stdout,"%s: %s\n", prefix, msg);
+#endif
 
 } /* pWSErr */
 
