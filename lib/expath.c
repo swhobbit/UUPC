@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.17 1995/01/28 23:13:11 ahd Exp $
+ *    $Id: expath.c 1.18 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.18  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.17  1995/01/28 23:13:11  ahd
  *    Use isAbsolutePath()
  *
@@ -105,9 +108,9 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*                   Convert backslashes to slashes                   */
 /*--------------------------------------------------------------------*/
 
-   p  = strcpy(path, input);
-   while ((p = strchr(p,'\\')) != NULL)
-      *p++ = '/';
+   strcpy(path, input);
+   p = path;
+   renormalize( p );
 
 /*--------------------------------------------------------------------*/
 /*                 Add optional extension, if needed                  */
@@ -132,31 +135,43 @@ char *expand_path(char *input,         /* Input/output path name      */
 
    if (isAbsolutePath( path ))
    {
-      KWBoolean push;
-      strcpy( save, path );
 
-      if (cur_dir == NULL )
-         push = KWFalse;
-      else {
-
-         PushDir( cur_dir );
-         push = KWTrue;
-
-      }
-
-      p = _fullpath( path, save, sizeof save );
-
-      if ( p == NULL )
+      if ( strstr( path, "..") == NULL )
       {
-         printerr( path );
-         return NULL;
+         if (( path[0] == '/' ) && ( path[1] != '/' ))
+         {
+            memmove( path + 2, path, strlen( path ));
+            path[0] = (char) (_getdrive() + 'A' - 1);
+            path[1] = ':';
+         }
+      }
+      else {
+         KWBoolean push;
+
+         strcpy( save, path );
+
+         if (cur_dir == NULL )
+            push = KWFalse;
+         else {
+
+            PushDir( cur_dir );
+            push = KWTrue;
+
+         }
+
+         p = _fullpath( path, save, sizeof save );
+
+         if ( p == NULL )
+         {
+            printerr( path );
+            return NULL;
+         }
+
+         if (push)
+            PopDir();
       }
 
-      if (push)
-         PopDir();
-
-      while ((p = strchr(p,'\\')) != NULL)
-         *p++ = '/';
+      renormalize( path );
 
       printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
                   E_cwd, input, path );
@@ -225,8 +240,7 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*             Normalize the path, and then add the name              */
 /*--------------------------------------------------------------------*/
 
-   while ((p = strchr(p,'\\')) != NULL)
-      *p++ = '/';
+   renormalize( p );
 
    strlwr( path );            /* Can lower case path, but not the
                                  name because name may be UNIX!       */

@@ -2,10 +2,6 @@
 /*    n o r m a l i z . c                                             */
 /*                                                                    */
 /*    Normalize a path for UUPC/extended                              */
-/*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks; all        */
-/*    rights reserved except those explicitly granted by the          */
-/*    UUPC/extended license.                                          */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -21,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.13 1994/02/19 04:44:48 ahd v1-12k $
+ *    $Id: normaliz.c 1.14 1994/12/22 00:10:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.14  1994/12/22 00:10:03  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1994/02/19 04:44:48  ahd
  *    Use standard first header
  *
@@ -79,6 +78,7 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
+#include <direct.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -96,8 +96,17 @@ char *normalize( const char *pathx )
 {
    static char save[FILENAME_MAX];
    char path[FILENAME_MAX];
-   int column;
+   size_t column;
    char *p;
+
+   if ( pathx == NULL )
+      panic();
+
+   if ( *pathx == '\0' )
+   {
+      printmsg(0,"Empty path passed to normalize");
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*                      Normalize the seperators                      */
@@ -133,30 +142,50 @@ char *normalize( const char *pathx )
 /*--------------------------------------------------------------------*/
 
    column = strlen( path ) - 1;
+
    if ( (column > 2) && (path[column] == '\\') )
       path[column] = '\0';
 
 /*--------------------------------------------------------------------*/
-/*                    Now actually expand the path                    */
+/*       Now actually expand the path if needed because it's not      */
+/*       absolute or refers to parent directories.  We take           */
+/*       special care to insert the drive letter if needed for an     */
+/*       absolute path which does not have a drive letter and is      */
+/*       not a UNC (network) drive reference.                         */
 /*--------------------------------------------------------------------*/
 
-   p = _fullpath( save, path, sizeof save );
-
-   if ( p == NULL )
+   if (isAbsolutePath(path) && (strstr( path, ".." ) == NULL ))
    {
-      printerr( path );
-      panic();
+      p = save;
+
+      if (( path[0] == '\\' ) && ( path[1] != '\\' ))
+      {
+         *p++ = (char) (_getdrive() + 'A' - 1);
+         *p++ = ':';
+      }
+
+      strcpy( p, path );
+
+   } /* if (isAbsolutePath(path) && (strstr( path, ".." ) == NULL )) */
+   else {
+      p = _fullpath( save, path, sizeof save );
+
+      if ( p == NULL )
+      {
+         printerr( path );
+         panic();
+      }
    }
 
-   while ((p = strchr(p,'\\')) != NULL)   /* Back slashes to slashes  */
-      *p++ = '/';
+   renormalize( save );             /* Revert backslashes to slashes */
 
-   if ( equaln( save + 1, "://", 3))
-      p = save + 2;                       /* Drop drive if really network */
-   else
-      p = save;                           /* Else use as-is           */
+   p = save;
+
+   if ( equaln( p + 1, "://", 3))
+      p = p + 2;                    /* Drop drive if really network  */
 
    column = strlen( p ) - 1;
+
    if ((column > 2) && ( p[column] == '/' )) /* Zap all but root trailing */
        p[column] = '\0';
 

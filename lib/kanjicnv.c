@@ -92,9 +92,9 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
             break;
 
          if (hi & 1)
-            lo += (unsigned) 0x1f;
+            lo = (unsigned char) (lo + (unsigned char) 0x1f);
          else
-            lo += (unsigned) 0x7d;
+            lo = (unsigned char) (lo + (unsigned char) 0x7d);
 
          if (lo >= 0x7f)
             lo++;
@@ -102,7 +102,7 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
          hi = (unsigned char) (((hi - 0x21) / 2) + 0x81);
 
          if (hi > 0x9f)
-            hi += (unsigned) 0x40;
+            hi = (unsigned char) (hi + (unsigned char) 0x40);
 
          if (EOF == fputc(hi, fp))
             return EOF;
@@ -158,7 +158,7 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
 
          if (lo >= 0x9e) {
             lo -= 0x7d;
-            hi += 1;
+            hi = (unsigned char) (hi + 1);
             }
          else {
             lo -= 0x1f;

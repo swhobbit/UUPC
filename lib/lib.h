@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.28 1995/01/28 23:13:37 ahd Exp $
+ *    $Id: lib.h 1.29 1995/01/29 14:09:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.29  1995/01/29 14:09:13  ahd
+ *    IBM C/Set++ warnings cleanup
+ *
  *    Revision 1.28  1995/01/28 23:13:37  ahd
  *    Delete GNU C reference
  *
@@ -335,11 +338,6 @@ void dump_pool( void );          /* Dump our string pool          */
 
 void safefree( void *input , const char *file, size_t line);
 
-char *normalize( const char *path );
-
-#define denormalize( path ) { char *xxp = path; \
-   while ((xxp = strchr(xxp,'/')) != NULL)  \
-      *xxp++ = '\\';  }
 
 KWBoolean IsDOS( void );
 

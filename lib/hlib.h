@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.8 1995/01/09 01:43:38 ahd Exp $
+ *    $Id: hlib.h 1.9 1995/01/28 23:13:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.9  1995/01/28 23:13:37  ahd
+ *    Add isAbsolutePath()
+ *
  *    Revision 1.8  1995/01/09 01:43:38  ahd
  *    Rename sequence file to have extension of .DAT; this keeps it
  *    from mixing in with most directory names when sorting by extension
@@ -55,11 +58,17 @@
 #define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
 #endif
 
-#define isAbsolutePath( path )                                       \
-         (( *path == '/' ) ||                                        \
-          ( *path == '\\' ) ||                                       \
-          ( (isalpha(path[0]) && ( path[1] == ':' )) &&              \
-            ((path[2] == '\\') || (path[2] == '/')) ))
+char *normalize( const char *path );
+
+KWBoolean isAbsolutePath( const char *path);
+
+#define denormalize( path ) { char *xxp = path; \
+   while ((xxp = strchr(xxp,'/')) != NULL)  \
+      *xxp++ = '\\';  }
+
+#define renormalize( path ) { char *xxp = path; \
+   while ((xxp = strchr(xxp,'\\')) != NULL)  \
+      *xxp++ = '/';  }
 
 #ifdef __IBMC__
 #define TEXT_MODE    ""
