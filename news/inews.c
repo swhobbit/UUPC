@@ -11,10 +11,13 @@
 #include "uupcmoah.h"
 
 static char *rcsid =
-"$Id: inews.c 1.7 1994/02/26 17:19:53 ahd Exp $";
-static char *rcsrev = "$Revision: 1.7 $";
+"$Id: inews.c 1.8 1994/03/15 03:02:26 ahd Exp rommel $";
+static char *rcsrev = "$Revision: 1.8 $";
 
 /* $Log: inews.c $
+ * Revision 1.8  1994/03/15  03:02:26  ahd
+ * Add error messages after RTL errors
+ *
  * Revision 1.7  1994/02/26  17:19:53  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -66,13 +69,15 @@ static char *rcsrev = "$Revision: 1.7 $";
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*                        Internal prototypes                         */
+/*           Internal prototypes and global data                      */
 /*--------------------------------------------------------------------*/
 
 static void usage( void );
 static int complete_header(FILE *input, FILE *output, char *origin);
 static int remote_news(FILE *article, char *origin);
 static int spool_news(char *sysname, FILE *article, char *command);
+
+static char grade = 'd';
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -109,8 +114,17 @@ void main( int argc, char **argv)
 /*        Process our arguments                                       */
 /*--------------------------------------------------------------------*/
 
-  while ((c = getopt(argc, argv, "x:h")) !=  EOF)
+  while ((c = getopt(argc, argv, "g:x:h")) !=  EOF)
     switch(c) {
+
+    case 'g':
+      if (isalnum(*optarg) && (strlen(optarg) == 1))
+	grade = *optarg;
+      else {
+	printmsg(0,"Invalid grade for news: %s", optarg);
+	usage();
+      }
+      break;
 
     case 'x':
       debuglevel = atoi( optarg );
@@ -197,7 +211,7 @@ void main( int argc, char **argv)
 
 static void usage( void )
 {
-  printf( "Usage:   inews [-h]\n");
+  printf( "Usage: inews [-g GRADE] [-h]\n");
   exit(1);
 } /* usage */
 
@@ -475,7 +489,7 @@ static int spool_news(char *sysname, FILE *article, char *command)
   seqno = getseq();
   seq = JobNumber(seqno);
 
-  sprintf(tmfile, spool_fmt, 'C', sysname,  'd' , seq);
+  sprintf(tmfile, spool_fmt, 'C', sysname, grade, seq);
   sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
   sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
   sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
