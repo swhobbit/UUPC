@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.13 1993/04/19 13:16:08 ahd Exp ahd $
+#     $Id: makefile 1.14 1993/05/16 13:17:21 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.14  1993/05/16  13:17:21  ahd
+#         Rename nmake to mscmake
+#
 #         Revision 1.13  1993/04/19  13:16:08  ahd
 #         Begin version 1.11z
 #
@@ -466,6 +469,7 @@ $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
 
 $(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)mscmake $(TIMESTMP) $(FMT)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(MAKEFILE)
 mscmake
@@ -495,6 +499,7 @@ help@kew.com.
 
 $(SRCZIPV2): $(FMT)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 xrn\*.c
 xrn\*.h
@@ -525,6 +530,7 @@ help@kew.com.
 
 $(WINZIPV):  $(DOCW) $(FMT) $(MAKEFILE)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(DOCW)
 winword\manual.dot
@@ -545,6 +551,7 @@ help@kew.com.
 
 $(REQZIPV):  $(REQUIRED) $(FMT) $(MAKEFILE)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(REQUIRED)
 !       $(WORKFILE)
@@ -564,6 +571,7 @@ help@kew.com.
 
 $(OPTZIPV):  $(OPTIONAL) $(FMT) $(MAKEFILE)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(OPTIONAL)
 !       $(WORKFILE)
@@ -583,6 +591,7 @@ help@kew.com.
 
 $(NEWZIPV):  $(NEWS) $(FMT) $(MAKEFILE)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(NEWS)
 !       $(WORKFILE)
@@ -604,6 +613,7 @@ docs: $(DOCZIPV) $(WINZIPV)
 
 $(DOCZIPV):  $(SAMPLES) $(DOCSLIST) $(FMT) $(MAKEFILE) $(LIVEFILES)
         - mkdir $:.
+        - del $(WORKFILE)
         $(FMT) -0 &&!
 $(DOCSLIST)
 $(SAMPLES)
