@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.10 1993/10/12 01:34:47 ahd Exp $
+ *    $Id: uucp.c 1.11 1993/10/25 01:21:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.11  1993/10/25  01:21:22  ahd
+ * Force directory for destination when input is wildcarded
+ *
  * Revision 1.10  1993/10/12  01:34:47  ahd
  * Normalize comments to PL/I style
  *
@@ -110,9 +113,10 @@
 /*--------------------------------------------------------------------*/
 
 static boolean       spool_flag = FALSE;
-static char          spool_file[FILENAME_MAX]; /* alt spool file name  */
+static char          spool_file[FILENAME_MAX] = ""; /* alt spool file name */
 static boolean       dir_flag = TRUE;
 static boolean       xeqt_flag = TRUE;    /* Triggered by -r option   */
+static boolean       j_flag = FALSE;      /* set by -j option */
 static char          grade = 'n';         /* Default grade of service  */
 static boolean       mail_me = FALSE;     /* changes with -m           */
 static boolean       mail_them = FALSE;   /* changes with -n           */
@@ -233,27 +237,36 @@ int   do_uux(char *remote,
              char *dest_file)
 {
       char        xcmd[BUFSIZ];        /* buffer for assembling the UUX command  */
-      char        *ex_flg;
+      int         len;
 
 /*--------------------------------------------------------------------*/
 /*                 First - lets get the basic command                 */
 /*--------------------------------------------------------------------*/
 
-      ex_flg = xeqt_flag ? "" : "-r";
-      sprintf(xcmd, "-C %s %s!uucp -C ", ex_flg, remote);
-                              /* but what about mailing the guy?      */
+      len = sprintf(xcmd, "-x%d -g%c -%c%s%s%s%s %s!uucp -C%s%s%s ",
+                          debuglevel, grade,
+                          spool_flag ? 'C' : 'c',
+                          xeqt_flag ? "" : " -r",
+                          j_flag ? " -j" : "",
+                          *spool_file ? " -s" : "",
+                          *spool_file ? spool_file : "",
+                          remote,
+                          dir_flag ? "" : " -f",
+                          mail_them ? " -n" : "",
+                          mail_them ? remote_user : "");
+                              /* but what about mailing the guy (-m)? */
 
 /*--------------------------------------------------------------------*/
 /*                  Now we sort out the source name                   */
 /*--------------------------------------------------------------------*/
 
       if ((*src_syst == '\0') || equal(src_syst, E_nodename))
-         sprintf(xcmd + strlen(xcmd), " !%s ", src_file);
+         len += sprintf(xcmd + len, " !%s ", src_file);
       else  {
          if (!equal(remote, src_syst))
-            sprintf(xcmd + strlen(xcmd), " (%s!%s) ", src_syst, src_file);
+            len += sprintf(xcmd + len, " (%s!%s) ", src_syst, src_file);
          else
-            sprintf(xcmd + strlen(xcmd), " (%s) ", src_file);
+            len += sprintf(xcmd + len, " (%s) ", src_file);
       } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -262,13 +275,13 @@ int   do_uux(char *remote,
 
       if (*dest_inter != '\0')  {
          if (*dest_syst != '\0')
-            sprintf(xcmd + strlen(xcmd), " (%s!%s!%s) ", dest_syst, dest_inter, dest_file);
+            len += sprintf(xcmd + len, " (%s!%s!%s) ", dest_syst, dest_inter, dest_file);
          else
-            sprintf(xcmd + strlen(xcmd), " (%s!%s) ", dest_inter, dest_file);
+            len += sprintf(xcmd + len, " (%s!%s) ", dest_inter, dest_file);
       }
       else  {
          if ((*dest_syst == '\0') || equal(dest_syst, E_nodename))
-            sprintf(xcmd + strlen(xcmd), " (%s!%s) ", E_nodename, dest_file);
+            len += sprintf(xcmd + len, " (%s!%s) ", E_nodename, dest_file);
       }
       printmsg(2, "xcmd: %s", xcmd);
 
@@ -276,7 +289,7 @@ int   do_uux(char *remote,
 /*                              OK - GO!                              */
 /*--------------------------------------------------------------------*/
 
-   execute("uux", xcmd, NULL, NULL, FALSE, TRUE);
+   execute("uux", xcmd, NULL, NULL, TRUE, FALSE);
 
    return(1);
 
@@ -486,7 +499,6 @@ void  main(int argc, char *argv[])
 {
       int         i;
       int         option;
-      boolean j_flag = FALSE;
       char        src_system[100], dest_system[100];
       char        src_inter[100],  dest_inter[100];
       char        src_file[FILENAME_MAX],   dest_file[FILENAME_MAX];
