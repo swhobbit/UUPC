@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.18 1995/02/25 18:21:44 ahd Exp $
+ *    $Id: ulibwin.c 1.19 1995/02/26 02:51:34 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.19  1995/02/26 02:51:34  ahd
+ *    Use buffering version of nsread() based on OS/2 code
+ *
  *    Revision 1.18  1995/02/25 18:21:44  ahd
  *    Normalize source from Miles, revert to MS approved modem
  *    register inspection.  (#define SUICIDE will yield interesting,
@@ -117,13 +120,6 @@
 
 #if defined(CHATPRJ)
 #include "chat.h"
-#else
-
-  static void checkForBreak( void )
-  {
-     /* Source not supplied by Miles.  (Grrrrr).   */
-  };
-
 #endif
 
 unsigned int windowsBuffer = 2048;
