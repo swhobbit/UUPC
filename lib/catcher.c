@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.23 1997/12/13 18:27:55 ahd v1-12u $
+ *    $Id: catcher.c 1.24 1998/03/01 01:23:08 ahd v1-13e $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.24  1998/03/01 01:23:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1997/12/13 18:27:55  ahd
  *    Correct RCS keyword
  *
@@ -49,7 +52,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: catcher.c 1.23 1997/12/13 18:27:55 ahd v1-12u $");
+RCSID("$Id: catcher.c 1.24 1998/03/01 01:23:08 ahd v1-13e $");
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
@@ -186,7 +189,11 @@ ctrlchandler( int sig )
    {
       safeout( "\r\n" );
       safeout( compilen );
+#ifdef UDEBUG
+      safeout( ": Abort processing (or debug)? (Y/N/D) " );
+#else
       safeout( ": Abort processing? (Y/N) " );
+#endif
       safeflush();            /* Flush any queued characters          */
       ch = safein();
 
@@ -211,6 +218,12 @@ ctrlchandler( int sig )
             else
                AbortComm();
 #endif
+            break;
+
+        case 'D':
+        case 'd':
+            safeout("\r\nFiring breakpoint\r\n");
+            BREAKPOINT;
             break;
 
         case 'N':
