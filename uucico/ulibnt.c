@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.15 1993/12/29 03:34:37 dmwatt Exp $
+ *       $Id: ulibnt.c 1.16 1994/01/01 19:22:00 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.16  1994/01/01  19:22:00  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.15  1993/12/29  03:34:37  dmwatt
  * Restructure to use overlapped I/O
  *
@@ -481,6 +484,9 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          if (portTimeout < 1000)
             portTimeout = 1000;
       } /* else */
+
+      if (portTimeout == 0)
+         portTimeout = 10;
 
       CommTimeout.ReadTotalTimeoutConstant = portTimeout;
       CommTimeout.WriteTotalTimeoutConstant = 0;
