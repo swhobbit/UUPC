@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.25 1993/10/31 19:04:03 ahd Exp $
+ *    $Id: uuxqt.c 1.26 1993/11/06 13:04:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.26  1993/11/06  13:04:13  ahd
+ * Don't use more than 8 characters in XQT directory name
+ *
  * Revision 1.25  1993/10/31  19:04:03  ahd
  * Use special name for NUL under Windows NT
  *
@@ -1062,7 +1065,14 @@ static int shell(char *command,
                  boolean xflag[])
 {
    int    result = 0;
-   char   buf[255];
+
+#if defined(BIT32ENV)
+   char   commandBuf[1024];   /* New OS/2, Windows NT environments   */
+#elif defined(__TURBOC__)
+   char   commandBuf[128];    /* Original DOS environment            */
+#else
+   char   commandBuf[255];    /* Maybe MS C DOS, or OS/2 1.x         */
+#endif
 
    char   *cmdname;
    char   *parameters;
@@ -1128,13 +1138,13 @@ static int shell(char *command,
        bflag[F_WINDOWS] &&
        ( inname != NULL ))       /* rnews w/input?                    */
    {
-      strcpy( buf, "-f " );
-      strcat( buf, inname );
-      parameters = buf;          /* We explicitly ignore all parameters  */
+      strcpy( commandBuf, "-f " );
+      strcat( commandBuf, inname );
+      parameters = commandBuf;   /* We explicitly ignore all parameters  */
                                  /* on the RNEWS command              */
 
       result = execute( RNEWS,
-                        buf,
+                        commandBuf,
                         NULL,
                         outname,
                         TRUE,
@@ -1155,27 +1165,21 @@ static int shell(char *command,
          boolean firstPass = TRUE;
          int left;
 
-#if defined(__OS2__) || defined(WIN32)
-         int rlen =  254 ;
-#elif defined(__TURBOC__)
-         int rlen =  126 ;
-#else
-         int rlen = (_osmode == DOS_MODE) ? 126 :  254;
-#endif
+         int rlen = IsDOS() ? 126 : sizeof commandBuf - 2;
 
 #ifdef _Windows
          if ( bflag[F_WINDOWS] )
          {
-            strcpy( buf, "-f ");
-            strcat( buf, inname);
-            strcat( buf, " ");
+            strcpy( commandBuf, "-f ");
+            strcat( commandBuf, inname);
+            strcat( commandBuf, " ");
          }
          else
-            *buf = '\0';
+            *commandBuf = '\0';
 #else
-         *buf = '\0';
+         *commandBuf = '\0';
 #endif
-         rlen -= strlen( buf ) + strlen( RMAIL ) + 1;
+         rlen -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
 
 /*--------------------------------------------------------------------*/
 /*                   Copy addresses into the buffer                   */
@@ -1190,8 +1194,8 @@ static int shell(char *command,
             if ( *parameters == '-')   /* Option flag for mail?        */
                printmsg(0,"Disallowed option %s ignored",parameters);
             else {                     /* Not option, add to param list  */
-               strcat( buf, " ");
-               strcat( buf, parameters );
+               strcat( commandBuf, " ");
+               strcat( commandBuf, parameters );
                rlen -= strlen( parameters ) + 1;
                firstPass = FALSE;
             }
@@ -1217,7 +1221,7 @@ static int shell(char *command,
                       left );
 
             panic();
-         } /* if (*buf = '\0') */
+         } /* if (*commandBuf = '\0') */
 
       } /* while */
 
@@ -1226,7 +1230,7 @@ static int shell(char *command,
 /*--------------------------------------------------------------------*/
 
       result = execute( RMAIL,
-                        buf,
+                        commandBuf,
                         bflag[F_WINDOWS] ? NULL : inname,
                         outname,
                         TRUE,
@@ -1235,7 +1239,7 @@ static int shell(char *command,
       if ( result != 0 )    /* Did command execution fail?            */
       {
          printmsg(0,"shell: command \"%s %s\" returned error code %d",
-               cmdname, buf, result);
+               cmdname, commandBuf, result);
          panic();
       }
 
