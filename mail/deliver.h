@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.6 1993/10/12 01:35:12 ahd Exp $
+ *    $Id: deliver.h 1.7 1993/11/13 17:52:31 ahd Exp $
  *
  *    $Log: deliver.h $
+ * Revision 1.7  1993/11/13  17:52:31  ahd
+ * Add call grading support
+ *
  * Revision 1.6  1993/10/12  01:35:12  ahd
  * Normalize comments to PL/I style
  *
@@ -55,8 +58,8 @@ extern boolean remoteMail;
 
 extern char *now;
 
-extern char fromuser[];
-extern char fromnode[];
+extern char fromUser[];
+extern char fromNode[];
 
 extern  char *ruser;
 extern  char *rnode;
