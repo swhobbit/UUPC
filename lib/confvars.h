@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.6 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: confvars.h 1.7 1993/06/15 12:19:57 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.7  1993/06/15  12:19:57  ahd
+ *     Save changed/pushed directory name for debugging
+ *
  *     Revision 1.6  1993/06/13  14:12:29  ahd
  *     Changes per Mike McLagan for outbound batched news support
  *
@@ -74,8 +77,8 @@ extern char *E_motd;
 extern char *E_systems;
 extern char *E_passwd;
 extern char *E_cwd;              // Never set by user, only program
-extern INTEGER E_priority;
-extern INTEGER E_prioritydelta;
-extern INTEGER E_maxhops;
+extern KEWSHORT E_priority;
+extern KEWSHORT E_prioritydelta;
+extern KEWSHORT E_maxhops;
 
 #endif

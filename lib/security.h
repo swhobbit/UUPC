@@ -1,6 +1,29 @@
 #ifndef _SECURITY
 #define _SECURITY
 
+/*--------------------------------------------------------------------*/
+/*       s e c u r i t y . h                                          */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
 #define ANY_HOST     "OTHER"
 #define ANY_COMMAND  "ALL"
 
@@ -10,7 +33,7 @@
 
 typedef enum {
    ALLOW_READ,
-   ALLOW_WRITE,
+   ALLOW_WRITE
    } REMOTE_ACCESS;
 
 struct DIRLIST {

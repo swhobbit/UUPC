@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.H 1.3 1993/04/11 00:36:13 ahd Exp $
+ *    $Id: deliver.h 1.4 1993/06/13 14:12:29 ahd Exp $
  *
- *    $Log: DELIVER.H $
+ *    $Log: deliver.h $
+ * Revision 1.4  1993/06/13  14:12:29  ahd
+ * Save invoked program name and use it for recursive calls
+ *
  * Revision 1.3  1993/04/11  00:36:13  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -38,7 +41,7 @@ size_t Deliver( const char *input, /* Input file name                */
              const boolean sysalias,
                    boolean validate); /* Validate/forward local mail    */
 
-extern INTEGER hops;
+extern KEWSHORT hops;
 
 extern boolean remoteMail;
 

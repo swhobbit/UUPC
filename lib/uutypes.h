@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.7 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: uutypes.h 1.8 1993/07/31 16:28:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.8  1993/07/31  16:28:59  ahd
+ *     Changes in support of Robert Denny's Windows Support
+ *
  *     Revision 1.7  1993/07/22  23:26:19  ahd
  *     First pass of changes for Robert Denny's Windows 3.1 support
  *
@@ -47,7 +50,7 @@
 /*         Define unique FAR keyword for selected memory hogs         */
 /*--------------------------------------------------------------------*/
 
-#if defined(WIN32) || defined(_Windows)
+#if defined(BIT32ENV) || defined(_Windows)
 #define UUFAR
 #else
 #ifdef __TURBOC__
@@ -56,7 +59,6 @@
 #define UUFAR _far
 #endif
 #endif
-
 
 /*--------------------------------------------------------------------*/
 /*    Enumerated list used by the options= configuration line         */
@@ -106,7 +108,7 @@ typedef enum {
                F_HISTORY,     /* TRUE = Maintain history of of articles
                                         read and posted                    */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support    */
-               F_LONGNAME,    /* TRUE = Exploit long names under OS/2, NT  */
+               B_LONGNAME,      /* TRUE = Exploit long names under OS/2, NT  */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on
                                         remote host at once                */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
@@ -131,7 +133,10 @@ typedef enum {
 
 #undef FALSE
 #undef TRUE
-typedef enum { FALSE = 0, TRUE = 1 } boolean;
+typedef enum
+      { FALSE = 0,
+        TRUE = 1 }
+        boolean;
 
 /*--------------------------------------------------------------------*/
 /*                      Configuration mode flags                      */
@@ -148,7 +153,8 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
 typedef unsigned long CONFIGBITS;
-typedef unsigned short INTEGER;  /* Integers in the config file      */
-typedef unsigned int BPS;
+typedef unsigned short KEWSHORT; /* Integers in the config file      */
+typedef unsigned long  KEWLONG;    /* Integers in the config file      */
+typedef unsigned long  BPS;
 
 #endif
