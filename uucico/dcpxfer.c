@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.28 1993/10/30 02:29:46 ahd Exp $
+ *       $Id: dcpxfer.c 1.29 1993/10/30 03:03:46 ahd Exp rommel $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.29  1993/10/30  03:03:46  ahd
+ * Correct validation of files in ssfile()
+ *
  * Revision 1.28  1993/10/30  02:29:46  ahd
  * Validate transfers for file queued locally
  *
@@ -122,16 +125,17 @@
 /*--------------------------------------------------------------------*/
 
 #include <ctype.h>
-#include <fcntl.h>
 #include <direct.h>
+#include <fcntl.h>
 #include <io.h>
+#include <process.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/timeb.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/timeb.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -170,6 +174,9 @@ static char tempName[FILENAME_MAX];
                               /* Temp name used to create received
                                  file                                */
 static char userid[20];
+static int seq = 0;           /* Number of files transfered this
+                                 connection                          */
+static int pid;
 
 currentfile();
 
@@ -404,6 +411,7 @@ XFER_STATE seof( const boolean purge_file )
       if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
+       seq++;
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
@@ -415,15 +423,16 @@ XFER_STATE seof( const boolean purge_file )
 #endif
          else {
             fprintf( syslog,
-                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) -> %ld"
-                           " / %ld.%02d secs\n",
+                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) (C,%d,%d) [%s]"
+                         " -> %ld / %ld.%02d secs\n",
                    hostp->via,
                    userid,
                    type,
                    lName,
                    (tmx->tm_mon+1), tmx->tm_mday,
-                   tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
-                   ticks / 1000 , (int) ((ticks % 1000) / 10) );
+                   tmx->tm_hour, tmx->tm_min, tmx->tm_sec,
+                 pid, seq, M_device,
+                 bytes, ticks / 1000 , (int) ((ticks % 1000) / 10) );
             if ( bflag[F_MULTITASK] )
             {
                fclose( syslog );
@@ -752,12 +761,17 @@ appending file name \"%s\"", spolName, slash);
 
 XFER_STATE sinit( void )
 {
+
+   pid = (int) getpid();
+   seq = 0;
+
    if ((*openpk)( TRUE ))     /* Initialize in caller mode           */
       return XFER_ABORT;
    else {
       buf_init();
       return XFER_MASTER;
    } /* else */
+
 
 } /*sinit*/
 
@@ -1315,6 +1329,7 @@ XFER_STATE reof( void )
       if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
+       seq++;
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
@@ -1326,15 +1341,16 @@ XFER_STATE reof( void )
 #endif
          else {
             fprintf( syslog,
-                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) <- %ld"
-                           " / %ld.%02d secs\n",
+                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) (C,%d,%d) [%s]"
+                           " <- %ld / %ld.%02d secs\n",
                    hostp->via,
                    userid,
                    type,
                    lName,
                    (tmx->tm_mon+1), tmx->tm_mday,
-                   tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
-                   ticks / 1000 , (int) ((ticks % 1000) / 10) );
+                   tmx->tm_hour, tmx->tm_min, tmx->tm_sec,
+                   pid, seq, M_device,
+                   bytes, ticks / 1000 , (int) ((ticks % 1000) / 10) );
 
             if ( bflag[F_MULTITASK] )
             {
