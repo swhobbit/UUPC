@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.34 1995/01/07 16:18:37 ahd Exp $
+ *    $Id: deliver.c 1.35 1995/01/08 19:52:44 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.35  1995/01/08 19:52:44  ahd
+ *    Add in memory files to RMAIL, including additional support and
+ *    bug fixes.
+ *
  *    Revision 1.34  1995/01/07 16:18:37  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -205,9 +209,9 @@ static int DeliverFile( IMFILE *imf,
                         const KWBoolean validate,
                         const char *user );
 
-static size_t DeliverRemote( IMFILE *imf,          /* Input file name */
-                             const char *address,  /* Target address  */
-                             const char *path);
+static size_t queueRemote( IMFILE *imf,   /* Input file name          */
+                    const char *address,  /* Target address           */
+                    const char *path);
 
 static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
                           char *user,     /* Target address           */
@@ -643,7 +647,9 @@ static int DeliverFile( IMFILE *imf,
 
          default:                /* Deliver normally           */
               delivered += Deliver( imf, s, validate );
+
       } /* switch */
+
    } /* while */
 
    fclose( fwrd );
@@ -806,23 +812,101 @@ static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
 /*--------------------------------------------------------------------*/
 /*    D e l i v e r R e m o t e                                       */
 /*                                                                    */
-/*    Queue mail for delivery on another system via UUCP              */
+/*    Perform control processing for delivery to another UUCP node    */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
+size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
                     const char *address,  /* Target address           */
                     const char *path)
 {
 
-#define EVERY_PAD 10
+   static char *savePath = NULL;    /* System we previously queued for*/
+   static char everyone[512];       /* People we queued for via system*/
+
+/*--------------------------------------------------------------------*/
+/*            Flush previously queued addresses, if needed            */
+/*--------------------------------------------------------------------*/
+
+   if (savePath != NULL)
+   {
+      KWBoolean queueNow = KWFalse;
+
+      if (( E_maxuuxqt <= 0 ) || ( E_maxuuxqt > sizeof everyone ))
+         E_maxuuxqt = sizeof everyone;
+
+      if ( path == NULL )
+         queueNow = KWTrue;
+      else if ( ! equal(savePath, path))
+         queueNow = KWTrue;
+      else if ( address == NULL )
+         queueNow = KWTrue;
+      else if ((strlen(everyone) + strlen(address) + 2) > E_maxuuxqt)
+         queueNow = KWTrue;
+
+      if ( queueNow )
+      {
+         queueRemote( imf, everyone, savePath );
+         savePath = NULL;
+      }
+
+   } /* if (savePath != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                Return if we only flushing the cache                */
+/*--------------------------------------------------------------------*/
+
+   if ( path == NULL )
+      return 0;
+
+/*--------------------------------------------------------------------*/
+/*               Report and queue the current delivery                */
+/*--------------------------------------------------------------------*/
+
+   printmsg(1,"Spooling mail %sfrom %s%s%s to %s via %s",
+               stats( imf ),
+               ruser,
+               remoteMail ? "@" : "",
+               remoteMail ? rnode : "",
+               address ,
+               path);
+
+   if ( savePath == NULL )
+      strcpy( everyone, "rmail");
+
+   strcat(everyone, " ");
+   strcat(everyone, address);
+
+/*--------------------------------------------------------------------*/
+/*       Either set up for queuing more addresses, or deliver what    */
+/*       we just received                                             */
+/*--------------------------------------------------------------------*/
+
+   if (bflag[F_MULTI])        /* Deliver to multiple users at once?   */
+      savePath = newstr(path);   /* Yes --> Save routing info         */
+   else
+      return queueRemote( imf, everyone, path );
+
+   return 1;
+
+} /* DeliverRemote */
+
+/*--------------------------------------------------------------------*/
+/*    q u e u e R e m o t e                                           */
+/*                                                                    */
+/*    Queue mail for delivery on another system via UUCP              */
+/*--------------------------------------------------------------------*/
+
+static size_t queueRemote( IMFILE *imf,   /* Input file               */
+                    const char *command,  /* Target address           */
+                    const char *path)     /* Node to queue for        */
+{
 
    static char *spool_fmt = SPOOLFMT;              /* spool file name */
    static char *dataf_fmt = DATAFFMT;
    static char *send_cmd  = "S %s %s %s - %s 0666\n";
-   static long seqno = 0;
-   static char *SavePath = NULL;
+
+   char *seq = JobNumber( getseq() );
    FILE *stream;              /* For writing out data                 */
-   static char everyone[512];
 
    char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */
    char msname[22];           /* MS-DOS format w/o path name          */
@@ -836,44 +920,11 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
    static char rxfile[15];    /* Remote system UNIX name of eXecute
                                  file                                 */
 
-   printmsg(1,"Spooling mail %sfrom %s%s%s to %s via %s",
-               stats( imf ),
-               ruser,
-               remoteMail ? "@" : "",
-               remoteMail ? rnode : "",
-               address ,
-               path);
-
-   if ( ! E_maxuuxqt )
-      E_maxuuxqt = sizeof everyone;
-
-/*--------------------------------------------------------------------*/
-/*          Create the UNIX format of the file names we need          */
-/*--------------------------------------------------------------------*/
-
-   if ((seqno == 0) ||
-       (SavePath == NULL) ||
-       !equal(SavePath, path) ||
-       ((strlen(everyone) + strlen(address) + 2) > E_maxuuxqt))
-   {
-      char *seq;
-      seqno = getseq();
-      seq = JobNumber( seqno );
-
-      if  (SavePath != NULL )
-         SavePath = NULL;
-
-      sprintf(tmfile, spool_fmt, 'C', path,     grade , seq);
-      sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
-      sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
-      sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
-      sprintf(rxfile, dataf_fmt, 'X', E_nodename , seq, 'r');
-      strcpy( everyone,"rmail");
-
-   } /* if */
-
-   strcat(everyone, " ");
-   strcat(everyone, address);
+   sprintf(tmfile, spool_fmt, 'C', path,     grade , seq);
+   sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
+   sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
+   sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
+   sprintf(rxfile, dataf_fmt, 'X', E_nodename , seq, 'r');
 
 /*--------------------------------------------------------------------*/
 /*                     create remote X (xqt) file                     */
@@ -883,6 +934,7 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w", IMAGE_MODE);
+
    if ( stream == NULL )
    {
       printerr(msfile);
@@ -898,12 +950,9 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
                                  /* Required file for input          */
    fprintf(stream, "I %s\n", rdfile );
                                  /* stdin for command                */
-   fprintf(stream, "C %s\n", everyone);
+   fprintf(stream, "C %s\n", command );
                                  /* Command to execute using file    */
    fclose(stream);
-
-   if (SavePath != NULL)
-      return 1;
 
 /*--------------------------------------------------------------------*/
 /*  Create the data file with the mail to send to the remote system   */
@@ -913,6 +962,7 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w", IMAGE_MODE);
+
    if (stream == NULL )
    {
       printerr(msfile);
@@ -936,6 +986,7 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w",TEXT_MODE);
+
    if (stream == NULL)
    {
       printerr( msname );
@@ -945,14 +996,12 @@ static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
 
    fprintf(stream, send_cmd, idfile, rdfile, uuser, idfile);
    fprintf(stream, send_cmd, ixfile, rxfile, uuser, ixfile);
-   fclose(stream);
 
-   if (bflag[F_MULTI])        /* Deliver to multiple users at once?   */
-      SavePath = newstr(path);   /* Yes --> Save routing info         */
+   fclose(stream);
 
    return 1;
 
-} /* DeliverRemote */
+} /* queueRemote */
 
 /*--------------------------------------------------------------------*/
 /* C o p y D a t a                                                    */

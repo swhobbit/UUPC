@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.38 1995/01/08 19:52:44 ahd Exp $
+ *    $Id: rmail.c 1.39 1995/01/08 21:02:02 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.39  1995/01/08 21:02:02  ahd
+ *    Correct BC++ 3.1 compiler warnings
+ *
  *    Revision 1.38  1995/01/08 19:52:44  ahd
  *    Add in memory files to RMAIL, including additional support and
  *    bug fixes.
@@ -533,10 +536,16 @@ void main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    for ( count = 0; count < addressees; count++)
+   {
          if ( *address[count] == '-')
             delivered ++;     /* Ignore option flags on delivery     */
          else
             delivered += Deliver(imf, address[count], KWTrue);
+   }
+
+
+   DeliverRemote( imf, NULL, NULL );   /* Flush any lingering remote
+                                          addresses                  */
 
 /*--------------------------------------------------------------------*/
 /*                       Terminate the program                        */
