@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.1 1997/12/13 18:05:06 ahd v1-12u $
+ *    $Id: deliverm.c 1.2 1997/12/20 22:26:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.2  1997/12/20 22:26:06  ahd
+ *    Let's try initializing remoteMail BEFORE using it, shall we ...
+ *
  *    Revision 1.1  1997/12/13 18:05:06  ahd
  *    Initial revision
  *
@@ -61,7 +64,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.1 1997/12/13 18:05:06 ahd v1-12u $");
+RCSID("$Id: deliverm.c 1.2 1997/12/20 22:26:06 ahd Exp $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -228,7 +231,7 @@ queueRemote( IMFILE *imf,           /* Input file                    */
 /*--------------------------------------------------------------------*/
 
    if (!putFromLine( sender,
-                     equal( E_nodename , path ) ? KWFalse : KWTrue,
+                     (KWBoolean) (equal( E_nodename , path ) ? KWFalse : KWTrue),
                      stream ) ||
        !CopyData( imf, sender, KWTrue, stream ))
    {
