@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.6 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: strpool.c 1.7 1994/02/20 19:07:38 ahd Exp $
  *
  *    $Log: strpool.c $
+ *     Revision 1.7  1994/02/20  19:07:38  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.6  1993/12/24  05:12:54  ahd
  *     New format for checkptr call
  *
@@ -119,7 +122,7 @@ char *strpool( const char *input , const char *file, size_t line)
    if ( input == NULL )
    {
       printmsg(0,"strpool: NULL pointer passed to newstr()");
-      bugout( line, file );      // Become Info Highway Roadkill
+      bugout( line, file );      /* Become Info Highway Roadkill     */
    }
 
    len  = strlen( input );
