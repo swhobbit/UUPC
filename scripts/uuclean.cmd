@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: UUCLEAN.CMD 1.11 1994/01/01 19:16:25 ahd Exp $
+ *       $Id: uuclean.cmd 1.12 1994/10/03 02:52:29 ahd v1-12n $
  *
- *       $Log: UUCLEAN.CMD $
+ *       $Log: uuclean.cmd $
+ *       Revision 1.12  1994/10/03 02:52:29  ahd
+ *       Clean yup aging messages
+ *
  *Revision 1.11  1994/01/01  19:16:25  ahd
  *Annual Copyright Update
  *
@@ -136,6 +139,8 @@ end
 
 call purge spooldir, '*.TMP'     /* Created by UUCICO                */
 call purge spooldir, '*.BAK'     /* Maybe created by UUCICO          */
+cmd = 'UNDELETE /f /s /a' spooldir || '\*';
+cmd
 
 /*--------------------------------------------------------------------*/
 /*         Clean up temporary files in the Temporary directory        */
