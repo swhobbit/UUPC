@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.8 1995/02/20 17:24:05 ahd v1-12p $
+#       $Id: nmakos21.mak 1.9 1995/11/08 01:03:13 ahd v1-12q $
 #
-#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.9  1995/11/08 01:03:13  ahd
+#       Allow copying between drives during install
+#
 #       Revision 1.8  1995/02/20 17:24:05  ahd
 #       ooops, we did need that OS=1
 #
@@ -45,7 +48,7 @@ MODEL    = M                    # All OS/2 16 bit programs are medium
 !ifndef PROD
 PROD     = $(PRODDRIVE)\uupc\os2bin
 !endif
-STACKSIZE= 0x02A00
+STACKSIZE= 0x03000
 ZIPID    = 1
 OS2=1                   # Enables generation of .DEF file
 
