@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibntn.c 1.3 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: ulibntn.c 1.4 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: ulibntn.c $
+ *    Revision 1.4  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.3  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -54,5 +57,3 @@
 #endif
 
 #include "ulibnt.c"
-
-RCSID("$Id: ulibntn.c 1.3 1999/01/08 02:21:01 ahd Exp $");

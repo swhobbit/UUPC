@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.8 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: commlibn.c 1.9 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: commlibn.c $
+ *    Revision 1.9  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.8  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -57,5 +60,3 @@
 #endif
 
 #include "commlib.c"
-
-RCSID("$Id: commlibn.c 1.8 1999/01/08 02:20:56 ahd Exp $");
