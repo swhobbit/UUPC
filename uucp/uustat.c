@@ -2,11 +2,30 @@
 /*    u u s t a t . c                                                 */
 /*                                                                    */
 /*    Job status report for UUPC/extended                             */
-/*                                                                    */
-/*                                                                    */
-/*    Copyright 1988 (C), Dewey Coffman                               */
-/*    Changes Copyright 1991 (C), Andrew H. Derbyshire                */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Copyright 1988 (C), Dewey Coffman                            */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ */
+
+static const char rcsid[] =
+         "$Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -57,7 +76,6 @@ typedef enum {
       RECEIVE_CALL = 'R',
       SEND_CALL = 'S'
       } CALLTYPE;
-
 
 struct data_queue {
    char name[BUFSIZ];
@@ -269,7 +287,9 @@ void main(int  argc, char  **argv)
 /*                 Determine if we have a valid host                  */
 /*--------------------------------------------------------------------*/
 
-   if( (system != NULL) && !equal( system , ALL ) )
+   if( (system != NULL) &&
+       !equal( system , ALL ) &&
+       !equal( system, E_nodename ))
    {
       struct HostTable *hostp = checkreal( system );
 
@@ -510,7 +530,6 @@ static void poll(const char *callee)
 
 } /* poll */
 
-
 /*--------------------------------------------------------------------*/
 /*    l o n g _ s t a t s                                             */
 /*                                                                    */
@@ -534,9 +553,7 @@ static void long_stats( const char *system )
    struct HostTable *hostp;
    time_t now = time( NULL );
    boolean hit = FALSE;
-   time_t ltime;
-   long size;
-   char buf[BUFSIZ];
+   boolean firstPass = TRUE;
 
    HostStatus();              /* Load the host status table info      */
 
@@ -545,9 +562,9 @@ static void long_stats( const char *system )
 /*--------------------------------------------------------------------*/
 
    if ( equal(system,ALL) )
-      hostp = nexthost( TRUE );
+      hostp = checkname( E_nodename ); /* Start with local system    */
    else
-      hostp = checkreal( system );
+      hostp = checkname( system );  /* not checkreal, may be local   */
 
 /*--------------------------------------------------------------------*/
 /*              Begin loop to display status of systems               */
@@ -555,55 +572,113 @@ static void long_stats( const char *system )
 
    while(hostp != BADHOST )
    {
+      static const char *prefix[2] = { "C","X" };
+
       char fname[FILENAME_MAX];
-                              /* Get list of files in the directory   */
-      size_t jobs = 0;        /* Declare, reset counter               */
-      time_t oldest_file = now;  /* Make the "oldest" file new        */
+      char buf[BUFSIZ];
+      boolean work = FALSE;
+      size_t subscript;
+
+      *buf = '\0';                /* Clear output buffer              */
 
 /*--------------------------------------------------------------------*/
-/*           Inner loop to count files and determine oldest           */
+/*       Middle loop to handle both call file and execute files       */
 /*--------------------------------------------------------------------*/
 
-      while( readnext(fname, hostp->hostname, "C", NULL, &ltime, &size) != NULL )
+      for ( subscript = 0; subscript < 2; subscript++ )
       {
-         if ((ltime < oldest_file)
-             && (ltime != (time_t) -1L)
-             && (ltime != (time_t) -2L))
-            oldest_file = ltime;
 
-         jobs++;
+         size_t jobs = 0;
+         time_t oldest_file = now;
 
-      } /* while */
+         time_t ltime;
+         long size;
 
 /*--------------------------------------------------------------------*/
-/*  We have all the information for this system; summary and display  */
+/*        Inner loop to count call files and determine oldest         */
 /*--------------------------------------------------------------------*/
 
-      if ( jobs > 0 )
+         while( readnext(fname,
+                         hostp->hostname,
+                         prefix[subscript],
+                         NULL, &ltime, &size) != NULL )
+         {
+            if ((ltime < oldest_file)
+                && (ltime != (time_t) -1L)
+                && (ltime != (time_t) -2L))
+               oldest_file = ltime;
+
+            jobs ++;
+
+         } /* while */
+
+/*--------------------------------------------------------------------*/
+/*      Now format the input for this call or execute file list       */
+/*--------------------------------------------------------------------*/
+
+         if ( jobs > 0 )
+         {
+            sprintf( fname , "%d%s",
+                     jobs,
+                     prefix[subscript] );
+
+            if (oldest_file + DAY < now)
+                                    /* More than day old?            */
+               sprintf( fname + strlen(fname), "(%d)",
+                        (now - oldest_file) / DAY );
+
+            work =  hit = TRUE;
+
+            sprintf(buf + strlen(buf), "%-8s ",fname );
+         } /* if */
+         else        /* ....+....1 */
+            strcat(buf,"         ");
+
+      } /* for ( subscript = 0; subscript < 3; subscript++ ) */
+
+/*--------------------------------------------------------------------*/
+/*       We have all the information for this system; display if it   */
+/*       has any work.                                                */
+/*--------------------------------------------------------------------*/
+
+      if ( work )
       {
-         if (oldest_file + DAY < now)     /* File older than 24 hours?  */
-            sprintf( buf , "(%d)", (now - oldest_file) / DAY );
-                                          /* Yes --> Format info      */
+         if ( equal(hostp->hostname, E_nodename ))
+            printf("%-10.10s %s\n",
+                    hostp->hostname,
+                    buf );
          else
-            *buf = '\0';                  /* No --> No, empty display  */
+            printf("%-10.10s %s%s %s\n",
+                    hostp->hostname,
+                    buf,
+                    dater( hostp->hstats->lconnect , NULL ),
+                    hostp->hstatus < last_status ?
+                        host_status[ hostp->hstatus ] :
+                        "*** INVALID/UNDOCUMENTED STATUS ***");
+      } /* if (work) */
 
-         printf("%-8.8s  %3dC%-4s  %s  %s\n", hostp->hostname, jobs , buf,
-               dater( hostp->hstats->lconnect , NULL ),
-               hostp->hstatus < last_status ?
-                     host_status[ hostp->hstatus ] :
-                     "*** INVALID/UNDOCUMENTED STATUS ***");
-         hit = TRUE;
-
-      } /* if ( jobs > 0 ) */
+/*--------------------------------------------------------------------*/
+/*       Step to next host in list if processing all hosts, else      */
+/*       exit the loop                                                */
+/*--------------------------------------------------------------------*/
 
       if (equal(system, ALL))
-         hostp = nexthost( FALSE );
+      {
+         hostp = nexthost( firstPass );
+         firstPass = FALSE;
+      }
       else
          hostp = BADHOST;
+
    } /* while */
+
+/*--------------------------------------------------------------------*/
+/*                Report if nothing queued for anyone                 */
+/*--------------------------------------------------------------------*/
 
    if ( !hit )
       printf("uustat: No jobs queued for system %s\n", system );
+
 } /* long_stats */
 
 /*--------------------------------------------------------------------*/
@@ -646,7 +721,6 @@ static void short_stats( const char *system )
    } /* while */
 
 } /* short_stats */
-
 
 /*--------------------------------------------------------------------*/
 /*    k i l l _ j o b                                                 */
@@ -861,7 +935,6 @@ static CALLTYPE open_call( const char *callname,
 
 } /* open call */
 
-
 /*--------------------------------------------------------------------*/
 /*    o p e n _ d a t a                                               */
 /*                                                                    */
@@ -945,6 +1018,7 @@ static void open_data(const char *file,
 
    printmsg(1,"CLOSED (%s), bytes = %d, d file = %s", file, bytes, token);
    fclose(data_fp);
+
 } /* open_data */
 
 /*--------------------------------------------------------------------*/
@@ -1064,7 +1138,6 @@ static void touch( const char *fname)
    printf("touch: function not available.  Parameter was \"%s\"\n",
             fname);
 } /* touch */
-
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */
