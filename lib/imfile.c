@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.6 1995/01/09 01:39:22 ahd Exp $
+ *    $Id: imfile.c 1.7 1995/01/09 12:35:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.7  1995/01/09 12:35:15  ahd
+ *    Correct VC++ compiler warnings
+ *
  *    Revision 1.6  1995/01/09 01:39:22  ahd
  *    Correct error processing vsprintf() in imprintf()
  *
@@ -65,9 +68,10 @@
 /*--------------------------------------------------------------------*/
 
 #ifdef BIT32ENV
-#define IM_MAX_LENGTH (1024*1024)
+#define IM_MAX_LENGTH 1000000
 #else
-#define IM_MAX_LENGTH (64*1024)
+#define IM_MAX_LENGTH 65000         /* Under 64K, avoid silly ptr
+                                       wrap around                   */
 #endif
 
 currentfile();
@@ -164,6 +168,11 @@ static int imReserve( IMFILE *imf, const long length )
 
    imf->filename = mktempname( NULL, "TMP" );
 
+   printmsg(2,"imReserve: Switching to disk file %s after %ld/%ld bytes",
+               imf->filename,
+               imf->inUse,
+               newLength );
+
    imf->stream = FOPEN( imf->filename,
                         "w+",
                         IMAGE_MODE );
@@ -231,6 +240,10 @@ IMFILE *imopen( const long length )    /* Longest in memory
          printerr( "malloc" );
 
    }  /* if ( length <= IM_MAX_LENGTH ) */
+   else
+      printmsg(2,"imopen: Using disk for %ld byte file (max i-m is %ld)",
+                  length,
+                  (long) IM_MAX_LENGTH );
 
 /*--------------------------------------------------------------------*/
 /*   Open a real file if we don't have a buffer for whatever reason   */
@@ -252,6 +265,8 @@ IMFILE *imopen( const long length )    /* Longest in memory
 /*--------------------------------------------------------------------*/
 /*                     Return success to the caller                   */
 /*--------------------------------------------------------------------*/
+
+   imStatus( imf );
 
    return imf;
 
@@ -542,7 +557,7 @@ size_t  imwrite(const void *userBuffer,
 /*--------------------------------------------------------------------*/
 
    if ( imReserve( imf, bytes ) )
-      return 0;
+      return 0;                     /* Report failure if problems    */
 
    imStatus( imf );
 
