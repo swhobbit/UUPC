@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivers.h 1.2 1997/11/29 13:06:52 ahd Exp $
+ *    $Id: deliverm.c 1.1 1997/12/13 18:05:06 ahd v1-12u $
  *
  *    Revision history:
- *    $Log: delivers.h $
+ *    $Log: deliverm.c $
+ *    Revision 1.1  1997/12/13 18:05:06  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -58,7 +61,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: deliverm.c 1.1 1997/12/13 18:05:06 ahd v1-12u $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -367,18 +370,19 @@ CopyData( IMFILE *imf,              /* Input temporary file          */
           FILE *dataOut)            /* Output file - spool or mbox   */
 {
    char buf[BUFSIZ];
-   KWBoolean remoteMail;
-   size_t deliveryMode = ((size_t) remoteMail) * 2 +
-                         ((size_t) remoteDelivery);
+   size_t remoteMail;
+   size_t deliveryMode;
    KWBoolean success = KWTrue;
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
                               /* Assume no Kanji translation needed   */
 
    if (sender->relay == NULL)
-      remoteMail = KWFalse;
+      remoteMail = 0;
    else
-      remoteMail = KWTrue;
+      remoteMail = 1;
+
+   deliveryMode = remoteMail * 2 + ((size_t) remoteDelivery);
 
    imrewind( imf );
 
