@@ -23,10 +23,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.1 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: suspend2.c 1.2 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.2  1993/09/29  04:49:20  ahd
+ * Various clean up, with additional messages to user
+ * Use unique signal handler
+ *
  * Revision 1.1  1993/09/27  00:45:20  ahd
  * Initial revision
  *
@@ -65,6 +69,7 @@
 
 #define INCL_DOS
 #define INCL_DOSPROCESS
+#define INCL_ERRORS
 #define INCL_DOSSIGNALS
 #include <os2.h>
 
@@ -80,6 +85,7 @@
 #include "catcher.h"
 #include "pos2err.h"
 #include "suspend.h"
+#include "usrcatch.h"
 
 #define STACKSIZE 8192
 
@@ -132,8 +138,14 @@ currentfile();
 static VOID FAR SuspendThread(VOID)
 {
 
+/*--------------------------------------------------------------------*/
+/*       Process until we get a request to change the status of       */
+/*       the port.                                                    */
+/*--------------------------------------------------------------------*/
+
   for (;;)
   {
+
 #ifdef __OS2__
     if ( DosConnectNPipe(hPipe) )
       break;
@@ -145,9 +157,14 @@ static VOID FAR SuspendThread(VOID)
     for (;;)
     {
       if ( DosRead(hPipe, &nChar, 1, &nBytes) )
-        break;
+        break;                   // Quit if an error
+
       if ( nBytes == 0 )
         break; /* EOF */
+
+/*--------------------------------------------------------------------*/
+/*               Handle the received command character                */
+/*--------------------------------------------------------------------*/
 
       switch ( nChar )
       {
@@ -214,6 +231,9 @@ static VOID FAR SuspendThread(VOID)
 
     } /* for (;;) */
 
+/*--------------------------------------------------------------------*/
+/*         Drop the connection now we're done with this client.       */
+/*--------------------------------------------------------------------*/
 
 #ifdef __OS2__
     DosDisConnectNPipe(hPipe);
@@ -263,49 +283,105 @@ void suspend_init(const char *port )
   SEL selStack;
   PSZ pStack;
   TID tid;
+  APIRET rc;
 
-#ifndef __OS2__
-  if ( DosSetSigHandler(SuspendHandler, &old, &nAction,
-                        SIGA_ACCEPT, SIG_PFLG_A) )
+/*--------------------------------------------------------------------*/
+/*      Set up the handler for signals from our suspend monitor       */
+/*--------------------------------------------------------------------*/
+
+  rc = DosSetSigHandler(SuspendHandler,
+                        &old,
+                        &nAction,
+                        SIGA_ACCEPT,
+                        SIG_PFLG_A);
+
+  if (rc)
+  {
+    printOS2error( "DosSetSigHandler", rc);
     return;
-#endif
+  }
+
+/*--------------------------------------------------------------------*/
+/*                Set up the pipe name to listen upon                 */
+/*--------------------------------------------------------------------*/
 
   strcpy(szPipe, SUSPEND_PIPE);
-  portName =  szPipe + strlen(szPipe);
-  strcpy(portName, port );
+  portName =  newstr( port );    // Save for later reference
+  strcat(szPipe, port );
 
   printmsg(4,"Creating locking pipe %s", szPipe );
 
 #ifdef __OS2__
-  if ( DosCreateNPipe( szPipe,
+  rc = DosCreateNPipe( szPipe,
                      &hPipe,
                      NP_ACCESS_DUPLEX | NP_NOINHERIT | NP_NOWRITEBEHIND,
                      NP_WAIT | NP_READMODE_BYTE | NP_TYPE_BYTE | 1,
                      32,
                      32,
-                     5000) )
+                     5000);
+
+  if (rc)
+  {
+    printOS2error( "DosCreateNPipe", rc);
     return;
+  }
+
 #else
-  if ( DosMakeNmPipe(szPipe,
+  rc = DosMakeNmPipe(szPipe,
                      &hPipe,
                      NP_ACCESS_DUPLEX | NP_NOINHERIT | NP_NOWRITEBEHIND,
                      NP_WAIT | NP_READMODE_BYTE | NP_TYPE_BYTE | 1,
                      32,
                      32,
-                     5000) )
+                     5000);
+
+  if (rc)
+  {
+    printOS2error( "DosMakeNmPipe", rc);
     return;
+  }
 #endif
+
+/*--------------------------------------------------------------------*/
+/*       Now allocate memory for the monitor thread which will        */
+/*       notify us if some program wants our port.                    */
+/*--------------------------------------------------------------------*/
 
 #ifdef __OS2__
   pStack = malloc( STACKSIZE );
 #else
-  if ( DosAllocSeg(STACKSIZE, &selStack, SEG_NONSHARED) )
+  rc = DosAllocSeg(STACKSIZE, &selStack, SEG_NONSHARED);
+
+  if (rc)
+  {
+    printOS2error( "DosAllocSeg", rc);
     return;
+  }
 
   pStack = (PSZ) MAKEP(selStack, 0) + STACKSIZE -2 ;
 #endif
 
-  DosCreateThread(SuspendThread, &tid, pStack);
+/*--------------------------------------------------------------------*/
+/*                    Now fire off the monitor thread                 */
+/*--------------------------------------------------------------------*/
+
+  rc = DosCreateThread(SuspendThread, &tid, pStack);
+
+  if (rc)
+  {
+    printOS2error( "DosCreateThread", rc);
+    return;
+  }
+
+/*--------------------------------------------------------------------*/
+/*                    Finally, our signal handler                     */
+/*--------------------------------------------------------------------*/
+
+  if ( signal( SIGUSR2, usrhandler ) == SIG_ERR )
+  {
+      printmsg( 0, "Couldn't set SIGUSR2\n" );
+      panic();
+  }
 
 } /* suspend_init */
 
@@ -322,67 +398,106 @@ int suspend_other(const boolean suspend,
   HFILE hPipe;
   USHORT nAction, nBytes;
   UCHAR nChar;
-  APIRET rc;
+  APIRET rc = 1;
+  boolean firstPass = TRUE;
+  int result;
 
   strcpy(szPipe, SUSPEND_PIPE);
   strcat(szPipe, port );
-  printmsg(4,"Checking locking pipe %s", szPipe );
-
-  rc = DosOpen(szPipe,
-               &hPipe,
-               &nAction,
-               0,
-               0,
-               FILE_OPEN,
-               OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE,
-               0);
-
-  if ( rc )
-  {
-    if ( debuglevel > 4 )              // No error if no passive UUCICO
-      printOS2error( "DosOpen", rc );
-    return 0;
-  }
-
-  rc = DosWrite(hPipe, suspend ? "S" : "R", 1, &nBytes);
-  if ( rc )
-  {
-    printOS2error( "DosWrite", rc );
-    DosClose(hPipe);
-    return -1;
-  }
-
-  if ( nBytes != 1 )
-    return -1;
-
-  printmsg(1, "Waiting for background uucico to %s use of %s ...",
-           suspend ? "suspend" : "resume", port);
-
-  rc = DosRead(hPipe, &nChar, 1, &nBytes);
-  if ( rc )
-  {
-    printOS2error( "DosRead", rc );
-    DosClose(hPipe);
-    return -1;
-  }
-
-  if ( nBytes != 1 )
-    return -1;
-
-  if ( nChar != 'O' )
-  {
-    printmsg(0, "Cannot %s background uucico.",
-             suspend ? "suspend" : "resume");
-    return -2;
-  }
 
 /*--------------------------------------------------------------------*/
-/*              Success!  Close up and return to caller               */
+/*           Try to open the pipe, with one retry if needed           */
+/*--------------------------------------------------------------------*/
+
+  while(rc)
+  {
+      rc = DosOpen(szPipe,
+                   &hPipe,
+                   &nAction,
+                   0,
+                   0,
+                   FILE_OPEN,
+                   OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE,
+                   0);
+
+      if (rc)
+      {
+        if ( debuglevel >= 4 )          // No error if no passive UUCICO
+           printOS2error( "DosOpen", rc);
+
+        if ((rc == ERROR_PIPE_BUSY) && firstPass )
+        {
+           firstPass = FALSE;
+           rc = DosWaitNmPipe( szPipe, 5000 ); // Wait up to 5 sec for pipe
+           if (rc)
+           {
+             printOS2error( "DosWaitNmPipe", rc);
+             return 0;
+           } /* if (rc) */
+        } /* if */
+        else
+           return 0;
+
+      } /* if */
+
+   } /* while(rc) */
+
+/*--------------------------------------------------------------------*/
+/*       We have an open connect, write the request to the server     */
+/*       running as part of the passive UUCICO.                       */
+/*--------------------------------------------------------------------*/
+
+   rc = DosWrite(hPipe, suspend ? "S" : "R", 1, &nBytes);
+   if (rc)
+   {
+     printOS2error( "DosWrite", rc);
+     DosClose(hPipe);
+     return -1;
+   }
+
+   if ( nBytes != 1 )
+   {
+     DosClose(hPipe);
+     return -1;
+   }
+
+   printmsg(2, "Waiting for background uucico to %s use of %s ...",
+               suspend ? "suspend" : "resume",
+               port);
+
+/*--------------------------------------------------------------------*/
+/*                      Process the server response                   */
+/*--------------------------------------------------------------------*/
+
+   rc = DosRead(hPipe, &nChar, 1, &nBytes);
+
+   if (rc)
+   {
+     printOS2error( "DosRead", rc);
+     result = -1;
+   }
+   else if ( nBytes != 1 )
+   {
+     printmsg(0,"suspend_other: Protocol error with remote UUCICO");
+     result = -2;
+   }
+   else if ( nChar != 'O' )
+   {
+     printmsg(0, "Cannot %s background uucico.  Result code was %c",
+                 suspend ? "suspend" : "resume",
+                 nChar );
+     result = -3;
+   }
+   else
+      result = 1;                   // Success!
+
+/*--------------------------------------------------------------------*/
+/*                     Close up and return to caller                  */
 /*--------------------------------------------------------------------*/
 
   DosClose(hPipe);
 
-  return 1;
+  return result;
 
 } /* suspend_other */
 
@@ -401,27 +516,27 @@ CONN_STATE suspend_wait(void)
 
 #ifdef __OS2__
    rc = DosResetEventSem( &semFree, &postCount);
-   if ( rc )
-      printOS2error( "DosResetEventSem", rc );
+   if (rc)
+      printOS2error( "DosResetEventSem", rc);
 
    rc = DosWaitEventSem(&semWait, SEM_INDEFINITE_WAIT);
-   if ( rc )
-      printOS2error( "DosWaitEventSem", rc );
+   if (rc)
+      printOS2error( "DosWaitEventSem", rc);
 
 #else
 
    rc = DosSemClear(&semFree);
 
-   if ( rc )
-      printOS2error( "DosSemClear", rc );
+   if (rc)
+      printOS2error( "DosSemClear", rc);
 
    rc = DosSemSetWait(&semWait, SEM_INDEFINITE_WAIT);
-   if ( rc )
-      printOS2error( "DosSemSetWait", rc );
+   if (rc)
+      printOS2error( "DosSemSetWait", rc);
 
 #endif
 
-   if ( rc )
+   if (rc)
       return CONN_EXIT;
    else
       return CONN_INITIALIZE;

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.17 1993/09/29 04:52:03 ahd Exp $
+ *    $Id: dcp.c 1.18 1993/09/29 13:18:06 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.18  1993/09/29  13:18:06  ahd
+ * Don't call suspend handler under DOS Turbo C++ (not impletemented, anyway)
+ *
  * Revision 1.17  1993/09/29  04:52:03  ahd
  * Suspend port by port name, not modem file name
  *
@@ -108,14 +111,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <limits.h>
 #include <time.h>
-
-#if !defined(__TURBOC__) || defined(BIT32ENV)
-#include <signal.h>
-#endif
 
 #ifdef _Windows
 #include <Windows.h>
@@ -144,17 +142,13 @@
 #include "modem.h"
 #include "security.h"
 #include "ssleep.h"
-
+#include "suspend.h"
 #include "commlib.h"
-#include "usrcatch.h"
 
 #if defined(_Windows)
 #include "winutil.h"
 #endif
 
-#if !defined(__TURBOC__) || defined(BIT32ENV)
-#include "suspend.h"
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    Define passive and active polling modes; passive is             */
@@ -427,14 +421,12 @@ int dcpmain(int argc, char *argv[])
 
             case CONN_DIALOUT:
 
-#if !defined(__TURBOC__) || defined(BIT32ENV)
                if ( suspend_other(TRUE, M_device ) < 0 )
                {
                   hostp->hstatus =  nodevice;
                   m_state = CONN_INITIALIZE;    // Try next system
                }
                else
-#endif
                   m_state = callup( );
                break;
 
@@ -462,9 +454,7 @@ int dcpmain(int argc, char *argv[])
             case CONN_DROPLINE:
                shutDown();
                UnlockSystem();
-#if !defined(__TURBOC__) || defined(BIT32ENV)
                suspend_other(FALSE, M_device);
-#endif
                m_state = CONN_INITIALIZE;
                break;
 
@@ -493,17 +483,8 @@ int dcpmain(int argc, char *argv[])
       if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
          panic();                /* Avoid loop if bad modem name        */
 
-#if !defined(__TURBOC__) || defined(BIT32ENV)
       if ( ! IsNetwork() )
-      {
-         if( signal( SIGUSR2, usrhandler ) == SIG_ERR )
-         {
-             printmsg( 0, "Couldn't set SIGUSR2\n" );
-             panic();
-         }
          suspend_init(M_device);
-      }
-#endif
 
       while (s_state != CONN_EXIT )
       {
