@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.8 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: confvars.h 1.9 1993/09/29 04:56:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.9  1993/09/29  04:56:11  ahd
+ *     Move priority variables to modem file
+ *
  *     Revision 1.8  1993/09/20  04:51:31  ahd
  *     TCP Support from Dave Watt
  *     't' protocol support
@@ -82,6 +85,7 @@ extern char *E_motd;
 extern char *E_systems;
 extern char *E_passwd;
 extern char *E_cwd;              // Never set by user, only program
+extern char *E_xqtRootDir;
 extern KEWSHORT E_maxhops;
 
 #endif
