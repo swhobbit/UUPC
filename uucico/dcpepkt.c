@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.6 1994/01/01 19:18:19 ahd Exp $
+ *    $Id: dcpepkt.c 1.7 1994/02/19 05:06:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ * Revision 1.7  1994/02/19  05:06:41  ahd
+ * Use standard first header
+ *
  * Revision 1.6  1994/01/01  19:18:19  ahd
  * Annual Copyright Update
  *
@@ -216,6 +219,7 @@ short efilepkt(const boolean xmit, const unsigned long bytes)
       printmsg(4, "efilepkt: received file length %lu", efilelength);
    }
 
+   remote_stats.packets++;
    return DCP_OK;
 
 } /* efilepkt */
@@ -250,12 +254,14 @@ short eeofpkt(void)
 
 short ewrmsg( char *s )
 {
+
    if (swrite( s, strlen(s) + 1 ) < (int) strlen(s) + 1 )
    {
       printmsg(0, "ewrmsg: message write failed");
       return -1;
    }
 
+   remote_stats.packets++;
    return(0);
 
 } /* ewrmsg */
@@ -268,8 +274,12 @@ short ewrmsg( char *s )
 
 short erdmsg( char *s)
 {
+
    if (rmsg( s, 4, M_ePacketTimeout, r_pktsize ))
+   {
+      remote_stats.packets++;
       return(0);
+   }
    else
       return -1;
 } /* erdmsg */
