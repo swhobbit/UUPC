@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.5 1993/04/11 00:33:05 ahd Exp $
+ *    $Id: DELIVER.C 1.6 1993/04/15 03:17:21 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.6  1993/04/15  03:17:21  ahd
+ * Basic bounce support
+ *
  * Revision 1.5  1993/04/11  00:33:05  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -67,6 +70,10 @@
 #define SMARTBEEP
 #endif
 
+#ifdef WIN32
+#define SMARTBEEP
+#endif
+
 #define INCLUDE ":include:"
 
 /*--------------------------------------------------------------------*/
@@ -86,12 +93,12 @@
 #include <dos.h>
 #endif
 
-#ifdef FAMILYAPI
 #ifdef WIN32
 #include <windows.h>
-#else
-#include <os2.h>
 #endif
+
+#ifdef FAMILYAPI
+#include <os2.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -589,7 +596,7 @@ static void trumpet( const char *tune)
          DosBeep( tone, duration );
 #endif
       }
-#endif /* SMARTBEEP */
+#endif /* __TURBOC__ */
 
       token = NULL;           /* Look at next part of string   */
    } /* while */
@@ -597,7 +604,7 @@ static void trumpet( const char *tune)
 #ifdef __TURBOC__
    nosound();
 #endif
-#else
+#else /* SMARTBEEP */
 
 /*--------------------------------------------------------------------*/
 /*      We cannot play the requested tune; just beep at the user      */
