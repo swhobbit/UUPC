@@ -1,3 +1,6 @@
+#ifndef USRCATCH_H
+#define USRCATCH_H
+
 /*--------------------------------------------------------------------*/
 /*       u s r c a t c h                                              */
 /*                                                                    */
@@ -17,16 +20,29 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.2 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: usrcatch.h 1.1 1993/09/29 04:56:11 ahd Exp $
  *
  *    Revision history:
- *    $Log: catcher.c $
+ *    $Log: usrcatch.h $
+ * Revision 1.1  1993/09/29  04:56:11  ahd
+ * Initial revision
+ *
  */
 
-extern int raised;
+extern unsigned long raised;
 
 void
 #ifdef __TURBOC__
 __cdecl
 #endif
 usrhandler( int sig );
+
+#ifndef SIGUSR1
+#define SIGUSR1  16     /* User-defined signal 1 */
+#endif
+
+#ifndef SIGUSR1
+#define SIGUSR2  17     /* User-defined signal 2 */
+#endif
+
+#endif
