@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.30 1998/03/08 04:50:04 ahd Exp $
+ *    $Id: imfile.c 1.31 1998/03/08 23:07:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.31  1998/03/08 23:07:12  ahd
+ *    Correct automatic switching from memory to disk based
+ *    backing store, including clearing pointer and copying data.
+ *
  *    Revision 1.30  1998/03/08 04:50:04  ahd
  *    When switching from memory to disk, remember to copy the data
  *    and clear pointer which implies we are using memory.
@@ -201,7 +205,6 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 {
 
    unsigned long newLength = length + imf->position ;
-   unsigned long position;
 
 /*--------------------------------------------------------------------*/
 /*            If we have the memory allocated, return quietly         */
@@ -252,9 +255,18 @@ static int imReserve( IMFILE *imf, const unsigned long length )
                newLength );
 
    if ( imf->flag & IM_FLAG_TEXT )
+   {
+      /* We can't translate the position on non-binary files */
+      if ( imf->flag & IM_FLAG_TELL )
+      {
+         printmsg(0,"imReserve: Internal error, imtell() issued on TEXT file");
+         panic();
+      }
+
       imf->stream = FOPEN( imf->filename,
                            "w+",
                            TEXT_MODE );
+   }
    else
       imf->stream = FOPEN( imf->filename,
                            "w+",
@@ -267,39 +279,24 @@ static int imReserve( IMFILE *imf, const unsigned long length )
       return -1;
    }
 
-/*--------------------------------------------------------------------*/
-/*           We have a file, copy the memory buffer into it           */
-/*--------------------------------------------------------------------*/
+   imrewind( imf );
 
-   position = 0;
-   while( position < imf->inUse )
+   if ( imunload( imf->stream, imf ))
    {
-      int bytesToWrite = (int) min( imf->inUse - position,
-                                    (INT_MAX / 4096) * 4096);
-      int written = fwrite( imf->buffer + position,
-                            sizeof (char),
-                            bytesToWrite,
-                            imf->stream );
-
-
-      if ( bytesToWrite != written )
-      {
-         printerr( imf->filename );
-         imf->flag |= IM_FLAG_ERROR;
-         return -1;
-      }
-
-      position += written;
-
-   } /* while( position < imf->inUse ) */
+      printerr( imf->filename );
+      imf->flag |= IM_FLAG_ERROR;
+      return -1;
+   }
 
 /*--------------------------------------------------------------------*/
 /*       Drop the old buffer and set pointer to NULL so routines      */
 /*       know what sort of I/O to perform.                            */
 /*--------------------------------------------------------------------*/
 
-   free( imf->buffer );
+   FREE( imf->buffer );
    imf->buffer = NULL;
+
+   imf->length = imf->inUse = imf->position = 0;
 
    return 0;
 
