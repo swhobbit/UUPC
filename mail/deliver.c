@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.58 1997/12/14 00:43:16 ahd v1-12u $
+ *    $Id: deliver.c 1.59 1998/03/01 01:28:47 ahd v1-12v $
  *
  *    $Log: deliver.c $
+ *    Revision 1.59  1998/03/01 01:28:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.58  1997/12/14 00:43:16  ahd
  *    Further cleanup of new sender protocol
  *
@@ -156,8 +159,6 @@
 
  KEWSHORT hops = 0;              /* Number hops this mail has seen   */
 
- KWBoolean remoteMail = KWFalse;
-
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
@@ -208,6 +209,9 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
                 const char *address,/* Target address                */
                 KWBoolean validate) /* Validate/forward local mail   */
 {
+#ifdef UDEBUG32
+   static const char mName[] = "Deliver";
+#endif
    char node[MAXADDR];
    char path[MAXADDR];
    char user[MAXADDR];
@@ -261,7 +265,18 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
    {
 #ifdef TCPIP
-      if ( validate && (remoteMail || bflag[F_FASTSMTP] ))
+#ifdef UDEBUG32
+      printmsg(5,"%s: Validate = %s, "
+               "Remote Sender = %s",
+               "Fast SMTP = %s, "
+               "Address = %s" ,
+               mName,
+               validate ? "true" : "false",
+               sender->remote ? "true" : "false",
+               bflag[F_FASTSMTP] ? "true" : "false",
+               sender->address );
+#endif
+      if ( validate && (sender->remote || bflag[F_FASTSMTP] ))
          return DeliverSMTP( imf,
                              sender,
                              address,
@@ -378,7 +393,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
 
    if (equali(user, POSTMASTER))
    {
-#ifdef UDEBUG
+#ifdef UDEBUG32
       printmsg(2, "DeliverLocal: Using %s as %s",
                E_postmaster,
                POSTMASTER );
@@ -416,7 +431,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                                        user );
          aliasp->recurse = KWFalse;
 
-         if ( announce && ( userp != BADUSER ) && remoteMail )
+         if ( announce && ( userp != BADUSER ) && sender->remote )
             trumpet( userp->beep);  /* Yes --> Inform the user     */
 
          return delivered;
@@ -461,7 +476,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                                        validate,
                                        user );
 
-         if (announce && remoteMail)   /* Did we deliver mail locally? */
+         if (announce && sender->remote)   /* Did we deliver mail locally? */
             trumpet( userp->beep);     /* Yes --> Inform the user      */
          return delivered;
 
@@ -496,7 +511,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
               sender->address,
               user );
 
-   if ( announce && remoteMail )
+   if ( announce && sender->remote )
       trumpet( userp->beep);  /* Local delivery, inform the user      */
 
    mBoxStream = FOPEN( mboxname , "a",TEXT_MODE );

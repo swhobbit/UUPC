@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.3 1997/12/22 14:12:44 ahd Exp $
+ *    $Id: deliverm.c 1.4 1998/03/01 01:32:55 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.4  1998/03/01 01:32:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1997/12/22 14:12:44  ahd
  *    Correct OS/2 compile warning
  *
@@ -67,7 +70,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.3 1997/12/22 14:12:44 ahd Exp $");
+RCSID("$Id: deliverm.c 1.4 1998/03/01 01:32:55 ahd v1-12v $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -136,7 +139,8 @@ queueRemote( IMFILE *imf,           /* Input file                    */
    static const char spool_fmt[] = SPOOLFMT;  /* spool file name */
    static const char dataf_fmt[] = DATAFFMT;
    static const char send_cmd[]  = "S %s %s %s - %s 0666\n";
-   char *effectiveUserId = (sender->relay == NULL) ? E_mailbox : "uucp";
+   char *effectiveUserId = (sender->activeUser == NULL) ?
+                                 "uucp" : sender->activeUser;
 
    char *seq = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
    FILE *stream;              /* For writing out data                 */
