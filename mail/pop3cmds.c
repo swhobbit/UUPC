@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3cmds.c 1.1 1998/03/01 19:40:21 ahd Exp $
+ *       $Id: pop3cmds.c 1.2 1998/03/03 03:51:53 ahd Exp $
  *
  *       $Log: pop3cmds.c $
+ *       Revision 1.2  1998/03/03 03:51:53  ahd
+ *       First POP3 which responses to data commands
+ *
  *       Revision 1.1  1998/03/01 19:40:21  ahd
  *       Initial revision
  *
@@ -49,7 +52,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3cmds.c 1.1 1998/03/01 19:40:21 ahd Exp $");
+RCSID("$Id: pop3cmds.c 1.2 1998/03/03 03:51:53 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */
@@ -98,14 +101,6 @@ SMTPVerb verbTable[] =
 
       PR_OK_GENERIC,
       PR_ERROR_GENERIC,
-   },
-   {
-      commandDataOutput,
-      commandSequenceIgnore,
-      "",
-      KWFalse,
-      P3_SEND_DATA,
-      P3_TRANSACTION,
    },
    {
       commandExiting,
@@ -202,7 +197,7 @@ SMTPVerb verbTable[] =
       "RETR",
       KWFalse,
       P3_TRANSACTION,
-      P3_SEND_DATA,
+      P3_SAME_MODE,
 
       PR_OK_GENERIC,
       PR_ERROR_GENERIC,
@@ -218,7 +213,7 @@ SMTPVerb verbTable[] =
 
       PR_OK_GENERIC,
       PR_ERROR_GENERIC,
-      1
+      0
    },
    {
       commandSTAT,
@@ -238,7 +233,7 @@ SMTPVerb verbTable[] =
       "TOP",
       KWFalse,
       P3_TRANSACTION,
-      P3_SEND_DATA,
+      P3_SAME_MODE,
 
       PR_OK_GENERIC,
       PR_ERROR_GENERIC,
