@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.4 1995/03/07 23:33:38 ahd Exp $
+ *       $Id: newsrun.c 1.5 1995/03/08 03:01:54 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.5  1995/03/08 03:01:54  ahd
+ *       Delete redundent buggy check for too many hops
+ *
  *       Revision 1.4  1995/03/07 23:33:38  ahd
  *       Drop control messages into junk if no control group and junk exists
  *
@@ -204,7 +207,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.4 1995/03/07 23:33:38 ahd Exp $";
+         "$Id: newsrun.c 1.5 1995/03/08 03:01:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -269,6 +272,7 @@ static int articles     = 0;
 static int bad_articles = 0;
 static int no_delivery  = 0;
 static int junked       = 0;
+static int retained     = 0;
 static int duplicates   = 0;
 static int loc_articles = 0;  /* How many articles were for me */
 static int fwd_articles = 0;  /* How many articles were for others? */
@@ -311,8 +315,7 @@ static KWBoolean deliver_local(IMFILE *imf,
 
 static KWBoolean deliver_remote(const struct sys *node,
                               IMFILE *imf,
-                              const char *msgID,
-                              const char *path);
+                              const char *msgID );
 
 static KWBoolean batch_remote(const struct sys *node,
                             IMFILE *imf,
@@ -517,11 +520,11 @@ main( int argc, char **argv)
              bad_articles,
              no_delivery);
 
-   if ( loc_articles || duplicates || junked )
+   if ( retained || duplicates || junked )
       printmsg(1, "%s: Retained %d articles, "
                   "of which %d were duplicates and %d were junked.",
                   argv[0],
-                  loc_articles - no_delivery,
+                  retained,
                   duplicates,
                   junked);
 
@@ -908,6 +911,35 @@ static char *getHeader( HEADERLIST table[],
 } /* getHeader */
 
 /*--------------------------------------------------------------------*/
+/*       v a l i d a t e I D                                          */
+/*                                                                    */
+/*       Validate a message id; it must have no spaces, or a          */
+/*       trailing angle bracket after last space.                     */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+validateID( char *s )
+{
+   char *space = strrchr( s, ' ');
+   char *bracket;
+
+   if ( space == NULL )             /* No spaces in message id?      */
+      return KWTrue;                /* Correct --> Good message id   */
+
+   bracket = strchr( s, '>' );      /* Find first (only?) bracket    */
+
+   if (( bracket == NULL ) || (bracket < space))
+   {
+      printmsg(0,"Cannot process article with invalid message id \"%s\"",
+                 s );
+      return KWFalse;
+   }
+   else
+      return KWTrue;
+
+} /* validateID */
+
+/*--------------------------------------------------------------------*/
 /*       d e l i v e r _ a r t i c l e                                */
 /*                                                                    */
 /*       This function processes an article by looking up each        */
@@ -1025,6 +1057,18 @@ static void deliver_article( IMFILE *imf )
          } /* if ( s == '\0' ) */
 
 /*--------------------------------------------------------------------*/
+/*                     Validate message id field                      */
+/*--------------------------------------------------------------------*/
+
+         if ( equal( table[subscript].name, MESSAGEID) )
+         {
+            error = validateID( s );
+
+            if ( error )
+               continue;
+         }
+
+/*--------------------------------------------------------------------*/
 /*       Allocate a holding buffer for the string as needed, and      */
 /*       save the string with an extra terminator byte for            */
 /*       rescans.                                                     */
@@ -1125,13 +1169,13 @@ static void deliver_article( IMFILE *imf )
                            getHeader(table, CONTROL, NULL)))
         {
           delivered = KWTrue;
+          retained++;
           sysnode->processed ++;
         }
       }
       else if (deliver_remote(sysnode,
                               imf,
-                              getHeader(table, MESSAGEID, NULL),
-                              getHeader(table, PATH, NULL )))
+                              getHeader(table, MESSAGEID, NULL)))
       {
          fwd_articles++;
          sysnode->processed ++;
@@ -1437,8 +1481,8 @@ static KWBoolean deliver_local(IMFILE *imf,
    {
       duplicates++;
 
-      if (control)
-    return KWFalse;
+      if (control)               /* Don't save control message twice */
+         return KWFalse;
 
       printmsg(1, "Duplicate article %s", messageID);
 
@@ -1807,8 +1851,7 @@ static KWBoolean xmit_remote( const char *sysname,
 
 static KWBoolean deliver_remote(const struct sys *node,
                               IMFILE *imf,
-                              const char *msgID,
-                              const char *path)
+                              const char *msgID )
 {
 
 /*--------------------------------------------------------------------*/
