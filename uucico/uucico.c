@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: uucico.c 1.4 1993/07/31 16:27:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: uucico.c $
+ * Revision 1.4  1993/07/31  16:27:49  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  *
  * Mon May 15 19:56:44 1989 Add c_break handler                   ahd
  * 20 Sep 1989 Add check for SYSDEBUG in MS-DOS environment       ahd
@@ -67,6 +70,8 @@ currentfile();
 void main( int argc, char *argv[])
 {
    int status;
+
+   logfile = stderr;
 
 /*--------------------------------------------------------------------*/
 /*          Report our version number and date/time compiled          */

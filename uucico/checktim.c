@@ -2,12 +2,26 @@
 /*    c h e c k t i m . c                                             */
 /*                                                                    */
 /*    Time of day validation routine for UUPC/extended                */
-/*                                                                    */
-/*    Copyright (c) 1989, 1990, 1991 by Andrew H. Derbyshire          */
-/*                                                                    */
-/*    Change history:                                                 */
-/*       20 Apr 1991 Broken out of dcpsys.c                    ahd    */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -209,7 +223,9 @@ static char checkone( char *input, size_t hhmm, int weekday )
 /*         Get the period and time limits the user specified          */
 /*--------------------------------------------------------------------*/
 
-   sscanf(input,"%[A-Za-z]%[0-9]-%[0-9]", tdays, tstart, tend);
+    sscanf(input,
+           "%[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]"
+           "%[0123456789]-%[0123456789]", tdays, tstart, tend);
 
 /*--------------------------------------------------------------------*/
 /*          Verify the lengths of the fields the user specified       */

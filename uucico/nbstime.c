@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NBSTIME.C 1.7 1993/06/13 14:02:32 dmwatt Exp $
+ *    $Id: nbstime.c 1.8 1993/07/22 23:22:27 ahd Exp $
  *
  *    Revision history:
- *    $Log: NBSTIME.C $
+ *    $Log: nbstime.c $
+ * Revision 1.8  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.7  1993/06/13  14:02:32  dmwatt
  * Additional Windows/NT fixes
  *
@@ -49,20 +52,21 @@
 
 
 #ifdef WIN32
+
 #include <windows.h>
 #define NONDOS
 
-#else
-#ifdef FAMILYAPI
-#define NONDOS
+#elif defined(FAMILYAPI) || defined(__OS2__)
 
+#define NONDOS
 #define INCL_BASE
+
 #include <os2.h>
-#else /* FAMILYAPI */
-#ifndef __TURBOC__
+
+#elif !defined(__TURBOC__)
+
 #include <dos.h>
-#endif /* __TURBOC__ */
-#endif /* FAMILYAPI */
+
 #endif /* WIN32 */
 
 
@@ -80,7 +84,7 @@
 #include "security.h"
 #include "commlib.h"
 
-#ifndef __TURBOC__
+#if !defined(__TURBOC__) || defined(__OS2__)
    currentfile();
 #endif
 
@@ -104,31 +108,28 @@ boolean nbstime( void )
    time_t delta;
    char sync = '?';
 
-#ifndef __TURBOC__
-   struct tm *tp;
-#endif
-
 #ifdef WIN32
+
    SYSTEMTIME DateTime;
+   struct tm *tp;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
    USHORT rc;
-#endif
 
-#ifdef FAMILYAPI
+#elif defined(FAMILYAPI) || defined(__OS2__)
+
    DATETIME DateTime;
+   struct tm *tp;
    USHORT rc;
-#endif
 
-#ifndef NONDOS
-#ifndef __TURBOC__
+#elif !defined(NONDOS) && !defined(__TURBOC__)
 
    unsigned short rc;
    struct dosdate_t ddate;
    struct dostime_t dtime;
+   struct tm *tp;
 
-#endif /* __TURBOC__ */
-#endif /* NONDOS */
+#endif
 
    memset( &tx , '\0', sizeof tx);        /* Clear pointers          */
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
@@ -200,7 +201,7 @@ boolean nbstime( void )
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
-#ifdef FAMILYAPI
+#if defined(FAMILYAPI) || defined(__OS2__)
 
    rc = DosGetDateTime( &DateTime );
    if ( rc != 0 )

@@ -2,23 +2,28 @@
 /*    m o d e m . c                                                   */
 /*                                                                    */
 /*    High level modem control routines for UUPC/extended             */
-/*                                                                    */
-/*    Copyright (c) 1991 by Andrew H. Derbyshire                      */
-/*                                                                    */
-/*    Change history:                                                 */
-/*       21 Apr 91      Create from dcpsys.c                          */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.18 1993/07/13 01:13:32 ahd Exp $
+ *    $Id: modem.c 1.19 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.19  1993/08/03  03:11:49  ahd
+ * Add Description= line
+ *
  * Revision 1.18  1993/07/13  01:13:32  ahd
  * Correct message for systems waiting forever
  *
@@ -48,7 +53,7 @@
  * make modem connected messages consistent
  *
  * Revision 1.9  1993/01/23  19:08:09  ahd
- * Add additional shutdown() commands even when modem does not init
+ * Add additional shutDown() commands even when modem does not init
  *
  * Revision 1.8  1992/12/30  13:11:44  dmwatt
  * Check for NULL brand pointer before comparing
@@ -73,9 +78,6 @@
  * Clean up modem file support for different protocols
  *
  * Revision 1.1  1992/11/12  12:32:18  ahd
- * Initial revision
- *
- * Revision 1.1  1992/05/02  13:06:48  ahd
  * Initial revision
  *
  */
@@ -124,18 +126,20 @@ static char *dialPrefix, *dialSuffix;
 static char *M_suite;
 static char *dummy;
 
-static INTEGER chardelay, dialTimeout, modemTimeout, scriptTimeout;
-static INTEGER answerTimeout, inspeed;
-static INTEGER gWindowSize, gPacketSize;
-static INTEGER vWindowSize, vPacketSize;
-static INTEGER GWindowSize, GPacketSize;
+static KEWSHORT chardelay, dialTimeout, modemTimeout, scriptTimeout;
+static KEWSHORT answerTimeout;
+static BPS inspeed;
+static KEWSHORT gWindowSize, gPacketSize;
+static KEWSHORT vWindowSize, vPacketSize;
+static KEWSHORT GWindowSize, GPacketSize;
 
-INTEGER M_fPacketSize;
-INTEGER M_gPacketTimeout;        /* "g" procotol                  */
-INTEGER M_fPacketTimeout;        /* "f" procotol                  */
-INTEGER M_MaxErr= 10;         /* Allowed errors per single packet    */
-INTEGER M_MaxErr;             /* Allowed errors per single packet    */
-INTEGER M_xfer_bufsize;       /* Buffering used for file transfers */
+KEWSHORT M_fPacketSize;
+KEWSHORT M_gPacketTimeout;       /* "g" procotol                  */
+KEWSHORT M_fPacketTimeout;       /* "f" procotol                  */
+KEWSHORT M_tPacketTimeout;       /* "t" procotol                  */
+KEWSHORT M_MaxErr= 10;        /* Allowed errors per single packet    */
+KEWSHORT M_MaxErr;            /* Allowed errors per single packet    */
+KEWSHORT M_xfer_bufsize;      /* Buffering used for file transfers */
 
 boolean bmodemflag[MODEM_LAST];
 
@@ -150,35 +154,36 @@ static FLAGTABLE modemFlags[] = {
 
 static CONFIGTABLE modemtable[] = {
    { "answer",        (char **) &answer,       B_LIST   | B_UUCICO },
-   { "answertimeout", (char **) &answerTimeout,B_INTEGER| B_UUCICO },
-   { "biggpacketsize",(char **) &GPacketSize,  B_INTEGER| B_UUCICO },
-   { "biggwindowsize",(char **) &GWindowSize,  B_INTEGER| B_UUCICO },
-   { "chardelay",     (char **) &chardelay,    B_INTEGER| B_UUCICO },
+   { "answertimeout", (char **) &answerTimeout,B_KEWSHORT| B_UUCICO },
+   { "biggpacketsize",(char **) &GPacketSize,  B_KEWSHORT| B_UUCICO },
+   { "biggwindowsize",(char **) &GWindowSize,  B_KEWSHORT| B_UUCICO },
+   { "chardelay",     (char **) &chardelay,    B_KEWSHORT| B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
    { "description",   &dummy,                  B_TOKEN  },
-   { "device",        &device,  B_TOKEN  | B_UUCICO | B_REQUIRED },
-   { "dialprefix",    &dialPrefix, B_STRING | B_UUCICO | B_REQUIRED },
+   { "device",        &device,    B_TOKEN  | B_UUCICO | B_REQUIRED },
+   { "dialprefix",    &dialPrefix,B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
-   { "dialtimeout",   (char **) &dialTimeout,  B_INTEGER| B_UUCICO },
-   { "fpacketsize",   (char **) &M_fPacketSize,B_INTEGER| B_UUCICO },
-   { "fpackettimeout",(char **) &M_fPacketTimeout, B_INTEGER | B_UUCICO },
-   { "gpacketsize",   (char **) &gPacketSize,  B_INTEGER| B_UUCICO },
-   { "gpackettimeout",(char **) &M_gPacketTimeout, B_INTEGER | B_UUCICO },
-   { "gwindowsize",   (char **) &gWindowSize,  B_INTEGER| B_UUCICO },
+   { "dialtimeout",   (char **) &dialTimeout,  B_KEWSHORT| B_UUCICO },
+   { "fpacketsize",   (char **) &M_fPacketSize,B_KEWSHORT| B_UUCICO },
+   { "fpackettimeout",(char **) &M_fPacketTimeout, B_KEWSHORT | B_UUCICO },
+   { "gpacketsize",   (char **) &gPacketSize,  B_KEWSHORT| B_UUCICO },
+   { "gpackettimeout",(char **) &M_gPacketTimeout, B_KEWSHORT | B_UUCICO },
+   { "gwindowsize",   (char **) &gWindowSize,  B_KEWSHORT| B_UUCICO },
    { "hangup",        (char **) &dropline,     B_LIST   | B_UUCICO },
    { "initialize",    (char **) &initialize,   B_LIST   | B_UUCICO },
-   { "inspeed",       (char **) &inspeed,      B_INTEGER| B_UUCICO },
-   { "maximumerrors", (char **) &M_MaxErr,     B_INTEGER| B_UUCICO },
-   { "modemtimeout",  (char **) &modemTimeout, B_INTEGER| B_UUCICO },
+   { "inspeed",       (char **) &inspeed,      B_LONG   | B_UUCICO },
+   { "maximumerrors", (char **) &M_MaxErr,     B_KEWSHORT| B_UUCICO },
+   { "modemtimeout",  (char **) &modemTimeout, B_KEWSHORT| B_UUCICO },
    { "noconnect",     (char **) &noconnect,    B_LIST   | B_UUCICO },
    { "options",       (char **) bmodemflag,    B_ALL    | B_BOOLEAN},
    { "porttimeout",   NULL,                    B_OBSOLETE },
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
-   { "scripttimeout", (char **) &scriptTimeout,B_INTEGER| B_UUCICO },
+   { "scripttimeout", (char **) &scriptTimeout,B_KEWSHORT| B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
-   { "transferbuffer",(char **) &M_xfer_bufsize, B_INTEGER| B_UUCICO },
-   { "vpacketsize",   (char **) &vPacketSize,  B_INTEGER| B_UUCICO },
-   { "vwindowsize",   (char **) &vWindowSize,  B_INTEGER| B_UUCICO },
+   { "transferbuffer",(char **) &M_xfer_bufsize, B_KEWSHORT| B_UUCICO },
+   { "tpackettimeout",(char **) &M_tPacketTimeout, B_KEWSHORT | B_UUCICO },
+   { "vpacketsize",   (char **) &vPacketSize,  B_KEWSHORT| B_UUCICO },
+   { "vwindowsize",   (char **) &vWindowSize,  B_KEWSHORT| B_UUCICO },
    { nil(char) }
 }; /* modemtable */
 
@@ -188,14 +193,14 @@ static CONFIGTABLE modemtable[] = {
 
 static boolean getmodem( const char *brand);
 
-static boolean dial(char *number, const size_t speed);
+static boolean dial(char *number, const BPS speed);
 
 static boolean sendlist( char **list, int timeout, int lasttimeout,
                          char **failure);
 
 static boolean sendalt( char *string, int timeout, char **failure);
 
-static void autobaud( const size_t speed);
+static void autobaud( const BPS speed);
 
 /*--------------------------------------------------------------------*/
 /*              Define current file name for references               */
@@ -213,7 +218,7 @@ CONN_STATE callup( void )
 {
    char *exp;
    int i;
-   size_t speed;
+   BPS speed;
 
 /*--------------------------------------------------------------------*/
 /*             Announce we are trying to call the system              */
@@ -222,7 +227,7 @@ CONN_STATE callup( void )
    printmsg(1, "callup: Calling %s via %s at %s on %s",
           rmtname, flds[FLD_TYPE], flds[FLD_SPEED], arpadate());
 
-   speed = (size_t) atoi( flds[FLD_SPEED] );
+   speed = (BPS) atoi( flds[FLD_SPEED] );
    if (speed < 300)
    {
       printmsg(0,"callup: Modem speed %s is invalid.",
@@ -252,7 +257,8 @@ CONN_STATE callup( void )
 /*             The modem is connected; now login the host             */
 /*--------------------------------------------------------------------*/
 
-   for (i = FLD_EXPECT; i < kflds; i += 2) {
+   for (i = FLD_EXPECT; i < kflds; i += 2)
+   {
 
       exp = flds[i];
       printmsg(2, "expecting %d of %d \"%s\"", i, kflds, exp);
@@ -310,7 +316,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           // Shutdown gracefully as needed
-   if (openline(device, speed, bmodemflag[MODEM_DIRECT] ))
+   if (activeopenline(device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
 /*--------------------------------------------------------------------*/
@@ -370,38 +376,48 @@ CONN_STATE callin( const time_t exit_time )
    if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
       panic();                /* Avoid loop if bad modem name        */
 
-   if ((ring == NULL) || (inspeed == 0))
-   {
-      printmsg(0,"callin: Missing inspeed and/or ring values in modem \
-configuration file.");
-      panic();
-   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           // Shutdown gracefully as needed
-   if (openline(device, inspeed, bmodemflag[MODEM_DIRECT]))
-      panic();
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
 /*--------------------------------------------------------------------*/
 
-   while (sread(&c ,1,0));    /* Discard trailing trash from modem
+   if ( IsNetwork() )
+   {
+      if (passiveopenline(device, inspeed, bmodemflag[MODEM_DIRECT]))
+         panic();
+   }
+   else {
+      if (((ring == NULL) || (inspeed == 0)))
+      {
+         printmsg(0,"callin: Missing inspeed and/or ring values in modem "
+                    "configuration file.");
+         panic();
+      } /* if */
+
+      if (passiveopenline(device, inspeed, bmodemflag[MODEM_DIRECT]))
+         panic();
+
+      while (sread(&c ,1,0)); /* Discard trailing trash from modem
                                  connect message                     */
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the modem                        */
 /*--------------------------------------------------------------------*/
 
-   if (!sendlist( initialize, modemTimeout, modemTimeout, NULL))
-   {
-      printmsg(0,"callin: Modem failed to initialize");
-      shutdown();
-      panic();
-   }
+      if (!sendlist( initialize, modemTimeout, modemTimeout, NULL))
+      {
+         printmsg(0,"callin: Modem failed to initialize");
+         shutDown();
+         panic();
+      }
+
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                   Wait for the telephone to ring                   */
@@ -416,42 +432,52 @@ configuration file.");
 
    interactive_processing = FALSE;
 
-   if (!sendlist( ring,modemTimeout, offset, noconnect))
-                              /* Did it ring?                        */
-   {
+   if (IsNetwork())
+   {                          /* Network connect is different        */
+      if (!WaitForNetConnect(offset))
+      {
+         interactive_processing = TRUE;
+         shutDown();
+         return CONN_INITIALIZE;
+      }
+
       interactive_processing = TRUE;
-      shutdown();
-      return CONN_INITIALIZE;     /* No --> Return to caller       */
+      printmsg(14, "callin: Modem reports connected");
+
    }
+   else {
+      if (!sendlist( ring,modemTimeout, offset, noconnect))
+      {                          /* Did it ring?                        */
+         interactive_processing = TRUE;
+         shutDown();
+         return CONN_INITIALIZE;     /* No --> Return to caller       */
+      }
 
-   interactive_processing = TRUE;
+      interactive_processing = TRUE;
 
-   if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
-                              /* Pick up the telephone               */
-   {
-      printmsg(1,"callin: Modem failed to connect to incoming call");
-      shutdown();
-      return CONN_INITIALIZE;
-   }
+      if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
+      {                           /* Pick up the telephone               */
+         printmsg(1,"callin: Modem failed to connect to incoming call");
+         shutDown();
+         return CONN_INITIALIZE;
+      }
 
-/*--------------------------------------------------------------------*/
-/*           The modem is connected; now try to autobaud it           */
-/*--------------------------------------------------------------------*/
+      printmsg(14, "callin: Modem reports connected");
 
-   printmsg(14, "callin: Modem reports connected");
-
-
-   autobaud(inspeed);         /* autobaud the modem                  */
+      autobaud(inspeed);      /* autobaud the modem                  */
 
 /*--------------------------------------------------------------------*/
 /*        Flush the input buffer of any other input characters        */
 /*--------------------------------------------------------------------*/
 
-   while (sread(&c ,1,0));    /* Discard trailing trash from modem
+      while (sread(&c ,1,0)); /* Discard trailing trash from modem
                                  connect message                     */
+
+   } /* else */
 
    memset( &remote_stats, 0, sizeof remote_stats);
                               /* Clear remote stats for login        */
+
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
    return CONN_LOGIN;
@@ -503,6 +529,7 @@ static boolean getmodem( const char *brand)
    M_fPacketSize = MAXPACK;
    M_fPacketTimeout = 20;
    M_gPacketTimeout = 10;
+   M_tPacketTimeout = 60;
    modemTimeout  = 3;         /* Default is 3 seconds for modem cmds  */
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
    answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
@@ -562,7 +589,6 @@ static boolean getmodem( const char *brand)
 /*       the processing routines.                                     */
 /*--------------------------------------------------------------------*/
 
-
    if ( ! chooseCommunications( M_suite ))
       return FALSE;
 
@@ -584,7 +610,7 @@ static boolean getmodem( const char *brand)
 /*    strings are not configurable                                    */
 /*--------------------------------------------------------------------*/
 
-static boolean dial(char *number, const size_t speed)
+static boolean dial(char *number, const BPS speed)
 {
    char buf[81];
 
@@ -593,48 +619,62 @@ static boolean dial(char *number, const size_t speed)
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           // Shutdown gracefully as needed
-   if (openline(device, speed, bmodemflag[MODEM_DIRECT]))
-   {
-
-      hostp->hstatus =  nodevice;
-      return FALSE;
-   }
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
 /*--------------------------------------------------------------------*/
 
-   while (sread(buf,1,0));    /* Discard trailing trash from modem
+   if ( IsNetwork() )
+   {
+      if (activeopenline(number, speed, bmodemflag[MODEM_DIRECT]))
+      {
+         hostp->hstatus =  nodevice;
+         return FALSE;
+      }
+   }
+   else {
+
+      if (activeopenline(device, speed, bmodemflag[MODEM_DIRECT]))
+      {
+
+         hostp->hstatus =  nodevice;
+         return FALSE;
+      }
+
+      while (sread(buf,1,0)); /* Discard trailing trash from modem
                                  connect message                     */
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the modem                        */
 /*--------------------------------------------------------------------*/
 
-   if (!sendlist( initialize, modemTimeout, modemTimeout, noconnect))
-   {
-      printmsg(0,"dial: Modem failed to initialize");
-      shutdown();
-      hostp->hstatus =  dial_script_failed;
-      return FALSE;
-   }
+      if (!sendlist( initialize, modemTimeout, modemTimeout, noconnect))
+      {
+         printmsg(0,"dial: Modem failed to initialize");
+         shutDown();
+         hostp->hstatus =  dial_script_failed;
+         return FALSE;
+      }
 
 /*--------------------------------------------------------------------*/
 /*           Setup the dial string and then dial the modem            */
 /*--------------------------------------------------------------------*/
 
-   strcpy(buf, dialPrefix);
-   strcat(buf, number);
-   if (dialSuffix != NULL)
-      strcat(buf, dialSuffix);
+      strcpy(buf, dialPrefix);
+      strcat(buf, number);
+      if (dialSuffix != NULL)
+         strcat(buf, dialSuffix);
 
-   sendstr( buf );         /* Send the command to the telephone      */
+      sendstr( buf );         /* Send the command to the telephone      */
 
-   if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
-   {
-      hostp->hstatus =  dial_failed;
-      return FALSE;
-   }
+      if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
+      {
+         hostp->hstatus =  dial_failed;
+         return FALSE;
+      }
+
+   }  /* if ( !IsNetwork() ) */
+
    printmsg(3, "dial: Modem reports connected");
 
    time( &remote_stats.lconnect );
@@ -656,7 +696,7 @@ static boolean dial(char *number, const size_t speed)
 /*    autobaud a modem which has just connected                       */
 /*--------------------------------------------------------------------*/
 
-static void autobaud( const size_t speed )
+static void autobaud( const BPS speed )
 {
    char buf[10];
 
@@ -683,7 +723,7 @@ static void autobaud( const size_t speed )
          token = strtok(buf,WHITESPACE);
          if (strlen(token))
          {
-            size_t new_speed = (unsigned) atoi(token);
+            BPS new_speed = (unsigned) atoi(token);
             if ((new_speed != speed) && (new_speed > 300))
             {
                printmsg(2, "autobaud: speed select %s", token);
@@ -703,7 +743,7 @@ static void autobaud( const size_t speed )
 /*    Terminate modem processing via hangup                           */
 /*--------------------------------------------------------------------*/
 
-void shutdown( void )
+void shutDown( void )
 {
    static boolean recurse = FALSE;
 
@@ -793,13 +833,12 @@ static boolean sendalt( char *exp, int timeout, char **failure)
 
       if ( terminate_processing )
       {
-         shutdown();
+         shutDown();
          return FALSE;
       }
 
       if (ok || (alternate == nil(char)))
          return (ok == 1);
-
 
       if (bmodemflag[MODEM_CD] && ! CD())
       {
@@ -837,9 +876,9 @@ void slowwrite( char *s, int len)
 /*    Report the size of the allowed window for the "g" protocol      */
 /*--------------------------------------------------------------------*/
 
-INTEGER  GetGWindow(  INTEGER maxvalue , const char protocol )
+KEWSHORT GetGWindow(  KEWSHORT maxvalue , const char protocol )
 {
-   INTEGER ourWindowSize = 0;
+   KEWSHORT ourWindowSize = 0;
 
    switch( protocol )
    {
@@ -873,10 +912,10 @@ INTEGER  GetGWindow(  INTEGER maxvalue , const char protocol )
 /*    Return the allowed packet size for the "g" procotol             */
 /*--------------------------------------------------------------------*/
 
-INTEGER  GetGPacket( INTEGER maxvalue , const char protocol)
+KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
 {
-   INTEGER savePacketSize ;
-   INTEGER ourPacketSize = 0;
+   KEWSHORT savePacketSize ;
+   KEWSHORT ourPacketSize = 0;
    int bits = 6;              /* Minimum Packet Size is 64 bytes     */
 
    switch( protocol )

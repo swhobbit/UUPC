@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.4 1993/07/13 01:13:32 ahd Exp $
+ *    $Id: commlib.c 1.5 1993/07/22 23:22:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.5  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.4  1993/07/13  01:13:32  ahd
  * Don't print NULL communications suite name!
  *
@@ -53,11 +56,13 @@
 
 #include "ulib.h"             // Native communications interface
 
-#ifndef WIN32
-#ifndef FAMILYAPI
-#include "ulibfs.h"           // FOSSIL interface
-#include "ulib14.h"           // ARTISOFT INT14 interface
+#if !defined(BIT32ENV) && !defined(FAMILYAPI) && !defined(_Windows)
+#include "ulibfs.h"           // DOS FOSSIL interface
+#include "ulib14.h"           // DOS ARTISOFT INT14 interface
 #endif
+
+#if defined(WIN32) || defined(_Windows)
+#include "ulibip.h"           // Windows sockets on TCP/IP interface
 #endif
 
 #define NATIVE "internal"
@@ -69,10 +74,11 @@
 boolean portActive;         /* Port active flag for error handler   */
 boolean traceEnabled;        // Trace active flag
 
-commrefi openlinep, swritep;
+commrefi activeopenlinep, passiveopenlinep, swritep;
 commrefu sreadp;
 commrefv ssendbrkp, closelinep, SIOSpeedp, flowcontrolp, hangupp;
 commrefB GetSpeedp;
+commrefb WaitForNetConnectp;
 commrefb CDp;
 
 /*--------------------------------------------------------------------*/
@@ -80,8 +86,12 @@ commrefb CDp;
 /*--------------------------------------------------------------------*/
 
 static FILE *traceStream;    // Stream used for trace file
+
 static short   traceMode;    // Flag for last data (input/output)
                              // written to trace log
+
+static boolean network = FALSE;  // Current communications suite is
+                                 // network oriented
 
 currentfile();
 
@@ -96,25 +106,41 @@ boolean chooseCommunications( const char *name )
    static COMMSUITE suite[] =
    {
         { NATIVE,                      // Default for any opsys
-          nopenline, nsread, nswrite,
+          nopenline, nopenline, nsread, nswrite,
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
-          nCD },
-#ifndef WIN32
-#ifndef _Windows
-#ifndef FAMILYAPI
+          nCD,
+          (commrefb) NULL,
+          FALSE
+        },
+#if !defined(BIT32ENV) && !defined(_Windows) && !defined(FAMILYAPI)
         { "fossil",                    // MS-DOS FOSSIL driver
-          fopenline, fsread, fswrite,
+          fopenline, fopenline, fsread, fswrite,
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
-          fCD },
+          fCD,
+          (commrefb) NULL,
+          FALSE
+        },
         { "articomm",                  // MS-DOS ARTISOFT INT14 driver
-          iopenline, isread, iswrite,
+          iopenline, iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
-          iCD },
+          iCD,
+          (commrefb) NULL,
+          FALSE
+        },
 #endif
-#endif
+
+#if defined(WIN32) || defined(_Windows)
+        { "tcp/ip",                    // Win32 TCP/IP Winsock interface
+          tactiveopenline, tpassiveopenline, tsread, tswrite,
+          tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
+          tGetSpeed,
+          tCD,
+          tWaitForNetConnect,
+          TRUE
+        },
 #endif
         { NULL }                       // End of list
    };
@@ -145,16 +171,19 @@ boolean chooseCommunications( const char *name )
 /*       return to caller                                             */
 /*--------------------------------------------------------------------*/
 
-   openlinep     = suite[subscript].openline;
-   sreadp        = suite[subscript].sread;
-   swritep       = suite[subscript].swrite;
-   ssendbrkp     = suite[subscript].ssendbrk;
-   closelinep    = suite[subscript].closeline;
-   SIOSpeedp     = suite[subscript].SIOSpeed;
-   flowcontrolp  = suite[subscript].flowcontrol;
-   hangupp       = suite[subscript].hangup;
-   GetSpeedp     = suite[subscript].GetSpeed;
-   CDp           = suite[subscript].CD;
+   activeopenlinep    = suite[subscript].activeopenline;
+   passiveopenlinep   = suite[subscript].passiveopenline;
+   sreadp             = suite[subscript].sread;
+   swritep            = suite[subscript].swrite;
+   ssendbrkp          = suite[subscript].ssendbrk;
+   closelinep         = suite[subscript].closeline;
+   SIOSpeedp          = suite[subscript].SIOSpeed;
+   flowcontrolp       = suite[subscript].flowcontrol;
+   hangupp            = suite[subscript].hangup;
+   GetSpeedp          = suite[subscript].GetSpeed;
+   CDp                = suite[subscript].CD;
+   WaitForNetConnectp = suite[subscript].WaitForNetConnect;
+   network            = suite[subscript].network;
 
    printmsg(equal(suite[subscript].type, NATIVE) ? 5 : 4,
             "chooseCommunications: Chose suite %s",
@@ -246,10 +275,10 @@ void traceData( const char *data,
    if ( ! traceEnabled )
       return;
 
-   if ( traceMode != (int) output )
+   if ( traceMode != (short) output )
    {
       fputs(output ? "\nWrite: " : "\nRead:  ",traceStream );
-      traceMode = (int) output;
+      traceMode = (short) output;
    }
 
 #ifdef VERBOSE
@@ -264,3 +293,14 @@ void traceData( const char *data,
 #endif
 
 } /* traceData */
+
+/*--------------------------------------------------------------------*/
+/*       I s N e t w o r k                                            */
+/*                                                                    */
+/*       Report if current communications suite is network oriented   */
+/*--------------------------------------------------------------------*/
+
+boolean IsNetwork(void)
+{
+   return network;         // Preset when suite initialized
+}

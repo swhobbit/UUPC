@@ -5,9 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.13 1993/05/30 00:08:03 ahd Exp $
+ *       $Id: ULIBOS2.C 1.14 1993/05/30 15:25:50 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.14  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  * Revision 1.13  1993/05/30  00:08:03  ahd
  * Multiple communications driver support
  * Delete trace functions
@@ -60,7 +61,6 @@
  *
  */
 
-
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -73,16 +73,6 @@
 #include <time.h>
 
 /*--------------------------------------------------------------------*/
-/*                      Windows/NT include files                      */
-/*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-
-#include <windows.h>
-#include <limits.h>
-#else
-
-/*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
 /*--------------------------------------------------------------------*/
 
@@ -90,6 +80,9 @@
 #define INCL_BASE
 #include <os2.h>
 #include <limits.h>
+
+#ifndef __OS2__
+typedef USHORT APIRET ;  // Define older API return type
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -109,12 +102,12 @@
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
 
-static boolean hangup_needed = FALSE;
+static boolean hangupNeeded = FALSE;
 static boolean console = FALSE;
 
-static current_baud = 0;
+static currentSpeed = 0;
 
 #define FAR_NULL ((PVOID) 0L)
 
@@ -122,34 +115,20 @@ static current_baud = 0;
 /*           Definitions of control structures for DOS API            */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-static HANDLE hCom;
-static COMMTIMEOUTS CommTimeout;
-static DCB dcb;
-
-#else /* OS/2 */
-
 static HFILE com_handle;
 static struct _LINECONTROL com_attrib;
-static struct _RXQUEUE com_queue;
 static struct _MODEMSTATUS com_signals;
 static struct _DCBINFO com_dcbinfo;
 
-#endif
-
-
-static BYTE com_status;
-static USHORT com_error;
+#ifdef __OS2__
+static ULONG usPrevPriority;
+#else
 static USHORT usPrevPriority;
+#endif
 
 static void ShowError( const USHORT status );
 
-#ifdef WIN32
-static void ShowModem( const DWORD status );
-#else /* OS/2 */
 static void ShowModem( const BYTE status );
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    n o p e n l i n e                                               */
@@ -159,19 +138,28 @@ static void ShowModem( const BYTE status );
 
 int nopenline(char *name, BPS baud, const boolean direct )
 {
-#ifdef WIN32
-   DWORD dwError;
-   DWORD Error;
-   BOOL rc;
-   HANDLE hProcess;
+
+   APIRET rc;
+   USHORT com_error;
+
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+
+   PTIB ptib;
+   PPIB ppib;
+
+   ULONG action;
+
 #else
-   USHORT rc;
    USHORT action;
+#endif
+
+
    USHORT priority = (E_priority == -99) ?
                            PRTYC_FOREGROUNDSERVER : (USHORT) E_priority;
    USHORT prioritydelta = (E_prioritydelta == -99) ?
                            0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
-#endif
 
    if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
@@ -195,18 +183,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   hCom = CreateFile( name,
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
-#else /* OS/2 */
-
    rc = DosOpen( name,
                  &com_handle,
                  &action,
@@ -215,24 +191,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
                  FILE_OPEN ,
                  OPEN_FLAGS_FAIL_ON_ERROR |
                  OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYREADWRITE, 0L );
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    Check the open worked.  We translation the common obvious       */
 /*    error of file in use to english, for all other errors are we    */
 /*    report the raw error code.                                      */
 /*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-
-   if (hCom == INVALID_HANDLE_VALUE) {
-       dwError = GetLastError();
-       printmsg(0, "openline: OpenFile Error %d on port %s",
-          dwError, name);
-       return TRUE;
-   }
-
-#else
 
    if ( rc == ERROR_SHARING_VIOLATION)
    {
@@ -245,7 +209,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
                   (int) rc, name );
       return TRUE;
    }
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                    Check for special test mode                     */
@@ -254,7 +217,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if ( equal(name,"CON"))
    {
       portActive = TRUE;     /* record status for error handler        */
-      carrierdetect = FALSE;  /* Modem is not connected                 */
+      carrierDetect = FALSE;  /* Modem is not connected                 */
       console = TRUE;
       return 0;
    }
@@ -265,21 +228,21 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*            Reset any errors on the communications port             */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   rc = ClearCommError (hCom,
-        &Error,
-        NULL);
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_error);
+   rc = DosDevIOCtl( com_handle, IOCTL_ASYNC, ASYNC_GETCOMMERROR,
+      NULL,0L,&ParmLengthInOut,(PVOID) &com_error,sizeof(com_error),
+      &DataLengthInOut);
 
-   if (!rc) {
-      printmsg(0, "openline: Error in ClearCommError() call\n");
-      printmsg(0, "Error returned was %d\n", Error);
-   }
-
-#else /* OS/2 */
+#else
 
    rc = DosDevIOCtl( &com_error, FAR_NULL, ASYNC_GETCOMMERROR ,
                      IOCTL_ASYNC, com_handle);
+
+#endif
+
    if (rc)
    {
       printmsg(0,
@@ -290,8 +253,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
    } /*if */
    else if ( com_error )
       ShowError( com_error );
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                           Set baud rate                            */
@@ -307,28 +268,29 @@ int nopenline(char *name, BPS baud, const boolean direct )
    printmsg(15,"openline: Getting attributes");
 #endif
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   rc = GetCommState(hCom, &dcb);
-   if (!rc) {
-      printmsg(0,"openline: Unable to get line attributes for %s",name);
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_attrib);
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_GETLINECTRL,
+                     NULL,
+                     0L,
+                     &ParmLengthInOut,
+                     (PVOID) &com_attrib,
+                     sizeof(com_attrib),
+                     &DataLengthInOut); // Get old attributes from device
 
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
+#else
 
-               (int) rc , (int) rc);
+   rc = DosDevIOCtl( &com_attrib,
+                     FAR_NULL,
+                     ASYNC_GETLINECTRL,
+                     IOCTL_ASYNC,
+                     com_handle);   // Get old attributes from device
+#endif
 
-      panic();
-   }
-
-   dcb.StopBits = ONESTOPBIT;
-   dcb.Parity = NOPARITY;
-   dcb.ByteSize = 8;
-
-#else /* OS/2 */
-
-   rc = DosDevIOCtl( &com_attrib, FAR_NULL, ASYNC_GETLINECTRL, IOCTL_ASYNC,
-                com_handle);
-                              /* Get old attributes from device      */
    if (rc)
    {
       printmsg(0,"openline: Unable to get line attributes for %s",name);
@@ -341,27 +303,33 @@ int nopenline(char *name, BPS baud, const boolean direct )
    com_attrib.bParity   = 0x00; /* No parity                        */
    com_attrib.bStopBits = 0x00; /* 1 Stop Bit                       */
 
-#endif
-
 #ifdef UDEBUG
    printmsg(15,"openline: Setting attributes");
 #endif
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   rc = SetCommState(hCom, &dcb);
-   if (!rc)
-   {
+   ParmLengthInOut = sizeof(com_attrib);
+   DataLengthInOut = 0;
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETLINECTRL,
+                     (PVOID) &com_attrib,
+                     sizeof(com_attrib),
+                     &ParmLengthInOut,
+                     NULL,
+                     0L,
+                     &DataLengthInOut);
 
-      printmsg(0,"openline: Unable to set line attributes for %s",name);
-      panic();
+#else
 
-   }
+   rc = DosDevIOCtl( FAR_NULL,
+                     &com_attrib,
+                     ASYNC_SETLINECTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
+#endif
 
-#else /* OS/2 */
-
-   rc = DosDevIOCtl( FAR_NULL, &com_attrib, ASYNC_SETLINECTRL,
-                    IOCTL_ASYNC, com_handle);
    if (rc)
    {
       printmsg(0,"openline: Unable to set line attributes for %s",name);
@@ -369,8 +337,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
                (int) rc , (int) rc);
       panic();
    } /*if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Disable XON/XOFF flow control                  */
@@ -381,34 +347,30 @@ int nopenline(char *name, BPS baud, const boolean direct )
    printmsg(15,"openline: Getting flow control information");
 #endif
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   GetCommState(hCom, &dcb);
-   dcb.fOutX = 0;
-   dcb.fInX = 0;
-   dcb.fOutxCtsFlow = 1;
-   rc = SetCommState(hCom, &dcb);
-   if (!rc) {
-       printmsg(0,"openline: Unable to set comm attributes for %s",name);
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_dcbinfo);
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_GETDCBINFO,
+                     NULL,
+                     0L,
+                     &ParmLengthInOut,
+                     (PVOID) &com_dcbinfo,
+                     sizeof(com_dcbinfo),
+                     &DataLengthInOut);   // Get old attributes from device
 
-       panic();
-   }
+#else
 
-/* Get communications timeout information */
+   rc = DosDevIOCtl( &com_dcbinfo,
+                     FAR_NULL,
+                     ASYNC_GETDCBINFO,
+                     IOCTL_ASYNC,
+                     com_handle);    // Get old attributes from device
 
-   rc = GetCommTimeouts(hCom, &CommTimeout);
-   if (!rc) {
-      Error = GetLastError();
-      printmsg(0, "openline: error on GetCommTimeouts() on %s: error %d",
-          name, Error);
-      panic();
-   }
+#endif
 
-#else /* OS/2 */
-
-   rc = DosDevIOCtl( &com_dcbinfo, FAR_NULL, ASYNC_GETDCBINFO, IOCTL_ASYNC,
-                 com_handle);
-                              /* Get old attributes from device      */
    if (rc)
    {
       printmsg(0,"openline: Unable to get line attributes for %s",name);
@@ -429,8 +391,30 @@ int nopenline(char *name, BPS baud, const boolean direct )
    printmsg(15,"openline: Setting dcb information");
 #endif
 
-   rc = DosDevIOCtl( FAR_NULL, &com_dcbinfo, ASYNC_SETDCBINFO,
-                     IOCTL_ASYNC, com_handle);
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_dcbinfo);
+   DataLengthInOut = 0;
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETDCBINFO,
+                     (PVOID) &com_dcbinfo,
+                     sizeof(com_dcbinfo),
+                     &ParmLengthInOut,
+                     NULL,
+                     0L,
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( FAR_NULL,
+                     &com_dcbinfo,
+                     ASYNC_SETDCBINFO,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
    if ( rc )
    {
       printmsg(0,"openline: Unable to set flow control for %s",name);
@@ -439,28 +423,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
       panic();
    } /*if */
 
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                     Raise Data Terminal Ready                      */
 /*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-   GetCommState(hCom, &dcb);
-   dcb.fDtrControl = DTR_CONTROL_ENABLE;
-   dcb.fRtsControl = RTS_CONTROL_ENABLE;
-
-   rc = SetCommState(hCom, &dcb);
-   if (!rc) {
-      printmsg(0,
-
-            "openline: Unable to raise DTR/RTS for %s",
-                  name);
-
-      panic();
-   }
-
-#else /* OS/2 */
 
    com_signals.fbModemOn = DTR_ON | RTS_ON ;
    com_signals.fbModemOff = 0xff;
@@ -469,8 +434,31 @@ int nopenline(char *name, BPS baud, const boolean direct )
    printmsg(15,"openline: Raising RTS/DTR");
 #endif
 
-   rc = DosDevIOCtl( &com_error, &com_signals, ASYNC_SETMODEMCTRL,
-                     IOCTL_ASYNC, com_handle);
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_signals);
+   DataLengthInOut = sizeof(com_error);
+
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETMODEMCTRL,
+                     (PVOID)&com_signals,
+                     sizeof(com_signals),
+                     &ParmLengthInOut,
+                     (PVOID) &com_error,
+                     sizeof(com_error),
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( &com_error,
+                     &com_signals,
+                     ASYNC_SETMODEMCTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
    if (rc)
    {
       printmsg(0,
@@ -481,31 +469,22 @@ int nopenline(char *name, BPS baud, const boolean direct )
       panic();
    } /*if */
 
-#endif
-
    traceStart( name );     // Enable logging
 
    portActive = TRUE;     /* record status for error handler        */
-   carrierdetect = FALSE;  /* Modem is not connected                 */
+   carrierDetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
 /*                     Up our processing priority                     */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   hProcess = GetCurrentProcess();
-   rc = SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS);
-
-   if (!rc)
-   {
-      printmsg(0, "openline: unable to set priority for process");
-      panic();
-   }
-
-#else /* OS/2 */
-
+#ifdef __OS2__
+   rc = DosGetInfoBlocks( &ptib, &ppib);
+   if ( !rc ) usPrevPriority = (ptib->tib_ptib2)->tib2_ulpri;
+#else
    rc = DosGetPrty(PRTYS_PROCESS, &usPrevPriority, 0);
+#endif
+
    if (rc)
    {
       printmsg(0,"openline: Unable to get priority for task");
@@ -524,8 +503,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
       printmsg(0,"Return code from DosSetPrty was %#04x (%d)",
                (int) rc , (int) rc);
    } /*if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -556,18 +533,17 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
-#ifdef WIN32
-   static LPVOID psave;
-   DWORD Error;
-   BOOL rc;
-#else /* OS/2 */
-   USHORT rc;
-#endif
+   APIRET rc;
    static char save[BUFSIZ];
    static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
+   USHORT com_error;
 
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+#endif
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -586,21 +562,29 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*            Reset any errors on the communications port             */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   rc = ClearCommError (hCom,
-        &Error,
-        NULL);
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_error);
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_GETCOMMERROR,
+                     NULL,
+                     0L,
+                     &ParmLengthInOut,
+                     (PVOID) &com_error,
+                     sizeof(com_error),
+                     &DataLengthInOut);
 
-   if (!rc) {
-      printmsg(0, "sread:  Unable to read port errors\n");
-      printmsg(0, "Error mask was set to %d\n", Error);
-   }
+#else
 
-#else /* OS/2 */
+   rc = DosDevIOCtl( &com_error,
+                     FAR_NULL,
+                     ASYNC_GETCOMMERROR ,
+                     IOCTL_ASYNC,
+                     com_handle);
 
-   rc = DosDevIOCtl( &com_error, FAR_NULL, ASYNC_GETCOMMERROR ,
-                     IOCTL_ASYNC, com_handle);
+#endif
 
    if (rc && ! console )
    {
@@ -610,8 +594,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    } /*if */
    else if ( com_error )
       ShowError( com_error );
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                 Determine when to stop processing                  */
@@ -632,17 +614,14 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
    do {
-#ifdef WIN32
-      DWORD received;
-      DWORD needed = wanted - bufsize;
-      DWORD port_timeout;
-#else /* OS/2 */
       USHORT needed =  (USHORT) wanted - bufsize;
 
       USHORT port_timeout;
 
+#ifdef __OS2__
+      ULONG received = 0;
+#else
       USHORT received = 0;
-
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -673,40 +652,33 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       else
          port_timeout = 0;
 
-#ifdef WIN32
-
-      if (!console)
-      {
-          port_timeout *= 10; /* OS/2 is in hundredths; NT in msec */
-          CommTimeout.ReadTotalTimeoutConstant = 0;
-          CommTimeout.WriteTotalTimeoutConstant = 0;
-          CommTimeout.ReadIntervalTimeout = port_timeout;
-          CommTimeout.ReadTotalTimeoutMultiplier = 1;
-          CommTimeout.WriteTotalTimeoutMultiplier = 0;
-          rc = SetCommTimeouts(hCom, &CommTimeout);
-
-          if ( !rc )
-          {
-             LPVOID lpMessageBuffer;
-             Error = GetLastError();
-             FormatMessage(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, Error, LANG_USER_DEFAULT, &lpMessageBuffer, 0, NULL);
-
-             printmsg(0, "sread: unable to set timeout for comm port");
-             printmsg(0, "sread: %s", lpMessageBuffer);
-             LocalFree((HLOCAL)lpMessageBuffer);
-             panic();
-          }
-      }
-
-#else /* OS/2 */
-
       if (( port_timeout != com_dcbinfo.usReadTimeout ) && ! console )
       {
          com_dcbinfo.usReadTimeout = port_timeout;
-         rc = DosDevIOCtl(FAR_NULL, &com_dcbinfo, ASYNC_SETDCBINFO,
-                          IOCTL_ASYNC, com_handle);
+
+#ifdef __OS2__
+
+         ParmLengthInOut = sizeof(com_dcbinfo);
+         DataLengthInOut = 0;
+         rc = DosDevIOCtl( com_handle,
+                           IOCTL_ASYNC,
+                           ASYNC_SETDCBINFO,
+                           (PVOID) &com_dcbinfo,
+                           sizeof(com_dcbinfo),
+                           &ParmLengthInOut,
+                           NULL,
+                           0L,
+                           &DataLengthInOut);
+
+#else
+
+         rc = DosDevIOCtl(FAR_NULL,
+                          &com_dcbinfo,
+                          ASYNC_SETDCBINFO,
+                          IOCTL_ASYNC,
+                          com_handle);
+
+#endif
          if ( rc )
          {
             printmsg(0,"sread: Unable to set timeout for comm port");
@@ -716,8 +688,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          } /* if */
       } /* if */
 
-#endif
-
 #ifdef UDEBUG
       printmsg(15,"sread: Port time out is %ud seconds/100",
                port_timeout);
@@ -726,20 +696,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 /*                 Read the data from the serial port                 */
 /*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-
-      rc = ReadFile (hCom, &save[bufsize], needed, &received, NULL);
-
-      if (!rc) {
-         printmsg(0,
-            "sread: Read from comm port for %d bytes failed, received = %d.",
-            needed, received);
-         bufsize = 0;
-         return 0;
-      }
-
-#else /* OS/2 */
 
       rc = DosRead( com_handle, &save[bufsize], needed, &received );
 
@@ -758,13 +714,10 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          return 0;
       }
 
-#endif
-
 #ifdef UDEBUG
       printmsg(15,"sread: Want %d characters, received %d, total %d in buffer",
             (int) wanted, (int) received, (int) bufsize + received);
 #endif
-
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
@@ -805,7 +758,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
 } /*nsread*/
 
-
 /*--------------------------------------------------------------------*/
 /*    n s w r i t e                                                   */
 /*                                                                    */
@@ -817,32 +769,19 @@ int nswrite(const char *input, unsigned int len)
 
    char *data = (char *) input;
 
-#ifdef WIN32
-   DWORD bytes;
-   BOOL rc;
+#ifdef __OS2__
+    ULONG bytes;
 #else
    size_t bytes;
-
-   USHORT rc;
-
 #endif
-   hangup_needed = TRUE;      /* Flag that the port is now dirty  */
+
+   APIRET rc;
+
+   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
 /*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-
-   rc = WriteFile (hCom, data, len, &bytes, NULL);
-
-   if (!rc) {
-      printmsg(0,"swrite: Write to communications port failed.");
-
-      return bytes;
-   }
-
-#else /* OS/2 */
 
    rc = DosWrite( com_handle, data , len, &bytes);
    if (rc)
@@ -852,8 +791,6 @@ int nswrite(const char *input, unsigned int len)
                (int) rc , (int) rc);
       return bytes;
    } /*if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                        Log the data written                        */
@@ -869,7 +806,6 @@ int nswrite(const char *input, unsigned int len)
 
 } /*nswrite*/
 
-
 /*--------------------------------------------------------------------*/
 /*    n s s e n d b r k                                               */
 /*                                                                    */
@@ -879,42 +815,71 @@ int nswrite(const char *input, unsigned int len)
 void nssendbrk(unsigned int duration)
 {
 
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+#endif
+
+   USHORT com_error;
+
 #ifdef UDEBUG
    printmsg(12, "ssendbrk: %d", duration);
 #endif
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   SetCommBreak(hCom);
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_error);
+   DosDevIOCtl( com_handle,
+                IOCTL_ASYNC,
+                ASYNC_SETBREAKON,
+                NULL,
+                0L,
+                &ParmLengthInOut,
+                (PVOID) &com_error,
+                sizeof(com_error),
+                &DataLengthInOut);
 
-#else /* OS/2 */
+#else
 
-   DosDevIOCtl( &com_error, FAR_NULL, ASYNC_SETBREAKON, IOCTL_ASYNC,
+   DosDevIOCtl( &com_error,
+                FAR_NULL,
+                ASYNC_SETBREAKON,
+                IOCTL_ASYNC,
                 com_handle);
+
+#endif
 
    if ( com_error )
       ShowError( com_error );
-
-#endif
 
    ddelay( duration == 0 ? 200 : duration);
 
-#ifdef WIN32
+#ifdef __OS2__
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(com_error);
+   DosDevIOCtl( com_handle,
+                IOCTL_ASYNC,
+                ASYNC_SETBREAKOFF,
+                NULL,
+                0L,
+                &ParmLengthInOut,
+                (PVOID) &com_error,
+                sizeof(com_error),
+                &DataLengthInOut);
 
-   ClearCommBreak(hCom);
-
-#else /* OS/2 */
-
-   DosDevIOCtl( &com_error, FAR_NULL, ASYNC_SETBREAKOFF, IOCTL_ASYNC,
+#else
+   DosDevIOCtl( &com_error,
+                FAR_NULL,
+                ASYNC_SETBREAKOFF,
+                IOCTL_ASYNC,
                 com_handle);
+#endif
 
    if ( com_error )
       ShowError( com_error );
 
-#endif
-
 } /*nssendbrk*/
-
 
 /*--------------------------------------------------------------------*/
 /*    n c l o s e l i n e                                             */
@@ -924,33 +889,23 @@ void nssendbrk(unsigned int duration)
 
 void ncloseline(void)
 {
-   USHORT rc;
-#ifdef WIN32
-   HANDLE hProcess;
+   APIRET rc;
+   USHORT com_error;
+
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
 #endif
 
    if ( ! portActive )
       panic();
 
    portActive = FALSE; /* flag port closed for error handler  */
-   hangup_needed = FALSE;  /* Don't fiddle with port any more  */
+   hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
 
 /*--------------------------------------------------------------------*/
 /*                           Lower priority                           */
 /*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-
-   hProcess = GetCurrentProcess();
-   rc = SetPriorityClass(hProcess, NORMAL_PRIORITY_CLASS);
-
-   if (!rc)
-   {
-      printmsg(0, "closeline:  Unable to lower priority for task");
-      panic();
-   }
-
-#else /* OS/2 */
 
    rc = DosSetPrty(PRTYS_PROCESS,
                    usPrevPriority >> 8 ,
@@ -962,54 +917,51 @@ void ncloseline(void)
                (int) rc , (int) rc);
    } /*if */
 
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   if (!EscapeCommFunction(hCom, CLRDTR | CLRRTS))
-   {
-      printmsg(0,"closeline: Unable to lower DTR/RTS");
-   }
-
-#else /* OS/2 */
-
    com_signals.fbModemOn  = 0x00;
    com_signals.fbModemOff = DTR_OFF | RTS_OFF;
 
-   if (DosDevIOCtl( &com_error, &com_signals, ASYNC_SETMODEMCTRL,
-                    IOCTL_ASYNC, com_handle))
-   {
-      printmsg(0,"closeine: Unable to lower DTR/RTS for port");
-   } /*if */
-   else if ( com_error )
-         ShowError( com_error );
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_signals);
+   DataLengthInOut = sizeof(com_error);
+
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETMODEMCTRL,
+                     (PVOID)&com_signals,
+                     sizeof(com_signals),
+                     &ParmLengthInOut,
+                     (PVOID) &com_error,
+                     sizeof(com_error),
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( &com_error,
+                     &com_signals,
+                     ASYNC_SETMODEMCTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
 
 #endif
+
+   if ( rc )
+      printmsg(0,"ncloseline: Unable to lower DTR/RTS for port");
+   else if ( com_error )
+         ShowError( com_error );
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the port                       */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   if(!CloseHandle(hCom))
-   {
-      printmsg(0, "closeline: close of serial port failed, reason %d",
-         GetLastError());
-   }
-
-#else /* OS/2 */
-
    rc = DosClose( com_handle );
 
    if ( rc != 0 )
       printmsg( 0,"Close of serial port failed, reason %d", (int) rc);
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                   Stop logging the data to disk                    */
@@ -1018,7 +970,6 @@ void ncloseline(void)
    traceStop();
 
 } /* ncloseline */
-
 
 /*--------------------------------------------------------------------*/
 /*    n h a n g u p                                                   */
@@ -1030,10 +981,19 @@ void ncloseline(void)
 
 void nhangup( void )
 {
-   if (!hangup_needed)
+
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+#endif
+
+   USHORT com_error;
+   APIRET rc;
+
+   if (!hangupNeeded)
       return;
 
-   hangup_needed = FALSE;
+   hangupNeeded = FALSE;
 
    if ( console )
       return;
@@ -1042,21 +1002,35 @@ void nhangup( void )
 /*                              Drop DTR                              */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   if (!EscapeCommFunction(hCom, CLRDTR))
-   {
-      printmsg(0, "hangup: Unable to lower DTR for comm port");
-      panic();
-   }
-
-#else /* OS/2 */
-
    com_signals.fbModemOn  = 0x00;
    com_signals.fbModemOff = DTR_OFF;
 
-   if (DosDevIOCtl( &com_error, &com_signals, ASYNC_SETMODEMCTRL,
-                     IOCTL_ASYNC, com_handle))
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_signals);
+   DataLengthInOut = sizeof(com_error);
+
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETMODEMCTRL,
+                     (PVOID)&com_signals,
+                     sizeof(com_signals),
+                     &ParmLengthInOut,
+                     (PVOID) &com_error,
+                     sizeof(com_error),
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( &com_error,
+                     &com_signals,
+                     ASYNC_SETMODEMCTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
+   if ( rc )
    {
       printmsg(0,"hangup: Unable to lower DTR for comm port");
       panic();
@@ -1064,35 +1038,46 @@ void nhangup( void )
    else if ( com_error )
          ShowError( com_error );
 
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                  Wait for the telephone to hangup                  */
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"hangup: Dropped DTR");
-   carrierdetect = FALSE;  /* Modem is not connected                 */
+   carrierDetect = FALSE;  /* Modem is not connected                 */
    ddelay(500);            /* Really only need 250 milliseconds         */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR back up                         */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-
-   if (!EscapeCommFunction(hCom, SETDTR))
-   {
-      printmsg(0, "hangup: Unable to raise DTR for comm port");
-      panic();
-   }
-
-#else /* OS/2 */
-
    com_signals.fbModemOn = DTR_ON;
    com_signals.fbModemOff = 0xff;
 
-   if (DosDevIOCtl( &com_error, &com_signals, ASYNC_SETMODEMCTRL,
-                     IOCTL_ASYNC, com_handle))
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_signals);
+   DataLengthInOut = sizeof(com_error);
+
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC, ASYNC_SETMODEMCTRL,
+                     (PVOID)&com_signals,
+                     sizeof(com_signals),
+                     &ParmLengthInOut,
+                     (PVOID) &com_error,
+                     sizeof(com_error),
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( &com_error,
+                     &com_signals,
+                     ASYNC_SETMODEMCTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
+   if ( rc )
    {
       printmsg(0,"hangup: Unable to raise DTR for comm port");
       panic();
@@ -1100,11 +1085,9 @@ void nhangup( void )
    else if ( com_error )
          ShowError( com_error );
 
-#endif
    ddelay(2000);           /* Now wait for the poor thing to recover    */
 
 } /* nhangup */
-
 
 /*--------------------------------------------------------------------*/
 /*    n S I O S p e e d                                               */
@@ -1123,27 +1106,59 @@ void nhangup( void )
 
 void nSIOSpeed(BPS baud)
 {
-   USHORT rc;
+   APIRET rc;
+
+#ifdef __OS2__
+
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+
+   struct
+   {
+      ULONG baud;       // this structure is needed to set the extended
+      BYTE fraction;    // baud rate using function 41h DosDevIOCtl
+   } com_baud;
+
+#else
+
+   USHORT speed = baud;
+
+#endif
+
 
 #ifdef UDEBUG
    printmsg(15,"SIOSpeed: Setting baud rate to %u", (unsigned int) baud);
 #endif
 
-#ifdef WIN32
+#ifdef __OS2__
 
-   GetCommState (hCom, &dcb);
-   dcb.BaudRate = baud;
-   rc = SetCommState (hCom, &dcb);
-   if (!rc && !console) {
-      printmsg(0,"SIOSpeed: Unable to set baud rate for port to %d",baud);
-      panic();
+/*--------------------------------------------------------------------*/
+/*       OS/2 2.x Format of call for DosDevIOCtl accepts baud         */
+/*       rates greater than 19200.                                    */
+/*--------------------------------------------------------------------*/
 
-   }
+   com_baud.baud = baud;
+   com_baud.fraction = 0;
+   ParmLengthInOut = sizeof(com_baud);
+   DataLengthInOut = 0;
 
-#else /* OS/2 */
+   rc = DosDevIOCtl( com_handle,
+                    IOCTL_ASYNC,
+                    ASYNC_SETBAUDRATE,
+                    (PVOID) &com_baud,
+                    sizeof(com_baud),
+                    &ParmLengthInOut,
+                    NULL,
+                    0L,
+                    &DataLengthInOut);
 
-   rc = DosDevIOCtl( FAR_NULL, &baud,
-                     ASYNC_SETBAUDRATE, IOCTL_ASYNC, com_handle);
+#else
+   rc = DosDevIOCtl( FAR_NULL,
+                     &speed,
+                     ASYNC_SETBAUDRATE,
+                     IOCTL_ASYNC,
+                     com_handle);
+#endif
 
    if (rc && ! console )
    {
@@ -1154,12 +1169,9 @@ void nSIOSpeed(BPS baud)
       panic();
    } /*if */
 
-#endif
-
-   current_baud = baud;
+   currentSpeed = baud;
 
 } /* nSIOSpeed */
-
 
 /*--------------------------------------------------------------------*/
 /*    n f l o w c o n t r o l                                         */
@@ -1169,45 +1181,15 @@ void nSIOSpeed(BPS baud)
 
 void nflowcontrol( boolean flow )
 {
-   USHORT rc;
-#ifdef WIN32
-   DCB dcb;
+   APIRET rc;
+
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
 #endif
 
    if ( console )
       return;
-
-#ifdef WIN32
-
-   GetCommState(hCom, &dcb);
-   if (flow)
-   {
-      dcb.fOutX = TRUE;
-      dcb.fInX = TRUE;
-      dcb.fRtsControl = RTS_CONTROL_ENABLE;
-      dcb.fOutxCtsFlow = FALSE;
-   } else {
-      dcb.fOutX = FALSE;
-      dcb.fInX = FALSE;
-      dcb.fRtsControl = RTS_CONTROL_ENABLE;
-      dcb.fOutxCtsFlow = TRUE;
-   }
-   rc = SetCommState(hCom, &dcb);
-
-   if ( !rc )
-   {
-
-      printmsg(0,"flowcontrol: Unable to set flow control");
-
-      printmsg(0,"Return code from SetCommState() was %d",
-               GetLastError());
-
-      panic();
-
-   } /*if */
-
-
-#else /* OS/2 */
 
    if ( flow )
        com_dcbinfo.fbFlowReplace = (char)
@@ -1218,8 +1200,29 @@ void nflowcontrol( boolean flow )
             (com_dcbinfo.fbFlowReplace &
             (0xff - MODE_AUTO_TRANSMIT - MODE_AUTO_RECEIVE));
 
-   rc = DosDevIOCtl( FAR_NULL, &com_dcbinfo, ASYNC_SETDCBINFO,
-                     IOCTL_ASYNC, com_handle);
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(com_dcbinfo);
+   DataLengthInOut = 0;
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETDCBINFO,
+                     (PVOID) &com_dcbinfo,
+                     sizeof(com_dcbinfo),
+                     &ParmLengthInOut,
+                     NULL,
+                     0L,
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( FAR_NULL,
+                     &com_dcbinfo,
+                     ASYNC_SETDCBINFO,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
 
    if ( rc )
    {
@@ -1228,8 +1231,6 @@ void nflowcontrol( boolean flow )
                (int) rc , (int) rc);
       panic();
    } /*if */
-
-#endif
 
 } /* nflowcontrol */
 
@@ -1241,7 +1242,7 @@ void nflowcontrol( boolean flow )
 
 BPS nGetSpeed( void )
 {
-   return current_baud;
+   return currentSpeed;
 } /* nGetSpeed */
 
 /*--------------------------------------------------------------------*/
@@ -1252,35 +1253,41 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean previous_carrierdetect = carrierdetect;
-   USHORT rc;
+   boolean previousCarrierDetect = carrierDetect;
+   APIRET rc;
 
-#ifdef WIN32
-   DWORD status;
-   static DWORD oldstatus = (DWORD) 0xDEADBEEF;
-#else /* OS/2 */
+#ifdef __OS2__
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+#endif
+
    BYTE status;
    static BYTE oldstatus = (BYTE) 0xDEAD;
-#endif
 
    if ( console )
       return feof( stdin ) == 0;
 
-#ifdef WIN32
+#ifdef __OS2__
+   ParmLengthInOut = 0;
+   DataLengthInOut = sizeof(status);
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_GETMODEMINPUT,
+                     NULL,
+                     0L,
+                     &ParmLengthInOut,
+                     (PVOID) &status,
+                     sizeof(status),
+                     &DataLengthInOut);
+#else
 
-   rc = GetCommModemStatus(hCom, &status);
-   if ( !rc )
-   {
-      printmsg(0,"CD: Unable to get modem status");
-      printmsg(0,"Return code from GetCommModemStatus() was %d",
-               GetLastError());
-      panic();
-   } /*if */
+   rc = DosDevIOCtl( &status,
+                     0L,
+                     ASYNC_GETMODEMINPUT,
+                     IOCTL_ASYNC,
+                     com_handle );
 
-#else /* OS/2 */
-
-   rc = DosDevIOCtl( &status, 0L, ASYNC_GETMODEMINPUT, IOCTL_ASYNC,
-         com_handle );
+#endif
 
    if ( rc )
    {
@@ -1289,8 +1296,6 @@ boolean nCD( void )
                (int) rc , (int) rc);
       panic();
    } /*if */
-
-#endif
 
    if ( status != oldstatus )
    {
@@ -1304,26 +1309,12 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
+   carrierDetect = status && DCD_ON;
 
-   carrierdetect = status && MS_RLSD_ON;
-
-   if (previous_carrierdetect)
-      return (status && (MS_RLSD_ON || MS_DSR_ON)) ==
-                        (MS_RLSD_ON || MS_DSR_ON);
-   else
-      return (status && MS_DSR_ON);
-
-#else /* OS/2 */
-
-   carrierdetect = status && DCD_ON;
-
-   if (previous_carrierdetect)
-      return carrierdetect;
+   if (previousCarrierDetect)
+      return carrierDetect;
    else
       return (status && DSR_ON);
-
-#endif
 
 } /* nCD */
 
@@ -1334,23 +1325,6 @@ boolean nCD( void )
 /*--------------------------------------------------------------------*/
 
 #define mannounce(flag, bits, text ) ((flag & bits) ? text : "" )
-
-#ifdef WIN32
-static void ShowModem( const DWORD status )
-{
-   if ( debuglevel < 4 )
-      return;
-
-   printmsg(0, "ShowModem: %#02x%s%s%s%s",
-      status,
-      mannounce(MS_RLSD_ON,  status, "  Carrier Detect"),
-      mannounce(MS_RING_ON,  status, "  Ring Indicator"),
-      mannounce(MS_DSR_ON,   status, "  Data Set Ready"),
-      mannounce(MS_CTS_ON,   status, "  Clear to Send"));
-
-} /* ShowModem */
-
-#else /* OS/2 */
 
 static void ShowModem( const BYTE status )
 {
@@ -1366,10 +1340,6 @@ static void ShowModem( const BYTE status )
 
 } /* ShowModem */
 
-#endif
-
-#ifdef WIN32
-#else
 /*--------------------------------------------------------------------*/
 /*    S h o w E r r o r                                               */
 /*                                                                    */
@@ -1386,4 +1356,3 @@ static void ShowError( const USHORT status )
       mannounce(FRAMING_ERROR,       status, "  Framing Error"));
 
 } /* ShowError */
-#endif

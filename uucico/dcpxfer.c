@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.20 1993/08/08 17:39:09 ahd Exp $
+ *       $Id: dcpxfer.c 1.21 1993/09/02 12:08:17 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.21  1993/09/02  12:08:17  ahd
+ * HPFS Support
+ *
  * Revision 1.20  1993/08/08  17:39:09  ahd
  * Denormalize path for opening on selected networks
  *
@@ -1353,6 +1356,7 @@ static boolean pktsendstr( char *s )
    remote_stats.bsent += strlen(s)+1;
 
    return TRUE;
+
 } /* pktsendstr */
 
 /*--------------------------------------------------------------------*/
@@ -1380,8 +1384,16 @@ static boolean pktgetstr( char *s)
 
 static void buf_init( void )
 {
-   xferBufSize = max( max(s_pktsize, r_pktsize ) * 4,
-                       max( M_xfer_bufsize, BUFSIZ) );
+   xferBufSize = max( s_pktsize, r_pktsize ) * 4;
+   if ( xferBufSize < BUFSIZ )
+      xferBufSize = BUFSIZ;
+   if ( xferBufSize < M_xfer_bufsize )
+      xferBufSize = M_xfer_bufsize;
+
+#if defined(__OS2__) || defined(WIN32)
+   if ( xferBufSize < (16 * 1024) )
+      xferBufSize = 16 * 1024;
+#endif
 
    if (databuf == NULL)
       databuf = malloc( xferBufSize );

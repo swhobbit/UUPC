@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.13 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: dcp.c 1.14 1993/08/02 03:24:59 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.14  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.13  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -314,7 +317,7 @@ int dcpmain(int argc, char *argv[])
    atexit(CloseEasyWin);       // Auto-close EasyWin window on exit
 #endif
 
-   atexit( shutdown );        /* Insure port is closed by panic()    */
+   atexit( shutDown );        /* Insure port is closed by panic()    */
    remote_stats.save_hstatus = nocall;
                               /* Known state for automatic status
                                  update                              */
@@ -418,7 +421,7 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_DROPLINE:
-               shutdown();
+               shutDown();
                UnlockSystem();
                m_state = CONN_INITIALIZE;
                break;
@@ -512,7 +515,7 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_DROPLINE:
-               shutdown();
+               shutDown();
                if ( locked )     /* Cause could get here w/o
                                     locking                    */
                   UnlockSystem();
