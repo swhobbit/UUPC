@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.17 1994/02/19 04:43:31 ahd Exp $
+ *    $Id: logger.c 1.18 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.18  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.17  1994/02/19  04:43:31  ahd
  *     Use standard first header
  *
@@ -121,6 +124,15 @@ void openlog( const char *log )
    char fname[FILENAME_MAX];
    FILE *stream = NULL;
 
+   static boolean firstPass = TRUE;
+
+/*--------------------------------------------------------------------*/
+/*       If we already had a log file, spin it off and copy it        */
+/*--------------------------------------------------------------------*/
+
+   if ( ! firstPass )
+      copylog();
+
 /*--------------------------------------------------------------------*/
 /*                Create the final log name for later                 */
 /*--------------------------------------------------------------------*/
@@ -187,7 +199,11 @@ void openlog( const char *log )
 /*               Request the copy function be run later               */
 /*--------------------------------------------------------------------*/
 
-   atexit( copylog );
+   if ( firstPass )
+   {
+      atexit( copylog );
+      firstPass = FALSE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*    Tag the new log file with the current time and program date.    */
