@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.15 1993/11/06 17:54:55 rhg Exp $
+ *    $Id: execute.c 1.16 1993/11/08 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.16  1993/11/08  04:46:49  ahd
+ * Add OS/2 specific support for seperate sessions
+ *
  * Revision 1.15  1993/11/06  17:54:55  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -543,13 +546,7 @@ int execute( const char *command,
       }
 
 #if defined(__OS2__) || defined(FAMILYAPI)
-      if ( redirected )
-         result = system( path );
-      else
-         result = executeAsync( NULL,
-                                path,
-                                synchronous,
-                                foreground );
+      result = system( path );
 #else
       result = system( path );
 #endif
