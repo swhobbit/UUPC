@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.16 1995/08/27 23:33:15 ahd v1-12o $
+ *    $Id: expire.c 1.17 1995/09/11 00:20:45 ahd v1-12q $
  *
  *    $Log: expire.c $
+ *    Revision 1.17  1995/09/11 00:20:45  ahd
+ *    Correct compile warning
+ *
  *    Revision 1.16  1995/08/27 23:33:15  ahd
  *    Load and use ACTIVE file as tree structure
  *
@@ -66,7 +69,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.16 1995/08/27 23:33:15 ahd v1-12o $";
+      "$Id: expire.c 1.17 1995/09/11 00:20:45 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -90,6 +93,7 @@ static const char rcsid[] =
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
+#include "hdbm.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global Variables                          */
@@ -184,10 +188,10 @@ main( int argc, char **argv)
       exit(1);   /* system configuration failed */
 
 /*--------------------------------------------------------------------*/
-/*                  Switch to the spooling directory                  */
+/*                    Save our original directory                     */
 /*--------------------------------------------------------------------*/
 
-   PushDir( E_newsdir );
+   PushDir( "." );
    atexit( PopDir );
 
 /*--------------------------------------------------------------------*/
@@ -221,7 +225,6 @@ main( int argc, char **argv)
    {
       setArticleOldest( groupName, getArticleNewest( groupName ));
    }
-
 
 /*--------------------------------------------------------------------*/
 /*                  Compute times for expiring files                  */
@@ -270,6 +273,7 @@ main( int argc, char **argv)
    printmsg(1,"Total of %ld articles, %ld cross postings (%ld bytes)." ,
             total_articles_kept, total_cross_kept, total_bytes_kept );
 
+   exit(0);
    return 0;                        /* For brain dead IBM C/Set      */
 
 } /* main */
@@ -283,7 +287,7 @@ main( int argc, char **argv)
 static void
 SetGroupLower(char *histentry)
 {
-  char value[BUFSIZ];
+  char value[DBM_BUFSIZ];
   char *group, *num;
   long article;
 
@@ -326,10 +330,20 @@ static void HistoryExpireAll( char **groups, const time_t expire_date )
    for (found = get_first_histentry(history, &messageID, &histentry); found;
         found = get_next_histentry(history, &messageID, &histentry))
    {
+
      sscanf(histentry, "%ld %ld",
             &article_date, &article_size);
 
      remaining = total = count_postings(histentry);
+
+#ifdef UDEBUG
+      if ( debuglevel > 8 )
+         printmsg(8,"Article %s expires %.24s, %d bytes, %d copies",
+                     messageID,
+                     ctime( &article_date ),
+                     article_size,
+                     total );
+#endif
 
      if (article_date < expire_date)
      {

@@ -15,10 +15,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.22 1995/09/24 19:10:36 ahd v1-12p $
+ *    $Id: active.c 1.23 1995/11/30 12:48:42 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.23  1995/11/30 12:48:42  ahd
+ *    Allow unlimited length news group simple names via backup
+ *    allocation method.
+ *
+ *    Correct search function to handle missing groups properly
+ *
  *    Revision 1.22  1995/09/24 19:10:36  ahd
  *    Correct debugging output
  *
@@ -57,13 +63,6 @@
 /*       This is a reasonable limit and is short enough to hard       */
 /*       allocate the character buffer as part of the GROUP tree      */
 /*       structure (below).                                           */
-/*                                                                    */
-/*       However, some 30 alt.* groups are longer than this, and      */
-/*       will be rejected by our code lest they corrupt the tree.     */
-/*       You can fix this up upping the limit below and building      */
-/*       from source, but don't suggest I update the master copy      */
-/*       -- I have still 16 bit memory constrained users to worry     */
-/*       about.                                                       */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -114,7 +113,7 @@ typedef struct _GROUP
 
 } GROUP;
 
-#define GROUPS_PER_BLOCK      100
+#define GROUPS_PER_BLOCK      (0x4000 / sizeof (GROUP))
 
 static GROUP UUFAR *top = NULL;     /* Top of group tree             */
 static GROUP UUFAR *cachedGroup = NULL;   /* Last group searched for */
@@ -137,7 +136,7 @@ static long searchNodes = 0;        /* Nodes walked during searched  */
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       g e t A c t i v e                                            */
+/*       l o a d A c t i v e                                          */
 /*                                                                    */
 /*       Load the new active file for processing                      */
 /*--------------------------------------------------------------------*/
@@ -258,10 +257,18 @@ loadActive( const KWBoolean mustExist )
       panic();
    }
 
+#ifdef UDEBUG
+   printmsg( 1, "loadActive: %ld groups in %ld nodes, "
+                "via %ld siblings and %ld parents.",
+                groups,
+                nodes,
+                siblings,
+                parents );
+#endif
+
    return KWTrue;
 
-} /* getActive */
-
+} /* loadActive */
 
 /*--------------------------------------------------------------------*/
 /*       g e t S i m p l e N a m e                                    */
@@ -290,7 +297,6 @@ getSimpleName( const GROUP UUFAR *group )
             _group->n.local.name :                             \
             (_group->n.remote.namePtr ? _group->n.remote.namePtr : "")))
 #endif
-
 
 /*--------------------------------------------------------------------*/
 /*       m a k e L e v e l                                            */
@@ -401,6 +407,10 @@ addNode( GROUP UUFAR *first, GROUP UUFAR *parent, char *name )
    {
       blockAnchor = MALLOC( sizeof (*current) * GROUPS_PER_BLOCK );
       checkref( blockAnchor );
+#ifdef UDEBUG
+      printmsg(4,"addNode: Allocated new block of %ld group names",
+               (long) GROUPS_PER_BLOCK );
+#endif
       blockGroups = 0;
    }
 
@@ -504,12 +514,17 @@ addGroup( const char *group,
             level     = (char *) group + index +1;
          }
          else if ( fullName[index] == '\0' )
+         {
+#ifdef UDEBUG
+            printmsg(10,"Perfect match for %s and %s",
+                        fullName, group );
+#endif
             return KWFalse;         /* Perfect match, group exists!     */
+         }
 
          index += 1;                /* Step to next char in each string */
 
       } /* while( fullName[index] == group [index] ) */
-
 
 /*--------------------------------------------------------------------*/
 /*    Back up the tree as far as we have to for the correct branch    */
@@ -540,12 +555,14 @@ addGroup( const char *group,
 
       } /* else */
 
-#ifdef UDEBUG
-      printmsg(7,"Matched %s to %s for %d, %d levels didn't match.",
+#ifdef UDEBUG2
+      printmsg(9,"Matched %s to %s for %d, %d levels didn't match.",
                   fullName,
                   group,
-                  index - 1,
+                  index,
                   backSteps );
+#endif
+#ifdef UDEBUG
       parents += backSteps;
 #endif
 
@@ -594,7 +611,15 @@ addGroup( const char *group,
 /*--------------------------------------------------------------------*/
 
    if ( current->moderation )
+   {
+      char buf[MAXGRP];
+
+      printmsg(0,"Group %s already found as %s, moderation status is %c",
+                  group,
+                  makeGroupName( buf, current ),
+                  current->moderation );
       return KWFalse;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the node                         */
@@ -679,12 +704,18 @@ findGroup( const char *group )
 {
    char *name = (char *) group;
 
-   GROUP UUFAR *current;
+   GROUP UUFAR *current = NULL;
    GROUP UUFAR *nextLevel = top;
 
 #ifdef UDEBUG
    searches++;
 #endif
+
+   if ( name == NULL )
+   {
+      printmsg(0,"findGroup: Invalid call (null pointer parameter)");
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*               See if we previously found this group                */
@@ -758,7 +789,6 @@ findGroup( const char *group )
       }
 
    } /* while ( name != NULL ) */
-
 
 /*--------------------------------------------------------------------*/
 /*     We have the node, return it if valid, other report failure     */
@@ -1032,18 +1062,13 @@ writeActive()
    } /* while */
 
 #ifdef UDEBUG
-   printmsg( 1, "writeActive: Loaded %ld groups into %ld nodes, "
-                "visiting %ld siblings and %ld parents.",
-                groups,
-                nodes,
-                siblings,
-                parents );
-
-   printmsg( 1, "writeActive: Performed %ld searches, with %ld cache hits and "
-                "visiting %ld nodes.",
-                searches,
-                cacheHits,
-                searchNodes );
+   if ( searches > cacheHits )
+      printmsg( 1, "writeActive: %ld searches, %ld cache hits and "
+                   "%ld nodes (%ld/search)",
+                   searches,
+                   cacheHits,
+                   searchNodes,
+                   searchNodes / (searches - cacheHits));
 #endif
 
 } /* writeActive */
