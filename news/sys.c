@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.21 1995/09/11 00:20:45 ahd v1-12q $
+ *    $Id: sys.c 1.22 1996/01/01 21:07:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.22  1996/01/01 21:07:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1995/09/11 00:20:45  ahd
  *    Correct compile warning
  *
@@ -468,8 +471,8 @@ process_sys( char *buf)
 
       if ( node->flag.batch )
       {
-         printmsg(0,"Invalid batching requested for local system %s; only "
-                    "NNS batching (J flag) is allowed",
+         printmsg(0,"Batching requested for local system %s, "
+                    "which is not allowed",
                     canonical_news_name() );
          success = KWFalse;
       }
@@ -478,9 +481,7 @@ process_sys( char *buf)
       {
 
          printmsg(0,"Command/file/directory \"%s\""
-                    "specified for local system %s; only "
-                    "allowed if NNS batching (J flag)"
-                    " is specified" ,
+                    "specified for local system %s, which is not allowed.",
                     node->command,
                     canonical_news_name() );
          success = KWFalse;
