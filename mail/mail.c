@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.11 1993/10/12 01:32:08 ahd Exp $
+ *    $Id: mail.c 1.12 1993/10/28 12:19:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.12  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.11  1993/10/12  01:32:08  ahd
  * Normalize comments to PL/I style
  *
@@ -79,7 +82,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.11 1993/10/12 01:32:08 ahd Exp $";
+      "$Id: mail.c 1.12 1993/10/28 12:19:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -220,7 +223,7 @@ static struct CommandTable {
  { EMPTY_CMD,     M_EMPTY,    NODISPLAY | NO_OPERANDS | AUTOPRINT ,
          NULL},
  { "!",           M_SYSTEM,   STRING_OP,
-         "Execute DOS command"},
+         "Execute system command"},
  { "+",           M_DOWN,     KEWSHORT_OP | AUTOPRINT,
          "Alias for next"},
  { "-",           M_UP,       KEWSHORT_OP | AUTOPRINT,
