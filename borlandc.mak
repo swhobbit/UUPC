@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.65 1994/10/02 20:45:46 ahd v1-12k $
+#     $Id: makefile 1.66 1994/12/22 00:06:03 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.66  1994/12/22 00:06:03  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.65  1994/10/02 20:45:46  ahd
 #     Revise for pandora hard drive layout
 #
@@ -307,7 +310,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12k
+VERS = 1.12m
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
