@@ -13,10 +13,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\logger.c 1.3 1992/11/22 20:58:55 ahd Exp ahd $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.4 1992/11/23 03:56:06 ahd Exp $
  *
  *    Revision history:
- *    $Log: logger.c $
+ *    $Log: LOGGER.C $
+ * Revision 1.4  1992/11/23  03:56:06  ahd
+ * Do not use expand_path to build log file name
+ * Use strpool for names
+ *
  * Revision 1.3  1992/11/22  20:58:55  ahd
  * Move retry of opens to FOPEN()
  *
@@ -37,7 +41,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ssleep.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -49,6 +52,7 @@
 #include "logger.h"
 #include "hlib.h"
 #include "timestmp.h"
+#include "ssleep.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Define current file name                      */
