@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.24 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: printmsg.c 1.25 1999/01/08 02:20:48 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.25  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.24  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -120,12 +123,14 @@
 #include "dater.h"
 #include "logger.h"
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
 #if defined(__HEAPCHECK__)
-RCSID("$Id$");
+RCSID("$Id: printmsg.c 1.25 1999/01/08 02:20:48 ahd Exp $");
 #endif
 
 int debuglevel = 1;
@@ -276,9 +281,14 @@ static void checkEnv( void )
 /*   supplied by Harald Boegeholz                                     */
 /*--------------------------------------------------------------------*/
 
-void printmsg(int level, char *fmt, ...)
+void printmsg(int messageLevel, char *fmt, ...)
 {
    va_list arg_ptr;
+   FILE *stream;
+
+/*--------------------------------------------------------------------*/
+/*                  Perform various environment checks                */
+/*--------------------------------------------------------------------*/
 
 #ifdef __CORELEFT__
    static unsigned freecore = 63 * 1024;
@@ -299,7 +309,7 @@ void printmsg(int level, char *fmt, ...)
    if (*lowcore != 0L)
    {
       putchar('\a');
-      debuglevel = level;  /* Force this last message to print ahd    */
+      debuglevel = messageLevel;  /* Force this last message to print ahd    */
    }
 
 #endif
@@ -313,80 +323,92 @@ void printmsg(int level, char *fmt, ...)
    }
 #endif
 
-   if (level <= debuglevel)
+/*--------------------------------------------------------------------*/
+/*       Don't print anything if the message is too verbose for       */
+/*       our debugging level                                          */
+/*--------------------------------------------------------------------*/
+
+   if (ABS(messageLevel) > debuglevel)
+      return;
+
+   va_start(arg_ptr,fmt);
+
+/*--------------------------------------------------------------------*/
+/*                  Determine where we are printing to                */
+/*--------------------------------------------------------------------*/
+
+   stream = (logfile == NULL) ? stderr : logfile;
+
+/*--------------------------------------------------------------------*/
+/*       If the log file is not the console, format the current       */
+/*       time or debug level, and print the message on stderr.        */
+/*--------------------------------------------------------------------*/
+
+   if ((stream != stdout) && (stream != stderr))
    {
+      char timeBuffer[64];
+      time_t now;
 
-      FILE *stream = (logfile == NULL) ? stderr : logfile;
+      static char format[] = "%m/%d-%H:%M:%S ";
+      struct tm lt;
 
-      va_start(arg_ptr,fmt);
-
-      if ((stream != stdout) && (stream != stderr))
+      if (debuglevel <= 1)
       {
-         char timeBuffer[64];
-         time_t now;
+         time(&now);
+         lt = *localtime(&now);
+         strftime(timeBuffer, sizeof(timeBuffer), format, &lt);
+      }
+      else
+         sprintf(timeBuffer, "(%d) ", messageLevel);
 
-         static char format[] = "%m/%d-%H:%M:%S ";
-         struct tm lt;
-
-#ifndef UUGUI
-         if (debuglevel <= 1)
-#endif
-         {
-            time(&now);
-            lt = *localtime(&now);
-            strftime(timeBuffer, sizeof(timeBuffer), format, &lt);
-            fprintf(stderr, timeBuffer);
-         }
-
+      /* Negative message levels don't print on console */
+      if (messageLevel >= 0)
+      {
          vfprintf(stderr, fmt, arg_ptr);
          fputc('\n',stderr);
+      }
 
-         if ( debuglevel <= 1 )
-            fprintf(stream, "%s ", timeBuffer);
-         else
-            fprintf(stream, "(%d) ", level);
+      fputs(timeBuffer, stream);
 
-      } /* if (stream != stdout) */
+   } /* if (stream != stdout) */
 
-      if (!ferror(stream))
-         vfprintf(stream, fmt, arg_ptr);
+   if (!ferror(stream))
+      vfprintf(stream, fmt, arg_ptr);
 
-      if (!ferror(stream))
-         fputc('\n',stream);
+   if (!ferror(stream))
+      fputc('\n',stream);
 
-      if (ferror(stream))
-      {
-         perror(full_log_file_name);
-         abort();
-      } /* if */
+   if (ferror(stream))
+   {
+      perror(full_log_file_name);
+      abort();
+   } /* if */
 
 #ifdef __HEAPCHECK__
-      if ( !recurse )
-      {
-         recurse = KWTrue;
+   if ( !recurse )
+   {
+      recurse = KWTrue;
 #ifdef __CORE__
-         if (*lowcore != 0L)
-            panic();
-    /*     if (!equal(copyright,copywrong))
-            panic();                         */
+      if (*lowcore != 0L)
+         panic();
 #endif
-         if (heapstatus == _HEAPCORRUPT)
-            panic();
-         recurse = KWFalse;
-      }
+
+      if (heapstatus == _HEAPCORRUPT)
+         panic();
+
+      recurse = KWFalse;
+   }
 #endif
 
 #ifdef __ENVCHECK__
-      checkEnv();
+   checkEnv();
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                        Massive debug mode?                         */
 /*--------------------------------------------------------------------*/
 
-   if ((debuglevel > 10) &&  ((level+2) < debuglevel))
+   if ((debuglevel > 10) &&  ((messageLevel+2) < debuglevel))
       fflush( logfile );
-
-   } /* if (level <= debuglevel) */
 
 } /*printmsg*/
