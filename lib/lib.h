@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.44 1998/04/27 01:57:29 ahd v1-13b $
+ *       $Id: lib.h 1.45 1998/11/04 02:01:17 ahd v1-12d $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *       Revision 1.45  1998/11/04 02:01:17  ahd
+ *       Add sanity check field to linked lists
+ *       Add assertion macros
+ *
  *     Revision 1.44  1998/04/27  01:57:29  ahd
  *     Support for setting selected boolean options to enabled
  *
@@ -400,6 +404,10 @@ void dump_pool( void );          /* Dump our string pool          */
 
 
 KWBoolean IsDOS( void );
+
+#ifdef WIN32
+KWBoolean isWinNT( void );
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                   Compiler specific information                    */

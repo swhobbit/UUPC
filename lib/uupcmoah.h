@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.11 1998/05/11 01:25:40 ahd v1-13b $
+ *    $Id: uupcmoah.h 1.12 1998/09/08 23:23:18 ahd v1-12d $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.12  1998/09/08 23:23:18  ahd
+ *    Define COMMAND_TEXT_MAX and KW_BUFSIZ
+ *
  * Revision 1.11  1998/05/11  01:25:40  ahd
  * Disconnect TAPI suppot from GUI support
  *
@@ -88,7 +91,7 @@
 
 #else /* BIT32ENV */
 
-#if !defined(FAMILY_API) && !defined(WINDOWS) && !define(_Windows)
+#if !defined(FAMILY_API) && !defined(WINDOWS) && !defined(_Windows)
 #define MSDOSENV 1
 #endif
 
