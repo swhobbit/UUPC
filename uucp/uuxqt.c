@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.7 1993/04/11 00:35:46 ahd Exp $
+ *    $Id: uuxqt.c 1.8 1993/06/13 14:06:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.8  1993/06/13  14:06:00  ahd
+ * Correct off-by-one error in RMAIL arg parse loop which crashed UUXQT
+ * on long system names
+ *
  * Revision 1.7  1993/04/11  00:35:46  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -470,16 +474,16 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'U':
-         strtok(line," \t\n");      /* Trim off leading "U"       */
+         strtok(line,WHITESPACE);   /* Trim off leading "U"       */
                                     /* Get the user name          */
-         if ( (cp = strtok(NULL," \t\n")) == NULL ) {
+         if ( (cp = strtok(NULL,WHITESPACE)) == NULL ) {
             printmsg(0,"No user on U line in file \"%s\"", fname );
          } else {
              user = strdup(cp);
              checkref(user);
          };
                                     /* Get the system name        */
-         if ( (cp = strtok(NULL," \t\n")) == NULL)
+         if ( (cp = strtok(NULL,WHITESPACE)) == NULL)
          {                          /* Did we get a string?       */
             printmsg(2,"No node on U line in file \"%s\"", fname );
             cp = (char *) remote;
@@ -511,14 +515,14 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'O':
-         strtok(line," \t\n");      /* Trim off leading "U"       */
+         strtok(line,WHITESPACE);   /* Trim off leading "O"       */
                                     /* Get the user name          */
-         if ( (cp = strtok(NULL," \t\n")) != NULL )
+         if ( (cp = strtok(NULL,WHITESPACE)) != NULL )
          {
              outname = strdup(cp);
              checkref(outname);
              xflag[X_OUTPUT] = TRUE;  /* return output to "outnode" */
-             if ( (cp = strtok(NULL," \t\n")) != NULL)
+             if ( (cp = strtok(NULL,WHITESPACE)) != NULL)
              {                /* Did we get a string?                */
                    outnode = strdup(cp);
                    checkref(outnode);
@@ -532,7 +536,7 @@ static void process( const char *fname, const char *remote )
                     xflag[S_NOWRITE] = TRUE;
                 } /* if */
              } /* else if (!equal(remote, E_nodename)) */
-         } /* if ( (cp = strtok(NULL," \t\n")) != NULL ) */
+         } /* if ( (cp = strtok(NULL,WHITESPACE)) != NULL ) */
          break;
 
 /*--------------------------------------------------------------------*/
@@ -549,9 +553,9 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'J':
-         strtok(line," \t\n");      /* Trim off leading "J"       */
+         strtok(line,WHITESPACE);   /* Trim off leading "J"       */
                                     /* Get the job id             */
-         if ( (cp = strtok(NULL," \t\n")) == NULL )
+         if ( (cp = strtok(NULL,WHITESPACE)) == NULL )
          {
             printmsg(0,"No job id on J line in file \"%s\"", fname );
             reject = TRUE;
@@ -567,7 +571,7 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'F':
-         token = strtok(&line[1]," ");
+         token = strtok(&line[1],WHITESPACE);
          importpath(hostfile, token, remote);
 
          if ( access( hostfile, 0 ))   /* Does the host file exist?  */
@@ -584,9 +588,9 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'R':
-         strtok(line," \t\n");      /* Trim off leading "R"       */
+         strtok(line,WHITESPACE);   /* Trim off leading "R"       */
                                     /* Get the user name          */
-         if ( (cp = strtok(NULL," \t\n")) == NULL )
+         if ( (cp = strtok(NULL,WHITESPACE)) == NULL )
             printmsg(0,"No requestor on R line in file \"%s\"", fname );
          else {
             requestor = strdup(cp);
@@ -599,9 +603,9 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'M':
-         strtok(line," \t\n");      /* Trim off leading "M"           */
+         strtok(line,WHITESPACE);   /* Trim off leading "M"           */
                                     /* Get the file name              */
-         if ( (cp = strtok(NULL," \t\n")) != NULL ) {
+         if ( (cp = strtok(NULL,WHITESPACE)) != NULL ) {
             statfil = strdup(cp);
             checkref(statfil);
             xflag[X_STATFIL] = TRUE;     /* return status to remote file   */
