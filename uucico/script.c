@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.13 1995/01/07 16:39:42 ahd Exp $
+ *    $Id: script.c 1.14 1995/02/21 02:47:44 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.14  1995/02/21 02:47:44  ahd
+ *    The compiler warnings war never ends!
+ *
  *    Revision 1.13  1995/01/07 16:39:42  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -156,11 +159,13 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
 {
    char buf[BUFSIZ];
    int result;
-   time_t quit = time( NULL ) + Timeout;
+   time_t quit = time( NULL ) + (time_t) Timeout;
    register char *ptr = buf;
 
    if ( ! echoMode )
-      printmsg(2, "wanted \"%s\"", Search);
+      printmsg(2, "wanted \"%s\" in %ld seconds",
+                  Search,
+                  (long) Timeout );
 
    if (!strlen(Search))                      /* expects nothing */
        return KWTrue;
@@ -168,6 +173,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
    StrMatch(Search,'\0', failure);    /* set up search string */
 
    do {
+
       if (ptr == &buf[BUFSIZ-1])
         ptr = buf;          /* Save last character for term \0  */
 
@@ -180,12 +186,16 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
             return 0;
 
          while ( ptr > buf )
+         {
             if (*(--ptr) > ' ')
                break;    /* Locate the last printable char      */
+         }
 
          *(ptr+1) = '\0';   /* Terminate the string             */
 
-         for ( s = buf; (*s > '\0') && (*s <= ' '); s++ );
+         for ( s = buf; (*s > '\0') && (*s <= ' '); s++ )
+         {
+         }
                             /* Locate the first printable char  */
 
          while ( ptr-- > s )/* Zap control chars                */
@@ -208,6 +218,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
       *ptr &= 0x7f;
 
       result = StrMatch(Search, *ptr++, failure);
+
    } while (!result);
 
    return result;
@@ -462,7 +473,7 @@ static KWBoolean writestr(register char *s,
          case 'z':   /* set serial port speed */
          case 'Z':
             flushScriptBuffer();
-            SIOSpeed(atol(++s));
+            SIOSpeed((BPS) atol(++s));
             while (isdigit(*(s+1)))
                s++;
             break;
@@ -524,10 +535,11 @@ KWBoolean  sendstr(char *str, unsigned int timeout, char **failure)
 
    if (equaln(str, "BREAK", 5))
    {
-      int   nulls;
-      nulls = atoi(&str[5]);
+      unsigned nulls = (unsigned) atoi(&str[5]);
+
       if (nulls <= 0 || nulls > 10)
          nulls = 3;
+
       ssendbrk(nulls);  /* send a break signal */
 
       return KWTrue;
