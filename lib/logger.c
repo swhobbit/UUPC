@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LOGGER.C 1.27 1998/03/01 01:24:11 ahd v1-12v $
+ *    $Id: logger.c 1.28 1998/04/20 02:47:57 ahd v1-13a $
  *
  *    Revision history:
- *    $Log: LOGGER.C $
+ *    $Log: logger.c $
+ *    Revision 1.28  1998/04/20 02:47:57  ahd
+ *    TAPI/Windows 32 BIT GUI display support
+ *
  *    Revision 1.27  1998/03/01 01:24:11  ahd
  *    Annual Copyright Update
  *
@@ -42,67 +45,6 @@
  *    Revision 1.21  1995/01/07 16:13:09  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
- *    Revision 1.20  1994/12/22 00:09:18  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.19  1994/10/23 23:29:44  ahd
- *    Allow multiple calls to logger to change log name on the fly
- *
- *     Revision 1.18  1994/02/20  19:05:02  ahd
- *     IBM C/Set 2 Conversion, memory leak cleanup
- *
- *     Revision 1.17  1994/02/19  04:43:31  ahd
- *     Use standard first header
- *
- *     Revision 1.16  1994/02/19  04:08:27  ahd
- *     Use standard first header
- *
- *     Revision 1.15  1994/02/19  03:53:17  ahd
- *     Use standard first header
- *
- *     Revision 1.14  1994/02/18  23:11:10  ahd
- *     Use standard first header
- *
- *     Revision 1.13  1994/01/06  12:45:33  ahd
- *     Abort if spool directory not initialized
- *
- *     Revision 1.12  1993/12/23  03:11:17  rommel
- *     OS/2 32 bit support for additional compilers
- *
- *     Revision 1.11  1993/10/12  00:43:34  ahd
- *     Normalize comments
- *
- *     Revision 1.10  1993/08/08  17:39:09  ahd
- *     Denormalize path for opening on selected networks
- *
- *     Revision 1.9  1993/07/22  23:19:50  ahd
- *     First pass for Robert Denny's Windows 3.x support changes
- *
- *     Revision 1.8  1993/06/06  15:04:05  ahd
- *     Trap unable to open log file
- *
- *     Revision 1.7  1993/04/11  00:32:05  ahd
- *     Global edits for year, TEXT, etc.
- *
- *     Revision 1.6  1993/03/06  22:48:23  ahd
- *     Drop dashes between log entries
- *
- *     Revision 1.5  1993/01/23  19:08:09  ahd
- *     Correct sleep.h include
- *
- * Revision 1.4  1992/11/23  03:56:06  ahd
- * Do not use expand_path to build log file name
- * Use strpool for names
- *
- * Revision 1.3  1992/11/22  20:58:55  ahd
- * Move retry of opens to FOPEN()
- *
- * Revision 1.2  1992/11/19  02:58:22  ahd
- * drop rcsid
- *
- * Revision 1.1  1992/11/16  05:00:26  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -120,7 +62,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "dater.h"
 #include "expath.h"
 #include "logger.h"
 #include "timestmp.h"
@@ -130,15 +71,14 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
+RCSID("$Id");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-static char *logname  = NULL;
-static char *tempname = NULL;
-
-static void copylog( void );
+static char *permanentLogName  = NULL;
+static char *currentLogName = NULL;
 
 /*--------------------------------------------------------------------*/
 /*    o p e n l o g                                                   */
@@ -146,79 +86,90 @@ static void copylog( void );
 /*    Begin logging to a standard file name                           */
 /*--------------------------------------------------------------------*/
 
-void openlog( const char *log )
+void openlog(const char *log)
 {
-   char fname[FILENAME_MAX];
+   char *newLogName;
    FILE *stream = NULL;
+   int saveDebuglevel = debuglevel;
 
-   static KWBoolean firstPass = KWTrue;
+/*--------------------------------------------------------------------*/
+/*                             Housekeeping                           */
+/*--------------------------------------------------------------------*/
+
+   if (E_logdir == NULL)         /* We DID call configure, didn't we? */
+      panic();                   /* Ooopps --> I guess not.           */
+
+    MKDIR(E_logdir);             /* Make sure directory exists!       */
 
 /*--------------------------------------------------------------------*/
 /*       If we already had a log file, spin it off and copy it        */
 /*--------------------------------------------------------------------*/
 
-   if ( ! firstPass )
+   if (permanentLogName != NULL)
       copylog();
 
 /*--------------------------------------------------------------------*/
 /*                Create the final log name for later                 */
 /*--------------------------------------------------------------------*/
 
-   logname =  (char*) ((log == NULL) ? compilen : log);
-   tempname = strchr( logname, '.');
+   if ((log != NULL) || (permanentLogName == NULL))
+   {
+      char fname[FILENAME_MAX];
+      char *newName = (char*) ((log == NULL) ? compilen : log);
+      char *period = strchr(newName, '.');
 
-   if ( E_spooldir == NULL )     /* We DID call configure, didn't we? */
-      panic();                   /* Ooopps --> I guess not.           */
+      mkfilename(fname, E_logdir, newName);
 
-   mkfilename( fname, E_spooldir, logname );
+      if (period == NULL)
+         strcat(fname, ".log");
 
-   if ( tempname == NULL )
-      strcat( fname, ".log" );
-   logname = newstr( fname );
+      newLogName = newstr(fname);
+   }
+   else
+      newLogName = permanentLogName;
 
 /*--------------------------------------------------------------------*/
 /*                   Create temporary log file name                   */
 /*--------------------------------------------------------------------*/
 
-   if ( bflag[F_MULTITASK] )
+   if (bflag[F_MULTITASK])
    {
-      char *savedir = E_tempdir;    /* Save real tempory directory    */
+      char fname[FILENAME_MAX];
       short retries = 15;
 
-      E_tempdir = E_spooldir;       /* Create log file in spool dir
-                                       to allow for larger files
-                                       and/or system crashes          */
-      while (( stream == NULL ) && retries-- )
+      while ((stream == NULL) && retries--)
       {
-         mktempname(fname, "log");  /* Get a temp log file name       */
+         mkdirfilename(fname, E_logdir, "log");
+                                    /* Get a temp log file name       */
 
-         denormalize( fname );
-         stream = fopen(fname, "a" );
+         denormalize(fname);
+         stream = fopen(fname, "a+");
 
-         if ( stream == NULL )
-            printerr( fname );
+         if (stream == NULL)
+            printerr(fname);
 
       } /* while */
 
-      E_tempdir = savedir;          /* Restore true temp dir          */
-      tempname = newstr( fname );   /* Save name we log to for posterity */
+      currentLogName = newstr(fname);
+                                 /* Save name we log to for posterity */
 
    } /* if */
    else {
-      tempname = logname;           /* Log directly to true log file  */
-      stream  = FOPEN( tempname , "a",TEXT_MODE );
+      currentLogName = newLogName;  /* Log directly to true log file  */
+      stream  = FOPEN(currentLogName , "a",TEXT_MODE);
                               /* We append in case we are not in
                                  multitask mode and we do not want
                                  to clobber the real log!             */
    } /* else */
 
-   if ( stream == NULL )
+   if (stream == NULL)
    {
       printmsg(0,"Cannot open any log file!");
       panic();
    }
 
-   full_log_file_name = tempname;   /* Tell printmsg() what our log
+   full_log_file_name = currentLogName;
+                                    /* Tell printmsg() what our log
                                        file name is                   */
    logfile  = stream;               /* And of the the stream itself   */
 
@@ -226,28 +177,31 @@ void openlog( const char *log )
 /*               Request the copy function be run later               */
 /*--------------------------------------------------------------------*/
 
-   if ( firstPass )
-   {
-      atexit( copylog );
-      firstPass = KWFalse;
-   }
+   if (permanentLogName == NULL)
+      atexit(copylog);
 
 /*--------------------------------------------------------------------*/
 /*    Tag the new log file with the current time and program date.    */
-/*    We don't use printmsg() because that will not display the       */
-/*    time if debugging is turned up.                                 */
 /*--------------------------------------------------------------------*/
 
-   fprintf(logfile,
-               "%s %s: %s %s (%s %s)\n",
-               dater( time( NULL ), NULL),
-               compilen, compilep, compilev, compiled, compilet);
+   debuglevel = 0;                  /* Insure we time stamp          */
 
-   if ( ferror( logfile ))
+   printmsg(0,"%s: %s %s (%s %s)",
+            compilen, compilep, compilev, compiled, compilet);
+   debuglevel = saveDebuglevel;
+
+   if (ferror(logfile))
    {
-      printerr( tempname );
+      printerr(currentLogName);
       panic();
    }
+
+/*--------------------------------------------------------------------*/
+/*       Save log file name for latter reference and as a flag        */
+/*       that we were called                                          */
+/*--------------------------------------------------------------------*/
+
+   permanentLogName = newLogName;
 
 } /* openlog */
 
@@ -257,7 +211,7 @@ void openlog( const char *log )
 /*    Close and copy a log opened by openlog                          */
 /*--------------------------------------------------------------------*/
 
-static void copylog( void )
+void copylog(void)
 {
 
    FILE *input;
@@ -265,14 +219,19 @@ static void copylog( void )
    char buf[BUFSIZ];
    size_t chars_read;
 
+
+   /* Handle aborts, which may cause this to be called extra */
+   if (logfile == stderr)
+      return;
+
 /*--------------------------------------------------------------------*/
-/*   If not multitasking, just close the file and exit gracefully     */
+/*   If not multitasking, just close the file and return gracefully   */
 /*--------------------------------------------------------------------*/
 
-   if ( !bflag[ F_MULTITASK ] )
+   if (!bflag[ F_MULTITASK ])
    {
-      fclose( logfile );
-      logfile = stdout;
+      fclose(logfile);
+      logfile = stderr;
       return;
    }
 
@@ -280,29 +239,25 @@ static void copylog( void )
 /*            We're multitasking; copy the file gracefully            */
 /*--------------------------------------------------------------------*/
 
-   output = FOPEN( logname ,"a",TEXT_MODE);
+   output = FOPEN(permanentLogName ,"a",TEXT_MODE);
 
-   if ( output == NULL )
+   if (output == NULL)
    {
-      printmsg(0,"Cannot merge log %s to %s", tempname, logname );
-      printerr( logname );
-      fclose( logfile );
+      printerr(permanentLogName);
+      printmsg(0,"Cannot merge log %s to %s",
+                  currentLogName,
+                  permanentLogName);
+      fclose(logfile);
       logfile = stderr;
       return;
    }
 
-   fclose( logfile );
+   input = logfile;                 /* Save our logfile stream        */
    logfile = output;                /* Log directly into real file    */
-   full_log_file_name = logname;    /* Tell printerr we switched      */
+   full_log_file_name = permanentLogName;
+                                    /* Tell printerr we switched      */
 
-   input = FOPEN( tempname, "r",TEXT_MODE );
-
-   if ( input == NULL )
-   {
-      printerr( tempname );
-      fclose( output );
-      logfile = stdout;
-   }
+   rewind(input);
 
 /*--------------------------------------------------------------------*/
 /*           File is open, copy temporary log to end of it            */
@@ -310,35 +265,39 @@ static void copylog( void )
 
    while ((chars_read = fread(buf,sizeof(char), BUFSIZ, input)) != 0)
    {
-      if (fwrite(buf, sizeof(char), chars_read, output ) != chars_read)
+
+      if (fwrite(buf, sizeof(char), chars_read, logfile) != chars_read)
       {
-         printerr( logname );
-         clearerr( output );
-         fclose( input );
-         fclose( output );
-         logfile  = stdout;
+         fclose(input);
+
+         printerr(permanentLogName);
+         clearerr(logfile);
+         fclose(logfile);
+         logfile  = stderr;
+
          return;
       }
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
 /*                     Check for errors on input                      */
 /*--------------------------------------------------------------------*/
 
-   if ( ferror( input ))
+   if (ferror(input))
    {
-      printerr( tempname );
-      clearerr( input );
+      printerr(currentLogName);
+      clearerr(input);
    }
 
 /*--------------------------------------------------------------------*/
 /*             Close up shop and discard temporary input              */
 /*--------------------------------------------------------------------*/
 
-   fclose( input );
-   fclose( output );
-   logfile  = stdout;
+   fclose(input);
+   fclose(logfile);
+   logfile  = stderr;
 
-   REMOVE( tempname );
+   REMOVE(currentLogName);
 
 } /* copylog */
