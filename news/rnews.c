@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.42 1995/01/07 16:21:38 ahd Exp $
+ *       $Id: rnews.c 1.43 1995/01/07 20:48:21 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.43  1995/01/07 20:48:21  ahd
+ *       Correct 16 compile warnings
+ *
  *       Revision 1.42  1995/01/07 16:21:38  ahd
  *       Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -153,7 +156,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.42 1995/01/07 16:21:38 ahd Exp $";
+         "$Id: rnews.c 1.43 1995/01/07 20:48:21 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -175,6 +178,7 @@ static const char rcsid[] =
 #include "history.h"
 #include "hostable.h"
 #include "import.h"
+#include "imfile.h"
 #include "importng.h"
 #include "logger.h"
 #include "timestmp.h"
@@ -245,8 +249,7 @@ typedef struct _HEADERLIST
 /*                       Functions in this file                       */
 /*--------------------------------------------------------------------*/
 
-static void deliver_article(const char *art_fname,
-                            const long art_size);
+static void deliver_article(IMFILE *imf );
                               /* Distribute the article to the
                                  proper newsgroups                    */
 
@@ -254,34 +257,31 @@ static void control_message(const char *control,
                             const char *filename );
                               /* process control message */
 
-static int Single( const char *filename , FILE *stream );
+static int Single( FILE *stream );
 
-static int Compressed( const char *filename ,
-                       FILE *in_stream ,
+static int Compressed( FILE *in_stream ,
                        const char *unpacker ,
                        const char *suffix );
 
-static int Batched( const char *filename, FILE *stream);
+static int Batched( FILE *stream);
 
 static void shadow_news(const char *fname );
 
-static KWBoolean deliver_local(FILE *tfile,
-                             const long art_size,
+static KWBoolean deliver_local(IMFILE *imf,
                              const char *groups,
                              const char *msgID,
                              const char *control);
 
 static KWBoolean deliver_remote(const struct sys *node,
-                              FILE *tfile,
-                              const char *fname,
+                              IMFILE *imf,
                               const char *msgID,
                               const char *path);
 
 static KWBoolean batch_remote(const struct sys *node,
-                            FILE *tfile,
+                            IMFILE *imf,
                             const char *msgID );
 
-static KWBoolean copy_file(FILE *f,
+static KWBoolean copy_file(IMFILE *imf,
                       const char *group,
                       const char *xref);      /* Copy file (f) to newsgroup */
 
@@ -307,7 +307,7 @@ void main( int argc, char **argv)
 {
 
    FILE *input;
-   char filename[FILENAME_MAX];
+   char inputName[FILENAME_MAX];
    int c;
    int status;
 
@@ -346,17 +346,17 @@ void main( int argc, char **argv)
            switch (option)
            {
                case 'f':
-                  strcpy(filename, optarg);
+                  strcpy(inputName, optarg);
 
-                  input = fopen(filename, "rb");
+                  input = fopen(inputName, "rb");
 
                   if (input == NULL)
                   {
-                     printerr( filename );
+                     printerr( inputName );
                      panic();
                   }
                   else
-                     printmsg(2, "Opened %s as input file", filename);
+                     printmsg(2, "Opened %s as input file", inputName);
 
                   break;
 
@@ -381,16 +381,15 @@ void main( int argc, char **argv)
    if ( bflag[F_SNEWS])
    {
 
-      mkdirfilename(filename, E_newsdir, "art"); /* Get the file name   */
-      status = copy_snews(filename, input);
+      mkdirfilename(inputName, E_newsdir, "art");
+                                    /* Get the file name             */
+      status = copy_snews(inputName, input);
                                     /* Dump news into NEWS directory */
 
-      shadow_news(filename);        /* Shadow it via UUX             */
+      shadow_news(inputName);       /* Shadow it via UUX             */
 
       exit( status );
    }
-   else
-      mktempname(filename, "tmp"); /* Make normal temp name          */
 
 /*--------------------------------------------------------------------*/
 /*             Load the active file and validate its data             */
@@ -455,7 +454,7 @@ void main( int argc, char **argv)
       /* 1  single (unbatched, uncompressed) article */
       /***********************************************/
 
-      status = Single(filename, input);
+      status = Single( input );
 
    }
    else {
@@ -501,7 +500,7 @@ void main( int argc, char **argv)
          /*  2  Compressed batch                        */
          /***********************************************/
 
-         status = Compressed(filename, input, unpacker, suffix);
+         status = Compressed( input, unpacker, suffix);
 
       }
       else {
@@ -510,7 +509,7 @@ void main( int argc, char **argv)
          /* 3  Uncompressed batch                       */
          /***********************************************/
 
-         status = Batched(filename, input);
+         status = Batched( input);
       } /* else */
    } /* else */
 
@@ -572,24 +571,18 @@ void main( int argc, char **argv)
 /*    Deliver a single article to the proper news group(s)            */
 /*--------------------------------------------------------------------*/
 
-static int Single( const char *filename , FILE *stream )
+static int Single( FILE *stream )
 {
-   char tmp_fname[FILENAME_MAX];
-   FILE *tmpf;
+   IMFILE *imf;
    char buf[BUFSIZ];
    unsigned chars_read;
    unsigned chars_written;
-   long article_size = 0;
 
-/*--------------------------------------------------------------------*/
-/* Make a file name and then open the file to write the article into  */
-/*--------------------------------------------------------------------*/
+   imf = imopen( filelength( fileno( stream )));
 
-   tmpf = FOPEN(filename, "w", IMAGE_MODE);
-
-   if ( tmpf == NULL )
+   if ( imf == NULL )
    {
-      printerr( tmp_fname );
+      printerr( "imopen" );
       panic();
    }
 
@@ -600,14 +593,12 @@ static int Single( const char *filename , FILE *stream )
    while ((chars_read = fread(buf, sizeof(char), BUFSIZ, stream)) != 0)
    {
 
-      chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
-      article_size += chars_written;
+      chars_written = imwrite(buf, sizeof(char), chars_read, imf);
       if (chars_written != chars_read)
       {
-         printerr( filename );
+         printerr( "imwrite" );
          printmsg(0, "rnews: Error writing single article to working file");
-         fclose( tmpf );
-         unlink( filename );
+         imclose( imf );
          panic();
       }
    }
@@ -616,10 +607,8 @@ static int Single( const char *filename , FILE *stream )
 /*     Close the file, deliver the article, and return the caller     */
 /*--------------------------------------------------------------------*/
 
-   fclose(tmpf);
 
-   deliver_article(filename, article_size);
-   unlink( filename );
+   deliver_article( imf );
    return 0;
 
 } /* Single */
@@ -630,8 +619,7 @@ static int Single( const char *filename , FILE *stream )
 /*    Decompress news                                                 */
 /*--------------------------------------------------------------------*/
 
-static int Compressed( const char *filename ,
-                       FILE *in_stream ,
+static int Compressed( FILE *in_stream ,
                        const char *unpacker ,
                        const char *suffix )
 {
@@ -756,7 +744,7 @@ static int Compressed( const char *filename ,
       panic();
    }
 
-   status = Batched( filename, work_stream );
+   status = Batched( work_stream );
 
 /*--------------------------------------------------------------------*/
 /*                   Clean up and return to caller                    */
@@ -801,7 +789,7 @@ static void fixEOF( char *buf, const int bytes )
 /*    Handle batched, uncompressed news                               */
 /*--------------------------------------------------------------------*/
 
-static int Batched( const char *filename, FILE *stream)
+static int Batched( FILE *stream)
 {
 
    char buf[BUFSIZ * 2];
@@ -824,7 +812,7 @@ static int Batched( const char *filename, FILE *stream)
       int  max_read = (long) sizeof buf;
       long skipped_lines = 0;
       long skipped_bytes = 0;
-      FILE *tmpf;
+      IMFILE *imf;
 
 /*--------------------------------------------------------------------*/
 /*    Handle next article (articles are separated by the line         */
@@ -874,10 +862,10 @@ static int Batched( const char *filename, FILE *stream)
 /*                   Open up our next working file                    */
 /*--------------------------------------------------------------------*/
 
-      tmpf = FOPEN(filename, "w", IMAGE_MODE);
-      if ( tmpf == NULL )
+      imf = imopen( article_size );
+      if ( imf == NULL )
       {
-         printerr( filename );
+         printerr( "imopen");
          panic();
       }
 
@@ -904,12 +892,12 @@ static int Batched( const char *filename, FILE *stream)
 
             fixEOF( buf , chars_read );
 
-            chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
+            chars_written = imwrite(buf, sizeof(char), chars_read, imf);
             if (chars_read != chars_written)
             {
                printmsg(0, "Batched: Read %d bytes, only wrote %d bytes of article %d",
                      chars_read, chars_written , articles + 1);
-               printerr(filename);
+               printerr("imwrite");
             }
 
             article_left -= chars_read;
@@ -931,7 +919,7 @@ static int Batched( const char *filename, FILE *stream)
             if (fgets( buf, sizeof buf, stream ) == NULL)
             {
                if ( ferror( stream ))
-                  printerr( filename );
+                  printerr( "fgets" );
                break;
             }
 
@@ -946,22 +934,26 @@ static int Batched( const char *filename, FILE *stream)
             {
                actual_size += chars_read;
 
-               chars_written = fwrite(buf,
+               chars_written = imwrite(buf,
                                       sizeof(char),
                                       chars_read,
-                                      tmpf);
+                                      imf);
                if (chars_read != chars_written)
                {
                   printmsg(0,
-                       "Batched: Read %d bytes, only wrote %d bytes of article %d",
+                       "Batched: Read %d bytes, only wrote %d bytes "
+                       "of article %d",
                         chars_read, chars_written , articles + 1);
-                  printerr(filename);
+                  printerr("imwrite");
+
                }
+
             } /* else */
 
          } while( ! gotsize );
 
          article_size = actual_size;
+
          printmsg(2, "Batched: Article %d size %ld",
                      articles + 1,
                      actual_size );
@@ -971,9 +963,9 @@ static int Batched( const char *filename, FILE *stream)
 /*      Close the file, deliver its contents, and get rid of it       */
 /*--------------------------------------------------------------------*/
 
-      fclose(tmpf);
-      deliver_article(filename, article_size);
-      unlink( filename );
+      deliver_article( imf );
+      imclose( imf );
+
    } /* while */
 
    return status;
@@ -1013,7 +1005,7 @@ static char *getHeader( HEADERLIST table[],
          return defaultData;        /* No table default, return caller
                                        supplied value instead.          */
 
-      } /* if ( equal(table[subscript].name, field ) */
+      } /* if ( equal(table[subscript].name, field ) )*/
 
    }  /* for ( subscript = 0; table[subscript].name != NULL; subscript++ ) */
 
@@ -1039,10 +1031,9 @@ static char *getHeader( HEADERLIST table[],
 /*       actual local or remote delivery function as required.        */
 /*--------------------------------------------------------------------*/
 
-static void deliver_article(const char *art_fname, const long art_size)
+static void deliver_article( IMFILE *imf )
 {
 
-   FILE *tfile = FOPEN(art_fname, "r", IMAGE_MODE);
    struct sys *sysnode = sys_list;
 
    static HEADERLIST table[] =
@@ -1057,17 +1048,12 @@ static void deliver_article(const char *art_fname, const long art_size)
    };
 
    KWBoolean delivered = KWFalse;
-   KWBoolean searchHeader = KWTrue;   /* Each article begins w/header  */
-   KWBoolean error    = KWFalse;      /* Presume successful hdr scan   */
+   KWBoolean searchHeader = KWTrue; /* Each article begins w/header  */
+   KWBoolean error    = KWFalse;    /* Presume successful hdr scan   */
    int subscript;                   /* For walking header table      */
 
+   imrewind( imf );                 /* Begin at top of article       */
    articles++;
-
-   if ( tfile == NULL )             /* Did the article file open?    */
-   {                                /* No --> Now THAT's a problem!  */
-      printerr( art_fname );
-      panic();
-   }
 
 /*--------------------------------------------------------------------*/
 /*                   Reinitialize our header table                    */
@@ -1084,7 +1070,7 @@ static void deliver_article(const char *art_fname, const long art_size)
    {
       char input[LARGEBUF];
 
-      if ( fgets(input, sizeof input, tfile) == NULL )   /* eof ?    */
+      if ( imgets(input, sizeof input, imf) == NULL )   /* eof ?    */
          searchHeader = KWFalse;     /* Yes --> Exit loop ...         */
       else if ( *input == '\n' )    /* Last of the red hot headers?  */
          searchHeader = KWFalse;     /* Yes --> Exit loop gracefully  */
@@ -1186,15 +1172,15 @@ static void deliver_article(const char *art_fname, const long art_size)
 
       } /* for ( subscript = 0; table[subscript].name != NULL; subscript++ ) */
 
-   }  /* while ( header && fgets(input, sizeof input, tfile)) */
+   }  /* while ( header && fgets(input, sizeof input, imf )) */
 
 /*--------------------------------------------------------------------*/
 /*                Verify we did not have a file error                 */
 /*--------------------------------------------------------------------*/
 
-   if ( ferror( tfile ) )        /* Exit loop from error?            */
+   if ( imerror( imf ) )         /* Exit loop from error?            */
    {
-      printerr( art_fname );     /* Yes --> Report it ...            */
+      printerr( "imgets" );      /* Yes --> Report it ...            */
       panic();                   /* ... and die young                */
    }
 
@@ -1222,7 +1208,6 @@ static void deliver_article(const char *art_fname, const long art_size)
 
    if ( error )
    {
-      fclose( tfile );
       bad_articles++;
       return;
    }
@@ -1240,8 +1225,7 @@ static void deliver_article(const char *art_fname, const long art_size)
     {
       if (equal(sysnode->sysname, E_domain))
       {
-        if (deliver_local( tfile,
-                           art_size,
+        if (deliver_local( imf,
                            getHeader(table, NEWSGROUPS, NULL),
                            getHeader(table, MESSAGEID, NULL),
                            getHeader(table, CONTROL, NULL)))
@@ -1250,8 +1234,7 @@ static void deliver_article(const char *art_fname, const long art_size)
           ignored++;
       }
       else if (deliver_remote(sysnode,
-                              tfile,
-                              art_fname,
+                              imf,
                               getHeader(table, MESSAGEID, NULL),
                               getHeader(table, PATH, NULL )))
       {
@@ -1275,8 +1258,6 @@ static void deliver_article(const char *art_fname, const long art_size)
                 getHeader(table, NEWSGROUPS, NULL),
                 getHeader(table, DISTRIBUTION, NULL) );
   }
-
-  fclose(tfile);
 
   return;
 
@@ -1403,7 +1384,7 @@ static void control_message(const char *control,
 /*    Write an article to it's final resting place                    */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean copy_file(FILE *input,
+static KWBoolean copy_file(IMFILE *imf,
                          const char *group,
                          const char *xref)
 {
@@ -1445,7 +1426,7 @@ static KWBoolean copy_file(FILE *input,
       return KWFalse;
    }
 
-   rewind(input);
+   imrewind(imf);
 
    if (xref) /* write new Xref: line first */
    {
@@ -1456,7 +1437,7 @@ static KWBoolean copy_file(FILE *input,
       }
    }
 
-   while (fgets(buf, sizeof buf, input) != NULL)
+   while (imgets(buf, sizeof buf, imf ) != NULL)
    {
 
       if ( ! header )
@@ -1584,8 +1565,7 @@ void shadow_news( const char *fname )
 /*       Deliver an article locally to one or more news groups        */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean deliver_local(FILE *tfile,
-                             const long art_size,
+static KWBoolean deliver_local(IMFILE *imf,
                              const char *newsgroups_in,
                              const char *messageID,
                              const char *control)
@@ -1650,7 +1630,7 @@ static KWBoolean deliver_local(FILE *tfile,
 
    /* Start building the history record for this article */
 
-   sprintf(hist_record, "%ld %ld ", now, art_size);
+   sprintf(hist_record, "%ld %ld ", now, imlength( imf ));
    groups_found = 0;
 
    for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
@@ -1692,7 +1672,10 @@ static KWBoolean deliver_local(FILE *tfile,
      /* try "junk" group if none of the target groups is known here */
 
      if (get_snum("junk", snum))
-       sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
+       sprintf(hist_record, "%ld %ld junk:%s",
+               now,
+               imlength( imf ),
+               snum);
      else {
        free( newsgroups );
        return KWFalse;
@@ -1756,7 +1739,7 @@ static KWBoolean deliver_local(FILE *tfile,
 
       strcpy(groupy, gc_ptr);
 
-      if ( copy_file(tfile, groupy, b_xref ? hist_record : NULL))
+      if ( copy_file( imf, groupy, b_xref ? hist_record : NULL))
          posted = KWTrue;
 
    } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
@@ -1765,7 +1748,7 @@ static KWBoolean deliver_local(FILE *tfile,
    {
      junked++;
 
-     if ( !copy_file(tfile, "junk", b_xref ? hist_record : NULL ) )
+     if ( !copy_file(imf, "junk", b_xref ? hist_record : NULL ) )
      {
         printmsg(0, "rnews: error, but no group is available for junk!");
      }
@@ -1785,7 +1768,7 @@ static KWBoolean deliver_local(FILE *tfile,
 /*       a remote system                                              */
 /*--------------------------------------------------------------------*/
 
-static void copy_rmt_article(const char *filename, FILE *input)
+static void copy_rmt_article(const char *filename, IMFILE *imf)
 {
 
   FILE *output;
@@ -1795,7 +1778,7 @@ static void copy_rmt_article(const char *filename, FILE *input)
   KWBoolean searchHeaders = KWTrue;
   KWBoolean skipHeader   = KWFalse;
 
-  rewind( input );
+  imrewind( imf );
 
   printmsg(2, "rnews: Saving remote article in %s", filename);
 
@@ -1807,10 +1790,9 @@ static void copy_rmt_article(const char *filename, FILE *input)
     panic();
   }
 
-  fflush( input );
-  rewind(input);
+  imrewind( imf );
 
-  while (fgets(buf, sizeof buf, input) != NULL)
+  while (imgets(buf, sizeof buf, imf) != NULL)
   {
 
      if ( searchHeaders )
@@ -1852,7 +1834,7 @@ static void copy_rmt_article(const char *filename, FILE *input)
 /*--------------------------------------------------------------------*/
 
 static KWBoolean batch_remote(const struct sys *node,
-                            FILE *tfile,
+                            IMFILE *imf,
                             const char *msgID )
 {
 
@@ -1870,7 +1852,7 @@ static KWBoolean batch_remote(const struct sys *node,
             node->sysname );
    mkdirfilename(fname, dirname, "art");
 
-   copy_rmt_article(fname, tfile);
+   copy_rmt_article(fname, imf );
 
 /*--------------------------------------------------------------------*/
 /*                   Open up the article list file                    */
@@ -1911,17 +1893,8 @@ static KWBoolean batch_remote(const struct sys *node,
 
   if ( node->flag.f )
   {
-      struct stat statBuf;
-
-      if ( fstat( fileno( tfile ), &statBuf ))
-      {
-         printmsg(0,"Cannot determine size of input file!");
-         printerr( "stat" );
-         panic();
-      }
-
       fprintf( batchListStream, " %lu",
-               (unsigned long) statBuf.st_size );
+               (unsigned long) imlength( imf ));
 
   } /* if ( node->flag.f ) */
 
@@ -1974,8 +1947,7 @@ static KWBoolean xmit_remote( const char *sysname,
 /*--------------------------------------------------------------------*/
 
 static KWBoolean deliver_remote(const struct sys *node,
-                              FILE *tfile,
-                              const char *fname,
+                              IMFILE *imf,
                               const char *msgID,
                               const char *path)
 {
@@ -2006,15 +1978,25 @@ static KWBoolean deliver_remote(const struct sys *node,
 /*--------------------------------------------------------------------*/
 
   if ( node->flag.F || node->flag.f || node->flag.n || node->flag.I )
-     return batch_remote( node, tfile, msgID );
+     return batch_remote( node, imf, msgID );
   else {
+
+     char fname[FILENAME_MAX];
+     int result;
 
      printmsg(5, "Transmitting article %s to %s via command %s",
                   node->sysname,
                   msgID,
                   node->command );
 
-     return xmit_remote( node->sysname, node->command, fname );
-   }
+
+      mktempname( fname, "tmp" );
+
+      copy_rmt_article(fname, imf );
+      result = xmit_remote( node->sysname, node->command, fname );
+      unlink( fname );
+      return result;
+
+   }  /* else */
 
 } /* deliver_remote */

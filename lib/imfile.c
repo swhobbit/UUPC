@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.1 1995/01/07 15:43:07 ahd Exp $
+ *    $Id: imfile.c 1.2 1995/01/07 20:48:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.2  1995/01/07 20:48:21  ahd
+ *    Correct 16 compile warnings
+ *
  *    Revision 1.1  1995/01/07 15:43:07  ahd
  *    Initial revision
  *
@@ -54,6 +57,42 @@
 #endif
 
 currentfile();
+
+#ifdef UDEBUG
+
+/*--------------------------------------------------------------------*/
+/*       i m S t a t u s                                              */
+/*                                                                    */
+/*       Report status of current in-memory file                      */
+/*--------------------------------------------------------------------*/
+
+static void imStatus( IMFILE *imf )
+{
+
+   if ( imf->buffer == NULL )
+      printmsg(6,"imStatus: File resides on disk as %s", imf->filename );
+   else
+      printmsg(5,"imStatus: "
+#ifdef BIT32ENV
+               "%p"
+#else
+               "%Fp"
+#endif
+                  " buffer address, %ld bytes used, %ld bytes capacity, "
+                  "current position %ld%s%s",
+                  imf->buffer,
+                  imf->inUse,
+                  imf->length,
+                  imf->position,
+                  imeof(imf)     ? ", EOF"   : "",
+                  imerror( imf ) ? ", ERROR" : "" );
+
+} /* imStatus */
+#else
+
+#define imStatus(x)
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       i m R e s e r v e                                            */
@@ -213,6 +252,8 @@ int imclose( IMFILE *imf)
 {
    int result = 0;
 
+   imStatus( imf );
+
    if ( imf->buffer != NULL )
    {
       _ffree( imf->buffer );
@@ -273,7 +314,7 @@ int imeof( IMFILE *imf )
    if ( imf->buffer == NULL )
       return feof( imf->stream );
    else
-      return imf->inUse > imf->position;
+      return imf->inUse <= imf->position;
 
 } /* imeof */
 
@@ -304,11 +345,20 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
    long stringLength;
    size_t subscript = 0;
 
+   imStatus( imf );
+
    if ( imf->buffer == NULL )
       return fgets( userBuffer, userLength, imf->stream );
 
    if ( imerror( imf ) || imeof( imf ))
       return NULL;
+
+   if ( userLength < 2 )            /* Need room for \n and \0          */
+   {
+      imf->flag |= IM_FLAG_ERROR;
+      errno = EINVAL;
+      return NULL;
+   }
 
 /*--------------------------------------------------------------------*/
 /*               Select the string from our own buffer                */
@@ -316,8 +366,15 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    stringLength = imf->inUse - imf->position;
 
-   if ( stringLength > (userLength -1 ))
+   if ( stringLength > (userLength - 1 ))
       stringLength = userLength;
+
+#ifdef UDEBUG
+   printmsg(6,"imgets: Requested up to %ld bytes, "
+              "actually searching %ld bytes",
+               (long) userLength,
+               (long) stringLength );
+#endif
 
    p = imf->buffer + imf->position;
 
@@ -329,9 +386,15 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
          subscript++;
    }
 
-   MEMCPY( userBuffer, imf->buffer + imf->position, subscript );
+   MEMCPY( userBuffer, p, ++subscript );
    userBuffer[ subscript ] = '\0';
    imf->position += subscript;
+
+#ifdef UDEBUG
+   printmsg(5,"Returning %d bytes = \"%s\"",
+              subscript,
+              userBuffer );
+#endif
 
    return userBuffer;
 
@@ -362,6 +425,8 @@ size_t  imread( void *userBuffer,
                 IMFILE * imf )
 {
    size_t bytes = objectSize * objectCount;
+
+   imStatus( imf );
 
    if ( imf->buffer == NULL )
       return fread( userBuffer, objectSize, objectCount, imf->stream );
@@ -419,6 +484,8 @@ size_t  imwrite(const void *userBuffer,
    if ( imReserve( imf, bytes ) )
       return -1;
 
+   imStatus( imf );
+
 /*--------------------------------------------------------------------*/
 /*                        Actually write the data                     */
 /*--------------------------------------------------------------------*/
@@ -446,6 +513,8 @@ size_t  imwrite(const void *userBuffer,
 int imseek( IMFILE *imf, long int offset, int whence)
 {
    long absoluteOffset;
+
+   imStatus( imf );
 
    if ( imf->buffer == NULL )
       return fseek( imf->stream, offset, whence );
@@ -522,6 +591,9 @@ long imtell( IMFILE *imf )
 
 void imrewind( IMFILE *imf)
 {
+
+   imStatus( imf );
+
    if ( imf->buffer == NULL )
    {
       fflush( imf->stream );
@@ -559,6 +631,9 @@ void imrewind( IMFILE *imf)
 
 long imlength( IMFILE *imf )
 {
+
+   imStatus( imf );
+
    if ( imf->buffer == NULL )
    {
       fflush( imf->stream );
