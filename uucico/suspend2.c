@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.11 1994/01/01 19:21:01 ahd Exp $
+ *    $Id: suspend2.c 1.12 1994/02/19 05:10:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.12  1994/02/19  05:10:23  ahd
+ * Use standard first header
+ *
  * Revision 1.11  1994/01/01  19:21:01  ahd
  * Annual Copyright Update
  *
@@ -350,7 +353,7 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-void suspend_init(const char *port )
+boolean suspend_init(const char *port )
 {
 
   char szPipe[FILENAME_MAX];
@@ -379,7 +382,7 @@ void suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosSetSigHandler", rc);
-    return;
+    return FALSE;
   }
 #endif
 
@@ -405,7 +408,7 @@ void suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosCreateNPipe", rc);
-    return;
+    return FALSE;
   }
 
 #else
@@ -420,7 +423,7 @@ void suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosMakeNmPipe", rc);
-    return;
+    return FALSE;
   }
 #endif
 
@@ -430,13 +433,19 @@ void suspend_init(const char *port )
 /*       Now allocate the required semaphores.                        */
 /*--------------------------------------------------------------------*/
 
-  rc = DosCreateEventSem(NULL, &semFree, 0, 0);
-  if (rc)
-    printOS2error( "DosCreateEventSem", rc);
+   rc = DosCreateEventSem(NULL, &semFree, 0, 0);
+   if (rc)
+   {
+      printOS2error( "DosCreateEventSem", rc);
+      return FALSE;
+   }
 
-  rc = DosCreateEventSem(NULL, &semWait, 0, 0);
-  if (rc)
-    printOS2error( "DosCreateEventSem", rc);
+   rc = DosCreateEventSem(NULL, &semWait, 0, 0);
+   if (rc)
+   {
+      printOS2error( "DosCreateEventSem", rc);
+      return FALSE;
+   }
 
 #else
 
@@ -445,15 +454,15 @@ void suspend_init(const char *port )
 /*       notify us if some program wants our port.                    */
 /*--------------------------------------------------------------------*/
 
-  rc = DosAllocSeg(STACKSIZE, &selStack, SEG_NONSHARED);
+   rc = DosAllocSeg(STACKSIZE, &selStack, SEG_NONSHARED);
 
-  if (rc)
-  {
-    printOS2error( "DosAllocSeg", rc);
-    return;
-  }
+   if (rc)
+   {
+      printOS2error( "DosAllocSeg", rc);
+      return FALSE;
+   }
 
-  pStack = (PSZ) MAKEP(selStack, 0) + STACKSIZE -2 ;
+   pStack = (PSZ) MAKEP(selStack, 0) + STACKSIZE -2 ;
 
 #endif
 
@@ -462,31 +471,32 @@ void suspend_init(const char *port )
 /*--------------------------------------------------------------------*/
 
 #ifdef BIT32ENV
-  rc = DosCreateThread(&tid, SuspendThread, 0, 0, STACKSIZE);
+   rc = DosCreateThread(&tid, SuspendThread, 0, 0, STACKSIZE);
 #else
-  rc = DosCreateThread(SuspendThread, &tid, pStack);
+   rc = DosCreateThread(SuspendThread, &tid, pStack);
 #endif
 
-  if (rc)
-  {
-    printOS2error( "DosCreateThread", rc);
-    return;
-  }
+   if (rc)
+   {
+      printOS2error( "DosCreateThread", rc);
+      return FALSE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                    Finally, our signal handler                     */
 /*--------------------------------------------------------------------*/
 
 #if defined(__TURBOC__)
-  if ( signal( SIGUSR2, (void (__cdecl *)(int))usrhandler ) == SIG_ERR )
+   if ( signal( SIGUSR2, (void (__cdecl *)(int))usrhandler ) == SIG_ERR )
 #else
-  if ( signal( SIGUSR2, usrhandler ) == SIG_ERR )
+   if ( signal( SIGUSR2, usrhandler ) == SIG_ERR )
 #endif
-  {
+   {
       printmsg( 0, "Couldn't set SIGUSR2\n" );
       panic();
-  }
+   }
 
+   return TRUE;
 } /* suspend_init */
 
 /*--------------------------------------------------------------------*/

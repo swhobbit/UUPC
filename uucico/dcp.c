@@ -18,9 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.27 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: dcp.c 1.28 1994/04/27 00:02:15 ahd Exp dmwatt $
  *
  *    $Log: dcp.c $
+ *        Revision 1.28  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.27  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -622,8 +626,12 @@ static boolean client( const time_t exitTime,
    if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
       panic();                /* Avoid loop if bad modem name       */
 
-   if ( ! IsNetwork() )
-      suspend_init(M_device);
+   if ( ! IsNetwork() && ! suspend_init(M_device))
+   {
+      printmsg(0,"Unable to set up pipe for suspending; "
+                 "is another UUCICO running?" );
+      panic();
+   }
 
    while (s_state != CONN_EXIT )
    {

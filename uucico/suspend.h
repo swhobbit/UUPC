@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.h 1.3 1993/12/26 16:28:56 ahd Exp $
+ *    $Id: suspend.h 1.4 1994/01/01 19:24:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.h $
+ * Revision 1.4  1994/01/01  19:24:13  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1993/12/26  16:28:56  ahd
  * Use enumerated types for command verbs and responses
  *
@@ -41,7 +44,7 @@
 #ifndef NO_SUSPEND_FUNCTIONS
 extern boolean suspend_processing;
 
-void suspend_init(const char *port );
+boolean suspend_init(const char *port );
 
 int suspend_other(const boolean suspend,
                   const char *port );

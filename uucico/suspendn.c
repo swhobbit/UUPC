@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.2 1994/01/01 19:21:10 ahd Exp $
+ *    $Id: suspendn.c 1.3 1994/02/19 05:10:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ * Revision 1.3  1994/02/19  05:10:36  ahd
+ * Use standard first header
+ *
  * Revision 1.2  1994/01/01  19:21:10  ahd
  * Annual Copyright Update
  *
@@ -239,7 +242,7 @@ DWORD WINAPI SuspThread(LPVOID *ignored)
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-void suspend_init(const char *port )
+boolean suspend_init(const char *port )
 {
   char szPipe[FILENAME_MAX];
   DWORD tid;
@@ -267,7 +270,7 @@ void suspend_init(const char *port )
   if (INVALID_HANDLE_VALUE == hPipe)
   {
     printNTerror( "CreateNamedPipe", GetLastError());
-    return;
+    return FALSE;
   }
 
 /*--------------------------------------------------------------------*/
@@ -277,24 +280,28 @@ void suspend_init(const char *port )
    eventWait = CreateEvent(NULL, FALSE, FALSE, NULL);
    if (eventWait == INVALID_HANDLE_VALUE) {
       printNTerror("CreateEvent", GetLastError());
+      return FALSE;
    }
 
    eventFree = CreateEvent(NULL, FALSE, FALSE, NULL);
    if (eventFree == INVALID_HANDLE_VALUE) {
       printNTerror("CreateEvent", GetLastError());
+      return FALSE;
    }
 
 /*--------------------------------------------------------------------*/
 /*                    Now fire off the monitor thread                 */
 /*--------------------------------------------------------------------*/
 
-  hThread = CreateThread(NULL, 8192, SuspThread, NULL, 0, &tid);
+   hThread = CreateThread(NULL, 8192, SuspThread, NULL, 0, &tid);
 
-  if (INVALID_HANDLE_VALUE == hThread)
-  {
-    printNTerror( "CreateThread", GetLastError());
-    return;
-  }
+   if (INVALID_HANDLE_VALUE == hThread)
+   {
+      printNTerror( "CreateThread", GetLastError());
+      return FALSE;
+   }
+
+   return TRUE;
 
 } /* suspend_init */
 
