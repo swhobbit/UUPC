@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.12 1993/04/05 04:35:40 ahd Exp $
+ *     $Id: DCPSYS.C 1.13 1993/04/11 00:34:11 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.13  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.12  1993/04/05  04:35:40  ahd
  * Add timestamp, file size to directory information
  *
@@ -413,6 +416,7 @@ CONN_STATE startup_server(const char recvgrade )
 
 
    hostp->hstatus = startup_failed;
+   hostp->via     = hostp->hostname;   // Save true hostname
 
 /*--------------------------------------------------------------------*/
 /*    Handle the special case of '*' protocol, which is really our    */
