@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.15 1996/11/19 00:25:20 ahd Exp $
+  *   $Id: hostable.h 1.16 1997/03/31 06:59:43 ahd v1-12s $
   *
   *   $Log: hostable.h $
+  *   Revision 1.16  1997/03/31 06:59:43  ahd
+  *   Annual Copyright Update
+  *
   *   Revision 1.15  1996/11/19 00:25:20  ahd
   *   Normalize host status flags
   *
@@ -163,6 +166,8 @@ struct  HostTable {
 struct HostTable *searchname(const char *name, const size_t namel);
 
 #define checkname(host) checkName(host, __LINE__, cfnptr )
+
+#define checkself(host) searchname( host, 255 )
 
 struct HostTable *checkName(const char *name,
                             const size_t line,
