@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.16 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: pwserr.c 1.17 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.17  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.16  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -176,7 +179,7 @@ static WSERR wsErrors[] = {
 
 #include "pwserr.h"
 
-RCSID("$Id: pwserr.c 1.16 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: pwserr.c 1.17 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    p W S e r r                                                     */
@@ -215,9 +218,9 @@ void pWSErr(const size_t lineno,
 
    if ( redirect )
 #ifdef _Windows
-     fprintf(stdout,"%s: %Fs\n", prefix, msg);
+     fprintf(stderr,"%s: %Fs\n", prefix, msg);
 #else
-     fprintf(stdout,"%s: %s\n", prefix, msg);
+     fprintf(stderr,"%s: %s\n", prefix, msg);
 #endif
 
 } /* pWSErr */
