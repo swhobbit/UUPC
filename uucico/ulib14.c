@@ -23,9 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.10 1994/02/19 05:11:10 ahd Exp $
+ *    $Id: ulib14.c 1.11 1994/05/07 21:45:33 ahd Exp $
  *
  *    $Log: ulib14.c $
+ *        Revision 1.11  1994/05/07  21:45:33  ahd
+ *        Correct CD() processing to be sticky -- once it fails, it
+ *        keeps failing until reset by close or hangup.
+ *
  * Revision 1.10  1994/02/19  05:11:10  ahd
  * Use standard first header
  *
@@ -475,8 +479,9 @@ BPS iGetSpeed( void )
 boolean iCD( void )
 {
 
-   ShowModem();
    boolean newCarrierDetect = FS_cd_high();
+
+   ShowModem();
 
    if ( newCarrierDetect )
       carrierDetect = newCarrierDetect;
