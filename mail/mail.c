@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.33 1995/01/07 16:26:58 ahd Exp $
+ *    $Id: mail.c 1.34 1995/02/20 17:28:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.34  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.33  1995/01/07 16:26:58  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -151,7 +154,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.33 1995/01/07 16:26:58 ahd Exp $";
+      "$Id: mail.c 1.34 1995/02/20 17:28:43 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -584,25 +587,24 @@ status ( void )
          "Windows NT",
          _winmajor,
          _winminor);
-#elif defined(__OS2__)
+#elif defined(__OS2__) || defined(FAMILYAPI)
         "OS/2(R)",
         (int) _osmajor / 10,
           _osminor);
-#elif defined(__TURBOC__)
+#else
         "DOS",
         _osmajor,
         _osminor);
-#else
-        (_osmode == DOS_MODE) ? "DOS" : "OS/2(R)",
-        (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
-         _osminor);
 #endif
+
 #ifdef _Windows
    printf("Windows version: %s\t", compilew );
 #endif
+
    printf("Magic Word:\t%s\tCurrent time:\t%s\n",
          "flarp",
          arpadate() );
+
    printf("Return address:\t\"%s\" <%s@%s>\n"
           "Domain name:\t%s\tNodename:\t%s\n",
             E_name,
@@ -610,6 +612,7 @@ status ( void )
             E_fdomain,
             E_domain,
             E_nodename );
+
    printf("Current File:\t%s\tNumber of items: %d\n"
           "File size:\t%ld bytes\tLast updated:\t%s",
             mfilename,
