@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.21 1993/09/23 03:26:51 ahd Exp $
+ *    $Id: modem.c 1.22 1993/09/25 03:07:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.22  1993/09/25  03:07:56  ahd
+ * Invoke set priority functions
+ *
  * Revision 1.21  1993/09/23  03:26:51  ahd
  * Never try to autobaud a network connection
  *
@@ -108,19 +111,20 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
+#include "hostable.h"
 #include "arpadate.h"
+#include "catcher.h"
 #include "checktim.h"
+#include "commlib.h"
 #include "dater.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "hlib.h"
-#include "hostable.h"
 #include "modem.h"
 #include "script.h"
 #include "security.h"
 #include "ssleep.h"
-#include "catcher.h"
-#include "commlib.h"
+#include "suspend.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -446,6 +450,11 @@ CONN_STATE callin( const time_t exit_time )
       {
          interactive_processing = TRUE;
          shutDown();
+         if ( suspend_processing )        // Give up modem for another process?
+         {
+           terminate_processing = FALSE;
+           return CONN_WAIT;
+         }
          return CONN_INITIALIZE;
       }
 
