@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.22 1994/01/01 19:13:14 ahd Exp $
+ *    $Id: rmail.c 1.23 1994/02/20 19:07:38 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.23  1994/02/20  19:07:38  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.22  1994/01/01  19:13:14  ahd
  * Annual Copyright Update
  *
@@ -731,7 +734,6 @@ static char **Parse822( boolean *header,
    char outputBuffer[BUFSIZ+MAXADDR]; /* Output buffer for addresses */
    char address[MAXADDR];     /* Buffer for parsed address           */
    char path[MAXADDR];
-   char *token;               /* For parsing line in buf             */
    int senderID = -1, dateID = -1, fromID = -1;
    struct HostTable *hostp;
 
@@ -916,10 +918,6 @@ static char **Parse822( boolean *header,
          while( *startAddress && !isgraph( *startAddress ))
             startAddress++;         /* Step past while space in addr */
 
-         token = startAddress;
-         while( (token = strchr( token,'\n')) != NULL )
-            *token++ = ' ';         // For debugging
-
          printmsg(10,"Adding address [%s] to [%s]",
                startAddress,
                outputBuffer );
@@ -947,7 +945,7 @@ static char **Parse822( boolean *header,
 
          if (!strlen(address))
          {
-            printmsg(0,"Could not locate expected address in header");
+            printmsg(0,"Parse822: Could not locate expected address in header");
             return NULL;
          } /* if */
          else {
