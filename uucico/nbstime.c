@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.19 1994/02/21 16:38:58 ahd Exp $
+ *    $Id: nbstime.c 1.20 1994/02/22 02:59:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.20  1994/02/22  02:59:10  ahd
+ * Process input one character at a time to insure timely echo
+ *
  * Revision 1.19  1994/02/21  16:38:58  ahd
  * Bulletproof buffer parse to insure garbled buffers are not
  * used to set system clock.
@@ -83,6 +86,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <ctype.h>
+
 #ifdef WIN32
 
 #include <windows.h>
@@ -143,19 +148,15 @@ boolean nbstime( void )
 {
    char buf[BUFSIZ];
    struct tm  tx;
-   int cycles = 15;
-   int dst= 0;
+   int cycles = 11;
+   boolean firstPass = TRUE;
+   int dst = 0;
    char sync = '?';
    unsigned rc;
    int errors = 0;
 
-   static const char model[] =
-         "##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *\r\n";
-
-#if !defined(WIN32)
    time_t delta;
    time_t today;
-#endif
 
 #ifdef WIN32
 
@@ -185,8 +186,6 @@ boolean nbstime( void )
    }
 
    rmsg(buf, 2, 2, sizeof buf);     /* Read header line, discard     */
-   rmsg(buf, 2, 2, sizeof buf);     /* Read header line end, discard */
-   *buf = '\0';                     /* Insure the buffer is empty    */
 
 /*--------------------------------------------------------------------*/
 /*                  Begin main loop to get the time                   */
@@ -197,6 +196,9 @@ boolean nbstime( void )
       int column;
       boolean error = FALSE;
 
+      static const char model[] =
+         "\r\n##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
+
 /*--------------------------------------------------------------------*/
 /*       Read and verify entire contents of the buffer.               */
 /*--------------------------------------------------------------------*/
@@ -205,7 +207,7 @@ boolean nbstime( void )
             (column < (sizeof model - 1)) && ! error;
             column++ )
       {
-         if (sread(buf + column, 1, 1) < 1)
+         if (sread(buf + column, 1, 2) < 1)
          {
             printmsg(0,"nbstime: Timeout reading character");
             return FALSE;
@@ -249,29 +251,33 @@ boolean nbstime( void )
 
       if ( error )                 /* Found a bad character?         */
       {
-         if ( debuglevel > 2 )
-            printmsg(3, "nbstime: Buffer error at column %d: \"%s\"",
-                         column,
-                         buf );
-         errors++;
+         if ( firstPass )           /* Getting in sync with remote?  */
+            firstPass = FALSE;      /* Yes --> Don't flag as error   */
+         else {
+            if ( debuglevel > 2 )
+               printmsg(3,
+                        "nbstime: Buffer error at column %d: \"%s\"",
+                        column,
+                        buf );
+            errors++;
+         }
 
 /*--------------------------------------------------------------------*/
 /*                     Flush the rest of the line                     */
 /*--------------------------------------------------------------------*/
 
+         column = 0;             /* Read up to one full line of data */
+
          while( (sread(buf, 1, 1) >= 1) && (column++ <= sizeof model ))
          {
+            swrite(buf, 1);
+
             if ( *buf == model[ sizeof model - 2 ] )
                break;
 
-            swrite(buf, 1);
-
-            if ( debuglevel > 2 )
-               fputc(*buf, stderr);
-
          } /* while */
 
-         *buf = '\0';      /* Insure we don't use bad buffer below   */
+         *buf = '\0';            /* Discard our invalid buffer       */
 
       } /* if ( error ) */
 
@@ -284,10 +290,15 @@ boolean nbstime( void )
    if ( ! *buf )
    {
       printmsg(0,"nbstime: Buffer reads failed with "
-                 "%d errors, rerun with debug -x 3 for details",
-                 errors );
+                 "%d errors%s",
+                 errors,
+                 debuglevel < 3 ?
+                     ", rerun with debug -x 3 for details" :
+                     "");
       return FALSE;
    }
+
+   time(&delta);              /* Remember time before we set it      */
 
 /*--------------------------------------------------------------------*/
 /*                   Determine the time we received                   */
@@ -299,9 +310,11 @@ boolean nbstime( void )
    tx.tm_mon--;               /* Tm record counts months from zero   */
 
 /*--------------------------------------------------------------------*/
-/*     mktime()'s "renormalizing" the tm struct is screwing up NT    */
+/*     mktime()'s "renormalizing" the tm struct is screwing up NT     */
 /*--------------------------------------------------------------------*/
+
 #if !defined(WIN32)
+
    today = mktime(&tx);       /* Current UTC (GMT) time in seconds   */
 
    if ( debuglevel > 2 )
@@ -339,7 +352,7 @@ boolean nbstime( void )
       panic();
    }
 
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
+   printmsg(3,"OS/2 time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
@@ -354,7 +367,7 @@ boolean nbstime( void )
    DateTime.minutes = (UCHAR) tp->tm_min;
    DateTime.seconds = (UCHAR) tp->tm_sec;
 
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
+   printmsg(3,"NIST time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
@@ -430,6 +443,9 @@ boolean nbstime( void )
       return FALSE;
    }
 
+   time(&today);                 /* Since we didn't set the time via
+                                    today, set it now to compare     */
+
 #elif defined( __TURBOC__ )
 
 /*--------------------------------------------------------------------*/
@@ -448,6 +464,10 @@ boolean nbstime( void )
    stime( &today );
 
 #else /* __TURBOC__ */
+
+/*--------------------------------------------------------------------*/
+/*             Set time under DPS with MS C 6.0 compiler              */
+/*--------------------------------------------------------------------*/
 
    tp = localtime(&today);    /* Get local time as a record          */
 
@@ -484,22 +504,20 @@ boolean nbstime( void )
 /*             Print debugging information, if requested              */
 /*--------------------------------------------------------------------*/
 
-#if !defined(WIN32)
-   delta = today - time( NULL );
-   printmsg(2,"nbstime: \"%s\"", buf);
-   printmsg(2,"nbstime: Time delta is %ld seconds, zone offset %ld, "
-              "daylight savings %d",
-                  delta, timezone(), dst );
-#endif
-
-   if ( sync == '*' )
-      printmsg(2,"Warning: Was unable to synchronize with NIST master");
+   delta = today - delta;
 
 /*--------------------------------------------------------------------*/
 /*                Announce new time, return to caller                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"nbstime: New system time is %s", arpadate());
+   printmsg(3,"nbstime: \"%s\"", buf);
+
+   printmsg(0,"nbstime: Time is %s, delta was %d seconds.%s",
+               arpadate(),
+               delta,
+               sync == '#' ?
+                  "  Note: Perfectly in sync with NIST." :
+                  "" );
    return TRUE;
 
 } /* nbstime */
