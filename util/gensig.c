@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.6 1994/02/19 05:01:57 ahd Exp $
+ *    $Id: gensig.c 1.7 1994/02/26 15:47:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ * Revision 1.7  1994/02/26  15:47:42  ahd
+ * Correct fopen() to work with IBM C/Set 2 compiler
+ *
  * Revision 1.6  1994/02/19  05:01:57  ahd
  * Use standard first header
  *
@@ -41,7 +44,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.6 1994/02/19 05:01:57 ahd Exp $";
+static char rcsid[] = "$Id: gensig.c 1.7 1994/02/26 15:47:42 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -106,6 +109,9 @@ void main( int argc, char **argv)
    FILE *stream;
 
    banner( argv );
+
+   if (!configure( B_GENERIC ))
+      exit(1);                      /* Configuration load failed     */
 
 /*--------------------------------------------------------------------*/
 /*                  Validate the number of arguments                  */

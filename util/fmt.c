@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.3 1993/10/24 20:58:55 rhg Exp $
+ *    $Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ * Revision 1.4  1994/02/19  05:01:25  ahd
+ * Use standard first header
+ *
  * Revision 1.3  1993/10/24  20:58:55  rhg
  * Clean up for MS C 7.0
  *
@@ -32,7 +35,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: fmt.c 1.3 1993/10/24 20:58:55 rhg Exp $";
+static char rcsid[] = "$Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $";
 
 #include <ctype.h>
 
@@ -59,6 +62,9 @@ static char rcsid[] = "$Id: fmt.c 1.3 1993/10/24 20:58:55 rhg Exp $";
 /*--------------------------------------------------------------------*/
 
    banner( argv );
+
+   if (!configure( B_GENERIC ))
+      exit(1);                      /* Configuration load failed     */
 
 /*--------------------------------------------------------------------*/
 /*                            Handle help                             */
