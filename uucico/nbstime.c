@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.20 1994/02/22 02:59:10 ahd Exp $
+ *    $Id: nbstime.c 1.21 1994/02/23 04:17:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.21  1994/02/23  04:17:23  ahd
+ * More exact matching of input buffer (execute time set after
+ * time mark, not two characters later)
+ *
  * Revision 1.20  1994/02/22  02:59:10  ahd
  * Process input one character at a time to insure timely echo
  *
@@ -330,7 +334,7 @@ boolean nbstime( void )
 /*       1970 and not exactly midnight GMT.                           */
 /*--------------------------------------------------------------------*/
 
-   if (( today < (24L * 365L * 24L * 86400L)) &&
+   if (( today < (24L * 365L * 86400L)) &&
        !( tx.tm_hour || tx.tm_min || tx.tm_sec ))
    {
       printmsg(0,"nbstime: Time warp error (%.24s), clock not set",
