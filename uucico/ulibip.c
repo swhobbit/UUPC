@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.13 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: ulibip.c 1.14 1993/12/29 03:34:37 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.14  1993/12/29  03:34:37  dmwatt
+ * Corrected host to network short conversion
+ *
  * Revision 1.13  1993/12/24  05:12:54  ahd
  * Use far buffer for master communications buffer
  *
@@ -820,7 +823,7 @@ boolean tCD( void )
 /*       Wait for remote system to connect to our waiting server      */
 /*--------------------------------------------------------------------*/
 
-boolean tWaitForNetConnect(int timeout)
+boolean tWaitForNetConnect(const unsigned int timeout)
 {
    fd_set readfds;
    int nReady;

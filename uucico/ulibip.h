@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.1 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: ULIBIP.H 1.2 1993/12/24 05:22:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: ulibip.h $
+ *    $Log: ULIBIP.H $
+ * Revision 1.2  1993/12/24  05:22:49  ahd
+ * Use UUFAR pointer for comm buffers
+ *
  * Revision 1.1  1993/09/20  04:53:57  ahd
  * Initial revision
  *
@@ -57,6 +60,6 @@ BPS tGetSpeed( void );
 
 boolean tCD( void );
 
-boolean tWaitForNetConnect(int timeout);
+boolean tWaitForNetConnect(const unsigned int timeout);
 
 #endif
