@@ -1,10 +1,25 @@
+/*--------------------------------------------------------------------*/
+/*       h l i b . h                                                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
-      UUPC/Extended host dependent functions header
-
-      Change history:
-
-      08 Sep 90   -  Created from local\host.h                    ahd
-  */
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 #define SAME 0
 
@@ -13,19 +28,32 @@
 
 #define SEPCHAR '/'
 
-#define CONSOLE "con"   /* "filename" of the console */
+#define CONSOLE "CON"           /* "filename" of the console */
 
-#define NAME "NAME"
-#define NODENAME "NODENAME"
+/*--------------------------------------------------------------------*/
+/*              Define the device name of the bit bucket              */
+/*--------------------------------------------------------------------*/
+
+#ifdef WIN32
+#define BIT_BUCKET "NUL:"
+#else
+#define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
+#endif
 
 #ifdef __IBMC__
 #define TEXT_MODE    ""
 #else
 #define TEXT_MODE    "t"
 #endif
-#define BINARY_MODE  "b"
 
-#define MAXADDR   128            /* Max length of address strings      ahd */
+#define IMAGE_MODE   "b"
+
+#ifdef BIT32ENV
+#define MAXADDR   512            /* Max length of address strings      */
+#else
+#define MAXADDR   128            /* Max length of address strings      */
+#endif
+
 #define MAXLIST   99             /* Max number of entries in arg
                                     arrays                             */
 
@@ -38,12 +66,7 @@ char *mktempname( char *input,
 
 char *mkmailbox(char *buf, const char *userid);
 
-#ifdef __GNUC__
-#define filebkup(x) \
-        printmsg(0,"Cannot backup %s in GNU C yet ... yell at Drew", x)
-#else
 int filebkup( const char *input );
-#endif
 
 #ifdef __IBMC__
 #define _fsopen(n, m, s) fopen(n, m)
