@@ -17,8 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.37 1994/02/19 05:12:53 ahd Exp $
+ *       $Id: ulibos2.c 1.38 1994/02/23 04:17:23 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.38  1994/02/23  04:17:23  ahd
+ * Only go into extended character (buffering) mode if reading one
+ * character AND over 2400 bps, not either!
+ *
  * Revision 1.37  1994/02/19  05:12:53  ahd
  * Use standard first header
  *
@@ -259,9 +263,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                  OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYREADWRITE, 0L );
 
 /*--------------------------------------------------------------------*/
-/*    Check the open worked.  We translation the common obvious       */
-/*    error of file in use to english, for all other errors are we    */
-/*    report the raw error code.                                      */
+/*                       Check the open worked.                       */
 /*--------------------------------------------------------------------*/
 
    if ( rc )
@@ -1223,7 +1225,7 @@ void nSIOSpeed(BPS portSpeed)
 
    rc = DosDevIOCtl( com_handle,
                     IOCTL_ASYNC,
-                    ASYNC_SETBAUDRATE,
+                    0x43,           /* Not defined in header file!   */
                     (PVOID) &comPortSpeed,
                     sizeof(comPortSpeed),
                     &ParmLengthInOut,
@@ -1322,11 +1324,21 @@ BPS nGetSpeed( void )
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
 
-   struct
+/*--------------------------------------------------------------------*/
+/*        Structure for returning full port speed information         */
+/*--------------------------------------------------------------------*/
+
+   typedef struct _EXT_PORT_SPEED
    {
-      ULONG portSpeed;  /* this structure is needed to set the extended  */
-      BYTE fraction;    /* port speed using function 41h DosDevIOCtl  */
-   } comPortSpeed;
+      ULONG portSpeed;
+      BYTE  fraction;
+      ULONG minPortSpeed;
+      BYTE  minFraction;
+      ULONG maxPortspeed;
+      ULONG maxFraction;
+   } EXT_PORT_SPEED;
+
+   EXT_PORT_SPEED comPortSpeed;
 
    BPS speed;
 
@@ -1352,7 +1364,7 @@ BPS nGetSpeed( void )
 
    rc = DosDevIOCtl( com_handle,
                     IOCTL_ASYNC,
-                    ASYNC_GETBAUDRATE,
+                    0x63,           /* Not defined in header file!   */
                     NULL,
                     0L,
                     &ParmLengthInOut,
