@@ -4,18 +4,44 @@
 /*    suspend/resume uupoll/uucico daemon (for OS/2)                  */
 /*                                                                    */
 /*    Author: Kai Uwe Rommel                                          */
-/*                                                                    */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Copyright (c) 1993 by Kai Uwe Rommel                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: suspend2.c 1.1 1993/09/27 00:45:20 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: suspend2.c $
+ */
 
 /* see uucico\suspend2.c for description */
 
 /* exit codes:
  *   0 = success
  *   1 = incorrect usage of uuport
- *   2 = no uucico running on that modem
+ *   2 = no uucico running on that port
  *   3 = communication error between uuport and the uucico
  *   4 = error, uucico cannot currently be suspended
  */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,103 +50,128 @@
 #include <string.h>
 #include <ctype.h>
 
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
+
 #include "lib.h"
 #include "timestmp.h"
+#define  NO_SUSPEND_FUNCTIONS
+#include "suspend.h"
 
-void usage(void)
+/*--------------------------------------------------------------------*/
+/*       u s a g e                                                    */
+/*                                                                    */
+/*       Report program usage                                         */
+/*--------------------------------------------------------------------*/
+
+static void usage(const char *program)
 {
-  printf("Usage: [-sr] [\\\\server\\]modemname\n");
+  printf("Usage:\t%s\t[-sr] [\\\\server\\]portname\n", program);
   exit(1);
-}
+
+} /* usage */
+
+/*--------------------------------------------------------------------*/
+/*       m a i n                                                      */
+/*                                                                    */
+/*       Main program, of course                                      */
+/*--------------------------------------------------------------------*/
 
 int main(int argc, char **argv)
 {
   int file;
-  char name[64], pipe[128];
+  char name[64], pipe[FILENAME_MAX];
   char *ptr, cmd = 'Q';
 
   banner( argv );
-  
+
   if ( argc != 2 && argc != 3 )
-    usage();
+    usage(argv[0]);
 
   if ( argv[1][0] != '-' )
     strcpy(name, argv[1]);
   else
   {
     if ( argv[1][2] != 0 )
-      usage();
-  
+      usage(argv[0]);
+
     switch ( tolower(argv[1][1]) )
     {
-    case 's':
-      cmd = 'S';
-      break;
-    case 'r':
-      cmd = 'R';
-      break;
-    default:
-      usage();
+       case 's':
+         cmd = 'S';
+         break;
+       case 'r':
+         cmd = 'R';
+         break;
+       default:
+         usage(argv[0]);
     }
 
     strcpy(name, argv[2]);
   }
-  
+
   if ( strncmp(name, "\\\\", 2) == 0 )  /* server specified ? */
   {
     ptr = name + 2;
-    
+
     if ( (ptr = strchr(ptr, '\\')) == NULL )
     {
-      printf("invalid modem '%s' specified.\n", name);
+      printf("invalid port '%s' specified.\n", name);
       return 1;
     }
 
     *ptr = 0;
     strcpy(pipe, name);
-    *ptr = '\\';
-    strcat(pipe, "\\pipe\\uucico");
+    *ptr++;
+    strcat(pipe, SUSPEND_PIPE );
     strcat(pipe, ptr);
   }
   else
   {
-    strcpy(pipe, "\\pipe\\uucico\\");
+    strcpy(pipe, SUSPEND_PIPE );
     strcat(pipe, name);
   }
 
   if ( (file = open(pipe, O_RDWR, 0)) == -1 )
   {
-    printf("no modem '%s' currently used by any uucico.\n", name);
+    printf("No port '%s' currently used by any uucico.\n", name);
     return 2;
   }
 
   if ( cmd != 'Q' )
-    printf("waiting for uucico on modem '%s' to %s ... ",
+    printf("Waiting for uucico on port '%s' to %s ... ",
            name, cmd == 'S' ? "suspend" : "resume");
-  
-  if ( write(file, &cmd, 1) != 1 || read(file, &cmd, 1) != 1 )
+
+  if ( write(file, &cmd, 1) != 1 )
   {
-    printf("\nerror communicating with uucico.\n");
+    printf("\nError sending message to uucico.\n");
     return 3;
   }
-  
+  if ( read(file, &cmd, 1) != 1 )
+  {
+    printf("\nError reading message from uucico.\n");
+    return 3;
+  }
+
   close(file);
 
   switch ( cmd )
   {
-  case 'O':
-    printf("OK\n");
-    break;
-  case 'S':
-    printf("uucico on modem '%s' is suspended.\n", name);
-    break;
-  case 'R':
-    printf("uucico on modem '%s' is active.\n", name);
-    break;
-  default:
-    printf("FAILED\n");
-    return 4;
+     case 'O':
+       printf("OK\n");
+       break;
+     case 'S':
+       printf("uucico on port '%s' is suspended.\n", name);
+       break;
+     case 'R':
+       printf("uucico on port '%s' is active.\n", name);
+       break;
+     default:
+       printf("FAILED\n");
+       return 4;
   }
 
   return 0;
-}
+
+} /* main */
