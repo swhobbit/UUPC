@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.8 1994/01/01 19:00:21 ahd Exp $
+ *    $Id: arpadate.c 1.9 1994/02/13 13:52:33 rommel Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.9  1994/02/13  13:52:33  rommel
+ *     Use shorter logic  for computing TZ offset
+ *
  *     Revision 1.8  1994/01/01  19:00:21  ahd
  *     Annual Copyright Update
  *
@@ -56,8 +59,6 @@
 
 #include "lib.h"
 #include "arpadate.h"
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*       a r p a d a t e                                              */
