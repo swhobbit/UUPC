@@ -1,9 +1,7 @@
 # *--------------------------------------------------------------------*
-# *     Program:        MAKEFILE                15 May 1989            *
+# *     Program:        borlandc.mak            15 May 1989            *
 # *     Author:         Andrew H. Derbyshire                           *
 # *                     Kendra Electronic Wonderworks                  *
-# *                     P.O. Box 132                                   *
-# *                     Arlington, MA 02174                            *
 # *     Function:       Build UUPC/extended from source files          *
 # *     Processor:      Borland MAKE version 3.5                       *
 # *     External files: MASM or TASM    (8088 Assembler)               *
@@ -31,10 +29,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.87 1998/03/01 01:22:17 ahd v1-12v $
+#     $Id: borlandc.mak 1.88 1998/03/09 04:28:51 ahd v1-12x $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.88  1998/03/09 04:28:51  ahd
+#     Go to version 1.12w
+#
 #     Revision 1.87  1998/03/01 01:22:17  ahd
 #     Annual Copyright Update
 #
@@ -146,7 +147,7 @@ TDSTRIP=tdstrip
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12w
+VERS = 1.12z
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
