@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.16 1993/09/27 00:48:43 ahd Exp $
+ *    $Id: dcp.c 1.17 1993/09/29 04:52:03 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.17  1993/09/29  04:52:03  ahd
+ * Suspend port by port name, not modem file name
+ *
  * Revision 1.16  1993/09/27  00:48:43  ahd
  * Control UUCICO in passive mode by K. Rommel
  *
@@ -110,6 +113,10 @@
 #include <limits.h>
 #include <time.h>
 
+#if !defined(__TURBOC__) || defined(BIT32ENV)
+#include <signal.h>
+#endif
+
 #ifdef _Windows
 #include <Windows.h>
 #endif
@@ -137,12 +144,16 @@
 #include "modem.h"
 #include "security.h"
 #include "ssleep.h"
-#include "suspend.h"
+
 #include "commlib.h"
 #include "usrcatch.h"
 
 #if defined(_Windows)
 #include "winutil.h"
+#endif
+
+#if !defined(__TURBOC__) || defined(BIT32ENV)
+#include "suspend.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -415,12 +426,15 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_DIALOUT:
+
+#if !defined(__TURBOC__) || defined(BIT32ENV)
                if ( suspend_other(TRUE, M_device ) < 0 )
                {
                   hostp->hstatus =  nodevice;
                   m_state = CONN_INITIALIZE;    // Try next system
                }
                else
+#endif
                   m_state = callup( );
                break;
 
@@ -448,7 +462,9 @@ int dcpmain(int argc, char *argv[])
             case CONN_DROPLINE:
                shutDown();
                UnlockSystem();
+#if !defined(__TURBOC__) || defined(BIT32ENV)
                suspend_other(FALSE, M_device);
+#endif
                m_state = CONN_INITIALIZE;
                break;
 
@@ -477,6 +493,7 @@ int dcpmain(int argc, char *argv[])
       if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
          panic();                /* Avoid loop if bad modem name        */
 
+#if !defined(__TURBOC__) || defined(BIT32ENV)
       if ( ! IsNetwork() )
       {
          if( signal( SIGUSR2, usrhandler ) == SIG_ERR )
@@ -486,6 +503,7 @@ int dcpmain(int argc, char *argv[])
          }
          suspend_init(M_device);
       }
+#endif
 
       while (s_state != CONN_EXIT )
       {
@@ -513,7 +531,11 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_WAIT:
+#if !defined(__TURBOC__) || defined(BIT32ENV)
               s_state = suspend_wait();
+#else
+              panic();                 // Why are we here?!
+#endif
               break;
 
             case CONN_ANSWER:
