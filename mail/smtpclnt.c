@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.10 1998/03/01 19:40:21 ahd v1-12v $
+ *       $Id: smtpclnt.c 1.11 1998/03/06 06:52:34 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.11  1998/03/06 06:52:34  ahd
+ *       Shorten timeout processing for  ignored clients
+ *
  *       Revision 1.10  1998/03/01 19:40:21  ahd
  *       First compiling POP3 server which accepts user id/password
  *
@@ -73,7 +76,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.10 1998/03/01 19:40:21 ahd v1-12v $");
+RCSID("$Id: smtpclnt.c 1.11 1998/03/06 06:52:34 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -604,10 +607,20 @@ getClientTimeout(const SMTPClient *client)
          return client->ignoreUntilTime - now;
    }
 
+   /* Use client specfied timeout, if provided */
+   if ( client->timeout > 0 )
+      return client->timeout;
+
    /* All other sockets timeout according to current client mode */
    return getModeTimeout(client->mode);
 
 } /* getClientTimeout */
+
+void
+setClientTimeout( SMTPClient *client, time_t timeout )
+{
+   client->timeout = timeout;
+} /* setClientTimeout */
 
 void
 setClientIgnore(SMTPClient *client, time_t delay)
