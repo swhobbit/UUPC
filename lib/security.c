@@ -12,15 +12,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\SECURITY.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\security.c 1.2 1992/11/19 02:57:31 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: SECURITY.C $
+ *    $Log: security.c $
+ * Revision 1.2  1992/11/19  02:57:31  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
  */
-
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -213,16 +215,16 @@ static boolean InitEntry( char *buf, const char *fname)
      { "callback",      &callback,     B_TOKEN  | B_UUXQT } ,
      { "commands",      &commands,     B_CLIST  | B_UUXQT } ,
      { "logname",       &logname,      B_TOKEN  | B_UUXQT } ,
-     { "machine",       &machine,      B_TOKEN  | B_UUXQT } ,
+     { "machine",       &machine,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
      { "myname",        &myname,       B_TOKEN  | B_UUXQT } ,
-     { "pubdir",        &xpubdir,      B_TOKEN  | B_UUXQT } ,
-     { "noread",        &noread,       B_TOKEN  | B_UUXQT } ,
-     { "nowrite",       &nowrite,      B_TOKEN  | B_UUXQT } ,
-     { "read",          &read,         B_TOKEN  | B_UUXQT } ,
+     { "pubdir",        &xpubdir,      B_PATH   | B_UUXQT } ,
+     { "noread",        &noread,       B_TOKEN  | B_UUXQT | B_MALLOC } ,
+     { "nowrite",       &nowrite,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
+     { "read",          &read,         B_TOKEN  | B_UUXQT | B_MALLOC} ,
      { "request",       &request,      B_TOKEN  | B_UUXQT } ,
      { "sendfiles",     &sendfiles,    B_TOKEN  | B_UUXQT } ,
      { "validate",      &validate,     B_CLIST  | B_UUXQT } ,
-     { "write",         &write,        B_TOKEN  | B_UUXQT } ,
+     { "write",         &write,        B_TOKEN  | B_UUXQT | B_MALLOC } ,
      { nil(char) }
 }; /* securetable */
 
@@ -334,8 +336,9 @@ static boolean InitEntry( char *buf, const char *fname)
          if ( default_security == NULL )
             default_security = anchor;
          else {
-            printmsg(0,"InitEntry: \
-Multiple MACHINE entries in %s which specify OTHER",fname);
+            printmsg(0,"InitEntry: "
+                       "Multiple MACHINE entries in %s which specify OTHER",
+                       fname);
             success = FALSE;
          } /* else */
       } /* if ( equal( host , ANY_HOST ) ) */
@@ -403,7 +406,6 @@ Multiple MACHINE entries in %s which specify OTHER",fname);
                      fname, callback );
          success = FALSE;
       } /* else */
-      free( callback );
    } /* if ( callback != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -422,7 +424,6 @@ Multiple MACHINE entries in %s which specify OTHER",fname);
          success = FALSE;
       } /* else */
 
-      free( request );
    } /* if ( request != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -440,7 +441,6 @@ Multiple MACHINE entries in %s which specify OTHER",fname);
                      fname, sendfiles );
          success = FALSE;
       } /* else */
-      free( sendfiles );
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -541,7 +541,6 @@ static size_t InitDir( char *directories,
 {
    char *field = directories;
    char *token = directories;
-   char *column;
    struct  stat    statbuf;
    size_t subscript;
 
@@ -558,6 +557,7 @@ static size_t InitDir( char *directories,
 
    while ( (token = NextField( field )) != NULL)
    {
+      char path[FILENAME_MAX];
       if ( anchor->dirsize == max_elements )
       {
          max_elements = max_elements * 2;
@@ -570,33 +570,16 @@ static size_t InitDir( char *directories,
 /*                      Normalize directory name                      */
 /*--------------------------------------------------------------------*/
 
-      if ( token[1] == ':' )
-         field = strdup( token );
-      else {
-         char path[FILENAME_MAX];
-
-         strcpy( path , token );
-         expand_path( path, ".", E_pubdir , NULL); /* Explode user ids  */
-         if ( expand_path( path, ".", E_pubdir , NULL) == NULL )
-         {
-            printmsg(0,"InitDir: Path \"%s\" is invalid.",token);
-            return 0;            /* Path is invalid, give up         */
-         }
-         else if ( path[1] == ':' )
-            field = strdup( path );
-         else {
-            column = malloc( strlen( path ) + sizeof drive );
-            checkref( column );
-            field = strcat( strcpy( column , drive ), path );
-         } /* else */
+      strcpy( path, token);
+      if (isalpha(path[0]) && (path[1] != ':') && (strlen(path) == 2))
+         ;                 /* Yup, do nothing for root drive names  */
+      else if ( expand_path( path, ".", E_pubdir , NULL) == NULL )
+      {
+         printmsg(0, "Unable to expand path \"%s\"",path );
+         return 0;
       } /* else */
 
-      column = strlwr( field );
-      while( (column = strchr( column , '\\')) != NULL)
-         *column++ = '/';     /* Backslashes to slashes              */
-
-      if ( field[ strlen( field ) - 1 ] == '/')
-         field[ strlen( field ) - 1 ] = '\0';   /* Drop trailing slash */
+      field = newstr( normalize( path ));
 
 /*--------------------------------------------------------------------*/
 /*               Verify it really is a valid directory                */
