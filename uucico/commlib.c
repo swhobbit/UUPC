@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.5 1993/07/22 23:22:27 ahd Exp $
+ *    $Id: commlib.c 1.6 1993/09/20 04:46:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.6  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.5  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
  *
@@ -63,6 +68,10 @@
 
 #if defined(WIN32) || defined(_Windows)
 #include "ulibip.h"           // Windows sockets on TCP/IP interface
+#endif
+
+#ifdef __OS2__
+#include "ulibnmp.h"          // OS/2 named pipes interface
 #endif
 
 #define NATIVE "internal"
@@ -139,6 +148,17 @@ boolean chooseCommunications( const char *name )
           tGetSpeed,
           tCD,
           tWaitForNetConnect,
+          TRUE
+        },
+#endif
+
+#if defined(__OS2__)
+        { "namedpipes",                // OS/2 named pipes
+          pactiveopenline, ppassiveopenline, psread, pswrite,
+          pssendbrk, pcloseline, pSIOSpeed, pflowcontrol, phangup,
+          pGetSpeed,
+          pCD,
+          pWaitForNetConnect,
           TRUE
         },
 #endif
@@ -272,7 +292,7 @@ void traceData( const char *data,
    int subscript;
 #endif
 
-   if ( ! traceEnabled )
+   if ( ! traceEnabled || ! len )
       return;
 
    if ( traceMode != (short) output )
