@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.15 1994/03/07 06:09:51 ahd Exp $
+ *    $Id: alias.c 1.16 1994/04/24 20:35:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.16  1994/04/24  20:35:08  ahd
+ * Change case of userElements
+ *
  * Revision 1.15  1994/03/07  06:09:51  ahd
  * Additional debugging messages controlled by UDEBUG
  * Shorten ReturnAddress line buffer to correct problem with length
@@ -123,13 +126,13 @@ boolean InitRouter()
    Hptr = checkreal(E_mailserv);
    if (Hptr == BADHOST)
    {
-      printmsg(0,"mail server '%s' must be listed in SYSTEMS file",
+      printmsg(0, "mail server '%s' must be listed in SYSTEMS file",
          E_mailserv);
       success = FALSE;
    }
    else if (Hptr->status.hstatus == localhost)  /* local system?     */
    {
-      printmsg(0,"'%s' is name of this host and cannot be mail server",
+      printmsg(0, "'%s' is name of this host and cannot be mail server",
             E_mailserv);
       success = FALSE;
    }
@@ -156,11 +159,11 @@ void ExtractName(char *result, const char *input)
       recursion++;
 
 #ifdef UDEBUG
-   printmsg(15,"ExtractName: Return address is %p", result );
+   printmsg(15, "ExtractName: Return address is %p", result );
 #endif
 
       printmsg((recursion > 2) ? 1 : 8,
-            "ExtractName: Getting name from '%s'",input);
+            "ExtractName: Getting name from '%s'", input);
 
       ExtractAddress(result, input, FULLNAMEONLY);   /* Get the full name     */
 
@@ -175,7 +178,7 @@ void ExtractName(char *result, const char *input)
 
          user_at_node(addr, path, node, result);
                                  /* Reduce address to basics */
-         fullname = AliasByAddr(node,result);
+         fullname = AliasByAddr(node, result);
 
          if (fullname == NULL)
          {
@@ -186,7 +189,7 @@ void ExtractName(char *result, const char *input)
             strcpy(result, fullname);
       }
 
-      printmsg((recursion > 2) ? 1: 8,"ExtractName: name is '%s'",result);
+      printmsg((recursion > 2) ? 1: 8, "ExtractName: name is '%s'", result);
 
       recursion--;
 
@@ -214,13 +217,13 @@ void BuildAddress(char *result, const char *input)
 /*   then see if we know the person by address                        */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(addr,input,FALSE);   /* Get user e-mail addr     */
-      user_at_node(addr,path,node,user);  /* Break address down       */
+      ExtractAddress(addr, input, FALSE);   /* Get user e-mail addr     */
+      user_at_node(addr, path, node, user);  /* Break address down       */
 
-      fulladdr = AliasByAddr(node,user);  /* Alias for the address?   */
+      fulladdr = AliasByAddr(node, user);  /* Alias for the address?   */
       if (fulladdr != NULL)            /* Yes --> Use it              */
       {
-         strcpy(result,fulladdr);
+         strcpy(result, fulladdr);
          return;
       } /* if */
 
@@ -229,29 +232,36 @@ void BuildAddress(char *result, const char *input)
 /*   and then normalize the address                                   */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(name,input,TRUE);    /* Also get their name      */
+      ExtractAddress(name, input, TRUE);    /* Also get their name      */
 
       if (strlen(name))             /* Did we find a name for user?   */
       {                             /* Yes --> Return it              */
          char *s = strchr(node, '.');
+
          if ((s == NULL) || equalni( s, ".UUCP", 5))
                                     /* Simple name or UUCP domain?    */
          {                          /* Yes--> Use original address    */
+
             size_t pathlen = strlen(path);/* Save len of orig path    */
+
             if ((pathlen > strlen(addr)) &&
-                (!equal(node,path)) && /* Target not a known host?    */
-                equaln(addr,path, strlen(path)) && /* & host starts   */
+                (!equal(node, path)) && /* Target not a known host?    */
+                equaln(addr, path, strlen(path)) && /* & host starts   */
                 (addr[pathlen] == '!'))   /* ...the address?          */
                fulladdr = &addr[pathlen + 1];   /* Yes --> Drop it    */
             else
                fulladdr = addr;  /* No --> Use full address           */
-            sprintf(result,"(%s) %s", name, addr);
+
+            sprintf(result, "(%s) %s", name, addr);
+
          } /* (strchr(node, '.') == NULL) */
          else                    /* No --> Use RFC-822 format         */
-            sprintf(result,"\"%s\" <%s@%s>", name, user, node);
+            sprintf(result, "\"%s\" <%s@%s>", name, user, node);
+
       } /* if strlen(name) */
       else
-         strcpy(result,addr);    /* No name, just use the original    */
+         strcpy(result, addr);    /* No name, just use the original    */
+
 } /* BuildAddress */
 
 /*--------------------------------------------------------------------*/
@@ -278,15 +288,33 @@ char *AliasByNick(const char *nick)
       int hit;
 
       midpoint = ( upper + lower ) / 2;
-      hit = stricmp(nick,alias[midpoint].anick);
+      hit = stricmp(nick, alias[midpoint].anick);
+
+/*--------------------------------------------------------------------*/
+/*                   We found the alias, return it                    */
+/*--------------------------------------------------------------------*/
+
       if (!hit)
          return alias[midpoint].afull;
+
+/*--------------------------------------------------------------------*/
+/*       Determine if we are high or low and reset the table          */
+/*       limits as needed                                             */
+/*--------------------------------------------------------------------*/
+
       if ( hit > 0 )
          lower = midpoint + 1;
       else
          upper = midpoint - 1;
+
    }
+
+/*--------------------------------------------------------------------*/
+/*                      Return failure to caller                      */
+/*--------------------------------------------------------------------*/
+
    return NULL;
+
 }
 
 /*--------------------------------------------------------------------*/
@@ -307,13 +335,16 @@ char *AliasByAddr(const char *node, const char *user)
    {
       int hit;
 
-      hit = stricmp(node,alias[current].anode);
+      hit = stricmp(node, alias[current].anode);
       if (!hit)
       {
-         hit = stricmp(user,alias[current].auser);
+
+         hit = stricmp(user, alias[current].auser);
+
          if (!hit)
             return alias[current].afull;
       }
+
       current++;
    }
    return NULL;
@@ -351,8 +382,10 @@ size_t LoadAliases(void)
       char fname[FILENAME_MAX];
 
       strcpy( fname, E_nickname);
-      expand_path( fname, E_homedir, E_homedir , NULL );
-      ff = FOPEN(fname , "r",TEXT_MODE);
+
+      expand_path( fname, E_homedir, E_homedir, NULL );
+
+      ff = FOPEN(fname, "r", TEXT_MODE);
 
       if (ff == NULL)
       {
@@ -362,11 +395,14 @@ size_t LoadAliases(void)
 
       while (! feof(ff))
       {
-         if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line     */
+         if (fgets(buf, BUFSIZ, ff) == NULL)   /* Try to read a line     */
             break;                  /* Exit if end of file             */
-         token = strtok(buf," \t\n");
+
+         token = strtok(buf, WHITESPACE );
+
          if (token == NULL)         /* Any data?                       */
             continue;               /* No --> read another line        */
+
          if (token[0] == '#')
             continue;                  /* Line is a comment; loop again */
 
@@ -380,14 +416,22 @@ size_t LoadAliases(void)
          target.anick = token;
 
          hit = (void *) lfind((void *) &target, (void *) alias,
-                              &elements , sizeof(alias[0]), nickcmp);
+                              &elements, sizeof(alias[0]), nickcmp);
+
          if (hit == NULL)
          {
             char node[MAXADDR];
             char user[MAXADDR];
             char path[MAXADDR];
             char addr[MAXADDR];
-            char *eos;
+            char *eos;              /* End of string pointer         */
+
+            size_t   quotes = 0;    /* Number of quotes in address   */
+            char *left, *right;     /* Bracket pointers              */
+
+/*--------------------------------------------------------------------*/
+/*            Expand the nickname table if we're out of room          */
+/*--------------------------------------------------------------------*/
 
             if (elements == max_elements)
             {
@@ -396,29 +440,116 @@ size_t LoadAliases(void)
                 checkref(alias);
             }
 
-            alias[elements].anick = newstr(token);
-            token = strtok(NULL,"");    /* Get rest of string         */
+/*--------------------------------------------------------------------*/
+/*       Get the information for the nickname, strip                  */
+/*       leading/trailing whiteapce and verify there was              */
+/*       information provided.                                        */
+/*--------------------------------------------------------------------*/
 
-            while ( strlen(token) && isspace(*token))
+            token = strtok(NULL, "");    /* Get rest of string         */
+
+            while ( token && isspace(*token))
                token++;
+
+            if ( !token || !strlen(token) )
+            {
+               printmsg(0, "No information provided for nickname %s in "
+                           "%s, line ignored",
+                           target.anick,
+                           fname );
+               continue;            /* Ignore rest of this line      */
+            }
+
             eos = token + strlen(token) - 1;
-            while ( strlen(token) && isspace(*eos))
+            while ( isspace(*eos))
             {
                *eos = '\0';
                eos--;
             }
 
-            alias[elements].afull = newstr(token);
-            ExtractAddress(addr,alias[elements].afull,FALSE);
-            user_at_node(addr,path,node,user);
+            target.afull = token;   /* Save location for later */
+
+/*--------------------------------------------------------------------*/
+/*         Verify the quotes are balanced if they exist at all.       */
+/*--------------------------------------------------------------------*/
+
+            token = target.afull;
+            quotes = 0;
+
+            while( (token = strchr( token, '"' )) != NULL )
+            {
+               quotes ++;
+               token ++;            /* Step past quote               */
+            }
+
+            if ( quotes % 2 )
+            {
+
+               printmsg(0, "Unbalanced quotes in %s for nickname %s, "
+                          "entry ignored: %s",
+                          fname,
+                          target.anick,
+                          target.afull );
+               continue;
+
+            }
+
+/*--------------------------------------------------------------------*/
+/*       Also verify the general layout of angle brackets, another    */
+/*       common format error.                                         */
+/*--------------------------------------------------------------------*/
+
+            left = strchr( target.afull, '<' );
+
+            if ( (quotes > 0) && (left == NULL ) )
+            {
+               printmsg(0,
+                        "No address for nickname %s in %s, "
+                        "line ignored: %s",
+                         target.anick,
+                         fname,
+                         target.afull );
+               continue;
+            }
+
+            if ( left != NULL )
+            {
+               right = strchr( target.afull, '>' );
+               if ( (right == NULL) || (right < left ) )
+               {
+                  printmsg(0, "Invalid address for nickname %s in %s, "
+                           "line ignored: %s",
+                            target.anick,
+                            fname,
+                            target.afull );
+                  continue;
+               }
+            }
+
+/*--------------------------------------------------------------------*/
+/*     Extract the address components for lookups by host and userid  */
+/*--------------------------------------------------------------------*/
+
+            ExtractAddress(addr, target.afull, FALSE);
+
+            user_at_node(addr, path, node, user);
+
+            alias[elements].anick = newstr(target.anick);
+            alias[elements].afull = newstr(target.afull);
             alias[elements].anode = newstr(node);
             alias[elements].auser = newstr(user);
-            elements += 1;
+
+            elements ++;
          }
          else
-            printmsg(0,"LoadAliases: Duplicate alias '%s' in table",token);
-      }
+            printmsg(0, "LoadAliases: Duplicate nickname %s in %s, ingored.",
+                        token,
+                        fname );
+
+      } /* while (! feof(ff)) */
+
       fclose(ff);
+
    } /* if (E_nickname != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -431,10 +562,11 @@ size_t LoadAliases(void)
 
    for ( subscript = 0; subscript < userElements;  subscript++)
    {
-      if ( equal(users[subscript].realname,EMPTY_GCOS) )
+      if ( equal(users[subscript].realname, EMPTY_GCOS) )
          continue;
 
       alias[elements].anick = "";   /* No nickname, only good for addr */
+
       if (bflag[F_BANG])
          sprintf(buf, "(%s) %s!%s",
                users[subscript].realname, E_fdomain,
@@ -447,15 +579,17 @@ size_t LoadAliases(void)
       alias[elements].auser = users[subscript].uid;
 
       elements++;
+
    } /* for */
 
 /*--------------------------------------------------------------------*/
 /*                         Now sort the table                         */
 /*--------------------------------------------------------------------*/
 
-   qsort(alias, elements ,sizeof(alias[0]) , nickcmp);
+   qsort(alias, elements, sizeof(alias[0]), nickcmp);
 
-   return (elements) ;
+   return (elements);
+
 } /*LoadAliases*/
 
 /*--------------------------------------------------------------------*/
@@ -469,4 +603,5 @@ int nickcmp( const void *a, const void *b )
 {
    return stricmp(((struct AliasTable *)a)->anick,
          ((struct AliasTable *)b)->anick);
+
 }  /*nickcmp*/
