@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.2 1992/11/15 04:45:46 ahd Exp $
+ *    $Id: UUPOLL.C 1.3 1992/11/20 12:41:01 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.3  1992/11/20  12:41:01  ahd
+ * Fix TZ change bug
+ *
  * Revision 1.2  1992/11/15  04:45:46  ahd
  * Correct polling for days time zone changes
  *
@@ -73,7 +76,7 @@
  */
 
 static const char rscid[] =
-         "$Id: UUPOLL.C 1.2 1992/11/15 04:45:46 ahd Exp $";
+         "$Id: UUPOLL.C 1.3 1992/11/20 12:41:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -423,7 +426,7 @@ currentfile();
 
          if ( cleannext < now )
          {
-            printf("Performing auto-clean with command: %s",
+            printf("Performing auto-clean with command: %s\n",
                      CleanCommand );
             if (system( CleanCommand ))
                printerr( CleanCommand );
