@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.13 1993/10/31 19:04:03 ahd Exp $
+ *    $Id: mail.c 1.14 1993/10/31 21:32:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.14  1993/10/31  21:32:55  ahd
+ * Don't print current header after headers command
+ *
  * Revision 1.13  1993/10/31  19:04:03  ahd
  * Change "DOS" to "system" in short command help text
  *
@@ -85,7 +88,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.13 1993/10/31 19:04:03 ahd Exp $";
+      "$Id: mail.c 1.14 1993/10/31 21:32:55 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -125,6 +128,7 @@
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
+#include "arpadate.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -853,7 +857,9 @@ static void Interactive_Mail( const boolean PrintOnly,
 #ifdef _Windows
                printf("Windows version: %s\t", compilew );
 #endif
-               printf("Magic Word:\t%s\n","flarp");
+               printf("Magic Word:\t%s\tCurrent time:\t%s\n",
+                     "flarp",
+                     arpadate() );
                printf("Return address:\t\"%s\" <%s@%s>\n"
                       "Domain name:\t%s\tNodename:\t%s\n",
                         E_name, E_mailbox, E_fdomain, E_domain, E_nodename );
