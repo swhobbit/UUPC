@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.8 1994/02/19 04:47:22 ahd Exp $
+ *    $Id: trumpet.c 1.9 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.9  1994/12/09 03:42:09  ahd
+ *    All suppressbeep support to allow NOT making any sound
+ *
  * Revision 1.8  1994/02/19  04:47:22  ahd
  * Use standard first header
  *
@@ -107,7 +110,7 @@ void trumpet( const char *tune)
    size_t tone, duration;
 #endif
 
-   if ( ! bflag[F_SUPPRESSBEEP]  || (tune == NULL) )
+   if ( bflag[F_SUPPRESSBEEP]  || (tune == NULL) )
                               /* Should we announce?                  */
       return;                 /* No --> Return quietly (literally)    */
 
