@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SMTPCONN.H 1.2 1997/11/28 23:33:43 ahd v1-12v $
+ *    $Id: smtpconn.h 1.3 1998/04/08 11:36:31 ahd v1-13f $
  *
- *    $Log: SMTPCONN.H $
+ *    $Log: smtpconn.h $
+ *    Revision 1.3  1998/04/08 11:36:31  ahd
+ *    Alter socket error processing
+ *
  *    Revision 1.2  1997/11/28 23:33:43  ahd
  *    Delete recursive include
  *
@@ -33,6 +36,9 @@ typedef struct _SMTPConnection
    char hostAddr[30];               /* Host IP address as string     */
    KWBoolean reverseLookup;         /* KWTrue = DNS could resolve adr*/
    int error;                       /* Last error code (zero if none)*/
+   FILE *stream;                    /* Batch mode file input         */
 } SMTPConnection;
+
+#define BATCH_HANDLE -2
 
 #endif /* _SMTPCONN_H */

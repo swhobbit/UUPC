@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.15 1998/11/04 02:01:17 ahd v1-13f ahd $
+ *    $Id: smtpclnt.h 1.16 1999/01/04 03:56:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.16  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/11/04 02:01:17  ahd
  *    Add sanity check field to linked lists
  *    Add assertion macros
@@ -179,7 +182,7 @@ typedef struct _SMTPClient
 #define assertSMTP(pointer) kwassert((pointer)->magic == SMTPC_MAGIC)
 
 /* Initialize */
-SMTPClient *initializeClient(SOCKET socket, KWBoolean needAccept);
+SMTPClient *initializeClient(SOCKET socket);
 SMTPClient *initializeMaster(const char *port, time_t exitTime);
 
 /* Clean up */

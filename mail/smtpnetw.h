@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.h 1.5 1998/04/24 03:34:25 ahd v1-13f ahd $
+ *    $Id: smtpnetw.h 1.6 1999/01/04 03:56:09 ahd Exp $
  *
  *    $Log: smtpnetw.h $
+ *    Revision 1.6  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.5  1998/04/24 03:34:25  ahd
  *    Use local buffers for output
  *    Add flag bits to verb table
@@ -66,6 +69,9 @@ void closeSocket( SOCKET handle );
 
 KWBoolean
 selectReadySockets( SMTPClient *master );
+
+KWBoolean
+isSocketReady(SMTPClient *current, time_t timeout);
 
 #define XMIT_LENGTH  512
 
