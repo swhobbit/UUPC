@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.4 1993/09/25 03:07:56 ahd Exp $
+ *    $Id: ulibip.c 1.5 1993/09/26 03:32:27 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.5  1993/09/26  03:32:27  dmwatt
+ * Use Standard Windows NT error message module
+ *
  * Revision 1.4  1993/09/25  03:07:56  ahd
  * Addition error traps by Dave Watt
  *
@@ -62,6 +65,7 @@
 #include "catcher.h"
 
 #include "commlib.h"       // Trace functions, etc.
+#include "pwserr.h"        // Windows sockets error messages
 
 #ifdef _Windows
 #include "pwinsock.h"      // definitions for 16 bit Winsock functions
@@ -213,9 +217,12 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 
       if ( sin.sin_addr.s_addr == INADDR_NONE )
       {
-         printmsg(0, "tactiveopenline: gethostbyname returned %d.  "
+         int wsErr = WSAGetLastError();
+
+         printmsg(0, "tactiveopenline: "
             "Is '%s' listed in the hosts file or a valid IP address?",
-            WSAGetLastError(), name);
+            name);
+         printWSerror("gethostbyname", wsErr);
          return TRUE;
       }
 
@@ -228,10 +235,11 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    pse = getservbyname("uucp", "tcp");
    if (pse == NULL)
    {
+      int wsErr = WSAGetLastError();
+
       sin.sin_port = 540;
-      printmsg(0, "tactiveopenline: getservbyname returned %d, using port %d",
-                  WSAGetLastError(),
-                  (int) sin.sin_port);
+      printWSerror("getservbyname", wsErr);
+      printmsg(0, "tactiveopenline: using port %d", (int)sin.sin_port);
    }
    else
       sin.sin_port = pse->s_port;
@@ -245,8 +253,10 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 
    if (connect( connectedSock, (PSOCKADDR) &sin, sizeof(sin)) < 0)
    {
-      printmsg(0, "tactiveopenline: connect() failed -- error %d",
-         WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "tactiveopenline: connect() failed");
+      printWSerror("connect", wsErr);
       closesocket( connectedSock );
       connectedSock = INVALID_SOCKET;
 
@@ -307,9 +317,11 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    if (pse == NULL)
    {
+      int wsErr = WSAGetLastError();
+
       sin.sin_port = 540;
-      printmsg(0, "tpassiveopenline: getservbyname returned %d, using port %d",
-                  WSAGetLastError(),
+      printWSerror("getservbyname", wsErr);
+      printmsg(0, "tpassiveopenline: using port %d",
                   (int) sin.sin_port);
    }
    else
@@ -329,8 +341,10 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    if (pollingSock == INVALID_SOCKET)
    {
-      printmsg(0, "tpassiveopen: socket() failed, error = %d",
-                  WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "tpassiveopen: socket() failed");
+      printWSerror("socket", wsErr);
       return TRUE;
    }
 
@@ -340,16 +354,20 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
            (struct sockaddr FAR *) &sin,
            sizeof(sin)) == SOCKET_ERROR)
    {
-      printmsg(0, "tpassiveopen: bind(pollingSock) failed: %d",
-         WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "tpassiveopen: bind(pollingSock) failed");
+      printWSerror("bind", wsErr);
       return TRUE;                      // report failure
    }
 
    printmsg(15, "tpassiveopen: doing listen()");
    if (listen(pollingSock, 2) == SOCKET_ERROR)
    {
-      printmsg(0, "tpassiveopen: listen(pollingSock) failed: %d",
-         WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "tpassiveopen: listen(pollingSock) failed");
+      printWSerror("listen", wsErr);
       return TRUE;
    }
 
@@ -468,7 +486,9 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
       if (nReady == SOCKET_ERROR)
       {
          int err = WSAGetLastError();
-         printmsg(0, "tsread: select error %d", err);
+         printmsg(0, "tsread: error in select()");
+         printWSerror("select", err);
+
          if (IsFatalSocketError(err))
          {
             shutdown(connectedSock, 2);  // Fail both reads and writes
@@ -487,8 +507,10 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
          received = recv(connectedSock, &save[bufsize], needed, 0);
          if (received == SOCKET_ERROR)
          {
-            printmsg(0, "tsread: recv() failed -- error %d",
-               WSAGetLastError());
+            int wsErr = WSAGetLastError();
+
+            printmsg(0, "tsread: recv() failed");
+            printWSerror("recv", wsErr);
             bufsize = 0;
             return 0;
          }
@@ -561,8 +583,9 @@ int tswrite(char *data, unsigned int len)
       int err;
 
       err = WSAGetLastError();
-      printmsg(0, "tswrite: Error sending data to socket: %d",
-         err);
+      printmsg(0, "tswrite: Error sending data to socket");
+      printWSerror("send", err);
+
       if (IsFatalSocketError(err))
       {
          shutdown(connectedSock, 2);  // Fail both reads and writes
@@ -743,8 +766,10 @@ boolean tWaitForNetConnect(int timeout)
 
    if (nReady == SOCKET_ERROR)
    {
-      printmsg(0, "WaitForNetConnect: select() failed, error %d",
-         WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "WaitForNetConnect: select() failed");
+      printWSerror("select", wsErr);
       return FALSE;
    }
    else if (nReady == 0)
@@ -756,8 +781,10 @@ boolean tWaitForNetConnect(int timeout)
    connectedSock = accept(pollingSock, NULL, NULL);
    if (connectedSock == INVALID_SOCKET)
    {
-      printmsg(0, "WaitForNetConnect: could not connect -- error %d",
-         WSAGetLastError());
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "WaitForNetConnect: could not accept a connection");
+      printWSerror("accept", wsErr);
    }
 
    carrierDetect = TRUE;
