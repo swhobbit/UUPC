@@ -8,4 +8,6 @@
 
 int expectstr(char *Search, unsigned int Timeout, char **failure);
 
-void     sendstr(char  *str);
+boolean sendstr(char  *str, unsigned int timeout, char **failure);
+
+void echoCheck( const unsigned int timeout );
