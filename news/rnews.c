@@ -34,9 +34,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.24 1993/11/06 17:56:09 rhg Exp rommel $
+ *       $Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.25  1993/11/20  13:47:06  rommel
+ * Handle duplicate message ids caused by truncating keys at 80 characters
+ *
+ * Revision 1.25  1993/11/20  13:47:06  rommel
+ * Handle duplicate message ids caused by truncating keys at 80 characters
+ *
  * Revision 1.24  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -106,7 +112,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.24 1993/11/06 17:56:09 rhg Exp rommel $";
+         "$Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -222,7 +228,7 @@ static int copy_snews( char *filename, FILE *stream );
 void main( int argc, char **argv)
 {
 
-   FILE *f;
+   FILE *input;
    char in_filename[FILENAME_MAX];
    char filename[FILENAME_MAX];
    int c;
@@ -234,6 +240,9 @@ void main( int argc, char **argv)
    copywrong = strdup(copyright);
    checkref(copywrong);
 #endif
+
+   setmode(0, O_BINARY);         /* don't die on control-Z, etc.      */
+   input = fdopen(0, "rb");      /* Default to stdin, but             */
 
    logfile = stderr;             /* Prevent redirection of error      */
                                  /* messages during configuration     */
@@ -259,8 +268,8 @@ void main( int argc, char **argv)
            {
                case 'f':
                   strcpy(in_filename, optarg);
-                  f = freopen(in_filename, "r", stdin);
-                  if (f == NULL) {
+                  input = fopen(in_filename, "rb");
+                  if (input == NULL) {
                      printerr( in_filename );
                      panic();
                   } else
@@ -280,8 +289,6 @@ void main( int argc, char **argv)
        } /* while */
     } /* if (argc > 1) */
 
-   setmode(fileno(stdin), O_BINARY);   /* Don't die on control-Z, etc */
-
 /*--------------------------------------------------------------------*/
 /*    If we are processing snews input, write it all out to the       */
 /*    news directory as one file and return gracefully.               */
@@ -300,9 +307,9 @@ void main( int argc, char **argv)
 
 
       E_tempdir = E_newsdir;        /* Generate this file in news    */
-      mktempname(filename, "ART");  /* Get the file name             */
+      mktempname(filename, "art");  /* Get the file name             */
       E_tempdir = savetemp;         /* Restore true directory name   */
-      exit (copy_snews( filename, stdin ));
+      exit(copy_snews(filename, input));
                                     /* Dump news into NEWS directory */
    }
    else
@@ -355,8 +362,8 @@ void main( int argc, char **argv)
 /*    correct.  The other case doesn't matter.                        */
 /*--------------------------------------------------------------------*/
 
-   c = getc(stdin);
-   ungetc(c, stdin);
+   c = getc(input);
+   ungetc(c, input);
 
    if (c != '#' && c != MAGIC_FIRST) {
 
@@ -364,7 +371,7 @@ void main( int argc, char **argv)
       /* 1  single (unbatched, uncompressed) article */
       /***********************************************/
 
-      status = Single(filename, stdin);
+      status = Single(filename, input);
 
    }
    else {
@@ -373,18 +380,18 @@ void main( int argc, char **argv)
       int bytes;
       char *unpacker = NULL, *suffix = NULL;
 
-      bytes = fread(buf, 1, 12, stdin);
+      bytes = fread(buf, 1, 12, input);
 
       if (bytes == 12 && memcmp(buf, "#! ", 3) == 0
                       && memcmp(buf + 4, "unbatch", 7) == 0 )
       {
         /* ignore headers like "#! cunbatch" where the 'c' can  *
          * also be one of "fgz" for frozen or [g]zipped batches */
-        bytes = fread(buf, 2, 1, stdin);
-        fseek(stdin, 12L, SEEK_SET);
+        bytes = fread(buf, 2, 1, input);
+        fseek(input, 12L, SEEK_SET);
       }
       else
-        fseek(stdin, 0L, SEEK_SET);
+        fseek(input, 0L, SEEK_SET);
 
       if (buf[0] == MAGIC_FIRST)
         switch (buf[1])
@@ -399,7 +406,7 @@ void main( int argc, char **argv)
           break;
         case MAGIC_GZIP:
           unpacker = "gzip";
-          suffix = "z";
+          suffix = "gz";
           break;
         }
 
@@ -410,7 +417,7 @@ void main( int argc, char **argv)
          /*  2  Compressed batch                        */
          /***********************************************/
 
-         status = Compressed(filename, stdin, unpacker, suffix);
+         status = Compressed(filename, input, unpacker, suffix);
 
       }
       else {
@@ -419,7 +426,7 @@ void main( int argc, char **argv)
          /* 3  Uncompressed batch                       */
          /***********************************************/
 
-         status = Batched( filename, stdin );
+         status = Batched(filename, input);
       } /* else */
    } /* else */
 
@@ -1029,6 +1036,8 @@ static boolean deliver_article(char *art_fname, long art_size)
          if (get_snum("duplicates",snum))
          {
             memcpy(newsgroups, "duplicates\0\0", 12);
+            sprintf(messageID, "Message-ID: <%s.duplicate.%s@%s>\n",
+                    snum, E_nodename, E_domain); /* we need a new unique ID */
             b_xref = FALSE;
          }
          else
