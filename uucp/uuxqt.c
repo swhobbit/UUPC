@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.24 1993/10/30 17:23:37 ahd Exp $
+ *    $Id: uuxqt.c 1.25 1993/10/31 19:04:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.25  1993/10/31  19:04:03  ahd
+ * Use special name for NUL under Windows NT
+ *
  * Revision 1.24  1993/10/30  17:23:37  ahd
  * Drop extra tzset() call
  *
@@ -407,10 +410,10 @@ static boolean do_uuxqt( const char *sysname )
 /*--------------------------------------------------------------------*/
 
    if (( E_xqtRootDir == NULL ) || equali( E_xqtRootDir, E_spooldir ))
-      sprintf( executeDirectory, "%s/%%s/XQT", E_spooldir );
+      sprintf( executeDirectory, "%s/%%.8s/XQT", E_spooldir );
                                  /* Nice parallel construction        */
    else
-      sprintf( executeDirectory, "%s/XQT/%%s", E_xqtRootDir);
+      sprintf( executeDirectory, "%s/XQT/%%.8s", E_xqtRootDir);
                                  /* Fewer directories than if we      */
                                  /* use the spool version              */
 
