@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.23 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: smtpnetw.c 1.24 1999/01/08 02:21:05 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.24  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.23  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -130,7 +133,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.23 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.24 1999/01/08 02:21:05 ahd Exp $");
 
 #define MINUTE(seconds) ((seconds)*60)
 
@@ -678,9 +681,6 @@ openMaster(const char *name)
    LPSERVENT pse;
    int sockopt = 1;
 
-   if (!InitWinsock())              /* Initialize library?           */
-      return INVALID_SOCKET;        /* No --> Report error           */
-
    norecovery = KWFalse;            /* Flag we need a graceful
                                        shutdown after Ctrl-BREAK      */
 
@@ -755,7 +755,7 @@ openMaster(const char *name)
 
    printmsg(NETDEBUG, "%s: doing listen()", mName);
 
-   if (listen(pollingSock, 2) == SOCKET_ERROR)
+   if (listen(pollingSock, SOMAXCONN) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
 
@@ -793,16 +793,11 @@ openSlave(SOCKET pollingSock)
    }
 
 #ifdef UDEBUG
-   if (debuglevel > NETDEBUG)
+   if (debuglevel > 6)
    {
       static int option[] = { SO_SNDBUF, SO_RCVBUF };
       static int optionCount = (sizeof option / sizeof option[0]);
       int subscript;
-
-      printmsg(NETDEBUG, "%s: Printing %d options for socket %d",
-                         mName,
-                         optionCount,
-                         connectedSock );
 
       for ( subscript = 0;
             subscript < optionCount;
@@ -1329,3 +1324,90 @@ selectReadySockets(SMTPClient *master)
    return KWTrue;
 
 } /* flagReadySockets */
+
+/*--------------------------------------------------------------------*/
+/*       i s S o c k e t R e a d y                                    */
+/*                                                                    */
+/*       Perform select to determine what sockets are ready,          */
+/*       waiting if needed                                            */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+isSocketReady(SMTPClient *current, time_t timeout)
+{
+   static const char mName[] = "isSocketReady";
+
+   fd_set readfds;
+   int nReady;
+   int nSelected = 0;
+   int nTotal = 0;
+   int maxSocket = 0;
+   struct timeval timeoutPeriod;
+
+   timeoutPeriod.tv_sec = timeout;
+   timeoutPeriod.tv_usec = 1;
+
+   FD_ZERO(&readfds);
+
+/*--------------------------------------------------------------------*/
+/*       Loop through the list of valid sockets, adding each one      */
+/*       to the list of sockets to check and determining the          */
+/*       shortest timeout of the sockets.                             */
+/*--------------------------------------------------------------------*/
+
+   assertSMTP(current);
+
+   if (!isClientValid(current) || isClientIgnored(current))
+      return KWFalse;
+
+   if (getClientReady(current))
+      return KWTrue;
+
+   FD_SET(((unsigned)getClientHandle(current)), &readfds);
+   maxSocket = getClientHandle(current) + 1;
+
+/*--------------------------------------------------------------------*/
+/*             Perform actual selection and check for errors          */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+   printmsg(5, "%s: Selecting total of %d sockets (through %d) for timeout of %d seconds",
+               mName,
+               1,
+               maxSocket,
+               (long) timeoutPeriod.tv_sec);
+#endif
+
+   nReady = select(maxSocket, &readfds, NULL, NULL, &timeoutPeriod);
+
+   if (nReady == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: select() of %d (out of %d) sockets failed" ,
+               mName,
+               nSelected,
+               nTotal);
+      printWSerror("select", wsErr);
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*                 Determine if our socket was ready                  */
+/*--------------------------------------------------------------------*/
+
+   if (FD_ISSET(((unsigned) getClientHandle(current)), &readfds))
+   {
+      printmsg(4,"%s: Client %d (socket %d) is ready",
+                  mName,
+                  getClientSequence(current),
+                  getClientHandle(current));
+
+      setClientReady(current, KWTrue);
+      setClientProcess(current, KWTrue);
+      return KWTrue;
+   }
+
+   return KWFalse;
+
+} /* isSocketReady */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.18 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: smtpclnt.c 1.19 1999/01/08 02:21:05 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.19  1999/01/08 02:21:05  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.18  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -105,7 +108,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpclnt.c 1.18 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.19 1999/01/08 02:21:05 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -116,7 +119,7 @@ static size_t clientSequence = 0;
 /*--------------------------------------------------------------------*/
 
 SMTPClient *
-initializeClient(SOCKET handle, KWBoolean master)
+initializeClient(SOCKET handle)
 {
    static const char mName[] = "initializeClient";
    SMTPClient *client = malloc(sizeof *client);
@@ -125,8 +128,13 @@ initializeClient(SOCKET handle, KWBoolean master)
    memset(client, 0, sizeof *client);
 
    client->magic    = SMTPC_MAGIC;
-   client->sequence = ++clientSequence;
    client->connectTime = client->lastTransactionTime = time(NULL);
+
+   /* Only way we can be zero client is no master, so use pid then */
+   if (clientSequence)
+      client->sequence = ++clientSequence;
+   else
+      client->sequence = getpid();
 
    /* Process client immediately */
    setClientProcess(client, KWTrue);
@@ -139,27 +147,7 @@ initializeClient(SOCKET handle, KWBoolean master)
    else
       setClientMode(client, SM_CONNECTED);
 
-/*--------------------------------------------------------------------*/
-/*       Either accept a client from the master socket, or (if not    */
-/*       master socket passed in), use the socket passed in as our    */
-/*       actual connection.                                           */
-/*--------------------------------------------------------------------*/
-
-   if (master)
-   {
-      setClientHandle(client, openSlave(handle));
-
-      if (getClientHandle(client) == INVALID_SOCKET)
-      {
-         freeClient(client);
-         return NULL;
-      }
-   }
-   else {
-      InitWinsock();
-      client->sequence = getpid();
-      setClientHandle(client, handle);
-   }
+   setClientHandle(client, handle);
 
    if (! getHostNameFromSocket(&client->connection))
    {

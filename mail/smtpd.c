@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.15 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: smtpd.c 1.16 1999/01/08 02:21:05 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.16  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.15  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -96,12 +99,13 @@
 #include "getopt.h"
 #include "logger.h"
 #include "smtpcmds.h"
+#include "smtpnetw.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.15 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpd.c 1.16 1999/01/08 02:21:05 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c l i e n t M o d e                                          */
@@ -120,7 +124,7 @@ clientMode( int hotHandle, KWBoolean runUUXQT )
                mName,
                hotHandle );
 
-   client = initializeClient( (SOCKET) hotHandle, KWFalse );
+   client = initializeClient( (SOCKET) hotHandle );
 
    if ( client == NULL )
       return 4;
@@ -363,10 +367,14 @@ main( int argc, char ** argv )
 /*                If loaded for single client, handle it              */
 /*--------------------------------------------------------------------*/
 
+   if (!InitWinsock())              /* Initialize library?           */
+      panic();                      /* No --> Report error           */
+
    if ( hotHandle == -1 )
       exitStatus = daemonMode( port, exitTime, runUUXQT );
-   else
+   else {
       exitStatus = clientMode( hotHandle, runUUXQT );
+   }
 
    exit( exitStatus );
    return exitStatus;               /* Suppress compiler warning */

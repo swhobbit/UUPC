@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmmn.c 1.4 1998/04/24 03:30:13 ahd v1-13f ahd $
+ *       $Id: smtpcmmn.c 1.5 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpcmmn.c $
+ *       Revision 1.5  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.4  1998/04/24 03:30:13  ahd
  *       Use local buffers, not client->transmit.buffer, for output
  *       Rename receive buffer, use pointer into buffer rather than
@@ -54,7 +57,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmmn.c 1.4 1998/04/24 03:30:13 ahd v1-13f ahd $");
+RCSID("$Id: smtpcmmn.c 1.5 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */
@@ -69,28 +72,45 @@ commandAccept(SMTPClient *master,
 {
    SMTPClient *client;
 
-   setClientReady(master, KWFalse);
+   do {
+
+      SOCKET handle;
+
+      setClientReady(master, KWFalse);
+      setClientProcess(master, KWFalse);
+
+/*--------------------------------------------------------------------*/
+/*                   Get the new network connection                   */
+/*--------------------------------------------------------------------*/
+
+      handle = openSlave(getClientHandle(master));
+
+      if (handle == INVALID_SOCKET)
+         break;
 
 /*--------------------------------------------------------------------*/
 /*         If the client initialized, insert it into the list         */
 /*--------------------------------------------------------------------*/
 
-   client = initializeClient(getClientHandle(master), KWTrue);
+      client = initializeClient(handle);
 
-   if (client != NULL)
-   {
-      SMTPClient *current = master;
+      if (client != NULL)
+      {
+         SMTPClient *current = master;
 
-      /* Step to the last link of the list */
-      while(current->next != NULL)
-         current = current->next;
+         /* Step to the last link of the list */
+         while(current->next != NULL)
+            current = current->next;
 
-      client->previous = current;
-      current->next = client;
+         client->previous = current;
+         current->next = client;
 
-   } /* if (client != NULL) */
+      } /* if (client != NULL) */
 
-   incrementClientMajorTransaction(master);
+      incrementClientMajorTransaction(master);
+
+   } while(isSocketReady(master, 0));
+
    return KWTrue;
 
 } /* commandAccept */
