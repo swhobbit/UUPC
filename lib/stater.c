@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.9 1994/02/19 04:48:36 ahd v1-12k $
+ *    $Id: stater.c 1.10 1994/12/22 00:11:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.10  1994/12/22 00:11:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/02/19 04:48:36  ahd
  *    Use standard first header
  *
@@ -97,11 +100,14 @@ time_t stater(const char *file, long *size)
 /*          We have the information; return it to the caller          */
 /*--------------------------------------------------------------------*/
 
+   printmsg(5,"stater: \"%s\" is %ld bytes; updated %.24s",
+               file,
+               statbuf.st_size,
+               ctime( &statbuf.st_mtime));
+
    if ( size != NULL )
       *size = statbuf.st_size;
 
-   printmsg(5,"stater: \"%s\" is %ld bytes; updated %.24s",
-         file, *size, ctime( &statbuf.st_mtime));
    return(statbuf.st_mtime);
 
 } /* stater */
