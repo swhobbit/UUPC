@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.2 1992/11/19 02:58:22 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\logger.c 1.3 1992/11/22 20:58:55 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: LOGGER.C $
+ *    $Log: logger.c $
+ * Revision 1.3  1992/11/22  20:58:55  ahd
+ * Move retry of opens to FOPEN()
+ *
  * Revision 1.2  1992/11/19  02:58:22  ahd
  * drop rcsid
  *
@@ -57,9 +60,8 @@ currentfile();
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-static char logname[FILENAME_MAX];
-static char tempname[FILENAME_MAX];
-static fpos_t tempos;
+static char *logname  = NULL;
+static char *tempname = NULL;
 
 static void copylog( void );
 
@@ -71,13 +73,19 @@ static void copylog( void );
 
 void openlog( const char *log )
 {
+   char fname[FILENAME_MAX];
 
 /*--------------------------------------------------------------------*/
 /*                Create the final log name for later                 */
 /*--------------------------------------------------------------------*/
 
-   strcpy( logname, log == NULL ? compilen : log );
-   expand_path( logname, E_spooldir, NULL, "LOG" );
+   logname =  (char*) ((log == NULL) ? compilen : log);
+   tempname = strchr( logname, '.');
+   mkfilename( fname, E_spooldir, logname );
+
+   if ( tempname == NULL )
+      strcat( fname, ".LOG" );
+   logname = newstr( fname );
 
 /*--------------------------------------------------------------------*/
 /*                   Create temporary log file name                   */
@@ -90,11 +98,12 @@ void openlog( const char *log )
       E_tempdir = E_spooldir;       /* Create log file in spool dir
                                        to allow for larger files
                                        and/or system crashes         */
-      mktempname(tempname, "LOG");  /* Get the file name             */
+      tempname = newstr( mktempname(fname, "LOG"));
+                                    /* Get the file name             */
       E_tempdir = savedir;          /* Restore true temp dir         */
    } /* if */
    else
-      strcpy( tempname, logname );  /* Log directly to true log file */
+      tempname = logname;           /* Log directly to true log file */
 
    full_log_file_name = tempname;   /* Tell printmsg() what our log
                                        file name is                  */
@@ -118,7 +127,6 @@ void openlog( const char *log )
 /*               Request the copy function be run later               */
 /*--------------------------------------------------------------------*/
 
-   fgetpos( logfile, &tempos );
    atexit( copylog );
 
 /*--------------------------------------------------------------------*/
