@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.83 1998/04/27 01:55:28 ahd v1-13a $
+ *    $Id: configur.c 1.84 1998/05/11 01:20:48 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.84  1998/05/11  01:20:48  ahd
+ *    Add logfile directory
+ *
  *    Revision 1.83  1998/04/27 01:55:28  ahd
  *    Allow defaulting selected options to enabled
  *    Print warning, copyright if configuration version doesn't match
@@ -149,7 +152,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.83 1998/04/27 01:55:28 ahd v1-13a $");
+RCSID("$Id: configur.c 1.84 1998/05/11 01:20:48 ahd v1-13b $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -346,6 +349,7 @@ size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
 FLAGTABLE configFlags[] =
 {
  { "askcc",               F_ASKCC,             B_LOCAL,     KWTrue},
+ { "autocall",            F_AUTOCALL,          B_LOCAL,     KWFalse},
  { "autoedit",            F_AUTOEDIT,          B_LOCAL,     KWTrue},
  { "autoinclude",         F_AUTOINCLUDE,       B_LOCAL,     KWTrue},
  { "autoprint",           F_AUTOPRINT,         B_LOCAL,     KWTrue},
