@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.4 1993/06/16 04:03:25 ahd Exp $
+ *    $Id: normaliz.c 1.5 1993/06/16 04:19:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.5  1993/06/16  04:19:31  ahd
+ *     Copy trailing null when copying slashes
+ *
  *     Revision 1.4  1993/06/16  04:03:25  ahd
  *     drop duplicated slashes (caused by root directory support *sigh*)
  *
@@ -28,7 +31,6 @@
  *
  * Revision 1.1  1992/11/22  21:06:14  ahd
  * Initial revision
- *
  *
  */
 
@@ -56,31 +58,36 @@ currentfile();
 /*    Normalize a DOS Path                                            */
 /*--------------------------------------------------------------------*/
 
-char *normalize( const char *path )
+char *normalize( const char *pathx )
 {
    static char save[FILENAME_MAX];
+   char path[FILENAME_MAX];
    int column;
+   char *p;
 
-   char *p = _fullpath( save, path, sizeof save );
+   p = strcpy( path, pathx );
+
+   while ((p = strstr(p,"\\\\")) != NULL)  // Drop all double slashes
+      memmove(p, p+1, strlen(p));          // Includes trailing NULL
+
+   p = path;
+   while ((p = strstr(p,"//")) != NULL)   // Drop all double slashes
+      memmove(p, p+1, strlen(p));         // Includes trailing NULL
+
+   p = _fullpath( save, path, sizeof save );
 
    if ( p == NULL )
    {
       printerr( path );
-      return NULL;
+      panic();
    }
 
    while ((p = strchr(p,'\\')) != NULL)   // Back slashes to slashes
       *p++ = '/';
 
-   p = strlwr( save );
-
-   while ((p = strstr(p,"//")) != NULL)   // Drop all double slashes
-      memmove(p, p+1, strlen(p));         // Includes trailing NULL
-
    column = strlen( save ) - 1;
    if ((column > 2) && ( save[column] == '/' )) // Zap all but root trailing
        save[column] = '\0';
-
 
 /*--------------------------------------------------------------------*/
 /*               Print the results and return to caller               */
@@ -88,7 +95,7 @@ char *normalize( const char *path )
 
    printmsg(5,"Normalize: cwd = %s, input = %s, output = %s",
                (E_cwd == NULL) ? "?" : E_cwd,
-               path,
+               pathx,
                save );
 
    return save;
