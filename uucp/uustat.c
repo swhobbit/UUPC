@@ -42,7 +42,7 @@
 
 #define DAY (60l * 60l * 24l)
 #define ALL    "all"
-#define MAXL      128      /* MAX LINE LENGTH */
+#define MAXL      128      // MAX LINE LENGTH
 
 #define STRCREAT(s, s2, s3)\
    strcpy(s, s2);\
@@ -197,7 +197,7 @@ void main(int  argc, char  **argv)
 /*                   Switch to the spool directory                    */
 /*--------------------------------------------------------------------*/
 
-   tzset();                      /* Set up time zone information  */
+   tzset();                      // Set up time zone information
    PushDir( E_spooldir );
    atexit( PopDir );
 
@@ -373,10 +373,10 @@ void all( const char *system, const char *userid)
          char user[MAXL];
          char sys[MAXL];
 
-         strcpy(user,userid);       /* Nice default for the user     */
+         strcpy(user,userid);       // Nice default for the user
                                     /* Generates more output if
                                        straight copies in the queue  */
-         strcpy(sys, E_nodename);   /* Nice default for node as well */
+         strcpy(sys, E_nodename);   // Nice default for node as well
 
          printmsg(1,"ALL(%s)", fname);
          exportpath(canon, fname, hostp->hostname);
@@ -439,10 +439,10 @@ void all( const char *system, const char *userid)
 static void poll(const char *callee)
 {
 
-   char tmfile[15];           /* Call file, UNIX format name         */
+   char tmfile[15];           // Call file, UNIX format name
    char msname[FILENAME_MAX];
    FILE *stream;
-   static char *spool_fmt = SPOOLFMT;              /* spool file name */
+   static char *spool_fmt = SPOOLFMT;              // spool file name
    struct HostTable *hostp;
 
 /*--------------------------------------------------------------------*/
@@ -469,7 +469,7 @@ static void poll(const char *callee)
                   "000");
          importpath( msname, tmfile, hostp->hostname);
 
-         if ( access( msname , 0 ))   /* Does the host file exist?     */
+         if ( access( msname , 0 ))   // Does the host file exist?
          {
             stream = FOPEN( msname ,"w", BINARY_MODE);
 
@@ -538,7 +538,7 @@ static void long_stats( const char *system )
    long size;
    char buf[BUFSIZ];
 
-   HostStatus();              /* Load the host status table info     */
+   HostStatus();              // Load the host status table info
 
 /*--------------------------------------------------------------------*/
 /*                  Get the first system to process                   */
@@ -556,9 +556,9 @@ static void long_stats( const char *system )
    while(hostp != BADHOST )
    {
       char fname[FILENAME_MAX];
-                              /* Get list of files in the directory  */
-      size_t jobs = 0;        /* Declare, reset counter              */
-      time_t oldest_file = now;  /* Make the "oldest" file new       */
+                              // Get list of files in the directory
+      size_t jobs = 0;        // Declare, reset counter
+      time_t oldest_file = now;  // Make the "oldest" file new
 
 /*--------------------------------------------------------------------*/
 /*           Inner loop to count files and determine oldest           */
@@ -579,11 +579,11 @@ static void long_stats( const char *system )
 
       if ( jobs > 0 )
       {
-         if (oldest_file + DAY < now)     /* File older than 24 hours?  */
+         if (oldest_file + DAY < now)     // File older than 24 hours?
             sprintf( buf , "(%d)", (now - oldest_file) / DAY );
-                                          /* Yes --> Format info        */
+                                          // Yes --> Format info
          else
-            *buf = '\0';                  /* No --> No, empty display   */
+            *buf = '\0';                  // No --> No, empty display
 
          printf("%-8.8s  %3dC%-4s  %s  %s\n", hostp->hostname, jobs , buf,
                dater( hostp->hstats->lconnect , NULL ),
@@ -614,7 +614,7 @@ static void short_stats( const char *system )
 {
    struct HostTable *hostp;
 
-   HostStatus();              /* Load the host status table info     */
+   HostStatus();              // Load the host status table info
 
 /*--------------------------------------------------------------------*/
 /*                  Get the first system to process                   */
@@ -654,7 +654,7 @@ static void short_stats( const char *system )
 
 static void kill_job(const char *jobid)
 {
-   char *system;              /* System name returned by is_job()    */
+   char *system;              // System name returned by is_job()
    char host[FILENAME_MAX];
    char canon[FILENAME_MAX];
    char user[FILENAME_MAX];
@@ -663,9 +663,9 @@ static void kill_job(const char *jobid)
    strcpy(canon,"C.");
    strcat(canon,jobid);
    strcpy( user, "uucp");
-   system = is_job( canon ); /* Never returns if an error occurs     */
+   system = is_job( canon ); // Never returns if an error occurs
    importpath( host, canon, system );
-                              /* Get the local name of the file      */
+                              // Get the local name of the file
    open_call(host, system, NULL, user, sys, JOB_KILL);
    unlink( host );
    printf("Deleted file %s (%s)\n", canon, host);
@@ -682,7 +682,7 @@ static void kill_job(const char *jobid)
 
 static void refresh_job(const char *jobid)
 {
-   char *system;              /* System name returned by is_job()    */
+   char *system;              // System name returned by is_job()
    char host[FILENAME_MAX];
    char canon[FILENAME_MAX];
    char user[FILENAME_MAX];
@@ -691,9 +691,9 @@ static void refresh_job(const char *jobid)
    strcpy(canon,"C.");
    strcat(canon,jobid);
    strcpy( user, "uucp");
-   system = is_job( canon ); /* Never returns if an error occurs     */
+   system = is_job( canon ); // Never returns if an error occurs
    importpath( host, canon, system );
-                              /* Get the local name of the file      */
+                              // Get the local name of the file
    open_call(host, system, NULL, user, sys, JOB_REFRESH);
    touch( host );
    printf("Rejuvenated job %s (%s) queued for host %s by %s\n",
@@ -800,7 +800,7 @@ static CALLTYPE open_call( const char *callname,
                      current->size    = size;
 
                      if ((created != -1) &&
-                         (equaln(tname ,"X.",2)))  /* Execute file?  */
+                         (equaln(tname ,"X.",2)))  // Execute file?
                      {
                         open_data( host, user, sys, current->name );
                         current->execute = TRUE;
@@ -985,8 +985,8 @@ static void print_all(       char *job,
                      current->type,
                      sys, user, current->size , current->name );
 
-      job = blanks;           /* Don't print job name more than once */
-      free( current );        /* Release the abused storage          */
+      job = blanks;           // Don't print job name more than once
+      free( current );        // Release the abused storage
       current = save_data;
    } /* while */
 
@@ -1027,11 +1027,11 @@ static char *is_job(const char *callfile)
    {
       if (equaln(hostp->hostname, &callfile[2],
                 min( strlen( hostp->hostname ), HOSTLEN)))
-                              /* Right host?                         */
-      {                       /* Maybe --> Look for the file         */
+                              // Right host?
+      {                       // Maybe --> Look for the file
          importpath( host, callfile, hostp->hostname);
-         if ( !access( host, 0 ))   /* Does the host file exist?     */
-            return hostp->hostname; /* Yes --> Return success        */
+         if ( !access( host, 0 ))   // Does the host file exist?
+            return hostp->hostname; // Yes --> Return success
          hit = TRUE;
       }
 
@@ -1048,7 +1048,7 @@ static char *is_job(const char *callfile)
       printf("Unable to locate call file %s -- hostname may be incorrect\n",
                callfile);
    exit(1);
-   return NULL;                  /* Make C compiler happy */
+   return NULL;                  // Make C compiler happy
 } /* is_job */
 
 /*--------------------------------------------------------------------*/

@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUSUB.C 1.4 1993/05/09 12:44:25 ahd Exp $
+ *    $Id: uusub.c 1.5 1993/07/06 11:02:06 ahd Exp $
  *
- *    $Log: UUSUB.C $
+ *    $Log: uusub.c $
+ * Revision 1.5  1993/07/06  11:02:06  ahd
+ * Load host status information after parsing args
+ *
  * Revision 1.4  1993/05/09  12:44:25  ahd
  * Reset collection time start before writing it out to disk
  *
@@ -117,10 +120,10 @@ void main( int argc , char **argv)
 
    while ((option = getopt(argc, argv, "cs:x:")) != EOF)  {
       switch(option)  {
-         case 'c':               /* clear stats */
+         case 'c':               // clear stats
             clear_stats = TRUE;
             break;
-         case 's':               /* only named host */
+         case 's':               // only named host
             name = optarg;
             break;
          case 'x':
@@ -252,67 +255,67 @@ static char *status( hostatus current_status )
       default:
        return "??????";
 
-      case  phantom:          /* Entry not fully initialized      */
+      case  phantom:          // Entry not fully initialized
             return "noinit";
 
-      case  localhost:        /* This entry is for ourselves      */
+      case  localhost:        // This entry is for ourselves
             return "local";
 
-      case  gatewayed:        /* This entry is delivered to via   */
-                              /* an external program on local sys */
+      case  gatewayed:        // This entry is delivered to via
+                              // an external program on local sys
             return "gatway";
 
-      case  nocall:           /* real host: never called          */
+      case  nocall:           // real host: never called
          return "NEVER";
 
-      case autodial:          /* Calling now                      */
+      case autodial:          // Calling now
          return "DIALNG";
 
-      case nodevice:          /* Device open failed               */
+      case nodevice:          // Device open failed
          return "NODEV";
 
       case startup_failed:
          return "NSTART";
 
-      case  inprogress:       /* Call now active                  */
+      case  inprogress:       // Call now active
          return "INPROG";
 
-      case invalid_device:    /* Bad systems file entry           */
+      case invalid_device:    // Bad systems file entry
          return "INVDEV";
 
-      case  callback_req:     /* System must call us back         */
+      case  callback_req:     // System must call us back
           return "CALLBK";
 
       case  dial_script_failed:
-                              /* Hardcoded auto-dial failed       */
+                              // Hardcoded auto-dial failed
          return "NDIALS";
 
-      case  dial_failed:      /* Hardcoded auto-dial failed       */
+      case  dial_failed:      // Hardcoded auto-dial failed
          return "NODIAL";
 
-      case  script_failed:    /* script in L.SYS failed           */
+      case  script_failed:    // script in L.SYS failed
          return "NSCRPT";
 
-      case  max_retry:        /* Have given up calling this sys   */
+      case  max_retry:        // Have given up calling this sys
          return "MAXTRY";
 
-      case  too_soon:         /* In retry mode: too soon to call  */
+      case  too_soon:         // In retry mode: too soon to call
          return "TOSOON";
 
-      case  succeeded:        /* self-explanatory                 */
-      case  called:           /* self-explanatory                 */
+      case  succeeded:        // self-explanatory
+      case  called:           // self-explanatory
          return "SUCESS";
 
-      case  wrong_host:       /* Call out failed: wrong system    */
+      case  wrong_host:       // Call out failed: wrong system
          return "WRGHST";
 
-      case  unknown_host:     /* Call in cailed: unknown system   */
+      case  unknown_host:     // Call in cailed: unknown system
          return "UNKNWN";
 
-      case  wrong_time:       /* Unable to call because of time   */
+      case  wrong_time:       // Unable to call because of time
          return "WRGTIM";
 
-      case  call_failed:      /* Connection dropped in mid-call   */
+      case  call_failed:      // Connection dropped in mid-call
          return "FAILED";
    } /* switch */
 

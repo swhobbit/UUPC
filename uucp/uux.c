@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.6 1993/09/28 01:38:19 ahd Exp $
+ *    $Id: uux.c 1.7 1993/10/01 01:17:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.7  1993/10/01  01:17:44  ahd
+ * Additional correct from Richard Gumpertz
+ *
  * Revision 1.6  1993/09/28  01:38:19  ahd
  * Corrections from Robert H. Gumpertz (rhg@cps.com)
  *
@@ -155,9 +158,9 @@ typedef enum {
        } UuxFlags;
 
 typedef enum {
-      DATA_FILE   = 0,        /* Normal data file passed argument    */
-      INPUT_FILE  = 1,        /* Redirected stdin file               */
-      OUTPUT_FILE = 2         /* Redirected stdout file              */
+      DATA_FILE   = 0,        // Normal data file passed argument
+      INPUT_FILE  = 1,        // Redirected stdin file
+      OUTPUT_FILE = 2         // Redirected stdout file
       } FileType;
 
 static boolean flags[FLG_MAXIMUM] = {
@@ -174,7 +177,7 @@ static boolean flags[FLG_MAXIMUM] = {
                                     };
 static char* st_out = NULL;
 static char* user_id = NULL;
-static char  grade = 'Z';          /* Default grade of service */
+static char  grade = 'Z';          // Default grade of service
 
 static char  job_id[15];
 
@@ -250,21 +253,21 @@ static boolean cp(char *from, char *to)
       int  fd_from, fd_to;
       int  nr;
       int  nw = -1;
-      char buf[BUFSIZ];            /* faster if we alloc a big buffer */
+      char buf[BUFSIZ];            // faster if we alloc a big buffer
 
       /* This would be even faster if we determined that both files
          were on the same device, dos >= 3.0, and used the dos move
          function */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-         return FALSE;        /* failed */
+         return FALSE;        // failed
 
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
 
       if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
          close(fd_from);
-         return FALSE;        /* failed */
+         return FALSE;        // failed
          /* NOTE - this assumes all the required directories exist!  */
       }
 
@@ -276,7 +279,7 @@ static boolean cp(char *from, char *to)
       close(fd_from);
 
       if (nr != 0 || nw == -1)
-         return FALSE;        /* failed in copy */
+         return FALSE;        // failed in copy
       return TRUE;
 }
 
@@ -310,7 +313,7 @@ static boolean CopyData( const char *input, const char *output)
    if (input == NULL)
    {
       datain = stdin;
-      setmode(fileno(datain), O_BINARY);   /* Don't die on control-Z, etc */
+      setmode(fileno(datain), O_BINARY);   // Don't die on control-Z, etc
    }
    else
       datain = FOPEN(input, "r", BINARY_MODE);
@@ -329,7 +332,7 @@ static boolean CopyData( const char *input, const char *output)
 
    while ( (len = fread( buf, 1, BUFSIZ, datain)) != 0)
    {
-      if ( fwrite( buf, 1, len, dataout ) != len)     /* I/O error?  */
+      if ( fwrite( buf, 1, len, dataout ) != len)     // I/O error?
       {
          printerr("dataout");
          printmsg(0,"I/O error on \"%s\"", output);
@@ -342,7 +345,7 @@ static boolean CopyData( const char *input, const char *output)
 /*                      Close up shop and return                      */
 /*--------------------------------------------------------------------*/
 
-   if (ferror(datain))        /* Clean end of file on input?          */
+   if (ferror(datain))        // Clean end of file on input?
    {
       printerr(input);
       clearerr(datain);
@@ -371,7 +374,7 @@ static boolean split_path(char *path,
       char *p_right;
       char *p = path;
 
-      *sysname = *file = '\0';    /* init to nothing */
+      *sysname = *file = '\0';    // init to nothing
 
 /*--------------------------------------------------------------------*/
 /*                if path is wildcarded then error                    */
@@ -387,7 +390,7 @@ static boolean split_path(char *path,
 /*                        Find the first bangs                        */
 /*--------------------------------------------------------------------*/
 
-   p_left = strchr(p, '!');         /* look for the first bang    */
+   p_left = strchr(p, '!');         // look for the first bang
 
 /*--------------------------------------------------------------------*/
 /*   If no bangs, then the file is on the remote system.  We hope.    */
@@ -395,9 +398,9 @@ static boolean split_path(char *path,
 
    if ( p_left == NULL )
    {
-      strcpy( file, p);       /* Entire string is file name          */
+      strcpy( file, p);       // Entire string is file name
 
-      strcpy( sysname, default_sys );   /* Use default system name   */
+      strcpy( sysname, default_sys );   // Use default system name
 
       if ( equal(sysname, E_nodename ) &&
            expand &&
@@ -413,22 +416,22 @@ static boolean split_path(char *path,
 /*                         Find the last bang                         */
 /*--------------------------------------------------------------------*/
 
-   p_right = strrchr(p, '!');       /* look for the last bang     */
+   p_right = strrchr(p, '!');       // look for the last bang
 
 /*--------------------------------------------------------------------*/
 /*    If the first bang is the first character, it's a local file     */
 /*--------------------------------------------------------------------*/
 
-      if (p_left == p)                 /* First character in path?   */
-      {                                /* Yes --> not a remote path  */
+      if (p_left == p)                 // First character in path?
+      {                                // Yes --> not a remote path
 
-         if ( p_left != p_right )      /* More bangs?                */
+         if ( p_left != p_right )      // More bangs?
          {
             printmsg(0,"uux - Invalid syntax for local file: %s", p );
-            return FALSE;              /* Yes --> I don't grok this  */
+            return FALSE;              // Yes --> I don't grok this
          }
 
-         strcpy(file, p+1);            /* Just return filename       */
+         strcpy(file, p+1);            // Just return filename
 
          if ( expand && (expand_path(file, NULL, E_homedir, NULL) == NULL))
             return FALSE;     /* expand_path will delivery any needed
@@ -441,9 +444,9 @@ static boolean split_path(char *path,
 /*             It's not a local file, continue processing             */
 /*--------------------------------------------------------------------*/
 
-      strcpy(file, p_right + 1);      /* and thats our filename */
+      strcpy(file, p_right + 1);      // and thats our filename
 
-      strncpy(sysname, p, p_left - p); /* and we have a system thats not us */
+      strncpy(sysname, p, p_left - p); // and we have a system thats not us
       sysname[p_left - p] = '\0';
 
 /*--------------------------------------------------------------------*/
@@ -459,7 +462,7 @@ static boolean split_path(char *path,
 
       } /* if (p_left != p_right) */
 
-      return TRUE;                     /* and we're done */
+      return TRUE;                     // and we're done
 
 } /* split_path */
 
@@ -477,10 +480,10 @@ static boolean do_uuxqt(char *job_name,
 {
    long seqno = 0;
    char *seq  = NULL;
-   FILE *stream;              /* For writing out data                 */
+   FILE *stream;              // For writing out data
 
-   char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */
-   char msname[22];           /* MS-DOS format w/o path name          */
+   char msfile[FILENAME_MAX]; // MS-DOS format name of files
+   char msname[22];           // MS-DOS format w/o path name
    char ixfile[15];           /* eXecute file for local system,
                                  UNIX format name for local system    */
 
@@ -529,16 +532,16 @@ static boolean do_copy(char *src_syst,
                        char *dest_syst,
                        char *dest_file)
 {
-      char    tmfile[25];               /* Unix style name for c file */
-      char    idfile[25];       /* Unix style name for data file copy */
-      char    work[66];             /* temp area for filename hacking */
-      char    icfilename[66];               /* our hacked c file path */
-      char    idfilename[66];               /* our hacked d file path */
+      char    tmfile[25];               // Unix style name for c file
+      char    idfile[25];       // Unix style name for data file copy
+      char    work[66];             // temp area for filename hacking
+      char    icfilename[66];               // our hacked c file path
+      char    idfilename[66];               // our hacked d file path
 
       struct  stat    statbuf;
 
       long    int     sequence;
-      char    *remote_syst;    /* Non-local system in copy            */
+      char    *remote_syst;    // Non-local system in copy
       char    *sequence_s;
       FILE        *cfile;
 
@@ -612,7 +615,7 @@ static boolean do_copy(char *src_syst,
 
             if (!cp(src_file, idfilename))  {
                printmsg(0, "copy \"%s\" to \"%s\" failed",
-                  src_file, idfilename);           /* copy data */
+                  src_file, idfilename);           // copy data
                return FALSE;
             }
          }
@@ -715,7 +718,7 @@ static void preamble(FILE* stream)
 
 static boolean do_remote(int optind, int argc, char **argv)
 {
-   FILE    *stream;           /* For writing out data              */
+   FILE    *stream;           // For writing out data
    char    *sequence_s;
 
    boolean s_remote;
@@ -732,15 +735,15 @@ static boolean do_remote(int optind, int argc, char **argv)
 
    char    command[BUFSIZ];
 
-   char    msfile[FILENAME_MAX];    /* MS-DOS format name of files */
-   char    msname[22];              /* MS-DOS format w/o path name */
+   char    msfile[FILENAME_MAX];    // MS-DOS format name of files
+   char    msname[22];              // MS-DOS format w/o path name
 
-   char    tmfile[15];        /* Call file, UNIX format name       */
+   char    tmfile[15];        // Call file, UNIX format name
    char    lxfile[15];        /* eXecute file for remote system,
                                  UNIX format name for local system */
    char    rxfile[15];        /* Remote system UNIX name of eXecute
                                  file                              */
-   char    lifile[15];        /* Data file, UNIX format name       */
+   char    lifile[15];        // Data file, UNIX format name
    char    rifile[15];        /* Data file name on remote system,
                                  UNIX format                       */
    char* jobid_fmt = &spool_fmt[3];
@@ -920,12 +923,12 @@ static boolean do_remote(int optind, int argc, char **argv)
          if (!equal(src_system, dest_system))
          {
              remote_file += strlen(src_file);
-             while (remote_file > src_file  /* Keep trailing / and : */
+             while (remote_file > src_file  // Keep trailing / and :
              && (*--remote_file == '/'
                  /* || *remote_file == '\\' */
                  || *remote_file == ':'))
             ;
-             while (remote_file > src_file  /* Stop at other / and : */
+             while (remote_file > src_file  // Stop at other / and :
                 && remote_file[-1] != '/'
                 /* && remote_file[-1] != '\\' */
                 && remote_file[-1] != ':')
@@ -1117,37 +1120,37 @@ void main(int  argc, char  **argv)
       case 'b':
          flags[FLG_RETURN_STDIN] = TRUE;
          break;
-      case 'c':               /* don't spool */
+      case 'c':               // don't spool
          flags[FLG_COPY_SPOOL] = FALSE;
          break;
-      case 'C':               /* force spool */
+      case 'C':               // force spool
          flags[FLG_COPY_SPOOL] = TRUE;
          break;
-      case 'E':               /* use exec to execute */
+      case 'E':               // use exec to execute
          flags[FLG_USE_EXEC] = TRUE;
          break;
-      case 'e':               /* use sh to execute */
+      case 'e':               // use sh to execute
          flags[FLG_USE_EXEC] = FALSE;
          break;
-      case 'j':               /* output job id to stdout */
+      case 'j':               // output job id to stdout
          flags[FLG_OUTPUT_JOBID] = TRUE;
          break;
-      case 'n':               /* do not notify user if command fails */
+      case 'n':               // do not notify user if command fails
          flags[FLG_NONOTIFY_FAIL] = TRUE;
          break;
       case 'p':
          flags[FLG_READ_STDIN] = TRUE;
          break;
-      case 'r':               /* queue job only */
+      case 'r':               // queue job only
          flags[FLG_QUEUE_ONLY] = TRUE;
          break;
       case 'z':
          flags[FLG_NOTIFY_SUCCESS] = TRUE;
          break;
-      case 'g':               /* set grade of transfer */
+      case 'g':               // set grade of transfer
          grade = *optarg;
          break;
-      case 's':               /* report status of transfer to file */
+      case 's':               // report status of transfer to file
          flags[FLG_STATUS_FILE] = TRUE;
          st_out = optarg;
          break;
@@ -1164,7 +1167,7 @@ void main(int  argc, char  **argv)
          break;
    }
 
-   if (argc - optind < 1)     /* Verify we have at least a command   */
+   if (argc - optind < 1)     // Verify we have at least a command
    {
       printmsg(0,"uux - no command to execute!");
       usage();
