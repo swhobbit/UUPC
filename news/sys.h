@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.5 1995/01/07 16:21:58 ahd Exp $
+ *    $Id: sys.h 1.6 1995/01/07 20:48:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.6  1995/01/07 20:48:48  ahd
+ *    Correct 16 bit compiler warnings
+ *
  *    Revision 1.5  1995/01/07 16:21:58  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -56,11 +59,13 @@ typedef struct sys
 
    struct
    {
-      KWBoolean c;             /* Do not compress batch               */
-                              /* (supported by UUPC/extended only)   */
-      KWBoolean B;             /* Do not send underlength batch       */
-                              /* (supported by UUPC/extended only)   */
+      KWBoolean c;             /* Do not compress batch
+                                  (supported by UUPC/extended only)   */
+      KWBoolean B;             /* Do not send underlength batch
+                                  (supported by UUPC/extended only)   */
       KWBoolean F;             /* Batch, write file name only         */
+      KWBoolean J;             /* NSS mode, just write batches w/o
+                                  transimitting them anywhere         */
       KWBoolean f;             /* Batch, write file name and length   */
       KWBoolean I;             /* Batch, write article message id     */
       KWBoolean n;             /* Batch, write file name and msg ID   */

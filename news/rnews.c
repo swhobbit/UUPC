@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.43 1995/01/07 20:48:21 ahd Exp $
+ *       $Id: rnews.c 1.44 1995/01/07 23:52:37 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.44  1995/01/07 23:52:37  ahd
+ *       Convert rnews to use in-memory files, debug associated functions
+ *
  *       Revision 1.43  1995/01/07 20:48:21  ahd
  *       Correct 16 compile warnings
  *
@@ -156,7 +159,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.43 1995/01/07 20:48:21 ahd Exp $";
+         "$Id: rnews.c 1.44 1995/01/07 23:52:37 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -542,7 +545,7 @@ void main( int argc, char **argv)
       while( node )
       {
          if ( node->processed )
-            printmsg(1,"%s: %ld articles sent to %s",
+            printmsg(1,"%s: %ld articles queued for %s",
                        argv[0],
                        node->processed,
                        node->sysname );
@@ -606,7 +609,6 @@ static int Single( FILE *stream )
 /*--------------------------------------------------------------------*/
 /*     Close the file, deliver the article, and return the caller     */
 /*--------------------------------------------------------------------*/
-
 
    deliver_article( imf );
    return 0;
@@ -1218,6 +1220,8 @@ static void deliver_article( IMFILE *imf )
 
   while (sysnode != NULL)
   {
+    imrewind( imf );             /* Deliver from top of article      */
+
     if (check_sys(sysnode,
                   getHeader(table, NEWSGROUPS, NULL),
                   getHeader(table, DISTRIBUTION, NULL),
@@ -1768,7 +1772,9 @@ static KWBoolean deliver_local(IMFILE *imf,
 /*       a remote system                                              */
 /*--------------------------------------------------------------------*/
 
-static void copy_rmt_article(const char *filename, IMFILE *imf)
+static void copy_rmt_article(const char *filename,
+                             IMFILE *imf,
+                             const KWBoolean append )
 {
 
   FILE *output;
@@ -1778,11 +1784,16 @@ static void copy_rmt_article(const char *filename, IMFILE *imf)
   KWBoolean searchHeaders = KWTrue;
   KWBoolean skipHeader   = KWFalse;
 
-  imrewind( imf );
-
   printmsg(2, "rnews: Saving remote article in %s", filename);
 
-  output = FOPEN(filename, "w", IMAGE_MODE );
+/*--------------------------------------------------------------------*/
+/*          Open up the output file and verify the open worked        */
+/*--------------------------------------------------------------------*/
+
+  if ( append )
+     output = FOPEN(filename, "a", IMAGE_MODE );
+  else
+     output = FOPEN(filename, "w", IMAGE_MODE );
 
   if (output == NULL)
   {
@@ -1790,7 +1801,12 @@ static void copy_rmt_article(const char *filename, IMFILE *imf)
     panic();
   }
 
-  imrewind( imf );
+  if ( append )
+     fprintf( output, "#! rnews %ld\n", imlength( imf ));
+
+/*--------------------------------------------------------------------*/
+/*                     Main loop to process the data                  */
+/*--------------------------------------------------------------------*/
 
   while (imgets(buf, sizeof buf, imf) != NULL)
   {
@@ -1828,6 +1844,28 @@ static void copy_rmt_article(const char *filename, IMFILE *imf)
 } /* copy_rmt_article */
 
 /*--------------------------------------------------------------------*/
+/*       b a t c h _ N N S                                            */
+/*                                                                    */
+/*       Write an article out for Jeff Coffler's Network News         */
+/*       System for Windows NT.  This system wants a monolithic       */
+/*       uncompressed local batch for speed.                          */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean batch_NNS( const char *node,
+                            IMFILE *imf )
+{
+   static char *fileName = NULL;
+
+   if ( fileName == NULL )    /* Generate name for all NNS output    */
+      fileName = mkdirfilename( NULL, E_newsdir, "NNS" );
+
+   copy_rmt_article( fileName, imf, KWTrue );
+
+   return KWTrue;
+
+} /* batch_NNS */
+
+/*--------------------------------------------------------------------*/
 /*       b a t c h _ r e m o t e                                      */
 /*                                                                    */
 /*       Queue a file to be sent to a remote system                   */
@@ -1852,7 +1890,7 @@ static KWBoolean batch_remote(const struct sys *node,
             node->sysname );
    mkdirfilename(fname, dirname, "art");
 
-   copy_rmt_article(fname, imf );
+   copy_rmt_article(fname, imf, KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*                   Open up the article list file                    */
@@ -1977,7 +2015,9 @@ static KWBoolean deliver_remote(const struct sys *node,
 /*         Are we batching data or processing it immediately?         */
 /*--------------------------------------------------------------------*/
 
-  if ( node->flag.F || node->flag.f || node->flag.n || node->flag.I )
+  if ( node->flag.J )
+     return batch_NNS( node->sysname, imf );
+  else if ( node->flag.F || node->flag.f || node->flag.n || node->flag.I )
      return batch_remote( node, imf, msgID );
   else {
 
@@ -1989,10 +2029,10 @@ static KWBoolean deliver_remote(const struct sys *node,
                   msgID,
                   node->command );
 
-
       mktempname( fname, "tmp" );
 
-      copy_rmt_article(fname, imf );
+      copy_rmt_article(fname, imf, KWFalse );
+
       result = xmit_remote( node->sysname, node->command, fname );
       unlink( fname );
       return result;

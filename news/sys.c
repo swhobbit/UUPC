@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.6 1995/01/07 16:21:47 ahd Exp $
+ *    $Id: sys.c 1.7 1995/01/07 20:48:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.7  1995/01/07 20:48:21  ahd
+ *    Correct 16 compile warnings
+ *
  *    Revision 1.6  1995/01/07 16:21:47  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -300,6 +303,13 @@ void process_sys( char *buf)
     if (t != NULL)
       *t = ' ';
 
+    t = strchr(f3, 'J');            /* NNS mode - gen local batches     */
+
+    node->flag.J = (t == NULL) ? KWFalse : KWTrue;
+
+    if (t != NULL)
+      *t = ' ';
+
 /*--------------------------------------------------------------------*/
 /*                     Normal UNIX (C news) options                   */
 /*--------------------------------------------------------------------*/
@@ -370,11 +380,13 @@ void process_sys( char *buf)
       panic();
     }
 
-    if ((node->flag.f && (node->flag.F || node->flag.I || node->flag.n)) ||
+    if ((node->flag.J && (node->flag.f || node->flag.F ||
+                          node->flag.I || node->flag.n)) ||
+        (node->flag.f && (node->flag.F || node->flag.I || node->flag.n)) ||
         (node->flag.F && (node->flag.I || node->flag.n)) ||
         (node->flag.I && (node->flag.n)))
     {
-      printmsg(0, "process_sys: Can't specify more than one of 'fFIn' "
+      printmsg(0, "process_sys: Can't specify more than one of 'fFIJn' "
                   "flags in system %s", f1);
       panic();
     }
@@ -406,13 +418,17 @@ void process_sys( char *buf)
 /*       verify the system name is valid.                             */
 /*--------------------------------------------------------------------*/
 
-    if ((node->flag.f ||
-         node->flag.F ||
-         node->flag.I ||
-         node->flag.n ||
-         (node->command == NULL )) &&
-        ! equal( node->sysname, E_domain ) &&
-        (checkreal( node->sysname ) == BADHOST))
+    if (node->command != NULL )
+      ;                       /* no op, no need to check for bad host */
+    else if ( node->flag.J )
+      ;                       /* no op, no need to check for bad host */
+    else if ( equal( node->sysname, E_domain ))
+      ;                       /* no op, no need to check for bad host */
+    else if ((node->flag.f ||
+              node->flag.F ||
+              node->flag.I ||
+              node->flag.n ) &&
+             (checkreal( node->sysname ) == BADHOST))
     {
        printmsg(0,"Invalid host %s listed for news batching in SYS file",
                   node->sysname );
