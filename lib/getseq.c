@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.14 1995/02/15 01:56:18 ahd Exp $
+ *    $Id: getseq.c 1.15 1995/02/20 00:40:12 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.15  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.14  1995/02/15 01:56:18  ahd
  *    Warn if sequence number is reset
  *
@@ -116,6 +119,12 @@ long getSeq()
    if ( ! seq++ )
    {
       seq = getpid();
+
+      if ( seq < 0 )                /* Weird number (under DOS?)     */
+         seq *= -1;                 /* Yes --> Make positve          */
+
+      seq %= 1000000;               /* Also start number small       */
+
       printmsg(0,"Resetting sequence number to %ld (0x%08lx)",
                   seq,
                   seq );
