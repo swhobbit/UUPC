@@ -1,0 +1,630 @@
+/*
+   For best results in visual layout while viewing this file, set
+   tab stops to every 4 columns.
+*/
+
+/*
+   dcp.c
+
+   Revised edition of dcp
+
+   Stuart Lynne May/87
+
+   Copyright (c) Richard H. Lamb 1985, 1986, 1987
+   Changes Copyright (c) Stuart Lynne 1987
+   Changes Copyright (c) Andrew H. (Drew) Derbyshire 1989, 1990
+
+   Maintenance Notes:
+
+   25Aug87 - Added a version number - Jal
+   25Aug87 - Return 0 if contact made with host, or 5 otherwise.
+   04Sep87 - Bug causing premature sysend() fixed. - Randall Jessup.
+   13May89 - Add date to version message  - Drew Derbyshire
+   17May89 - Add '-u' (until) option for login processing
+   01 Oct 89      Add missing function prototypes                    ahd
+   28 Nov 89      Add parse of incoming user id for From record      ahd
+   18 Mar 90      Change checktime() calls to Microsoft C 5.1        ahd
+*/
+
+/* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
+
+/*
+   This program implements a uucico type file transfer and remote
+   execution protocol.
+
+   Usage:   UUCICO [-s sys]
+                   [-r 0|1]
+                   [-x debug]
+                   [-d hhmm]
+                   [-m modem]
+                   [-l logfile]
+                   [-x debuglevel]
+                   [-w userid]
+                   [-z bps]
+
+   e.g.
+
+   UUCICO [-x n] -r 0 [-d hhmm]    client mode, wait for an incoming call
+             for 'hhmm'.
+   UUCICO [-x n] -s HOST     call the host "HOST".
+   UUCICO [-x n] -s all      call all known hosts in the systems file.
+   UUCICO [-x n] -s any      call any host we have work queued for.
+   UUCICO [-x n]             same as the above.
+*/
+
+#include <stdio.h>                                                /* ahd   */
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <limits.h>
+#include <time.h>
+
+/*--------------------------------------------------------------------*/
+/*                      UUPC/extended prototypes                      */
+/*--------------------------------------------------------------------*/
+
+#include "lib.h"
+#include "arpadate.h"
+#include "catcher.h"
+#include "checktim.h"
+#include "dcp.h"
+#include "dcplib.h"
+#include "dcpstats.h"
+#include "dcpsys.h"
+#include "dcpxfer.h"
+#include "expath.h"
+#include "getopt.h"
+#include "hlib.h"
+#include "hostable.h"
+#include "hostatus.h"
+#include "lock.h"
+#include "logger.h"
+#include "modem.h"
+#include "security.h"
+#include "ssleep.h"
+
+/*--------------------------------------------------------------------*/
+/*    Define passive and active polling modes; passive is             */
+/*    sometimes refered to as "slave", "active" as master.  Since     */
+/*    the roles can actually switch during processing, we avoid       */
+/*    the terms here                                                  */
+/*--------------------------------------------------------------------*/
+
+typedef enum {
+      POLL_PASSIVE = 0,       /* We answer the telephone          */
+      POLL_ACTIVE  = 1        /* We call out to another host      */
+      } POLL_MODE ;
+
+/*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+size_t pktsize;                  /* packet size for this protocol*/
+
+FILE *xfer_stream = NULL;        /* stream for file being handled    */
+boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS        */
+FILE *fwork = NULL, *fsys= NULL ;
+FILE *syslog = NULL;
+char workfile[FILENAME_MAX];  /* name of current workfile         */
+char *Rmtname = nil(char);    /* system we want to call           */
+char rmtname[20];             /* system we end up talking to      */
+char s_systems[FILENAME_MAX]; /* full-name of systems file        */
+struct HostTable *hostp;
+struct HostStats remote_stats; /* host status, as defined by hostatus */
+
+static boolean dialed = FALSE;/* True = We attempted a phone call */
+
+currentfile();
+
+/*--------------------------------------------------------------------*/
+/*                     Local function prototypes                      */
+/*--------------------------------------------------------------------*/
+
+static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade );
+
+/*--------------------------------------------------------------------*/
+/*    d c p m a i n                                                   */
+/*                                                                    */
+/*    main program for DCP, called by uuhost                          */
+/*--------------------------------------------------------------------*/
+
+int dcpmain(int argc, char *argv[])
+{
+
+   char *logfile_name = NULL;
+   boolean  Contacted = FALSE;
+   int option;
+   int poll_mode = POLL_ACTIVE;   /* Default = dial out to system     */
+   time_t exit_time = LONG_MAX;
+
+   char recvgrade = ALL_GRADES;
+   boolean override_grade = FALSE;
+   char sendgrade = ALL_GRADES;
+
+   char *hotuser = NULL;
+   BPS  hotbaud = 0;
+
+   fwork = nil(FILE);
+
+/*--------------------------------------------------------------------*/
+/*                        Process our options                         */
+/*--------------------------------------------------------------------*/
+
+   while ((option = getopt(argc, argv, "d:g:m:l:r:s:w:x:z:n?")) != EOF)
+      switch (option)
+      {
+
+      case 'd':
+         exit_time = atoi( optarg );
+         exit_time = time(NULL) + hhmm2sec(exit_time);
+         break;
+
+      case 'g':
+         if (strlen(optarg) == 1 )
+            recvgrade = *optarg;
+         else {
+            recvgrade = checktime( optarg );
+                                 /* Get restriction for this hour */
+            if ( ! recvgrade )   /* If no class, use the default  */
+               recvgrade = ALL_GRADES;
+         }
+         override_grade = TRUE;
+         break;
+
+      case 'm':                     /* Override in modem name     */
+         E_inmodem = optarg;
+         poll_mode = 0;             /* Presume passive polling */
+         break;
+
+      case 'l':                     /* Log file name              */
+         logfile_name = optarg;
+         break;
+
+      case 'n':
+         callnow = TRUE;
+         break;
+
+      case 'r':
+         poll_mode = atoi(optarg);
+         break;
+
+      case 's':
+         Rmtname = strdup(optarg);
+         break;
+
+      case 'x':
+         debuglevel = atoi(optarg);
+         break;
+
+      case 'z':
+         hotbaud = atoi(optarg);
+         break;
+
+      case 'w':
+         poll_mode = 0;       /* Presume passive polling */
+         hotuser = optarg;
+         break;
+
+      case '?':
+         puts("\nUsage:\tuucico\t"
+         "[-s [all | any | sys]] [-r 1|0] [-x debug] [-d hhmm]\n"
+         "\t\t[-n] [-w user] [-l logfile] [-m modem] [-z bps]");
+         return 4;
+      }
+
+/*--------------------------------------------------------------------*/
+/*                Abort if any options were left over                 */
+/*--------------------------------------------------------------------*/
+
+   if (optind != argc) {
+      puts("Extra parameter(s) at end.");
+      return 4;
+   }
+
+   if (Rmtname == nil(char))
+      Rmtname = "any";
+
+/*--------------------------------------------------------------------*/
+/*        Initialize logging and the name of the systems file         */
+/*--------------------------------------------------------------------*/
+
+   openlog( logfile_name );
+
+   if (bflag[F_SYSLOG] && (syslog = FOPEN(SYSLOG, "a", TEXT)) == nil(FILE))
+   {
+      printerr( SYSLOG );
+      panic();
+   }
+
+   mkfilename(s_systems, E_confdir, SYSTEMS);
+   printmsg(2, "Using system file '%s'",s_systems);
+
+   if ( terminate_processing )
+      return 100;
+
+/*--------------------------------------------------------------------*/
+/*                        Initialize security                         */
+/*--------------------------------------------------------------------*/
+
+   if ( !LoadSecurity())
+   {
+      printmsg(0,"Unable to initialize security, see previous message");
+      panic();
+   }
+
+   if ( terminate_processing )
+      return 100;
+
+   atexit( shutdown );        /* Insure port is closed by panic()    */
+   remote_stats.save_hstatus = nocall;
+                              /* Known state for automatic status
+                                 update                              */
+
+/*--------------------------------------------------------------------*/
+/*                     Begin main processing loop                     */
+/*--------------------------------------------------------------------*/
+
+   if (poll_mode == POLL_ACTIVE) {
+
+      CONN_STATE m_state = CONN_INITSTAT;
+
+      printmsg(2, "calling \"%s\", debug=%d", Rmtname, debuglevel);
+
+      if ((fsys = FOPEN(s_systems, "r", TEXT)) == nil(FILE))
+         exit(FAILED);
+
+      while (m_state != CONN_EXIT )
+      {
+         printmsg(4, "M state = %c", m_state);
+
+         if (bflag[F_MULTITASK] &&
+              (hostp != NULL ) &&
+              (remote_stats.save_hstatus != hostp->hstatus ))
+         {
+            dcupdate();
+            remote_stats.save_hstatus = hostp->hstatus;
+         }
+
+         switch (m_state)
+         {
+            case CONN_INITSTAT:
+               HostStatus();
+               m_state = CONN_INITIALIZE;
+               break;
+
+            case CONN_INITIALIZE:
+               hostp = NULL;
+
+               if ( locked )
+                  UnlockSystem();
+
+               m_state = getsystem(recvgrade);
+               if ( hostp != NULL )
+                  remote_stats.save_hstatus = hostp->hstatus;
+               break;
+
+            case CONN_CALLUP1:
+               if ( LockSystem( hostp->hostname , B_UUCICO))
+               {
+                  dialed = TRUE;
+                  hostp->hstatus = autodial;
+                  m_state = CONN_CALLUP2;
+               }
+               else
+                  m_state = CONN_INITIALIZE;
+               break;
+
+            case CONN_CALLUP2:
+               sendgrade = checktime(flds[FLD_CCTIME]);
+
+               if ( (override_grade && sendgrade) || callnow )
+                  sendgrade = recvgrade;
+
+               m_state = callup( sendgrade );
+
+
+               break;
+
+            case CONN_PROTOCOL:
+               m_state = startup_server( (char)
+                                          (bflag[F_SYMMETRICGRADES] ?
+                                          sendgrade  : recvgrade) );
+               break;
+
+            case CONN_SERVER:
+               m_state = process( poll_mode, recvgrade );
+               Contacted = TRUE;
+               break;
+
+            case CONN_TERMINATE:
+               m_state = sysend();
+               if ( hostp != NULL )
+                  dcstats();
+               break;
+
+            case CONN_DROPLINE:
+               shutdown();
+               UnlockSystem();
+               m_state = CONN_INITIALIZE;
+               break;
+
+            case CONN_EXIT:
+               break;
+
+            default:
+               printmsg(0,"dcpmain: Unknown master state = %c",m_state );
+               panic();
+               break;
+         } /* switch */
+
+         if ( terminate_processing )
+            m_state = CONN_EXIT;
+
+      } /* while */
+      fclose(fsys);
+
+   }
+   else { /* client mode */
+
+      CONN_STATE s_state = CONN_INITIALIZE;
+
+      while (s_state != CONN_EXIT )
+      {
+         printmsg(4, "S state = %c", s_state);
+
+         if (bflag[F_MULTITASK] &&
+              (hostp != NULL ) &&
+              (remote_stats.save_hstatus != hostp->hstatus ))
+         {
+            printmsg(2, "Updating status for host %s, status %d",
+                        hostp->hostname ,
+                        (int) hostp->hstatus );
+            dcupdate();
+            remote_stats.save_hstatus = hostp->hstatus;
+         }
+
+         switch (s_state) {
+            case CONN_INITIALIZE:
+               if ( hotuser == NULL )
+                  s_state = CONN_ANSWER;
+               else
+                  s_state = CONN_HOTMODEM;
+               break;
+
+            case CONN_ANSWER:
+               s_state = callin( exit_time );
+               break;
+
+            case CONN_HOTMODEM:
+               s_state = callhot( hotbaud );
+               break;
+
+            case CONN_HOTLOGIN:
+               if ( loginbypass( hotuser ) )
+                  s_state = CONN_INITSTAT;
+               else
+                  s_state = CONN_DROPLINE;
+               break;
+
+            case CONN_LOGIN:
+               if ( login( ) )
+                  s_state = CONN_INITSTAT;
+               else
+                  s_state = CONN_DROPLINE;
+               break;
+
+            case CONN_INITSTAT:
+               HostStatus();
+               s_state = CONN_PROTOCOL;
+               break;
+
+            case CONN_PROTOCOL:
+               s_state = startup_client(&sendgrade);
+               break;
+
+            case CONN_CLIENT:
+               Contacted = TRUE;
+               s_state = process( poll_mode, sendgrade );
+               break;
+
+            case CONN_TERMINATE:
+               s_state = sysend();
+               if ( hostp != NULL )
+                  dcstats();
+               break;
+
+            case CONN_DROPLINE:
+               shutdown();
+               if ( locked )     /* Cause could get here w/o
+                                    locking                    */
+                  UnlockSystem();
+               s_state = CONN_EXIT;
+
+            case CONN_EXIT:
+               break;
+
+            default:
+               printmsg(0,"dcpmain: Unknown slave state = %c",s_state );
+               panic();
+               break;
+         } /* switch */
+
+         if ( terminate_processing )
+            s_state = CONN_EXIT;
+
+      } /* while */
+   } /* else */
+
+/*--------------------------------------------------------------------*/
+/*                         Report our results                         */
+/*--------------------------------------------------------------------*/
+
+   if (!Contacted)
+   {
+      if (dialed)
+         printmsg(0, "Could not connect to remote system.");
+      else
+         printmsg(0, "No work for requested system or wrong time to call.");
+   }
+
+   dcupdate();
+
+   if (bflag[F_SYSLOG])
+      fclose(syslog);
+
+   return terminate_processing ? 100 : (Contacted ? 0 : 5);
+
+} /*dcpmain*/
+
+
+/*--------------------------------------------------------------------*/
+/*    p r o c e s s                                                   */
+/*                                                                    */
+/*    The procotol state machine                                      */
+/*--------------------------------------------------------------------*/
+
+static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade )
+{
+   boolean master  = ( poll_mode == POLL_ACTIVE );
+   boolean aborted = FALSE;
+   XFER_STATE state =  master ? XFER_SENDINIT : XFER_RECVINIT;
+   XFER_STATE old_state = XFER_EXIT;
+                              /* Initialized to any state but the
+                                 original value of "state"           */
+   XFER_STATE save_state = XFER_EXIT;
+
+/*--------------------------------------------------------------------*/
+/*  Yea old state machine for the high level file transfer procotol   */
+/*--------------------------------------------------------------------*/
+
+   while( state != XFER_EXIT )
+   {
+      printmsg(state == old_state ? 14 : 4 ,
+               "process: Machine state is = %c", state );
+      old_state = state;
+
+      if ( terminate_processing != aborted )
+      {
+         aborted = terminate_processing;
+         state = XFER_ABORT;
+      }
+
+      switch( state )
+      {
+
+         case XFER_SENDINIT:  /* Initialize outgoing protocol        */
+            state = sinit();
+            break;
+
+         case XFER_RECVINIT:  /* Initialize Receive protocol         */
+            state = rinit();
+            break;
+
+         case XFER_MASTER:    /* Begin master mode                   */
+            master = TRUE;
+            state = XFER_NEXTJOB;
+            break;
+
+         case XFER_SLAVE:     /* Begin slave mode                    */
+            master = FALSE;
+            state = XFER_RECVHDR;
+            break;
+
+         case XFER_NEXTJOB:   /* Look for work in local queue        */
+            state = scandir( rmtname, callgrade );
+            break;
+
+         case XFER_REQUEST:   /* Process next file in current job
+                                 in queue                            */
+            state = newrequest();
+            break;
+
+         case XFER_PUTFILE:   /* Got local tranmit request           */
+            state = ssfile();
+            break;
+
+         case XFER_GETFILE:   /* Got local tranmit request           */
+            state = srfile();
+            break;
+
+         case XFER_SENDDATA:  /* Remote accepted our work, send data */
+            state = sdata();
+            break;
+
+         case XFER_SENDEOF:   /* File xfer complete, send EOF        */
+            state = seof( master );
+            break;
+
+         case XFER_FILEDONE:  /* Receive or transmit is complete     */
+            state = master ? XFER_REQUEST : XFER_RECVHDR;
+            break;
+
+         case XFER_NOLOCAL:   /* No local work, remote have any?     */
+            state = sbreak();
+            break;
+
+         case XFER_NOREMOTE:  /* No remote work, local have any?     */
+            state = schkdir( poll_mode == POLL_ACTIVE, callgrade );
+            break;
+
+         case XFER_RECVHDR:   /* Receive header from other host      */
+            state = rheader();
+            break;
+
+         case XFER_TAKEFILE:  /* Set up to receive remote requested
+                                 file transfer                       */
+            state = rrfile();
+            break;
+
+         case XFER_GIVEFILE:  /* Set up to transmit remote
+                                 requuest file transfer              */
+            state = rsfile();
+            break;
+
+         case XFER_RECVDATA:  /* Receive file data from other host   */
+            state = rdata();
+            break;
+
+         case XFER_RECVEOF:
+            state = reof();
+            break;
+
+         case XFER_LOST:      /* Lost the other host, flame out      */
+            printmsg(0,"process: Connection lost to %s, "
+                       "previous system state = %c",
+                       rmtname, save_state );
+            hostp->hstatus = call_failed;
+            state = XFER_EXIT;
+            break;
+
+         case XFER_ABORT:     /* Internal error, flame out           */
+            printmsg(0,"process: Aborting connection to %s, "
+                       "previous system state = %c",
+                       rmtname, save_state );
+            hostp->hstatus = call_failed;
+            state = XFER_ENDP;
+            break;
+
+         case XFER_ENDP:      /* Terminate the protocol              */
+            state = endp();
+            break;
+
+         default:
+            printmsg(0,"process: Unknown state = %c, "
+                       "previous system state = %c",
+                       state, save_state );
+            state = XFER_ABORT;
+            break;
+      } /* switch */
+
+      save_state = old_state; /* Used only if we abort               */
+
+   } /* while( state != XFER_EXIT ) */
+
+/*--------------------------------------------------------------------*/
+/*           Protocol is complete, terminate the connection           */
+/*--------------------------------------------------------------------*/
+
+   return CONN_TERMINATE;
+
+} /* process */
