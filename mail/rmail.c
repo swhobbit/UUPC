@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.13 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: rmail.c 1.14 1993/10/12 01:30:23 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.14  1993/10/12  01:30:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.13  1993/09/20  04:39:51  ahd
  * OS/2 2.x support
  *
@@ -247,7 +250,6 @@ void main(int argc, char **argv)
 
    banner( argv);
 
-   now = arpadate();          /* Set the current date                */
    debuglevel =  0;
 
 /*--------------------------------------------------------------------*/
@@ -256,6 +258,8 @@ void main(int argc, char **argv)
 
    if (!configure(B_MTA))
       Terminate(3);
+
+   now = arpadate();          /* Set the current date                */
 
 /*--------------------------------------------------------------------*/
 /*                    Handle control-C interrupts                     */
