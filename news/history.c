@@ -27,6 +27,9 @@
 
 /*
  * $Log: history.c $
+ * Revision 1.18  1997/04/24 00:56:54  ahd
+ * Delete MAKEBUF/FREEBUF support
+ *
  * Revision 1.17  1996/11/18 04:46:49  ahd
  * Normalize arguments to bugout
  * Reset title after exec of sub-modules
@@ -108,7 +111,7 @@
 #include "importng.h"
 #include "hdbm.h"
 
-RCSID("$Id: history.c 1.17 1996/11/18 04:46:49 ahd Exp $" );
+RCSID("$Id: history.c 1.18 1997/04/24 00:56:54 ahd v1-12u $" );
 
 currentfile();
 
@@ -281,7 +284,7 @@ int delete_histentry(DBM *hdbm_file, const char *messageID)
 
 int count_postings(char *histentry)
 {
-  char *value = (char *) malloc( strlen( histentry + 1 ));
+  char *value = (char *) malloc( strlen( histentry ) + 1);
   char *ptr, *num;
   int count;
 
@@ -351,7 +354,6 @@ static int matches(const char *group, char **grouplist)
 char *purge_article(char *histentry, char **groups)
 {
   static char *remain = NULL;
-  size_t len  = strlen( histentry ) + 1;
   char value[ DBM_BUFSIZ ];
   char filename[ FILENAME_MAX ];
   char *group, *num;

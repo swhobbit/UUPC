@@ -16,16 +16,19 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.16 1997/03/31 06:56:40 ahd Exp $");
+RCSID("$Id: hdbm.c 1.17 1997/04/24 00:56:54 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.16 1997/03/31 06:56:40 ahd Exp $
+ * $Id: hdbm.c 1.17 1997/04/24 00:56:54 ahd v1-12u $
  *
  * $Log: hdbm.c $
+ * Revision 1.17  1997/04/24 00:56:54  ahd
+ * Delete MAKEBUF/FREEBUF support
+ *
  * Revision 1.16  1997/03/31 06:56:40  ahd
  * Annual Copyright Update
  *
@@ -117,6 +120,7 @@ DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
   {
     printerr( filename );
     close(db -> dbffile);
+    db -> dbffile = -1;
     free(db);
     return (DBM *) NULL;
   }
@@ -126,6 +130,8 @@ DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
     printmsg(0,"Unable to initialize index");
     close(db -> dbffile);
     close(db -> idxfile);
+    db -> idxfile = -1;
+    db -> dbffile = -1;
     free(db);
     return (DBM *) NULL;
   }
@@ -138,13 +144,21 @@ DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
 
 void dbm_close(DBM *db)
 {
+  static const char mName[] = "void dbm_close";
+
   if (db == NULL || db -> magic != DBM_MAGIC)
-    return;
+  {
+    printmsg(0,"%s: Internal error, invalid DBM file",
+               mName );
+    panic();
+  }
 
   idx_exit(db -> idx);
 
   close(db -> idxfile);
   close(db -> dbffile);
+  db -> idxfile = -1;
+  db -> dbffile = -1;
 
   free(db);
 }
@@ -326,7 +340,11 @@ datum dbm_nextkey(DBM *db)
   do /* skip blanked out records */
   {
     if (fgets(db -> buffer, sizeof(db -> buffer), db -> stream) == NULL)
-      return fclose(db -> stream), (db -> stream = NULL), nullitem;
+    {
+      flose(db -> stream);
+      db -> stream = NULL;
+      return nullitem;
+    }
   } while (db -> buffer[0] == ' ');
 
   if ((ptr = strchr(db -> buffer, '>')) != NULL)

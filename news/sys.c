@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.25 1997/04/24 00:56:54 ahd Exp $
+ *    $Id: sys.c 1.26 1997/04/24 01:39:48 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.26  1997/04/24 01:39:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1997/04/24 00:56:54  ahd
  *    Delete MAKEBUF/FREEBUF support
  *
@@ -819,7 +822,7 @@ KWBoolean distributions(char *list, const char *distrib)
   KWBoolean bDef  = KWTrue;     /* We have yet to see anything but
                                  negations                           */
 
-  size_t distribLength = strlen( distrib +1 );
+  size_t distribLength = strlen( distrib ) + 1;
   char * tempDistribP  = malloc( distribLength );
 
   while (isspace(*distrib))

@@ -1,11 +1,19 @@
 /*--------------------------------------------------------------------*/
-/*    e x p i r e . c                                                 */
+/*       e x p i r e . c                                              */
 /*                                                                    */
-/*    Expire old news articles for UUPC/extended                      */
+/*       Expire old news articles for UUPC/extended                   */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992-1994 by Kendra Electronic Wonderworks, all   */
-/*    rights reserved except those explicitly granted by the UUPC/    */
-/*    extended license.                                               */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* new version, rewritten for history-based news database
@@ -13,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: EXPIRE.C 1.21 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: expire.c 1.22 1997/04/24 00:56:54 ahd v1-12u $
  *
- *    $Log: EXPIRE.C $
+ *    $Log: expire.c $
+ *    Revision 1.22  1997/04/24 00:56:54  ahd
+ *    Delete MAKEBUF/FREEBUF support
+ *
  *    Revision 1.21  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -81,7 +92,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: EXPIRE.C 1.21 1996/11/18 04:46:49 ahd Exp $");
+RCSID("$Id: expire.c 1.22 1997/04/24 00:56:54 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -143,6 +154,7 @@ static DBM *new_history;
 static void
 backupNewsFile(  const char *nextGeneration, const char *previous )
 {
+   static const char mName[] = "backupNewsFile";
    char file_previous[FILENAME_MAX];
    char file_new[FILENAME_MAX];
 
@@ -152,7 +164,13 @@ backupNewsFile(  const char *nextGeneration, const char *previous )
 /*       Punt the old file, and return if there is no new file        */
 /*--------------------------------------------------------------------*/
 
-   REMOVE(file_previous);
+   if ((stater(file_previous, NULL) >= 0 ) && REMOVE(file_previous))
+   {
+      printmsg(0,"%s: Unable to delete backup file %s",
+                 mName,
+                 file_previous );
+      printerr( file_previous );
+   }
 
    if ( nextGeneration == NULL )
       return;
@@ -165,13 +183,18 @@ backupNewsFile(  const char *nextGeneration, const char *previous )
 
    if ( rename(file_new, file_previous) )
    {
+      printmsg(0, "%s: Backup of %s to %s failed",
+                  mName,
+                  file_new,
+                  file_previous );
       printerr( file_new );
    }
 #ifdef UDEBUG
    else
-      printmsg(2, "Renamed %s to %s", file_new, file_previous );
+      printmsg(2, "%s: Renamed %s to %s",
+                  file_new,
+                  file_previous );
 #endif
-
 
 } /* backupNewsFile */
 
@@ -342,7 +365,7 @@ main( int argc, char **argv)
 static void
 SetGroupLower(char *histentry)
 {
-  char *value = (char *) malloc( strlen( histentry + 1) );
+  char *value = (char *) malloc( strlen( histentry ) + 1 );
   char *group, *num;
   long article;
 
