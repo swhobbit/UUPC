@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.36 1995/01/09 01:39:22 ahd Exp $
+ *    $Id: deliver.c 1.37 1995/02/12 23:37:04 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.37  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.36  1995/01/09 01:39:22  ahd
  *    Optimize UUCP processing for remote mail, break out logical
  *    queuing from actually writing the files, and don't write call
@@ -395,7 +398,7 @@ static size_t DeliverLocal( IMFILE *imf,
 
    if (validate)
    {
-      validate = strcmp( E_postmaster , user);
+      validate = stricmp( E_postmaster , user);
                                  /* Don't loop delivering to postmast*/
 
       userp = checkuser(user);   /* Locate user id in host table      */
