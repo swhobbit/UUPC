@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.7 1993/10/12 01:20:43 ahd Exp $
+ *    $Id: winutil.c 1.8 1993/10/16 15:13:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.8  1993/10/16  15:13:17  ahd
+ * Add _export keywords per Paul Steckler to fix system crashes
+ *
  * Revision 1.7  1993/10/12  01:20:43  ahd
  * Normalize comments to PL/I style
  *
@@ -231,13 +234,19 @@ int SpawnWait( const char *command,
    while(bChildIsExecuting && GetMessage(&msg, NULL, NULL, NULL))
    {
       TranslateMessage(&msg);
-      DispatchMessage(&msg);
 
-      if (msg.message == PM_TASKEND)
+      switch( msg.message )
       {
-         bChildIsExecuting = FALSE;
-         iChildExitStatus = (int)(LOBYTE(msg.lParam));
-      } /* while */
+         case PM_TASKEND:
+            bChildIsExecuting = FALSE;
+            iChildExitStatus = (int)(LOBYTE(msg.lParam));
+            /* Fall through and dispatch message   */
+
+         default:
+            DispatchMessage(&msg);
+            break;
+
+      } /* switch( msg.message ) */
 
    } /* while */
 
