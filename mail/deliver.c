@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.44 1995/09/11 00:20:45 ahd Exp $
+ *    $Id: deliver.c 1.45 1995/09/24 19:07:05 ahd v1-12p $
  *
  *    $Log: deliver.c $
+ *    Revision 1.45  1995/09/24 19:07:05  ahd
+ *    Add comment to document use of monocase names for internal queue
+ *
  *    Revision 1.44  1995/09/11 00:20:45  ahd
  *    Add debugging information to X.* files
  *    Use "--" option to insure user names with leading dash don't
@@ -330,7 +333,7 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
       else
          return Bounce( imf,
                  "No known delivery path for host",
-                  path,
+                  node,
                   address,
                   validate );
    }  /* if */
