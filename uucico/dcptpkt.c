@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.2 1993/09/20 04:48:25 ahd Exp $
+ *    $Id: dcptpkt.c 1.3 1993/09/21 01:42:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.3  1993/09/21  01:42:13  ahd
+ * Delete functions duplicated from dcpgpkt.c
+ *
  * Revision 1.2  1993/09/20  04:48:25  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -99,7 +102,9 @@ static unsigned long htonl( const unsigned long input )
    int i;
 
    for (i = 0 ; i < sizeof input; i++ )
-      p[i] = (unsigned char) ((input >> (i*8)) & 0xff);
+      p[3 - i] = (unsigned char) ((input >> (i*8)) & 0xff);
+
+   printmsg(15,"htonl: %lx = %x %x %x %x",input, p[0], p[1], p[2], p[3] );
 
    return result;
 
@@ -119,6 +124,8 @@ static unsigned long ntohl( const unsigned long input )
 
    for (i = 0 ; i < sizeof input; i++ )
       result = (result << 8) + p[i];
+
+   printmsg(15,"ntonh: %x %x %x %x = %lx",p[0], p[1], p[2], p[3], result );
 
    return result;
 
