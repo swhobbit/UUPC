@@ -18,3 +18,7 @@ extern struct grp *group_list;   /* List of all groups */
 void get_active(void);     /* Read in the active newsgroups file */
 void put_active(void);     /* Write the active newsgroups file */
 void validate_newsgroups(void);  /* Make sure the directory structure exists */
+
+#ifndef MAXGRP
+#define MAXGRP FILENAME_MAX   /* Max length of a news group name     */
+#endif
