@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile. 1.68 1994/12/27 20:46:27 ahd Exp ahd $
+#     $Id: makefile. 1.69 1994/12/31 03:33:33 ahd Exp ahd $
 #
 #     Revision history:
 #     $Log: makefile. $
+#     Revision 1.69  1994/12/31 03:33:33  ahd
+#     First pass of integrating Mike McLagan's news SYS file suuport
+#
 #     Revision 1.68  1994/12/27 20:46:27  ahd
 #     Smoother call grading'
 #
@@ -301,7 +304,9 @@ TDSTRIP=tdstrip
 !if $d(__OS2__)
 SRCSLASH=
 !else
-SRC      = d:/src/uupc/
+!if !$d(SRC)
+SRC      =
+!endif
 SRCSLASH = $(SRC:/=\)
 !endif
 !endif
@@ -1615,7 +1620,6 @@ $(WINDOWSDEF)
 
 .autodepend
 
-.silent
 | $<
 
 !if $d(WINDOWS)
