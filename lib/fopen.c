@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.12 1994/06/13 00:09:40 ahd v1-12k $
+ *    $Id: fopen.c 1.13 1994/12/22 00:08:27 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.13  1994/12/22 00:08:27  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1994/06/13 00:09:40  ahd
  *    Correct inverted test for multitask mode when determining
  *    retry count.
@@ -38,6 +41,10 @@
 #include <sys/stat.h>
 #include <share.h>
 #include <io.h>
+
+#ifdef __IBMC__
+#define _fsopen(n, m, s) fopen(n, m)
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
