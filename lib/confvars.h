@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.20 1994/02/25 02:31:10 ahd v1-12k $
+ *    $Id: confvars.h 1.21 1994/12/22 00:12:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.21  1994/12/22 00:12:24  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1994/02/25 02:31:10  ahd
  *    Add E_ignoreList, and E_replytoList for MAIL
  *
@@ -127,6 +130,7 @@ extern char *E_vmsQueueDir;
 extern char *E_vmail;
 extern char **E_ignoreList;      /* Headers not displayed by print      */
 extern char **E_replyToList;     /* Primary Addr used to reply to mail  */
+extern char E_firstGrade;        /* First class searched for by UUCICO  */
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 
