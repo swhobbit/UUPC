@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.12 1994/12/22 00:09:47 ahd Exp $
+ *       $Id: ndirnt.c 1.13 1995/01/07 15:46:08 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.13  1995/01/07 15:46:08  ahd
+ *       Clean up debugging messages, dropping new lines
+ *
  *       Revision 1.12  1994/12/22 00:09:47  ahd
  *       Annual Copyright Update
  *
@@ -161,6 +164,8 @@ struct direct *readdir(DIR *dirp)
       rc = FindNextFile(dirHandle, &dirData);
       if ( rc )
          printmsg(9, "file = %s", dirData.cFileName);
+      else
+         break;
    }
 
    if ( rc )
@@ -188,6 +193,7 @@ struct direct *readdir(DIR *dirp)
       printmsg(5,"readdir: Error on directory %s",pathname );
       return NULL;
    }
+
 } /*readdir*/
 
 /*--------------------------------------------------------------------*/

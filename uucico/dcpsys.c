@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.42 1994/12/31 03:39:56 ahd Exp $
+ *     $Id: dcpsys.c 1.43 1995/01/07 16:38:39 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.43  1995/01/07 16:38:39  ahd
+ *     Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *     Revision 1.42  1994/12/31 03:39:56  ahd
  *     Correct processing for systems with grade restrictions in the
  *     systems file when calling system "any"
@@ -398,7 +401,7 @@ CONN_STATE getsystem( const char sendgrade )
 
       scandir( NULL, sendgrade); /* Reset directory search if active */
 
-      if (scandir(rmtname, min(sysGrade, sendgrade )) == XFER_REQUEST)
+      if (scandir(rmtname, (char) min(sysGrade, sendgrade )) == XFER_REQUEST)
          nextState = CONN_CHECKTIME;
       else
          nextState = CONN_NOGRADE;

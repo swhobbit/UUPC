@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.5 1995/01/08 21:02:02 ahd Exp $
+ *    $Id: imfile.c 1.6 1995/01/09 01:39:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.6  1995/01/09 01:39:22  ahd
+ *    Correct error processing vsprintf() in imprintf()
+ *
  *    Revision 1.5  1995/01/08 21:02:02  ahd
  *    Correct BC++ 3.1 compiler warnings
  *
@@ -268,7 +271,11 @@ int imclose( IMFILE *imf)
 
    if ( imf->buffer != NULL )
    {
+#ifdef BIT32ENV
+      free( imf->buffer );
+#else
       _ffree( imf->buffer );
+#endif
    }
 
    if ( imf->stream != NULL )
@@ -481,14 +488,14 @@ size_t  imread( void *userBuffer,
    {
       printmsg(0, "imread: Requested read of less than zero bytes" );
       errno = EINVAL;
-      return -1;
+      return 0;
    }
 
    if ( imeof( imf ) )
       return 0;
 
    if ( imerror( imf ) )
-      return -1;
+      return 0;
 
    if ( (long) bytes <= (imf->inUse - imf->position ))
    {
@@ -526,7 +533,7 @@ size_t  imwrite(const void *userBuffer,
    if ( bytes <= 0 )
    {
       errno = EINVAL;
-      return -1;
+      return 0;
    }
 
 /*--------------------------------------------------------------------*/
@@ -535,7 +542,7 @@ size_t  imwrite(const void *userBuffer,
 /*--------------------------------------------------------------------*/
 
    if ( imReserve( imf, bytes ) )
-      return -1;
+      return 0;
 
    imStatus( imf );
 
@@ -671,7 +678,11 @@ void imrewind( IMFILE *imf)
                      imf->inUse );
 #endif
 
+#ifdef BIT32ENV
+         imf->buffer = realloc( imf->buffer, (size_t) imf->inUse );
+#else
          imf->buffer = _frealloc( imf->buffer, (size_t) imf->inUse );
+#endif
          checkref( imf->buffer );
          imf->length = imf->inUse;
 
@@ -727,11 +738,11 @@ int imunload( FILE *output, IMFILE *imf )
    {
       while (! imeof( imf ))
       {
-         long bytes = imf->inUse - imf->position;
+         size_t bytes = imf->inUse - imf->position;
 
          if ( bytes > fwrite( imf->buffer + imf->position,
                               sizeof (char),
-                              (size_t) bytes,
+                              bytes,
                               output ))
             return -1;              /* Report error to caller        */
 
@@ -781,7 +792,7 @@ int imunload( FILE *output, IMFILE *imf )
 
    while (! imeof( imf ))
    {
-      long bytes = imread( ioBuf, sizeof (char), ioBufSize, imf );
+      size_t bytes = imread( ioBuf, sizeof (char), ioBufSize, imf );
 
       if ((imerror( imf ) || ((long) bytes < 0)))
       {
@@ -789,10 +800,10 @@ int imunload( FILE *output, IMFILE *imf )
          return -1;
       }
 
-      if ( (long) bytes > fwrite( ioBuf,
-                                   sizeof (char),
-                                   (size_t) bytes,
-                                   output ))
+      if ( bytes > fwrite( ioBuf,
+                           sizeof (char),
+                           (size_t) bytes,
+                           output ))
       {
          free(ioBuf);
          return -1;              /* Report error to caller        */

@@ -14,9 +14,12 @@
 /*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
-/* $Id: hdbm.h 1.3 1994/12/31 03:51:25 ahd Exp $ */
+/* $Id: hdbm.h 1.4 1995/01/03 05:33:54 ahd Exp $ */
 
 /* $Log: hdbm.h $
+/* Revision 1.4  1995/01/03 05:33:54  ahd
+/* Make as many parameters CONST as possible
+/*
 /* Revision 1.3  1994/12/31 03:51:25  ahd
 /* First pass of integrating Mike McLagan's news SYS file suuport
 /*
@@ -62,7 +65,7 @@ datum;
 
 extern datum nullitem;
 
-extern DBM *dbm_open(const char *name, int flags, int mode);
+extern DBM *dbm_open(const char *name, const int flags, const int mode);
 extern void dbm_close(DBM *db);
 extern int dbm_store(DBM *db,
                      const datum key,

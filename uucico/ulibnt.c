@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.27 1994/12/22 00:37:42 ahd Exp $
+ *       $Id: ulibnt.c 1.28 1995/01/07 16:40:53 ahd Exp $
  *       $Log: ulibnt.c $
+ *       Revision 1.28  1995/01/07 16:40:53  ahd
+ *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.27  1994/12/22 00:37:42  ahd
  *       Annual Copyright Update
  *
@@ -720,7 +723,7 @@ void nssendbrk(unsigned int duration)
 
    SetCommBreak(hCom);
 
-   ddelay( duration == 0 ? 200 : duration);
+   ddelay( (KEWSHORT) (duration == 0 ? 200 : duration));
 
    ClearCommBreak(hCom);
 

@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.9 1994/04/24 20:35:08 ahd v1-12k $
+ *    $Id: strpool.c 1.10 1994/12/22 00:11:31 ahd Exp $
  *
  *    $Log: strpool.c $
+ *    Revision 1.10  1994/12/22 00:11:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/04/24 20:35:08  ahd
  *    Optimize processing by saving length of strings
  *    Insure extremely long strings are allocated properly
@@ -191,7 +194,7 @@ char *strpool( const char *input , const char *file, size_t line)
 
       available = pool_size - current->used;
 
-      if (( available < best_fit) && (available > (len+1) ))
+      if (( available < (int) best_fit) && (available > (int) (len+1) ))
       {
          best_fit = available;
          save     = current;
