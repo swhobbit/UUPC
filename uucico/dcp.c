@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.22 1993/10/25 01:21:22 ahd Exp $
+ *    $Id: dcp.c 1.23 1993/10/28 12:19:01 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.23  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.22  1993/10/25  01:21:22  ahd
  * Restructure to suppress silly unable to perform global optimizations
  * message under MS C 6.0.
@@ -526,7 +529,8 @@ static boolean master( const char recvgrade,
          case CONN_DROPLINE:
             shutDown();
             UnlockSystem();
-            suspend_other(FALSE, M_device);
+            if (!IsNetwork())
+               suspend_other(FALSE, M_device);
             m_state = CONN_INITIALIZE;
             break;
 
