@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.28 1993/12/26 16:20:17 ahd Exp $
+ *      $Id: dcpgpkt.c 1.29 1994/01/01 19:18:41 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.29  1994/01/01  19:18:41  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.28  1993/12/26  16:20:17  ahd
  * Suppress compile warning
  *
@@ -1366,7 +1369,7 @@ static void gspack(short type,
             header[4] |= 0x40;/* Count byte handled at higher level */
 
 #ifdef UDEBUG
-#ifdef 32BITENV
+#ifdef BIT32ENV
             printmsg(7, "data=|%.*s|", len, data);
 #else
             printmsg(7, "data=|%.*Fs|", len, data);
