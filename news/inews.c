@@ -11,10 +11,13 @@
 #include "uupcmoah.h"
 
 static char *rcsid =
-"$Id: inews.c 1.6 1994/02/20 19:11:18 ahd Exp $";
-static char *rcsrev = "$Revision: 1.6 $";
+"$Id: inews.c 1.7 1994/02/26 17:19:53 ahd Exp $";
+static char *rcsrev = "$Revision: 1.7 $";
 
 /* $Log: inews.c $
+ * Revision 1.7  1994/02/26  17:19:53  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.6  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -136,8 +139,10 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
   if (optind == argc - 1)
-    if (freopen(argv[optind], "rb", stdin) == NULL) {
+    if (freopen(argv[optind], "rb", stdin) == NULL)
+    {
       printmsg(0, "inews: cannot open article file %s", argv[optind]);
+      printerr( argv[optind] );
       panic();
     }
 
@@ -149,6 +154,7 @@ void main( int argc, char **argv)
 
   if ((article = FOPEN(tempname, "w", IMAGE_MODE)) == NULL) {
     printmsg(0,"inews: cannot create temporary file \"%s\"", tempname);
+    printerr( tempname );
     panic();
   }
 
