@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.22 1996/03/19 03:36:02 ahd Exp $
+ *    $Id: address.c 1.23 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.23  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.22  1996/03/19 03:36:02  ahd
  *    Normalize case of selected variables
  *    Modify trap for doubled delimiters (%% @@ !!) to handle mixed

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.17 1996/01/01 20:47:56 ahd v1-12r $
+#       $Id: nmakewnt.mak 1.18 1996/11/18 04:40:55 ahd Exp $
 #
-#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.18  1996/11/18 04:40:55  ahd
+#       Support for building automatically under Windows 95
+#
 #       Revision 1.17  1996/01/01 20:47:56  ahd
 #       Annual Copyright Update
 #

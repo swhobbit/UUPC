@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.15 1996/01/07 14:12:17 ahd v1-12r $
+#       $Id: nmakedos.mak 1.16 1996/01/20 13:04:26 ahd Exp $
 #
-#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.16  1996/01/20 13:04:26  ahd
+#       Automatically use /codeview when using link in debug mode
+#
 #       Revision 1.15  1996/01/07 14:12:17  ahd
 #       Lower stack under DOS to 0x2000 (8K)
 #

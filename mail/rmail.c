@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.52 1996/03/19 03:37:44 ahd Exp $
+ *    $Id: rmail.c 1.53 1996/11/18 04:46:49 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.53  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.52  1996/03/19 03:37:44  ahd
  *    Pass in previous state of header parsing (header vs. body)
  *    when copying remainder of file to holding tank.

@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.16 1995/02/20 17:28:43 ahd v1-12q $
+ *    $Id: mlib.c 1.17 1996/01/01 21:04:14 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.17  1996/01/01 21:04:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.h 1.5 1995/11/30 03:07:22 ahd v1-12q $
+ *    $Id: address.h 1.6 1996/01/01 21:04:35 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: address.h $
+ *    Revision 1.6  1996/01/01 21:04:35  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/11/30 03:07:22  ahd
  *    Trap truly invalid addresses in tokenizer
  *

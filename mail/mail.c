@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.42 1996/01/20 12:58:08 ahd Exp $
+ *    $Id: mail.c 1.43 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.43  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.42  1996/01/20 12:58:08  ahd
  *    Specify test/binary when opening in-memory files
  *
@@ -182,7 +187,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.42 1996/01/20 12:58:08 ahd Exp $";
+      "$Id: mail.c 1.43 1996/11/18 04:46:49 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

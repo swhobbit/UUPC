@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     l i b . m a k                                                  *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1996 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1997 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.19 1996/01/01 21:00:54 ahd v1-12r $
+#       $Id: lib.mak 1.20 1997/04/24 00:55:23 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.20  1997/04/24 00:55:23  ahd
+#       Drop makebuf from library
+#
 #       Revision 1.19  1996/01/01 21:00:54  ahd
 #       Annual Copyright Update
 #

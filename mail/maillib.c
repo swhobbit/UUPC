@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.24 1996/01/01 23:50:26 ahd Exp $
+ *    $Id: maillib.c 1.25 1996/01/04 04:00:46 ahd v1-12r $
  *
  *    $Log: maillib.c $
+ *    Revision 1.25  1996/01/04 04:00:46  ahd
+ *    Use sorted list of boolean options with binary search and computed
+ *    table size.
+ *
  *    Revision 1.24  1996/01/01 23:50:26  ahd
  *    Don't scan nickname table for duplicate nicknames in linear fashion,
  *    merely check entire table for duplicates after sorting.

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.17 1996/01/01 21:04:46 ahd v1-12r $
+ *    $Id: deliver.h 1.18 1996/11/19 00:25:20 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.18  1996/11/19 00:25:20  ahd
+ *    Externalize functions
+ *
  *    Revision 1.17  1996/01/01 21:04:46  ahd
  *    Annual Copyright Update
  *

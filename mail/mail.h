@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.8 1996/01/01 21:04:30 ahd v1-12r $
+ *    $Id: mail.h 1.9 1996/11/19 00:25:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.9  1996/11/19 00:25:20  ahd
+ *    Revise LDESC declare
+ *
  *    Revision 1.8  1996/01/01 21:04:30  ahd
  *    Annual Copyright Update
  *

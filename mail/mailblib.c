@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.25 1996/01/01 23:50:26 ahd v1-12r $
+ *    $Id: mailblib.c 1.26 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.26  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.25  1996/01/01 23:50:26  ahd
  *    Don't scan nickname table for duplicate nicknames in linear fashion,
  *    merely check entire table for duplicates after sorting.

@@ -1,10 +1,15 @@
-#       $Id: nmakos21.mak 1.9 1995/11/08 01:03:13 ahd v1-12q $
+#       $Id: nmakos21.mak 1.10 1996/01/01 23:54:01 ahd v1-12r $
 #
-#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.10  1996/01/01 23:54:01  ahd
+#       Use larger stack under OS/2 16 bit
+#       Annual copyright update
+#       Rename user "alias" module to nickname.obj for mail.exe
+#
 #       Revision 1.9  1995/11/08 01:03:13  ahd
 #       Allow copying between drives during install
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.8 1996/01/04 04:01:44 ahd v1-12r $
+ *    $Id: maillib.h 1.9 1996/11/19 00:25:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.9  1996/11/19 00:25:20  ahd
+ *    Revise LDESC declare
+ *
  *    Revision 1.8  1996/01/04 04:01:44  ahd
  *    Use sorted table for boolean options with binary search
  *

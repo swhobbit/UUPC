@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -35,10 +35,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.36 1996/03/18 03:48:14 ahd Exp $
+ *    $Id: delivers.c 1.1 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: delivers.c $
+ *    Revision 1.1  1996/11/18 04:46:49  ahd
+ *    Initial revision
+ *
  */
 
  deliverSMTP(

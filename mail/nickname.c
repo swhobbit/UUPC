@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.23 1996/01/01 23:50:26 ahd v1-12r $
+ *    $Id: nickname.c 1.24 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.24  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.23  1996/01/01 23:50:26  ahd
  *    Don't scan nickname table for duplicate nicknames in linear fashion,
  *    merely check entire table for duplicates after sorting.

@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.16 1995/11/30 12:47:07 ahd v1-12q $
+#       $Id: nmakos22.mak 1.17 1996/01/01 20:47:44 ahd v1-12r $
 #
-#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.17  1996/01/01 20:47:44  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.16  1995/11/30 12:47:07  ahd
 #       Support new disk layout
 #

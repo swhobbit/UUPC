@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.h 1.7 1995/01/07 16:19:55 ahd v1-12q $
+ *    $Id: sysalias.h 1.8 1996/01/01 21:04:58 ahd v1-12r $
  *
  *    $Log: sysalias.h $
+ *    Revision 1.8  1996/01/01 21:04:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1995/01/07 16:19:55  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

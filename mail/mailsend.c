@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.27 1996/01/01 23:50:26 ahd v1-12r $
+ *    $Id: mailsend.c 1.28 1997/04/24 00:56:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.28  1997/04/24 00:56:54  ahd
+ *    correct if ferror() to if ( ferror() )
+ *
  *    Revision 1.27  1996/01/01 23:50:26  ahd
  *    Don't scan nickname table for duplicate nicknames in linear fashion,
  *    merely check entire table for duplicates after sorting.

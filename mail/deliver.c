@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.49 1996/01/20 12:58:08 ahd Exp $
+ *    $Id: deliver.c 1.50 1996/11/18 04:46:49 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.50  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.49  1996/01/20 12:58:08  ahd
  *    Specify text/binary when opening in-memory files
  *
