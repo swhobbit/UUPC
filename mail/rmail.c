@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.18 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: rmail.c 1.19 1993/12/07 04:57:53 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.19  1993/12/07  04:57:53  ahd
+ * Make ParseFrom perform heroics to pick up from FromUser whenever
+ * possible
+ *
  * Revision 1.18  1993/11/13  17:43:26  ahd
  * Use additional sources for From information
  *
@@ -385,6 +389,7 @@ void main(int argc, char **argv)
 
    if (dataout == NULL)
    {
+      printerr( tempname );
       printmsg(0,"Cannot open temporary file \"%s\" for output",
             tempname);
       Terminate(5);
