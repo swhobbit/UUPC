@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.20 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: modem.c 1.21 1993/09/23 03:26:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.21  1993/09/23  03:26:51  ahd
+ * Never try to autobaud a network connection
+ *
  * Revision 1.20  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -485,6 +488,9 @@ CONN_STATE callin( const time_t exit_time )
 
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
+
+   setPrty();                 // Into warp drive for actual transfers
+
    return CONN_LOGIN;
 
 } /* callin */
@@ -688,6 +694,8 @@ static boolean dial(char *number, const BPS speed)
    if ( !IsNetwork() )
       autobaud(speed);     /* Reset modem speed, if desired          */
 
+   setPrty();                 // Into warp drive for actual transfers
+
 /*--------------------------------------------------------------------*/
 /*                      Report success to caller                      */
 /*--------------------------------------------------------------------*/
@@ -762,6 +770,7 @@ void shutDown( void )
       recurse = TRUE;
       terminate_processing = FALSE;
       hangup();
+      resetPrty();               // Drop out of hyperspace
       sendlist( dropline, modemTimeout, modemTimeout, NULL);
       recurse = FALSE;
       terminate_processing |= aborted;
@@ -769,7 +778,8 @@ void shutDown( void )
 
    closeline();
    norecovery = TRUE;
-}
+
+}  /* shutDown */
 
 /*--------------------------------------------------------------------*/
 /*    s e n d l i s t                                                 */
