@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.7 1994/02/19 04:05:37 ahd Exp $
+ *    $Id: export.c 1.8 1994/02/19 04:41:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: export.c $
+ *     Revision 1.8  1994/02/19  04:41:08  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/19  04:05:37  ahd
  *     Use standard first header
  *
@@ -83,6 +86,10 @@ void exportpath(char *canon, const char *host, const char *remote)
    size_t charsetsize;
             /* Number of allowed characters in
                               MS-DOS file names                   */
+
+#ifdef UDEBUG
+   printmsg(5,"Exporting %s for %s", host, remote );
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                      Define our character set                      */
