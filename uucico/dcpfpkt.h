@@ -10,7 +10,13 @@
       21 Aug 91   -  Create from dcpgpkt.c                        ahd
  */
 
-int  fopenpk(void);
+ /*
+  *      $Id$
+  *
+  *      $Log$
+  */
+
+int  fopenpk(const boolean master);
 int  fclosepk(void);
 int  fgetpkt(char  *data,int  *len);
 int  fsendpkt(char  *data,int  len);
