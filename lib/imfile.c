@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.34 1998/03/16 06:14:04 ahd Exp $
+ *    $Id: imfile.c 1.35 1998/03/16 06:38:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.35  1998/03/16 06:38:22  ahd
+ *    Correct one byte overrun
+ *
  *    Revision 1.34  1998/03/16 06:14:04  ahd
  *    Allow auto-debugging under 32 bit environment
  *
@@ -492,7 +495,6 @@ int imerror(IMFILE *imf)
 char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 {
    char UUFAR *p;
-   size_t stringLength;
    size_t subscript = 0;
 
    imStatus(imf);
@@ -513,11 +515,6 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 /*               Select the string from our own buffer                */
 /*--------------------------------------------------------------------*/
 
-   stringLength = (size_t) (imf->inUse - imf->position);
-
-   if (stringLength > (size_t) userLength)
-      stringLength = (size_t) userLength;
-
 #ifdef UDEBUG2
    printmsg(6,"imgets: Requested up to %ld bytes, "
               "actually searching %ld bytes",
@@ -527,7 +524,7 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 
    p = imf->buffer + (size_t) imf->position;
 
-   while ((subscript+1) < stringLength)
+   while ((subscript+1) < userLength)
    {
       if (p[subscript] == '\0')
       {
@@ -535,13 +532,16 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
                      (long) subscript);
       }
 
+      imf->position++;
       if (p[subscript++] == '\n')
+         break;
+
+      if (imeof(imf))
          break;
    }
 
    MEMCPY(userBuffer, p, subscript);
    userBuffer[subscript++] = '\0';
-   imf->position += subscript;
 
 #ifdef UDEBUG2
    printmsg(5,"imgets: Returning %d bytes = \"%s\"",
