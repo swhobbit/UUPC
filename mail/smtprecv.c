@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.5 1997/11/29 13:03:13 ahd Exp $
+ *       $Id: smtprecv.c 1.6 1997/12/13 18:05:06 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.6  1997/12/13 18:05:06  ahd
+ *       Change parsing and passing of sender address information
+ *
  *       Revision 1.5  1997/11/29 13:03:13  ahd
  *       Clean up single client (hot handle) mode for OS/2, including correct
  *       network initialization, use unique client id (pid), and invoke all
@@ -58,7 +61,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.5 1997/11/29 13:03:13 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.6 1997/12/13 18:05:06 ahd Exp $");
 
 currentfile();
 
@@ -158,8 +161,7 @@ commandMAIL(SMTPClient *client,
    client->transaction = malloc(sizeof *(client->transaction));
    checkref(client->transaction);
 
-   client->transaction->sender = strdup(operands[0]);
-   checkref(client->transaction->sender);
+   strcpy( client->transaction->sender, operands[0]);
 
    client->transaction->addressLength = MAXADDRS;
    client->transaction->addressCount  = 0;
@@ -172,9 +174,12 @@ commandMAIL(SMTPClient *client,
 /*           We're ready for the addressee list, ask for it           */
 /*--------------------------------------------------------------------*/
 
+   sprintf(client->transmit.data,
+           "%s Sender Address okay, specify receiver addresses",
+           client->transaction->sender);
    SMTPResponse(client,
                  verb->successResponse,
-                 "Okay, send receiver addresses");
+                 client->transmit.data );
    return KWTrue;
 
 } /* commandMAIL */
@@ -489,12 +494,6 @@ cleanupTransaction(SMTPClient *client)
    {
       free(client->transaction->address);
       client->transaction->address = NULL;
-   }
-
-   if (client->transaction->sender)
-   {
-      free(client->transaction->sender);
-      client->transaction->sender = NULL;
    }
 
    client->transaction = NULL;
