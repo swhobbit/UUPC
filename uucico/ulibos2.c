@@ -19,6 +19,14 @@
       6 Apr 90 - Create libary for OS/2 from ulib.c                     ahd
 */
 
+/*
+ *       $Id$
+ *       $Log$
+ */
+
+ static const char rcsid[] =
+         "$Id$";
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -84,6 +92,7 @@ static BYTE com_status;
 static USHORT com_error;
 static USHORT usPrevPriority;
 
+static void ShowError( const USHORT status );
 static void ShowModem( const BYTE status );
 
 /*--------------------------------------------------------------------*/
@@ -177,8 +186,7 @@ int openline(char *name, BPS baud, const boolean direct )
                (int) rc , (int) rc);
    } /*if */
    else if ( com_error )
-      printmsg(2,"openline: Reset errors for %s, error bits were %#04x",
-               name, (int) com_error );
+      ShowError( com_error );
 
 /*--------------------------------------------------------------------*/
 /*                           Set baud rate                            */
@@ -384,8 +392,7 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
                (int) rc , (int) rc);
    } /*if */
    else if ( com_error )
-      printmsg(2,"sread: Reset port error, error bits were %#04x",
-               (int) com_error );
+      ShowError( com_error );
 
 /*--------------------------------------------------------------------*/
 /*                 Determine when to stop processing                  */
@@ -614,9 +621,16 @@ void ssendbrk(unsigned int duration)
 
    DosDevIOCtl( &com_error, FAR_NULL, ASYNC_SETBREAKON, IOCTL_ASYNC,
                 com_handle);
+
+   if ( com_error )
+      ShowError( com_error );
+
    ddelay( duration == 0 ? 200 : duration);
    DosDevIOCtl( &com_error, FAR_NULL, ASYNC_SETBREAKOFF, IOCTL_ASYNC,
                 com_handle);
+
+   if ( com_error )
+      ShowError( com_error );
 
 } /*ssendbrk*/
 
@@ -664,6 +678,8 @@ void closeline(void)
    {
       printmsg(0,"closeine: Unable to lower DTR/RTS for port");
    } /*if */
+   else if ( com_error )
+         ShowError( com_error );
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the port                       */
@@ -718,6 +734,8 @@ void hangup( void )
       printmsg(0,"hangup: Unable to lower DTR for comm port");
       panic();
    } /*if */
+   else if ( com_error )
+         ShowError( com_error );
 
 /*--------------------------------------------------------------------*/
 /*                  Wait for the telephone to hangup                  */
@@ -741,6 +759,8 @@ void hangup( void )
       printmsg(0,"hangup: Unable to raise DTR for comm port");
       panic();
    } /*if */
+   else if ( com_error )
+         ShowError( com_error );
 
    ddelay(500);            /* Now wait for the poor thing to recover    */
 
@@ -860,12 +880,9 @@ boolean CD( void )
       panic();
    } /*if */
 
-/*
-   if ( status == oldstatus )
-      return TRUE;
- */
+   if ( status != oldstatus )
+      ShowModem( status );
 
-   ShowModem( status );
    oldstatus = status;
 
 /*--------------------------------------------------------------------*/
@@ -898,9 +915,26 @@ static void ShowModem( const BYTE status )
 
    printmsg(0, "ShowModem: %#02x%s%s%s%s",
       (int) status,
-      mannounce(DCD_ON,   status, "\tCarrier Detect"),
-      mannounce(RI_ON,    status, "\tRing Indicator"),
-      mannounce(DSR_ON,   status, "\tData Set Ready"),
-      mannounce(CTS_ON,   status, "\tClear to Send"));
+      mannounce(DCD_ON,   status, "  Carrier Detect"),
+      mannounce(RI_ON,    status, "  Ring Indicator"),
+      mannounce(DSR_ON,   status, "  Data Set Ready"),
+      mannounce(CTS_ON,   status, "  Clear to Send"));
+
+} /* ShowModem */
+
+/*--------------------------------------------------------------------*/
+/*    S h o w E r r o r                                               */
+/*                                                                    */
+/*    Report modem error bits in English (more or less)               */
+/*--------------------------------------------------------------------*/
+
+static void ShowError( const USHORT status )
+{
+   printmsg(2, "Serial Port Error Occurred: %#04x%s%s%s%s",
+      (int) status,
+      mannounce(RX_QUE_OVERRUN,      status, "  Queue Overrrun"),
+      mannounce(RX_HARDWARE_OVERRUN, status, "  Hardware Overrun"),
+      mannounce(PARITY_ERROR,        status, "  Parity Error"),
+      mannounce(FRAMING_ERROR,       status, "  Framing Error"));
 
 } /* ShowModem */
