@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.55 1997/04/24 01:41:35 ahd Exp $
+ *    $Id: uuxqt.c 1.56 1997/05/11 04:28:26 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.56  1997/05/11 04:28:26  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.55  1997/04/24 01:41:35  ahd
  *    Annual Copyright Update
  *
@@ -779,7 +782,7 @@ static void process( const char *eXecFileName,
             expand_path(hostfile, securep->pubdir, securep->pubdir, NULL);
 
             if (!equal(remote, E_nodename) &&
-                ValidateFile( hostfile, ALLOW_WRITE))
+                ! ValidateFile( hostfile, ALLOW_WRITE))
                /* Taylor/GNU uuxqt also rejects it if the output would be in
                   E_spooldir (to keep people from setting up phony requests).
                   I am not sure whether we want to do likewise.  --RHG */
