@@ -13,9 +13,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.35 1997/03/31 07:00:05 ahd v1-12t $
+ *    $Id: import.c 1.36 1997/12/14 21:13:45 ahd v1-12u $
  *
  *    $Log: import.c $
+ *    Revision 1.36  1997/12/14 21:13:45  ahd
+ *    Correct corrupted buffer when short name with invalid characters
+ *    is mapped.
+ *    Check NT advanced file system based on name length, not FS name
+ *    Cache NT advanced file system status for letter drives
+ *    Never cache OS/2 UNC Names
+ *    Use symbolic names for cache flags
+ *    ,
+ *
  *    Revision 1.35  1997/03/31 07:00:05  ahd
  *    Annual Copyright Update
  *
@@ -51,6 +60,7 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
+#include <limits.h>
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 #define INCL_NOPM             /* No need to include OS/2 PM info */
@@ -90,7 +100,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id$");
+RCSID("$Id: import.c 1.36 1997/12/14 21:13:45 ahd v1-12u $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -584,7 +594,7 @@ KWBoolean ValidDOSName(const char *s,
 {
    char *ptr;
    size_t len = strlen (s);
-   char tempname[FILENAME_MAX];
+   char tempName[FILENAME_MAX];
 
    static char *longCharSet = NULL;
 
@@ -597,6 +607,7 @@ KWBoolean ValidDOSName(const char *s,
 
    if (longname)
    {
+      char workBuffer[UCHAR_MAX + 1];
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 
@@ -612,13 +623,13 @@ KWBoolean ValidDOSName(const char *s,
 #ifdef __OS2__
          APIRET result = DosQPathInfo((PSZ) s,
                                        FIL_QUERYFULLNAME,
-                                       (PVOID) tempname,
-                                       sizeof tempname);
+                                       (PVOID) workBuffer,
+                                       sizeof workBuffer);
 #else
          USHORT result = DosQPathInfo((PSZ) s,
                                        FIL_NAMEISVALID,
-                                       (PBYTE) tempname,
-                                       sizeof tempname,
+                                       (PBYTE) workBuffer,
+                                       sizeof workBuffer,
                                        0);
 
 #endif
@@ -636,16 +647,21 @@ KWBoolean ValidDOSName(const char *s,
 
       if (longCharSet == NULL)
       {
-         strcpy(tempname, E_charset);
-         strcat(tempname, "." );          /* multiple periods allowed */
-         longCharSet = newstr(tempname);
+         strcpy(workBuffer, E_charset);
+         strcat(workBuffer, "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+                                          /* Uppercase okay           */
+         strcat(workBuffer, "." );        /* multiple periods allowed */
+         longCharSet = newstr(workBuffer);
       }
+
 
       if (strspn(s, longCharSet) == len)
       {
          printmsg(9,"ValidDOSName: \"%s\" is valid long name", s);
          return KWTrue;
       }
+
+      return KWFalse;
 
    } /* if (longname) */
 
@@ -656,14 +672,14 @@ KWBoolean ValidDOSName(const char *s,
    if (len > 12)
       return KWFalse;
 
-   strcpy(tempname, s);       /* Make a temp copy we can alter        */
+   strcpy(tempName, s);       /* Make a temp copy we can alter        */
 
 /*--------------------------------------------------------------------*/
 /*    Simple file name without extension must be eight characters     */
 /*    or less                                                         */
 /*--------------------------------------------------------------------*/
 
-   ptr = strrchr(tempname, '.');
+   ptr = strrchr(tempName, '.');
    if (ptr == NULL)
    {
       if (len > 8)
@@ -675,7 +691,7 @@ KWBoolean ValidDOSName(const char *s,
 /*--------------------------------------------------------------------*/
 
    else {
-      if ((ptr == tempname) || (ptr > tempname + 8))
+      if ((ptr == tempName) || (ptr > tempName + 8))
          return KWFalse;
 
 /*--------------------------------------------------------------------*/
@@ -689,7 +705,7 @@ KWBoolean ValidDOSName(const char *s,
 /*                          Only one period                           */
 /*--------------------------------------------------------------------*/
 
-      if (ptr != strchr(tempname, '.'))
+      if (ptr != strchr(tempName, '.'))
          return KWFalse;
    } /* else */
 
@@ -697,12 +713,12 @@ KWBoolean ValidDOSName(const char *s,
 /*                Must only be valid MS-DOS characters                */
 /*--------------------------------------------------------------------*/
 
-   strlwr(tempname);          /* Map into our desired character set   */
+   strlwr(tempName);          /* Map into our desired character set   */
    if (ptr != NULL)
       *ptr = 'x';             /* We've already accounted for the
                                  period, don't let it ruin our day    */
 
-   if (strspn(tempname, E_charset) == len)
+   if (strspn(tempName, E_charset) == len)
    {
 #ifdef UDEBUG2
       printmsg(9,"ValidDOSName: \"%s\" is valid", s);
