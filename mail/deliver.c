@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.22 1993/12/09 13:24:25 ahd Exp rommel $
+ *    $Id: deliver.c 1.23 1993/12/23 03:11:17 rommel Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.23  1993/12/23  03:11:17  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.22  1993/12/09  13:24:25  ahd
  * Correct timestamp in UUCP From line
  *
@@ -175,6 +178,11 @@ static int DeliverFile( const char *input,
 static size_t DeliverRemote( const char *input, /* Input file name    */
                              const char *address,  /* Target address  */
                              const char *path);
+
+static size_t DeliverVMS( const char *input,    /* Input file name    */
+                          char *user,     /* Target address           */
+                          boolean validate); /* Validate/forward
+                                                local mail            */
 
 static size_t DeliverGateway(   const char *input,
                                 const char *user,
@@ -570,6 +578,10 @@ static int DeliverFile( const char *input,
             break;
          }
 
+         case '>':               /* Deliver to V-mail address specified */
+               delivered += DeliverVMS( input, s + 1, validate );
+               break;
+
          case '/':               /* Save in absolute path name */
          case '~':
             if (expand_path(s, NULL, cwd, E_mailext) == NULL )
@@ -649,6 +661,100 @@ static size_t DeliverGateway(   const char *input,
    } /* else */
 
 } /* DeliveryGateway */
+
+/*--------------------------------------------------------------------*/
+/*       D e l i v e r V M S                                          */
+/*                                                                    */
+/*       Deliver mail into the queue of Rick Vandenburg's             */
+/*       V-Mail server.  This is a nasty hack to overcome DOS <-->    */
+/*       OS/2 problems.                                               */
+/*--------------------------------------------------------------------*/
+
+static size_t DeliverVMS( const char *input,    /* Input file name    */
+                          char *user,     /* Target address           */
+                          boolean validate)  /* Validate/forward
+                                                local mail            */
+{
+   char *saveTemp = E_tempdir;
+   char dname[FILENAME_MAX];
+   char xname[FILENAME_MAX];
+   FILE *stream;
+
+   if (( E_vmsQueueDir == NULL ) || (E_vmail == NULL ))
+      return Bounce( input,
+                     ( E_vmsQueueDir == NULL ) ?
+                              "VMSQueueDir not defined" :
+                              "VMail program name not defined",
+                     NULL,
+                     user,
+                     validate );
+
+   E_tempdir = E_vmsQueueDir;    /* Need to generate names for VMS   */
+
+   mktempname( dname, "D");
+   mktempname( xname, "X");
+
+   E_tempdir = saveTemp;         /* Restore true directory name      */
+
+/*--------------------------------------------------------------------*/
+/*                  Now create the actual data file                   */
+/*--------------------------------------------------------------------*/
+
+   stream = FOPEN(dname, "w", TEXT_MODE );
+   if (stream == NULL )
+   {
+      printerr(dname);
+      return Bounce( input,
+                     "Cannot open V-mail data file",
+                     dname,
+                     user,
+                     validate );
+   }
+
+   if (!CopyData( FALSE, input , stream ))
+   {
+      remove( dname );
+      return 0;
+   }
+
+/*--------------------------------------------------------------------*/
+/*       Now create the command file, a simple cousin to a UUCP       */
+/*       command file                                                 */
+/*--------------------------------------------------------------------*/
+
+   stream = FOPEN(xname, "w", TEXT_MODE );
+   if (stream == NULL )
+   {
+      printerr(xname);
+      return Bounce( input,
+                     "Cannot open V-mail command file",
+                     xname,
+                     user,
+                     validate );
+   }
+
+   denormalize( dname );
+   denormalize( E_vmail );
+   fprintf( stream, "D %s\nC %s %s\n", dname, E_vmail, user );
+
+   if ( ferror( stream ))
+   {
+      perror( xname );
+      panic();
+   }
+
+   fclose( stream );
+
+   printmsg(1,"Queueing mail %sfrom %s%s%s for V-mail alias %s",
+               stats( input ),
+               ruser,
+               remoteMail ? "@" : "",
+               remoteMail ? rnode : "",
+               user );
+
+   return 1;
+
+} /* DeliverVMS */
 
 /*--------------------------------------------------------------------*/
 /*    D e l i v e r R e m o t e                                       */
@@ -736,7 +842,6 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
       printmsg(0, "DeliverRemote: cannot open X file %s", msfile);
       return 0;
    } /* if */
-
 
    fprintf(stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC %s\n",
                ruser, rnode, uuser , E_nodename,
@@ -864,7 +969,6 @@ static int CopyData( const boolean remotedelivery,
          strcpy( buf, fromUser );
          strtok( buf, "!");   /* Get first host in list               */
 
-
          if ( bflag[ F_SUPPRESSFROM ] )
             ;                 /* No operation                        */
          else if ( equal(HostAlias( buf ), fromNode ))
@@ -899,7 +1003,6 @@ static int CopyData( const boolean remotedelivery,
          if ( bflag[F_KANJI]) /* Translation enabled?                 */
             put_string = (int (*)(char *, FILE *)) fputs_jis7bit;
                               /* Translate into 7 bit Kanji           */
-
 
          if ( ! bflag[ F_SUPPRESSFROM ] )
          {
@@ -1066,7 +1169,6 @@ size_t Bounce( const char *input,
     return (1);
 
 } /* Bounce */
-
 
 /*--------------------------------------------------------------------*/
 /*    s t a t s                                                       */
