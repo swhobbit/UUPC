@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.4 1993/10/03 20:37:34 ahd Exp $
+ *    $Id: suspend2.c 1.5 1993/10/12 01:32:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.5  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.4  1993/10/03  20:37:34  ahd
  * Further cleanup for 32 bit environment
  *
@@ -82,6 +85,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <process.h>
+#include <time.h>
 
 #define INCL_DOS
 #define INCL_DOSPROCESS
@@ -103,6 +107,7 @@
 #include "catcher.h"
 #include "pos2err.h"
 #include "suspend.h"
+#include "ssleep.h"
 #include "usrcatch.h"
 
 #define STACKSIZE 8192
@@ -431,6 +436,13 @@ int suspend_other(const boolean suspend,
   boolean firstPass = TRUE;
   int result;
 
+  static time_t lastSuspend = 0;
+  static char *lastPort = "";    /* Must not be be NULL pointer      */
+
+/*--------------------------------------------------------------------*/
+/*                      Open up the pipe to process                   */
+/*--------------------------------------------------------------------*/
+
   strcpy(szPipe, SUSPEND_PIPE);
   strcat(szPipe, port );
 
@@ -481,6 +493,25 @@ int suspend_other(const boolean suspend,
       } /* if */
 
    } /* while(rc) */
+
+/*--------------------------------------------------------------------*/
+/*       Determine if we need to allow previous suspend of port we    */
+/*       issued to finish initializing port.                          */
+/*--------------------------------------------------------------------*/
+
+   if ( suspend )
+   {
+      if ( equal( lastPort, port) )
+      {
+         time_t diff = time((time_t) NULL) - lastSuspend;
+         if ( diff < 5 )
+            ssleep( 5 - diff );
+      }
+   } /* if ( suspend ) */
+   else {
+      lastPort = newstr(port);
+      time( &lastSuspend );
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*       We have an open connect, write the request to the server     */
