@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.43 1994/12/22 00:38:05 ahd Exp $
+ *       $Id: ulibos2.c 1.44 1995/01/07 16:41:02 ahd v1-12n $
  *       $Log: ulibos2.c $
+ *       Revision 1.44  1995/01/07 16:41:02  ahd
+ *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.43  1994/12/22 00:38:05  ahd
  *       Annual Copyright Update
  *
@@ -706,9 +709,15 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
          firstPass = KWFalse;
       }
       else {
-         portTimeout = (USHORT) (stop_time - now) / needed * 100;
+
+         if ( ((stop_time - now) / needed) > (USHRT_MAX / 100 ))
+            portTimeout = USHRT_MAX;
+         else
+            portTimeout = (USHORT) (stop_time - now) / needed * 100;
+
          if (portTimeout < 100)
             portTimeout = 100;
+
       } /* else */
 
       if ( portTimeout != com_dcbinfo.usReadTimeout )

@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.57 1995/02/17 23:54:56 ahd Exp $
+ *    $Id: modem.c 1.58 1995/02/21 03:30:52 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.58  1995/02/21 03:30:52  ahd
+ *    More compiler warning cleanup, drop selected messages at compile
+ *    time if not debugging.
+ *
  *    Revision 1.57  1995/02/17 23:54:56  ahd
  *    Terminate processing on a minute boundary
  *
@@ -509,37 +513,39 @@ CONN_STATE callhot( const BPS xspeed, const int hotHandle )
 CONN_STATE callin( const time_t exit_time )
 {
    char c;                    /* A character for input buffer        */
+   char *until;
 
    unsigned int    offset;    /* Time to wait for telephone          */
    time_t now = time(NULL);
    time_t left;
-   time_t stop_time = exit_time + 59;
+
+   if (now >= exit_time)            /* Any time left?                */
+      return CONN_EXIT;             /* No --> shutdown               */
 
 /*--------------------------------------------------------------------*/
 /*                Round the time up to the next minute                */
 /*--------------------------------------------------------------------*/
 
-   struct tm  *time_record;
+   left = exit_time - now;
 
-   time_record = localtime(&stop_time);
-   time_record->tm_sec = 0;
-   stop_time = mktime(time_record);
+   if ( (left+60) < SHRT_MAX )
+   {
+      struct tm  *time_record;
+      time_t stop_time = exit_time + 59;
 
-/*--------------------------------------------------------------------*/
-/*    Determine how long we can wait for the telephone, up to         */
-/*    SHRT_MAX seconds.  Aside from Turbo C limits, this insures we   */
-/*    kick the modem once in a while.                                 */
-/*--------------------------------------------------------------------*/
+      time_record = localtime(&stop_time);
+      time_record->tm_sec = 0;
+      stop_time = mktime(time_record);
 
-      if (now >= exit_time)            /* Any time left?             */
-         return CONN_EXIT;             /* No --> shutdown            */
-
+      until = dater( stop_time , NULL);
       left = stop_time - now;
+      offset = (unsigned int) left;
+   }
+   else {
+      until = "user hits Ctrl-Break";
+      offset = SHRT_MAX;
+   }
 
-      if ( left > SHRT_MAX)
-         offset = SHRT_MAX;
-      else
-         offset = (unsigned int) left;
 
 /*--------------------------------------------------------------------*/
 /*                        Open the serial port                        */
@@ -603,12 +609,13 @@ CONN_STATE callin( const time_t exit_time )
 
    suspend_ready();
 
+
    printmsg(1,"Monitoring port %s device %s"
                      " for %d minutes until %s",
-                     M_device, E_inmodem , (int) (offset / 60),
-                     (left > hhmm2sec(10000)) ?
-                              "user hits Ctrl-Break" :
-                              dater( stop_time , NULL));
+                     M_device,
+                     E_inmodem ,
+                     (int) (offset / 60),
+                     until );
 
    interactive_processing = KWFalse;
 
