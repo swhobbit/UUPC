@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.1 1993/07/22 23:19:50 ahd Exp ahd $
+ *    $Id: winutil.c 1.2 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.2  1993/07/31  16:22:16  ahd
+ * Changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.1  1993/07/22  23:19:50  ahd
  * Initial revision
  *
@@ -37,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <shellapi.h>
 #include <toolhelp.h>
 
 /*--------------------------------------------------------------------*/
@@ -50,23 +54,23 @@
 /*                           Local defines                            */
 /*--------------------------------------------------------------------*/
 
-//
-// Private messages
-//
-#define PM_TASKEND WM_USER
-//
-// This triggers a "nice" break into the debugger.
-//
-#define BREAKPOINT   _asm INT 3
+/*--------------------------------------------------------------------*/
+/*                          Private messages                          */
+/*--------------------------------------------------------------------*/
 
-//
-// Globals needed by callback functions & useful elsewhere
-//
+#define PM_TASKEND WM_USER
+
+/*--------------------------------------------------------------------*/
+/*      Globals needed by callback functions & useful elsewhere       */
+/*--------------------------------------------------------------------*/
+
 HTASK hOurTask;               // Our task handle
 HWND hOurWindow;              // Our EasyWin main window handle
-//
-// Used only locally
-//
+
+/*--------------------------------------------------------------------*/
+/*                         Used only locally                          */
+/*--------------------------------------------------------------------*/
+
 static HWND hChildWindow;               // Child proc Window handle
 static HINSTANCE hChildInst;    // Instance of child proc
 static HWND hTheWindow;                 // Used by WindCatcher() during enumeration
@@ -127,21 +131,28 @@ void CloseEasyWin(void)
 //
 //------------------------------------------------------------------------
 
-int SpawnWait(const char *cmdLine, const UINT fuCmdShow)
+int SpawnWait( const char *cmdLine,
+               const char *parameters,
+               const boolean synchronous,
+               const UINT fuCmdShow)
 {
-   BOOL bChildIsExecuting = FALSE;
+
+   BOOL bChildIsExecuting = TRUE;
    MSG msg;
    int iChildExitStatus = 0;
 
-   lpfnNotifyCB = (LPFNNOTIFYCALLBACK)
+   if ( synchronous )
+   {
+      lpfnNotifyCB = (LPFNNOTIFYCALLBACK)
                            MakeProcInstance((FARPROC) NotifyCatcher,
                                              _hInstance);
 
-   if (!NotifyRegister(hOurTask, lpfnNotifyCB, NF_NORMAL))
-   {
+      if (!NotifyRegister(hOurTask, lpfnNotifyCB, NF_NORMAL))
+      {
            FreeProcInstance(lpfnNotifyCB);
            printmsg(0, "SpawnWait: NotifyRegister() failed.");
            return(-1);
+      }
    }
 
    //
@@ -157,46 +168,67 @@ int SpawnWait(const char *cmdLine, const UINT fuCmdShow)
    // see the termination notfication of the spawned task, and SpawnWait()
    // will wait forever. CAVEAT!
    //
-   bChildIsExecuting = TRUE;
-   if((hChildInst = (HINSTANCE)WinExec(cmdLine, fuCmdShow)) < 32)
+   // (To insure we do yield, banner() has a call to ddelay().)
+
+   hChildInst = ShellExecute( hOurWindow,
+                              NULL,       // Execute program
+                              cmdLine,
+                              parameters,
+                              ".",
+                              fuCmdShow);
+
+   if ( hChildInst < 32 )
    {
-      bChildIsExecuting = FALSE;
-      NotifyUnRegister(hOurTask);
-      FreeProcInstance(lpfnNotifyCB);
+
+      if ( synchronous )
+      {
+         NotifyUnRegister(hOurTask);
+         FreeProcInstance(lpfnNotifyCB);
+      }
+
       printmsg(0, "SpawnWait: WinExec() failed. Code = %d\n",
                   (int)hChildInst);
       return(-1);
-   }
 
-        //
-        // LOCAL MESSAGE LOOP - Service Windows while waiting for
-        // child proc to terminate.
+   }  /* if */
+
+   if ( ! synchronous )
+      return 0;
+
    //
-        while(bChildIsExecuting && GetMessage(&msg, NULL, NULL, NULL))
-        {
+   // LOCAL MESSAGE LOOP - Service Windows while waiting for
+   // child proc to terminate.
+   //
+   while(bChildIsExecuting && GetMessage(&msg, NULL, NULL, NULL))
+   {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-      if(msg.message == PM_TASKEND)
+
+      if (msg.message == PM_TASKEND)
       {
          bChildIsExecuting = FALSE;
          iChildExitStatus = (int)(LOBYTE(msg.lParam));
-      }
+      } /* while */
 
-   }
+   } /* while */
 
    NotifyUnRegister(hOurTask);
    FreeProcInstance(lpfnNotifyCB);
 
    return(iChildExitStatus);
 
-}
+} /* SpawnWait */
 
 //------------------------------------------------------------------------
 //
 // NotifyCatcher() - Notification Callback
 //
 //------------------------------------------------------------------------
+
+#ifdef __TURBOC__
 #pragma argsused
+#endif
+
 BOOL CALLBACK NotifyCatcher (WORD wID, DWORD dwData)
 {
    HTASK hCurTask;     // handle of the task that called the notification call back
@@ -251,13 +283,13 @@ BOOL CALLBACK NotifyCatcher (WORD wID, DWORD dwData)
 HWND FindTaskWindow (HTASK hTask, LPSTR lpszClassName)
 {
 
-        hTheWindow = NULL;
+   hTheWindow = NULL;
 
-        lpfnEnumWinCB = MakeProcInstance((FARPROC)WindCatcher, _hInstance);
-        EnumTaskWindows(hTask, lpfnEnumWinCB, (LPARAM)lpszClassName);
-        FreeProcInstance(lpfnEnumWinCB);
+   lpfnEnumWinCB = MakeProcInstance((FARPROC)WindCatcher, _hInstance);
+   EnumTaskWindows(hTask, lpfnEnumWinCB, (LPARAM)lpszClassName);
+   FreeProcInstance(lpfnEnumWinCB);
 
-        return(hTheWindow);
+   return(hTheWindow);
 }
 
 
@@ -273,13 +305,13 @@ BOOL CALLBACK WindCatcher (HWND hWnd, LPARAM lparam)
     char buf[BUF_LEN+1];
     int i;
 
-        if((i = GetClassName(hWnd, (LPSTR)buf, BUF_LEN)) == 0)
-        return(FALSE);                      // OOPS!
+    if ((i = GetClassName(hWnd, (LPSTR)buf, BUF_LEN)) == 0)
+       return(FALSE);                      // OOPS!
     buf[i] = '\0';                          // Make cstr
-        if(lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) // If we found it
+    if (lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) // If we found it
     {
                 hTheWindow = hWnd;                  // Save it for called func
         return(FALSE);
-        }
+    }
     return(TRUE);
 }

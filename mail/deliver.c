@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.12 1993/06/21 02:17:31 ahd Exp $
+ *    $Id: deliver.c 1.13 1993/07/31 16:26:01 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.13  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.12  1993/06/21  02:17:31  ahd
  * Correct errors in mail routing via HOSTPATH
  *
@@ -91,10 +94,6 @@
 #include <process.h>
 #include <limits.h>
 
-#ifdef _Windows
-#include <windows.h>
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -103,6 +102,7 @@
 #include "address.h"
 #include "deliver.h"
 #include "expath.h"
+#include "execute.h"
 #include "getseq.h"
 #include "kanjicnv.h"
 #include "hlib.h"
@@ -115,10 +115,6 @@
 #include "sysalias.h"
 #include "timestmp.h"
 #include "trumpet.h"
-
-#ifdef _Windows
-#include "winutil.h"
-#endif
 
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
@@ -468,7 +464,6 @@ static int DeliverFile( const char *input,
 
    while((ftell(fwrd) < end) && (fgets( buf, BUFSIZ, fwrd) != NULL ))
    {
-      char command[BUFSIZ];
       char *s = buf;
       char c;
       char *nextfile = NULL;
@@ -510,27 +505,25 @@ static int DeliverFile( const char *input,
             break;            /* Empty line, ignore         */
 
          case '|':               /* Pipe mail into a command   */
-#ifdef _Windows                  // Fix this later -- ahd
-            return Bounce(input,
-                          "Piping into commands not supported under Windows",
-                          command,
-                          user,
-                          validate );
-#else
          {
             long here = ftell(fwrd);
+
             fclose(fwrd);
-            sprintf(command , "%s < %s", &s[1], input);
-            printmsg(1,"Executing \"%s\" in %s", command, cwd );
             PushDir( cwd );
-            system(command);                 /* FIX THIS */
+            printmsg(1,"Piping mail%s from %s@%s for %s into %s",
+                        stats( input ),
+                        ruser,
+                        rnode,
+                        user,
+                        s + 1 );
+
+            executeCommand( s + 1, input, NULL, TRUE, FALSE );
             PopDir();
             delivered += 1;
             fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
             fseek( fwrd, here, SEEK_SET);
             break;
          } /* case */
-#endif
 
          case '\\':              /* Deliver without forwarding */
             delivered += Deliver( input, &s[1], TRUE, FALSE );
@@ -581,10 +574,6 @@ static int DeliverFile( const char *input,
 /*    Deliver mail via a gateway program                              */
 /*--------------------------------------------------------------------*/
 
-#if !defined(_Windows) && defined(__TURBOC__)
-#pragma argsused
-#endif
-
 static size_t DeliverGateway(   const char *input,
                                 const char *user,
                                 const char *node,
@@ -592,27 +581,20 @@ static size_t DeliverGateway(   const char *input,
                                 const boolean validate )
 {
    char command[BUFSIZ];
+   int rc;
 
 /*--------------------------------------------------------------------*/
 /*    Format the command and tell the user what we're going to do     */
 /*--------------------------------------------------------------------*/
 
-   sprintf(command , "%s %s %s %s < %s",
+   sprintf(command , "%s %s %s %s",
                      hostp->via,          /* Program to perform forward */
                      hostp->hostname,     /* Nominal host routing via   */
                      node ,               /* Final destination system   */
-                     user,                /* user on "node" for delivery*/
-                     input);              /* The data to forward        */
+                     user );              /* user on "node" for delivery*/
 
-   printmsg(3,"DeliverGateway: %s",command);
+   printmsg(3,"DeliverGateway: %s", command);
 
-#ifdef _Windows
-    return Bounce(input,
-                  "Piping into commands not supported under Windows",
-                  command,
-                  user,
-                  validate );
-#else
    printmsg(1,
       "Gatewaying mail %sfrom %s@%s to %s@%s via %s using \"%s\"",
        stats( input ),
@@ -622,10 +604,20 @@ static size_t DeliverGateway(   const char *input,
 /*  Run the command and return caller with count of mail delivered    */
 /*--------------------------------------------------------------------*/
 
-   system(command);
+   rc = executeCommand( command, input, NULL, TRUE, FALSE );
 
-   return 1;
-#endif
+   if ( rc == 0 )
+      return 1;
+   else {
+      char who[MAXADDR];
+
+      sprintf( who, "%s@%s", user, node );
+      return Bounce( input,
+                     "Gateway command returned non-zero exit status",
+                     command,
+                     who,
+                     validate );
+   } /* else */
 
 } /* DeliveryGateway */
 
@@ -909,6 +901,7 @@ static int CopyData( const boolean remotedelivery,
    fclose(datain);
    fclose(dataout);
    return success;
+
 } /* CopyData */
 
 /*--------------------------------------------------------------------*/
@@ -929,16 +922,12 @@ size_t Bounce( const char *input,
                const char *address ,
                const boolean validate )
 {
-    FILE *newfile, *otherfile;
-    char tname[FILENAME_MAX]; /* name of temporary file used */
-    char buf[BUFSIZ];
-    char sender[MAXADDR];
+   FILE *newfile, *otherfile;
+   char tname[FILENAME_MAX]; /* name of temporary file used */
+   char buf[BUFSIZ];
+   char sender[MAXADDR];
 
-#ifdef _Windows
-    char wincmd[BUFSIZ];
-#endif
-
-    boolean bounce = bflag[F_BOUNCE];
+   boolean bounce = bflag[F_BOUNCE];
 
    sprintf(sender, "%s%s%s",
                ruser,
@@ -960,7 +949,7 @@ size_t Bounce( const char *input,
         equali( ruser, "root") ||
         equali( ruser, "mmdf") ||
         equali( ruser, "mailer-daemon"))
-     bounce = FALSE;
+      bounce = FALSE;
 
    if ( ! bounce )
      return Deliver( input, E_postmaster, FALSE, validate );
@@ -1006,43 +995,18 @@ size_t Bounce( const char *input,
     fclose(otherfile);
 
 /*--------------------------------------------------------------------*/
-/*                Format the subject, keeping it short                */
-/*--------------------------------------------------------------------*/
-
-   sprintf( buf, "\"Failed mail for %.20s\"", address );
-
-/*--------------------------------------------------------------------*/
 /*          Recursively invoke RMAIL to deliver our message           */
 /*--------------------------------------------------------------------*/
 
-    putenv("LOGNAME=uucp");
+   putenv("LOGNAME=uucp");
 
-#ifdef _Windows
-   sprintf( wincmd, "%s -w -F %s -s %s %s -c postmaster",
-            myProgramName,
+   sprintf( buf, "-w -F %s -s \"Failed mail for %.20s\" %s -c postmaster",
             tname,
-            buf,
+            address,
             sender );
 
-   if ( SpawnWait( wincmd, SW_SHOWMINNOACTIVE ))
-      DeliverLocal( input, E_postmaster, FALSE, validate);
-#else
-    if (spawnlp(P_WAIT,
-            myProgramName,
-            myProgramName,
-            "-w",
-            "-F",
-            tname,
-            "-s",
-            buf,
-            sender,
-            "-c",
-            "postmaster", NULL ) == -1 )
-    {
-         printerr("spawn");
+    if ( execute( myProgramName, buf, NULL, NULL, TRUE, FALSE ))
          DeliverLocal( input, E_postmaster, FALSE, validate);
-    }
-#endif
 
     return (1);
 

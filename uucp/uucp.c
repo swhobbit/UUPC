@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUCP.C 1.4 1993/04/11 00:35:46 ahd Exp $
+ *    $Id: uucp.c 1.5 1993/07/31 16:27:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUCP.C $
+ *    $Log: uucp.c $
+ * Revision 1.5  1993/07/31  16:27:49  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.4  1993/04/11  00:35:46  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -78,6 +81,7 @@
 #include  "uundir.h"
 #include  "security.h"
 #include  "timestmp.h"
+#include  "execute.h"
 
 #ifdef _Windows
 #include "winutil.h"
@@ -210,7 +214,7 @@ int   do_uux(char *remote,
 /*--------------------------------------------------------------------*/
 
       ex_flg = xeqt_flag ? "" : "-r";
-      sprintf(xcmd, "uux -C %s %s!uucp -C ", ex_flg, remote);
+      sprintf(xcmd, "-C %s %s!uucp -C ", ex_flg, remote);
                               /* but what about mailing the guy? */
 
 /*--------------------------------------------------------------------*/
@@ -246,14 +250,9 @@ int   do_uux(char *remote,
 /*                              OK - GO!                              */
 /*--------------------------------------------------------------------*/
 
-#ifdef _Windows
-   return SpawnWait(xcmd, SW_SHOWMINNOACTIVE);
-#else
-   system(xcmd);
+   execute("uux", xcmd, NULL, NULL, FALSE, TRUE);
 
    return(1);
-#endif
-
 
 } /* do_uux */
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: mailsend.c 1.4 1993/07/31 16:26:01 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mailsend.c $
+ * Revision 1.4  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -33,19 +36,16 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <process.h>
-
-#if defined(_Windows)
-#include <windows.h>
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#include "lib.h"
+
 #include "arpadate.h"
 #include "expath.h"
-#include "lib.h"
+#include "execute.h"
 #include "hlib.h"
 #include "mlib.h"
 #include "alias.h"
@@ -55,10 +55,6 @@
 #include "mailsend.h"
 #include "safeio.h"
 #include "address.h"
-
-#if defined(_Windows)
-#include "winutil.h"
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -387,10 +383,8 @@ boolean Send_Mail(FILE *datain,
 /*--------------------------------------------------------------------*/
 
 
-#if defined(_Windows)
-
-   sprintf(buf, "%s -t -f %s", RMAIL, pipename);
-   status = SpawnWait(buf, SW_SHOWMINNOACTIVE);
+   sprintf(buf, "-t -f %s", pipename);
+   status = execute(RMAIL, buf, NULL, NULL, TRUE, FALSE );
 
    if ( status < 0 )
    {
@@ -400,29 +394,6 @@ boolean Send_Mail(FILE *datain,
    else if ( status > 0 )
       printmsg(0,
          "rmail returned non-zero status; delivery may be incomplete.");
-
-#else /* Not Windows */
-
-   if ( freopen( pipename, "r" , stdin) == NULL )
-   {
-      printerr(CONSOLE);
-      return FALSE;
-   }
-   else {
-      status = spawnlp( P_WAIT, RMAIL,RMAIL, "-t", NULL);
-      if ( status < 0 )
-      {
-         printerr( RMAIL );
-         printmsg(0,"Unable to execute rmail; mail not delivered.");
-      }
-      else if ( status > 0 )
-         printmsg(0,
-            "rmail returned non-zero status; delivery may be incomplete.");
-   } /* else */
-
-   freopen( CONSOLE, "r", stdin);
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*               Log a copy of the mail for the sender                */
@@ -641,6 +612,7 @@ boolean Collect_Mail(FILE *stream,
             puts("Continue");
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
+
 #if defined(_Windows)
             //
             // Prompt_Input() comes back with EOF on stdin!
@@ -947,74 +919,46 @@ static boolean Subcommand( char *buf,
 /*    Filter the next of an outgoing program into the output mail     */
 /*--------------------------------------------------------------------*/
 
-#ifdef _Windows
-#pragma argsused
-
-static void filter( char *tmailbag, char *command)
-{
-   printmsg(0,"Pipes not supported under Windows at this time");
-} /* filter */
-#else
-
 static void filter( char *tmailbag, char *command)
 {
 
    char pipename[FILENAME_MAX];
-   char *argv[50];
    struct stat statbuf;
-   int    argc;
    int    result = 0;
 
-/*--------------------------------------------------------------------*/
-/*          Break the command to execute down into arguments          */
-/*--------------------------------------------------------------------*/
+   command = GetString( command );
 
-   argc = getargs(command, argv);
-
-   if ( argc == 0 )
+   if ( command == NULL )
    {
-      printf("No filter name given!\n");
+      printf("No command given for filter");
       return;
    }
-   argv[argc] = NULL;
 
 /*--------------------------------------------------------------------*/
 /*   Set up our standard input and standard output for the command    */
 /*--------------------------------------------------------------------*/
 
-   mktempname(pipename, "TXT");
+   mktempname(pipename, "TMP");
 
-   if ( freopen(tmailbag, "r", stdin) == NULL )
-      printerr( tmailbag );
-   else if (freopen(pipename, "w", stdout) == NULL )
-   {
-      printerr( pipename );
-      freopen("con", "r", stdin);
-   }
 /*--------------------------------------------------------------------*/
 /*                          Run the command                           */
 /*--------------------------------------------------------------------*/
-   else {
-      result = spawnvp( P_WAIT, argv[0], argv );
-      freopen("con", "w", stdout);
-      setbuf(stdout, NULL );
-      freopen("con", "r", stdin);
-      setbuf(stdin, NULL );
 
-      if (result == -1)       /* Did spawn fail?            */
-         printerr(argv[0]);   /* Yes --> Report error       */
-      else if( stat( pipename, &statbuf) <0 )   /* Create output?    */
-      {
-         printf(0,"Cannot determine status of output %s",pipename);
+   result = executeCommand( command, tmailbag, pipename, TRUE, TRUE );
+
+   if (result == -1)       /* Did spawn fail?            */
+         ;                 /* No operation               */
+   else if( stat( pipename, &statbuf) <0 )   /* Create output?    */
+   {
+      printf(0,"Cannot determine status of output %s",pipename);
+      printerr( pipename );
+   }
+   else if( statbuf.st_size == 0 )  /* Anything in the file?      */
+      printf("Outfile file is empty!\n");
+   else {                  /* Good output, replace input file     */
+      remove( tmailbag );
+      if (rename( pipename, tmailbag ))
          printerr( pipename );
-      }
-      else if( statbuf.st_size == 0 )  /* Anything in the file?      */
-         printf("Outfile file is empty!\n");
-      else {                  /* Good output, replace input file     */
-         remove( tmailbag );
-         if (rename( pipename, tmailbag ))
-            printerr( pipename );
-      } /* else */
    } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -1024,7 +968,6 @@ static void filter( char *tmailbag, char *command)
    remove( pipename );
 
 } /* filter */
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    G e t S t r i n g                                               */
@@ -1040,7 +983,7 @@ static char *GetString( char *input)
 /*                   Look for first data in string                    */
 /*--------------------------------------------------------------------*/
 
-   while( isspace( *input ))
+   while( *input && !isgraph( *input ))
       input++ ;
 
 /*--------------------------------------------------------------------*/
@@ -1054,10 +997,12 @@ static char *GetString( char *input)
 /*                Delete whitespace from end of string                */
 /*--------------------------------------------------------------------*/
 
-   end = &input[ strlen( input ) - 1 ];
+   end = input + strlen( input ) - 1;
 
-   while (isspace(*end))
-      *end-- = '\0';
+   while (!isgraph(*end))
+      end--;
+
+   end[1] = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                 Return beginning of string to caller               */

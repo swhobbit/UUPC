@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.12 1993/07/22 23:22:27 ahd Exp $
+ *    $Id: dcp.c 1.13 1993/07/31 16:26:01 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.13  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.12  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
  *
@@ -196,13 +199,14 @@ int dcpmain(int argc, char *argv[])
 /*                        Process our options                         */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "d:g:m:l:r:s:tw::x:z:n?")) != EOF)
+   while ((option = getopt(argc, argv, "d:g:m:l:r:s:tw:x:z:n?")) != EOF)
       switch (option)
       {
 
       case 'd':
          exit_time = atoi( optarg );
          exit_time = time(NULL) + hhmm2sec(exit_time);
+         poll_mode = 0;          // Implies passive polling
          break;
 
       case 'g':

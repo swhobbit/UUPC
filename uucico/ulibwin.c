@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.1 1993/07/22 23:24:23 ahd Exp $
+ *    $Id: ulibwin.c 1.2 1993/07/31 16:27:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.2  1993/07/31  16:27:49  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.1  1993/07/22  23:24:23  ahd
  * Initial revision
  *
@@ -308,14 +311,16 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    time_t stop_time;
    time_t now;
    COMSTAT stat;
-   MSG msg;
 
    //
    // This catches a fencepost condition later...
    //
 
    if (wanted == 0)
+   {
+      ddelay(0);
       return(0);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
@@ -343,15 +348,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
    while(TRUE)
    {
-      //
-      // Be friendly to Windows' cooperative multitasking...
-      //
-
-      while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-      {
-         TranslateMessage(&msg);
-         DispatchMessage(&msg);
-      }
 
       //
       // Check & clear the comm port. This gets the #chars in the
@@ -373,6 +369,12 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
       if (stat.cbInQue >= wanted)
          break;               // We have enough, break out!
+
+      //
+      // Be friendly to Windows' cooperative multitasking...
+      //
+
+      ddelay(0);
 
       //
       // If timeout is zero, return immediately.
@@ -405,28 +407,18 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    printmsg(15, "sread: Got %d characters, %d still in RX queue.",
                    (int)received, (int)(stat.cbInQue - received));
 
-   //
-   // Be friendly to Windows' cooperative multitasking...
-   //
-
-   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-   {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-   }
-
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
    traceData( output, wanted, FALSE );
 
-    return(received);
+   return(received);
 
 } /* nsread */
 
 /*--------------------------------------------------------------------*/
-/*    ns w r i t e                                                    */
+/*    n s w r i t e                                                   */
 /*                                                                    */
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
@@ -435,7 +427,6 @@ int nswrite(const char *data, unsigned int len)
 {
    int bytes;
    int rc;
-   MSG msg;
 
    hangup_needed = TRUE;      /* Flag that the port is now dirty  */
 
@@ -444,16 +435,6 @@ int nswrite(const char *data, unsigned int len)
 /*--------------------------------------------------------------------*/
 
    ShowModem();
-
-   //
-   // Be friendly to Windows' cooperative multitasking...
-   //
-
-   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-   {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-   }
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
@@ -469,16 +450,6 @@ int nswrite(const char *data, unsigned int len)
                         rc , rc);
       ShowError(rc);
       return bytes;
-   }
-
-   //
-   // Be friendly to Windows' cooperative multitasking...
-   //
-
-   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-   {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
    }
 
 /*--------------------------------------------------------------------*/

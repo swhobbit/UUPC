@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: timestmp.c 1.5 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: timestmp.c $
+ *     Revision 1.5  1993/07/31  16:22:16  ahd
+ *     Changes in support of Robert Denny's Windows 3.x support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -37,6 +40,7 @@
 
 #ifdef _Windows
 #include <windows.h>
+#include <time.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -49,6 +53,7 @@
 
 #ifdef _Windows
 #include "winutil.h"
+#include "ssleep.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -196,6 +201,9 @@ void banner (char **argv)
    hOurTask = GetCurrentTask();
    hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
    SetWindowText(hOurWindow, dummy);
+
+   ddelay(0);           // To insure we yield control at least once;
+                        // see comments in winutil.c.
 #endif
 
 } /* banner */

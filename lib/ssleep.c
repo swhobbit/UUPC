@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.5 1993/07/22 23:19:50 ahd Exp $
+ *    $Id: ssleep.c 1.6 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.6  1993/07/31  16:22:16  ahd
+ *     Changes in support of Robert Denny's Windows 3.x support
+ *
  *     Revision 1.5  1993/07/22  23:19:50  ahd
  *     First pass for Robert Denny's Windows 3.x support changes
  *
@@ -74,6 +77,7 @@
 #include "lib.h"
 #include "ssleep.h"
 #include "safeio.h"
+#include "catcher.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -95,32 +99,38 @@ currentfile();
 
 #ifdef _Windows
 
-static void WindowsDelay( int milliseconds );
+static void WindowsDelay( const int milliseconds );
 
 /*--------------------------------------------------------------------*/
 /*    W i n d o w s D e l a y                                         */
 /*                                                                    */
 /*    Delay processing under Windows                                  */
 /*                                                                    */
-/* NOTE: Minimum resolution is 54.925 ms.                             */
+/*    NOTE: Minimum resolution is 54.925 ms.                          */
 /*--------------------------------------------------------------------*/
 
-static void WindowsDelay( int milliseconds )
+static void WindowsDelay( const int milliseconds )
 {
-        MSG msg;
-        WORD TimerId = 1;
-        BOOL bTimerDone = FALSE;
+   MSG msg;
+   WORD TimerId = 1;
+   BOOL bTimerDone = FALSE;
 
-        //
-        // A 0-delay call means give up control to Windows
-        //
-        if(milliseconds == 0)
-        {
-                PeekMessage(&msg, NULL, NULL, NULL, PM_NOREMOVE);
-                return;
-        }
+   //
+   //    A 0-delay call means give up control to Windows
+   //
 
-        SetTimer( hOurWindow, TimerId,
+   if (milliseconds == 0)
+   {
+      while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+      {
+         TranslateMessage(&msg);
+         DispatchMessage(&msg);
+      }
+      return;
+   }
+
+   SetTimer( hOurWindow,
+            TimerId,
             (milliseconds > 55) ? (WORD)milliseconds : (WORD)55 ,
             NULL );
 
@@ -131,19 +141,20 @@ static void WindowsDelay( int milliseconds )
       return;
    } /* if */
 
-        //
-        // LOCAL MESSAGE LOOP - Service Windows while waiting for
-        // the timer message.
    //
-        while(!bTimerDone && GetMessage(&msg, NULL, NULL, NULL))
-        {
+   // LOCAL MESSAGE LOOP - Service Windows while waiting for
+   // the timer message.
+   //
+
+   while(!bTimerDone && GetMessage(&msg, NULL, NULL, NULL))
+   {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-      if(msg.message == WM_TIMER)
-                        bTimerDone = TRUE;
-        }
+      if (msg.message == WM_TIMER)
+         bTimerDone = TRUE;
+   }
 
-        if (KillTimer( hOurWindow, TimerId ) == 0)
+   if (KillTimer( hOurWindow, TimerId ) == 0)
       printmsg(0, "WindowsDelay: Unable to kill Windows Timer %d",
                   (int) TimerId );
 
@@ -389,7 +400,7 @@ void   ddelay   (int milliseconds)
 /*--------------------------------------------------------------------*/
 
 #elif defined(_Windows)
-        WindowsDelay(milliseconds);
+   WindowsDelay(milliseconds);
 
 /*--------------------------------------------------------------------*/
 /*                             OS/2 wait                              */

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.h 1.1 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: winutil.h 1.2 1993/07/31 16:28:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.h $
+ * Revision 1.2  1993/07/31  16:28:59  ahd
+ * Changes in support of Robert Denny's Windows Support
+ *
  * Revision 1.1  1993/07/22  23:26:19  ahd
  * Initial revision
  */
@@ -41,7 +44,10 @@ HWND FindTaskWindow(HTASK hTask, LPSTR lpszClassName);
 
 void SetWndFixedFont(HWND hWnd, int nPtSize, char *lfFaceName);
 
-int SpawnWait(const char *cmdLine, const UINT fuCmdShow);
+int SpawnWait( const char *cmdLine,
+               const char *parameters,
+               const boolean synchronous,
+               const UINT fuCmdShow);
 
 void CloseEasyWin(void);
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: execute.c 1.1 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: execute.c $
+ * Revision 1.1  1993/07/31  16:22:16  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -35,8 +38,14 @@
 #include <time.h>
 #include <process.h>
 
+#ifdef WIN32
+#include <windows.h>
+#include <signal.h>
+#endif
+
 #ifdef _Windows
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -44,21 +53,19 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
+#include "hlib.h"
 #include "execute.h"
 
 #ifdef _Windows
 #include "winutil.h"
+#include "dir.h"
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows
 currentfile();
-#endif
-
-static char *cmdline = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -80,30 +87,181 @@ int execute( const char *command,
              const char *output,
              const boolean synchronous,
              const boolean foreground )
-
 {
    int result;
+   static char *myDirectory = NULL;
+
+   boolean usebat = (input != NULL) || (output != NULL );
+
+   char batch[FILENAME_MAX];
+   char perfect[FILENAME_MAX];
+   char lpszResult[FILENAME_MAX];  /* String for executable file   */
 
    printmsg(2, "execute: command %s %s",
                command,
                parameters == NULL ? "" : parameters );
 
-   if ( parameters == NULL )
-      result = SpawnWait( command ,
-                          foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE );
-   else if ( cmdline != NULL )
-      result = SpawnWait( cmdline ,
-                          foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE );
+/*--------------------------------------------------------------------*/
+/*                Determine local environment information             */
+/*--------------------------------------------------------------------*/
+
+   if ( myDirectory == NULL )
+   {
+      char *last;
+
+      if ( !GetModuleFileName( hOurTask, batch, sizeof batch ))
+      {
+         printmsg(0,"GetModuleFileName failed!");
+         panic();
+      }
+
+      myDirectory = normalize( batch );   // Make slashes
+      last = strrchr(myDirectory, '/');   // Locate file name start
+
+      if ( last == NULL )
+      {
+         printmsg(0,"No path in module name: %s", myDirectory );
+         panic();
+      }
+
+      *last = '\0';                          // Drop module name
+      myDirectory = newstr( myDirectory );   // Save for posterity
+      printmsg(4,"execute: Load directory is %s", myDirectory );
+
+   } /* if ( myDirectory == NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*                          Locate the command                        */
+/*--------------------------------------------------------------------*/
+
+   if ( internal( command ))
+   {
+      strcpy( lpszResult, command );
+      usebat = TRUE;
+   }
    else {
-      char wincmd[BUFSIZ];
 
-      strcpy( wincmd, command );
-      strcat( wincmd, " " );
-      strcat( wincmd, parameters );
+      char *p;
 
-      result = SpawnWait( wincmd ,
-                          foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE );
+      strcpy( batch, command );
+
+      p = strrchr( batch, '/' ); // Get simple file name
+
+      if ( p == NULL )
+         p = strrchr( batch, '\\' );   // Try again for simple name
+
+      if ( p == NULL )
+         p = batch;                    // Okay, it's ALL simple.
+
+      if ( strchr( p, '.' ) == NULL )  // If no extension ...
+         strcat(p,".bat");             // ... search for .bat
+
+      if ( equali(strrchr( batch, '.' ), ".bat") &&
+          ((p = searchpath( batch )) != NULL ) )   // .bat exist?
+      {
+         if ( usebat )           // Using redirection?
+         {
+            printmsg(0,"Cannot use file redirection to batch file %s",
+                        p );
+            panic();
+         }
+         strcpy( lpszResult, command );   // Use simple name to allow
+                                          // using normal DOS search rules
+         usebat = TRUE;
+      } /* if */
+
    } /* else */
+
+/*--------------------------------------------------------------------*/
+/*       Not an internal command nor is it a possible batch file;     */
+/*       search for the actual executable file                        */
+/*--------------------------------------------------------------------*/
+
+   if ( ! usebat )
+   {
+
+      result = FindExecutable((LPSTR) command, myDirectory, lpszResult);
+
+      if ( result <= 32 )
+      {
+         printmsg(0,"execute: FindExecutable returned error code %d", result);
+         return -1;
+      }
+   }  /* else */
+
+/*--------------------------------------------------------------------*/
+/*     Generate a batch file for redirected DOS programs, if needed   */
+/*--------------------------------------------------------------------*/
+
+   if ( usebat )
+   {
+      FILE *stream ;
+
+      mktempname( batch, "BAT");
+      mktempname( perfect, "TMP");
+      stream = FOPEN( batch, "w", TEXT_MODE );
+
+      if ( stream == NULL )
+      {
+         printerr( batch );
+         panic();
+      }
+
+      fprintf( stream ,
+               "@echo off\n%s %s",
+               lpszResult,
+               parameters == NULL ? "" : parameters );
+
+      if ( input != NULL )
+         fprintf( stream, " < %s", input );
+
+      if ( output != NULL )
+         fprintf( stream, " < %s", output );
+
+      fprintf( stream,
+              "\nif errorlevel 1 erase %s\n",
+               perfect );
+
+      fclose ( stream );
+
+      stream = FOPEN( perfect, "w", TEXT_MODE );
+      if ( stream == NULL )
+      {
+         printerr( perfect );
+         panic();
+      }
+      fclose( stream );
+
+      strcpy( lpszResult, batch );     // Run the batch command
+
+   } /* if ( usebat ) */
+
+/*--------------------------------------------------------------------*/
+/*                       Actually run the command                     */
+/*--------------------------------------------------------------------*/
+
+   result = SpawnWait( lpszResult,
+                       parameters,
+                       synchronous,
+                       foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE );
+
+/*--------------------------------------------------------------------*/
+/*       For batch files, we can only report zero/non-zero            */
+/*       results.  Do so, and clean up our input file at the same     */
+/*       time.                                                        */
+/*--------------------------------------------------------------------*/
+
+   if ( usebat )
+   {
+      int unlinkResult = unlink( perfect );
+
+      if (( result == 0 ) && (unlinkResult != 0))
+         result = 255;
+
+      if (unlink( batch ))
+         printerr( batch );
+
+   } /* if ( usebat ) */
 
 /*--------------------------------------------------------------------*/
 /*                     Report results of command                      */
@@ -116,7 +274,180 @@ int execute( const char *command,
 
 } /* execute */
 
+#elif defined(WIN32)
+int execute( const char *command,
+             const char *parameters,
+             const char *input,
+             const char *output,
+             const boolean synchronous,
+             const boolean foreground )
+{
+   int result;
+/*--------------------------------------------------------------------*/
+/*               Redirect STDIN and STDOUT as required                */
+/*--------------------------------------------------------------------*/
+
+   if ((input != NULL) && (freopen(input , "rb", stdin) == NULL))
+   {
+      printerr(input);
+      return -2;
+   }
+
+   if ((output != NULL) && (freopen(output, "wt", stdout) == NULL))
+   {
+      printerr( output );
+      if ( input != NULL )
+      {
+         FILE *temp = freopen("con", "rt", stdin);
+
+         if ( (temp == NULL) && (errno != 0) )
+         {
+            printerr("stdin");
+            panic();
+         }
+         setvbuf( stdin, NULL, _IONBF, 0);
+
+      } /* if ( input != NULL ) */
+      return -2;
+   }
+
+/*--------------------------------------------------------------------*/
+/*                  Execute the command in question                   */
+/*--------------------------------------------------------------------*/
+
+   if (internal(command))        /* Internal command?                */
+   {
+
+      if ( parameters == NULL )
+         result = system( command );
+      else {
+         char buf[BUFSIZ];
+
+         strcpy( buf, command );
+         strcat( buf, " ");
+         strcat( buf, parameters );
+
+         result = system( buf );
+      } /* else */
+
+   } /* if (internal(command)) */
+   else  {                       /* No --> Invoke normally           */
+      char buf[BUFSIZ];
+      STARTUPINFO si;
+      PROCESS_INFORMATION pi;
+      void *oldCtrlCHandler;
+      static char *extensions[] = { ".exe", ".bat", ".com", NULL };
+      char *currentExtension = extensions[0];
+      char *filePart;
+
+      memset(&si, 0, sizeof(STARTUPINFO));
+      si.cb = sizeof(STARTUPINFO);
+      si.lpTitle = command;
+      si.dwFlags = STARTF_USESHOWWINDOW;
+      si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
+
+      strcpy( buf, command );
+
+      strlwr(buf);
+
+/* Put the extension on the file */
+      if (strchr(buf, '.') == NULL) {
+         char filename[BUFSIZ];
+
+         while (currentExtension != NULL) {
+            if (0 == SearchPath(NULL, buf, currentExtension, BUFSIZ, filename,
+                  &filePart)) {
+               currentExtension++;
+            } else {
+               strcpy(buf, filePart);
+               break;
+            }
+         }
+      }
+
+      if (parameters != NULL) {
+         strcat( buf, " ");
+         strcat( buf, parameters );
+      }
+
+      result = CreateProcess(NULL, buf, NULL, NULL, TRUE,
+         0, NULL, NULL, &si, &pi);
+
+      if (!result) {       /* Did CreateProcess() fail?              */
+         printmsg(0, "execute:  CreateProcess failed, error %d", GetLastError());
+         printerr(command);   /* Yes --> Report error                */
+      } else {
+
+         result = 0;
+
+         if (synchronous) {
+
+/* Set things up so that we ignore Ctrl-C's coming in to the child */
+            oldCtrlCHandler = signal(SIGINT, SIG_IGN);
+
+/* Wait for other app to finish */
+            WaitForSingleObject(pi.hProcess, INFINITE);
+            GetExitCodeProcess(pi.hProcess, &result);
+
+/* Re-enable Ctrl-C handling */
+            signal(SIGINT, oldCtrlCHandler);
+         }
+
+         /* If we're spawning asynchronously, I'm assuming that we
+         don't care about the exit code from the spawned process.  Closing
+         these makes it impossible to get at the old process's exit code. */
+
+         CloseHandle(pi.hProcess);
+         CloseHandle(pi.hThread);
+
+      } /* else !result */
+   } /* else internal command */
+
+/*--------------------------------------------------------------------*/
+/*                  Re-open our standard i/o streams                  */
+/*--------------------------------------------------------------------*/
+
+   errno = 0;
+
+   if ( output != NULL )
+   {
+      freopen("con", "wt", stdout);
+      setvbuf( stdout, NULL, _IONBF, 0);
+   }
+
+   errno = 0;
+
+   if ( input != NULL )
+   {
+      FILE *temp = freopen("con", "rt", stdin);
+
+      if ( (temp == NULL) && (errno != 0) )
+      {
+         printerr("stdin");
+         panic();
+      }
+
+      setvbuf( stdin, NULL, _IONBF, 0);
+
+   } /* if ( input != NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*                     Report results of command                      */
+/*--------------------------------------------------------------------*/
+
+   printmsg( (result == 0 ) ? 4 : 1,"Result of spawn %s is ... %d",
+                                 command, result);
+
+   return result;
+
+
+}
+
 #else
+
+#ifdef __TURBOC__
+#pragma argsused
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       e x e c u t e                                                */
@@ -124,10 +455,6 @@ int execute( const char *command,
 /*       Generic execute external command with optional redirection   */
 /*       of standard input and output                                 */
 /*--------------------------------------------------------------------*/
-
-#ifdef __TURBOC__
-#pragma argsused
-#endif
 
 int execute( const char *command,
              const char *parameters,
@@ -155,6 +482,19 @@ int execute( const char *command,
    if ((output != NULL) && (freopen(output, "wt", stdout) == NULL))
    {
       printerr( output );
+      if ( input != NULL )
+      {
+         FILE *temp = freopen("con", "rt", stdin);
+
+         if ( (temp == NULL) && (errno != 0) )
+         {
+            printerr("stdin");
+            panic();
+         }
+         setvbuf( stdin, NULL, _IONBF, 0);
+
+      } /* if ( input != NULL ) */
+
       return -2;
    }
 
@@ -172,7 +512,7 @@ int execute( const char *command,
 
          strcpy( buf, command );
          strcat( buf, " ");
-         strcpy( buf, parameters );
+         strcat( buf, parameters );
 
          result = system( buf );
       } /* else */
@@ -180,7 +520,8 @@ int execute( const char *command,
    } /* if (internal(command)) */
    else  {                       /* No --> Invoke normally           */
 
-      result = spawnlp( P_WAIT,
+      result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
+                        (char *) command,
                         (char *) command,
                         (char *) parameters,
                         NULL);
@@ -197,7 +538,10 @@ int execute( const char *command,
    errno = 0;
 
    if ( output != NULL )
+   {
       freopen("con", "wt", stdout);
+      setvbuf( stdout, NULL, _IONBF, 0);
+   }
 
    errno = 0;
 
@@ -210,6 +554,7 @@ int execute( const char *command,
          printerr("stdin");
          panic();
       }
+      setvbuf( stdin, NULL, _IONBF, 0);
 
    } /* if ( input != NULL ) */
 
@@ -244,7 +589,6 @@ int executeCommand( const char *command,
    int result;
 
    strcpy( buffer, command );
-   cmdline = (const char *) command;   // Save full command line for Execute
 
    cmdname = strtok( buffer, WHITESPACE );
    parameters = strtok( NULL, "\r\n" );
@@ -264,8 +608,6 @@ int executeCommand( const char *command,
                      output,
                      synchronous,
                      foreground );
-
-   cmdline = NULL;               // Flag cmdline no longer available
 
    return result;
 
