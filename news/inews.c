@@ -7,13 +7,16 @@
  */
 
 /* todo: moderated groups, shadow systems delivery */
- 
-static char *rcsid =
-"$Id$";
-static char *rcsrev = "$Revision$";
 
-/* $Log$ */
- 
+static char *rcsid =
+"$Id: INEWS.C 1.1 1993/10/30 11:40:00 rommel Exp $";
+static char *rcsrev = "$Revision: 1.1 $";
+
+/* $Log: INEWS.C $
+ * Revision 1.1  1993/10/30  11:40:00  rommel
+ * Initial revision
+ * */
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -62,7 +65,7 @@ void main( int argc, char **argv)
   extern char *optarg;
   extern int   optind;
   int c;
-  char tempname[FILENAME_MAX];	/* temporary input file     */
+  char tempname[FILENAME_MAX];  /* temporary input file     */
   FILE *article;
 
 /*--------------------------------------------------------------------*/
@@ -77,7 +80,7 @@ void main( int argc, char **argv)
   banner( argv );
 
   if (!configure( B_NEWS ))
-    exit(1);			/* system configuration failed */
+    exit(1);                    /* system configuration failed */
 
   openlog( NULL );
 
@@ -111,8 +114,6 @@ void main( int argc, char **argv)
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
 
-  tzset();                      /* Set up time zone information  */
-
   if (optind == argc - 1)
     if (freopen(argv[optind], "r", stdin) == NULL) {
       printmsg(0, "inews: cannot open article file %s", argv[optind]);
@@ -128,7 +129,7 @@ void main( int argc, char **argv)
   if ((article = FOPEN(tempname, "w", BINARY_MODE)) == NULL) {
     printmsg(0,"inews: cannot create temporary file \"%s\"", tempname);
     panic();
-  } 
+  }
 
   if (complete_header(stdin, article) == -1)
     panic();
@@ -184,14 +185,14 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
   rewind(input);
 
   while (fgets(buffer, size, input) != NULL)
-    if (strncmp(buffer, name, strlen(name)) == 0) 
+    if (strncmp(buffer, name, strlen(name)) == 0)
       return 0;
 
   return -1;
 } /* get_header */
 
 static int complete_header(FILE *input, FILE *output)
-{   
+{
   char buf[256], *ptr;
   time_t now;
   int OK;
@@ -199,7 +200,7 @@ static int complete_header(FILE *input, FILE *output)
   char *X_fdomain = E_fdomain ? E_fdomain : E_domain;
 
   time(&now);
-  
+
   if (get_header(input, buf, sizeof(buf), "Path:") == -1)
     fprintf(output,"Path: %s!%s\n", E_domain, E_mailbox);
   else
@@ -221,7 +222,7 @@ static int complete_header(FILE *input, FILE *output)
   else
     fputs(buf, output);
 
-  if (strncmp(buf, "Subject: cmsg ", 14) == 0) { 
+  if (strncmp(buf, "Subject: cmsg ", 14) == 0) {
     char cmsg[256]; /* for old-style control messages such as from TRN */
     strcpy(cmsg, buf + 14);
     if (get_header(input, buf, sizeof(buf), "Control:") == -1)
@@ -233,7 +234,7 @@ static int complete_header(FILE *input, FILE *output)
   if (get_header(input, buf, sizeof(buf), "Distribution:") == -1)
     strcpy(buf, "Distribution: world\n");
   ptr = buf + strlen("Distribution:");
-  while (*ptr && isspace(*ptr)) 
+  while (*ptr && isspace(*ptr))
     ptr++;
   if (*ptr == 0 || *ptr == '\n')
     strcpy(buf, "Distribution: world\n");
@@ -257,17 +258,17 @@ static int complete_header(FILE *input, FILE *output)
       break;
     }
     if (strncmp(buf,"Path:", 5) == 0 ||
-	strncmp(buf,"From:", 5) == 0 ||
-	strncmp(buf,"Newsgroups:", 11) == 0 ||
-	strncmp(buf,"Subject:", 8) == 0 ||
-	strncmp(buf,"Distribution:", 13) == 0 ||
-	strncmp(buf,"Message-ID:", 11) == 0 ||
-	strncmp(buf,"Sender:", 7) == 0 ||
-	strncmp(buf,"Lines:", 6) == 0 ||
-	strncmp(buf,"X-Posting-Software:", 19) == 0 ||
-	strncmp(buf,"Date:", 5) == 0) 
+        strncmp(buf,"From:", 5) == 0 ||
+        strncmp(buf,"Newsgroups:", 11) == 0 ||
+        strncmp(buf,"Subject:", 8) == 0 ||
+        strncmp(buf,"Distribution:", 13) == 0 ||
+        strncmp(buf,"Message-ID:", 11) == 0 ||
+        strncmp(buf,"Sender:", 7) == 0 ||
+        strncmp(buf,"Lines:", 6) == 0 ||
+        strncmp(buf,"X-Posting-Software:", 19) == 0 ||
+        strncmp(buf,"Date:", 5) == 0)
       continue;
-    if ((ptr = strchr(buf, ':')) == NULL) 
+    if ((ptr = strchr(buf, ':')) == NULL)
       continue;
     for (ptr++; *ptr && isspace(*ptr); ptr++);
     if (strlen(ptr) > 1)
@@ -282,9 +283,9 @@ static int complete_header(FILE *input, FILE *output)
   while (fgets(buf, sizeof(buf), input) != NULL)
     lines++;
 
-  fprintf(output, "X-Posting-Software: %s %s inews (%2.2s%3.3s%2.2s %5.5s)\n", 
-	  compilep, compilev, 
-	  &compiled[4], &compiled[0], &compiled[9], compilet);
+  fprintf(output, "X-Posting-Software: %s %s inews (%2.2s%3.3s%2.2s %5.5s)\n",
+          compilep, compilev,
+          &compiled[4], &compiled[0], &compiled[9], compilet);
   fprintf(output, "Lines: %d\n\n", lines);
   rewind(input);
 
@@ -316,16 +317,16 @@ static int remote_news(FILE *article)
     strcpy(buf, sysname);
 
     for (sysname = strtok(buf, WHITESPACE); sysname != NULL;
-	 sysname = strtok(NULL, WHITESPACE))
+         sysname = strtok(NULL, WHITESPACE))
       if (strncmp(sysname, path + 6, strlen(sysname)) != 0)
       {                       /* do not send it to where it came from */
-	rewind(article);
-	spool_news(sysname, article, "rnews");
+        rewind(article);
+        spool_news(sysname, article, "rnews");
       }
   }
 
-  return spool_news(E_mailserv, article, 
-		    bflag[F_UUPCNEWSSERV] ? "inews" : "rnews");
+  return spool_news(E_mailserv, article,
+                    bflag[F_UUPCNEWSSERV] ? "inews" : "rnews");
 }
 
 /*--------------------------------------------------------------------*/
@@ -340,24 +341,24 @@ static int spool_news(char *sysname, FILE *article, char *command)
   static char *dataf_fmt = DATAFFMT;
   static char *send_cmd  = "S %s %s %s - %s 0666\n";
   static long seqno = 0;
-  FILE *out_stream;		/* For writing out data                */
+  FILE *out_stream;             /* For writing out data                */
   char buf[BUFSIZ];
   unsigned len;
 
-  char msfile[FILENAME_MAX];	/* MS-DOS format name of files         */
-  char msname[22];		/* MS-DOS format w/o path name         */
+  char msfile[FILENAME_MAX];    /* MS-DOS format name of files         */
+  char msname[22];              /* MS-DOS format w/o path name         */
   char *seq;
 
-  char tmfile[15];		/* Call file, UNIX format name         */
+  char tmfile[15];              /* Call file, UNIX format name         */
 
-  char idfile[15];		/* Data file, UNIX format name         */
-  char rdfile[15];		/* Data file name on remote system,
-				   UNIX format                         */
+  char idfile[15];              /* Data file, UNIX format name         */
+  char rdfile[15];              /* Data file name on remote system,
+                                   UNIX format                         */
 
-  char ixfile[15];		/* eXecute file for remote system,
-				   UNIX format name for local system   */
-  char rxfile[15];		/* Remote system UNIX name of eXecute
-				   file                                */
+  char ixfile[15];              /* eXecute file for remote system,
+                                   UNIX format name for local system   */
+  char rxfile[15];              /* Remote system UNIX name of eXecute
+                                   file                                */
 
 /*--------------------------------------------------------------------*/
 /*          Create the UNIX format of the file names we need          */
@@ -416,7 +417,7 @@ static int spool_news(char *sysname, FILE *article, char *command)
 
   while ((len = fread(buf, 1, sizeof(buf), article)) != 0)
   {
-    if (fwrite(buf, 1, len, out_stream) != len)	/* I/O error? */
+    if (fwrite(buf, 1, len, out_stream) != len) /* I/O error? */
     {
       printerr(msfile);
       fclose(out_stream);
