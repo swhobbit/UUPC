@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.71 1998/04/19 23:55:58 ahd Exp $
+ *    $Id: modem.c 1.72 1998/04/20 02:47:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.72  1998/04/20 02:47:57  ahd
+ *    TAPI/Windows 32 BIT GUI display support
+ *
  *    Revision 1.71  1998/04/19 23:55:58  ahd
  *    *** empty log message ***
  *
@@ -201,9 +204,9 @@ static KEWSHORT M_prioritydelta = 999;
 KWBoolean bmodemflag[MODEM_LAST];
 
 static FLAGTABLE modemFlags[] = {
-   { "carrierdetect",  MODEM_CARRIERDETECT,          B_LOCAL },
-   { "direct",         MODEM_DIRECT,      B_LOCAL },
-   { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
+   { "carrierdetect",  MODEM_CARRIERDETECT,  B_LOCAL },
+   { "direct",         MODEM_DIRECT,         B_LOCAL },
+   { "fixedspeed",     MODEM_FIXEDSPEED,     B_LOCAL },
    { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL }
 };
 
@@ -283,7 +286,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id: modem.c 1.71 1998/04/19 23:55:58 ahd Exp $");
+RCSID("$Id: modem.c 1.72 1998/04/20 02:47:57 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */
@@ -667,8 +670,15 @@ KWBoolean getmodem( const char *brand)
           (modemTable[subscript].flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST)))
          *((char **) modemTable[subscript].loc) = nil(char);
 
-   for (subscript = 0; subscript < MODEM_LAST; subscript++)
-      bmodemflag[subscript] = KWFalse;
+/*--------------------------------------------------------------------*/
+/*             Reset boolean options to preferred values              */
+/*--------------------------------------------------------------------*/
+
+   resetOptions(modemFlags, bmodemflag, modemFlagsSize);
+
+/*--------------------------------------------------------------------*/
+/*                    Reset other preferred values                    */
+/*--------------------------------------------------------------------*/
 
    M_charDelay = 00;          /* Default is no delay between chars    */
    dialTimeout = 40;          /* Default is 40 seconds to dial phone  */
