@@ -51,9 +51,6 @@ FILE *FSOPEN(const char *name, const char *mode)
    int share = SH_DENYWR;
    int retries = 0;
 
-   printmsg(4, "Opening %s for %s, share flags %d",
-            name, mode, share );
-
    results = _fsopen(name, mode, share );
 #else
    results = fopen(name, mode );
@@ -62,7 +59,10 @@ FILE *FSOPEN(const char *name, const char *mode)
    if ((results != nil(FILE)) || (*mode == 'r'))
       return results;
 
-   /* verify all intermediate directories in the path exist */
+/*--------------------------------------------------------------------*/
+/*       Verify all intermediate directories in the path exist        */
+/*--------------------------------------------------------------------*/
+
 
    if ((last = strrchr(name, '/')) != nil(char))
    {
@@ -80,8 +80,9 @@ FILE *FSOPEN(const char *name, const char *mode)
    {
       results = _fsopen(name, mode, share);
       if (( results != NULL ) || (!bflag[ F_MULTITASK ]) ||
-          (errno != EACCES)   || (retries++ < 10))
+          (errno != EACCES)   || (retries++ > 10))
          return results;
+      perror( name );
       ssleep( retries * 2);
    }
 #else
