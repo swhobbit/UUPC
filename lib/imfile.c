@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.36 1998/03/16 07:47:40 ahd Exp $
+ *    $Id: imfile.c 1.37 1998/03/16 07:50:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.37  1998/03/16 07:50:52  ahd
+ *    correct compile warning
+ *
  *    Revision 1.36  1998/03/16 07:47:40  ahd
  *    Correct imgets for long strings
  *    ,.
@@ -511,6 +514,8 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 
    if (userLength < 2)              /* Need room for \n and \0          */
    {
+      printmsg(0, "imgets: Requested read of less than two bytes");
+      panic();                      /* Die!                       */
       errno = EINVAL;
       return NULL;
    }
@@ -518,13 +523,6 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 /*--------------------------------------------------------------------*/
 /*               Select the string from our own buffer                */
 /*--------------------------------------------------------------------*/
-
-#ifdef UDEBUG2
-   printmsg(6,"imgets: Requested up to %ld bytes, "
-              "actually searching %ld bytes",
-               (long) userLength,
-               (long) stringLength);
-#endif
 
    p = imf->buffer + (size_t) imf->position;
 
@@ -625,7 +623,9 @@ size_t  imread(void *userBuffer,
 
    if ((objectSize <= 0) || (objectCount <= 0))
    {
-      printmsg(0, "imread: Requested read of less than zero bytes");
+
+      printmsg(0, "imread: Requested read of less than one byte");
+      panic();                      /* Die!                       */
       errno = EINVAL;
       return 0;
    }
