@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.21 1995/09/04 02:13:41 ahd v1-12o $
+ *    $Id: active.c 1.22 1995/09/24 19:10:36 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.22  1995/09/24 19:10:36  ahd
+ *    Correct debugging output
+ *
  *    Revision 1.21  1995/09/04 02:13:41  ahd
  *    Move news group tree to FAR memory in 16 bit systems
  *
@@ -63,8 +66,6 @@
 /*       about.                                                       */
 /*--------------------------------------------------------------------*/
 
-#define MAX_SIMPLE_NEWSGROUP 18     /* Makes _GROUP even 40 bytes    */
-
 /*--------------------------------------------------------------------*/
 /*       The basic structure used to make up the active list in       */
 /*       memory.  A level is defined by a simple name between         */
@@ -98,7 +99,16 @@ typedef struct _GROUP
    struct _GROUP UUFAR *parent;     /* Our parent group              */
    struct _GROUP UUFAR *sibling;    /* Next group at this level      */
    struct _GROUP UUFAR *child;      /* First group at next level     */
-   char   name[MAX_SIMPLE_NEWSGROUP];  /* simple name                */
+   union
+   {
+      struct {
+         char   flag;
+         char   *namePtr;           /* Pointer to simple name        */
+      } remote;
+      struct {
+         char   name[15];           /* simple name                   */
+      } local;
+   } n;
    char   moderation;               /* Y, N, or M                    */
    char   lap;                      /* Iteration of walking tree     */
 
@@ -252,6 +262,36 @@ loadActive( const KWBoolean mustExist )
 
 } /* getActive */
 
+
+/*--------------------------------------------------------------------*/
+/*       g e t S i m p l e N a m e                                    */
+/*                                                                    */
+/*       Get simple news group name                                   */
+/*--------------------------------------------------------------------*/
+
+#ifdef COMPILED_GET_SIMPLE_NAME
+
+static char UUFAR *
+getSimpleName( const GROUP UUFAR *group )
+{
+   if ( group->n.remote.flag )      /* First character in use?       */
+      return group->n.local.name;   /* Yes --> It's a local array    */
+   else if ( group->n.remote.namePtr )
+      return group->n.remote.namePtr;  /* No --> Pointer to string   */
+   else
+       return "";                   /* Empty String!                 */
+
+} /* getSimpleName */
+
+#else
+
+#define getSimpleName( _group ) ((char UUFAR *)                \
+      ( _group->n.remote.flag ?                                \
+            _group->n.local.name :                             \
+            (_group->n.remote.namePtr ? _group->n.remote.namePtr : "")))
+#endif
+
+
 /*--------------------------------------------------------------------*/
 /*       m a k e L e v e l                                            */
 /*                                                                    */
@@ -261,7 +301,7 @@ loadActive( const KWBoolean mustExist )
 static char *
 makeLevelName( const char *name )
 {
-   static char level[MAX_SIMPLE_NEWSGROUP + 1];
+   static char level[FILENAME_MAX];
    char *p;
 
 /*--------------------------------------------------------------------*/
@@ -301,7 +341,7 @@ makeGroupName( char *buf, GROUP UUFAR *group )
       strcat( buf, "." );
    }
 
-   STRCAT( buf, group->name );
+   STRCAT( buf, getSimpleName( group ) );
    return buf;
 
 } /* makeGroupName */
@@ -334,7 +374,7 @@ addNode( GROUP UUFAR *first, GROUP UUFAR *parent, char *name )
 
    while( current != NULL )
    {
-      int hit = STRCMP( level, current->name );
+      int hit = STRCMP( level, getSimpleName( current ) );
 
       if ( ! hit )                  /* Did we find the exact name?   */
       {
@@ -371,7 +411,19 @@ addNode( GROUP UUFAR *first, GROUP UUFAR *parent, char *name )
       blockAnchor = NULL;                 /* Get new one next pass   */
 
    MEMSET( current, 0, sizeof *current );
-   STRCPY( current->name, level );
+
+/*--------------------------------------------------------------------*/
+/*       We store the string into the actual structure if it fits,    */
+/*       otherwise (for longer strings) we grab a string off our      */
+/*       pool.  This balances the fast access of the local fixed      */
+/*       buffer versus the expensive but flexible master string       */
+/*       poll.                                                        */
+/*--------------------------------------------------------------------*/
+
+   if ( strlen( level ) >= sizeof current->n.local.name )
+      current->n.remote.namePtr = newstr( level );
+   else
+      STRCPY( current->n.local.name, level );
 
 /*--------------------------------------------------------------------*/
 /*                    Chain the node into the list                    */
@@ -425,7 +477,7 @@ addGroup( const char *group,
           const char moderation )
 {
    GROUP UUFAR *parent;
-   char  *level;
+   char  *level = (char *) group;
    static GROUP UUFAR *current = NULL;
 
    if ( current != NULL )
@@ -433,64 +485,69 @@ addGroup( const char *group,
       char buf[MAXGRP];
       char *fullName = makeGroupName( buf, current );
 
-/*--------------------------------------------------------------------*/
-/*      Determine the best natch for the node from our last insert    */
-/*--------------------------------------------------------------------*/
-
-      while ( current != NULL )
-      {
-
-         char *endPeriod = strrchr( fullName, '.' );
-         size_t length;
-
-         if ( endPeriod == NULL )
-         {
-            current = NULL;
-            break;
-         }
-
-         length = (size_t) (endPeriod - fullName) + 1;
+      size_t index = 0;
+      char *lastMatch = NULL;       /* Presume no match at all       */
 
 #ifdef UDEBUG
-         parents++;
-#endif
-
-#ifdef UDEBUG2
-         printmsg(12,"Comparing \"%s\" == \"%s\" for %d",
-                     fullName,
-                     group,
-                     length);
+      int backSteps = 0;
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       The actual check is that the names are equal except for      */
-/*       the last qualifier, and that the last qualifier is           */
-/*       greater for the new group to be added                        */
+/*      Determine the best match for the node from our last insert    */
 /*--------------------------------------------------------------------*/
 
-         if ( equaln( fullName, group, length ) &&
-              ( strcmp( fullName + length, group + length ) < 0))
+      while( fullName[index] == group[index] )
+      {
+         if ( fullName[index] == '.' )
          {
-            level = (char *) group + length;
+            lastMatch = fullName + index;
+            level     = (char *) group + index +1;
+         }
+         else if ( fullName[index] == '\0' )
+            return KWFalse;         /* Perfect match, group exists!     */
 
-#ifdef UDEBUG2
-#ifdef BIT32ENV
-            printmsg(17,"Making level %s under %s next to %s",
-#else
-            printmsg(17,"Making level %fs under %s next to %fs",
-#endif
-                       level,
-                       current->parent->name,
-                       current->name );
-#endif
+         index += 1;                /* Step to next char in each string */
 
-            break;
+      } /* while( fullName[index] == group [index] ) */
+
+
+/*--------------------------------------------------------------------*/
+/*    Back up the tree as far as we have to for the correct branch    */
+/*--------------------------------------------------------------------*/
+
+      if ( lastMatch == NULL)
+         current = NULL;
+      else {
+
+         while( (lastMatch = strchr( lastMatch + 1 ,'.' )) != NULL )
+         {
+            current = current->parent;
+#ifdef UDEBUG
+            backSteps++;
+#endif
          }
 
-         current = current->parent;
-         endPeriod = '\0';
+/*--------------------------------------------------------------------*/
+/*   If group is out of order, begin at front of siblings on insert   */
+/*--------------------------------------------------------------------*/
 
-      } /* while */
+         if ( fullName[index] > group[index] )
+         {
+            current = current->parent;
+            if ( current != NULL )
+               current = current->child;
+         }
+
+      } /* else */
+
+#ifdef UDEBUG
+      printmsg(7,"Matched %s to %s for %d, %d levels didn't match.",
+                  fullName,
+                  group,
+                  index - 1,
+                  backSteps );
+      parents += backSteps;
+#endif
 
    } /* if ( current != NULL ) */
 
@@ -554,6 +611,7 @@ addGroup( const char *group,
          current->moderation = (char) tolower( moderation );
          break;
 
+      case 'x':
       case 'm':
       case 'n':
       case 'y':
@@ -561,9 +619,11 @@ addGroup( const char *group,
          break;
 
       default:
-         printmsg(0,"addGroup: Invalid moderation flag for group %s, "
-                    "changed to n" );
-         current->moderation = 'n';
+         printmsg(0,"addGroup: Invalid moderation flag %c for group %s, "
+                    "changed to x",
+                     (char) (isgraph( moderation ) ? moderation : '?'),
+                     group );
+         current->moderation = 'x';
          break;
 
    } /* switch( moderation ) */
@@ -577,16 +637,17 @@ addGroup( const char *group,
    groups++;
 
 #ifdef BIT32ENV
-   printmsg(7 , "addGroup: Added group[%ld] %s (%ld %ld %c),"
+   if ( debuglevel > 6 )            /* Avoid getSimpleName calls     */
+      printmsg(7 , "addGroup: Added group[%ld] %s (%ld %ld %c),"
                 " parent %s%s%s",
                 groups,
                   group,
                   high,
                   low,
                   moderation ? moderation : '-',
-                  current->parent  ? current->parent->name  : "(none)",
+                  current->parent  ? getSimpleName( current->parent ) : "(none)",
                   current->sibling ? ", sibling " : "",
-                  current->sibling ? current->sibling->name : "" );
+                  current->sibling ? getSimpleName( current->sibling ) : "" );
 #endif
 
    {
@@ -661,7 +722,7 @@ findGroup( const char *group )
       while( current != NULL )
       {
 
-         int hit = STRCMP( levelName, current->name );
+         int hit = STRCMP( levelName, getSimpleName( current ) );
 
 #ifdef UDEBUG
          searchNodes++;
@@ -677,6 +738,16 @@ findGroup( const char *group )
 
       } /* while( current != NULL ) */
 
+      if ( current == NULL )
+      {
+
+#ifdef UDEBUG
+         printmsg(6,"findGroup: Did not find group %s", group );
+#endif
+
+         return NULL;
+      }
+
       name = strchr( name, '.');    /* Step to next level of name    */
 
       if ( name == NULL )
@@ -688,13 +759,6 @@ findGroup( const char *group )
 
    } /* while ( name != NULL ) */
 
-   if ( current == NULL )
-   {
-#ifdef UDEBUG
-      printmsg(6,"findGroup: Did not find group %s", group );
-#endif
-      return NULL;
-   }
 
 /*--------------------------------------------------------------------*/
 /*     We have the node, return it if valid, other report failure     */
