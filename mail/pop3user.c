@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.10 1998/04/19 15:30:08 ahd Exp $
+ *       $Id: pop3user.c 1.11 1998/04/24 03:30:13 ahd v1-13a $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.11  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.10  1998/04/19 15:30:08  ahd
  *       Correctly handle quoting periods at the start of lines
  *       Trap network errors when sending messages to remote clients
@@ -73,7 +82,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.10 1998/04/19 15:30:08 ahd Exp $");
+RCSID("$Id: pop3user.c 1.11 1998/04/24 03:30:13 ahd v1-13a $");
 
 currentfile();
 
@@ -532,6 +541,9 @@ commandQUIT(SMTPClient *client,
 {
    char xmitBuf[XMIT_LENGTH];
    KWBoolean success = KWTrue;
+   long messages, ocets;
+
+   octets = getMessageOctetCount(client->transaction->top, &messages);
 
    if ((client->transaction == NULL) || !client->transaction->rewrite)
    {
@@ -541,15 +553,27 @@ commandQUIT(SMTPClient *client,
    }
    else if (! popBoxUnload( client))
    {
+      success = KWFalse;
       sprintf(xmitBuf,
               "Unable to rewrite mailbox %s, it may be corrupted!",
               client->transaction->mailboxName);
    }
-   else {
+   else if (messages == 0)
+   {
+      /* All messages were deleted */
       sprintf(xmitBuf,
-              "Updated mailbox %s, with %ld messages.",
+              "Updated mailbox %s, deleted all (%ld) messages.",
               client->transaction->mailboxName,
               client->transaction->messageCount);
+   }
+   else {
+      /* Some (or all) messages are left in the mailbox */
+      sprintf(xmitBuf,
+              "Updated mailbox %s, "
+              "now contains %ld octets in %ld messages.",
+              client->transaction->mailboxName,
+              octets,
+              messages);
    }
 
    SMTPResponse(client,
