@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.34 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: modem.c 1.35 1993/10/28 12:19:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.35  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
+ * Revision 1.35  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.34  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -272,7 +278,7 @@ CONN_STATE callup( void )
 {
    char *exp;
    int i;
-   BPS speed;
+   BPS speed = 115200;              /* Bogus network speed default   */
    time_t now;
 
 /*--------------------------------------------------------------------*/
@@ -280,17 +286,28 @@ CONN_STATE callup( void )
 /*--------------------------------------------------------------------*/
 
    time( &now );
-   printmsg(1, "callup: Calling %s via %s at %s on %.24s",
-          rmtname, flds[FLD_TYPE], flds[FLD_SPEED], ctime( &now ));
+   if ( IsNetwork() )
+      printmsg(1,"callup: Connecting to %s via %s on %.24s",
+                rmtname,
+                flds[FLD_TYPE],
+                ctime( &now ));
+   else {
+      printmsg(1, "callup: Calling %s via %s on %.24s",
+          flds[FLD_TYPE],
+          flds[FLD_SPEED],
+          ctime( &now ));
+      speed = (BPS) atol( flds[FLD_SPEED] );
 
-   speed = (BPS) atol( flds[FLD_SPEED] );
-   if (speed < 300)
-   {
-      printmsg(0,"callup: Modem speed %s is invalid.",
-                  flds[FLD_SPEED]);
-      hostp->hstatus = invalid_device;
-      return CONN_INITIALIZE;
-   }
+      if (speed < 300)
+      {
+         printmsg(0,"callup: Modem speed %s is invalid.",
+                     flds[FLD_SPEED]);
+         hostp->hstatus = invalid_device;
+         return CONN_INITIALIZE;
+
+      } /* if (speed < 300) */
+
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                         Dial the telephone                         */
