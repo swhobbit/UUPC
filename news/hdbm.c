@@ -17,13 +17,16 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.8 1995/01/03 05:32:26 ahd Exp $";
+      "$Id: hdbm.c 1.9 1995/01/29 14:03:29 ahd v1-12n rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+/* Revision 1.9  1995/01/29 14:03:29  ahd
+/* Clean up IBM C/Set compiler warnings
+/*
 /* Revision 1.8  1995/01/03 05:32:26  ahd
 /* Further SYS file support cleanup
 /*
@@ -209,7 +212,13 @@ datum dbm_fetch(DBM *db, const datum key)
 
     db -> buffer[size - 1] = 0; /* delete \n */
 
-    val.dptr = strchr(db -> buffer, ' ') + 1;
+    if ((val.dptr = strchr(db -> buffer, '>')) != NULL)
+      val.dptr += 2;
+    else if ((val.dptr = strchr(db -> buffer, ' ')) != NULL)
+       val.dptr++;
+    else
+       return nullitem;
+
     val.dsize = strlen(val.dptr) + 1;
   }
 
@@ -247,8 +256,10 @@ datum dbm_firstkey(DBM *db)
       return nullitem;
   } while (db -> buffer[0] == ' ');
 
-  if ((ptr = strchr(db -> buffer, ' ')) == NULL)
-    return nullitem;
+  if ((ptr = strchr(db -> buffer, '>')) != NULL)
+    ptr++;                          /* Move on to space              */
+  else if ((ptr = strchr(db -> buffer, ' ')) == NULL)
+     return nullitem;
 
   db -> buffer[strlen(db -> buffer) - 1] = 0; /* delete \n */
 
@@ -275,7 +286,9 @@ datum dbm_nextkey(DBM *db)
       return fclose(db -> stream), (db -> stream = NULL), nullitem;
   } while (db -> buffer[0] == ' ');
 
-  if ((ptr = strchr(db -> buffer, ' ')) == NULL)
+  if ((ptr = strchr(db -> buffer, '>')) != NULL)
+    ptr++;                          /* Move on to space              */
+  else if ((ptr = strchr(db -> buffer, ' ')) == NULL)
     return nullitem;
 
   db -> buffer[strlen(db -> buffer) - 1] = 0; /* delete \n */
