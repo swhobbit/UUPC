@@ -1,11 +1,15 @@
 /*--------------------------------------------------------------------*/
 /*    l o c k . c                                                     */
 /*                                                                    */
-/*    Locking functions for UUPC/extended                             */
+/*    File locking functions for UUPC/extended                        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks; all        */
-/*    rights reserved except those explicitly granted by the          */
-/*    UUPC/extended license.                                          */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -13,56 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.15 1995/01/07 16:13:03 ahd v1-12n $
+ *    $Id: lock.c 1.16 1995/03/11 22:26:18 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.16  1995/03/11 22:26:18  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.15  1995/01/07 16:13:03  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.14  1994/02/19 04:43:20  ahd
- *    Use standard first header
- *
- *     Revision 1.13  1994/02/19  04:08:14  ahd
- *     Use standard first header
- *
- *     Revision 1.12  1994/02/19  03:53:01  ahd
- *     Use standard first header
- *
- *     Revision 1.11  1994/02/18  23:10:59  ahd
- *     Use standard first header
- *
- *     Revision 1.10  1993/11/30  04:18:14  ahd
- *     Add newline to fprintf()
- *
- *     Revision 1.9  1993/10/28  12:19:01  ahd
- *     Cosmetic time formatting twiddles and clean ups
- *
- *     Revision 1.8  1993/04/11  00:31:04  ahd
- *     Global edits for year, TEXT, etc.
- *
- *     Revision 1.8  1993/04/11  00:31:04  ahd
- *     Global edits for year, TEXT, etc.
- *
- *     Revision 1.7  1993/03/24  01:57:30  ahd
- *     Add string.h include
- *
- *     Revision 1.6  1993/03/06  22:48:23  ahd
- *     Allow nested locks
- *
- * Revision 1.5  1992/11/28  19:51:16  ahd
- * Issue lock based on lock file existence to avoid FOPEN retry loop
- *
- * Revision 1.4  1992/11/19  02:58:54  ahd
- * drop rcsid
- *
- * Revision 1.3  1992/11/19  02:54:47  ahd
- * Revision 1.2  1992/11/17  13:47:30  ahd
- * Do not buffer lock file
- *
- * Revision 1.1  1992/11/16  05:00:26  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -72,7 +35,6 @@
 #include "uupcmoah.h"
 
 #include <process.h>
-
 #include <io.h>
 
 /*--------------------------------------------------------------------*/
@@ -88,6 +50,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
+RCSID("$Id$");
 currentfile();
 
 /*--------------------------------------------------------------------*/
