@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.12 1995/02/20 00:03:07 ahd Exp $
+ *    $Id: batch.c 1.13 1995/02/22 01:32:17 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.13  1995/02/22 01:32:17  ahd
+ *    Correct check for non-existant files
+ *
  *    Revision 1.12  1995/02/20 00:03:07  ahd
  *    Don't print message if unable to delete previously deleted batch
  *
@@ -105,6 +108,7 @@ currentfile();
 static void queue_news( const char *sysName, const char *fname )
 {
    char commandOptions[BUFSIZ];
+   long length;
    int status = 0;
 
    sprintf(commandOptions, "-anews -p -g%c -n -x %d -C %s!rnews",
@@ -124,6 +128,16 @@ static void queue_news( const char *sysName, const char *fname )
       panic();
 
    }
+
+/*--------------------------------------------------------------------*/
+/*                         Report our results                         */
+/*--------------------------------------------------------------------*/
+
+   stater( fname, &length );
+
+   printmsg(1,"queue_news: Queued %ld byte batch for %s",
+              length,
+              sysName );
 
 } /* queue_news */
 
@@ -258,7 +272,7 @@ void compress_batch(const char *system, const char *batchName)
 /*                     Create a remote batch file                     */
 /*--------------------------------------------------------------------*/
 
-   mktempname( finalName, "TM2" );
+   mktempname( finalName, "TMP" );
    finalStream = FOPEN( finalName, "w", IMAGE_MODE );
 
    if ( finalStream == NULL )
@@ -267,21 +281,33 @@ void compress_batch(const char *system, const char *batchName)
       panic();
    }
 
+/*--------------------------------------------------------------------*/
+/*            Create file to actually queue for the remote            */
+/*--------------------------------------------------------------------*/
+
    fprintf(finalStream, "#! cunbatch\n");
 
    copy_file_s2s(finalStream, zfile_stream, finalName );
 
    fclose(finalStream);
 
-   queue_news(system, finalName );
-
-   if (unlink(finalName))
-      printerr( finalName );
+/*--------------------------------------------------------------------*/
+/*                  Close and dispose of input file                   */
+/*--------------------------------------------------------------------*/
 
    fclose(zfile_stream);
 
    if (unlink(zfile))
       printerr( zfile );
+
+/*--------------------------------------------------------------------*/
+/*                queue the news, and drop output file                */
+/*--------------------------------------------------------------------*/
+
+   queue_news(system, finalName );
+
+   if (unlink(finalName))
+      printerr( finalName );
 
 } /* compress_batch */
 
