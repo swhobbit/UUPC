@@ -20,10 +20,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMMLIB.H 1.2 1993/05/30 15:27:22 ahd Exp $
+ *    $Id: commlib.h 1.3 1993/09/20 04:53:57 ahd Exp $
  *
  *    Revision history:
- *    $Log: COMMLIB.H $
+ *    $Log: commlib.h $
+ * Revision 1.3  1993/09/20  04:53:57  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  * Revision 1.2  1993/05/30  15:27:22  ahd
  * Additional multiple comm driver support
  *
@@ -133,5 +138,17 @@ extern boolean portActive;          // Port active flag for error handler
 extern boolean traceEnabled;        // Enable comm port trace
 
 boolean IsNetwork(void);
+
+/*--------------------------------------------------------------------*/
+/*                    Declare network buffer size                     */
+/*--------------------------------------------------------------------*/
+
+#if defined(__OS2__) || defined(WIN32) // 32 bit compiler?
+#define MAXPACK 4096          /* Max packet size we can handle       */
+#elif defined(_Windows)
+#define MAXPACK 1024          /* Needed for 't' protocol blocks      */
+#else
+#define MAXPACK 512           /* Max packet size we can handle       */
+#endif
 
 #endif

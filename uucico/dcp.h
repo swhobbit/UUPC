@@ -24,24 +24,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.5 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: dcp.h 1.6 1993/09/20 04:53:57 ahd Exp $
+ *
+ *    $Log$
  *      Mon May 15 19:54:43 1989 change portactive to port_active
  *      Mon May 15 19:51:13 1989 Add portactive flag
  *      19 Mar 1990  Add hostable.h header                           ahd
  *
  */
-
-/*
-        For best results in visual layout while viewing this file, set
-        tab stops to every 4 columns.
-*/
-
-
-#if defined(__OS2__) || defined(WIN32) // 32 bit compiler?
-#define MAXPACK 4096          /* Max packet size we can handle       */
-#else
-#define MAXPACK 512           /* Max packet size we can handle       */
-#endif
 
 #define SMALL_PACKET 64       /* Max packet size most UUCP's can
                                  handle                              */
@@ -118,14 +108,6 @@ typedef enum {
 
 typedef short   (*procref)();
 
-typedef struct {
-        char type;
-        procref getpkt, sendpkt, openpk, closepk, rdmsg, wrmsg, eofpkt,
-                  filepkt;
-        boolean network;
-} Proto;
-
-
 extern size_t s_pktsize;        /* send packet size for this protocol   */
 extern size_t r_pktsize;        /* receive packet size for this protocol*/
 extern FILE *syslog;            /* syslog file pointer                  */
@@ -145,6 +127,5 @@ extern struct HostStats remote_stats;
                                 /* host status, as defined by hostatus */
 
 int    dcpmain(int  argc,char  * *argv);
-
 
 #endif /* __DCP */
