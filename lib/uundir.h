@@ -1,6 +1,10 @@
 #ifndef UUNDIR_H
 #define UUNDIR_H
 
+#ifdef WIN32
+#include <time.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       u u n d i r . h                                              */
 /*                                                                    */
@@ -24,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.4 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: UUNDIR.H 1.2 1993/04/05 04:38:55 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: UUNDIR.H $
+ *     Revision 1.2  1993/04/05  04:38:55  ahd
+ *     Add time stamp/size information
+ *
  */
 
 #define MSDOS_MAXNAMLEN 12
