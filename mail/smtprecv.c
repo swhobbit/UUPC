@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.19 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: smtprecv.c 1.20 1999/01/08 02:21:01 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.20  1999/01/08 02:21:01  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.19  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -107,7 +110,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.19 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.20 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -460,8 +463,8 @@ commandDataInput(SMTPClient *client,
    if ( stringLength < lineLength)
    {
       SMTPResponse(client,
-                    SR_PE_SYNTAX,
-                    "Data contains Null (0x00) characters");
+                   SR_PE_TEMP_SYNTAX,
+                   "Data contains Null (0x00) characters");
 
       printmsg(0,"%s: NULL in data after %d characters, "
                  "total line length %d",
