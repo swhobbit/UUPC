@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.31 1995/02/12 23:39:45 ahd v1-12n $
+ *    $Id: lib.h 1.32 1995/07/21 13:28:20 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.32  1995/07/21 13:28:20  ahd
+ *    Correct compiler warnings
+ *
  *    Revision 1.31  1995/02/12 23:39:45  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -341,12 +344,14 @@ KWBoolean getconfig(FILE *fp,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
+                  const size_t TableSize,
                   FLAGTABLE *btable);
 
 KWBoolean processconfig(char *buff,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
+                  const size_t TableSize,
                   FLAGTABLE *btable);
 
 void bugout( const size_t lineno, const char *fname);
