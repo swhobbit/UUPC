@@ -1,10 +1,17 @@
-#       $Id: nmakos22.mak 1.11 1995/01/29 14:04:46 ahd Exp $
+#       $Id: nmakos22.mak 1.12 1995/02/20 00:07:07 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.12  1995/02/20 00:07:07  ahd
+#       Move various common news subroutines into own library
+#       Break common library into two parts to prevent NMAKE failures
+#       Kai Uwe Rommel's news cache support
+#       Support MS C++ 8.0 compiler
+#       General makefile clean up
+#
 #       Revision 1.11  1995/01/29 14:04:46  ahd
 #       Enable most IBM C/Set++ compiler warnings
 #
@@ -75,6 +82,7 @@ DLLPROD=$(PROD)
 
 RTLDLL   = dde4sbs.dll
 DLLNAME  = UPCR$(VERS:1.=).dll
+OS2=1                   # Enables generation of .DEF file
 
 UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
@@ -88,9 +96,9 @@ OTHERLIBS=   so32dll.lib tcp32dll.lib
 DBGOPT = -O -Gs -Wtrd- -Wuse- -Wpar-
 !else
 #       Use this for debugging
-DBGOPT  =-Ti -Tx -DUDEBUG# -D__DEBUG_ALLOC__
+DBGOPT  =-Ti -Tx -DUDEBUG # -D__DEBUG_ALLOC__
 !endif
 
-COMMOPT = -Q -Gd+
+COMMOPT = -Q -Gd
 CCOPT   = $(COMMOPT) -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wuni- $(DBGOPT) -c -Si -I$(UULIB) -Fo$@
 LDOPT   = $(COMMOPT)  $(DBGOPT) -b"/A:4 /BAT" -Fe $@

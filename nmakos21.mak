@@ -1,10 +1,17 @@
-#       $Id: nmakos21.mak 1.6 1995/01/22 04:15:00 ahd Exp ahd $
+#       $Id: nmakos21.mak 1.7 1995/02/20 00:07:07 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.7  1995/02/20 00:07:07  ahd
+#       Move various common news subroutines into own library
+#       Break common library into two parts to prevent NMAKE failures
+#       Kai Uwe Rommel's news cache support
+#       Support MS C++ 8.0 compiler
+#       General makefile clean up
+#
 #       Revision 1.6  1995/01/22 04:15:00  ahd
 #       Convert internal zip names to match external names
 #
@@ -35,6 +42,7 @@ MODEL    = M                    # All OS/2 16 bit programs are medium
 PROD     = \uupc\os2bin
 STACKSIZE= 0x02A00
 ZIPID    = 1
+OS2=1                   # Enables generation of .DEF file
 
 UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
