@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.21 1997/03/31 06:58:14 ahd v1-12t $
+ *    $Id: catcher.c 1.22 1997/12/13 18:26:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.22  1997/12/13 18:26:48  ahd
+ *    Use standard RCSID() macro in place of hand declare of variable
+ *
  *    Revision 1.21  1997/03/31 06:58:14  ahd
  *    Annual Copyright Update
  *
@@ -39,57 +42,11 @@
  *
  *    Revision 1.16  1995/01/07 16:11:54  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.15  1994/12/22 00:07:26  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.14  1994/12/09 03:42:09  ahd
- *    All suppressbeep support to allow NOT making any sound
- *
- *     Revision 1.13  1994/05/06  03:55:50  ahd
- *     Force SIGTERM to handled non-interactively, because it normally
- *     comes from a OS/2 kill process command (such as close window).
- *
- *     Revision 1.12  1994/02/19  04:47:57  ahd
- *     Use standard first header
- *
- *     Revision 1.11  1994/02/19  04:01:06  ahd
- *     Use standard first header
- *
- *     Revision 1.10  1994/02/18  23:16:44  ahd
- *     Use standard first header
- *
- *     Revision 1.9  1994/02/14  01:03:56  ahd
- *     Use system include syntax for windows.h
- *
- *     Revision 1.8  1994/01/01  19:00:36  ahd
- *     Annual Copyright Update
- *
- *     Revision 1.7  1993/12/29  03:34:37  dmwatt
- *     Add special multi-threaded abort code for Windows NT UUCICO
- *
- *     Revision 1.6  1993/12/26  16:20:17  ahd
- *     Dummy code for MessageBox under Windows
- *
- *     Revision 1.5  1993/12/23  03:11:17  rommel
- *     OS/2 32 bit support for additional compilers
- *
- *     Revision 1.4  1993/10/12  00:49:39  ahd
- *     Normalize comments
- *
- *     Revision 1.3  1993/09/29  04:49:20  ahd
- *     Use actual signal handler number for resetting handler
- *
- *     Revision 1.2  1993/09/20  04:38:11  ahd
- *     TCP/IP support from Dave Watt
- *     't' protocol support
- *     OS/2 2.x support
- *
  */
 
 #include "uupcmoah.h"
 
-RCSID("$Id");
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
