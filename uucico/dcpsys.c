@@ -39,16 +39,19 @@
 */
 
 /*
- *     $Id: DCPSYS.C 1.2 1992/11/15 20:11:07 ahd Exp $
+ *     $Id: DCPSYS.C 1.3 1992/11/16 02:14:17 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.3  1992/11/16  02:14:17  ahd
+ * Initialize previous directory scanned variable in scandir
+ *
  * Revision 1.2  1992/11/15  20:11:07  ahd
  * Clean up modem file support for different protocols
  *
  */
 
  static const char rcsid[] =
-      "$Id$";
+      "$Id: DCPSYS.C 1.3 1992/11/16 02:14:17 ahd Exp $";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -183,7 +186,12 @@ CONN_STATE getsystem( const char sendgrade )
 /*--------------------------------------------------------------------*/
 
    hostp = checkreal( rmtname );
-   checkref( hostp );
+   if ( hostp == NULL )
+   {
+      printmsg(0,"getsystem: Internal lookup error for system %s",
+                  rmtname);
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*                   Display the send/expect fields                   */
@@ -849,6 +857,7 @@ XFER_STATE scandir(char *remote, const char grade )
                                  directory entry!                 */
       }
       else {
+         setvbuf( fwork, NULL, _IONBF, 0);
          printmsg(5, "scandir: matched \"%s\"",workfile);
          return XFER_REQUEST; /* Return success                   */
       }
