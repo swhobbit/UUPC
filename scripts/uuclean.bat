@@ -5,9 +5,12 @@ REM *    (ICBJ100@INDYVAX.IUPUI.EDU).  Support for by Snuffles P.      *
 REM *    Bear (Snuffles@kew.com).  Comments by Drew Derbyshire         *
 REM *    (help@kew.com); delete the comments to make this run faster.  *
 REM *------------------------------------------------------------------*
-rem     $Id: uuclean.bat 1.3 1994/04/27 00:07:33 ahd v1-12o $
+rem     $Id: uuclean.bat 1.4 1995/09/24 19:12:04 ahd v1-12q $
 rem
 rem     $Log: uuclean.bat $
+rem     Revision 1.4  1995/09/24 19:12:04  ahd
+rem     *** empty log message ***
+rem
 rem     Revision 1.3  1994/04/27 00:07:33  ahd
 rem     Prevent endless recursion if TEMP and TMP are not set
 rem
@@ -33,12 +36,16 @@ if exist %2\UUPC*.bak erase %2\UUPC*.bak
 REM *------------------------------------------------------------------*
 REM *                 Clean the various log files                      *
 REM *------------------------------------------------------------------*
+call %0 cleanit %1\genhist
 call %0 cleanit %1\linedata
+call %0 cleanit %1\newsrun
 call %0 cleanit %1\rmail
 call %0 cleanit %1\rnews
-call %0 cleanit %1\uuxqt
+call %0 cleanit %1\sendbats
 call %0 cleanit %1\uucico
-call %0 cleanit %1\expire
+call %0 cleanit %1\uupopd
+call %0 cleanit %1\uusmtpd
+call %0 cleanit %1\uuxqt
 if exist %1\syslog     rename %1\syslog syslog.log
 call %0 cleanit %1\syslog
 REM *------------------------------------------------------------------*
