@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.9 1992/11/29 22:09:10 ahd Exp $
+ *       $Id: DCPXFER.C 1.10 1992/12/01 04:37:03 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.10  1992/12/01  04:37:03  ahd
+ * Suppress routine names transfered from debug level 0 and 1
+ *
  * Revision 1.9  1992/11/29  22:09:10  ahd
  * Change size_t to int to suppress warning message
  *
@@ -348,7 +351,8 @@ XFER_STATE seof( const boolean purge_file )
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a", TEXT);
 
-         if (( syslog == NULL ) || setvbuf( syslog, NULL, _IONBF, 0))
+         if (( syslog == NULL ) ||
+             (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
             printerr(SYSLOG);
          else {
             fprintf( syslog,
@@ -1173,7 +1177,8 @@ XFER_STATE reof( void )
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a", TEXT);
 
-         if (( syslog == NULL ) || setvbuf( syslog, NULL, _IONBF, 0))
+         if (( syslog == NULL ) ||
+             (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
             printerr(SYSLOG);
          else {
             fprintf( syslog,
