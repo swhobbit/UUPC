@@ -74,7 +74,7 @@ int far * far com_errors(void);  /* return far pointer to error counts
 int far modem_status( void ); /* Return current modem status         */
 
 #define is_dsr_high() ( modem_status() & MDM_DSR )
-#define is_cts_high() ( modem_status() & MDM_DSR )
+#define is_cts_high() ( modem_status() & MDM_CTS )
 #define is_cd_high()  ( modem_status() & MDM_CD  )
 
 /*--------------------------------------------------------------------*/

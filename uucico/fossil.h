@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: FOSSIL.H 1.1 1993/05/30 00:16:35 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: FOSSIL.H $
+ * Revision 1.1  1993/05/30  00:16:35  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -32,7 +35,6 @@
 /*       Implementation and Use:  Version 5, February 11, 1988 by     */
 /*       Rick Moore of Solar Wind Computing.                          */
 /*--------------------------------------------------------------------*/
-
 
 #define FS_INTERRUPT 0x14        // Fossil uses INT 14
 
@@ -135,27 +137,12 @@ typedef struct _FS_INFO {        // Data returned by FS_DRIVINFO
 
 #define FSBreak( onoroff )  FossilCntl(FS_BREAK, onoroff)
 
- static short port;
-
 /*--------------------------------------------------------------------*/
-/*       F o s s i l C n t l                                          */
-/*                                                                    */
-/*       Perform control functions on a FOSSIL port                   */
+/*        Define information for routines and data in fossil.c        */
 /*--------------------------------------------------------------------*/
 
- static short FossilCntl( char function, char info )
- {
-   union REGS regs;
+extern short portNum;        // Must be set by openline()
 
-   regs.x.dx = port;
-   regs.h.ah = function;
-   regs.h.al = info;
-   regs.x.bx = 0x00;          // Insure start function doesn't
-                              // cause ES:CX to be twiddled
-   int86( FS_INTERRUPT, &regs, &regs );
-
-   return regs.x.ax;          // Return AX to caller
-
- } /* FossilCntl */
+short FossilCntl( const char function, const char info );
 
 #endif
