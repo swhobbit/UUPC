@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.14 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: mailblib.c 1.15 1994/04/26 23:56:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.15  1994/04/26  23:56:16  ahd
+ * Allow for unique use of foreground flag under OS/2
+ *
  * Revision 1.14  1994/02/28  01:02:06  ahd
  * Cosmetic formatting cleanups
  *
@@ -1011,7 +1014,7 @@ boolean Get_Operand( int *item,
 /*        User operands are like string operands, but required        */
 /*--------------------------------------------------------------------*/
 
-   if ( (bits & USER_OP) && (*token == NULL))
+   if ( (bits & (USER_OP|TOKEN_OP)) && (*token == NULL))
    {
       printf("Missing addressees for command\n");
       return FALSE;
