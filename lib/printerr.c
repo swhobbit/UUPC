@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.9 1994/02/20 19:07:38 ahd v1-12k $
+ *    $Id: printerr.c 1.10 1995/01/07 16:13:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.10  1995/01/07 16:13:48  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.9  1994/02/20 19:07:38  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -72,10 +75,12 @@
 void prterror(const size_t lineno, const char *fname, const char *prefix)
 {
    char buf[50];
+   int myErrno = errno;
    char *s = strerror(errno);
    int l = strlen( s );
 
-   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout))) ?
+                           KWTrue : KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*    Drop extra new from error message if we have room in our        */
@@ -92,10 +97,13 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
 /*           Display the message with option file location            */
 /*--------------------------------------------------------------------*/
 
-   printmsg(2,"Run time library error in %s at line %d ...",
-            fname, lineno);
+   printmsg(2,"Run time library error %d in %s at line %d ...",
+               myErrno,
+               fname,
+               lineno);
 
    printmsg(0,"%s: %s", prefix, s);
+
    if ( redirect )
       fprintf(stdout,"%s: %s\n", prefix, s);
 
