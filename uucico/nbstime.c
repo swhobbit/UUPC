@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.31 1995/04/02 00:01:39 ahd Exp $
+ *    $Id: nbstime.c 1.32 1995/05/07 14:41:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.32  1995/05/07 14:41:07  ahd
+ *    The infamous bi-annual daylight savings time switch bug fest
+ *
  *    Revision 1.31  1995/04/02 00:01:39  ahd
  *    Correct DOS clock setting to use correct TZ under MS compilers
  *
@@ -487,13 +490,11 @@ KWBoolean nbstime( void )
    setTitle("Determining current time");
 
    memset( &tx , '\0', sizeof tx);  /* Clear all time info           */
-   if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
+   if (!expectstr("MJD", 10, NULL )) /* Margaret Jane Derbyshire? :-) */
    {
-      printmsg(0,"nbstime: Did not find MJD literal in data from remote");
+      printmsg(0,"nbstime: Did not find NIST literal in data from remote");
       return KWFalse;
    }
-
-   rmsg(buf, 2, 2, sizeof buf);     /* Read header line, discard     */
 
 /*--------------------------------------------------------------------*/
 /*                  Begin main loop to get the time                   */
