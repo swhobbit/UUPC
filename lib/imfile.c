@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.33 1998/03/09 01:22:28 ahd Exp $
+ *    $Id: imfile.c 1.34 1998/03/16 06:14:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.34  1998/03/16 06:14:04  ahd
+ *    Allow auto-debugging under 32 bit environment
+ *
  *    Revision 1.33  1998/03/09 01:22:28  ahd
  *    Flag when imtell() is issued on an in-memory file
  *
@@ -512,7 +515,7 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 
    stringLength = (size_t) (imf->inUse - imf->position);
 
-   if (stringLength > (size_t) (userLength - 1))
+   if (stringLength > (size_t) userLength)
       stringLength = (size_t) userLength;
 
 #ifdef UDEBUG2
@@ -524,7 +527,7 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 
    p = imf->buffer + (size_t) imf->position;
 
-   while (subscript < stringLength)
+   while ((subscript+1) < stringLength)
    {
       if (p[subscript] == '\0')
       {
@@ -532,14 +535,12 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
                      (long) subscript);
       }
 
-      if (p[subscript] == '\n')
+      if (p[subscript++] == '\n')
          break;
-      else
-         subscript++;
    }
 
-   MEMCPY(userBuffer, p, ++subscript);
-   userBuffer[ subscript ] = '\0';
+   MEMCPY(userBuffer, p, subscript);
+   userBuffer[subscript++] = '\0';
    imf->position += subscript;
 
 #ifdef UDEBUG2
@@ -547,6 +548,13 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
               subscript,
               userBuffer);
 #endif
+
+   if (subscript > (size_t) userLength)
+   {
+      printmsg(0,"imgets: Attempt to return overlength buffer" );
+      panic();
+   }
+
 
    return userBuffer;
 
