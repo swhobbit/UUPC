@@ -13,13 +13,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.1 1992/11/16 05:00:26 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: LOCK.C $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
 
-static char rcsid[] = "$Id$";
+static char rcsid[] = "$Id: LOCK.C 1.1 1992/11/16 05:00:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */
@@ -112,6 +115,8 @@ boolean LockSystem( const char *system , long program )
                (size > 0) ? dater( age, NULL ) : "UNKNOWN" );
       return FALSE;
    }
+
+   setvbuf( locket, NULL, _IONBF, 0);
 
    time( &age );
    fprintf( locket, "%s locked by process %ld at %s",
