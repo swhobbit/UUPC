@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.12 1994/02/19 05:07:34 ahd Exp $
+ *    $Id: ulibwin.c 1.13 1994/05/07 21:45:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *        Revision 1.13  1994/05/07  21:45:33  ahd
+ *        Correct CD() processing to be sticky -- once it fails, it
+ *        keeps failing until reset by close or hangup.
+ *
  * Revision 1.12  1994/02/19  05:07:34  ahd
  * Use standard first header
  *
@@ -692,7 +696,7 @@ boolean nCD( void )
 {
    boolean newCarrierDetect;
 
-   newCarrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
+   newCarrierDetect = ((*lpbModemBits & MSR_RLSD) != 0);
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
