@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.4 1997/11/28 23:11:38 ahd Exp $
+ *       $Id: smtprecv.c 1.5 1997/11/29 13:03:13 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.5  1997/11/29 13:03:13  ahd
+ *       Clean up single client (hot handle) mode for OS/2, including correct
+ *       network initialization, use unique client id (pid), and invoke all
+ *       routines needed in main client loop.
+ *
  *       Revision 1.4  1997/11/28 23:11:38  ahd
  *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -53,7 +58,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.4 1997/11/28 23:11:38 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.5 1997/11/29 13:03:13 ahd Exp $");
 
 currentfile();
 
@@ -390,6 +395,9 @@ commandPeriod(SMTPClient *client,
 
    size_t count;
    size_t delivered = 0;
+   MAIL_ADDR sender;
+   char fUser[MAXADDR];
+   char fHost[MAXADDR];
 
 /*--------------------------------------------------------------------*/
 /*       If we previously had problem and issues error reply, just    */
@@ -404,36 +412,28 @@ commandPeriod(SMTPClient *client,
    }
 
 /*--------------------------------------------------------------------*/
-/*             Set flags up for the internal delivery engine          */
-/*--------------------------------------------------------------------*/
-
-   bflag[F_FASTSMTP] = KWFalse;     /* Never deliver immediately,
-                                       we are too busy               */
-   remoteMail = KWTrue;
-
-   tokenizeAddress(client->transaction->sender,
-                    client->transmit.data,
-                    fromNode,
-                    fromUser);      /* No need to check return code,
-                                       was validated when accepted   */
-
-   rnode = fromNode;
-   ruser = fromUser;
-
-/*--------------------------------------------------------------------*/
 /*       And now, ladies and gentlemen, boys and girls, the moment    */
 /*       we have ALL been waiting for ... delivery of the message.    */
 /*--------------------------------------------------------------------*/
 
    bflag[F_FASTSMTP] = KWFalse;  /* Don't do outbound SMTP           */
-   remoteMail = KWTrue;          /* Mail did not originate here      */
+
+   tokenizeAddress( client->transaction->sender, NULL, fHost, fUser );
+
+   memset( &sender, 0, sizeof sender );
+   sender.address = client->transaction->sender;
+   sender.relay   = client->SMTPName;
+   sender.host    = fHost;
+   sender.user    = fUser;
 
    for (count = 0; count < client->transaction->addressCount; count++)
       delivered += Deliver(client->transaction->imf,
+                           &sender,
                            client->transaction->address[count],
                            KWTrue);
 
-   flushQueues(client->transaction->imf);
+   flushQueues(client->transaction->imf,
+               &sender );
 
    cleanupTransaction(client);
 

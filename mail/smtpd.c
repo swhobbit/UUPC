@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.6 1997/11/28 23:11:38 ahd Exp $
+ *    $Id: smtpd.c 1.7 1997/11/29 13:03:13 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.7  1997/11/29 13:03:13  ahd
+ *    Clean up single client (hot handle) mode for OS/2, including correct
+ *    network initialization, use unique client id (pid), and invoke all
+ *    routines needed in main client loop.
+ *
  *    Revision 1.6  1997/11/28 23:11:38  ahd
  *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -61,13 +66,12 @@
 #include "smtpserv.h"
 #include "getopt.h"
 #include "logger.h"
-#include "deliver.h"                /* To set grade ... yuck         */
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.6 1997/11/28 23:11:38 ahd Exp $");
+RCSID("$Id: smtpd.c 1.7 1997/11/29 13:03:13 ahd Exp $");
 
 currentfile();
 
@@ -179,6 +183,7 @@ main( int argc, char ** argv )
    time_t exitTime = LONG_MAX;
    KWBoolean runUUXQT = KWFalse;
    int  hotHandle = -1;
+   char grade;                      /* Need to copy to deliver       */
 
    logfile = stderr;
 
