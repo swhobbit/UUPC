@@ -8,10 +8,15 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.7 1993/08/02 03:22:25 ahd Exp $
+#     $Id: uucico.mak 1.8 1993/09/20 04:36:42 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.8  1993/09/20  04:36:42  ahd
+# TCP/IP support from Dave Watt
+# 't' protocol support
+# BC++ 1.0 for OS/2 support
+#
 # Revision 1.7  1993/08/02  03:22:25  ahd
 # Chaanges in support of Robert Denny's Windows 3.x support
 #
@@ -47,7 +52,8 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
             $(OBJ)\nbstime.obj $(OBJ)\script.obj $(OBJ)\uucico.obj
 
 !if $d(__OS2__)
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\dcptpkt.obj
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
+            $(OBJ)\dcptpkt.obj
 !elif $d(WINDOWS)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
             $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj
