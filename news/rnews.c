@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.5 1993/04/11 00:33:54 ahd Exp $
+ *       $Id: RNEWS.C 1.7 1993/04/16 12:55:36 dmwatt Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.7  1993/04/16  12:55:36  dmwatt
+ * Bounds check group lengths
+ *
  * Revision 1.5  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -55,7 +58,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.5 1993/04/11 00:33:54 ahd Exp $";
+         "$Id: RNEWS.C 1.7 1993/04/16 12:55:36 dmwatt Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -211,19 +214,42 @@ void main( int argc, char **argv)
 
    tzset();                   /* Set up time zone information  */
 
-   if ( !bflag[F_SNEWS] )
+/*--------------------------------------------------------------------*/
+/*    If we are processing snews input, write it all out to the       */
+/*    news directory as one file and return gracefully.               */
+/*--------------------------------------------------------------------*/
+
+   if ( bflag[F_SNEWS])
    {
+      if (bflag[F_HISTORY])
+      {
+         printmsg(0,
+               "rnews: Conflicting options snews and history specified!");
+         panic();
+      } /* else if */
+
+      char *savetemp = E_tempdir;   /* Save the real temp directory  */
+
+      E_tempdir = E_newsdir;        /* Generate this file in news    */
+      mktempname(filename, "ART");  /* Get the file name             */
+      E_tempdir = savetemp;         /* Restore true directory name   */
+      exit copy_snews( filename, stream );
+                                    /* Dump news into NEW directory  */
+   }
+   else
+      mktempname(filename, "tmp");  /* Make normal temp name         */
+
+/*--------------------------------------------------------------------*/
+/*             Load the active file and validate its data             */
+/*--------------------------------------------------------------------*/
+
       get_active();           /* Get sequence numbers for groups
                                  from active file                 */
       validate_newsgroups();  /* Make sure all directories exist  */
 
-   }
-   else if (bflag[F_HISTORY])
-   {
-      printmsg(0,
-            "rnews: Conflicting options snews and history specified!");
-      panic();
-   } /* else if */
+/*--------------------------------------------------------------------*/
+/*                   Initialize history processing                    */
+/*--------------------------------------------------------------------*/
 
    local_now = localtime(&now);
 
@@ -242,21 +268,6 @@ void main( int argc, char **argv)
       else
          hfile = create_history(history_date);
    } /* if */
-
-/*--------------------------------------------------------------------*/
-/*                        Get output file name                        */
-/*--------------------------------------------------------------------*/
-
-   if ( bflag[F_SNEWS])
-   {
-      char *savetemp = E_tempdir;   /* Save the real temp directory  */
-
-      E_tempdir = E_newsdir;        /* Generate this file in news    */
-      mktempname(filename, "ART");  /* Get the file name             */
-      E_tempdir = savetemp;         /* Restore true directory name   */
-   }
-   else
-      mktempname(filename, "tmp");
 
 /*--------------------------------------------------------------------*/
 /*    This loop copies the file to the NEWS directory.                */
@@ -330,8 +341,7 @@ void main( int argc, char **argv)
 /*                     Close open files and exit                      */
 /*--------------------------------------------------------------------*/
 
-   if ( !bflag[F_SNEWS] )
-      put_active();
+   put_active();
 
    if (hfile != NULL)
       fclose(hfile);
@@ -354,13 +364,6 @@ static int Single( char *filename , FILE *stream )
    unsigned chars_read;
    unsigned chars_written;
 
-/*--------------------------------------------------------------------*/
-/*    If we are processing snews input, write it all out to the       */
-/*    news directory as one file and return gracefully.               */
-/*--------------------------------------------------------------------*/
-
-   if ( bflag[F_SNEWS] )      /* Processing snews input?             */
-      return copy_snews( filename, stream );
 
 /*--------------------------------------------------------------------*/
 /* Make a file name and then open the file to write the article into  */
@@ -619,14 +622,6 @@ static int Batched( char *filename, FILE *stream)
    boolean gotsize = FALSE;
    int chars_read;
    int chars_written;
-
-/*--------------------------------------------------------------------*/
-/*    If we are processing snews input, write it all out to the       */
-/*    news directory as one file and return gracefully.               */
-/*--------------------------------------------------------------------*/
-
-   if ( bflag[F_SNEWS] )      /* Processing snews input?             */
-      return copy_snews( filename, stream );
 
 /*--------------------------------------------------------------------*/
 /*    This is an uncompressed batch.  Copy it to the working          */
