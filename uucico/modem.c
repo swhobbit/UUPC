@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.47 1994/05/08 02:43:07 ahd Exp $
+ *    $Id: modem.c 1.48 1994/08/07 21:45:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.48  1994/08/07  21:45:09  ahd
+ *        Don't report "modem ready" if really network connection
+ *
  *        Revision 1.47  1994/05/08  02:43:07  ahd
  *        Handle carrier detect option internal to CD()
  *
@@ -905,7 +908,19 @@ void shutDown( void )
       saveRaised |= raised;
    }
 
+/*--------------------------------------------------------------------*/
+/*                          Release the port                          */
+/*--------------------------------------------------------------------*/
+
    closeline();
+
+/*--------------------------------------------------------------------*/
+/*              Give port back to original owner, if any              */
+/*--------------------------------------------------------------------*/
+
+   if (!IsNetwork())
+      suspend_other(FALSE, M_device);
+
    norecovery = TRUE;
 
 }  /* shutDown */
