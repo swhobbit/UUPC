@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.h 1.6 1994/01/24 02:57:29 ahd v1-12k $
+ *    $Id: fossil.h 1.7 1994/12/22 00:40:23 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: fossil.h $
+ *    Revision 1.7  1994/12/22 00:40:23  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/01/24 02:57:29  ahd
  *    Annual Copyright Update
  *
@@ -89,6 +92,10 @@
 #define FS_BREAK     0x1A        /* Enable/disable break on port      */
 #define FS_DRIVINFO  0x1B        /* Get driver information            */
 
+#ifndef __TURBOC__
+#pragma pack(1)
+#endif
+
 typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
    short size;                   /* Data bytes returned               */
    char  version;                /* FOSSIL specification version used  */
@@ -102,6 +109,10 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
    char  height;                 /* Screen height in characters        */
    char  baudmask;               /* Baud rate in format used by FS_SPEED  */
 } FS_INFO;
+
+#ifndef __TURBOC__
+#pragma pack()
+#endif
 
 /*--------------------------------------------------------------------*/
 /*              Define macros to perform basic functions              */
