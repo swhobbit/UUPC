@@ -19,9 +19,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.8 1993/05/03 02:41:57 ahd Exp $
+ *    $Id: DELIVER.C 1.9 1993/05/06 03:41:48 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.9  1993/05/06  03:41:48  ahd
+ * Don't rebounce mail to the postmaster
+ * Change directories as needed to provide reasonable default drives
+ * Do not use possibly invalid home directory to push directory on
+ * system aliases
+ *
  * Revision 1.8  1993/05/03  02:41:57  ahd
  * Make deliver not rebounce mail to the postmonstor
  *
@@ -544,9 +550,8 @@ static int DeliverFile( const char *input,
          case ':':
          {
             char fname[FILENAME_MAX];
-            PushDir( cwd );
-            strcpy( fname, normalize( nextfile ));
-            PopDir();
+            strcpy( fname, nextfile);
+            expand_path(nextfile, NULL, cwd, E_mailext);
             delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
                                       announce, userp,
                                       FALSE, TRUE, user );
