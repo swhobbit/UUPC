@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.50 1995/03/12 16:42:24 ahd Exp $
+ *    $Id: uuxqt.c 1.51 1995/07/21 13:18:16 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.51  1995/07/21 13:18:16  ahd
+ *    Correct scope of loop for rmail deliveries
+ *
  *    Revision 1.50  1995/03/12 16:42:24  ahd
  *    Don't pass NULL pointers to file delete routines, they get annoyed
  *
@@ -1148,7 +1151,6 @@ static void process( const char *eXecFileName,
                   status = shell(next_cmd, pipefile, outputName, remote, xflag);
                }
 
-
                if (REMOVE(pipefile))
                   printerr( pipefile );
 
@@ -1336,15 +1338,11 @@ static int shell(char *command,
 
    else if (equal(cmdname,RMAIL) && ( inname != NULL )) /* rmail w/input?  */
    {
-      parameters = strtok( parameters, WHITESPACE );
-
       while (( parameters != NULL ) && (result != -1 ))
       {
 
-         KWBoolean firstPass = KWTrue;
-         int left;
-
-         size_t rlen = sizeof commandBuf - 2;
+         size_t parametersLength = strlen( parameters );
+         size_t lastCharacter    = sizeof commandBuf - 2;
 
 #if defined(_Windows)
 
@@ -1367,7 +1365,7 @@ static int shell(char *command,
 
 #elif defined(__OS2__)
 
-         sprintf( commandBuf, "-x %d" , debuglevel );
+         sprintf( commandBuf, "-x %d " , debuglevel );
 
 #else
 
@@ -1375,50 +1373,43 @@ static int shell(char *command,
 
 #endif
 
-         rlen -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
+         strcat( commandBuf, "-- " );   /* Ignore other major options */
+
+         lastCharacter -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
 
 /*--------------------------------------------------------------------*/
-/*                   Copy addresses into the buffer                   */
+/*               Determine longest address we can copy                */
 /*--------------------------------------------------------------------*/
 
-         left = (int) (rlen - strlen( parameters ));
+         if ( lastCharacter > parametersLength )
+            lastCharacter = parametersLength;
+         else {
 
-         while ((parameters != NULL) && (left > 0))
+            while( lastCharacter && ! isspace( parameters[lastCharacter] ))
+               lastCharacter--;
+         }
+
+/*--------------------------------------------------------------------*/
+/*                Verify we found a command to process                */
+/*--------------------------------------------------------------------*/
+
+         if ( ! lastCharacter )
          {
-            char *next = strtok( NULL, "");
-
-            if ( *parameters == '-')   /* Option flag for mail?        */
-               printmsg(0,"Disallowed option %s ignored",parameters);
-            else {                     /* Not option, add to param list  */
-               strcat( commandBuf, " ");
-               strcat( commandBuf, parameters );
-               left -= strlen( parameters ) + 1;
-               firstPass = KWFalse;
-            }
-
-/*--------------------------------------------------------------------*/
-/*                       Step to next parameter                       */
-/*--------------------------------------------------------------------*/
-
-            if ( next == NULL )
-               parameters = NULL;
-            else
-               parameters = strtok( next, WHITESPACE );
-
-         } /* while ( parameters != NULL ) */
-
-         if (firstPass)       /* Did we process at least one addr?     */
-         {                    /* No --> Serious problem!              */
             printmsg(0,
-                     "Address \"%s\" too long (%d chars)!  %d available, short fall would be %d",
+                     "Address \"%s\" too long (%d chars)!",
                       parameters,
-                      strlen(parameters),
-                      rlen,
-                      left );
+                      parametersLength );
 
             panic();
 
-         } /* if (*commandBuf = '\0') */
+         } /* if ( ! lastCharacter ) */
+
+/*--------------------------------------------------------------------*/
+/*                 Create the line of addresses                       */
+/*--------------------------------------------------------------------*/
+
+         parameters[lastCharacter] = '\0';
+         strcat( commandBuf, parameters );
 
 /*--------------------------------------------------------------------*/
 /*               Execute one command line of addresses                */
@@ -1437,6 +1428,23 @@ static int shell(char *command,
                   cmdname, commandBuf, result);
             panic();
          }
+
+/*--------------------------------------------------------------------*/
+/*           Locate the beginning of next addresses, if any           */
+/*--------------------------------------------------------------------*/
+
+         if ( lastCharacter == parametersLength )
+            parameters = NULL;
+         else {
+            parameters += lastCharacter + 1;
+
+            parameters += strspn(parameters, WHITESPACE);
+                                    /* Drop leading whitespace       */
+
+            if ( *parameters == '\0' )
+               parameters = NULL;
+
+         } /* else */
 
       } /* while */
 
@@ -1615,7 +1623,6 @@ static void     do_copy(const char *localfile,
                    localfile,
                    rmtsystem,
                    remotefile );
-
 
 /*--------------------------------------------------------------------*/
 /*       We don't have a good response to UUCP failing, so we         */
@@ -1899,7 +1906,7 @@ void mailStatus(const char *tempfile,
       strcat(buf, " -s " );
       strcat(buf, subject );
    }
-   strcat( buf, " " );
+   strcat( buf, " -- " );
    strcat( buf, address );
 
    status = execute( RMAIL, buf, NULL, NULL, KWTrue, KWFalse );
