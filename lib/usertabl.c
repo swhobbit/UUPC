@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: USERTABL.C 1.5 1993/05/06 03:41:48 ahd Exp $
+ *    $Id: USERTABL.C 1.6 1993/05/29 15:19:59 ahd Exp $
  *
  *    $Log: USERTABL.C $
+ *     Revision 1.6  1993/05/29  15:19:59  ahd
+ *     Allow configured systems, passwd files
+ *
  *     Revision 1.5  1993/05/06  03:41:48  ahd
  *     Use expand_path to get reasonable correct drive for aliases file
  *
@@ -155,7 +158,6 @@ struct UserTable *inituser(char *name)
    if (hit == UserElements)
    {
       users[hit].uid      = newstr(name);
-      checkref(users[hit].uid);
       users[hit].realname = EMPTY_GCOS;
       users[hit].beep     = NULL;
       users[hit].homedir  = E_pubdir;
