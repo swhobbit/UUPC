@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.29 1993/10/30 03:03:46 ahd Exp rommel $
+ *       $Id: dcpxfer.c 1.30 1993/10/30 22:27:57 rommel Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.30  1993/10/30  22:27:57  rommel
+ * Make SYSLOG more UNIX like
+ *
  * Revision 1.29  1993/10/30  03:03:46  ahd
  * Correct validation of files in ssfile()
  *
@@ -177,6 +180,7 @@ static char userid[20];
 static int seq = 0;           /* Number of files transfered this
                                  connection                          */
 static int pid;
+static size_t vbufsize;       /* Amount to buffer in std library     */
 
 currentfile();
 
@@ -431,8 +435,13 @@ XFER_STATE seof( const boolean purge_file )
                    lName,
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec,
-                 pid, seq, M_device,
-                 bytes, ticks / 1000 , (int) ((ticks % 1000) / 10) );
+                   pid,
+                   seq,
+                   M_device,
+                   bytes,
+                   ticks / 1000 ,
+                   (int) ((ticks % 1000) / 10) );
+
             if ( bflag[F_MULTITASK] )
             {
                fclose( syslog );
@@ -580,9 +589,7 @@ XFER_STATE ssfile( void )
 /*              The file is open, now set its buffering               */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows                 /* Leave file buffered under Windows */
-
-   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
+   if (setvbuf( xfer_stream, NULL, vbufsize ? _IOFBF : _IONBF, vbufsize))
    {
       printmsg(0, "ssfile: Cannot unbuffer file %s (%s).",
                   fileName, hostFile);
@@ -591,8 +598,6 @@ XFER_STATE ssfile( void )
       xfer_stream = NULL;
       return XFER_ABORT;         /* Clearly not our day; quit  */
    } /* if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    Okay, we have a file to process; offer it to the other host     */
@@ -731,9 +736,7 @@ appending file name \"%s\"", spolName, slash);
 /*                     Set buffering for the file                     */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows                 /* Leave file buffered under Windows */
-
-   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
+   if (setvbuf( xfer_stream, NULL, vbufsize ? _IOFBF : _IONBF, vbufsize))
    {
       printmsg(0, "srfile: Cannot unbuffer file %s (%s).",
           tName, spolName);
@@ -743,8 +746,6 @@ appending file name \"%s\"", spolName, slash);
       xfer_stream = NULL;
       return XFER_ABORT;
    } /* if */
-
-#endif
 
    spool = FALSE;             /* Do not rename file at completion */
    lName = spolName;          /* Use full name for local logging      */
@@ -1061,9 +1062,7 @@ XFER_STATE rrfile( void )
 /*               The file is open, now try to buffer it               */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows                 /* Leave file buffered under Windows */
-
-   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
+   if (setvbuf( xfer_stream, NULL, vbufsize ? _IOFBF : _IONBF, vbufsize))
    {
       printmsg(0, "rrfile: Cannot unbuffer file %s (%s).",
           fileName, spool ? tempName : spolName);
@@ -1073,8 +1072,6 @@ XFER_STATE rrfile( void )
       pktsendstr("SN4");             /* Report cannot create file     */
       return XFER_ABORT;
    } /* if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    Announce we are receiving the file to console and to remote     */
@@ -1172,9 +1169,7 @@ XFER_STATE rsfile( void )
          return XFER_FILEDONE;   /* Tell them to send next file   */
    } /* if */
 
-#ifndef _Windows                 /* Leave file buffered under Windows */
-
-   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
+   if (setvbuf( xfer_stream, NULL, vbufsize ? _IOFBF : _IONBF, vbufsize))
    {
       printmsg(0, "rsfile: Cannot unbuffer file %s (%s).", fName, spolName);
       pktsendstr("RN2");         /* Tell them we cannot handle it */
@@ -1183,8 +1178,6 @@ XFER_STATE rsfile( void )
       xfer_stream = NULL;
       return XFER_ABORT;
    } /* if */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*  We have the file open, announce it to the log and to the remote   */
@@ -1347,10 +1340,17 @@ XFER_STATE reof( void )
                    userid,
                    type,
                    lName,
-                   (tmx->tm_mon+1), tmx->tm_mday,
-                   tmx->tm_hour, tmx->tm_min, tmx->tm_sec,
-                   pid, seq, M_device,
-                   bytes, ticks / 1000 , (int) ((ticks % 1000) / 10) );
+                   (tmx->tm_mon+1),
+                   tmx->tm_mday,
+                   tmx->tm_hour,
+                   tmx->tm_min,
+                   tmx->tm_sec,
+                   pid,
+                   seq,
+                   M_device,
+                   bytes,
+                   ticks / 1000 ,
+                   (int) ((ticks % 1000) / 10) );
 
             if ( bflag[F_MULTITASK] )
             {
@@ -1438,6 +1438,14 @@ static void buf_init( void )
       databuf = malloc( xferBufSize );
    else
       databuf = realloc( databuf, xferBufSize );
+
+#ifdef _Windows
+   vbufsize = BUFSIZ;            /* Use normal buffering under Windows  */
+#elif defined(BIT32ENV)
+   vbufsize = (16 * 1024);       /* Buffer nicely under OS/2, NT        */
+#else
+   vbufsize = 0;
+#endif
 
    checkref( databuf );
 
