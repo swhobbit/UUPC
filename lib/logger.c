@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\LIB\RCS\LOGGER.C 1.6 1993/03/06 22:48:23 ahd Exp $
+ *    $Id: LOGGER.C 1.7 1993/04/11 00:32:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOGGER.C $
+ *     Revision 1.7  1993/04/11  00:32:05  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.6  1993/03/06  22:48:23  ahd
  *     Drop dashes between log entries
  *
@@ -47,6 +50,9 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <share.h>
+#include <io.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -84,6 +90,7 @@ static void copylog( void );
 void openlog( const char *log )
 {
    char fname[FILENAME_MAX];
+   FILE *stream = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                Create the final log name for later                 */
@@ -104,34 +111,44 @@ void openlog( const char *log )
    if ( bflag[F_MULTITASK] )
    {
       char *savedir = E_tempdir;    /* Save real tempory directory   */
+      short retries = 20;
 
       E_tempdir = E_spooldir;       /* Create log file in spool dir
                                        to allow for larger files
                                        and/or system crashes         */
-      tempname = newstr( mktempname(fname, "LOG"));
-                                    /* Get the file name             */
-      E_tempdir = savedir;          /* Restore true temp dir         */
+      while (( stream == NULL ) && retries-- )
+      {
+         mktempname(fname, "LOG");  // Get a temp log file name
+
+         stream = _fsopen(fname, "at", SH_DENYWR);
+
+         if ( stream == NULL )
+            printerr( tempname );
+
+      } /* while */
+
+      E_tempdir = savedir;          // Restore true temp dir
+      tempname = newstr( fname );   // Save name we log to for posterity
+
    } /* if */
-   else
+   else {
       tempname = logname;           /* Log directly to true log file */
-
-   full_log_file_name = tempname;   /* Tell printmsg() what our log
-                                       file name is                  */
-
-/*--------------------------------------------------------------------*/
-/*                    Open the temporary log file                     */
-/*--------------------------------------------------------------------*/
-
-   logfile = FOPEN( tempname , "a",TEXT_MODE );
+      stream  = FOPEN( tempname , "a",TEXT_MODE );
                               /* We append in case we are not in
                                  multitask mode and we do not want
                                  to clobber the real log!            */
+   } /* else */
 
-   if ( logfile == NULL )
+   if ( stream == NULL )
    {
-      printerr( tempname );
+      printmsg(0,"Cannot open any log file!");
       panic();
    }
+
+   full_log_file_name = tempname;   /* Tell printmsg() what our log
+                                       file name is                  */
+   logfile  = stream;               // And of the the stream itself
+
 
 /*--------------------------------------------------------------------*/
 /*               Request the copy function be run later               */
