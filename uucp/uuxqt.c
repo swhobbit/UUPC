@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.3 1992/11/19 03:03:33 ahd Exp $
+ *    $Header: E:\SRC\UUPC\uucp\RCS\uuxqt.c 1.4 1992/11/23 03:56:06 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: UUXQT.C $
+ *    $Log: uuxqt.c $
+ * Revision 1.4  1992/11/23  03:56:06  ahd
+ * Selected fixes for use of generlized uux commands
+ *
  * Revision 1.3  1992/11/19  03:03:33  ahd
  * drop rcsid
  *
@@ -662,7 +665,7 @@ static void process( const char *fname, const char *remote )
       }
 
       if (input == NULL)
-         input = strdup("nul");
+         input = strdup("/dev/nul");
 
       if (output == NULL)
          output = mktempname(NULL, "OUT");
