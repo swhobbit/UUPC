@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.17 1994/02/13 03:15:44 dmwatt Exp $
+ *       $Id: ulibnt.c 1.18 1994/02/19 05:05:26 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.18  1994/02/19  05:05:26  ahd
+ * Use standard first header
+ *
  * Revision 1.17  1994/02/13  03:15:44  dmwatt
  * Prevent empty reads from eating the machine alive
  *
@@ -386,7 +389,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    time_t now ;
    OVERLAPPED overlap;
 
-   boolean firstPass =  ( currentSpeed > 2400 ) || ( wanted == 1 );
+   boolean firstPass =  ( currentSpeed > 2400 ) && ( wanted == 1 );
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */

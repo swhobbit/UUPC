@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.36 1994/01/01 19:22:11 ahd Exp $
+ *       $Id: ulibos2.c 1.37 1994/02/19 05:12:53 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.37  1994/02/19  05:12:53  ahd
+ * Use standard first header
+ *
  * Revision 1.36  1994/01/01  19:22:11  ahd
  * Annual Copyright Update
  *
@@ -549,7 +552,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
    time_t now ;
    USHORT com_error;
 
-   boolean firstPass = ( currentSpeed > 2400 ) || ( wanted == 1 );
+   boolean firstPass = ( currentSpeed > 2400 ) && ( wanted == 1 );
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */
