@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.50 1996/01/01 21:03:58 ahd v1-12r $
+ *    $Id: rmail.c 1.51 1996/01/20 13:00:29 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.51  1996/01/20 13:00:29  ahd
+ *    Specify text/binary mode when opening in-memory files
+ *    Correctly trap incomplete From line on mail in rmail mode
+ *
  *    Revision 1.50  1996/01/01 21:03:58  ahd
  *    Annual Copyright Update
  *
@@ -276,7 +280,8 @@
 /*--------------------------------------------------------------------*/
 
 static KWBoolean CopyTemp( IMFILE *imf,
-                           FILE *datain);
+                           FILE *datain,
+                           KWBoolean header);
 
 static void ParseFrom( const char *forwho,
                        IMFILE *imf,
@@ -539,7 +544,7 @@ int main(int argc, char **argv)
 /*       Copy the rest of the input file into our holding tank        */
 /*--------------------------------------------------------------------*/
 
-   if ( ! CopyTemp( imf, datain ) )
+   if ( ! CopyTemp( imf, datain, inHeader ) )
       inHeader = KWFalse;
 
    if (inHeader)                 /* Was the header ever terminated?  */
@@ -1201,9 +1206,9 @@ static char **Parse822( KWBoolean *header,
 /*--------------------------------------------------------------------*/
 
 static KWBoolean CopyTemp( IMFILE *imf,
-                           FILE *datain)
+                           FILE *datain,
+                           KWBoolean header )
 {
-   KWBoolean header = KWTrue;
    KWBoolean newline = KWTrue;
    char buf[BUFSIZ];
 
