@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.12 1996/01/01 21:07:48 ahd v1-12r $
+ *       $Id: newsrun.c 1.13 1996/01/20 13:09:56 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.13  1996/01/20 13:09:56  ahd
+ *       Allow specifying text/binary mode when processing an in-memory file
+ *
  *       Revision 1.12  1996/01/01 21:07:48  ahd
  *       Annual Copyright Update
  *
@@ -229,7 +232,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.12 1996/01/01 21:07:48 ahd v1-12r $";
+         "$Id: newsrun.c 1.13 1996/01/20 13:09:56 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1566,7 +1569,7 @@ static KWBoolean deliver_local(IMFILE *imf,
 
       snum = getArticleNewest( groupy );
 
-      if ( snum );
+      if ( snum )
       {
         if (groups_found)
            strcat(hist_record, ", ");
