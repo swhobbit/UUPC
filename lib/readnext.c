@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.3 1992/11/22 20:58:55 ahd Exp ahd $
+ *    $Id: READNEXT.C 1.4 1993/04/05 04:32:19 ahd Exp $
  *
- *    $Log: readnext.c $
+ *    $Log: READNEXT.C $
+ *     Revision 1.4  1993/04/05  04:32:19  ahd
+ *     Add timestamp, size to information returned by directory searches
+ *
  *     Revision 1.3  1992/11/22  20:58:55  ahd
  *     Use strpool to allocate const strings
  *
@@ -59,7 +62,7 @@ char     *readnext(char *xname,
                    time_t *modified,
                    long   *size )
 {
-   static DIR *dirp;
+   static DIR *dirp = NULL;
    static char *SaveRemote = NULL;
    static char remotedir[FILENAME_MAX];
 
@@ -75,6 +78,7 @@ char     *readnext(char *xname,
       if ( SaveRemote != NULL )   /* Clean up old directory? */
       {                           /* Yes --> Do so           */
          closedir(dirp);
+         dirp = NULL;
          SaveRemote = NULL;
       } /* if */
 
@@ -88,6 +92,7 @@ char     *readnext(char *xname,
       if ((dirp = opendirx(remotedir,pattern)) == nil(DIR))
       {
          printmsg(5, "readnext: couldn't opendir() %s", remotedir);
+         dirp = NULL;
          return NULL;
       } /* if */
 
@@ -120,6 +125,7 @@ char     *readnext(char *xname,
    printmsg(5, "readnext: \"%s\" not matched", remotedir);
    closedir(dirp);
    SaveRemote = NULL;
+   dirp = NULL;
    return NULL;
 
 } /*readnext*/

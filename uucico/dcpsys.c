@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.15 1993/05/09 03:41:47 ahd Exp $
+ *     $Id: DCPSYS.C 1.16 1993/05/30 00:01:47 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.16  1993/05/30  00:01:47  ahd
+ * Multiple commuications drivers support
+ *
  * Revision 1.15  1993/05/09  03:41:47  ahd
  * Make wmsg accept const string
  * Make sending/receiving of -x string to/from remote UUCICO optional
@@ -823,7 +826,7 @@ static void setproto(char wanted)
 
 XFER_STATE scandir(char *remote, const char grade )
 {
-   static DIR *dirp;
+   static DIR *dirp = NULL;
    static char *SaveRemote = NULL;
    static char remotedir[FILENAME_MAX];
 
@@ -845,6 +848,7 @@ XFER_STATE scandir(char *remote, const char grade )
       if ( SaveRemote != NULL ) /* Clean up old directory? */
       {                          /* Yes --> Do so           */
          closedir(dirp);
+         dirp = NULL;
          SaveRemote = NULL;
       } /* if */
 
@@ -895,6 +899,7 @@ XFER_STATE scandir(char *remote, const char grade )
 
    printmsg(5, "scandir: \"%s\" not matched", remotedir);
    closedir(dirp);
+   dirp = NULL;
    SaveRemote = NULL;
    return XFER_NOLOCAL;
 

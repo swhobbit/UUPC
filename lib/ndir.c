@@ -39,6 +39,10 @@
 
 currentfile();
 
+static DIR *thisDirP = NULL;
+static DIR *lastDirP = NULL;
+static openForBusiness = FALSE;
+
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r x                                                 */
 /*                                                                    */
@@ -53,7 +57,6 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    DTA far *dtasave;
    DTA far *dtaptr;
    char far *pathptr;
-   DIR *dirp;
 
 /*--------------------------------------------------------------------*/
 /*                    Build pathname to be scanned                    */
@@ -65,14 +68,14 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    strcat(pathname, pattern);
 
    /* allocate control block */
-   dirp = malloc(sizeof(DIR));
+   thisDirP = malloc(sizeof(DIR));
 
 /*--------------------------------------------------------------------*/
 /*                     Set disk transfer address                      */
 /*--------------------------------------------------------------------*/
 
    dtasave = (DTA far *)getdta();
-   dtaptr = (DTA far *)&(dirp->dirdta);
+   dtaptr = (DTA far *)&(thisDirP->dirdta);
    setdta((char far *)dtaptr);
 
 /*--------------------------------------------------------------------*/
@@ -88,16 +91,18 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
    /* bad directory name? */
    if (outregs.x.cflag && (outregs.x.ax == 2 || outregs.x.ax == 3)) {
-      free(dirp);
+      free(thisDirP);
       return NULL;
    }
 
-   dirp->dirfirst = outregs.x.cflag ? outregs.x.ax : 0;
+   thisDirP->dirfirst = outregs.x.cflag ? outregs.x.ax : 0;
 
    setdta((char far *)dtasave);
-   strcpy(dirp->dirid, "DIR");
+   strcpy(thisDirP->dirid, "DIR");
 
-   return dirp;
+   printmsg(2,"opendir: Address is %p", thisDirP );
+   openForBusiness = TRUE;
+   return thisDirP;
 
 } /*opendir*/
 
@@ -112,9 +117,33 @@ struct direct *readdir(DIR *dirp)
 {
    int errcode;
 
+/*--------------------------------------------------------------------*/
+/*    Debugging code for failures when running on Novell networks     */
+/*--------------------------------------------------------------------*/
+
+   if ( dirp == NULL )
+   {
+      flushall();
+      printmsg(0,"readdir: INTERNAL ERROR: dirp pointer is NULL");
+      printmsg(0,"readdir: Snuffles debug code: %s %p %p %p",
+                  openForBusiness ? "Open" : "Closed",
+                  lastDirP,
+                  thisDirP );
+      flushall();
+      panic();
+   }
+
    if (!equal(dirp->dirid, "DIR"))
    {
-      printmsg(0,"Unexpected readdir call; no search in progress");
+      flushall();
+      printmsg(0,"readdir: INTERNAL ERROR: No search in progress");
+      printmsg(0,"readdir: Snuffles debug code: %s %p %p %p %s",
+                  openForBusiness ? "Open" : "Closed",
+                  lastDirP,
+                  thisDirP,
+                  dirp,
+                  dirp->dirid );
+      flushall();
       panic();
    }
 
@@ -178,7 +207,10 @@ struct direct *readdir(DIR *dirp)
 void closedir(DIR *dirp)
 {
 
-   strcpy(dirp->dirid, "XXX");
+   strcpy(dirp->dirid, "CLO");
+   lastDirP = dirp;
+   openForBusiness = FALSE;
+   printmsg(2,"closedir: Freeing dirp at %p", dirp );
    free(dirp);
 
 } /*closedir*/
