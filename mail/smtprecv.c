@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.25 2000/09/15 00:18:38 ahd Exp ahd $
+ *       $Id: smtprecv.c 1.26 2000/10/14 12:40:44 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.26  2000/10/14 12:40:44  ahd
+ *       Never use <> as an internal FROM address; make it look like it
+ *       came from UUCP instead.
+ *
  *       Revision 1.25  2000/09/15 00:18:38  ahd
  *       Compare domain in case insensitive manner
  *
@@ -122,11 +126,16 @@
 #include "deliver.h"
 #include "mail.h"
 
+
+#if     _MSC_VER > 1000
+#pragma warning(disable:4100) /* Ignore unused formal parameters */
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.25 2000/09/15 00:18:38 ahd Exp ahd $");
+RCSID("$Id: smtprecv.c 1.26 2000/10/14 12:40:44 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */

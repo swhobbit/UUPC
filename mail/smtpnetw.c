@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.28 2000/05/12 12:36:30 ahd Exp $
+ *    $Id: smtpnetw.c 1.29 2000/05/25 03:41:49 ahd v1-13g $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.29  2000/05/25 03:41:49  ahd
+ *    Use more conservative buffering to avoid aborts
+ *
  *    Revision 1.28  2000/05/12 12:36:30  ahd
  *    Annual copyright update
  *
@@ -61,7 +64,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.28 2000/05/12 12:36:30 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.29 2000/05/25 03:41:49 ahd v1-13g $");
 
 static const char crlf[] = "\r\n";
 

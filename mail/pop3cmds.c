@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3cmds.c 1.6 1999/01/04 03:53:57 ahd Exp $
+ *       $Id: pop3cmds.c 1.7 2000/05/12 12:36:30 ahd v1-13g $
  *
  *       $Log: pop3cmds.c $
+ *       Revision 1.7  2000/05/12 12:36:30  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.6  1999/01/04 03:53:57  ahd
  *       Annual copyright change
  *
@@ -70,7 +73,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3cmds.c 1.6 1999/01/04 03:53:57 ahd Exp $");
+RCSID("$Id: pop3cmds.c 1.7 2000/05/12 12:36:30 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */

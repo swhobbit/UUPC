@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnett.c 1.2 2000/05/12 12:36:30 ahd Exp $
+ *    $Id: smtpnett.c 1.3 2000/05/25 03:41:49 ahd v1-13g ahd $
  *
  *    $Log: smtpnett.c $
+ *    Revision 1.3  2000/05/25 03:41:49  ahd
+ *    Use more conservative buffering to avoid aborts
+ *
  *    Revision 1.2  2000/05/12 12:36:30  ahd
  *    Annual copyright update
  *
@@ -49,9 +52,6 @@ KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
 extern KWBoolean winsockActive;                 /* Initialized in catcher.c  */
 #endif
 
-static KWBoolean
-isFatalSocketError(int err);
-
 #if !defined(__OS2__)
 void AtWinsockExit(void);
 #endif
@@ -66,7 +66,7 @@ void AtWinsockExit(void);
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnett.c 1.2 2000/05/12 12:36:30 ahd Exp $");
+RCSID("$Id: smtpnett.c 1.3 2000/05/25 03:41:49 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t M o d e T i m e o u t                                  */
@@ -561,43 +561,6 @@ SMTPRead(SMTPClient *client)
    return client->receive.NetworkUsed;
 
 } /* SMTPRead */
-
-/*--------------------------------------------------------------------*/
-/*      i s F a t a l S o c k e t E r r o r                           */
-/*                                                                    */
-/*      Determine if an error is a show stopped                       */
-/*--------------------------------------------------------------------*/
-
-KWBoolean
-isFatalSocketError(int err)
-{
-
-#if defined(__OS2__)
-   if (err == ENOTSOCK     ||
-       err == ENETDOWN     ||
-       err == ENETRESET    ||
-       err == ECONNABORTED ||
-       err == ECONNRESET   ||
-       err == ENOTCONN     ||
-       err == ECONNREFUSED ||
-       err == EHOSTDOWN    ||
-       err == EHOSTUNREACH)
-#else
-   if (err == WSAENOTSOCK     ||
-       err == WSAENETDOWN     ||
-       err == WSAENETRESET    ||
-       err == WSAECONNABORTED ||
-       err == WSAECONNRESET   ||
-       err == WSAENOTCONN     ||
-       err == WSAECONNREFUSED ||
-       err == WSAEHOSTDOWN    ||
-       err == WSAEHOSTUNREACH)
-#endif
-       return KWTrue;
-    else
-       return KWFalse;
-
-} /* isFatalSocketError */
 
 /*--------------------------------------------------------------------*/
 /*       c l o s e S o c k e t                                        */

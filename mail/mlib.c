@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.21 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: mlib.c 1.22 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.22  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.21  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -123,7 +126,7 @@
 
 #include "execute.h"
 
-RCSID("$Id: mlib.c 1.21 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: mlib.c 1.22 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                    Set up for console services                     */

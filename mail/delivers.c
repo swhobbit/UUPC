@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -50,9 +50,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.19 2000/05/12 12:36:30 ahd v1-13g ahd $
+ *       $Id: delivers.c 1.20 2000/10/14 12:40:44 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.20  2000/10/14 12:40:44  ahd
+ *       Treat internal postmaster addresses as the SMTP bounce address
+ *       on delivery.
+ *
  *       Revision 1.19  2000/05/12 12:36:30  ahd
  *       Annual copyright update
  *
@@ -118,7 +122,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.19 2000/05/12 12:36:30 ahd v1-13g ahd $");
+RCSID("$Id: delivers.c 1.20 2000/10/14 12:40:44 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */
@@ -674,7 +678,7 @@ SendSMTPMailCmd(
        equali(sender->user, UUCP_BOUNCE_POSTMASTER))
    {
        /* Special postmaster address   */
-      strcpy(s, SMTP_BOUNCE_POSTMASTER);            
+      strcpy(s, SMTP_BOUNCE_POSTMASTER);
    }
    else if (strchr(sender->address , '@') != NULL)
       sprintf(s, "<%s>", sender->address);

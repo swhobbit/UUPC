@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.28 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: expire.c 1.29 2000/05/12 12:26:40 ahd v1-13g $
  *
  *    $Log: expire.c $
+ *    Revision 1.29  2000/05/12 12:26:40  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.28  1999/02/21 04:09:32  ahd
  *    Tighter checking for backup file errors
  *
@@ -111,7 +114,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.28 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: expire.c 1.29 2000/05/12 12:26:40 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

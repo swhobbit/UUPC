@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.50 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: execute.c 1.51 2000/05/12 12:30:48 ahd v1-13g ahd $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.51  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.50  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -204,6 +207,14 @@
 #include <os2.h>
 #endif
 
+#if     _MSC_VER > 1000
+
+/*   Ignore nonstandard extension, function/data pointer            */
+/*   conversion in expression                                       */
+
+#pragma warning(disable:4152)
+#endif
+
 #include <direct.h>
 
 /*--------------------------------------------------------------------*/
@@ -226,7 +237,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: execute.c 1.50 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: execute.c 1.51 2000/05/12 12:30:48 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -1058,7 +1069,7 @@ int executeAsync( const char *command,
              const KWBoolean synchronous,
              const KWBoolean foreground )
 {
-   int result;
+   DWORD result;
    char path[COMMAND_TEXT_MAX];
    STARTUPINFO si;
    PROCESS_INFORMATION pi;
@@ -1078,7 +1089,7 @@ int executeAsync( const char *command,
    si.cb = sizeof(STARTUPINFO);
    si.lpTitle = (LPSTR)command;
    si.dwFlags = STARTF_USESHOWWINDOW;
-   si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
+   si.wShowWindow = (unsigned short) (foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE);
 
    if (parameters != NULL)
    {

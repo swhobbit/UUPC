@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: memstr.c 1.3 1999/01/08 02:21:05 ahd Exp $
+ *       $Id: memstr.c 1.4 2000/05/12 12:35:45 ahd v1-13g $
  *
  *       Revision history:
  *       $Log: memstr.c $
+ *       Revision 1.4  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.3  1999/01/08 02:21:05  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -36,7 +39,7 @@
 
 #include <string.h>
 
-RCSID("$Id: memstr.c 1.3 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: memstr.c 1.4 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    m e m s t r                                                     */

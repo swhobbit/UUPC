@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title.c 1.11 1999/01/08 02:20:52 ahd Exp $
+ *    $Id: title.c 1.12 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: title.c $
+ *    Revision 1.12  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.11  1999/01/08 02:20:52  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -72,7 +75,7 @@
 #include <windows.h>
 #include <winutil.h>
 
-RCSID("$Id: title.c 1.11 1999/01/08 02:20:52 ahd Exp $");
+RCSID("$Id: title.c 1.12 2000/05/12 12:30:48 ahd v1-13g $");
 
 #endif
 

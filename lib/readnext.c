@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.17 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: readnext.c 1.18 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    $Log: readnext.c $
+ *    Revision 1.18  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.17  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -88,7 +91,7 @@
 #include "hostable.h"
 #include "security.h"
 
-RCSID("$Id: readnext.c 1.17 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: readnext.c 1.18 2000/05/12 12:30:48 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    r e a d n e x t                                                 */

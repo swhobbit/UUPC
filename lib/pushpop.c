@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.22 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: pushpop.c 1.23 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.23  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.22  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -117,7 +120,7 @@ static char *dirstack[MAXDEPTH];
 static int drivestack[MAXDEPTH];
 static depth = 0;
 
-RCSID("$Id: pushpop.c 1.22 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: pushpop.c 1.23 2000/05/12 12:30:48 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       P u s h D i r                                                */

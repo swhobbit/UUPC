@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.20 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: usertabl.c 1.21 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.21  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.20  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -66,7 +69,7 @@ char *NextField( char *input );
 
 static char uucpsh[] = UUCPSHELL;
 
-RCSID("$Id: usertabl.c 1.20 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: usertabl.c 1.21 2000/05/12 12:30:48 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    u s e r c m p                                                   */

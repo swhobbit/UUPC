@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.13 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: ndirwin.c 1.14 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ *    Revision 1.14  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.13  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -90,7 +93,7 @@
 static char *pathname = NULL;
 static struct ffblk findbuf;
 
-RCSID("$Id: ndirwin.c 1.13 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: ndirwin.c 1.14 2000/05/12 12:30:48 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r x                                                 */

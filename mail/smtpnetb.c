@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetb.c 1.3 2000/05/12 12:35:45 ahd Exp ahd $
+ *    $Id: smtpnetb.c 1.4 2000/05/25 03:41:49 ahd v1-13g $
  *
  *    $Log: smtpnetb.c $
+ *    Revision 1.4  2000/05/25 03:41:49  ahd
+ *    Use more conservative buffering to avoid aborts
+ *
  *    Revision 1.3  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -39,7 +42,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetb.c 1.3 2000/05/12 12:35:45 ahd Exp ahd $");
+RCSID("$Id: smtpnetb.c 1.4 2000/05/25 03:41:49 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t M o d e T i m e o u t                                  */

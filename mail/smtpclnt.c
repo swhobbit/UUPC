@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.22 2000/05/12 12:35:45 ahd Exp ahd $
+ *       $Id: smtpclnt.c 1.23 2000/05/25 03:41:49 ahd v1-13g ahd $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.23  2000/05/25 03:41:49  ahd
+ *       Use more conservative buffering to avoid aborts
+ *
  *       Revision 1.22  2000/05/12 12:35:45  ahd
  *       Annual copyright update
  *
@@ -120,7 +123,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpclnt.c 1.22 2000/05/12 12:35:45 ahd Exp ahd $");
+RCSID("$Id: smtpclnt.c 1.23 2000/05/25 03:41:49 ahd v1-13g ahd $");
 
 static size_t clientSequence = 0;
 
@@ -686,31 +689,34 @@ getClientTimeout(const SMTPClient *client)
    if (getClientProcess(client))
       return 0;
 
-   if ((client->ignoreUntilTime != 0) ||(client->terminationTime != 0))
+   if ((client->ignoreUntilTime != 0) || (client->terminationTime != 0))
+   {
       time(&now);
 
-   /* Ignored clients timeout when they get out of penalty box */
-   if (client->ignoreUntilTime != 0)
-   {
-      if (client->ignoreUntilTime > now)
-         return client->ignoreUntilTime - now;
-   }
+      /* Ignored clients timeout when they get out of penalty box */
+      if (client->ignoreUntilTime != 0)
+      {
+         if (client->ignoreUntilTime > now)
+            return client->ignoreUntilTime - now;
+      }
 
-   if (client->terminationTime > 0)
-   {
-      if ( client->terminationTime <= now )
-         return 0;
-      else
-         maximumTimeout = client->terminationTime - now;
+      if (client->terminationTime > 0)
+      {
+         if (client->terminationTime <= now)
+            return 0;
+         else
+            maximumTimeout = client->terminationTime - now;
 
-   }
+      }
+
+   } /* END if ((client->ignoreUntilTime != 0) || ... ) */
 
    /* Use client specfied timeout, if provided */
-   if ( client->timeout > 0 )
+   if (client->timeout > 0)
       return min( client->timeout, maximumTimeout );
 
    /* All other sockets timeout according to current client mode */
-   return min( getModeTimeout(client->mode), maximumTimeout );
+   return min(getModeTimeout(client->mode), maximumTimeout);
 
 } /* getClientTimeout */
 

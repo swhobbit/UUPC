@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.67 1999/01/11 05:43:36 ahd Exp $
+ *    $Id: deliver.c 1.68 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    $Log: deliver.c $
+ *    Revision 1.68  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.67  1999/01/11 05:43:36  ahd
  *    Remove special case SMTP retry code
  *
@@ -189,7 +192,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliver.c 1.67 1999/01/11 05:43:36 ahd Exp $");
+RCSID("$Id: deliver.c 1.68 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */

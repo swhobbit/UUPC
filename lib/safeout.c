@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.19 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: safeout.c 1.20 2000/05/12 12:30:48 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *    Revision 1.20  2000/05/12 12:30:48  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.19  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -114,7 +117,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(WIN32)
-RCSID("$Id: safeout.c 1.19 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: safeout.c 1.20 2000/05/12 12:30:48 ahd v1-13g $");
 #endif
 
 #if defined(WIN32)
