@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.12 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: execute.c 1.13 1993/10/12 00:43:34 ahd Exp rhg $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.13  1993/10/12  00:43:34  ahd
+ * Normalize comments
+ *
  * Revision 1.12  1993/10/09  15:46:15  rhg
  * ANSIify the source
  *
@@ -185,7 +188,7 @@ int execute( const char *command,
          fprintf( stream, " < %s", input );
 
       if ( output != NULL )
-         fprintf( stream, " < %s", output );
+         fprintf( stream, " > %s", output );
 
       fprintf( stream,
               "\nif errorlevel 1 erase %s\n",
