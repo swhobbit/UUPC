@@ -21,13 +21,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.18 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: uustat.c 1.19 1994/02/26 17:20:37 ahd Exp $
+ *
+ *    $Log$
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.18 1994/02/20 19:11:18 ahd Exp $";
+         "$Id: uustat.c 1.19 1994/02/26 17:20:37 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -56,7 +58,7 @@ static const char rcsid[] =
 
 #define DAY (60l * 60l * 24l)
 #define ALL    "all"
-#define MAXL      128      /* MAX LINE LENGTH                          */
+#define MAXL      30       /* Max user and system length saved    */
 
 #define STRCREAT(s, s2, s3)\
    strcpy(s, s2);\
@@ -72,8 +74,21 @@ typedef enum {
       SEND_CALL = 'S'
       } CALLTYPE;
 
+/*--------------------------------------------------------------------*/
+/*       A running tug of war exists with the length of the           */
+/*       data_queue file name buffer.  If its BUFSIZ then it can      */
+/*       show more command information when used to show commands,    */
+/*       but this consumes massive space under 16 systems such as     */
+/*       DOS.  We make it the length of a file name, which is         */
+/*       short but efficient AND about the same amount that UNIX      */
+/*       shows.                                                       */
+/*                                                                    */
+/*       Note that some routines clobber the end of the buffer, so    */
+/*       verify references are changed as well if you change this.    */
+/*--------------------------------------------------------------------*/
+
 struct data_queue {
-   char name[BUFSIZ];
+   char name[FILENAME_MAX];
    struct data_queue *next_link;
    time_t created;
    long size;
@@ -159,7 +174,8 @@ static CALLTYPE open_call( const char *callname,
 static void open_data(const char *file,
                             char *user,
                             char *sys,
-                            char *command);
+                            char *command,
+                            const size_t commandLen);
 
 static void poll(const char *callee);
 
@@ -173,6 +189,17 @@ static void refresh_job(const char *s);
 static void touch( const char *fname );
 
 static void usage( void );
+
+/*--------------------------------------------------------------------*/
+/*       Because we're tight on storage under DOS, enable stack       */
+/*       checking.                                                    */
+/*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#pragma -N
+#elif !defined(__IBMC__)
+#pragma check_stack( on )
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -278,6 +305,8 @@ void main(int  argc, char  **argv)
       exit(2);
    }
 
+   checkname(E_nodename);     /* Force loading of host table         */
+
 /*--------------------------------------------------------------------*/
 /*                 Determine if we have a valid host                  */
 /*--------------------------------------------------------------------*/
@@ -346,6 +375,7 @@ void main(int  argc, char  **argv)
          panic();
 
    } /* switch */
+
    exit(0);
 
 } /* main */
@@ -358,7 +388,6 @@ void main(int  argc, char  **argv)
 
 void all( const char *system, const char *userid)
 {
-   char  canon[FILENAME_MAX];
    long  size;
    time_t ltime;
    struct HostTable *hostp;
@@ -385,6 +414,7 @@ void all( const char *system, const char *userid)
       {
          boolean display = equali( userid, ALL );
          struct data_queue *data_link = NULL;
+         char  canon[FILENAME_MAX];
          char user[MAXL];
          char sys[MAXL];
 
@@ -394,6 +424,7 @@ void all( const char *system, const char *userid)
          strcpy(sys, E_nodename);   /* Nice default for node as well  */
 
          printmsg(1,"ALL(%s)", fname);
+
          exportpath(canon, fname, hostp->hostname);
 
 /*--------------------------------------------------------------------*/
@@ -411,7 +442,9 @@ void all( const char *system, const char *userid)
                if ( display )
                {
                   hit = TRUE;
-                  printf( "%s %s %s\n",canon+2,dater(ltime, NULL),
+                  printf( "%-12s %s %s\n",
+                          canon+2,
+                          dater(ltime, NULL),
                         "(POLL)");
                }
                break;
@@ -421,7 +454,7 @@ void all( const char *system, const char *userid)
                if( equal(userid , ALL) || equali(userid, user))
                   display = TRUE;
 
-               if(display)
+               if (display)
                {
                    hit = TRUE;
                    print_all( canon + 2,
@@ -449,7 +482,7 @@ void all( const char *system, const char *userid)
 /*    If processing all hosts, step to the next host in the queue     */
 /*--------------------------------------------------------------------*/
 
-      if( equal( system , ALL ))
+      if ( equal( system , ALL ))
          hostp = nexthost( FALSE );
       else
          hostp = BADHOST;
@@ -587,11 +620,11 @@ static void long_stats( const char *system )
       static const char *prefix[2] = { "C","X" };
 
       char fname[FILENAME_MAX];
-      char buf[BUFSIZ];
+      char summary[FILENAME_MAX];
       boolean work = FALSE;
       size_t subscript;
 
-      *buf = '\0';                /* Clear output buffer              */
+      *summary = '\0';           /* Clear output buffer              */
 
 /*--------------------------------------------------------------------*/
 /*       Middle loop to handle both call file and execute files       */
@@ -641,10 +674,10 @@ static void long_stats( const char *system )
 
             work =  hit = TRUE;
 
-            sprintf(buf + strlen(buf), "%-8s ",fname );
+            sprintf(summary + strlen(summary), "%-8s ",fname );
          } /* if */
          else        /* ....+....1 */
-            strcat(buf,"         ");
+            strcat(summary,"         ");
 
       } /* for ( subscript = 0; subscript < 3; subscript++ ) */
 
@@ -658,11 +691,11 @@ static void long_stats( const char *system )
          if ( equal(hostp->hostname, E_nodename ))
             printf("%-10.10s %s\n",
                     hostp->hostname,
-                    buf );
+                    summary );
          else
             printf("%-10.10s %s%s %s\n",
                     hostp->hostname,
-                    buf,
+                    summary,
                     dater( hostp->status.lconnect , NULL ),
                     hostp->status.hstatus < last_status ?
                         host_status[ hostp->status.hstatus ] :
@@ -890,7 +923,11 @@ static CALLTYPE open_call( const char *callname,
                      if ((created != -1) &&
                          (equaln(tname ,"X.",2)))  /* Execute file?   */
                      {
-                        open_data( host, user, sys, current->name );
+                        open_data( host,
+                                   user,
+                                   sys,
+                                   current->name,
+                                   sizeof current->name );
                         current->execute = TRUE;
                      }
                      else {
@@ -956,29 +993,24 @@ static CALLTYPE open_call( const char *callname,
 static void open_data(const char *file,
                       char *user,
                       char *sys,
-                      char *command)
+                      char *command,
+                      const size_t commandLen)
 {
    FILE  *data_fp;
    char  data_buf[BUFSIZ];
    char  *token = "(none)";
-   static char f_name[ FILENAME_MAX ];
-   size_t  bytes = 0;
 
    printmsg(1,"INSIDE OPEN_DATA(%s)",file);
-   *f_name = '\0';
 
-   printmsg(1,"OPENING(%s)",file);
    data_fp = FOPEN(file, "r", IMAGE_MODE);
    if(data_fp ==  NULL){
       printerr( file );
       panic();
    }
-   printmsg(1,"OPEN (%s) SIZE (%d)", file, BUFSIZ);
 
    while(fgets(data_buf, (int) BUFSIZ, data_fp) !=  NULL){
 
       size_t len = strlen( data_buf );
-      bytes += strlen( data_buf );
       if ( data_buf[ --len ] == '\n')
          data_buf[ len ] = '\0';
 
@@ -988,7 +1020,9 @@ static void open_data(const char *file,
 
       switch(data_buf[0]){
          case '#':
-         printmsg(5,"COMMENT %s", data_buf);
+#ifdef UDEBUG
+            printmsg(5,"COMMENT %s", data_buf);
+#endif
             break;
 
           case 'U':
@@ -1007,28 +1041,30 @@ static void open_data(const char *file,
 
          case 'F':
             printmsg(5,"File %s", data_buf);
-            token = strtok( data_buf + 1 , WHITESPACE );
-            strncpy( f_name, token , FILENAME_MAX );
-            f_name[ FILENAME_MAX - 1 ] = '\0';
             break;
 
          case 'I':
+#ifdef UDEBUG
             printmsg(5,"Input %s", data_buf);
+#endif
             break;
 
          case 'C':
             printmsg(1,"Command %s", data_buf);
             token = strchr(data_buf,' ') + 1;
-            strncpy(command, token , BUFSIZ - 1);
-            command[ BUFSIZ - 1] = '\0';
+            strncpy(command, token , commandLen );
+            command[ commandLen - 1 ] = '\0';
             break;
+
          default:
+#ifdef UDEBUG
             printmsg(1,"UNKNOWN LINE %s", data_buf);
+#endif
             break;
+
       } /* switch */
    } /* while */
 
-   printmsg(1,"CLOSED (%s), bytes = %d, d file = %s", file, bytes, token);
    fclose(data_fp);
 
 } /* open_data */
@@ -1044,16 +1080,6 @@ static void print_all(       char *job,
                        const char *user,
                        const char *sys )
 {
-   char blanks[FILENAME_MAX];
-   size_t subscript = 0;
-
-/*--------------------------------------------------------------------*/
-/*  Create a blank buffer for printing all of the first line of data  */
-/*--------------------------------------------------------------------*/
-
-   while ( job[subscript] != '\0')
-      blanks[subscript++] = ' ';
-   blanks[ subscript ] = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                Loop through the files for this job                 */
@@ -1062,20 +1088,29 @@ static void print_all(       char *job,
    while ( current != NULL )
    {
       struct data_queue *save_data = current->next_link;
-      if ( current->execute)
-         printf("%s %s %c %-8.8s %-8.8s %s\n", job,
-                     dater( current->created, NULL ),
-                     current->type,
-                     sys, user, current->name );
-      else
-         printf("%s %s %c %-8.8s %-8.8s %ld %s\n", job,
-                     dater( current->created, NULL ),
-                     current->type,
-                     sys, user, current->size , current->name );
 
-      job = blanks;           /* Don't print job name more than once  */
+      if ( current->execute)
+         printf("%-12s %s %c %-8.8s %-8.8s %s\n",
+                     job,
+                     dater( current->created, NULL ),
+                     current->type,
+                     sys,
+                     user,
+                     current->name );
+      else
+         printf("%-12s %s %c %-8.8s %-8.8s %ld %s\n",
+                     job,
+                     dater( current->created, NULL ),
+                     current->type,
+                     sys,
+                     user,
+                     current->size,
+                     current->name );
+
+      job = "";               /* Don't print job name more than once  */
       free( current );        /* Release the abused storage           */
       current = save_data;
+
    } /* while */
 
 } /* print_all */
@@ -1098,7 +1133,7 @@ static void print_all(       char *job,
 static char *is_job(const char *callfile)
 {
    struct HostTable *hostp;
-   char host[FILENAME_MAX];
+   char hname[FILENAME_MAX];
    boolean hit = FALSE;
 
 /*--------------------------------------------------------------------*/
@@ -1117,8 +1152,8 @@ static char *is_job(const char *callfile)
                 min( strlen( hostp->hostname ), HOSTLEN)))
                               /* Right host?                          */
       {                       /* Maybe --> Look for the file           */
-         importpath( host, callfile, hostp->hostname);
-         if ( !access( host, 0 ))   /* Does the host file exist?      */
+         importpath( hname, callfile, hostp->hostname);
+         if ( !access( hname, 0 ))  /* Does the host file exist?      */
             return hostp->hostname; /* Yes --> Return success         */
          hit = TRUE;
       }
@@ -1137,6 +1172,7 @@ static char *is_job(const char *callfile)
                callfile);
    exit(1);
    return NULL;                  /* Make C compiler happy              */
+
 } /* is_job */
 
 /*--------------------------------------------------------------------*/
