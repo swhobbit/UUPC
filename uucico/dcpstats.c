@@ -4,6 +4,12 @@
 /*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
 /*--------------------------------------------------------------------*/
 /*                       standard include files                       */
 /*--------------------------------------------------------------------*/
@@ -113,8 +119,8 @@ void dcupdate( void )
    FILE *stream;
    char fname[FILENAME_MAX];
    long size;
-   size_t len1 = strlen(compilep );
-   size_t len2 = strlen(compilev );
+   unsigned short len1 = strlen(compilep );
+   unsigned short len2 = strlen(compilev );
 
    HostStatus();              /* Get new data, if needed          */
    mkfilename( fname, E_confdir, DCSTATUS );
