@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.16 1998/03/01 01:41:01 ahd v1-12v $
+ *    $Id: uucico.c 1.17 1998/04/19 23:55:58 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.17  1998/04/19 23:55:58  ahd
+ *    *** empty log message ***
+ *
  *    Revision 1.16  1998/03/01 01:41:01  ahd
  *    Annual Copyright Update
  *
@@ -39,41 +42,6 @@
  *    Revision 1.11  1995/01/07 16:41:19  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
- *    Revision 1.10  1994/12/22 00:38:40  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.9  1994/03/09 04:21:30  ahd
- *    Also trap SIGTERM when possible
- *
- * Revision 1.8  1994/02/20  19:11:18  ahd
- * IBM C/Set 2 Conversion, memory leak cleanup
- *
- * Revision 1.7  1994/01/01  19:22:29  ahd
- * Annual Copyright Update
- *
- * Revision 1.6  1993/09/29  04:52:03  ahd
- * Cosmetic cleanup
- *
- * Revision 1.6  1993/09/29  04:52:03  ahd
- * Cosmetic cleanup
- *
- * Revision 1.5  1993/09/20  04:46:34  ahd
- * OS/2 2.x support (BC++ 1.0 support)
- * TCP/IP support from Dave Watt
- * 't' protocol support
- *
- * Revision 1.4  1993/07/31  16:27:49  ahd
- * Changes in support of Robert Denny's Windows support
- *
- *
- * Mon May 15 19:56:44 1989 Add c_break handler                   ahd
- * 20 Sep 1989 Add check for SYSDEBUG in MS-DOS environment       ahd
- * 22 Sep 1989 Delete kermit and password environment
- *             variables (now in password file).                  ahd
- * 30 Apr 1990  Add autoedit support for sending mail              ahd
- *  2 May 1990  Allow set of KWBooleans options via options=        ahd
- * 29 Jul 1990  Change mapping of UNIX to MS-DOS file names        ahd
- * 03 Mar 1992  Replace with new Signal handler for Ctrl C         ahd
  */
 
 /*--------------------------------------------------------------------*/
@@ -96,7 +64,7 @@
 #include "catcher.h"
 
 currentfile();
-RCSID("$Id$");
+RCSID("$Id: uucico.c 1.17 1998/04/19 23:55:58 ahd v1-13a $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -164,5 +132,6 @@ main( int argc, char *argv[])
    status = dcpmain(argc, argv);
 
    exit( status );
+   return status;
 
 } /*main*/
