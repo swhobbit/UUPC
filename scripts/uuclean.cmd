@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: UUCLEAN.CMD 1.6 1993/04/04 05:01:49 ahd Exp $
+ *       $Id: UUCLEAN.CMD 1.7 1993/05/09 14:10:26 ahd Exp $
  *
  *       $Log: UUCLEAN.CMD $
+ *      Revision 1.7  1993/05/09  14:10:26  ahd
+ *      Don't perform undelete processing -- OS/2 bugs can cause crash!
+ *
 *     Revision 1.6  1993/04/04  05:01:49  ahd
 *     Use common getuupc.cmd for variable retrieval
 *
@@ -44,7 +47,6 @@
 /*--------------------------------------------------------------------*/
 /*                    Trap uninitialized variables                    */
 /*--------------------------------------------------------------------*/
-trace r
 signal on novalue
 '@echo off'                   /* Do not echo command input           */
 Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
@@ -85,7 +87,7 @@ call value 'UUPCDEBUG','','OS2ENVIRONMENT';
 /*--------------------------------------------------------------------*/
 
 say 'Processing generic logs';
-call process spooldir,'UUPC*.LOG', 'GENERIC'
+call process spooldir,'UUPC*.LOG', 'GENERIC',0
 
 /*--------------------------------------------------------------------*/
 /*             SYSLOG has funny name, so process explictly            */
@@ -99,6 +101,7 @@ call process spooldir,'SYSLOG', 'SYSLOG'
 /*--------------------------------------------------------------------*/
 
 xrc = SysFileTree(spooldir || '\*.log', 'data.','F')
+
 if xrc == 0 then
 do count = 1 to data.0
    parse upper var data.count mmddyy hhmmss bytes attr fname
@@ -107,6 +110,7 @@ do count = 1 to data.0
    if left( basename, 4 ) <> 'UUPC' then   /* Don't do UUPC*.LOG again */
    do;
       say 'Processing logs for' basename;
+      call process spooldir, stem || 'p.log', stem, 0
       call process spooldir, basename, stem
    end
 end
@@ -150,18 +154,15 @@ parse upper arg spooldir, input, archive, maxsize, generation
 maxgen = 5
 aged   = 0                    /* Next older version was aged         */
 moved  = 0                    /* This version was aged               */
+defaultmax = 20000;           /* Max size of files                   */
 if generation = '' then
    generation = 1
 else
    generation = generation + 1
 
 if maxsize = '' then
-do;
-   if pos('*', input) > 0 then
-      maxsize = 0
-   else
-      maxsize = 10000;
-end;
+   maxsize = defaultmax;
+
 newgen = archive || '.' || right( generation, 3, '0')
 target = spooldir || '\' || newgen
 
@@ -186,8 +187,8 @@ do count = 1 to data.0
    else if bytes > maxsize then
    do
 
-      if \ aged then             /* Only age olders file per run     */
-         aged = process(spooldir, newgen , archive, maxsize, generation)
+      if \ aged then             /* Only age older files per run     */
+         aged = process(spooldir, newgen , archive, defaultmax, generation)
       say 'Aging' input 'to' target
 
       if generation > maxgen then      /* Really old files go away   */
