@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.19 1993/10/12 01:34:47 ahd Exp $
+ *    $Id: uuxqt.c 1.21 1993/10/24 19:42:48 rhg Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.21  1993/10/24  19:42:48  rhg
+ * Generalized support for UUX'ed commands
+ *
  * Revision 1.20  1993/10/24  12:48:56  ahd
  * Trap RNEWS bad return code
  *
@@ -301,7 +304,7 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    PushDir( E_spooldir );
-   atexit( PopAll );
+   atexit( PopDir );
 
 /*--------------------------------------------------------------------*/
 /*                     Initialize logging file                        */
@@ -516,6 +519,8 @@ static void process( const char *fname,
       char *spoolname;
       char *xqtname;
    } *F_list = NULL;
+
+   struct F_list *p;
 
    boolean xflag[UU_LAST - 1] = { 0 };
    time_t jtime = time(NULL);
@@ -900,27 +905,19 @@ static void process( const char *fname,
 /*           Copy the input files to the execution directory          */
 /*--------------------------------------------------------------------*/
 
-         /* Make sure the directory exists before we copy the files */
-         if (PushDir(executeDirectory))
-         {
-            printmsg(0, "Unable to change to directory \"%s\"",
-                        executeDirectory);
-            reject = xflag[F_NOCHDIR] = TRUE;
-         }
-         else
-         {
-            struct F_list *p;
+         PushDir(executeDirectory);
 
-            for (p = F_list; p != NULL; p = p->next)
-               if (p->xqtname != NULL)
-                  if (!copylocal(p->spoolname, p->xqtname))
-                  {
-                     printmsg(0, "Copy \"%s\" to \"%s\" failed",
-                                 p->spoolname, p->xqtname);
-                     reject = xflag[F_NOCOPY] = TRUE;
-                     break;
-                  }
-         }
+         for (p = F_list; p != NULL; p = p->next)
+         {
+            if (p->xqtname != NULL)
+               if (!copylocal(p->spoolname, p->xqtname))
+               {
+                  printmsg(0, "Copy \"%s\" to \"%s\" failed",
+                              p->spoolname, p->xqtname);
+                  reject = xflag[F_NOCOPY] = TRUE;
+                  break;
+               }
+         } /* for ( ;; ) */
 
 /*--------------------------------------------------------------------*/
 /*            Create the environment and run the command(s)           */
