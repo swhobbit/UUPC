@@ -18,9 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.14 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: dcp.c 1.15 1993/09/20 04:46:34 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.15  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.14  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -128,6 +133,7 @@
 #include "modem.h"
 #include "security.h"
 #include "ssleep.h"
+#include "suspend.h"
 #include "commlib.h"
 
 #if defined(_Windows)
@@ -395,7 +401,14 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_CALLUP2:
-               m_state = callup( );
+
+               if ( suspend_other(TRUE) < 0 )
+               {
+                  hostp->hstatus =  nodevice;
+                  m_state = CONN_INITIALIZE;    // Try next system
+               }
+               else
+                  m_state = callup( );
 
                break;
 
@@ -423,6 +436,7 @@ int dcpmain(int argc, char *argv[])
             case CONN_DROPLINE:
                shutDown();
                UnlockSystem();
+               suspend_other(FALSE);
                m_state = CONN_INITIALIZE;
                break;
 
@@ -439,6 +453,7 @@ int dcpmain(int argc, char *argv[])
             m_state = CONN_EXIT;
 
       } /* while */
+
       fclose(fsys);
 
    }
@@ -446,6 +461,8 @@ int dcpmain(int argc, char *argv[])
 
       CONN_STATE s_state = CONN_INITIALIZE;
       CONN_STATE old_state = CONN_EXIT;
+
+      suspend_init();
 
       while (s_state != CONN_EXIT )
       {
@@ -471,6 +488,11 @@ int dcpmain(int argc, char *argv[])
                else
                   s_state = CONN_HOTMODEM;
                break;
+
+            case CONN_WAIT:
+              s_state = suspend_wait();
+              break;
+
 
             case CONN_ANSWER:
                s_state = callin( exit_time );
@@ -520,6 +542,7 @@ int dcpmain(int argc, char *argv[])
                                     locking                    */
                   UnlockSystem();
                s_state = CONN_EXIT;
+               break;
 
             case CONN_EXIT:
                break;
