@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.6 1998/03/08 23:07:12 ahd Exp $
+ *       $Id: pop3user.c 1.7 1998/03/09 01:18:19 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.7  1998/03/09 01:18:19  ahd
+ *       Normalize function names
+ *
  *       Revision 1.6  1998/03/08 23:07:12  ahd
  *       Fully buffer transmitted text of messages
  *
@@ -58,7 +61,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.6 1998/03/08 23:07:12 ahd Exp $");
+RCSID("$Id: pop3user.c 1.7 1998/03/09 01:18:19 ahd Exp $");
 
 currentfile();
 
@@ -139,9 +142,12 @@ writePopMessage(SMTPClient *client,
    static const char crlf[] = "\r\n";
    long octets = 0;
 
-   char *buffer;
+   char buffer[BUFSIZ];
    long bufferUsed = 0;
-   const long bufferLength = client->transmit.length * 2;
+   const long bufferLength = sizeof buffer;
+   KWBoolean continued = KWFalse;      /* Previous line incomplete   */
+   KWBoolean wasPeriods = KWFalse;     /* Previous incomplete line
+                                          all periods                */
 
    if (imseek(client->transaction->imf,
                current->startPosition,
@@ -156,13 +162,10 @@ writePopMessage(SMTPClient *client,
    sprintf( client->transmit.data, "%ld Octets", current->octets );
    SMTPResponse(client, PR_OK_GENERIC, client->transmit.data );
 
-   /* Get a work buffer for our data */
-   buffer = malloc( bufferLength );
-   checkref( buffer );
-
    /* Loop for entire header and as many lines of body as required */
    for (;;)
    {
+      KWBoolean incomplete = KWFalse;
       long position = imtell(client->transaction->imf);
       char *linePointer = buffer + bufferUsed;
       size_t length;
@@ -176,8 +179,9 @@ writePopMessage(SMTPClient *client,
       if ((position >= current->startBodyPosition) && (bodyLines-- < 0))
          break;
 
+      /* - 3 == Leave room for period, carriage-return, linefeed */
       if (imgets(linePointer,
-                 bufferLength - bufferUsed - 2,
+                 bufferLength - bufferUsed - 3,
                  client->transaction->imf) == NULL)
          break;
 
@@ -186,26 +190,47 @@ writePopMessage(SMTPClient *client,
       if (linePointer[length - 1] == '\n')
          linePointer[--length] = '\0';
       else {
-         printmsg(0,"Cannot process overlength buffer for tranmission");
-         panic();
+         incomplete = KWTrue;
       }
 
-      if ((length > 0) && isAllPeriods(linePointer, length))
-         strcat(linePointer, ".");
+      if (((length > 0) && isAllPeriods(linePointer, length)) &&
+          ((length == 0) && wasPeriods ))
+      {
+         if (incomplete)
+         {
+            if ( ! continued )
+               wasPeriods = KWTrue;
+            /* Otherwise, left we leave it as it was */
+         }
+         else if (wasPeriods || !continued)
+         {
+            strcat(linePointer, ".");
+            wasPeriods = KWFalse;
+         }
+      }
+      else
+         wasPeriods = KWFalse;
 
       /* Terminate the line */
-      strcat( linePointer, crlf );
+      if ( ! incomplete )
+      {
+         strcat( linePointer, crlf );
 
-      /* Update our running total */
-      bufferUsed += length + 2;
+         /* Update our running total */
+         bufferUsed += length + 2;
 
-      /* Determine if we need to flush buffer */
-      if (bufferUsed > (bufferLength / 2))
+      }
+
+      /* Determine if we wand to flush buffer */
+      if ((bufferLength - bufferUsed) < 80)
       {
          SMTPResponse(client, PR_TEXT, buffer);
          octets += bufferUsed;
          bufferUsed = 0;
       }
+
+      /* If this cycle is incomplete, we continue next cycle ... */
+      continued = incomplete;
 
    } /* for (;;) */
 
@@ -220,10 +245,6 @@ writePopMessage(SMTPClient *client,
       octets += bufferUsed;
       bufferUsed = 0;
    }
-
-   /* Return our buffer */
-   free(buffer);
-   buffer = NULL;
 
    if (imerror(client->transaction->imf))
       printerr(client->transaction->mailboxName);
