@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.12 1994/02/21 16:38:58 ahd Exp $
+ *    $Id: address.c 1.13 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.13  1994/02/28  01:02:06  ahd
+ * Cosmetic formatting clean ups
+ *
  * Revision 1.12  1994/02/21  16:38:58  ahd
  * Don't terminate address parsing on a quoted comment
  *
@@ -499,6 +502,12 @@ char *ExtractAddress(char *result,
    int len;
    boolean quoted = FALSE;
 
+#ifdef UDEBUG
+   printmsg(15,"ExtractAddress: Return address is %p", result );
+#endif
+
+   *result  = '\0';
+
 /*--------------------------------------------------------------------*/
 /*   Begin loop to copy the input field into the address and or the   */
 /*   user name.  We will begin by copying both (ignoring whitespace   */
@@ -632,6 +641,14 @@ char *ExtractAddress(char *result,
 
       }  /* switch (state) */
 
+#ifdef UDEBUG
+      if ( debuglevel > 14 )
+         printmsg(15,"State = %c, new state = %c, bananas %d, column = %s",
+                     state,
+                     newstate,
+                     bananas,
+                     column );
+#endif
       state = newstate;
       column++;
 
@@ -654,8 +671,12 @@ char *ExtractAddress(char *result,
 
    *addrptr = '\0';
    *nameptr = '\0';
-   *result  = '\0';
    len = strlen( addr );
+
+#ifdef UDEBUG
+   printmsg(15,"name = \"%s\"", name );
+   printmsg(15,"addr = \"%s\"", addr );
+#endif
 
    if ((fullname == ADDRESSONLY) ||
        ((fullname == FULLADDRESS) && (state == 'B')))
@@ -705,15 +726,17 @@ char *ExtractAddress(char *result,
          sprintf( result, "\"%s\" <%s>", nameptr, addr );
       }
       else
-         strncpy(result, nameptr, MAXADDR);
+         strcpy(result, nameptr );
 
    } /* else */
 
+#ifdef UDEBUG
    printmsg(4,"ExtractAddress: %s into <%s> \"%s\", state [%c]",
             nonblank,
             addr,
             (fullname) ? result : name,
             state);
+#endif
 
 /*--------------------------------------------------------------------*/
 /*   Return the position of the next address, if any, to the caller   */
