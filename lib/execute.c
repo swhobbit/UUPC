@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.7 1993/09/26 03:32:27 dmwatt Exp $
+ *    $Id: execute.c 1.8 1993/09/27 00:45:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.8  1993/09/27  00:45:20  ahd
+ * Fix Windows compile, add debug to OS/2 and DOS version
+ *
  * Revision 1.7  1993/09/26  03:32:27  dmwatt
  * Use Standard Windows NT error message module
  *
@@ -398,8 +401,7 @@ int execute( const char *command,
 /*                     Report results of command                      */
 /*--------------------------------------------------------------------*/
 
-   printmsg( (result == 0 ) ? 4 : 1,"Result of spawn %s is ... %d",
-                                 command, result);
+   printmsg( 4 ,"Result of spawn %s is ... %d", command, result);
 
    return result;
 
@@ -531,8 +533,7 @@ int execute( const char *command,
 /*                     Report results of command                      */
 /*--------------------------------------------------------------------*/
 
-   printmsg( (result == 0 ) ? 4 : 1,"Result of spawn %s is ... %d",
-                                 command, result);
+   printmsg( 4,"Result of spawn %s is ... %d", command, result);
 
    return result;
 
@@ -725,12 +726,12 @@ static boolean batch( const char *input, char *output)
       else {
 
          char *next = strchr(search,';');    // Find next path component
-         int len;
+         size_t len;
 
          if ( next == NULL )
             len = strlen( search );
          else
-            len = next - search;
+            len = (size_t) (next - search);
 
          memcpy( base, search, len );        // Path for search ...
          search += len + 1;                  // Step past semicolon

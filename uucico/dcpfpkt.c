@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: dcpfpkt.c 1.11 1993/09/20 04:41:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.11  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.10  1993/07/31  16:27:49  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -169,7 +172,7 @@ short fwrmsg(char *str)
    if (*(s-1) == '\n')
       s--;
    *s++ = '\r';
-   if (swrite(bufr, s - bufr) == (s - bufr))
+   if (swrite(bufr, (unsigned int) (s - bufr)) == (unsigned int)(s - bufr))
       return DCP_OK;
    else
       return DCP_FAILED;
