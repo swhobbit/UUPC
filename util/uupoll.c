@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.3 1992/11/20 12:41:01 ahd Exp $
+ *    $Id: UUPOLL.C 1.4 1993/03/06 23:04:54 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.4  1993/03/06  23:04:54  ahd
+ * Add cr after auto-clean message
+ *
  * Revision 1.3  1992/11/20  12:41:01  ahd
  * Fix TZ change bug
  *
@@ -75,8 +78,8 @@
  *
  */
 
-static const char rscid[] =
-         "$Id: UUPOLL.C 1.3 1992/11/20 12:41:01 ahd Exp $";
+static const char rcsid[] =
+         "$Id: UUPOLL.C 1.4 1993/03/06 23:04:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -155,7 +158,7 @@ currentfile();
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
- main( int argc , char *argv[] )
+ void main( int argc , char *argv[] )
  {
 
    int option;
@@ -398,7 +401,7 @@ currentfile();
       time_t next = LONG_MAX;
       time_t autonext  = now + autowait;
       time_t wait = 10;      /* Time to wait after first panic()    */
-      int returncode = 0;
+      returncode = 0;
 
 /*--------------------------------------------------------------------*/
 /*        Determine length of passive poll or wasting of time         */
@@ -494,7 +497,9 @@ currentfile();
       setcbrk(0);                /* Restore original Cntrl-Break setting   */
 #endif
 
-   return(returncode);
+   printmsg(2,"UUPOLL exiting with return code %d", returncode );
+
+   exit(returncode);
  } /* main */
 
 /*--------------------------------------------------------------------*/
@@ -605,6 +610,9 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
       if ( result == 0 )
          uuxqt( debuglevel );
 
+
+      printmsg(2,"active: Return code = %d", result );
+
       return result;
    }
  } /* active */
@@ -683,6 +691,8 @@ static void busywork( time_t next)
 
    time( & now );
 
+   printmsg(2,"execute: %s return code = %d",
+            argv[0], result );
    return result;
 }
 
@@ -821,6 +831,7 @@ static hhmm firstpoll(hhmm interval)
    if ( result == 0 )
       uuxqt( debuglevel );
 
+   printmsg(2,"passive: Return code = %d", result );
    return result;
 
  } /* passive */
