@@ -1,4 +1,28 @@
+# *--------------------------------------------------------------------*
+# *     r n e w s . m a k                                              *
+# *                                                                    *
+# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Wonderworks.                                                   *
+# *                                                                    *
+# *     All rights reserved except those explicitly granted by the     *
+# *     UUPC/extended license agreement.                               *
+# *--------------------------------------------------------------------*
+
+#     $Id: rnews.mak 1.3 1993/07/31 16:21:21 ahd Exp $
+#
+#     Revision history:
+#     $Log: rnews.mak $
+# Revision 1.3  1993/07/31  16:21:21  ahd
+# Windows 3.x support
+#
+
 !include $(UUPCDEFS)
+
+!if $(NDEBUG)
+LINKOPT=$(LINKOPTN)
+!else
+LINKOPT=$(LINKOPTD)
+!endif
 
 .c.obj:
   $(CC) $(CCX) -I$:{ $<}
@@ -10,20 +34,9 @@
 
 RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj
 
-
 EXPIREOBJ = $(OBJ)\expire.obj
 
-rnews.com: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
-        - erase rnews.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(RNEWSOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
-
-rnews.exe: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
+rnews$(PSUFFIX).exe: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
         - erase rnews.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -32,7 +45,9 @@ $<
 $(MAP)
 $(LIBRARY)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 expire.com: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
         - erase expire.exe
@@ -44,7 +59,7 @@ $(MAP)
 $(LIBRARY)
 |
 
-expire.exe: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
+expire$(PSUFFIX).exe: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
         - erase expire.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -53,4 +68,6 @@ $<
 $(MAP)
 $(LIBRARY)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif

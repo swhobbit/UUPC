@@ -8,15 +8,24 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.6 1993/07/31 16:21:21 ahd Exp $
+#     $Id: uucico.mak 1.7 1993/08/02 03:22:25 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.7  1993/08/02  03:22:25  ahd
+# Chaanges in support of Robert Denny's Windows 3.x support
+#
 # Revision 1.6  1993/07/31  16:21:21  ahd
 # Windows 3.x support
 #
 
 !include $(UUPCDEFS)
+
+!if $(NDEBUG)
+LINKOPT=$(LINKOPTN)
+!else
+LINKOPT=$(LINKOPTD)
+!endif
 
 .c.obj:
   $(CC) $(CCX) -I$:{ $<}
@@ -37,8 +46,11 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
             $(OBJ)\dcpxfer.obj $(OBJ)\dcpstats.obj $(OBJ)\modem.obj\
             $(OBJ)\nbstime.obj $(OBJ)\script.obj $(OBJ)\uucico.obj
 
-!if $d(WINDOWS)
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibwin.obj
+!if $d(__OS2__)
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\dcptpkt.obj
+!elif $d(WINDOWS)
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
+            $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj
 !else
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj $(OBJ)\fossil.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj
@@ -59,6 +71,8 @@ $(MAP)
 $(LIBRARY)
 $(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 $(OBJ)\comm.obj: $(UUCICO)\comm.asm

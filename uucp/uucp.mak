@@ -1,4 +1,31 @@
+# *--------------------------------------------------------------------*
+# *     u u c p . m a k                                                *
+# *                                                                    *
+# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Wonderworks.                                                   *
+# *                                                                    *
+# *     All rights reserved except those explicitly granted by the     *
+# *     UUPC/extended license agreement.                               *
+# *--------------------------------------------------------------------*
+
+#     $Id: uucp.mak 1.3 1993/08/02 03:22:25 ahd Exp $
+#
+#     Revision history:
+#     $Log: uucp.mak $
+# Revision 1.3  1993/08/02  03:22:25  ahd
+# Chaanges in support of Robert Denny's Windows 3.x support
+#
+# Revision 1.2  1993/07/31  16:21:21  ahd
+# Windows 3.x support
+#
+
 !include $(UUPCDEFS)
+
+!if $(NDEBUG)
+LINKOPT=$(LINKOPTN)
+!else
+LINKOPT=$(LINKOPTD)
+!endif
 
 .c.obj:
   $(CC) $(CCX) -I$: -n$(OBJ) $<
@@ -28,9 +55,10 @@ $(UUCPOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
 
-uucp.exe: $(UUPCCFG)     $(UUCPOBJ) $(LIBRARIES)
+uucp$(PSUFFIX).exe: $(UUPCCFG)     $(UUCPOBJ) $(LIBRARIES)
         - erase uucp.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -38,8 +66,11 @@ $(UUCPOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 uusub.com: $(UUPCCFG)  $(UUSUBOBJ) $(LIBRARIES)
         - erase uusub.exe
@@ -51,7 +82,7 @@ $(MAP)
 $(LIBRARY)
 |
 
-uusub.exe: $(UUPCCFG)   $(UUSUBOBJ) $(LIBRARIES)
+uusub$(PSUFFIX).exe: $(UUPCCFG)   $(UUSUBOBJ) $(LIBRARIES)
         - erase uusub.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -59,18 +90,24 @@ $(UUSUBOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
-uuxqt.exe: $(UUPCCFG)     $(UUXQTOBJ) $(LIBRARIES)
+uuxqt$(PSUFFIX).exe: $(UUPCCFG)     $(UUXQTOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(UUXQTOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 uustat.com: $(UUPCCFG)  $(UUSTATOBJ) $(LIBRARIES)
         - erase uustat.exe
@@ -82,7 +119,7 @@ $(MAP)
 $(LIBRARY)
 |
 
-uustat.exe: $(UUPCCFG)     $(UUSTATOBJ) $(LIBRARIES)
+uustat$(PSUFFIX).exe: $(UUPCCFG)     $(UUSTATOBJ) $(LIBRARIES)
         - erase uustat.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -90,8 +127,11 @@ $(UUSTATOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 uux.com: $(UUPCCFG)  $(UUXOBJ) $(LIBRARIES)
         - erase uux.exe
@@ -103,7 +143,7 @@ $(MAP)
 $(LIBRARY)
 |
 
-uux.exe: $(UUPCCFG)     $(UUXOBJ) $(LIBRARIES)
+uux$(PSUFFIX).exe: $(UUPCCFG)     $(UUXOBJ) $(LIBRARIES)
         - erase uux.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -112,7 +152,9 @@ $<
 $(MAP)
 $(LIBRARY)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif
 
 uuname.com: $(UUPCCFG)  $(UUNAMEOBJ) $(LIBRARIES)
         - erase uuname.exe
@@ -124,7 +166,7 @@ $(MAP)
 $(LIBRARY)
 |
 
-uuname.exe: $(UUPCCFG)     $(UUNAMEOBJ) $(LIBRARIES)
+uuname$(PSUFFIX).exe: $(UUPCCFG)     $(UUNAMEOBJ) $(LIBRARIES)
         - erase uuname.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
@@ -132,5 +174,8 @@ $(UUNAMEOBJ)
 $<
 $(MAP)
 $(LIBRARY)
+$(DEFFILE)
 |
+!if !$d(__OS2__)
         tdstrip -s $<
+!endif

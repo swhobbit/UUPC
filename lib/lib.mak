@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: e:\src\uupc\lib\RCS\lib.mak 1.7 1993/07/22 23:19:01 ahd Exp $
+#       $Id: lib.mak 1.8 1993/07/31 16:21:21 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#    Revision 1.8  1993/07/31  16:21:21  ahd
+#    Windows 3.x support
+#
 #    Revision 1.7  1993/07/22  23:19:01  ahd
 #    Make library build more generic
 #
@@ -54,20 +57,25 @@ LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
 LIBLST3= $(OBJ)\hostrset.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
          $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
-LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\ndir.obj $(OBJ)\printerr.obj\
+LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
          $(OBJ)\printmsg.obj $(OBJ)\pushpop.obj $(OBJ)\readnext.obj\
          $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
 LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
          $(OBJ)\stater.obj $(OBJ)\usertabl.obj $(OBJ)\validcmd.obj\
-         $(OBJ)\scrsize.obj $(OBJ)\strpool.obj $(OBJ)\trumpet.obj\
+         $(OBJ)\strpool.obj $(OBJ)\trumpet.obj\
          $(TIMESTMP)
-
+LIBDOS = $(OBJ)\scrsize.obj $(OBJ)\ndir.obj
+LIBOS2 = $(OBJ)\scrsize2.obj $(OBJ)\ndiros2.obj
+LIBWIN = $(OBJ)\scrsize.obj $(OBJ)\ndirwin.obj  $(OBJ)\winutil.obj \
+         $(OBJ)\pwinsock.obj
 LIBLST = $(LIBLST1) $(LIBLST2) $(LIBLST3) $(LIBLST4) $(LIBLST5)
 
-!if $d(WINDOWS)
-LIBALL = $(LIBLST:ndir=ndirwin) $(OBJ)\winutil.obj
+!if $d(__OS2__)
+LIBALL = $(LIBLST) $(LIBOS2)
+!elif $d(WINDOWS)
+LIBALL = $(LIBLST) $(LIBWIN)
 !else
-LIBALL = $(LIBLST)
+LIBALL = $(LIBLST) $(LIBDOS)
 !endif
 
 # *--------------------------------------------------------------------*
@@ -98,7 +106,6 @@ $(TIMESTMP): $(LIB)\timestmp.c $(UUPCCFG) $(REGEN) \
 $(UUPCLIB): $(LIBALL)
         &TLIB /C /E $< -+$?
         - erase $(TEMP)\$&.BAK
-        @echo Built $<
 
 # *--------------------------------------------------------------------*
 # *               We don't optimize the sleep routine!                 *
