@@ -18,9 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.33 1994/08/07 21:45:09 ahd Exp $
+ *    $Id: dcp.c 1.34 1994/10/03 01:01:25 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.34  1994/10/03  01:01:25  ahd
+ *        Change title message to be more descriptive when waiting for
+ *        phone to ring.
+ *        Move logical release of port to physical release port in shutdown()
+ *
  *        Revision 1.33  1994/08/07  21:45:09  ahd
  *        Correct selected changes in host title
  *
@@ -588,9 +593,10 @@ static boolean master( const char recvGrade,
             break;
 
          case CONN_DROPLINE:
-            setTitle("Not connected");
+            setTitle("Closing connection on port %s", M_device);
             shutDown();
             UnlockSystem();
+            setTitle("Not connected");
             m_state = CONN_INITIALIZE;
             break;
 
