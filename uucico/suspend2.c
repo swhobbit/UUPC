@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.13 1994/05/01 21:59:06 dmwatt Exp $
+ *    $Id: suspend2.c 1.14 1994/10/23 23:29:44 ahd Exp Software $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *        Revision 1.14  1994/10/23  23:29:44  ahd
+ *        Better control of suspension of processing
+ *
  *        Revision 1.13  1994/05/01  21:59:06  dmwatt
  *        Trap errors from failure of suspend_init to create pipe
  *
@@ -148,7 +151,7 @@ static char *portName;
 
 #ifdef BIT32ENV
 
-static HEV semWait, semFree;
+static HEV semWait, semFree, semReady;
 static ULONG postCount;
 static BOOL bDummyKill;
 
@@ -156,7 +159,7 @@ typedef ULONG U_INT;
 
 #else
 
-static ULONG semWait, semFree;
+static ULONG semWait, semFree, semReady;
 static PFNSIGHANDLER old;
 static USHORT nAction;
 
@@ -187,6 +190,7 @@ static VOID APIENTRY SuspendThread(ULONG nArg)
 static VOID FAR SuspendThread(VOID)
 #endif
 {
+  static APIRET rc;
 
 /*--------------------------------------------------------------------*/
 /*       Process until we get a request to change the status of       */
@@ -264,8 +268,21 @@ static VOID FAR SuspendThread(VOID)
 
 #ifdef BIT32ENV
             DosPostEventSem(semWait);
+
+	    rc = DosResetEventSem(semReady, &postCount);
+	    if (rc)
+	      printOS2error( "DosResetEventSem", rc);
+
+	    rc = DosWaitEventSem(semReady, 20000);
+	    if (rc)
+	      printOS2error( "DosWaitEventSem", rc);
+
 #else
             DosSemClear(&semWait);
+
+	    rc = DosSemSetWait(&semReady, 20000);
+	    if (rc)
+	      printOS2error( "DosSemSetWait", rc);
 #endif
             nChar = SUSPEND_OKAY;
 
@@ -450,6 +467,13 @@ boolean suspend_init(const char *port )
       return FALSE;
    }
 
+   rc = DosCreateEventSem(NULL, &semReady, 0, 0);
+   if (rc)
+   {
+      printOS2error( "DosCreateEventSem", rc);
+      return FALSE;
+   }
+
 #else
 
 /*--------------------------------------------------------------------*/
@@ -561,14 +585,14 @@ int suspend_other(const boolean suspend,
            firstPass = FALSE;
 
 #ifdef BIT32ENV
-           rc = DosWaitNPipe( szPipe, 5000 ); /* Wait up to 5 sec for pipe  */
+           rc = DosWaitNPipe( szPipe, 20000 ); /* Wait up to 20 sec for pipe  */
            if (rc)
            {
              printOS2error( "DosWaitNPipe", rc);
              return 0;
            } /* if (rc) */
 #else
-           rc = DosWaitNmPipe( szPipe, 5000 ); /* Wait up to 5 sec for pipe  */
+           rc = DosWaitNmPipe( szPipe, 20000 ); /* Wait up to 20 sec for pipe  */
            if (rc)
            {
              printOS2error( "DosWaitNmPipe", rc);
@@ -662,6 +686,9 @@ int suspend_other(const boolean suspend,
 
   DosClose(hPipe);
 
+  if (!suspend)
+    DosSleep(3000); /* apparently we need to give the other one some time! */
+
   return result;
 
 } /* suspend_other */
@@ -710,4 +737,27 @@ CONN_STATE suspend_wait(void)
    else
       return CONN_INITIALIZE;
 
+} /* suspend_wait */
+
+/*--------------------------------------------------------------------*/
+/*       s u s p e n d _ r e a d y                                    */
+/*                                                                    */
+/*       We are ready to release for the next time                    */
+/*--------------------------------------------------------------------*/
+
+void suspend_ready(void)
+{
+   APIRET rc;
+
+   printmsg(1,"suspend_ready: Port %s in use", portName );
+
+#ifdef BIT32ENV
+   rc = DosPostEventSem(semReady);
+   if (rc)
+      printOS2error( "DosPostEventSem", rc);
+#else
+   rc = DosSemClear(&semReady);
+   if (rc)
+      printOS2error( "DosSemClear", rc);
+#endif
 } /* suspend_wait */
