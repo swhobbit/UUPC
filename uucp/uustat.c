@@ -785,12 +785,13 @@ static CALLTYPE open_call( const char *callname,
             {
                time_t created;
                long size;
-               created   = stater( host,  &size);
 
                if (equal(dname, "D.0"))
                   importpath( host, fname, remote );
                else
                   importpath( host, dname, remote );
+
+               created   = stater( host,  &size);
 
                switch  ( action )
                {
