@@ -13,16 +13,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.2 1992/11/17 13:47:30 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: LOCK.C $
+ * Revision 1.2  1992/11/17  13:47:30  ahd
+ * Do not buffer lock file
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
  */
 
-static char rcsid[] = "$Id: LOCK.C 1.1 1992/11/16 05:00:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */
