@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.9 1994/01/24 03:19:33 ahd Exp $
+ *    $Id: uusub.c 1.10 1994/02/19 05:15:33 ahd Exp $
  *
  *    $Log: uusub.c $
+ * Revision 1.10  1994/02/19  05:15:33  ahd
+ * Use standard first header
+ *
  * Revision 1.9  1994/01/24  03:19:33  ahd
  * Annual Copyright Update
  *
@@ -216,17 +219,16 @@ static void showstats( const char *name )
 static void showhost( struct HostTable *host)
 {
    column = 0;
-   checkref( host->hstats );
    line( host->hostname,
-      status( host->hstatus ),
-      when( host->hstats->lconnect ),
-      when( host->hstats->ltime ),
-      format( host->hstats->connect ),
-      format( host->hstats->bsent ),
-      format( host->hstats->breceived ),
-      format( host->hstats->fsent ),
-      format( host->hstats->freceived ),
-      format( host->hstats->errors  ));
+      status( host->status.hstatus ),
+      when( host->status.lconnect ),
+      when( host->status.ltime ),
+      format( host->status.connect ),
+      format( host->status.bsent ),
+      format( host->status.breceived ),
+      format( host->status.fsent ),
+      format( host->status.freceived ),
+      format( host->status.errors  ));
 } /* showhost */
 
 /*--------------------------------------------------------------------*/

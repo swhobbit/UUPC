@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.21 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: rmail.c 1.22 1994/01/01 19:13:14 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.22  1994/01/01  19:13:14  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.21  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -150,12 +153,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
 #include <io.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <signal.h>
 
 #ifdef _Windows
@@ -166,12 +167,10 @@
 /*                     Application include files                      */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "address.h"
 #include "arpadate.h"
 #include "deliver.h"
 #include "getopt.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "logger.h"
 #include "security.h"
@@ -212,7 +211,6 @@ static boolean DaemonMail( const char *subject,
                            char **address,
                            int count );
 
-
  static void usage( void );
 
 /*--------------------------------------------------------------------*/
@@ -226,7 +224,6 @@ static boolean DaemonMail( const char *subject,
  FILE *dataout = NULL;        /* Handle for the output of mail       */
  char fromUser[MAXADDR] = ""; /* User id of originator               */
  char fromNode[MAXADDR] = ""; /* Node id of originator               */
- char *now;                   /* Time stamp for Received: banner     */
  char *myProgramName = NULL;  /* Name for recursive invocation       */
  char grade  = 'C';           /* Grade for mail sent                 */
 
@@ -249,12 +246,13 @@ void main(int argc, char **argv)
    size_t count;                 /* Loop variable for delivery        */
    size_t delivered = 0;         /* Count of successful deliveries    */
    int user_debug  = -1;
-   boolean header = TRUE;
+   boolean header = TRUE;        /* Assume terminated header         */
    boolean DeleteInput = FALSE;
 
    boolean daemon = FALSE;
 
    char *subject = NULL;
+   char *logname = NULL;
    myProgramName = newstr( argv[0] );   /* Copy before banner() mangles it  */
 
 /*--------------------------------------------------------------------*/
@@ -269,43 +267,38 @@ void main(int argc, char **argv)
    logfile = stderr;             /* Prevent redirection of error      */
                                  /* messages during configuration     */
 
-   banner( argv);
+   banner( argv );
 
    debuglevel =  0;
 
 /*--------------------------------------------------------------------*/
-/* Load the UUPC/extended configuration file, and exit if any errors  */
+/*       Load the UUPC/extended configuration file, and exit if       */
+/*       any errors                                                   */
 /*--------------------------------------------------------------------*/
 
    if (!configure(B_MTA))
       Terminate(3);
 
-   now = arpadate();          /* Set the current date                */
    datain = stdin;
-
-/*--------------------------------------------------------------------*/
-/*                    Handle control-C interrupts                     */
-/*--------------------------------------------------------------------*/
-
-    if( signal( SIGINT, ctrlchandler ) == SIG_ERR )
-    {
-        printmsg( 0, "Couldn't set SIGINT\n" );
-        panic();
-    }
-
-/*--------------------------------------------------------------------*/
-/*                       Begin logging messages                       */
-/*--------------------------------------------------------------------*/
-
-   openlog( NULL );
 
 /*--------------------------------------------------------------------*/
 /*                      Parse our operand flags                       */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "g:ws:tF:f:x:")) != EOF)
+   while ((option = getopt(argc, argv, "g:ws:tF:f:l:x:")) != EOF)
    {
-      switch (option) {
+      switch (option)
+      {
+
+      case 'F':
+         DeleteInput = TRUE;
+         /* Fall through to regular file name choice */
+
+      case 'f':
+         namein = optarg;
+         datain = FOPEN(namein , "r",TEXT_MODE);
+         break;
+
       case 'g':
          if ( isalnum(*optarg) && ( strlen( optarg) == 1 ))
             grade = *optarg;
@@ -315,8 +308,8 @@ void main(int argc, char **argv)
          }
          break;
 
-      case 'w':
-         daemon = TRUE;
+      case 'l':
+         logname = optarg;
          break;
 
       case 's':
@@ -328,21 +321,36 @@ void main(int argc, char **argv)
          ReadHeader = TRUE;
          break;
 
+      case 'w':
+         daemon = TRUE;
+         break;
+
       case 'x':
          user_debug = debuglevel = atoi(optarg);
          break;
 
-      case 'F':
-         DeleteInput = TRUE;
-      case 'f':
-         namein = optarg;
-         datain = FOPEN(namein , "r",TEXT_MODE);
-         break;
-
       case '?':
          usage();
+         break;
+
       } /* switch */
    } /* while */
+
+/*--------------------------------------------------------------------*/
+/*                       Begin logging messages                       */
+/*--------------------------------------------------------------------*/
+
+   openlog( logname );
+
+/*--------------------------------------------------------------------*/
+/*                    Handle control-C interrupts                     */
+/*--------------------------------------------------------------------*/
+
+    if( signal( SIGINT, ctrlchandler ) == SIG_ERR )
+    {
+        printmsg( 0, "Couldn't set SIGINT\n" );
+        panic();
+    }
 
    if ( debuglevel > 1 )
    {
@@ -355,6 +363,8 @@ void main(int argc, char **argv)
       puts("Missing/extra parameter(s) at end.");
       usage();
    }
+
+   checkname( E_nodename );  /* Force loading of the E_fdomain name */
 
 #if defined(_Windows)
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
@@ -392,6 +402,7 @@ void main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    tempname = mktempname( NULL , "tmp");
+
    dataout = FOPEN(tempname, "w",TEXT_MODE);
 
    if (dataout == NULL)
@@ -422,7 +433,7 @@ void main(int argc, char **argv)
                                  /* Copy remote header instead       */
    } /* if */
 
-   if ( addressees == 0 )        /* Can we deliver mail?             */
+   if ( !address || ! addressees )  /* Can we deliver mail?          */
    {
       printmsg(0, "No addressees to deliver to!");
       Terminate( 2 );            /* No --> Execute punt formation    */
@@ -448,7 +459,6 @@ void main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 /*        Determine requestor node and user id for remote mail        */
 /*--------------------------------------------------------------------*/
-
 
 /*--------------------------------------------------------------------*/
 /*                    Perform delivery of the mail                    */
@@ -556,13 +566,11 @@ static void ParseFrom( const char *forwho)
       s = strtok( NULL, "\n");         /* Get first non-blank of third
                                           token on the line          */
 
-
       if (strlen( token ) + nodelen >= MAXADDR) /* overlength addr?  */
       {                                /* Reduce address to length
                                           that we can handle         */
          char *next;
          token = strtok( token, "!" );
-
 
          while ((next = strtok( NULL , "!")) != NULL )
          {
@@ -616,7 +624,7 @@ static void ParseFrom( const char *forwho)
 
    fprintf(dataout,"%-10s from %s by %s (%s %s) with UUCP\n%-10s for %s; %s\n",
             "Received:", fromNode, E_domain, compilep, compilev,
-            " ", forwho, now);
+            " ", forwho, arpadate());
 
 /*--------------------------------------------------------------------*/
 /*       If what we read wasn't a From line, write it into the new    */
@@ -708,30 +716,84 @@ static char **Parse822( boolean *header,
 /*                              lengths                               */
 /*--------------------------------------------------------------------*/
 
-   static char *to     = "Resent-To:";
-   static char *cc     = "Resent-Cc:";
-   static char *bcc    = "Resent-Bcc:";
-   static char *resent = "Resent-";
-   static char *from   = "Resent-From:";
+   static const char resent[] = "Resent-";
+   static const size_t resentLen =  sizeof resent - 1;
 
-   size_t tolen;
-   size_t cclen;
-   size_t bcclen;
-   size_t resentlen =  strlen(resent);
-   size_t offset = resentlen; /* Subscript for examining headers,
+   size_t offset = 0;         /* Subscript for examining headers,
                                  which allows us to ignore Resent-   */
-   size_t fromlen =  strlen( &from[offset] );
+
    size_t allocated = 5;      /* Reasonable first size for address   */
                               /* Note: MUST BE AT LEAST 2 because we
                                        add 50% below!                */
-   boolean blind = FALSE;
 
    char **addrlist = calloc( sizeof *addrlist , allocated);
    char buf[BUFSIZ];          /* Input buffer for reading header     */
+   char outputBuffer[BUFSIZ+MAXADDR]; /* Output buffer for addresses */
    char address[MAXADDR];     /* Buffer for parsed address           */
    char path[MAXADDR];
    char *token;               /* For parsing line in buf             */
+   int senderID = -1, dateID = -1, fromID = -1;
    struct HostTable *hostp;
+
+   typedef struct _HEADERS
+   {
+      const char *text;
+      char  *address;
+      const boolean blind;
+      const boolean required;
+      const boolean output;
+      boolean found;
+   } HEADERS;
+
+   boolean blind = FALSE;
+   boolean output = FALSE;
+
+   char sender[MAXADDR];
+   char from[MAXADDR];
+
+   static HEADERS headerTable[] =
+   {
+      { "From:",   NULL,  FALSE, TRUE,  FALSE, FALSE },
+      { "Sender:", NULL,  FALSE, FALSE, FALSE, FALSE },
+      { "To:",     NULL,  FALSE, TRUE,  TRUE,  FALSE },
+      { "Cc:",     NULL,  FALSE, FALSE, TRUE,  FALSE },
+      { "Bcc:",    NULL,  TRUE,  FALSE, TRUE,  FALSE },
+      { "Date:",   NULL,  FALSE, FALSE, FALSE, FALSE },
+      { NULL }
+   };
+
+   size_t subscript;
+
+/*--------------------------------------------------------------------*/
+/*               Determine selected subscript information             */
+/*--------------------------------------------------------------------*/
+
+   for ( subscript = 0;
+         headerTable[subscript].text != NULL;
+         subscript++ )
+   {
+      if ( equal( headerTable[subscript].text, "Date:" ))
+         dateID = subscript;
+      else if ( equal( headerTable[subscript].text, "From:" ))
+         fromID = subscript;
+      else if ( equal( headerTable[subscript].text, "Sender:" ))
+         senderID = subscript;
+
+      headerTable[subscript].found = FALSE;
+
+   } /* for */
+
+/*--------------------------------------------------------------------*/
+/*                   Initialized string information                   */
+/*--------------------------------------------------------------------*/
+
+   if (( dateID < 0 ) || (fromID < 0) || (senderID < 0))
+      panic();
+
+   headerTable[fromID].address   = from;
+   headerTable[senderID].address = sender;
+
+   *outputBuffer = '\0';            /* Flag no addresses to send yet */
 
 /*--------------------------------------------------------------------*/
 /*                          Begin processing                          */
@@ -742,33 +804,202 @@ static char **Parse822( boolean *header,
 
    fprintf(dataout,"%-10s by %s (%s %s);\n%-10s %s\n",
               "Received:",E_domain,compilep, compilev,
-              " ", now );
+              " ", arpadate() );
+
+/*--------------------------------------------------------------------*/
+/*                       Generate a message-id                        */
+/*--------------------------------------------------------------------*/
+
+   sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
+   PutHead("Message-ID:", buf, dataout , offset != 0 );
+   PutHead(NULL, NULL, dataout , FALSE );
 
 /*--------------------------------------------------------------------*/
 /*                        Find the From: line                         */
 /*--------------------------------------------------------------------*/
 
-   do {
-      if (fgets( buf, BUFSIZ, datain) == NULL)  /* End of file?      */
-         return NULL;         /* Yes --> Very bad, report error      */
-      fputs(buf, dataout );
-      if (*buf == '\n')       /* End of the header?                  */
-         return NULL;         /* Yes --> Very bad, report error      */
-      else if (equalni(resent, buf, resentlen))
-      {
-         offset = 0;
-         fromlen = strlen(&from[offset]);
-      } /* if */
-      else if (equalni(received, buf, receivedlen))
-         hops++;
-   } while (!equalni(&from[offset], buf, fromlen));
+   while( (fgets( buf, BUFSIZ, datain) != NULL) && *header )
+   {
+      char *startAddress = buf;
 
-   strtok( buf , WHITESPACE);    /* Drop the leading token           */
-   token = strtok( NULL, "\n");  /* Get the token with From: addr    */
-   ExtractAddress( address, token, FALSE );
-                                 /* Get the From: address itself     */
-   user_at_node(address, path, fromNode, fromUser);
-                                 /* Separate portions of the address */
+      if ( *buf == '\n')         /* end of the header?               */
+      {
+         output = *header = FALSE;  /* Yes --> reset all our flags   */
+         blind = TRUE;           /* We'll print terminator later     */
+      }
+
+/*--------------------------------------------------------------------*/
+/*              Set flags whenever we find a new header               */
+/*--------------------------------------------------------------------*/
+
+      else if ( isgraph( *buf )) /* Start of a new header?           */
+      {
+         blind = output = FALSE; /* Reset processing flags for this
+                                    header                           */
+
+         if ( equalni( buf, resent, resentLen ))   /* Msg a resend?  */
+            offset = resentLen;  /* Yes --> Only use Resent- hdrs    */
+
+/*--------------------------------------------------------------------*/
+/*         Loop to find the header in our table, if possible          */
+/*--------------------------------------------------------------------*/
+
+         for ( subscript = 0;
+               headerTable[subscript].text != NULL;
+               subscript++ )
+         {
+            size_t headerLen = strlen( headerTable[subscript].text );
+
+            if ( equalni( buf + offset,
+                          headerTable[subscript].text,
+                          headerLen ))
+            {
+               if ( headerTable[subscript].found ) /* Been here before? */
+               {
+                  printmsg(0,"Parse822: Error: Duplicate header: %s",
+                              buf );
+                  return NULL;
+               }
+
+               headerTable[subscript].found = TRUE;
+               blind  = headerTable[subscript].blind;
+               output = headerTable[subscript].output;
+
+               startAddress = buf + offset + headerLen;
+
+               if ( isgraph( *startAddress ))   /* Non-blank?     */
+               {                       /* I'm SO confused         */
+                  printmsg(0,"Parse822: Invalid header, cannot continue: %s",
+                              buf );
+                  return NULL;
+               }
+
+/*--------------------------------------------------------------------*/
+/*                 Save address if table requested it                 */
+/*--------------------------------------------------------------------*/
+
+               if ( headerTable[subscript].address != NULL )
+               {
+                  ExtractAddress( headerTable[subscript].address,
+                                  startAddress,
+                                  FALSE );
+               }
+
+/*--------------------------------------------------------------------*/
+/*            Insert separator between addresses if needed            */
+/*--------------------------------------------------------------------*/
+
+               if ( *outputBuffer && output )
+                  strcat( outputBuffer, "," );   /* Sep addresses  */
+
+               break;               /* drop out of the for ( ;; ) */
+
+            } /* if equalni() */
+
+         } /* for */
+
+      } /* else if */
+
+/*--------------------------------------------------------------------*/
+/*              Write the line out unless a blind header              */
+/*--------------------------------------------------------------------*/
+
+      if ( ! blind )
+         fputs(buf, dataout );
+
+/*--------------------------------------------------------------------*/
+/*                       Save output addresses                        */
+/*--------------------------------------------------------------------*/
+
+      if ( output )
+      {
+         while( *startAddress && !isgraph( *startAddress ))
+            startAddress++;         /* Step past while space in addr */
+
+         token = startAddress;
+         while( (token = strchr( token,'\n')) != NULL )
+            *token++ = ' ';         // For debugging
+
+         printmsg(10,"Adding address [%s] to [%s]",
+               startAddress,
+               outputBuffer );
+         strcat( outputBuffer, startAddress );
+      }
+
+/*--------------------------------------------------------------------*/
+/*       Spit out any addresses if we may overflow the buffer or      */
+/*       we're done collecting them.                                  */
+/*--------------------------------------------------------------------*/
+
+      while( *outputBuffer &&
+             (! output || (strlen(outputBuffer) > MAXADDR )))
+      {
+         char *next = ExtractAddress( address, outputBuffer, FALSE );
+                                 /* Get address to add to list    */
+
+         if (allocated == (*count+1))  /* Do we have room for addr?  */
+         {
+            allocated += allocated / 2;   /* Choose larger array     */
+            addrlist = realloc( addrlist ,
+                                allocated * sizeof( *addrlist ));
+            checkref(addrlist);  /* Verify the allocation worked     */
+         } /* if */
+
+         if (!strlen(address))
+         {
+            printmsg(0,"Could not locate expected address in header");
+            return NULL;
+         } /* if */
+         else {
+            addrlist[*count] = newstr( address );
+                                 /* Save permanent copy of address      */
+            printmsg(4,"address[%d]= \"%s\"",*count, address);
+            *count += 1;         /* Flag we got the address             */
+         } /* else */
+
+         if ( next )
+            memmove( outputBuffer, next, strlen(next) + 1);
+                                 /* Shift buffer up to recover space
+                                    used by now parsed address          */
+         else
+            *outputBuffer = '\0'; /* End of addresses                   */
+
+      } /* while */
+
+   } /* while( (fgets( buf, BUFSIZ, datain) != NULL) && *header ) */
+
+/*--------------------------------------------------------------------*/
+/*               Now validate the information we received             */
+/*--------------------------------------------------------------------*/
+
+   if ( *header )             /* Did we receive a proper header?     */
+   {                          /* No --> Very bad news                */
+      printmsg(0,"Parse822: Premature end of input file, message rejected");
+      return NULL;
+   }
+
+   for ( subscript = 0;
+         headerTable[subscript].text != NULL;
+         subscript++ )
+   {
+      if ( headerTable[subscript].required &&
+           ! headerTable[subscript].found )
+      {
+         printmsg(0, "Parse822: Missing header \"%s\", cannot continue.",
+                      headerTable[subscript].text );
+         return NULL;
+      }
+
+   } /* for (;;) */
+
+/*--------------------------------------------------------------------*/
+/*                Fill in the sender field, if needed                 */
+/*--------------------------------------------------------------------*/
+
+   user_at_node( headerTable[subscript].found ? sender : from,
+                 path,
+                 fromNode,
+                 fromUser);      /* Separate portions of the address */
 
 /*--------------------------------------------------------------------*/
 /*               Generate a Sender: line if we need it                */
@@ -780,17 +1011,23 @@ static char **Parse822( boolean *header,
    hostp = checkname( fromNode );   /* Look up real system name      */
 
    if (!equal(fromUser,E_mailbox) ||
-       (hostp == BADHOST) || (hostp->hstatus != localhost))
+       (hostp == BADHOST) || (hostp->status.hstatus != localhost))
    {
       sprintf(buf, "%s <%s@%s>", E_name, E_mailbox, E_fdomain );
-      PutHead("Sender:", buf, dataout , offset == 0 );
+      PutHead("Sender:", buf, dataout , offset != 0 );
    } /* if */
+
+/*--------------------------------------------------------------------*/
+/*                     Insert a date field if needed                  */
+/*--------------------------------------------------------------------*/
+
+   PutHead("Date:", arpadate() , dataout , offset != 0 );
 
 /*--------------------------------------------------------------------*/
 /*      Set UUCP requestor name while we've got the information       */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp != BADHOST) && (hostp->hstatus == localhost))
+   if ((hostp != BADHOST) && (hostp->status.hstatus == localhost))
       rnode = bflag[F_BANG] ? E_nodename : E_fdomain;
                               /* Use full domain address, if possible */
    else
@@ -800,87 +1037,11 @@ static char **Parse822( boolean *header,
                                  for locally generated mail          */
 
 /*--------------------------------------------------------------------*/
-/*                       Generate a message-id                        */
+/*                        Terminate the header                        */
 /*--------------------------------------------------------------------*/
 
-   sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
-   PutHead("Message-ID:", buf, dataout , offset == 0 );
-   PutHead(NULL, NULL, dataout , FALSE );
-
-/*--------------------------------------------------------------------*/
-/*                 Locate the To: or Resent-To: line                  */
-/*--------------------------------------------------------------------*/
-
-   tolen =    strlen( &to[offset] );
-
-   do {
-      if (fgets( buf, BUFSIZ, datain ) == NULL)  /* End of file?     */
-         return NULL;         /* Yes --> Very bad, report error      */
-      fputs(buf, dataout );
-      if (*buf == '\n')       /* End of the header?                  */
-         return NULL;         /* Yes --> Very bad, report error      */
-      else if (equalni(received, buf, receivedlen))
-         hops++;
-   } while ( !equalni(&to[offset] , buf , tolen ));
-
-   token = strpbrk( buf ," \t");
-
-/*--------------------------------------------------------------------*/
-/*                Proccess the rest of the addressees                 */
-/*--------------------------------------------------------------------*/
-
-   cclen =    strlen( &cc[offset] );
-   bcclen =   strlen( &bcc[offset] );
-
-   do {
-      if (allocated == (*count+1))  /* Do we have room for addr?     */
-      {
-         allocated += allocated / 2;   /* Choose larger array size   */
-         addrlist = realloc( addrlist ,
-                             allocated * sizeof( *addrlist ));
-         checkref(addrlist);  /* Verify the allocation worked        */
-      } /* if */
-
-      ExtractAddress( address, token, FALSE );  /* Get address itself*/
-      if (!strlen(address))
-      {
-         printmsg(0,"Could not locate expected address in header");
-         *count = 0;
-         return NULL;
-      } /* if */
-      else {
-         addrlist[*count] = newstr( address );
-                              /* Save permanent copy of address      */
-         checkref( addrlist[*count] ); /* Verify strdup worked       */
-         printmsg(4,"address[%d]= \"%s\"",*count, address);
-         *count += 1;         /* Flag we got the address             */
-      } /* else */
-
-      if (fgets( buf, BUFSIZ, datain ) == NULL) /* End of file?      */
-         token = NULL;        /* Yes --> Odd, but no major problem   */
-      else if (*buf == '\n')  /* End of the header?                  */
-      {
-         token = NULL;        /* Yes --> Exit loop                   */
-         *header = FALSE;     /* Report to caller the header is done */
-         blind = FALSE;       /* Denote not a blind header           */
-      }
-      else if (isspace(*buf)) /* Another address?                    */
-         token = buf;         /* Yes --> Write it out                */
-      else {                  /* No --> Determine what next header is*/
-         blind = FALSE;       /* Assume not a blind header           */
-         if (equalni(&cc[offset], buf, cclen))   /* Cc: header?       */
-            token = strpbrk(buf," \t");
-         else if (equalni(&bcc[offset], buf, bcclen))  /* Bcc: header?*/
-         {
-            token = strpbrk(buf ," \t");
-            blind = TRUE;
-         } /* if */
-         else                 /* Unsupported header, exit loop       */
-            token = NULL;
-      } /* else */
-      if ( ! blind )
-         fputs(buf, dataout );
-   } while (token != NULL );
+   PutHead(NULL, NULL, dataout , FALSE ); /* End the headers         */
+   fputc('\n', dataout );
 
 /*--------------------------------------------------------------------*/
 /*                   Return address list to caller                    */
@@ -949,7 +1110,7 @@ static boolean DaemonMail( const char *subject,
                           int count )
 {
    char buf[BUFSIZ];
-   char *logname;
+   char *username;
    char *token;
    char *moi = NULL;
    struct UserTable *userp;
@@ -971,26 +1132,27 @@ static boolean DaemonMail( const char *subject,
 /*                       Determine our user id                        */
 /*--------------------------------------------------------------------*/
 
-   logname = getenv( LOGNAME );
-   if ( logname == NULL )
-      logname = E_mailbox;
+   username = getenv( LOGNAME );
+   if ( username == NULL )
+      username = E_mailbox;
 
 /*--------------------------------------------------------------------*/
 /*              Get the name of the user, or make one up              */
 /*--------------------------------------------------------------------*/
 
-   userp = checkuser(logname);   /* Locate user id in host table     */
+   userp = checkuser(username);  /* Locate user id in host table     */
 
    if ( (userp != BADUSER) &&
         (userp->realname != NULL) &&
          !equal(userp->realname, EMPTY_GCOS ))
       moi = userp->realname;
-   else if ( equali(logname, E_postmaster) || equali(logname, POSTMASTER))
+   else if ( equali(username, E_postmaster) ||
+             equali(username, POSTMASTER))
       moi = "Postmaster";
-   else if ( equali( logname, "uucp" ))
+   else if ( equali( username, "uucp" ))
       moi = "Unix to Unix Copy";
    else
-      moi = logname;          /* Dummy to ease formatting From: line  */
+      moi = username;         /* Dummy to ease formatting From: line  */
 
 /*--------------------------------------------------------------------*/
 /*    Add the boilerplate the front:                                  */
@@ -1005,7 +1167,7 @@ static boolean DaemonMail( const char *subject,
               compilev,
               " ",
               count > 1 ? "multiple addressees" : *address,
-              now );
+              arpadate() );
 
 /*--------------------------------------------------------------------*/
 /*                       Generate a message-id                        */
@@ -1018,10 +1180,9 @@ static boolean DaemonMail( const char *subject,
    PutHead("Date:", arpadate() , dataout, FALSE);
 
    if (bflag[F_BANG])
-      sprintf(buf, "(%s) %s!%s", moi, E_nodename, logname );
+      sprintf(buf, "(%s) %s!%s", moi, E_nodename, username );
    else {
-      checkname( E_nodename );  /* Force loading of the E_fdomain name */
-      sprintf(buf, "\"%s\" <%s@%s>", moi, logname , E_fdomain );
+      sprintf(buf, "\"%s\" <%s@%s>", moi, username , E_fdomain );
    }
 
    PutHead("From:", buf, dataout, FALSE );
@@ -1078,7 +1239,7 @@ static boolean DaemonMail( const char *subject,
 /*                          Return to caller                          */
 /*--------------------------------------------------------------------*/
 
-   uuser = ruser = strncpy(fromUser, logname, sizeof fromUser);
+   uuser = ruser = strncpy(fromUser, username, sizeof fromUser);
                               /* Define user for UUCP From line      */
    fromUser[ sizeof fromUser - 1 ] = '\0';
    rnode = bflag[F_BANG] ? E_nodename : E_fdomain;
@@ -1104,8 +1265,11 @@ static boolean DaemonMail( const char *subject,
 
    if (label == NULL )        /* Terminate call?                     */
    {                          /* Yes --> Reset Flag and return       */
-      fputc('\n', stream);    /* Terminate the current line          */
-      terminate = TRUE;
+      if ( ! terminate )
+      {
+         fputc('\n', stream); /* Terminate the current line          */
+         terminate = TRUE;
+      }
       return;
    } /* if */
 

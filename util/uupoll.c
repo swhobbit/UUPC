@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.18 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: uupoll.c 1.19 1994/01/01 19:17:22 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.19  1994/01/01  19:17:22  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.18  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -150,24 +153,23 @@
  *
  */
 
+#include "uupcmoah.h"
+
 static const char rcsid[] =
-         "$Id: uupoll.c 1.18 1993/11/06 17:56:09 rhg Exp $";
+         "$Id: uupoll.c 1.19 1994/01/01 19:17:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
 /*--------------------------------------------------------------------*/
 
 #include <ctype.h>
-#include <dos.h>
 #include <limits.h>
 #include <process.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <conio.h>
-#include <direct.h>
 #include <signal.h>           /* Ctrl-Break handler               */
+
+#ifndef __32BIT__
+#include <dos.h>
+#endif
 
 #if  defined(WIN32) || defined(FAMILYAPI) || defined(_Windows) || defined(__OS2__)
 #define NOCBREAK
@@ -184,7 +186,6 @@ static int setcbrk(char state);
 /*--------------------------------------------------------------------*/
 
 #include "getopt.h"
-#include "lib.h"
 #include "timestmp.h"
 #include "ssleep.h"
 #include "arpadate.h"
@@ -342,7 +343,6 @@ currentfile();
          logname = optarg;
          break;
 
-
 /*--------------------------------------------------------------------*/
 /*                            Input modem                             */
 /*--------------------------------------------------------------------*/
@@ -381,7 +381,6 @@ currentfile();
             usage( argv[0] );
          duration = atoi(optarg);
          break;
-
 
 /*--------------------------------------------------------------------*/
 /*                        System name to poll                         */
@@ -760,7 +759,6 @@ static void busywork( time_t next)
    time( & now );
 }
 
-
 /*--------------------------------------------------------------------*/
 /*    r u n C o m m a n d                                             */
 /*                                                                    */
@@ -857,7 +855,6 @@ static time_t nextpoll( hhmm first, hhmm interval )
 
 } /* nextpoll */
 
-
 /*--------------------------------------------------------------------*/
 /*    f i r s t p o l l                                               */
 /*                                                                    */
@@ -903,7 +900,6 @@ static hhmm firstpoll(hhmm interval)
    }
    return FALSE;
  } /* notanumber */
-
 
 /*--------------------------------------------------------------------*/
 /*    p a s s i v e                                                   */

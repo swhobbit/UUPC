@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.11 1993/11/21 02:45:50 ahd Exp $
+ *    $Id: timestmp.c 1.12 1994/01/01 19:06:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.12  1994/01/01  19:06:26  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.11  1993/11/21  02:45:50  ahd
  *     Change OS/2 id to 16/32 bit
  *
@@ -48,24 +51,21 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <dos.h>
+#include "uupcmoah.h"
+
 #include <direct.h>
 #include <io.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #ifdef _Windows
 #include <windows.h>
-#include <time.h>
+#elif !defined(__32BIT__)
+#include <dos.h>
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 
 #ifndef UUPCV
@@ -106,7 +106,6 @@ void banner (char **argv)
 {
       char dummy[FILENAME_MAX];
       char program[FILENAME_MAX];
-
 
 #if defined(_Windows)
    WORD wVersion;

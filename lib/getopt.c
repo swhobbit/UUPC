@@ -1,4 +1,10 @@
 /*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
+/*
 ** @(#)getopt.c   2.2 (smail) 1/26/87
 
    01 Oct 89   Added function prototype for getopt()              ahd
@@ -25,16 +31,16 @@
  * However, I am not about to post a copy of anything licensed by AT&T.
  */
 
-#ifdef BSD
-
 #include "uupcmoah.h"
+
+#ifdef BSD
 
 #include <strings.h>
 #else
 #define  index strchr
 #endif
 
-#define ERR(s,c) fprintf(stderr,"%s%s%c\n", argv[0],s,c)    /* ahd    */
+#define ERR(s,c) printmsg(0,"%s%s%c\n", argv[0],s,c)    /* ahd    */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

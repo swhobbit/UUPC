@@ -2,8 +2,6 @@
 /*    h o s t a t u s . c                                             */
 /*                                                                    */
 /*    Load host status information for UUPC/extended                  */
-/*                                                                    */
-/*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.12 1994/02/19 03:51:38 ahd Exp $
+ *    $Id: hostatus.c 1.13 1994/02/19 04:42:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.13  1994/02/19  04:42:27  ahd
+ *     Use standard first header
+ *
  *     Revision 1.12  1994/02/19  03:51:38  ahd
  *     Use standard first header
  *
@@ -185,7 +186,7 @@ void HostStatus( void )
                      buf );
          fread( buf , len2, 1,  stream);
       }
-      else if ( len2 <= (sizeof *(host->hstats)))
+      else if (len2 <= (sizeof host->status))
       {
          struct HostStats stats;    /* host status, as defined by hostatus */
 
@@ -195,26 +196,29 @@ void HostStatus( void )
 /*        Update the host status to the best known information        */
 /*--------------------------------------------------------------------*/
 
-         if ( host->hstats->lconnect > stats.lconnect )
-            stats.lconnect = host->hstats->lconnect;
+         if ( host->status.lconnect > stats.lconnect )
+            stats.lconnect = host->status.lconnect;
 
-         if ( host->hstats->ltime > stats.ltime )
-            stats.ltime = host->hstats->ltime;
-         else if ( host->hstats->lconnect > stats.ltime )
+         if ( host->status.ltime > stats.ltime )
+            stats.ltime = host->status.ltime;
+         else if ( host->status.lconnect > stats.ltime )
             ; /* No operation */
-         else if (( stats.save_hstatus >= nocall ) &&
-                  ( stats.save_hstatus < last_status ))
-            host->hstatus = stats.save_hstatus;
+         else if (( stats.hstatus >= nocall ) &&
+                  ( stats.hstatus < last_status ))
+            host->status.hstatus = stats.hstatus;
          else
             printmsg(0,"HostStatus: Invalid status (%d) ignored for \"%s\"",
-               stats.save_hstatus,host->hostname ) ;
+               stats.hstatus,
+               host->hostname ) ;
 
-         memcpy( host->hstats, &stats , sizeof stats );
+         memcpy( &host->status, &stats , sizeof stats );
       }
       else {
          printmsg(0,"HostStatus: Bad record length %d (wanted %d), "
                     "purging status for host %s",
-                    len2, (int) (sizeof *(host->hstats)), buf);
+                    len2,
+                    (int) (sizeof host->status),
+                    buf);
          fread( buf , len2, 1,  stream);
       } /* else */
    } /* while */

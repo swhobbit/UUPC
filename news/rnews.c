@@ -34,9 +34,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.26 1993/12/24 05:12:54 ahd Exp $
+ *       $Id: rnews.c 1.27 1994/02/19 04:22:37 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.27  1994/02/19  04:22:37  ahd
+ * Use standard first header
+ *
+ * Revision 1.27  1994/02/19  04:22:37  ahd
+ * Use standard first header
+ *
  * Revision 1.26  1993/12/24  05:12:54  ahd
  * Kai Uwe Rommel's fixes for news
  *
@@ -117,7 +123,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.26 1993/12/24 05:12:54 ahd Exp $";
+         "$Id: rnews.c 1.27 1994/02/19 04:22:37 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -515,7 +521,6 @@ static int Compressed( char *filename , FILE *in_stream ,
    char unzfile[FILENAME_MAX];
    char buf[BUFSIZ];
 
-   boolean first_time = TRUE;
    long cfile_size = 0L;
    size_t chars_read, i;
    int status = 0;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.8 1994/01/01 19:19:40 ahd Exp $
+ *    $Id: dcptpkt.c 1.9 1994/02/19 05:07:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.9  1994/02/19  05:07:45  ahd
+ * Use standard first header
+ *
  * Revision 1.8  1994/01/01  19:19:40  ahd
  * Annual Copyright Update
  *
@@ -75,10 +78,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#if defined(WIN32) || defined(_Windows)
 #include "uupcmoah.h"
 
-#include "winsock.h"       /* Needed for byte ordering                 */
+#if defined(WIN32) || defined(_Windows)
+#include "winsock.h"       /* Needed for byte ordering               */
 #endif
 
 /*--------------------------------------------------------------------*/

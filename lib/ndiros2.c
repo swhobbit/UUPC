@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.11 1994/02/19 04:09:37 ahd Exp $
+ *    $Id: ndiros2.c 1.12 1994/02/19 04:44:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *     Revision 1.12  1994/02/19  04:44:30  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/19  04:09:37  ahd
  *     Use standard first header
  *
@@ -73,8 +76,6 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
-
-#include <assert.h>
 
 /*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
@@ -168,6 +169,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
           ( rc != ERROR_PATH_NOT_FOUND))
          printmsg(4,"opendir: Error %d on directory %s",
                   (int) rc, pathname );
+      free( pathname );
       return NULL;
    } /* else */
 

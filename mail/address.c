@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.9 1994/01/01 19:11:59 ahd Exp $
+ *    $Id: address.c 1.10 1994/01/24 03:17:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.10  1994/01/24  03:17:02  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.9  1994/01/01  19:11:59  ahd
  * Annual Copyright Update
  *
@@ -42,18 +45,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "address.h"
 #include "hostable.h"
 #include "security.h"
@@ -101,7 +100,6 @@ void user_at_node(const char *raddress,
    char *address;
 
    struct HostTable *Hptr = NULL;   /* Pointer to host name table     */
-
 
    if ( strlen( raddress ) >= MAXADDR )
    {
@@ -352,7 +350,7 @@ char *HostAlias( char *input)
 /*       a routing entry and we should ignore it.                     */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp->hstatus == phantom) && ( hostp->realname == NULL ))
+   if ((hostp->status.hstatus == phantom) && ( hostp->realname == NULL ))
       return input;
 
 /*--------------------------------------------------------------------*/
@@ -412,9 +410,8 @@ char *HostPath( char *input, char *best)
    if (hostp == BADHOST)
       return best;
 
-   if (hostp->hstatus == gatewayed)  /* Gatewayed?                    */
+   if (hostp->status.hstatus == gatewayed)  /* Gatewayed?             */
       return hostp->hostname;      /* Yes --> Use name for path       */
-
 
 /*--------------------------------------------------------------------*/
 /*      If we already chased this chain, return result to caller      */
@@ -451,7 +448,7 @@ char *HostPath( char *input, char *best)
 
       if (equal(hostp->hostname,alias))
       {
-         if (hostp->hstatus == localhost) /* Ourself?                 */
+         if (hostp->status.hstatus == localhost) /* Ourself?          */
             hostp->via = E_nodename;      /* Yes --> Deliver local    */
          else if ( checkreal( hostp->hostname ) == BADHOST )
                                           /* Unknown system?          */
@@ -531,8 +528,10 @@ char *ExtractAddress(char *result,
                                     /* Re-scan in new state    */
                   newstate = '>';   /* Proc all-non <> as name */
                   break;            /* Begin addr over again   */
+
                case ',':
                   break;            /* Terminates address      */
+
                case '>':
                case ')':
                   printmsg(0,"Invalid RFC-822 address: %s",nonblank);
@@ -543,72 +542,86 @@ char *ExtractAddress(char *result,
                   newstate = state; /* stay in this state             */
                   if (!isspace(*column))
                      *(addrptr++) = *column;
+
             }  /* switch(*column) */
             break;
 
-         case '<':   if (*column == '>')
-                        newstate = '>';
-                     else if (!isspace(*column))
-                        *(addrptr++) = *column;
+         case '<':
+            if (*column == '>')
+               newstate = '>';
+            else if (!isspace(*column))
+               *(addrptr++) = *column;
+            break;
+
+         case '>':
+            switch( *column )
+            {
+               case '<':
+                  newstate = '<';
+                  break;
+               case ')':
+                  if (quoted)
+                     *(nameptr++) = *column;
+                  else
+                     bananas--;
+                  break;
+
+               case '(':
+                  if (quoted)
+                     *(nameptr++) = *column;
+                  else
+                     bananas++;
+                  break;
+
+               case ',':
+                  newstate = ',';   /* Terminates address      */
+                  break;
+
+               case '"':
+                  if (bananas == 0)
+                  {
+                     quoted = !quoted;
+                     break;
+                  }
+                  /* else fall through */
+
+               default:
+                  *(nameptr++) = *column;
+            } /* switch */
+            break;
+
+         case '(':
+            if (*column == '(')
+               ++bananas;
+            else if (*column == ')')
+            {
+               if (--bananas == 0)
+               {
+                  newstate = ')';
+                  break;
+               }
+            }
+            else
+               *(nameptr++) = *column;
+            break;
+
+         case '"':
+            if (*column == '"')
+               newstate = ')';
+            else
+               *(nameptr++) = *column;
                      break;
 
-         case '>':   if (*column == '<')
-                        newstate = '<';
-                     else switch( *column )
-                     {
-                        case ')':
-                           if (quoted)
-                              *(nameptr++) = *column;
-                           else
-                              bananas--;
-                           break;
+         case ',':
+            newstate = ',';   /* Exit parse              */
+            break;
 
-                        case '(':
-                           if (quoted)
-                              *(nameptr++) = *column;
-                           else
-                              bananas++;
-                           break;
-
-                        case '"':
-                           if (bananas == 0)
-                           {
-                              quoted = !quoted;
-                              break;
-                           }
-                           /* else fall through */
-
-                        default:
-                           *(nameptr++) = *column;
-                     } /* switch */
-                     break;
-
-         case '(':   if (*column == '(')
-                        ++bananas;
-                     else if (*column == ')')
-                     {
-                        if (--bananas == 0)
-                        {
-                           newstate = ')';
-                           break;
-                        }
-                     }
-                     else
-                        *(nameptr++) = *column;
-                     break;
-
-         case '"':   if (*column == '"')
-                        newstate = ')';
-                     else
-                        *(nameptr++) = *column;
-
-                     break;
-
-         default:    panic();
-                                 /* Logic error, bad state        */
-                     break;
+         default:
+            panic();          /* Logic error, bad state        */
+            break;
 
       }  /* switch (state) */
+
       state = newstate;
       column++;
    } /* while */
@@ -684,8 +697,11 @@ char *ExtractAddress(char *result,
 
    } /* else */
 
-   printmsg(4,"ExtractAddress: %s into <%s> \"%s\"",
-            nonblank,addr,(fullname) ? result : name);
+   printmsg(4,"ExtractAddress: %s into <%s> \"%s\", state [%c]",
+            nonblank,
+            addr,
+            (fullname) ? result : name,
+            state);
 
 /*--------------------------------------------------------------------*/
 /*   Return the position of the next address, if any, to the caller   */
@@ -694,6 +710,6 @@ char *ExtractAddress(char *result,
    if ( *column == '\0')
       return NULL;
    else
-      return column + 1;
+      return column;
 
 } /*ExtractAddress*/

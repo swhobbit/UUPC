@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.5 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: filebkup.c 1.6 1994/01/01 19:01:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *     Revision 1.6  1994/01/01  19:01:54  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *
@@ -34,27 +37,20 @@
  *
  */
 
-
-
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 #ifndef __GNUC__
+
+#include "uupcmoah.h"
+
 #include <direct.h>
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
-#include "hlib.h"
 
 currentfile();
 
@@ -103,7 +99,7 @@ int filebkup( const char *input )
    if (rename( input, backup ))
    {
       printerr( backup );
-      printmsg(1,"Unable to rename %s to %s\n", input, backup );
+      printmsg(1,"Unable to rename %s to %s", input, backup );
       return 1;
 
    } /* if (rename( input, backup )) */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.13 1994/02/19 04:07:01 ahd Exp $
+  *      $Id: hostable.c 1.14 1994/02/19 04:42:16 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.14  1994/02/19  04:42:16  ahd
+ *     Use standard first header
+ *
  *     Revision 1.13  1994/02/19  04:07:01  ahd
  *     Use standard first header
  *
@@ -229,7 +232,7 @@ struct HostTable *checkreal(const char *name)
 /*             If we didn't find the host, return failure             */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp == BADHOST) || (hostp->hstatus >= nocall))
+   if ((hostp == BADHOST) || (hostp->status.hstatus >= nocall))
       return hostp;           /* Return raw information               */
    else
       return BADHOST;         /* Not a real host, invalid for our
@@ -317,7 +320,7 @@ struct HostTable *nexthost( const boolean start )
 
    while ( current < HostElements )
    {
-      if (hosts[current].hstatus >= nocall)
+      if (hosts[current].status.hstatus >= nocall)
          return &hosts[current];
       else
          current++;
@@ -421,7 +424,7 @@ static size_t loadhost()
 /*--------------------------------------------------------------------*/
 
    hostp = inithost(E_nodename);
-   hostp->hstatus  = localhost;
+   hostp->status.hstatus  = localhost;
    hostp->realname = E_nodename; /* Don't let user alias our system
                                     name                              */
 
@@ -447,11 +450,8 @@ static size_t loadhost()
    if ( E_anonymous != NULL )
    {
       hostp = inithost( ANONYMOUS_HOST );
-      hostp->hstatus = nocall;
+      hostp->status.hstatus = nocall;
       hostp->via     = E_nodename;
-      hostp->hstats  = malloc( sizeof *(hostp->hstats) );
-      checkref( hostp->hstats );
-      memset( hostp->hstats, 0, sizeof *(hostp->hstats) );
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -484,12 +484,9 @@ static size_t loadhost()
 
       hostp = inithost(token);
 
-      if (hostp->hstatus == phantom)
+      if (hostp->status.hstatus == phantom)
       {
-         hostp->hstatus = nocall;
-         hostp->hstats  = malloc( sizeof *(hostp->hstats) );
-         checkref( hostp->hstats );
-         memset( hostp->hstats, 0, sizeof *(hostp->hstats) );
+         hostp->status.hstatus = nocall;
       }
    } /* while */
 
@@ -537,7 +534,7 @@ static size_t loadhost()
             if (( hostp->via != NULL ) || ( token == NULL ))
                freeit = TRUE;
             else {
-               hostp->hstatus = gatewayed;
+               hostp->status.hstatus = gatewayed;
 
                while(isspace( *token ))   /* Drop leading white space only */
                   token++;
@@ -598,7 +595,7 @@ static size_t loadhost()
 
          if ( freeit )
          {
-            if ( hostp->hstatus == phantom )
+            if ( hostp->status.hstatus == phantom )
                HostElements--;            /* Ignore the routing entry */
          }
       }  /* end while */

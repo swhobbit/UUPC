@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.16 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: mail.c 1.17 1994/01/01 19:12:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.17  1994/01/01  19:12:29  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.16  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -93,21 +96,21 @@
  * 12 Feb 91 rewrite parser a for more BSD like syntax
 */
 
+#include "uupcmoah.h"
+
  static const char rcsid[] =
-      "$Id: mail.c 1.16 1993/12/23 03:16:03 rommel Exp $";
+      "$Id: mail.c 1.17 1994/01/01 19:12:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <ctype.h>
-#include <stdio.h>
 #include <io.h>
-#include <stdlib.h>
-#include <string.h>
 #include <limits.h>
-#include <time.h>
+#ifndef __32BIT__
 #include <dos.h>
+#endif
 #include <direct.h>
 
 #ifdef _Windows
@@ -119,13 +122,11 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "address.h"
 #include "alias.h"                                            /* ahd */
 #include "dater.h"
 #include "expath.h"
 #include "getopt.h"
-#include "hlib.h"
 #include "mail.h"
 #include "mailblib.h"
 #include "maillib.h"                                           /* ahd */
@@ -211,7 +212,6 @@ static char *subjectlist[] = { "Resent-Subject:",
 static char *datelist[]  =   { "Resent-Date:",
                                "Date:" ,
                                NULL} ;
-
 
 /*--------------------------------------------------------------------*/
 /*                  Information on existing mailbox                   */
@@ -494,7 +494,6 @@ void Cleanup()
 
 } /*Cleanup*/
 
-
 /*--------------------------------------------------------------------*/
 /*    I n t e r a c t i v e _ M a i l                                 */
 /*                                                                    */
@@ -522,7 +521,10 @@ static void Interactive_Mail( const boolean PrintOnly,
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
-   if ((fmailbox = FOPEN(tmailbox, "w", BINARY_MODE)) == nil(FILE)) {
+   fmailbox = FOPEN(tmailbox, "w", BINARY_MODE);
+
+   if ( fmailbox == NULL )
+   {
       printerr(tmailbox);
       return;
    }
@@ -565,6 +567,7 @@ static void Interactive_Mail( const boolean PrintOnly,
       printerr(tmailbox);
       panic();
    } /* if */
+
    setvbuf(fmailbox, NULL, _IOFBF, 8192);
 
    modified = postoffice && (!PrintOnly);
@@ -585,10 +588,10 @@ static void Interactive_Mail( const boolean PrintOnly,
 /*               Determine first letter in to prompt at               */
 /*--------------------------------------------------------------------*/
 
-      if (letternum == 0)
-         current = -1;
-      else
-         current = 0;
+   if (letternum == 0)
+      current = -1;
+   else
+      current = 0;
 
 /*--------------------------------------------------------------------*/
 /*            Begin main command loop for reading the mail            */
@@ -683,7 +686,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                success = SaveItem( integer,
                          FALSE,        /* Do not delete */
                          seperators,   /* Do save headers */
-                         (operand == NULL) ? "PRN" : operand ,
+                         (operand == NULL) ? "PRN:" : operand ,
                          cmd_ptr->verb );
                break;
 
@@ -1178,12 +1181,10 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
          panic();
       } /* if */
 
-
    } /* while */
 
    letters[letternum].adr = ftell(fmailbox);
    letters[letternum].status = M_DELETED;
-
 
    fclose(rmailbox);
    fclose(fmailbox);
@@ -1259,7 +1260,6 @@ void PrintSubject(int msgnum,int letternum)
    }
 
 } /*PrintSubject*/
-
 
 /*--------------------------------------------------------------------*/
 /*    U p d a t e  M a i l b o x                                      */

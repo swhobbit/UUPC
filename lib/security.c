@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.18 1994/02/19 04:01:36 ahd Exp $
+ *    $Id: security.c 1.19 1994/02/19 04:48:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.19  1994/02/19  04:48:22  ahd
+ *     Use standard first header
+ *
  *     Revision 1.18  1994/02/19  04:01:36  ahd
  *     Use standard first header
  *
@@ -125,6 +128,10 @@ struct HostSecurity *securep = NULL;
 static struct HostSecurity *default_security = NULL;
 static char drive[] = "C:";
 
+static struct HostSecurity localSecurity = { 0, 0, 0, 0 };
+                              /* We always need it, so statically
+                                 allocate it                         */
+
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -139,6 +146,16 @@ boolean LoadSecurity( void )
    char buffer[BUFSIZ*4];     /* Allows around 2K for the data        */
    struct HostTable *hostp;
    FILE *stream;
+
+/*--------------------------------------------------------------------*/
+/*                    Initialize local host entry                     */
+/*--------------------------------------------------------------------*/
+
+   hostp = checkname( E_nodename );
+   if ( hostp == NULL )
+      panic();
+   hostp->hsecure = &localSecurity;
+   hostp->hsecure->local = TRUE;
 
 /*--------------------------------------------------------------------*/
 /*      Generate a filename for the permissions file and open it      */
@@ -223,19 +240,6 @@ boolean LoadSecurity( void )
       }
 
    } /* while ( !feof( stream ) ) */
-
-/*--------------------------------------------------------------------*/
-/*                    Initialize local host entry                     */
-/*--------------------------------------------------------------------*/
-
-   hostp = checkname( E_nodename );
-   if ( hostp == NULL )
-      panic();
-   hostp->hsecure = malloc( sizeof *hostp->hsecure );
-   checkref( hostp->hsecure );
-   memset( hostp->hsecure , '\0', sizeof *hostp->hsecure);
-                              /* Clear pointers                       */
-   hostp->hsecure->local = TRUE;
 
 /*--------------------------------------------------------------------*/
 /*                          Return to caller                          */

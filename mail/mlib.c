@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.8 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: mlib.c 1.9 1994/01/01 19:13:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.9  1994/01/01  19:13:04  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -64,12 +67,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <conio.h>
 #include <io.h>
+
+#ifndef __32BIT__
 #include <dos.h>
+#endif
 
 #if defined(WIN32)
 #include <windows.h>
@@ -79,8 +84,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "execute.h"
 
 /*--------------------------------------------------------------------*/
@@ -143,7 +146,6 @@ int Invoke(const char *ecmd,
    denormalize( tempname );
 
    sprintf(command, ecmd, tempname);
-
 
 /*--------------------------------------------------------------------*/
 /*          Execute command, report results if interesting.           */
@@ -370,7 +372,6 @@ static boolean DOSKeyActive( void )
    return active;
 
 } /* DOSKeyActive */
-
 
 /*--------------------------------------------------------------------*/
 /*    D O S K e y R e a d                                             */

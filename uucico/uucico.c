@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUCICO.C 1.6 1993/09/29 04:52:03 ahd Exp $
+ *    $Id: uucico.c 1.7 1994/01/01 19:22:29 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUCICO.C $
+ *    $Log: uucico.c $
+ * Revision 1.7  1994/01/01  19:22:29  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.6  1993/09/29  04:52:03  ahd
  * Cosmetic cleanup
  *
@@ -50,20 +53,15 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <dos.h>
+#include "uupcmoah.h"
+
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dcp.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "security.h"
 #include "pushpop.h"

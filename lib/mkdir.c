@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.9 1994/02/19 03:53:30 ahd Exp $
+ *    $Id: mkdir.c 1.10 1994/02/19 04:43:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *     Revision 1.10  1994/02/19  04:43:39  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/19  03:53:30  ahd
  *     Use standard first header
  *
@@ -49,14 +52,9 @@
  *
  */
 
-#ifdef __GNUC__
-
 #include "uupcmoah.h"
 
-#include <os2.h>
-#else
 #include <direct.h>
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -86,11 +84,7 @@ int MKDIR(const char *inpath)
    while ((cp = strchr(cp, '/')) != nil(char)) {
       *cp = '\0';
 
-#ifndef __GNUC__
       mkdir(path);
-#else
-      DosCreateDir( path, 0);
-#endif
       *cp = '/';
       cp++;
    }

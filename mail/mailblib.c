@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.10 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: mailblib.c 1.11 1994/01/01 19:12:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.11  1994/01/01  19:12:39  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.10  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -48,22 +51,19 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "address.h"
 #include "mail.h"
 #include "maillib.h"
 #include "mailblib.h"
 #include "mailsend.h"
-#include "hlib.h"
 #include "alias.h"
 #include "expath.h"
 #include "execute.h"
@@ -187,7 +187,7 @@ void ShowAlias( const char *alias)
 
 boolean SaveItem( const int item,
                const boolean delete,
-               const copyopt headers,
+               copyopt headers,
                char *fname,
                const ACTION verb)
 {
@@ -213,10 +213,18 @@ boolean SaveItem( const int item,
             mkmailbox(filename, ++fname);
             break;
 
-      default:
+      default:          /* No special character?                  */
       case '~':         /* Relative to home directory?            */
             strcpy( filename , fname );
-            if (expand_path( filename , NULL, E_homedir, E_mailext ) == NULL)
+            if ( filename[ strlen( filename ) - 1 ] == ':' ) /* Device? */
+            {
+               if ( headers == seperators ) /* Default to insert sep?  */
+                  headers = noseperator;    /* Suppress them on device */
+            }
+            else if (expand_path( filename,
+                                  NULL,
+                                  E_homedir,
+                                  E_mailext ) == NULL)
                return FALSE;
             break;
    }  /* end switch */
@@ -264,7 +272,6 @@ boolean SaveItem( const int item,
 
    return TRUE;
 } /* SaveItem */
-
 
 /*--------------------------------------------------------------------*/
 /*    P o s i t i o n                                                 */
@@ -437,7 +444,6 @@ boolean Reply( const int current )
 
 } /* Reply */
 
-
 /*--------------------------------------------------------------------*/
 /*    F o r w a r d I t e m                                           */
 /*                                                                    */
@@ -494,7 +500,6 @@ boolean ForwardItem( const int item , const char *string )
 
    return success;
 } /* ForwardItem */
-
 
 /*--------------------------------------------------------------------*/
 /*    s u b s h e l l                                                 */
@@ -727,7 +732,6 @@ boolean SelectItems( char **input, int current , int bits)
 
 } /* SelectItems */
 
-
 /*--------------------------------------------------------------------*/
 /*    S e a r c h S u j e c t                                         */
 /*                                                                    */
@@ -780,7 +784,6 @@ static boolean SearchSubject( char *token,
       return FALSE;
    }  /* else */
 } /* SearchSubject */
-
 
 /*--------------------------------------------------------------------*/
 /*    S e a r c h U s e r                                             */
@@ -876,7 +879,6 @@ static boolean SearchUser( char *token , char **input, const int bits)
    }  /* else */
 
 }  /* SearchUser */
-
 
 /*--------------------------------------------------------------------*/
 /*    S e t T r a i l i n g                                           */

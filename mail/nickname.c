@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.11 1994/01/01 19:12:06 ahd Exp $
+ *    $Id: alias.c 1.12 1994/02/19 04:17:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.12  1994/02/19  04:17:41  ahd
+ * Use standard first header
+ *
+ * Revision 1.12  1994/02/19  04:17:41  ahd
+ * Use standard first header
+ *
  * Revision 1.11  1994/01/01  19:12:06  ahd
  * Annual Copyright Update
  *
@@ -111,7 +117,7 @@ boolean InitRouter()
          E_mailserv);
       success = FALSE;
    }
-   else if (Hptr->hstatus == localhost)  /* local system?     */
+   else if (Hptr->status.hstatus == localhost)  /* local system?     */
    {
       printmsg(0,"'%s' is name of this host and cannot be mail server",
             E_mailserv);
@@ -357,7 +363,7 @@ size_t LoadAliases(void)
          target.anick = token;
 
          hit = (void *) lfind((void *) &target, (void *) alias,
-			      &elements , sizeof(alias[0]), nickcmp);
+                              &elements , sizeof(alias[0]), nickcmp);
          if (hit == NULL)
          {
             char node[MAXADDR];

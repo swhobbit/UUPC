@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.16 1994/01/24 03:04:44 ahd Exp $
+ *    $Id: nbstime.c 1.17 1994/02/19 05:09:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.17  1994/02/19  05:09:17  ahd
+ * Use standard first header
+ *
  * Revision 1.16  1994/01/24  03:04:44  ahd
  * Annual Copyright Update
  *
@@ -67,13 +70,13 @@
  *
  */
 
+#include "uupcmoah.h"
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #ifdef WIN32
-
-#include "uupcmoah.h"
 
 #include <windows.h>
 #define NONDOS

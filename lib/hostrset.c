@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.9 1994/02/19 03:51:52 ahd Exp $
+ *    $Id: hostrset.c 1.10 1994/02/19 04:42:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *     Revision 1.10  1994/02/19  04:42:36  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/19  03:51:52  ahd
  *     Use standard first header
  *
@@ -117,7 +120,7 @@ void HostReset( const char *name )
    while  ((host = nexthost( firsthost )) != BADHOST)
    {
       len1 = (unsigned short) strlen( host->hostname );
-      len2 = sizeof *(host->hstats);
+      len2 = sizeof host->status;
 
       firsthost = FALSE;
 
@@ -131,19 +134,19 @@ void HostReset( const char *name )
 
       if ( (name == NULL) || equal(name,host->hostname) )
       {
-          host->hstats->calls     = 0l;  /* Total number of calls to host */
-          host->hstats->connect   = 0l;  /* Total length of connections to host */
-          host->hstats->fsent     = 0l;  /* Total files sent to this host */
-          host->hstats->freceived = 0l;  /* Total files received from this host */
-          host->hstats->bsent     = 0l;  /* Total bytes sent to this host */
-          host->hstats->breceived = 0l;  /* Total bytes received from this host */
-          host->hstats->errors    = 0l;  /* Total transmission errors noted */
-          host->hstats->packets   = 0l;  /* Total packets exchanged   */
+          host->status.calls     = 0l;  /* Total number of calls to host */
+          host->status.connect   = 0l;  /* Total length of connections to host */
+          host->status.fsent     = 0l;  /* Total files sent to this host */
+          host->status.freceived = 0l;  /* Total files received from this host */
+          host->status.bsent     = 0l;  /* Total bytes sent to this host */
+          host->status.breceived = 0l;  /* Total bytes received from this host */
+          host->status.errors    = 0l;  /* Total transmission errors noted */
+          host->status.packets   = 0l;  /* Total packets exchanged   */
       }
 
-      host->hstats->save_hstatus = host->hstatus;
-      fwrite( host->hstats , len2, 1,  stream);
-   }
+      fwrite( &host->status , len2, 1,  stream);
+
+   }  /* while */
 
 /*--------------------------------------------------------------------*/
 /*         Make we sure got end of file and not an I/O error          */

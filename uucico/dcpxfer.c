@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.40 1994/01/01 19:19:51 ahd Exp $
+ *       $Id: dcpxfer.c 1.41 1994/02/19 05:08:15 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.41  1994/02/19  05:08:15  ahd
+ * Use standard first header
+ *
  * Revision 1.40  1994/01/01  19:19:51  ahd
  * Annual Copyright Update
  *
@@ -350,7 +353,7 @@ XFER_STATE sbreak( void )
    }
    else {                     /* No --> Remote host is done as well  */
       pktsendstr("HY");       /* Tell the host we are done as well   */
-      hostp->hstatus = called;/* Update host status flags            */
+      hostp->status.hstatus = called;/* Update host status flags     */
       return XFER_ENDP;       /* Terminate the protocol              */
    } /* else */
 
@@ -833,7 +836,7 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
       scandir( NULL,callgrade ); /* Reset directory search pointers   */
    }
    else {
-      hostp->hstatus = called;/* Update host status flags            */
+      hostp->status.hstatus = called;/* Update host status flags     */
       c = XFER_NOLOCAL;       /* Do not send data on inbound call    */
    }
 
@@ -849,7 +852,7 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
          if (!pktgetstr((char *)databuf))
             return XFER_LOST; /* Didn't get response, die quietly    */
          else {
-            hostp->hstatus = called;/* Update host status flags       */
+            hostp->status.hstatus = called;/* Update host status     */
             return XFER_ENDP; /* Got response, we're out of here     */
          }
 

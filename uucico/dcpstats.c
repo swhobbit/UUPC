@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.8 1994/01/01 19:19:13 ahd Exp $
+ *       $Id: dcpstats.c 1.9 1994/02/19 05:07:18 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ * Revision 1.9  1994/02/19  05:07:18  ahd
+ * Use standard first header
+ *
  * Revision 1.8  1994/01/01  19:19:13  ahd
  * Annual Copyright Update
  *
@@ -115,20 +118,20 @@ void dcstats(void)
             rmtname,
             hostp->hostname);
 
-   if (remote_stats.lconnect > hostp->hstats->lconnect)
-      hostp->hstats->lconnect = remote_stats.lconnect;
+   if (remote_stats.lconnect > hostp->status.lconnect)
+      hostp->status.lconnect = remote_stats.lconnect;
 
-   if (remote_stats.ltime > hostp->hstats->ltime)
-      hostp->hstats->lconnect = remote_stats.lconnect;
+   if (remote_stats.ltime > hostp->status.ltime)
+      hostp->status.lconnect = remote_stats.lconnect;
 
-   hostp->hstats->connect   += remote_stats.connect;
-   hostp->hstats->calls     += remote_stats.calls;
-   hostp->hstats->fsent     += remote_stats.fsent;
-   hostp->hstats->freceived += remote_stats.freceived;
-   hostp->hstats->bsent     += remote_stats.bsent;
-   hostp->hstats->breceived += remote_stats.breceived;
-   hostp->hstats->errors    += remote_stats.errors;
-   hostp->hstats->packets   += remote_stats.packets;
+   hostp->status.connect   += remote_stats.connect;
+   hostp->status.calls     += remote_stats.calls;
+   hostp->status.fsent     += remote_stats.fsent;
+   hostp->status.freceived += remote_stats.freceived;
+   hostp->status.bsent     += remote_stats.bsent;
+   hostp->status.breceived += remote_stats.breceived;
+   hostp->status.errors    += remote_stats.errors;
+   hostp->status.packets   += remote_stats.packets;
 
 } /* dcstats */
 
@@ -194,18 +197,25 @@ void dcupdate( void )
 
    while  ((host = nexthost( firsthost )) != BADHOST)
    {
+      unsigned short saveStatus = host->status.hstatus;
+
       len1 = (unsigned short) strlen( host->hostname );
-      len2 = (unsigned short) sizeof *(host->hstats);
+      len2 = (unsigned short) sizeof host->status;
 
       firsthost = FALSE;
 
       fwrite( &len1, sizeof len1, 1, stream );
       fwrite( &len2, sizeof len2, 1, stream );
       fwrite( host->hostname , sizeof hostp->hostname[0], len1, stream);
-      host->hstats->save_hstatus = (unsigned short) ((host->hstatus == called)
-                                                     ? succeeded
-                                                     : host->hstatus);
-      fwrite( host->hstats , len2, 1,  stream);
+
+      if ( host->status.hstatus == called )
+         host->status.hstatus = succeeded;
+
+      fwrite( &host->status, len2, 1,  stream);
+
+      host->status.hstatus = saveStatus;
+                              /* Restore to insure we don't call
+                                 host again this invocation of UUCICO */
    }
 
 /*--------------------------------------------------------------------*/

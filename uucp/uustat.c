@@ -21,13 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.16 1994/01/01 19:27:36 ahd Exp $
+ *    $Id: uustat.c 1.17 1994/02/19 05:15:21 ahd Exp $
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.16 1994/01/01 19:27:36 ahd Exp $";
+         "$Id: uustat.c 1.17 1994/02/19 05:15:21 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -400,8 +400,12 @@ void all( const char *system, const char *userid)
 /*               Determine what kind of Call file it is               */
 /*--------------------------------------------------------------------*/
 
-         switch(open_call(fname, hostp->hostname,
-                           &data_link, user, sys, JOB_STATUS))
+         switch(open_call(fname,
+                           hostp->hostname,
+                           &data_link,
+                           user,
+                           sys,
+                           JOB_STATUS))
          {
             case POLL_CALL:
                if ( display )
@@ -420,10 +424,23 @@ void all( const char *system, const char *userid)
                if(display)
                {
                    hit = TRUE;
-                   print_all( canon + 2, data_link, user,
+                   print_all( canon + 2,
+                              data_link,
+                              user,
                               hostp->hostname );
                }
+               else while( data_link ) /* Free w/o printing          */
+               {
+                  struct data_queue *next = data_link->next_link;
+                  free( data_link );
+                  data_link = next;
+               } /* while */
                break;
+
+            default:
+               printmsg(0,"Unknown call type in file %s", fname );
+               panic();
+
          } /* switch */
 
       } /* while */
@@ -646,9 +663,9 @@ static void long_stats( const char *system )
             printf("%-10.10s %s%s %s\n",
                     hostp->hostname,
                     buf,
-                    dater( hostp->hstats->lconnect , NULL ),
-                    hostp->hstatus < last_status ?
-                        host_status[ hostp->hstatus ] :
+                    dater( hostp->status.lconnect , NULL ),
+                    hostp->status.hstatus < last_status ?
+                        host_status[ hostp->status.hstatus ] :
                         "*** INVALID/UNDOCUMENTED STATUS ***");
       } /* if (work) */
 
@@ -704,9 +721,9 @@ static void short_stats( const char *system )
    while(hostp != BADHOST )
    {
       printf("%-10.10s  %s  %s\n", hostp->hostname,
-            dater( hostp->hstats->lconnect , NULL ),
-            hostp->hstatus < last_status ?
-                  host_status[ hostp->hstatus ] :
+            dater( hostp->status.lconnect , NULL ),
+            hostp->status.hstatus < last_status ?
+                  host_status[ hostp->status.hstatus ] :
                   "*** INVALID/UNDOCUMENTED STATUS ***");
 
       if (equal(system, ALL))

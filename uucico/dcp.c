@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.25 1994/01/01 19:18:06 ahd Exp $
+ *    $Id: dcp.c 1.26 1994/02/19 05:06:20 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.26  1994/02/19  05:06:20  ahd
+ * Use standard first header
+ *
  * Revision 1.25  1994/01/01  19:18:06  ahd
  * Annual Copyright Update
  *
@@ -353,7 +356,7 @@ int dcpmain(int argc, char *argv[])
 #endif
 
    atexit( shutDown );        /* Insure port is closed by panic()    */
-   remote_stats.save_hstatus = nocall;
+   remote_stats.hstatus = nocall;
                               /* Known state for automatic status
                                  update                              */
 
@@ -439,14 +442,6 @@ static boolean master( const char recvgrade,
                "M state = %c", m_state);
       old_state = m_state;
 
-      if (bflag[F_MULTITASK] &&
-           (hostp != NULL ) &&
-           (remote_stats.save_hstatus != hostp->hstatus ))
-      {
-         dcupdate();
-         remote_stats.save_hstatus = hostp->hstatus;
-      }
-
       switch (m_state)
       {
          case CONN_INITSTAT:
@@ -462,7 +457,7 @@ static boolean master( const char recvgrade,
 
             m_state = getsystem(recvgrade);
             if ( hostp != NULL )
-               remote_stats.save_hstatus = hostp->hstatus;
+               remote_stats.hstatus = hostp->status.hstatus;
             break;
 
          case CONN_CHECKTIME:
@@ -476,9 +471,9 @@ static boolean master( const char recvgrade,
             else if ( LockSystem( hostp->hostname , B_UUCICO))
             {
                dialed = TRUE;
-               time(&hostp->hstats->ltime);
+               time(&hostp->status.ltime);
                               /* Save time of last attempt to call  */
-               hostp->hstatus = autodial;
+               hostp->status.hstatus = autodial;
                m_state = CONN_MODEM;
             }
             else
@@ -490,7 +485,7 @@ static boolean master( const char recvgrade,
             if (getmodem(flds[FLD_TYPE]))
                m_state = CONN_DIALOUT;
             else {
-               hostp->hstatus = invalid_device;
+               hostp->status.hstatus = invalid_device;
                m_state = CONN_INITIALIZE;
             }
             break;
@@ -499,7 +494,7 @@ static boolean master( const char recvgrade,
 
             if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
             {
-               hostp->hstatus =  nodevice;
+               hostp->status.hstatus =  nodevice;
                m_state = CONN_INITIALIZE;    /* Try next system     */
             }
             else
@@ -513,6 +508,8 @@ static boolean master( const char recvgrade,
             break;
 
          case CONN_SERVER:
+            if (bflag[F_MULTITASK])
+               dcupdate();
             m_state = process( POLL_ACTIVE, recvgrade );
             contacted = TRUE;
             break;
@@ -521,8 +518,8 @@ static boolean master( const char recvgrade,
             m_state = sysend();
             if ( hostp != NULL )
             {
-               if (hostp->hstatus == inprogress)
-                  hostp->hstatus = call_failed;
+               if (hostp->status.hstatus == inprogress)
+                  hostp->status.hstatus = call_failed;
                dcstats();
             }
             break;
@@ -585,17 +582,6 @@ static boolean client( const time_t exit_time,
                "S state = %c", s_state);
       old_state = s_state;
 
-      if (bflag[F_MULTITASK] &&
-           (hostp != NULL ) &&
-           (remote_stats.save_hstatus != hostp->hstatus ))
-      {
-         printmsg(2, "Updating status for host %s, status %d",
-                     hostp->hostname ,
-                     (int) hostp->hstatus );
-         dcupdate();
-         remote_stats.save_hstatus = hostp->hstatus;
-      }
-
       switch (s_state) {
          case CONN_INITIALIZE:
             if ( hotuser == NULL )
@@ -645,6 +631,8 @@ static boolean client( const time_t exit_time,
 
          case CONN_CLIENT:
             contacted = TRUE;
+            if (bflag[F_MULTITASK])
+               dcupdate();
             s_state = process( POLL_PASSIVE, sendgrade );
             break;
 
@@ -796,7 +784,7 @@ static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade )
             printmsg(0,"process: Connection lost to %s, "
                        "previous system state = %c",
                        rmtname, save_state );
-            hostp->hstatus = call_failed;
+            hostp->status.hstatus = call_failed;
             state = XFER_EXIT;
             break;
 
@@ -804,7 +792,7 @@ static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade )
             printmsg(0,"process: Aborting connection to %s, "
                        "previous system state = %c",
                        rmtname, save_state );
-            hostp->hstatus = call_failed;
+            hostp->status.hstatus = call_failed;
             state = XFER_ENDP;
             break;
 

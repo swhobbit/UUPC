@@ -42,6 +42,8 @@
 
 #ifdef UUPC
 #include "hlib.h"
+#include "uutypes.h"
+#include "confvars.h"
 #include "lib.h"
 #include "timestmp.h"
 #include "getopt.h"
@@ -77,8 +79,8 @@ static const char *sccsold = "@(#) original uutraf.c : rel 1.2 : mod 2/2/90";
  * - added list library modules
  * - added print options (and name sort option)
  *
- * @(#) PROJ:	  uutraf
- * @(#) FILE:	  uutraf.c
+ * @(#) PROJ:     uutraf
+ * @(#) FILE:     uutraf.c
  * @(#) Release:  1.2
  * @(#) Rel. Date:   2/2/90
  * @(#) Author:      Greg Hackney <hack@texbell.swbt.com>
@@ -102,9 +104,9 @@ forward void   procfile(),
 forward cmp_t  cmpdev(),
       cmpsys();
 
-char	 *argv0 = NULL;
+char     *argv0 = NULL;
 
-char	 *statfile = STATFILE;
+char     *statfile = STATFILE;
 
 /*
  * globals for compare routines
@@ -119,17 +121,17 @@ int   debug = 0;
 /* ARGSUSED */
 int
 main(argc, argv, envp)
-   int	 argc;
+   int   argc;
    char  *argv[];
    char  *envp[];
 {
    unsigned short sortopt, /* default sort method, see defs.h */
-	 sortnames,
-	 printopt;
+         sortnames,
+         printopt;
    static SUMM trec = {0}; /* summary record */
    llst_t      *syslst, /* linked list of per-system totals */
-	 *devlst; /* linked list of per-device totals */
-   int	    c;
+         *devlst; /* linked list of per-device totals */
+   int      c;
    FILE     *logfile = NULL;
 
 #ifdef UUPC
@@ -152,118 +154,118 @@ main(argc, argv, envp)
    while ((c = getopt(argc, argv, "HMNPSVab:c:f:hnt:sx:?")) != EOF) {
       switch (c) {
       case 'H':
-	 printopt |= HEADERS;
-	 break;
+         printopt |= HEADERS;
+         break;
       case 'N':
-	 printopt |= SYS_RPT;
-	 break;
+         printopt |= SYS_RPT;
+         break;
       case 'S':
-	 printopt |= SUMM_RPT;
-	 break;
+         printopt |= SUMM_RPT;
+         break;
 #ifdef HAVE_HDBUUCP
       case 'P':
-	 printopt |= PORT_RPT;
-	 break;
+         printopt |= PORT_RPT;
+         break;
       case 'M':
-	 printopt |= (SYSBYPORT_OPT | SYS_RPT);
-	 break;
+         printopt |= (SYSBYPORT_OPT | SYS_RPT);
+         break;
 #endif
       case 'a':   /* sort in ascending vs. descending order */
-	 sortopt |= REVERSE;
-	 break;
+         sortopt |= REVERSE;
+         break;
       case 'b':   /* sort by bytes xmitted and/or received */
-	 if (*(optarg + 1) != EOS)
-	    usage_err(argv0, "-b requires a one-letter argument");
-	 switch (*optarg) {
-	 case 'b':
-	    sortopt |= (RECEIVED | XMIT);
-	    break;
-	 case 'r':
-	    sortopt |= RECEIVED;
-	    break;
-	 case 'x':
-	    sortopt |= XMIT;
-	    break;
-	 default:
-	    usage_err(argv0, "-b's argument must be one of [brx]");
-	    break;
-	 }
-	 break;
+         if (*(optarg + 1) != EOS)
+            usage_err(argv0, "-b requires a one-letter argument");
+         switch (*optarg) {
+         case 'b':
+            sortopt |= (RECEIVED | XMIT);
+            break;
+         case 'r':
+            sortopt |= RECEIVED;
+            break;
+         case 'x':
+            sortopt |= XMIT;
+            break;
+         default:
+            usage_err(argv0, "-b's argument must be one of [brx]");
+            break;
+         }
+         break;
       case 'c':   /* sort by xfer rate xmitted and/or received */
-	 if (*(optarg + 1) != EOS)
-	    usage_err(argv0, "-c requires a one-letter argument");
-	 switch (*optarg) {
-	 case 'b':
-	    sortopt |= (R_CPS | X_CPS);
-	    break;
-	 case 'r':
-	    sortopt |= R_CPS;
-	    break;
-	 case 'x':
-	    sortopt |= X_CPS;
-	    break;
-	 default:
-	    usage_err(argv0, "-c's argument must be one of [brx]");
-	    break;
-	 }
-	 break;
+         if (*(optarg + 1) != EOS)
+            usage_err(argv0, "-c requires a one-letter argument");
+         switch (*optarg) {
+         case 'b':
+            sortopt |= (R_CPS | X_CPS);
+            break;
+         case 'r':
+            sortopt |= R_CPS;
+            break;
+         case 'x':
+            sortopt |= X_CPS;
+            break;
+         default:
+            usage_err(argv0, "-c's argument must be one of [brx]");
+            break;
+         }
+         break;
       case 'n':
-	 sortnames = 1;
-	 break;
+         sortnames = 1;
+         break;
       case 'f':   /* number of files */
-	 if (*(optarg + 1) != EOS)
-	    usage_err(argv0, "-f requires a one-letter argument");
-	 switch (*optarg) {
-	 case 'b':
-	    sortopt |= (R_NUMB | X_NUMB);
-	    break;
-	 case 'r':
-	    sortopt |= R_NUMB;
-	    break;
-	 case 'x':
-	    sortopt |= X_NUMB;
-	    break;
-	 default:
-	    usage_err(argv0, "-f's argument must be one of [brx]");
-	    break;
-	 }
-	 break;
+         if (*(optarg + 1) != EOS)
+            usage_err(argv0, "-f requires a one-letter argument");
+         switch (*optarg) {
+         case 'b':
+            sortopt |= (R_NUMB | X_NUMB);
+            break;
+         case 'r':
+            sortopt |= R_NUMB;
+            break;
+         case 'x':
+            sortopt |= X_NUMB;
+            break;
+         default:
+            usage_err(argv0, "-f's argument must be one of [brx]");
+            break;
+         }
+         break;
       case 't':   /* sort by accumulated time */
-	 if (*(optarg + 1) != EOS)
-	    usage_err(argv0, "-t requires a one-letter argument");
-	 switch (*optarg) {
-	 case 'b':
-	    sortopt |= (R_TIME | X_TIME);
-	    break;
-	 case 'r':
-	    sortopt |= R_TIME;
-	    break;
-	 case 'x':
-	    sortopt |= X_TIME;
-	    break;
-	 default:
-	    usage_err(argv0, "-t's argument must be one of [brx]");
-	    break;
-	 }
-	 break;
+         if (*(optarg + 1) != EOS)
+            usage_err(argv0, "-t requires a one-letter argument");
+         switch (*optarg) {
+         case 'b':
+            sortopt |= (R_TIME | X_TIME);
+            break;
+         case 'r':
+            sortopt |= R_TIME;
+            break;
+         case 'x':
+            sortopt |= X_TIME;
+            break;
+         default:
+            usage_err(argv0, "-t's argument must be one of [brx]");
+            break;
+         }
+         break;
       case 's':   /* Use stdin instead of normal xferstat file */
-	 logfile = stdin;
-	 break;
+         logfile = stdin;
+         break;
       case 'x':
 #ifdef DEBUG
-	 debug = atoi(optarg);
-	 break;
+         debug = atoi(optarg);
+         break;
 #else
-	 (void) fprintf(stderr, "%s: debugging not compiled in.\n", argv0);
-	 break;
+         (void) fprintf(stderr, "%s: debugging not compiled in.\n", argv0);
+         break;
 #endif
       case 'V':
-	 (void) fprintf(stderr, "%s: Version %d.%d, Patchlevel %d.\n", argv0, version, subver, patchlevel);
-	 break;
+         (void) fprintf(stderr, "%s: Version %d.%d, Patchlevel %d.\n", argv0, version, subver, patchlevel);
+         break;
       default:
-	 (void) fprintf(stderr, "\n%s: Version %d.%d, Patchlevel %d.\n", argv0, version, subver, patchlevel);
-	 usage_err(argv0, usage);
-	 break;
+         (void) fprintf(stderr, "\n%s: Version %d.%d, Patchlevel %d.\n", argv0, version, subver, patchlevel);
+         usage_err(argv0, usage);
+         break;
       }
    }
    /*
@@ -273,39 +275,39 @@ main(argc, argv, envp)
       sortopt |= DEFAULT_SORT;
    if ((printopt == HEADERS) || !printopt)
       printopt |= DEFAULT_RPT;
-   if (optind == argc || logfile)	  /* fake up the default file */
+   if (optind == argc || logfile)         /* fake up the default file */
       argv[--optind] = statfile;
    for ( ; optind < argc; optind++) {
       if (STREQ(argv[optind], "-")) {
 #ifdef DEBUG
-	 if (debug)
-	    (void) fprintf(stderr, "%s: processing STDIN.\n", argv0);
+         if (debug)
+            (void) fprintf(stderr, "%s: processing STDIN.\n", argv0);
 #endif
-	 logfile = stdin;
+         logfile = stdin;
       } else {
-	 if (! (logfile = fopen(argv[optind], "r"))) {
-	    (void) fprintf(stderr, "%s: Can't open %s for reading -- ", argv0, argv[optind]);
-	    perror(optarg);
+         if (! (logfile = fopen(argv[optind], "r"))) {
+            (void) fprintf(stderr, "%s: Can't open %s for reading -- ", argv0, argv[optind]);
+            perror(optarg);
 #ifdef UUPC
-	    fprintf(stderr,"Do you have options=syslog set in %s\n",
-			   getenv( SYSRCSYM ));
-	    panic();
+            fprintf(stderr,"Do you have options=syslog set in %s\n",
+                           getenv( SYSRCSYM ));
+            panic();
 #endif
-	 }
+         }
 #ifdef DEBUG
-	 if (debug)
-	    (void) fprintf(stderr, "%s: processing %s.\n", argv0, argv[optind]);
+         if (debug)
+            (void) fprintf(stderr, "%s: processing %s.\n", argv0, argv[optind]);
 #endif
       }
       procfile(logfile, &syslst, &devlst, &trec);
-      (void) fclose(logfile);	 /* will possibly close stdin */
+      (void) fclose(logfile);    /* will possibly close stdin */
    }
    trec.syscnt = llst_total(syslst);
 #ifdef HAVE_HDBUUCP
    trec.devcnt = llst_total(devlst);
 #endif
-   sortrun(syslst, devlst, sortopt, sortopt);	/* sort it */
-   printrun(syslst, devlst, &trec, printopt);	/* print it out */
+   sortrun(syslst, devlst, sortopt, sortopt);   /* sort it */
+   printrun(syslst, devlst, &trec, printopt);   /* print it out */
    exit(0);
    /* NOTREACHED */
 }
@@ -320,23 +322,23 @@ procfile(logfile, syslstp, devlstp, trec)
    LINK  *sysp;
    PORT  *devp;
    PORT  *portp;
-   char  *sys,	  /* points at the previous remote node name */
-      *user,	  /* points at the "user-id" */
+   char  *sys,    /* points at the previous remote node name */
+      *user,      /* points at the "user-id" */
       flow[10],   /* holds the direction of uucp flow */
       buf[BUFSIZ],   /* general purpose */
       *string; /* general purpose */
    long  bytes;      /* number of bytes in the uucp xfer */
    float seconds; /* number of seconds the xfer took */
-   int	 mon, day, hh, mm;
+   int   mon, day, hh, mm;
 #ifdef HAVE_HDBUUCP
-   char  *dev;	  /* points at the device name used */
+   char  *dev;    /* points at the device name used */
    char  mode, pchar = ' ';
-   int	 ss, pid = 0, seq = 0;
+   int   ss, pid = 0, seq = 0;
 #else
    long  epoch;
 #endif
 #ifdef DEBUG
-   int	 i = 0;
+   int   i = 0;
 #endif
 
    /*
@@ -362,7 +364,7 @@ procfile(logfile, syslstp, devlstp, trec)
    while (fgets(buf, BUFSIZ, logfile)) {
 #ifdef DEBUG
       if (debug > 8)
-	 (void) fprintf(stderr, "%d: %s", i, buf);
+         (void) fprintf(stderr, "%d: %s", i, buf);
 #endif
       user = buf;
       /*
@@ -372,70 +374,70 @@ procfile(logfile, syslstp, devlstp, trec)
       if (!(sys = strtok(buf, "!")))
 #else
       if (!(sys = strtok(buf, " ")) ||
-	  !(sys = strtok((char *) NULL, " ")))
+          !(sys = strtok((char *) NULL, " ")))
 #endif
-	 continue;
+         continue;
 #ifdef DEBUG
       if (debug >  7)
-	 (void) fprintf(stderr, "System: %s, ", sys);
+         (void) fprintf(stderr, "System: %s, ", sys);
 #endif
       /*
        * look for the junk information
        */
 #ifdef HAVE_HDBUUCP
       if (!(string = strtok((char *) NULL, "[")))
-	 continue;
+         continue;
 #ifdef UUPC
       if (sscanf(string, "%*s %c %*s (%d/%d-%d:%d:%d) (%c,%d,%d)",
 #else
       if (sscanf(string, "%*s %c (%d/%d-%d:%d:%d) (%c,%d,%d)",
 #endif
-	    &mode, &mon, &day, &hh, &mm, &ss, &pchar, &pid, &seq) == EOF)
-	 continue;
+            &mode, &mon, &day, &hh, &mm, &ss, &pchar, &pid, &seq) == EOF)
+         continue;
 # ifdef DEBUG
       if (debug > 6)
-	 (void) fprintf(stderr, "mode: %c, time&pid: (%d/%d-%d:%d:%d) (%c,%d,%d)\n",
-		   mode, mon, day, hh, mm, ss, pchar, pid, seq);
+         (void) fprintf(stderr, "mode: %c, time&pid: (%d/%d-%d:%d:%d) (%c,%d,%d)\n",
+                   mode, mon, day, hh, mm, ss, pchar, pid, seq);
 # endif
 #else
       if (!(string = strtok((char *) NULL, " ")))
-	 continue;
+         continue;
 # ifdef DEBUG
       if (debug > 8)
-	 (void) fprintf(stderr, "date&time ");
+         (void) fprintf(stderr, "date&time ");
 # endif
       if (sscanf(string, "(%d/%d-%d:%d)", &mon, &day, &hh, &mm) == EOF)
-	 continue;
+         continue;
 # ifdef DEBUG
       if (debug > 6)
-	 (void) fprintf(stderr, "(%d/%d-%d:%d)", mon, day, hh, mm);
+         (void) fprintf(stderr, "(%d/%d-%d:%d)", mon, day, hh, mm);
 # endif
       if (!(string = strtok((char *) NULL, " ")))
-	 continue;
+         continue;
 # ifdef DEBUG
       if (debug > 8)
-	 (void) fprintf(stderr, " epoch");
+         (void) fprintf(stderr, " epoch");
 # endif
       if (sscanf(string, "(%ld)", &epoch) == EOF)
-	 continue;
+         continue;
 # ifdef DEBUG
       if (debug > 6)
-	 (void) fprintf(stderr, " (%ld)\n", mon, day, hh, mm, epoch);
+         (void) fprintf(stderr, " (%ld)\n", mon, day, hh, mm, epoch);
 # endif
 #endif
-		tsfill(trec, mon, day, hh, mm); /* should be inlined for efficiency */
+                tsfill(trec, mon, day, hh, mm); /* should be inlined for efficiency */
 #ifdef HAVE_HDBUUCP
       /*
        * look for the device name
        */
       if (!(dev = strtok((char *) NULL, "]")))
-	 continue;
+         continue;
 #endif
       /*
        * parse the remainder of the data string
        */
       if (!(string = strtok((char *) NULL, "\n")))
-	 continue;
+         continue;
 #ifdef HAVE_HDBUUCP
       if (sscanf(string, "%s %ld / %f", flow, &bytes, &seconds) == EOF)
 #else
@@ -445,107 +447,107 @@ procfile(logfile, syslstp, devlstp, trec)
       if (sscanf(string, "%s data %ld bytes %f secs", flow, &bytes, &seconds) == EOF)
 # endif
 #endif
-	 continue;
+         continue;
       if (!(sysp = getsys(syslstp, sys)))
-	 exit(1);
+         exit(1);
 #ifdef HAVE_HDBUUCP
       if (!(devp = getdev(devlstp, dev)))
-	 exit(1);
+         exit(1);
       if (sysp->l_lastpid != pid) {
-	 sysp->l_lastpid = pid;
-	 if (mode == 'M')
-	    sysp->l_out_conn++;
-	 else
-	    sysp->l_in_conn++;
+         sysp->l_lastpid = pid;
+         if (mode == 'M')
+            sysp->l_out_conn++;
+         else
+            sysp->l_in_conn++;
       }
       if (devp->p_lastpid != pid) {
-	 devp->p_lastpid = pid;
-	 if (mode == 'M')
-	    devp->p_out_conn++;
-	 else
-	    devp->p_in_conn++;
+         devp->p_lastpid = pid;
+         if (mode == 'M')
+            devp->p_out_conn++;
+         else
+            devp->p_in_conn++;
       }
 #endif
       /* outgoing uucp */
       if (STREQ(flow, OUT)
 #ifdef pyr
-	   || STREQ(flow, T_OUT) || STREQ(flow, F_OUT)
+           || STREQ(flow, T_OUT) || STREQ(flow, F_OUT)
 #endif
-	 ) {
+         ) {
 #ifdef DEBUG
-	 if (debug > 5)
+         if (debug > 5)
 # ifdef HAVE_HDBUUCP
-	    (void) fprintf(stderr, "%s OUTGOING %s\n", sys, dev);
+            (void) fprintf(stderr, "%s OUTGOING %s\n", sys, dev);
 # else
-	    (void) fprintf(stderr, "%s OUTGOING\n", sys);
+            (void) fprintf(stderr, "%s OUTGOING\n", sys);
 # endif
 #endif
-	 sysp->l_xmit += bytes;
-	 sysp->l_xmit_time += seconds;
-	 sysp->l_xmit_cnt++;
+         sysp->l_xmit += bytes;
+         sysp->l_xmit_time += seconds;
+         sysp->l_xmit_cnt++;
 #ifdef HAVE_HDBUUCP
-	 devp->p_xmit += bytes;
-	 devp->p_xmit_time += seconds;
-	 devp->p_xmit_cnt++;
-	 if (!(portp = getdev(&(sysp->l_portlst), dev)))
-	    exit(1);
-	 portp->p_xmit += bytes;
-	 portp->p_xmit_time += seconds;
-	 portp->p_xmit_cnt++;
-	 if (portp->p_lastpid != pid) {
-	    portp->p_lastpid = pid;
-	    if (mode == 'M') {
-	       portp->p_out_conn++;
-	       trec->num_out_conn++;   /* only once! */
-	    } else {
-	       portp->p_in_conn++;
-	       trec->num_in_conn++;
-	    }
-	 }
+         devp->p_xmit += bytes;
+         devp->p_xmit_time += seconds;
+         devp->p_xmit_cnt++;
+         if (!(portp = getdev(&(sysp->l_portlst), dev)))
+            exit(1);
+         portp->p_xmit += bytes;
+         portp->p_xmit_time += seconds;
+         portp->p_xmit_cnt++;
+         if (portp->p_lastpid != pid) {
+            portp->p_lastpid = pid;
+            if (mode == 'M') {
+               portp->p_out_conn++;
+               trec->num_out_conn++;   /* only once! */
+            } else {
+               portp->p_in_conn++;
+               trec->num_in_conn++;
+            }
+         }
 #endif
-	 trec->bytes_xmit += bytes; /* summary totals */
-	 trec->sec_xmit += seconds;
-	 trec->num_xmit++;
+         trec->bytes_xmit += bytes; /* summary totals */
+         trec->sec_xmit += seconds;
+         trec->num_xmit++;
       } else if (STREQ(flow, IN)    /* incoming uucp */
 
 #ifdef pyr
-	    || STREQ(flow, T_IN) || STREQ(flow, F_IN)
+            || STREQ(flow, T_IN) || STREQ(flow, F_IN)
 #endif
-	   ) {
+           ) {
 #ifdef DEBUG
-	 if (debug > 5)
+         if (debug > 5)
 # ifdef HAVE_HDBUUC
-	    (void) fprintf(stderr, "%s INCOMING %s\n", sys, dev);
+            (void) fprintf(stderr, "%s INCOMING %s\n", sys, dev);
 # else
-	    (void) fprintf(stderr, "%s INCOMING\n", sys);
+            (void) fprintf(stderr, "%s INCOMING\n", sys);
 # endif
 #endif
-	 sysp->l_recv += bytes;
-	 sysp->l_recv_time += seconds;
-	 sysp->l_recv_cnt++;
+         sysp->l_recv += bytes;
+         sysp->l_recv_time += seconds;
+         sysp->l_recv_cnt++;
 #ifdef HAVE_HDBUUCP
-	 devp->p_recv += bytes;
-	 devp->p_recv_time += seconds;
-	 devp->p_recv_cnt++;
-	 if (!(portp = getdev(&(sysp->l_portlst), dev)))
-	    exit(1);
-	 portp->p_recv += bytes;
-	 portp->p_recv_time += seconds;
-	 portp->p_recv_cnt++;
-	 if (portp->p_lastpid != pid) {
-	    portp->p_lastpid = pid;
-	    if (mode == 'M') {
-	       portp->p_out_conn++;
-	       trec->num_out_conn++;
-	    } else {
-	       portp->p_in_conn++;
-	       trec->num_in_conn++;
-	    }
-	 }
+         devp->p_recv += bytes;
+         devp->p_recv_time += seconds;
+         devp->p_recv_cnt++;
+         if (!(portp = getdev(&(sysp->l_portlst), dev)))
+            exit(1);
+         portp->p_recv += bytes;
+         portp->p_recv_time += seconds;
+         portp->p_recv_cnt++;
+         if (portp->p_lastpid != pid) {
+            portp->p_lastpid = pid;
+            if (mode == 'M') {
+               portp->p_out_conn++;
+               trec->num_out_conn++;
+            } else {
+               portp->p_in_conn++;
+               trec->num_in_conn++;
+            }
+         }
 #endif
-	 trec->bytes_recv += bytes; /* summary totals */
-	 trec->sec_recv += seconds;
-	 trec->num_recv++;
+         trec->bytes_recv += bytes; /* summary totals */
+         trec->sec_recv += seconds;
+         trec->num_recv++;
       }
 #ifdef DEBUG
       i++;
@@ -566,27 +568,27 @@ getdev(devlstp, d)   /* returns an link struct to the system name specified. */
 
    extern unsigned short   sort_dev_f;
 
-   sort_dev_f = 0;	/* set default comparison of name only */
+   sort_dev_f = 0;      /* set default comparison of name only */
    work = *devlstp;
    if (! work) {     /* must be the first time thru */
 #ifdef DEBUG
       if (debug > 2)
-	 (void) fprintf(stderr, "initialising devlst (%s)\n", d);
+         (void) fprintf(stderr, "initialising devlst (%s)\n", d);
 #endif
       if (!(work = llst_new())) {
-	 perror("getdev(): llst_new() failed");
-	 return(NULL);
+         perror("getdev(): llst_new() failed");
+         return(NULL);
       }
       if (!(nd = (PORT *) malloc(sizeof(PORT)))) {
-	 perror("getdev(): malloc(nd) failed");
-	 llst_destroy(work);
-	 return(NULL);
+         perror("getdev(): malloc(nd) failed");
+         llst_destroy(work);
+         return(NULL);
       }
       if (!llst_add(work, (char *) nd)) {
-	 perror("getdev(): llst_add(nd) failed");
-	 llst_destroy(work);
-	 free(nd);
-	 return(NULL);
+         perror("getdev(): llst_add(nd) failed");
+         llst_destroy(work);
+         free(nd);
+         return(NULL);
       }
       *devlstp = work;
       zerodev(nd);
@@ -601,16 +603,16 @@ getdev(devlstp, d)   /* returns an link struct to the system name specified. */
        */
 #ifdef DEBUG
       if (debug > 1)
-	 (void) fprintf(stderr, "adding new device - %s\n", d);
+         (void) fprintf(stderr, "adding new device - %s\n", d);
 #endif
       if (!(nd = (PORT *) malloc(sizeof(PORT)))) {
-	 perror("getdev(): malloc(nd2) failed");
-	 return(NULL);
+         perror("getdev(): malloc(nd2) failed");
+         return(NULL);
       }
       if (!llst_add(work, (char *) nd)) {
-	 perror("getdev(): llst_add(nd2) failed");
-	 free(nd);
-	 return(NULL);
+         perror("getdev(): llst_add(nd2) failed");
+         free(nd);
+         return(NULL);
       }
       zerodev(nd);
       (void) strncpy(nd->p_dname, d, sizeof(nd->p_dname) - 1);
@@ -631,27 +633,27 @@ getsys(syslstp, s)   /* returns an link struct to the system name specified. */
 
    extern unsigned short   sort_sys_f;
 
-   sort_sys_f = 0;	/* set default comparison of name only */
+   sort_sys_f = 0;      /* set default comparison of name only */
    work = *syslstp;
    if (! work) {     /* must be the first time thru */
 #ifdef DEBUG
       if (debug > 2)
-	 (void) fprintf(stderr, "initialising syslst (%s)\n", s);
+         (void) fprintf(stderr, "initialising syslst (%s)\n", s);
 #endif
       if (!(work = llst_new())) {
-	 perror("getsys(): llst_new() failed");
-	 return(NULL);
+         perror("getsys(): llst_new() failed");
+         return(NULL);
       }
       if (!(nd = (LINK *) malloc(sizeof(LINK) + strlen(s)))) {
-	 perror("getsys(): malloc() failed");
-	 llst_destroy(work);
-	 return(NULL);
+         perror("getsys(): malloc() failed");
+         llst_destroy(work);
+         return(NULL);
       }
       if (!llst_add(work, (char *) nd)) {
-	 perror("getsys(): llst_add(nd) failed");
-	 llst_destroy(work);
-	 free(nd);
-	 return(NULL);
+         perror("getsys(): llst_add(nd) failed");
+         llst_destroy(work);
+         free(nd);
+         return(NULL);
       }
       *syslstp = work;
       zerosys(nd);
@@ -662,23 +664,23 @@ getsys(syslstp, s)   /* returns an link struct to the system name specified. */
    (void) strcpy(sd->l_sysname, s);
    if (!llst_find(work, (char *) sd, cmpsys)) {
        /*
-	* create a new link
-	*/
+        * create a new link
+        */
 #ifdef DEBUG
       if (debug > 1)
-	 (void) fprintf(stderr, "adding new system - %s\n", s);
+         (void) fprintf(stderr, "adding new system - %s\n", s);
 #endif
       if (!(nd = (LINK *) malloc(sizeof(LINK) + strlen(s)))) {
 #ifdef DEBUG
-	 (void) fprintf(stderr, "malloc(%d + %d)\n", sizeof(LINK), strlen(s));
+         (void) fprintf(stderr, "malloc(%d + %d)\n", sizeof(LINK), strlen(s));
 #endif
-	 perror("getsys(): malloc(nd2) failed");
-	 return((LINK *) NULL);
+         perror("getsys(): malloc(nd2) failed");
+         return((LINK *) NULL);
       }
       if (!llst_add(work, (char *) nd)) {
-	 perror("getsys(): llst_add(nd2) failed");
-	 free(nd);
-	 return(NULL);
+         perror("getsys(): llst_add(nd2) failed");
+         free(nd);
+         return(NULL);
       }
       zerosys(nd);
       (void) strcpy(nd->l_sysname, s);
@@ -729,17 +731,17 @@ zerodev(p)
 void
 tsfill(trec, mon, day, hh, mm)
    SUMM  *trec;
-   int	 mon;
-	int day;
-	int hh;
-	int mm;
+   int   mon;
+        int day;
+        int hh;
+        int mm;
 {
    static int  AlreadySetFirst = FALSE;
 
    if (!AlreadySetFirst) {
 #ifdef DEBUG
       if (debug > 2)
-	 (void) fprintf(stderr, "initialising trec->first_rec (%d/%d-%02d:%02d)\n", mon, day, hh, mm);
+         (void) fprintf(stderr, "initialising trec->first_rec (%d/%d-%02d:%02d)\n", mon, day, hh, mm);
 #endif
       trec->first_rec.tm_mon = mon;
       trec->first_rec.tm_mday = day;
@@ -749,7 +751,7 @@ tsfill(trec, mon, day, hh, mm)
    } else {
 #ifdef DEBUG
       if (debug > 2)
-	 (void) fprintf(stderr, "initialising trec->last_rec (%d/%d-%02d:%02d)\n", mon, day, hh, mm);
+         (void) fprintf(stderr, "initialising trec->last_rec (%d/%d-%02d:%02d)\n", mon, day, hh, mm);
 #endif
       trec->last_rec.tm_mon = mon;
       trec->last_rec.tm_mday = day;
@@ -782,7 +784,7 @@ sortrun(syslst, devlst, howsys, howdev)
       PORT  *devp;
 
       if (! (devp = (PORT *) llst_current(devlst)))
-	 continue;
+         continue;
       llst_sort(devp->p_syslst, cmpsys);
    } while (llst_next(devlst));
    sort_dev_f = howdev;    /* set global used by cmpdev() */
@@ -792,7 +794,7 @@ sortrun(syslst, devlst, howsys, howdev)
       LINK  *sysp;
 
       if (! (sysp = (LINK *) llst_current(syslst)))
-	 continue;
+         continue;
       llst_sort(sysp->l_portlst, cmpdev);
    } while (llst_next(syslst));
    return;
@@ -883,7 +885,7 @@ printsys(syslst, trec, printopt)
    llst_top(syslst);
    do {
       if (! (sysp = (LINK *) llst_current(syslst)))
-	 continue;
+         continue;
       (void) printf("%-9.9s", sysp->l_sysname);
       (void) printf("%9.3f ", (double) sysp->l_recv / 1024.0);
       (void) printf("%9.3f ", (double) sysp->l_xmit / 1024.0);
@@ -891,43 +893,43 @@ printsys(syslst, trec, printopt)
       (void) printf("%5.2f ", (double) sysp->l_recv_time / 3600.0);
       (void) printf("%5.2f ", (double) sysp->l_xmit_time / 3600.0);
       if (sysp->l_recv_time != 0.0) /* divide by zero ? */
-	 (void) printf("%6.0f ", (double) sysp->l_recv / sysp->l_recv_time);
+         (void) printf("%6.0f ", (double) sysp->l_recv / sysp->l_recv_time);
       else
-	 (void) printf("%6.0f ", (double) 0);
+         (void) printf("%6.0f ", (double) 0);
       if (sysp->l_xmit_time != 0.0) /* divide by zero ? */
-	 (void) printf("%6.0f ", (double) sysp->l_xmit / sysp->l_xmit_time);
+         (void) printf("%6.0f ", (double) sysp->l_xmit / sysp->l_xmit_time);
       else
-	 (void) printf("%6.0f ", (double) 0);
+         (void) printf("%6.0f ", (double) 0);
       (void) printf("%4ld ", sysp->l_recv_cnt);
       (void) printf("%4ld ", sysp->l_xmit_cnt);
 #ifdef HAVE_HDBUUCP
       (void) printf("%3d\n", sysp->l_in_conn + sysp->l_out_conn);
       if (printopt & SYSBYPORT_OPT) {
-	 llst_top(sysp->l_portlst);
-	 do {
-	    PORT  *devp;
+         llst_top(sysp->l_portlst);
+         do {
+            PORT  *devp;
 
-	    if (! (devp = (PORT *) llst_current(sysp->l_portlst)))
-	       continue;
-	    (void) printf("%8.8s ", devp->p_dname);
-	    (void) printf("%9.3f ", (double) devp->p_recv / 1024.0);
-	    (void) printf("%9.3f ", (double) devp->p_xmit / 1024.0);
-	    (void) printf("%9.3f ", (double) (devp->p_xmit + devp->p_recv) / 1024);
-	    (void) printf("%5.2f ", (double) devp->p_recv_time / 3600.0);
-	    (void) printf("%5.2f ", (double) devp->p_xmit_time / 3600.0);
-	    if (devp->p_recv_time != 0.0) /* divide by zero ? */
-	       (void) printf("%6.0f ", (double) devp->p_recv / devp->p_recv_time);
-	    else
-	       (void) printf("%6.0f ", (double) 0);
-	    if (devp->p_xmit_time != 0.0) /* divide by zero ? */
-	       (void) printf("%6.0f ", (double) devp->p_xmit / devp->p_xmit_time);
-	    else
-	       (void) printf("%6.0f ", (double) 0);
-	    (void) printf("%4ld ", devp->p_recv_cnt);
-	    (void) printf("%4ld ", devp->p_xmit_cnt);
-	    (void) printf("%3d\n", devp->p_in_conn + devp->p_out_conn);
-	 } while (llst_next(sysp->l_portlst));
-	 putchar('\n');
+            if (! (devp = (PORT *) llst_current(sysp->l_portlst)))
+               continue;
+            (void) printf("%8.8s ", devp->p_dname);
+            (void) printf("%9.3f ", (double) devp->p_recv / 1024.0);
+            (void) printf("%9.3f ", (double) devp->p_xmit / 1024.0);
+            (void) printf("%9.3f ", (double) (devp->p_xmit + devp->p_recv) / 1024);
+            (void) printf("%5.2f ", (double) devp->p_recv_time / 3600.0);
+            (void) printf("%5.2f ", (double) devp->p_xmit_time / 3600.0);
+            if (devp->p_recv_time != 0.0) /* divide by zero ? */
+               (void) printf("%6.0f ", (double) devp->p_recv / devp->p_recv_time);
+            else
+               (void) printf("%6.0f ", (double) 0);
+            if (devp->p_xmit_time != 0.0) /* divide by zero ? */
+               (void) printf("%6.0f ", (double) devp->p_xmit / devp->p_xmit_time);
+            else
+               (void) printf("%6.0f ", (double) 0);
+            (void) printf("%4ld ", devp->p_recv_cnt);
+            (void) printf("%4ld ", devp->p_xmit_cnt);
+            (void) printf("%3d\n", devp->p_in_conn + devp->p_out_conn);
+         } while (llst_next(sysp->l_portlst));
+         putchar('\n');
       }
 #else
       putchar('\n');
@@ -988,7 +990,7 @@ printdev(devlst, trec, printopt)
    llst_top(devlst);
    do {
       if (! (devp = (PORT *) llst_current(devlst)))
-	 continue;
+         continue;
       (void) printf("%-9.9s", devp->p_dname);
       (void) printf("%9.3f ", (double) devp->p_recv / 1024.0);
       (void) printf("%9.3f ", (double) devp->p_xmit / 1024.0);
@@ -996,13 +998,13 @@ printdev(devlst, trec, printopt)
       (void) printf("%5.2f ", (double) devp->p_recv_time / 3600.0);
       (void) printf("%5.2f ", (double) devp->p_xmit_time / 3600.0);
       if (devp->p_recv_time != 0.0) /* divide by zero ? */
-	 (void) printf("%6.0f ", (double) devp->p_recv / devp->p_recv_time);
+         (void) printf("%6.0f ", (double) devp->p_recv / devp->p_recv_time);
       else
-	 (void) printf("%6.0f ", (double) 0);
+         (void) printf("%6.0f ", (double) 0);
       if (devp->p_xmit_time != 0.0) /* divide by zero ? */
-	 (void) printf("%6.0f ", (double) devp->p_xmit / devp->p_xmit_time);
+         (void) printf("%6.0f ", (double) devp->p_xmit / devp->p_xmit_time);
       else
-	 (void) printf("%6.0f ", (double) 0);
+         (void) printf("%6.0f ", (double) 0);
       (void) printf("%4ld ", devp->p_recv_cnt);
       (void) printf("%4ld ", devp->p_xmit_cnt);
       (void) printf("%3d\n", devp->p_in_conn + devp->p_out_conn);
@@ -1027,9 +1029,9 @@ printsum(trec, printopt)
    comma_fy(buf);
    (void) printf("%10s", buf);
    (void) printf("\tTotal time recv:\t%4d:%02d:%02d\n",
-	    (int) (trec->sec_recv / 3600.0),
-	    (int) (((int) trec->sec_recv % 3600) / 60),
-	    (int) ((int) trec->sec_recv % 60));
+            (int) (trec->sec_recv / 3600.0),
+            (int) (((int) trec->sec_recv % 3600) / 60),
+            (int) ((int) trec->sec_recv % 60));
 #ifdef HAVE_HDBUUCP
    (void) printf("Active UUCP ports:\t");
    (void) sprintf(buf, "%d", trec->devcnt);
@@ -1039,9 +1041,9 @@ printsum(trec, printopt)
    (void) printf("\t\t\t\t");
 #endif
    (void) printf("\tTotal time xmit:\t%4d:%02d:%02d\n",
-	    (int) (trec->sec_xmit / 3600.0),
-	    (int) (((int) trec->sec_xmit % 3600) / 60),
-	    (int) ((int) trec->sec_xmit % 60));
+            (int) (trec->sec_xmit / 3600.0),
+            (int) (((int) trec->sec_xmit % 3600) / 60),
+            (int) ((int) trec->sec_xmit % 60));
 #ifdef HAVE_HDBUUCP
    (void) printf("Connections with work:\t");
    (void) sprintf(buf, "%ld", trec->num_in_conn + trec->num_out_conn);
@@ -1052,9 +1054,9 @@ printsum(trec, printopt)
 #endif
    total_secs = trec->sec_recv + trec->sec_xmit;
    (void) printf("\tTotal UUCP time:\t%4d:%02d:%02d\n",
-	    (int) (total_secs / 3600.0),
-	    (int) (((long) total_secs % 3600) / 60),
-	    (int) ((long) total_secs % 60));
+            (int) (total_secs / 3600.0),
+            (int) (((long) total_secs % 3600) / 60),
+            (int) ((long) total_secs % 60));
    (void) printf("\nTotal files rec'd:\t");
    (void) sprintf(buf, "%ld", trec->num_recv);
    comma_fy(buf);
@@ -1088,7 +1090,7 @@ printsum(trec, printopt)
 void
 printtmrng(trec, printopt)
    SUMM  *trec;
-   int	 printopt;
+   int   printopt;
 {
    static char *months[] = {
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -1103,15 +1105,15 @@ printtmrng(trec, printopt)
    (void) printf("%*sUUCP Traffic Report\n", 31, " ");
    if (trec->first_rec.tm_mon && trec->last_rec.tm_mon) {
       (void) printf("%*sFrom: %s %2d %02d:%02d   To: %s %2d %02d:%02d\n\n",
-	       22, " ",
-	       months[trec->first_rec.tm_mon-1],
-	       trec->first_rec.tm_mday,
-	       trec->first_rec.tm_hour,
-	       trec->first_rec.tm_min,
-	       months[trec->last_rec.tm_mon-1],
-	       trec->last_rec.tm_mday,
-	       trec->last_rec.tm_hour,
-	       trec->last_rec.tm_min);
+               22, " ",
+               months[trec->first_rec.tm_mon-1],
+               trec->first_rec.tm_mday,
+               trec->first_rec.tm_hour,
+               trec->first_rec.tm_min,
+               months[trec->last_rec.tm_mon-1],
+               trec->last_rec.tm_mday,
+               trec->last_rec.tm_hour,
+               trec->last_rec.tm_min);
    }
    IsAlreadyPrinted = TRUE;
    return;
@@ -1124,7 +1126,7 @@ void
 comma_fy(buf)
    char  buf[];
 {
-   int	 i, ii, cnt;
+   int   i, ii, cnt;
    char  backw[BUFSIZ];
 
    /*
@@ -1133,11 +1135,11 @@ comma_fy(buf)
    for (ii = 0, cnt = 0, i = strlen(buf) - 1; i >= 0 ; i--) {
       backw[ii++] = buf[i];
       if (buf[i] == '.')
-	 cnt = 0;
+         cnt = 0;
       else if (++cnt == 3) {
-	 if (i && buf[i - 1] != '\0' && isdigit(buf[i - 1]))
-	    backw[ii++] = ',';
-	 cnt = 0;
+         if (i && buf[i - 1] != '\0' && isdigit(buf[i - 1]))
+            backw[ii++] = ',';
+         cnt = 0;
       }
    }
    backw[ii] = '\0';
@@ -1175,15 +1177,15 @@ cmpdev(a, b)
    }
    if (sort_dev_f & R_CPS) {
       if (a->p_recv_time != 0)
-	 aw += (float) a->p_recv / (float) a->p_recv_time;
+         aw += (float) a->p_recv / (float) a->p_recv_time;
       if (b->p_recv_time != 0)
-	 bw += (float) b->p_recv / (float) b->p_recv_time;
+         bw += (float) b->p_recv / (float) b->p_recv_time;
    }
    if (sort_dev_f & X_CPS) {
       if (a->p_xmit_time != 0)
-	 aw += (float) a->p_xmit / (float) a->p_xmit_time;
+         aw += (float) a->p_xmit / (float) a->p_xmit_time;
       if (b->p_xmit_time != 0)
-	 bw += (float) b->p_xmit / (float) b->p_xmit_time;
+         bw += (float) b->p_xmit / (float) b->p_xmit_time;
    }
    if (sort_dev_f & R_NUMB) {
       aw += a->p_recv_cnt;
@@ -1227,15 +1229,15 @@ cmpsys(a, b)
    }
    if (sort_sys_f & R_CPS) {
       if (a->l_recv_time != 0)
-	 aw += (float) a->l_recv / (float) a->l_recv_time;
+         aw += (float) a->l_recv / (float) a->l_recv_time;
       if (b->l_recv_time != 0)
-	 bw += (float) b->l_recv / (float) b->l_recv_time;
+         bw += (float) b->l_recv / (float) b->l_recv_time;
    }
    if (sort_sys_f & X_CPS) {
       if (a->l_xmit_time != 0)
-	 aw += (float) a->l_xmit / (float) a->l_xmit_time;
+         aw += (float) a->l_xmit / (float) a->l_xmit_time;
       if (b->l_xmit_time != 0)
-	 bw += (float) b->l_xmit / (float) b->l_xmit_time;
+         bw += (float) b->l_xmit / (float) b->l_xmit_time;
    }
    if (sort_sys_f & R_NUMB) {
       aw += a->l_recv_cnt;

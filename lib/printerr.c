@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.7 1993/10/12 00:03:05 ahd Exp $
+ *    $Id: printerr.c 1.8 1993/10/12 00:45:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *     Revision 1.8  1993/10/12  00:45:27  ahd
+ *     Normalize comments
+ *
  *     Revision 1.7  1993/10/12  00:03:05  ahd
  *     Perform extended diags under MS C 7.0
  *
@@ -43,23 +46,19 @@
  *
  */
 
+#include "uupcmoah.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <errno.h>
 
-#ifndef __GNUC__
-#include <dos.h>
 #include <io.h>
+
+#ifndef __32BIT__
+#include <dos.h>
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*    p r i n t e r r                                                 */

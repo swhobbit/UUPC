@@ -2,10 +2,14 @@
 /*    l o g g e r . c                                                 */
 /*                                                                    */
 /*    Logging functions for UUPC/extended                             */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks; all        */
-/*    rights reserved except those explicitly granted by the          */
-/*    UUPC/extended license.                                          */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -13,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.16 1994/02/19 04:08:27 ahd Exp $
+ *    $Id: logger.c 1.17 1994/02/19 04:43:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.17  1994/02/19  04:43:31  ahd
+ *     Use standard first header
+ *
  *     Revision 1.16  1994/02/19  04:08:27  ahd
  *     Use standard first header
  *

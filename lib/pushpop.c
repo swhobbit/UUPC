@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.11 1994/02/19 03:56:19 ahd Exp $
+ *    $Id: pushpop.c 1.12 1994/02/19 04:45:32 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.12  1994/02/19  04:45:32  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/19  03:56:19  ahd
  *     Use standard first header
  *
@@ -83,7 +86,9 @@ static depth = 0;
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*        Change to a directory and push old one on our stack         */
+/*       P u s h D i r                                                */
+/*                                                                    */
+/*       Change to a directory and push old one on our stack          */
 /*--------------------------------------------------------------------*/
 
 void PushDir( const char *directory )
@@ -108,24 +113,26 @@ void PushDir( const char *directory )
 /*       it doesn't do so in any known sequences.  --RHG/AHD          */
 /*--------------------------------------------------------------------*/
 
-#ifdef __TURBOC__
-   drivestack[depth] = getdisk();
-   if (isalpha(*directory) && (directory[1] == ':'))
-      setdisk(toupper(*directory) - 'A');
-   dirstack[depth] = newstr( getcwd( cwd, FILENAME_MAX ) );
-#else
    drivestack[depth] = _getdrive();
-   if (isalpha(*directory) && (directory[1] == ':'))
-      _chdrive( toupper(*directory) - 'A' + 1);
 
-   dirstack[depth] = newstr(_getdcwd(drivestack[depth], cwd, FILENAME_MAX));
-#endif
+   if (isalpha(*directory) && (directory[1] == ':'))
+   {
+      if (_chdrive( toupper(*directory) - 'A' + 1))
+      {
+         printerr("chdrive");
+         panic();
+      }
+   }
+
+   dirstack[depth] = _getdcwd(drivestack[depth], cwd, FILENAME_MAX);
 
    if (dirstack[depth] == NULL )
    {
       printerr("PushDir");
       panic();
    }
+
+   dirstack[depth] = newstr( cwd );
 
    depth++;
 
@@ -137,7 +144,9 @@ void PushDir( const char *directory )
 } /* PushDir */
 
 /*--------------------------------------------------------------------*/
-/*               Return to a directory saved by PushDir               */
+/*       P o p D i r                                                  */
+/*                                                                    */
+/*       Return to a directory saved by PushDir                       */
 /*--------------------------------------------------------------------*/
 
 void PopDir( void )
@@ -147,16 +156,21 @@ void PopDir( void )
    if ( depth == 0 )
       panic();
 
-   CHDIR( dirstack[--depth] );
+   if (CHDIR( dirstack[--depth] ))
+      panic();
 
-#ifdef __TURBOC__
-   setdisk(drivestack[depth]);
+   if ( _chdrive(drivestack[depth]) )
+   {
+      printerr("chdrive");
+      panic();
+   }
 
-   E_cwd = newstr( getcwd( cwd, FILENAME_MAX ) );
-#else
-   _chdrive(drivestack[depth]);
+/*--------------------------------------------------------------------*/
+/*       We retrieve the current directory by drive letter because    */
+/*       the IBM OS/2 C compiler 2.01 returns @ for the driver        */
+/*       letter of the 0 (current) drive.                             */
+/*--------------------------------------------------------------------*/
 
-   E_cwd = newstr( _getdcwd( 0, cwd, FILENAME_MAX ) );
-#endif
+   E_cwd = newstr( _getdcwd( drivestack[depth], cwd, FILENAME_MAX ) );
 
 } /* PopDir */

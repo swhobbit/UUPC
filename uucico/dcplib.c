@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.14 1994/01/02 04:27:23 ahd Exp $
+ *    $Id: dcplib.c 1.15 1994/01/04 03:56:38 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.15  1994/01/04  03:56:38  ahd
+ * Add missing break after modem insert
+ *
  * Revision 1.14  1994/01/02  04:27:23  ahd
  * Allow alias of 'w' for 'u' (userid) insertion to be compatible
  * with UUCICO command line.
@@ -96,14 +99,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
 #include <direct.h>
-#include <dos.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <time.h>
 
 #ifdef __TURBOC__
 #include <sys/timeb.h>
@@ -111,18 +110,18 @@
 
 #if defined(_Windows)
 #include <windows.h>
+#elif !defined(__32BIT__)
+#include <dos.h>
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "arpadate.h"
 #include "dcp.h"
 #include "dcplib.h"
 #include "dcpsys.h"
-#include "hlib.h"
 #include "execute.h"
 #include "hostable.h"
 #include "import.h"
@@ -489,7 +488,6 @@ static void LoginShell( const   struct UserTable *userp )
 /*--------------------------------------------------------------------*/
 
    PushDir(userp->homedir);         /* Switch to user's home dir     */
-
 
    printmsg(1,"LoginShell: Invoking %s %s in directory %s",
          path, argstring, userp->homedir);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.40 1994/02/19 04:04:54 ahd Exp $
+ *    $Id: configur.c 1.41 1994/02/19 04:40:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.41  1994/02/19  04:40:04  ahd
+ *     Use standard first header
+ *
  *     Revision 1.40  1994/02/19  04:04:54  ahd
  *     Use standard first header
  *
@@ -270,7 +273,7 @@ static CONFIGTABLE envtable[] = {
    {"editor",       &E_editor,       B_STRING|B_MUA|B_NEWS},
    {"filesent",     &E_filesent,     B_TOKEN|B_MUA|B_NEWS},
    {"folders",      &dummy,          B_PATH|B_MUSH },
-   {"fromdomain",   &E_fdomain,      B_GLOBAL|B_MAIL|B_NEWS|B_TOKEN},
+   {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
    {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
@@ -749,19 +752,20 @@ boolean configure( CONFIGBITS program)
    typedef struct _DEFAULTS {
       char **value;
       char *literal;
+      boolean path;
    } DEFAULTS;
 
    static DEFAULTS deflist[] = {
-        {&E_archivedir,   "archive" },
-        {&E_maildir,      "mail"    },
-        {&E_newsdir,      "news"    },
-        {&E_pubdir,       "public"  },
-        {&E_spooldir,     "spool"   },
-        {&E_tempdir,      "tmp"     },
-        {&E_systems,      "systems" },
-        {&E_passwd,       "passwd"  },
-        {&E_permissions,  "permissn"},
-        {&E_tz,           "tz"      },
+        {&E_archivedir,   "archive" , TRUE },
+        {&E_maildir,      "mail"    , TRUE },
+        {&E_newsdir,      "news"    , TRUE },
+        {&E_pubdir,       "public"  , TRUE },
+        {&E_spooldir,     "spool"   , TRUE },
+        {&E_tempdir,      "tmp"     , TRUE },
+        {&E_systems,      "systems" , TRUE },
+        {&E_passwd,       "passwd"  , TRUE },
+        {&E_permissions,  "permissn", TRUE },
+        {&E_tz,           "tz"      , FALSE},
         { NULL  }
         } ;
 
@@ -902,8 +906,9 @@ boolean configure( CONFIGBITS program)
         isatty(fileno(stdout)))
       fprintf(stdout,
 "Changes and Compilation Copyright (c) 1989-1994 by Kendra Electronic\n"
-"Wonderworks.  May be freely distributed if original documentation and\n"
-"source is included.\n" );
+"Wonderworks.  May be freely distributed for reasonable copying fee\n"
+"if original documentation and source is included.  See license for\n"
+"details and restrictions.\n");
 
 /*--------------------------------------------------------------------*/
 /*          Validate that all required parameters were given          */
@@ -930,8 +935,9 @@ boolean configure( CONFIGBITS program)
    while( deflist[subscript].value != NULL )
    {
       if ( *(deflist[subscript].value) == NULL )
-         *(deflist[subscript].value) =
-                     newstr( normalize(deflist[subscript].literal ) );
+         *(deflist[subscript].value) = deflist[subscript].path ?
+                     newstr( normalize(deflist[subscript].literal) ) :
+                     deflist[subscript].literal;
       subscript++;
    }
 

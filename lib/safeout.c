@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.10 1994/02/19 04:11:15 ahd Exp $
+ *    $Id: safeout.c 1.11 1994/02/19 04:46:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.11  1994/02/19  04:46:09  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/19  04:11:15  ahd
  *     Use standard first header
  *
@@ -47,6 +50,8 @@
  *
  */
 
+#include "uupcmoah.h"
+
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
 /*    the code uses conditionals to use system-level DOS and OS/2     */
@@ -57,8 +62,6 @@
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
 #ifdef WIN32
-
-#include "uupcmoah.h"
 
     #include <windows.h>
 

@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.9 1993/11/06 13:04:13 ahd Exp $
+ *    $Id: usertabl.c 1.10 1993/11/06 16:56:13 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *     Revision 1.10  1993/11/06  16:56:13  ahd
+ *     Correct reference to userid in password warning message
+ *
  *     Revision 1.9  1993/11/06  13:04:13  ahd
  *     Trap NULL user passwords
  *
@@ -42,22 +45,17 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <ctype.h>
-#include <sys/types.h>
+#include "uupcmoah.h"
 
-#include "lib.h"
-#include "hlib.h"
+#include <assert.h>
+
+#include <ctype.h>
+
 #include "expath.h"
 #include "usertabl.h"
 #include "hostable.h"
 #include "security.h"
 #include "pushpop.h"
-
-#define MAXUSERS  100         /* max number of unique users in PASSWD */
 
 struct UserTable *users = NULL;  /* Public to allow router.c to use it */
 
@@ -130,7 +128,6 @@ struct UserTable *checkuser(const char *name)
 
 }  /* checkuser */
 
-
 /*--------------------------------------------------------------------*/
 /*    i n i t u s e r                                                 */
 /*                                                                    */
@@ -140,12 +137,13 @@ struct UserTable *checkuser(const char *name)
 struct UserTable *inituser(char *name)
 {
 
+   static int allocUsers = 100;    /* Number of users allocated */
    size_t hit = UserElements;
    size_t element = 0;
 
    if (users == NULL)
    {
-      users = calloc(MAXUSERS, sizeof(*users));
+      users = calloc(allocUsers, sizeof(*users));
       checkref(users);
    }
 
@@ -166,6 +164,13 @@ struct UserTable *inituser(char *name)
 
    if (hit == UserElements)
    {
+      if ( (hit-1) == allocUsers)
+      {
+         allocUsers *= 4;
+         users = realloc(users, allocUsers * sizeof(*users));
+         checkref( users );
+      }
+
       users[hit].uid      = newstr(name);
       users[hit].realname = EMPTY_GCOS;
       users[hit].beep     = NULL;
@@ -173,7 +178,8 @@ struct UserTable *inituser(char *name)
       users[hit].hsecure  = NULL;
       users[hit].password = NULL;
       users[hit].sh       = uucpsh;
-      assert(UserElements++ < MAXUSERS);
+      UserElements++;
+
    } /* if */
 
    return &users[hit];

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.11 1994/02/19 04:10:21 ahd Exp $
+ *    $Id: printmsg.c 1.12 1994/02/19 04:45:23 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.12  1994/02/19  04:45:23  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/19  04:10:21  ahd
  *     Use standard first header
  *
@@ -85,7 +88,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-#ifdef __HEAPCHECK__
+#if defined(__HEAPCHECK__)
 currentfile();
 #endif
 

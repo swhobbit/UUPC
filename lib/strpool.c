@@ -2,16 +2,23 @@
 /*    s t r p o o l . c                                               */
 /*                                                                    */
 /*    String dynamic literal pool management for UUPC/extended        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks; all        */
-/*    rights reserved except those explicitly granted by the          */
-/*    UUPC/extended license.                                          */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.5 1993/10/12 00:48:44 ahd Exp $
+ *    $Id: strpool.c 1.6 1993/12/24 05:12:54 ahd Exp $
  *
  *    $Log: strpool.c $
+ *     Revision 1.6  1993/12/24  05:12:54  ahd
+ *     New format for checkptr call
+ *
  *     Revision 1.5  1993/10/12  00:48:44  ahd
  *     Normalize comments
  *
@@ -35,16 +42,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <limits.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Local structures                          */
@@ -53,7 +57,7 @@
 typedef struct str_queue {
    struct str_queue *next_link;
    size_t used;
-   char pool[BUFSIZ];
+   char pool[BUFSIZ - sizeof (size_t) - sizeof (struct str_queue *) ];
 }  STR_QUEUE;
 
 /*--------------------------------------------------------------------*/
@@ -61,21 +65,15 @@ typedef struct str_queue {
 /*--------------------------------------------------------------------*/
 
 static STR_QUEUE *anchor = NULL;
-static const size_t pool_size = BUFSIZ;
+static const size_t pool_size = sizeof anchor->pool;
 static int pools      = 0;
 
-#ifdef _UDEBUG
+#ifdef UDEBUG
 
 static int strings    = 0;
 static int used       = 0;
 static int duplicates = 0;
 static int saved      = 0;
-
-/*--------------------------------------------------------------------*/
-/*                          Local prototypes                          */
-/*--------------------------------------------------------------------*/
-
-void dump_pool( void );
 
 #endif
 
@@ -90,10 +88,10 @@ void dump_pool( void );
 /*    pool of storage for allocating NULL terminated strings out      */
 /*    of a chain of large buffers.  This allows us to both reduce     */
 /*    storage overhead by placing the strings end to end, and to      */
-/*    optionally scan the list for duplicates entries.                */
+/*    optionally scan the list for duplicate entries.                 */
 /*                                                                    */
 /*    The duplicate string search can be questionable on a small      */
-/*    system, because we have to walk the entire list to locate       */
+/*    slow system, because we have to walk the entire list to locate  */
 /*    the duplicate.  However, a smaller system is less likely to     */
 /*    have a large dynamic string pool, so we take the hit anyway.    */
 /*--------------------------------------------------------------------*/
@@ -106,13 +104,25 @@ void dump_pool( void );
 
 char *strpool( const char *input , const char *file, size_t line)
 {
-   int len  = strlen( input );
+   int len;
    int best_fit = SHRT_MAX;
    char *result;
 
    STR_QUEUE *current = anchor;
    STR_QUEUE *last    = anchor;
    STR_QUEUE *save    = NULL;
+
+#ifdef __DEBUG_ALLOC__
+   _heap_check();
+#endif
+
+   if ( input == NULL )
+   {
+      printmsg(0,"strpool: NULL pointer passed to newstr()");
+      bugout( line, file );      // Become Info Highway Roadkill
+   }
+
+   len  = strlen( input );
 
 /*--------------------------------------------------------------------*/
 /*                      Perform best fit search                       */
@@ -139,7 +149,7 @@ char *strpool( const char *input , const char *file, size_t line)
             if ((diff >= 0 ) && equal( target + diff, input))
             {
 
-#ifdef _UDEBUG
+#ifdef UDEBUG
                duplicates ++;
                saved += len + 1;
 #endif
@@ -184,7 +194,7 @@ char *strpool( const char *input , const char *file, size_t line)
       if ( anchor == NULL )
       {
 
-#ifdef _UDEBUG
+#ifdef UDEBUG
          atexit( dump_pool );
 #endif
 
@@ -205,7 +215,7 @@ char *strpool( const char *input , const char *file, size_t line)
    result = strcpy( save->pool + save->used, input );
    save->used += len + 1;
 
-#ifdef _UDEBUG
+#ifdef UDEBUG
    strings ++;
    used    += len + 1;
 #endif
@@ -245,7 +255,7 @@ void safefree( void *input , const char *file, size_t line)
 
 } /* safefree */
 
-#ifdef _UDEBUG
+#ifdef UDEBUG
 
 /*--------------------------------------------------------------------*/
 /*    d u m  p _ p o o l                                              */
@@ -267,7 +277,7 @@ void dump_pool( void )
       printmsg(3,"Saved %d bytes in %d redundant strings",
                saved, duplicates);
 
-   if ( debuglevel > 5 )
+   if ( debuglevel >= 5 )
    while(current != NULL )
    {
       size_t offset = 0;
@@ -292,6 +302,10 @@ void dump_pool( void )
       current = current->next_link;
 
    }  /* while */
+
+#ifdef __DEBUG_ALLOC__
+   _dump_allocated( 16 );
+#endif
 
 } /* dump_pool */
 

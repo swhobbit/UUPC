@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.7 1994/02/19 03:47:24 ahd Exp $
+ *    $Id: bugout.c 1.8 1994/02/19 04:39:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *     Revision 1.8  1994/02/19  04:39:11  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/19  03:47:24  ahd
  *     Use standard first header
  *
@@ -38,10 +41,10 @@
  *
  */
 
-#ifdef _Windows
 
 #include "uupcmoah.h"
 
+#ifdef _Windows
 #include <windows.h>
 #endif
 

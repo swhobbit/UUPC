@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.42 1994/02/16 02:26:27 ahd Exp $
+ *    $Id: modem.c 1.43 1994/02/19 05:14:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.43  1994/02/19  05:14:10  ahd
+ * Use standard first header
+ *
  * Revision 1.42  1994/02/16  02:26:27  ahd
  * Correct delay before banner display to 2 seconds from 30
  *
@@ -331,7 +334,7 @@ CONN_STATE callup( void )
       {
          printmsg(0,"callup: Modem speed %s is invalid.",
                      flds[FLD_SPEED]);
-         hostp->hstatus = invalid_device;
+         hostp->status.hstatus = invalid_device;
          return CONN_INITIALIZE;
 
       } /* if (speed < 300) */
@@ -357,7 +360,7 @@ CONN_STATE callup( void )
       if (!sendalt( exp, scriptTimeout , noconnect))
       {
          printmsg(0, "SCRIPT FAILED");
-         hostp->hstatus =  script_failed;
+         hostp->status.hstatus =  script_failed;
          return CONN_DROPLINE;
       } /* if */
 
@@ -741,7 +744,7 @@ static boolean dial(char *number, const BPS speed)
    {
       if (activeopenline(number, speed, bmodemflag[MODEM_DIRECT]))
       {
-         hostp->hstatus =  nodevice;
+         hostp->status.hstatus =  nodevice;
          return FALSE;
       }
    }
@@ -750,7 +753,7 @@ static boolean dial(char *number, const BPS speed)
       if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
       {
 
-         hostp->hstatus =  nodevice;
+         hostp->status.hstatus =  nodevice;
          return FALSE;
       }
 
@@ -765,7 +768,7 @@ static boolean dial(char *number, const BPS speed)
       {
          printmsg(0,"dial: Modem failed to initialize");
          shutDown();
-         hostp->hstatus =  dial_script_failed;
+         hostp->status.hstatus =  dial_script_failed;
          return FALSE;
       }
 
@@ -784,7 +787,7 @@ static boolean dial(char *number, const BPS speed)
 
       if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
       {
-         hostp->hstatus =  dial_failed;
+         hostp->status.hstatus =  dial_failed;
          return FALSE;
       }
 

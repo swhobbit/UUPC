@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.11 1994/02/19 04:11:06 ahd Exp $
+ *    $Id: safeio.c 1.12 1994/02/19 04:46:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.12  1994/02/19  04:46:00  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/19  04:11:06  ahd
  *     Use standard first header
  *
@@ -50,6 +53,8 @@
  *
  */
 
+#include "uupcmoah.h"
+
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
 /*    the code uses conditionals to use system-level DOS and OS/2     */
@@ -57,11 +62,9 @@
 /*    I/O operations outside the signal handler.                      */
 /*--------------------------------------------------------------------*/
 
-#define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
 #if defined( WIN32 )
 
-#include "uupcmoah.h"
 
     #include <windows.h>
 #elif defined( FAMILYAPI ) || defined(__OS2__)

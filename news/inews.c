@@ -11,10 +11,16 @@
 #include "uupcmoah.h"
 
 static char *rcsid =
-"$Id: inews.c 1.4 1994/02/13 04:46:01 ahd Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+"$Id: inews.c 1.5 1994/02/19 04:22:52 ahd Exp $";
+static char *rcsrev = "$Revision: 1.5 $";
 
 /* $Log: inews.c $
+ * Revision 1.5  1994/02/19  04:22:52  ahd
+ * Use standard first header
+ *
+ * Revision 1.5  1994/02/19  04:22:52  ahd
+ * Use standard first header
+ *
  * Revision 1.4  1994/02/13  04:46:01  ahd
  * Read input in binary mode
  *
@@ -351,7 +357,7 @@ char *HostAlias( char *input)
 /*       a routing entry and we should ignore it.                     */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp->hstatus == phantom) && ( hostp->realname == NULL ))
+   if ((hostp->status.hstatus == phantom) && ( hostp->realname == NULL ))
       return input;
 
 /*--------------------------------------------------------------------*/

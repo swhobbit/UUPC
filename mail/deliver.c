@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.26 1994/02/14 01:03:56 ahd Exp $
+ *    $Id: deliver.c 1.27 1994/02/19 04:19:16 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.27  1994/02/19  04:19:16  ahd
+ * Use standard first header
+ *
+ * Revision 1.27  1994/02/19  04:19:16  ahd
+ * Use standard first header
+ *
  * Revision 1.26  1994/02/14  01:03:56  ahd
  * Trim trailing spaces off forward file lines
  *
@@ -252,7 +258,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
    if (equal(path, E_nodename)) /* Local node?                        */
    {
       struct HostTable *hostx = checkname( node );
-      if (hostx->hstatus == localhost)  /* Really the local node?     */
+      if (hostx->status.hstatus == localhost)  /* Really the local node?     */
          return DeliverLocal( input, user, sysalias, validate );
                                  /* Yes!                              */
       else
@@ -279,7 +285,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
 /*--------------------------------------------------------------------*/
 
    hostp = checkname( path );
-   if ( (hostp != BADHOST) && (hostp->hstatus == gatewayed))
+   if ( (hostp != BADHOST) && (hostp->status.hstatus == gatewayed))
       return DeliverGateway( input, user, node, hostp, validate );
 
 /*--------------------------------------------------------------------*/

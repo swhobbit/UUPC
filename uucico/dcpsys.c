@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.36 1994/02/13 04:46:01 ahd Exp $
+ *     $Id: dcpsys.c 1.37 1994/02/19 05:12:25 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.37  1994/02/19  05:12:25  ahd
+ * Use standard first header
+ *
  * Revision 1.36  1994/02/13  04:46:01  ahd
  * Handle systems which only send seven characters of their names
  *
@@ -363,7 +366,7 @@ CONN_STATE getsystem( const char sendgrade )
 /*--------------------------------------------------------------------*/
 
    fwork = nil(FILE);
-   if ((hostp->hstatus != called) &&
+   if ((hostp->status.hstatus != called) &&
        (equal(Rmtname, "all") || equal(Rmtname, rmtname) ||
         (equal(Rmtname, "any") &&
         (scandir(rmtname,sendgrade) == XFER_REQUEST))))
@@ -535,7 +538,7 @@ CONN_STATE startup_server(const char recvgrade )
    char *s;
    int hostlen;
 
-   hostp->hstatus = startup_failed;
+   hostp->status.hstatus = startup_failed;
    hostp->via     = hostp->hostname;   /* Save true hostname           */
 
 /*--------------------------------------------------------------------*/
@@ -547,8 +550,8 @@ CONN_STATE startup_server(const char recvgrade )
    {
       if (nbstime())
       {
-         hostp->hstatus = called;
-         time( &hostp->hstats->lconnect );
+         hostp->status.hstatus = called;
+         time( &hostp->status.lconnect );
       }
 
       return CONN_DROPLINE;
@@ -587,7 +590,7 @@ CONN_STATE startup_server(const char recvgrade )
    {
       printmsg(0,"Startup: Wrong host %s, expected %s",
                &msg[6], rmtname);
-      hostp->hstatus = wrong_host;
+      hostp->status.hstatus = wrong_host;
       return CONN_TERMINATE; /* wrong host */              /* ahd */
    }
 
@@ -652,8 +655,8 @@ CONN_STATE startup_server(const char recvgrade )
 /*       While the remote is waiting for us, update our status        */
 /*--------------------------------------------------------------------*/
 
-   hostp->hstatus = inprogress;
-   hostp->hstats->lconnect = time( &remote_stats.lconnect );
+   hostp->status.hstatus = inprogress;
+   hostp->status.lconnect = time( &remote_stats.lconnect );
 
 /*--------------------------------------------------------------------*/
 /*              Tell the remote host the protocol to use              */
@@ -816,7 +819,7 @@ CONN_STATE startup_client( char *sendgrade )
    {                                      /* Yes --> Abort        */
       wmsg("RLOGIN",TRUE);
       printmsg(0,"startup: Access rejected for host \"%s\"", sysname);
-      hostp->hstatus = wrong_host;
+      hostp->status.hstatus = wrong_host;
       return CONN_TERMINATE;
    } /* if */
 
@@ -830,7 +833,7 @@ CONN_STATE startup_client( char *sendgrade )
    if (securep->callback)
    {
       wmsg("RCB",TRUE);
-      hostp->hstatus = callback_req;
+      hostp->status.hstatus = callback_req;
       return CONN_TERMINATE;  /* Really more complex than this       */
    }
 
@@ -905,8 +908,8 @@ CONN_STATE startup_client( char *sendgrade )
    if ( hostp == BADHOST )
       panic();
 
-   hostp->hstatus = inprogress;
-   hostp->hstats->lconnect = time( &remote_stats.lconnect );
+   hostp->status.hstatus = inprogress;
+   hostp->status.lconnect = time( &remote_stats.lconnect );
 
    return CONN_CLIENT;
 
@@ -1071,7 +1074,7 @@ boolean CallWindow( const char callgrade )
 
    if ( !callgrade && equal(flds[FLD_CCTIME],"Never" ))
    {
-      hostp->hstatus = wrong_time;
+      hostp->status.hstatus = wrong_time;
       return FALSE;
    }
 
@@ -1087,11 +1090,11 @@ boolean CallWindow( const char callgrade )
    if (!callgrade)
    {
       if ((*flds[FLD_PROTO] != '*') ||       /* Not setting clock?   */
-          ((hostp->hstats->ltime >  630720000L )))
+          ((hostp->status.ltime >  630720000L )))
                                              /* Clock okay?          */
       {                                      /* Yes--> Return        */
-         hostp->hstatus = wrong_time;
-         time(&hostp->hstats->ltime);  /* Save time of last attempt to call  */
+         hostp->status.hstatus = wrong_time;
+         time(&hostp->status.ltime);  /* Save time of last attempt to call  */
          return FALSE;
       }
    } /* if */

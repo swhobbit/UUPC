@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.54 1994/01/18 13:27:08 ahd Exp $
+#     $Id: makefile 1.55 1994/02/13 04:44:52 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.55  1994/02/13  04:44:52  ahd
+#         Force UUCP to be .exe file
+#
 #         Revision 1.54  1994/01/18  13:27:08  ahd
 #         Go to version 1.12i
 #
@@ -281,6 +284,7 @@ DOCS    = $(SRCSLASH)DOCS
 LIB     = $(SRCSLASH)LIB
 MAIL    = $(SRCSLASH)MAIL
 OBJ     = $(SRCSLASH)OBJBC$(SUFFIX)
+HDRCACHE= $(SRCSLASH)TCDEF$(SUFFIX).SYM
 RN      = $(SRCSLASH)RN
 RNEWS   = $(SRCSLASH)RNEWS
 SCRIPT  = $(SRCSLASH)SCRIPTS
@@ -1455,6 +1459,7 @@ $(OPTMIZEOPT)
 -DUUPCV="$(VERS)"
 -f
 -G
+-H=$(HDRCACHE)
 -I$(LIB)
 -I$(BINC)
 -I$(WINSOCK)

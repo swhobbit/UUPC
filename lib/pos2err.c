@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.4 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: pos2err.c 1.5 1994/01/01 19:04:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.5  1994/01/01  19:04:03  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/12/23  03:11:17  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -42,22 +45,19 @@
 
 #define INCL_DOSMISC
 #define INCL_ERRORS
+
+#include "uupcmoah.h"
+
 #include <os2.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <errno.h>
 
-#include <dos.h>
 #include <io.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pos2err.h"
 
 currentfile();
