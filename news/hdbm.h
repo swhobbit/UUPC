@@ -14,9 +14,12 @@
 /*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
-/* $Id: hdbm.h 1.2 1994/06/14 01:20:12 ahd v1-12k $ */
+/* $Id: hdbm.h 1.3 1994/12/31 03:51:25 ahd Exp $ */
 
 /* $Log: hdbm.h $
+/* Revision 1.3  1994/12/31 03:51:25  ahd
+/* First pass of integrating Mike McLagan's news SYS file suuport
+/*
 /* Revision 1.2  1994/06/14 01:20:12  ahd
 /* Clean up RCS information
 /*
@@ -59,11 +62,14 @@ datum;
 
 extern datum nullitem;
 
-extern DBM *dbm_open(char *name, int flags, int mode);
+extern DBM *dbm_open(const char *name, int flags, int mode);
 extern void dbm_close(DBM *db);
-extern int dbm_store(DBM *db, datum key, datum val, int flag);
-extern int dbm_delete(DBM *db, datum key);
-extern datum dbm_fetch(DBM *db, datum key);
+extern int dbm_store(DBM *db,
+                     const datum key,
+                     const datum val,
+                     const int flag);
+extern int dbm_delete(DBM *db, const datum key);
+extern datum dbm_fetch(DBM *db, const datum key);
 extern datum dbm_firstkey(DBM *db);
 extern datum dbm_nextkey(DBM *db);
 

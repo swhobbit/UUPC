@@ -5,10 +5,13 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  */
- 
-/* $Id: IDX.H 1.1 1993/09/05 10:56:49 rommel Exp rommel $ */
 
-/* $Log: IDX.H $
+/* $Id: idx.h 1.2 1994/03/20 23:37:12 rommel v1-12k $ */
+
+/* $Log: idx.h $
+/* Revision 1.2  1994/03/20 23:37:12  rommel
+/* Correct 16/32 bit compiler differences
+/*
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -55,11 +58,14 @@ typedef struct
 }
 IDX;
 
-extern IDX *idx_init(int file);
+extern IDX *idx_init(const int file);
 extern void idx_exit(IDX *idx);
-extern int idx_addkey(IDX *idx, char *key, long offset, int size);
-extern int idx_getkey(IDX *idx, char *key, long *offset, int *size);
-extern int idx_delkey(IDX *idx, char *key, long *offset, int *size);
+extern int idx_addkey(IDX *idx,
+                      const char *key,
+                      const long offset,
+                      const int size);
+extern int idx_getkey(IDX *idx, const char *key, long *offset, int *size);
+extern int idx_delkey(IDX *idx, const char *key, long *offset, int *size);
 
 #endif /* _IDX_H */
 
