@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.7 1993/10/09 20:16:12 rhg Exp $
+ *    $Id: maillib.c 1.8 1993/10/12 01:30:23 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.8  1993/10/12  01:30:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/10/09  20:16:12  rhg
  * ANSIfy the source
  *
@@ -135,7 +138,7 @@ boolean Pager(const int msgnum,
       CopyMsg(msgnum, fmailbag, received, FALSE);
       fclose(fmailbag);
 
-      Invoke(E_pager, browse);
+      Invoke(E_pager, browse, bflag[F_NEWPAGERSESSION]);
       remove(browse);
       free(browse);
 
@@ -215,7 +218,7 @@ void Sub_Pager(const char *tinput,
       external = ! external;
 
    if ( external && (E_pager != nil(char)) )
-      Invoke(E_pager, tinput);
+      Invoke(E_pager, tinput, bflag[F_NEWPAGERSESSION]);
    else {
       FILE *finput;
       char buf[BUFSIZ];

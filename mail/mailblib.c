@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.7 1993/10/12 01:32:08 ahd Exp $
+ *    $Id: mailblib.c 1.8 1993/10/31 21:32:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.8  1993/10/31  21:32:55  ahd
+ * Treat .. as parent directory (actually, DON'T treat it as item number).
+ *
  * Revision 1.7  1993/10/12  01:32:08  ahd
  * Normalize comments to PL/I style
  *
@@ -44,10 +47,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined(_Windows)
-#include <windows.h>
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -61,6 +60,7 @@
 #include "hlib.h"
 #include "alias.h"
 #include "expath.h"
+#include "execute.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Variables global to file                      */
@@ -498,18 +498,6 @@ boolean ForwardItem( const int item , const char *string )
 
 void subshell( char *command )
 {
-#if defined(_Windows)
-   char buf[128];
-
-/*--------------------------------------------------------------------*/
-/*       Here we simply use the Windows DOSPRMPT.PIF and fire off     */
-/*       an ASYNCHRONOUS DOS box.  Under 286 mode, this will be       */
-/*       synchronous.  But who in the hell cares!                     */
-/*--------------------------------------------------------------------*/
-
-   sprintf(buf, "dosprmpt.pif %s", command);
-   WinExec(buf, SW_SHOWMAXIMIZED);
-#else
    if ( command == NULL )
    {
       static char *new_prompt = NULL;
@@ -537,11 +525,19 @@ void subshell( char *command )
 
       } /* if ( new_prompt == NULL ) */
 
-      system( getenv( "COMSPEC" ) );
+      executeCommand( getenv( "COMSPEC" ),
+                      NULL,
+                      NULL,
+                      TRUE,
+                      FALSE);
    } /* if */
    else
-      system ( command );
-#endif
+      executeCommand( command,
+                      NULL,
+                      NULL,
+                      TRUE,
+                      TRUE );
+
 } /* subshell */
 
 /*--------------------------------------------------------------------*/
