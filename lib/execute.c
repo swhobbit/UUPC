@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.45 1997/12/14 00:43:16 ahd v1-12u $
+ *    $Id: execute.c 1.46 1998/03/01 01:23:27 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.46  1998/03/01  01:23:27  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.45  1997/12/14 00:43:16  ahd
  *    Flush stderr/stdout before invoking inferior process
  *
@@ -478,7 +481,7 @@ int execute( const char *command,
 
      if (dup2(tempHandle, 1))
      {
-         printmsg(0,"execute: Cannot original standard in" );
+         printmsg(0,"execute: Cannot dup original standard in" );
          printerr( input );
          panic();
      }
