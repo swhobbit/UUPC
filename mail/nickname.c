@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.14 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: alias.c 1.15 1994/03/07 06:09:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.15  1994/03/07  06:09:51  ahd
+ * Additional debugging messages controlled by UDEBUG
+ * Shorten ReturnAddress line buffer to correct problem with length
+ *
  * Revision 1.14  1994/02/28  01:02:06  ahd
  * Cosmetic formatting cleanups
  *
@@ -329,7 +333,7 @@ size_t LoadAliases(void)
    char buf[BUFSIZ];
    char *token;
    size_t   elements = 0;
-   size_t   max_elements = UserElements + 20;
+   size_t   max_elements = userElements + 20;
    size_t   subscript;
    struct AliasTable *hit;           /* temporary pointer for searching */
    struct AliasTable target;
@@ -421,11 +425,11 @@ size_t LoadAliases(void)
 /*           Add the local users as final aliases in table            */
 /*--------------------------------------------------------------------*/
 
-   alias = realloc(alias, (elements + UserElements) * sizeof(*alias));
+   alias = realloc(alias, (elements + userElements) * sizeof(*alias));
                               /* Resize table to final known size     */
    checkref(alias);
 
-   for ( subscript = 0; subscript < UserElements;  subscript++)
+   for ( subscript = 0; subscript < userElements;  subscript++)
    {
       if ( equal(users[subscript].realname,EMPTY_GCOS) )
          continue;
