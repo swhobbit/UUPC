@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.7 1997/03/31 07:07:48 ahd v1-12u $
+ *    $Id: uupcmoah.h 1.8 1998/03/01 01:28:18 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.8  1998/03/01 01:28:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1997/03/31 07:07:48  ahd
  *    Annual Copyright Update
  *
@@ -41,12 +44,6 @@
  *
  *    Revision 1.3  1995/01/05 03:45:13  ahd
  *    Don't allow Windows compiles under MSC, it doesn't work
- *
- *    Revision 1.2  1994/12/22 00:14:32  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.1  1994/02/20 19:16:21  ahd
- *    IBM C/Set 2 Conversion, memory leak cleanup
  *
  */
 
@@ -75,6 +72,10 @@
 
 #if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
 #define BIT32ENV
+
+#ifdef UDEBUG
+#define UDEBUG32
+#endif
 #endif
 
 /*--------------------------------------------------------------------*/
