@@ -1,13 +1,27 @@
 /*--------------------------------------------------------------------*/
 /*    f o p e n . c                                                   */
 /*                                                                    */
-/*    Support routines for UUPC/extended                              */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
+/*    File open function retry and locking                            */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.21 1994/04/24 20:17:29 dmwatt Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 #include "uupcmoah.h"
 
@@ -23,8 +37,6 @@
 /*--------------------------------------------------------------------*/
 
 #include "ssleep.h"
-
-#define SHARE_OPEN
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */
@@ -43,6 +55,7 @@ FILE *FSOPEN(const char *name, const char *mode)
    char fname[FILENAME_MAX];
 
    int share = SH_DENYWR;
+   int maxRetries = !bflag[ F_MULTITASK ] ? 10 : 0;
    int retries = 0;
 
    strcpy( fname, name );
@@ -79,14 +92,37 @@ FILE *FSOPEN(const char *name, const char *mode)
 /*                         Now try open again                         */
 /*--------------------------------------------------------------------*/
 
-   for ( ;; )
+   while( (results = _fsopen(fname, mode, share)) == NULL )
    {
-      results = _fsopen(fname, mode, share);
-      if (( results != NULL ) || (!bflag[ F_MULTITASK ]) ||
-          (errno != EACCES)   || (retries++ > 10))
-         return results;
       perror( fname );
-      ssleep( retries * 2);
-   }
+
+      if ( retries++ > maxRetries )   /* Fall through and return     */
+         break;
+
+/*--------------------------------------------------------------------*/
+/*                Determine if we care about the error                */
+/*--------------------------------------------------------------------*/
+
+      switch( errno )
+      {
+#ifdef EISOPEN
+         case EISOPEN:              /* File is open (OS/2 only)      */
+#endif
+         case EACCES:               /* DOS share error               */
+            ssleep( retries * 2);
+            break;
+
+        default:                    /* Error we don't attempt to trap*/
+            return results;         /* So just return immediately    */
+
+      } /* switch */
+
+   }  /* while */
+
+/*--------------------------------------------------------------------*/
+/*              Return final success or failure to user               */
+/*--------------------------------------------------------------------*/
+
+   return results;
 
 } /*FOPEN*/
