@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.26 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: ssleep.c 1.27 1995/02/22 12:14:24 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.27  1995/02/22 12:14:24  ahd
+ *    Correct 16 bit compiler warning errors
+ *
  *    Revision 1.26  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -164,6 +167,8 @@ currentfile();
 
 #ifdef _Windows
 
+#define CHECK_FOR_BREAK
+
 /*--------------------------------------------------------------------*/
 /*    d d e l a y                                                     */
 /*                                                                    */
@@ -268,6 +273,8 @@ void ddelay (const KEWSHORT interval )
 
 #else
 
+#define CHECK_FOR_BREAK
+
 /*--------------------------------------------------------------------*/
 /*       DOS wait functions.  Bizarre variations to cover DOS         */
 /*       programs under Windows and both MS C and Borland C++         */
@@ -282,8 +289,11 @@ void ddelay (const KEWSHORT interval )
 /*--------------------------------------------------------------------*/
 
 static void WinGiveUpTimeSlice(void);
+
 static int RunningUnderWindows(void);
+
 static int RunningUnderDesqview(void);
+
 static void DVGiveUpTimeSlice(void);
 
 /*--------------------------------------------------------------------*/
@@ -439,29 +449,8 @@ void ddelay (const KEWSHORT interval )
 /*           Check for user aborts via the ESC (escape) key           */
 /*--------------------------------------------------------------------*/
 
-   if (bflag[F_ESCAPE])       /* Special Ctrl-C processing avail?     */
-   {
-      KWBoolean beep = KWTrue;
-
-      while (safepeek())      /* Yes --> While character in buffer    */
-      {
-         if (safein() == '\033') /* Look for ESC                      */
-            raise( SIGINT );     /* Yes --> eject via std exit        */
-         else if ( beep )
-         {
-
-             if ( ! bflag[F_SUPPRESSBEEP] )
-             {
-                putchar('\a');   /* No --> Complain to user           */
-                beep = KWFalse;   /* But be nice about it ...
-                                    only once per pass through here   */
-             }
-
-         } /* else if ( beep ) */
-
-      } /* while */
-
-   } /* if (bflag[F_ESCAPE]) */
+  if (bflag[F_ESCAPE])       /* Special Ctrl-C processing avail?     */
+     checkForBreak();
 
 #ifdef __TURBOC__
    enable();
@@ -557,3 +546,62 @@ void ssleep(const time_t interval)
    ddelay( (KEWSHORT) ((short) left * 1000) );
 
 } /* ssleep */
+
+#ifdef CHECK_FOR_BREAK              /* Windows 3.x or DOS only       */
+
+/*--------------------------------------------------------------------*/
+/*       c h e c k F o r B r e a k                                    */
+/*                                                                    */
+/*       Determine if we have a user requested abort                  */
+/*--------------------------------------------------------------------*/
+
+void
+checkForBreak( void )
+{
+   KWBoolean beep = KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*                   Process all queued characters                    */
+/*--------------------------------------------------------------------*/
+
+   while (safepeek())
+   {
+
+      int input = safein();
+
+      if (!input)
+      {
+        safein();
+        return;
+      }
+
+      switch( input )
+      {
+         case ('C' - '@'):          /* Control-C                     */
+         case ('X' - '@'):          /* Control-X                     */
+         case ('[' - '@'):          /* Escape                        */
+
+#ifdef _WINDOWS
+           ctrlchandler(0);         /* No handler under Windows      */
+#else
+           raise( SIGINT );         /* Use C RTL to exit             */
+#endif
+           break;
+
+        default:                    /* Unknown character, ignore     */
+           if ( beep )
+           {
+              putchar('\a');        /* No --> Complain to user       */
+              beep = KWFalse;       /* But be nice about it ...
+                                       only once per call            */
+           } /* if ( beep ) */
+
+           break;
+
+      } /* switch( input ) */
+
+   } /* while (safepeek()) */
+
+}  /* checkForBreak */
+
+#endif /* CHECK_FOR_BREAK */
