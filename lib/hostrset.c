@@ -3,9 +3,27 @@
 /*                                                                    */
 /*    Clear host status information for UUPC/extended                 */
 /*                                                                    */
-/*    Copyright (c) 1989-1993, Andrew H. Derbyshire                   */
 /*    Copyright (c) 1992, Mitch Mitchell                              */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -52,8 +70,7 @@ void HostReset( const char *name )
 /*         Get the file name for the status file and open it          */
 /*--------------------------------------------------------------------*/
 
-   mkfilename( fname, E_spooldir, DCSTATUS );
-
+   mkfilename( fname, E_confdir, DCSTATUS );
 
    if ((stream  = FOPEN(fname , "w", BINARY_MODE)) == NULL)
    {
