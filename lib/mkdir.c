@@ -2,12 +2,28 @@
 /*    m k d i r . c                                                   */
 /*                                                                    */
 /*    Support routines for UUPC/extended                              */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: LIB.H 1.4 1993/03/06 23:09:50 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: LIB.H $
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,14 +36,11 @@
 #include <direct.h>
 #endif
 
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*    M K D I R                                                       */
