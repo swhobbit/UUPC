@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.9 1994/12/22 00:05:44 ahd Exp $
+#       $Id: nmakos22.mak 1.10 1995/01/22 04:15:00 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.10  1995/01/22 04:15:00  ahd
+#       Convert internal zip names to match external names
+#
 #       Revision 1.9  1994/12/22 00:05:44  ahd
 #       Annual Copyright Update
 #
@@ -71,7 +74,7 @@ DLLNAME  = UPCR$(VERS:1.=).dll
 DBGOPT = -O -Gs
 !else
 #       Use this for debugging
-DBGOPT  = -Ti -DUDEBUG -Tx # -D__DEBUG_ALLOC__ -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wuni-
+DBGOPT  = -Ti -DUDEBUG -Tx -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wtrd -Wuni- # -D__DEBUG_ALLOC__
 !endif
 
 COMMOPT = -Sv -Q $(DBGOPT) -Gd
