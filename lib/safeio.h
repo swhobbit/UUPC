@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.h 1.12 2000/05/12 12:40:50 ahd v1-13g $
+ *    $Id: safeio.h 1.13 2001/03/12 13:50:09 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: safeio.h $
+ *    Revision 1.13  2001/03/12 13:50:09  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.12  2000/05/12 12:40:50  ahd
  *    Annual copyright update
  *

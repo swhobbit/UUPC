@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.34 2000/12/29 00:07:31 ahd Exp $
+ *    $Id: confvars.h 1.35 2001/03/12 13:50:09 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.35  2001/03/12 13:50:09  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.34  2000/12/29 00:07:31  ahd
  *    Support for Relay by domain and IP address
  *

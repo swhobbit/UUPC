@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: winstdio.h 1.3 2000/05/12 12:40:50 ahd v1-13g $
+ *       $Id: winstdio.h 1.4 2001/03/12 13:50:09 ahd v1-13k $
  *
  *       Revision history:
  *       $Log: winstdio.h $
+ *       Revision 1.4  2001/03/12 13:50:09  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.3  2000/05/12 12:40:50  ahd
  *       Annual copyright update
  *
