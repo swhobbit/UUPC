@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.3 1992/11/19 02:54:47 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\lock.c 1.4 1992/11/19 02:58:54 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: LOCK.C $
+ *    $Log: lock.c $
+ * Revision 1.4  1992/11/19  02:58:54  ahd
+ * drop rcsid
+ *
  * Revision 1.3  1992/11/19  02:54:47  ahd
  * Revision 1.2  1992/11/17  13:47:30  ahd
  * Do not buffer lock file
@@ -35,6 +38,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <process.h>
+#include <io.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -105,7 +109,15 @@ boolean LockSystem( const char *system , long program )
 
    importpath( lname, fname, system );
 
-   locket = FOPEN( lname, "w", TEXT );
+/*--------------------------------------------------------------------*/
+/*    Determine if the lock exists, and unlink it if so.  If this     */
+/*    fails, we can't get the lock, so we return gracefully.          */
+/*    (This allows to bypass the "helpful" FOPEN retries of the       */
+/*    failed open.                                                    */
+/*--------------------------------------------------------------------*/
+
+   if ( access( lname, 0 ) || !unlink( lname ))
+      locket = FOPEN( lname, "w", TEXT );
 
    if ( locket == NULL )
    {
