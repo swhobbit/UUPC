@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.8 1993/03/06 23:04:54 ahd Exp $
+ *      $Id: dcpgpkt.C 1.9 1993/04/05 04:32:19 ahd Exp $
  *
- *      $Log: DCPGPKT.C $
+ *      $Log: dcpgpkt.C $
+ * Revision 1.9  1993/04/05  04:32:19  ahd
+ * Allow unique send and receive packet sizes
+ *
  * Revision 1.8  1993/03/06  23:04:54  ahd
  * Make state names more descriptive
  *
@@ -161,6 +164,26 @@ typedef enum {
 #define nextbuf(x)    ((x + 1) % (nwindows+1))
 
 /*--------------------------------------------------------------------*/
+/*                 Handle 16 bit vs. 32 bit compilers                 */
+/*--------------------------------------------------------------------*/
+
+#ifdef WIN32
+#define UUFAR
+#define MEMSET(p,c,l)  memset(p,c,l)
+#define MEMCPY(t,s,l)  memcpy(t,s,l)
+#define MEMMOVE(t,s,l) memmove(t,s,l)
+#else
+#ifdef __TURBOC__
+#define UUFAR far
+#else
+#define UUFAR _far
+#endif
+#define MEMSET(p,c,l)  _fmemset(p,c,l)
+#define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
+#define MEMMOVE(t,s,l) _fmemmove(t,s,l)
+#endif
+
+/*--------------------------------------------------------------------*/
 /*              Global variables for packet definitions               */
 /*--------------------------------------------------------------------*/
 
@@ -173,12 +196,16 @@ static INTEGER nerr;
 static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
 static boolean arrived[NBUF];
 static size_t nwindows;
-static char *outbuf[NBUF];
-static char *inbuf[NBUF];
+
+static char UUFAR outbuf[NBUF][MAXPACK];
+static char UUFAR inbuf[NBUF][MAXPACK];
 static time_t ftimer[NBUF];
 static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
+#ifndef WIN32
+static unsigned char *gspkt = NULL;
+#endif
 static boolean variablepacket;  /* "v" or in modem file              */
 
 /*--------------------------------------------------------------------*/
@@ -194,12 +221,12 @@ static void gspack(short  type,
                    short  xxx,
                    short  len,
                    unsigned short xmit,
-                   char  *data);
+                   char UUFAR *data);
 
 static short  grpack(short  *yyy,
                    short  *xxx,
                    short  *len,
-                   char *data,
+                   char UUFAR *data,
                    const short timeout);
 
 static void gstats( void );
@@ -264,7 +291,6 @@ static short initialize(const boolean caller, const char protocol )
    short  flags = 0x00;   /* Init state flags, as defined above  */
 
    I_STATE state;
-   char *p;
 
 /*--------------------------------------------------------------------*/
 /*    Read modem file values for the number of windows and packet     */
@@ -567,17 +593,12 @@ static short initialize(const boolean caller, const char protocol )
 /*--------------------------------------------------------------------*/
 
    grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
+   checkref( grpkt );
 
-   p = malloc( (r_pktsize + s_pktsize) * (nwindows+1) );
-   checkref( p );
-
-   for ( i = 0; i <= (short) nwindows; i++)
-   {
-      inbuf[i]  = p;
-      p += r_pktsize;
-      outbuf[i] = p;
-      p += s_pktsize;
-   } /* for */
+#ifndef WIN32
+   gspkt = malloc( s_pktsize );
+   checkref( gspkt );
+#endif
 
    nerr = 0;
    lazynak = 0;
@@ -596,7 +617,7 @@ static short initialize(const boolean caller, const char protocol )
               "Window size %d, "
               "Receive packet %d, "
               "Send packet %d, "
-              "Memory avail %u,",
+              "Memory avail %u",
             variablepacket ? "Variable" : "Fixed",
             nwindows,
             r_pktsize,
@@ -642,9 +663,13 @@ short gclosepk()
 /*                        Release our buffers                         */
 /*--------------------------------------------------------------------*/
 
-   free( inbuf[0] );
    free( grpkt );
    grpkt = NULL;
+
+#ifndef WIN32
+   free( gspkt );
+   gspkt = NULL;
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                Report the results of our adventures                */
@@ -752,7 +777,7 @@ short ggetpkt(char *data, short *len)
 /*--------------------------------------------------------------------*/
 
    *len = inlen[rbl];
-   memcpy(data, inbuf[rbl], *len);
+   MEMCPY(data, inbuf[rbl], *len);
 
    arrived[rbl] = FALSE;      /* Buffer is now emptied               */
    rwu = nextpkt(rwu);        /* bump receive window                 */
@@ -796,7 +821,7 @@ short gsendpkt(char *data, short len)
 /*               Place packet in table and mark unacked               */
 /*--------------------------------------------------------------------*/
 
-   memcpy(outbuf[sbu], data, len);
+   MEMCPY(outbuf[sbu], data, len);
 
 /*--------------------------------------------------------------------*/
 /*                       Handle short packets.                        */
@@ -818,17 +843,17 @@ short gsendpkt(char *data, short len)
    delta = xmitlen[sbu] - len;
    if (delta > 127)
    {
-      memmove(outbuf[sbu] + 2, outbuf[sbu], len);
-      memset(outbuf[sbu]+len+2, 0, delta - 2);
+      MEMMOVE(outbuf[sbu] + 2, outbuf[sbu], len);
+      MEMSET(outbuf[sbu]+len+2, 0, delta - 2);
                               /* Pad with nulls.  Ugh.               */
       outbuf[sbu][0] = (unsigned char) ((delta & 0x7f) | 0x80);
       outbuf[sbu][1] = (unsigned char) (delta >> 7);
    } /* if (delta > 127) */
    else if (delta > 0 )
    {
-      memmove(outbuf[sbu] + 1, outbuf[sbu], len);
+      MEMMOVE(outbuf[sbu] + 1, outbuf[sbu], len);
       outbuf[sbu][0] = (unsigned char) delta;
-      memset(outbuf[sbu]+len+1, 0, delta - 1);
+      MEMSET(outbuf[sbu]+len+1, 0, delta - 1);
                               /* Pad with nulls.  Ugh.               */
    } /* else if (delta > 0 )  */
 
@@ -1099,14 +1124,14 @@ static short gmachine(const short timeout )
       {                          /* resend rack->(swu-1)             */
          resends++;
 
-         if (( outbuf[rbuf] == NULL ))
+         if ( outbuf[rbuf] == NULL )
          {
             printmsg(0,"gmachine: Transmit of NULL packet (%d %d)",
                      rwl, rbuf);
             panic();
          }
 
-         if (( xmitlen[rbuf] == 0 ))
+         if ( xmitlen[rbuf] == 0 )
          {
             printmsg(0,"gmachine: Transmit of 0 length packet (%d %d)",
                      rwl, rbuf);
@@ -1196,10 +1221,20 @@ static void gspack(short type,
                    short xxx,
                    short len,
                    unsigned short xmit,
+#ifdef WIN32
                    char *data)
+#else
+                   char UUFAR *input)
+#endif
 {
    unsigned short check, i;
    unsigned char header[HDRSIZE];
+
+#ifndef WIN32
+   char *data = gspkt;
+   MEMCPY( data, input, xmit );
+   printmsg(5,"Copied %hd bytes from %Fp to %p", len, input, data );
+#endif
 
 #ifdef   LINKTEST
    /***** Link Testing Mods *****/
@@ -1337,7 +1372,7 @@ static void gspack(short type,
 
    swrite((char *) header, HDRSIZE);      /* header is 6-bytes long */
    if (header[1] != 9)
-      swrite(data, xmit);           /* data is always 64 bytes long */
+      swrite(data, xmit);
 
 } /*gspack*/
 
@@ -1375,7 +1410,7 @@ static void gspack(short type,
 static short grpack(short *yyy,
                   short *xxx,
                   short *len,
-                  char *data,
+                  char UUFAR *data,
                   const short timeout)
 {
    static short got_hdr  = FALSE;
@@ -1571,16 +1606,16 @@ get_data:
          {
             ii = (grpkt[HDRSIZE] & 0x7f) + ((grpkt[HDRSIZE+1] & 0xff) << 7);
             *len -= ii;
-            memcpy(data, grpkt + HDRSIZE + 2, *len);
+            MEMCPY(data, grpkt + HDRSIZE + 2, *len);
          }
          else {
             ii = (grpkt[HDRSIZE] & 0xff);
             *len -= ii;
-            memcpy(data, grpkt + HDRSIZE + 1, *len);
+            MEMCPY(data, grpkt + HDRSIZE + 1, *len);
          } /* else */
       }
       else
-         memcpy( data, grpkt + HDRSIZE, *len);
+         MEMCPY( data, grpkt + HDRSIZE, *len);
    } /* else */
 
 /*--------------------------------------------------------------------*/
