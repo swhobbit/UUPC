@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.5 1993/07/20 21:45:37 ahd Exp $
+ *    $Id: ndiros2.c 1.6 1993/09/20 04:39:51 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *     Revision 1.6  1993/09/20  04:39:51  ahd
+ *     OS/2 2.x support
+ *
  *     Revision 1.5  1993/07/20  21:45:37  ahd
  *     Clean up header
  *
@@ -197,7 +200,6 @@ struct direct *readdir(DIR *dirp)
                                          findbuf.ftimeLastWrite );
       dirp->dirent.d_size     = findbuf.cbFile;
 
-      printmsg(4,"readdir: Returning \"%s\"", dirp->dirent.d_name);
       return &(dirp->dirent);
    }
    else {
