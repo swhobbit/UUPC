@@ -16,10 +16,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.10 1993/10/07 22:32:45 ahd Exp $
+ *    $Id: MODEM.H 1.11 1993/10/12 01:35:12 ahd Exp $
  *
  *    Revision history:
- *    $Log: modem.h $
+ *    $Log: MODEM.H $
+ * Revision 1.11  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.11  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.10  1993/10/07  22:32:45  ahd
  * Change transfer buffer to long
  *
@@ -85,6 +91,7 @@ boolean getmodem( const char *brand);
 
 extern boolean  bmodemflag[MODEM_LAST];
 extern char     *M_device;
+extern KEWSHORT M_ePacketTimeout;
 extern KEWSHORT M_fPacketSize;
 extern KEWSHORT M_fPacketTimeout;
 extern KEWSHORT M_gPacketTimeout;
