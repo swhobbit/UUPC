@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.20 1997/04/24 00:55:23 ahd Exp $
+#       $Id: lib.mak 1.21 1997/04/24 01:04:46 ahd v1-12s $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.21  1997/04/24 01:04:46  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.20  1997/04/24 00:55:23  ahd
 #       Drop makebuf from library
 #
@@ -99,7 +102,7 @@ LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
 LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj \
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
          $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
-LIBLST4= $(OBJ)\makebuf.obj $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
+LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
          $(OBJ)\printmsg.obj $(OBJ)\pushpop.obj $(OBJ)\readnext.obj\
          $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
 LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
