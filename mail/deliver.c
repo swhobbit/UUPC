@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.4 1992/12/18 13:05:18 ahd Exp $
+ *    $Id: DELIVER.C 1.5 1993/04/11 00:33:05 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.5  1993/04/11  00:33:05  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.4  1992/12/18  13:05:18  ahd
  * Use one token on request line for UUCP
  *
@@ -109,6 +112,7 @@
 #include "stater.h"
 #include "usertabl.h"
 #include "sysalias.h"
+#include "timestmp.h"
 
 #ifdef SMARTBEEP
 #include "ssleep.h"
@@ -138,7 +142,8 @@ static int DeliverFile( const char *input,
                         boolean *announce,
                         struct UserTable *userp,
                         const boolean sysalias,  /* Already sys alias     */
-                        const boolean validate );
+                        const boolean validate,
+                        const char *user );
 
 static void trumpet( const char *tune);
 
@@ -156,6 +161,11 @@ static int CopyData(   const boolean remotedelivery,
                        FILE *mbox);
 
 static char *stats( const char *fname );
+
+size_t Bounce( const char *input,
+               const char *text,
+               const char *data,
+               const char *address );
 
 /*--------------------------------------------------------------------*/
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
@@ -188,12 +198,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
    struct HostTable *hostp;
 
    if ( strlen( address ) >= MAXADDR )
-   {
-      printmsg( 0,
-            "Delivering to postmaster: Excessive address length %d for %s",
-               strlen(address) , address );
-      return Deliver( input, E_postmaster, FALSE, TRUE);
-   }
+      return Bounce( input, "Excessive address length", address, address );
 
    user_at_node(address, path, node, user);
 
@@ -207,12 +212,11 @@ size_t Deliver(       const char *input,    /* Input file name       */
       if (hostx->hstatus == localhost)  /* Really the local node?    */
          return DeliverLocal( input, user, sysalias, validate );
                                  /* Yes!                             */
-      else {
-         printmsg(0,"Mail for \"%s\" via \"%s\" has no "
-                    "delivery route, delivering to postmaster %s",
-               address, path , E_postmaster);
-         return Deliver( input, E_postmaster, FALSE, TRUE);
-      } /* else */
+      else
+         Bounce( input,
+                 "No delivery path for address",
+                  address,
+                  address );
    }  /* if */
 
 /*--------------------------------------------------------------------*/
@@ -220,13 +224,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
 /*--------------------------------------------------------------------*/
 
    if (hops > E_maxhops)
-   {
-         printmsg(0,
-         "Mail for \"%s\" via \"%s\" has exceeded hop "
-         "limit of %d, delivering to postmaster %s",
-               address, path , E_maxhops, E_postmaster);
-         return Deliver( input, E_postmaster, FALSE, TRUE);
-   }
+      Bounce(input, "Excessive number of hops", address, address );
 
 /*--------------------------------------------------------------------*/
 /*                   Deliver to a gateway if needed                   */
@@ -336,7 +334,8 @@ static size_t DeliverLocal( const char *input,
                                       &announce ,
                                       userp,
                                       TRUE,
-                                      validate );
+                                      validate,
+                                      user );
 
             if ( announce && ( userp != BADUSER ))
                trumpet( userp->beep);  /* Yes --> Inform the user    */
@@ -351,10 +350,7 @@ static size_t DeliverLocal( const char *input,
 
       if ( userp == BADUSER )    /* Invalid user id?                 */
       {                          /* Yes --> Dump in trash bin        */
-         printmsg(0,
-               "\"%s\" is an invalid user, delivering to %s",
-               user, E_postmaster);
-         return DeliverLocal( input, E_postmaster, FALSE, validate);
+         return Bounce( input, "Invalid local user", user, user );
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -373,7 +369,8 @@ static size_t DeliverLocal( const char *input,
                                    &announce,
                                    userp,
                                    FALSE,
-                                   validate);
+                                   validate,
+                                   user );
 
          if (announce)        /* Did we deliver mail locally?        */
             trumpet( userp->beep);  /* Yes --> Inform the user       */
@@ -433,7 +430,8 @@ static int DeliverFile( const char *input,
                         boolean *announce,
                         struct UserTable *userp,
                         const boolean sysalias,  /* Already sys alias     */
-                        const boolean validate )
+                        const boolean validate,
+                        const char *user )
 {
    char buf[BUFSIZ];
    FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
@@ -442,10 +440,7 @@ static int DeliverFile( const char *input,
    if ( fwrd == NULL )
    {
       printerr( fwrdname );
-      printmsg(0,"Cannot open forward file %s, delivering to %s",
-               fwrdname,
-               E_postmaster );
-      return DeliverLocal( input, E_postmaster, sysalias, validate );
+      return Bounce( input, "Cannot open forward file", fwrdname, user );
    }
 
    if ( start != 0 )
@@ -470,11 +465,10 @@ static int DeliverFile( const char *input,
          nextfile = strtok( s + strlen(INCLUDE), WHITESPACE );
          if ( nextfile == NULL )
          {
-            printmsg(0,"%s: Missing file name after %s, "
-                       "delivering to %s",
-                        fwrdname, INCLUDE, E_postmaster );
-            s = E_postmaster;
-            c = *s;
+            return Bounce(input,
+                          "Missing forwarding file for alias",
+                          fwrdname,
+                          user );
          }
          else
             c = ':';
@@ -518,7 +512,7 @@ static int DeliverFile( const char *input,
          case ':':
             delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
                                       announce, userp,
-                                      FALSE, TRUE );
+                                      FALSE, TRUE, user );
             break;
 
          case '/':               /* Save in absolute path name */
@@ -526,11 +520,11 @@ static int DeliverFile( const char *input,
             if (expand_path(s, NULL, userp->homedir,
                             E_mailext) == NULL )
             {
-               printmsg(0,
-                     "Invalid path in filename, delivering to %s",
-                      E_postmaster);
-               return DeliverLocal( input, E_postmaster,
-                                    sysalias, validate );
+               return Bounce(input,
+                             "Invalid path in forwarding file name",
+                             s,
+                             user );
+
             }
             else
                delivered += DeliverLocal( input, s, sysalias, FALSE );
@@ -934,6 +928,127 @@ static int CopyData( const boolean remotedelivery,
    fclose(dataout);
    return success;
 } /* CopyData */
+
+/*--------------------------------------------------------------------*/
+/*       b o u n c e                                                  */
+/*                                                                    */
+/*       Report failed mail to a user.  Based on code contributed     */
+/*       by Kevin Meyer <kmeyer@sauron.alt.za>                        */
+/*                                                                    */
+/*       This code has a major hole in that the address it replies    */
+/*       to is weak, really having been previously only been used     */
+/*       for internal messages.  Perhaps the full address from the    */
+/*       UUCP From line should be used.                               */
+/*--------------------------------------------------------------------*/
+
+size_t Bounce( const char *input,
+               const char *text,
+               const char *data,
+               const char *address )
+{
+    FILE *newfile, *otherfile;
+    char tname[FILENAME_MAX]; /* name of temporary file used */
+    char buf[BUFSIZ];
+    char sender[MAXADDR];
+
+    boolean bounce = bflag[F_BOUNCE];
+
+   sprintf(sender, "%s%s%s",
+               ruser,
+               remoteMail ? "@" : "",
+               remoteMail ? rnode : "" );
+
+    printmsg(0,"Bounce: Mail from %s for %s failed, %s: %s",
+               sender,
+               address,
+               text,
+               (data == NULL) ? "(no data)" : data );
+
+/*--------------------------------------------------------------------*/
+/*           Never bounce mail to a select list of user ids           */
+/*--------------------------------------------------------------------*/
+
+   if ( equali( ruser, "postmaster") ||
+        equali( ruser, "uucp") ||
+        equali( ruser, "root") ||
+        equali( ruser, "mmdf") ||
+        equali( ruser, "mailer-daemon"))
+     bounce = FALSE;
+
+   if ( ! bounce )
+     return Deliver( input, E_postmaster, FALSE, TRUE);
+
+   mktempname( tname , "TMP");  // Generate a temp file name
+
+   if ((otherfile = FOPEN(input,"r", TEXT_MODE ))==NULL)
+   {
+       printerr( input );
+       panic();
+   };
+
+   if ((newfile = FOPEN(tname, "w", TEXT_MODE ))==NULL)
+   {
+       printerr( tname );
+       panic();
+   };
+
+   fprintf(newfile,
+     "Dear %s,\n"
+     "Your message for address <%s> could not be delivered at system\n"
+     "%s (uucp node %s) for the following reason:\n\t\t%s.\n",
+                  ruser,
+                  address, E_domain, E_nodename, text );
+
+   if ( data != NULL )
+      fprintf(newfile,
+             "The problem address or file in question was:  %s\n",
+             data );
+
+      fprintf(newfile,
+              "\nA copy of the failed mail follows.\n\n"
+              "Electronically Yours,\n"
+              "%s %s UUCP mailer daemon\n",
+              compilep, compilev );
+
+    fputs("\n------ Failed Message Follows -----\n", newfile);
+
+     while (!feof(otherfile))
+        fputs(fgets(buf, sizeof buf, otherfile), newfile);
+
+    fclose(newfile);
+    fclose(otherfile);
+
+/*--------------------------------------------------------------------*/
+/*                Format the subject, keeping it short                */
+/*--------------------------------------------------------------------*/
+
+   sprintf( buf, "\"Failed mail for %.20s\"", address );
+
+/*--------------------------------------------------------------------*/
+/*          Recursively invoke RMAIL to deliver our message           */
+/*--------------------------------------------------------------------*/
+
+    putenv("LOGNAME=uucp");
+    if (spawnlp(P_WAIT,
+            "rmail",
+            "rmail",
+            "-w",
+            "-F",
+            tname,
+            "-s",
+            buf,
+            sender,
+            "-c",
+            "postmaster", NULL ) == -1 )
+    {
+         printerr("spawn");
+         DeliverLocal( input, E_postmaster, FALSE, FALSE);
+    }
+
+    return (1);
+
+} /* Bounce */
+
 
 /*--------------------------------------------------------------------*/
 /*    s t a t s                                                       */
