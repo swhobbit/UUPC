@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.16 1997/03/31 06:59:11 ahd v1-12t $
+ *    $Id: fopen.c 1.17 1997/12/14 21:12:18 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.17  1997/12/14 21:12:18  ahd
+ *    Don't loop if error is trying to open directory under NT
+ *
  *    Revision 1.16  1997/03/31 06:59:11  ahd
  *    Annual Copyright Update
  *
@@ -60,6 +63,9 @@
 /*--------------------------------------------------------------------*/
 
 #include "ssleep.h"
+#include "stater.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */
@@ -80,6 +86,7 @@ FILE *FSOPEN(const char *name, const char *mode)
    int share = SH_DENYWR;
    int maxRetries = bflag[ F_MULTITASK ] ? 10 : 0;
    int retries = 0;
+   long size;
 
    strcpy( fname, name );
    denormalize( fname );
@@ -127,7 +134,9 @@ FILE *FSOPEN(const char *name, const char *mode)
       {
          case EACCES:               /* DOS share error               */
 #ifdef EISDIR
-            if (!retries && (stater(fname) == -1) && (errno == EISDIR))
+            if (!retries &&
+                (stater(fname, &size) == -1) &&
+                (errno == EISDIR))
                return results;      /* No, really directory!         */
 #endif /* EISDIR */
             /* Fall through */
