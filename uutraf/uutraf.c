@@ -51,7 +51,7 @@
 #include "hlib.h"
 #include "timestmp.h"
 #include "getopt.h"
-RCSID("$Id$");
+RCSID("$Id: uutraf.c 1.9 1999/01/08 02:21:01 ahd Exp $");
 #endif
 
 #ifndef lint
@@ -145,7 +145,7 @@ main(argc, argv, envp)
      panic();
 
    statfile = malloc(FILENAME_MAX);
-   mkfilename(statfile, E_spooldir, SYSLOG);
+   mkfilename(statfile, E_logdir, SYSLOG);
 #endif
 
    sortnames = 0;
