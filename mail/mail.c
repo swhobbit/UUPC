@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.25 1994/03/11 01:49:45 ahd Exp $
+ *    $Id: mail.c 1.26 1994/03/15 03:02:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.26  1994/03/15  03:02:26  ahd
+ * Correct spelling error
+ *
  * Revision 1.25  1994/03/11  01:49:45  ahd
  * Make mailbox description array a UUFAR array
  *
@@ -125,7 +128,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.25 1994/03/11 01:49:45 ahd Exp $";
+      "$Id: mail.c 1.26 1994/03/15 03:02:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -574,6 +577,7 @@ static void Interactive_Mail( const boolean PrintOnly,
       return;
    }
 
+   setTitle("Mailbox %s", mfilename );
    if (setvbuf(rmailbox, NULL, _IOFBF, 8192))
    {
       printerr( mfilename );
