@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\configur.c 1.3 1992/11/22 20:58:55 ahd Exp ahd $
+ *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.4 1992/12/01 04:37:03 ahd Exp $
  *
  *    Revision history:
- *    $Log: configur.c $
+ *    $Log: CONFIGUR.C $
+ * Revision 1.4  1992/12/01  04:37:03  ahd
+ * Add SpeedOverMemory
+ *
  * Revision 1.3  1992/11/22  20:58:55  ahd
  * Normalize directories as read
  * Use strpool to allocate const strings
@@ -112,11 +115,12 @@ INTEGER E_maxhops = 20;                                     /* ahd */
 typedef enum {
       OS2_ENV,
       DOS_ENV,
+      WIN32_ENV,
       UNKNOWN_ENV
       } ENV_TYPE;
 
-#ifdef __GNUC__
-static ENV_TYPE active_env = OS2_ENV;
+#ifdef WIN32
+static ENV_TYPE active_env = WIN32_ENV;
 #else
 static ENV_TYPE active_env = DOS_ENV;
 #endif
@@ -269,6 +273,8 @@ boolean processconfig(char *buff,
          target_env = DOS_ENV;
       else if ( equal( buff, "os2" ))
          target_env = OS2_ENV;
+      else if ( equal( buff, "win32" ))
+         target_env = WIN32_ENV;
       else {
          printmsg(0,"Unknown environment \"%s\", keyword \"%s\" ignored",
                buff, keyword );
