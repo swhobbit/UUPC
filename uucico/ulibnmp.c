@@ -17,8 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.13 1993/11/14 20:51:37 ahd Exp $
- *       $Log: ulibnmp.c $
+ *       $Id: ULIBNMP.C 1.14 1993/11/20 14:48:53 ahd Exp $
+ *       $Log: ULIBNMP.C $
+ * Revision 1.14  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
+ * Revision 1.14  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
  * Revision 1.13  1993/11/14  20:51:37  ahd
  * Normalize internal speed for network links to 115200 (a large number)
  *
@@ -204,7 +210,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*       Wait for network connection                                  */
 /*--------------------------------------------------------------------*/
 
-boolean pWaitForNetConnect(int timeout)
+boolean pWaitForNetConnect(const unsigned int timeout)
 {
 
    time_t stop;
@@ -311,7 +317,9 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 /*   for description.                                                 */
 /*--------------------------------------------------------------------*/
 
-unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
+unsigned int psread(char UUFAR *output,
+                    unsigned int wanted,
+                    unsigned int timeout)
 {
 #ifdef __OS2__
    ULONG received;
@@ -341,10 +349,10 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 
    if (commBufferUsed >= wanted)
    {
-      memcpy( output, commBuffer, wanted );
+      MEMCPY( output, commBuffer, wanted );
       commBufferUsed -= wanted;
       if ( commBufferUsed )   /* Any data left over?                 */
-         memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+         MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
                               /* Yes --> Save it                     */
       return wanted;
    } /* if */
@@ -435,10 +443,10 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 
       if (commBufferUsed >= wanted)
       {
-         memcpy( output, commBuffer, wanted );
+         MEMCPY( output, commBuffer, wanted );
          commBufferUsed -= wanted;
          if ( commBufferUsed )   /* Any data left over?              */
-            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+            MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
                                  /* Yes --> Save it                  */
          return wanted + commBufferUsed;
       } /* if */
@@ -471,7 +479,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*    Write to the named pipe                                         */
 /*--------------------------------------------------------------------*/
 
-int pswrite(const char *input, unsigned int len)
+int pswrite(const char UUFAR *input, unsigned int len)
 {
 
    char *data = (char *) input;

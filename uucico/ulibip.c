@@ -21,9 +21,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.11 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: ULIBIP.C 1.12 1993/11/30 04:13:30 dmwatt Exp $
  *
- *    $Log: ulibip.c $
+ *    $Log: ULIBIP.C $
+ * Revision 1.12  1993/11/30  04:13:30  dmwatt
+ * Optimize port processing
+ *
+ * Revision 1.12  1993/11/30  04:13:30  dmwatt
+ * Optimize port processing
+ *
  * Revision 1.11  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -237,15 +243,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    phe = gethostbyname(name);
 
    if (phe)
-#ifdef _Windows
-      _fmemcpy((char FAR *) &(sin.sin_addr),
-               (char FAR *) phe->h_addr,
-               phe->h_length);
-#else
-      memcpy((char FAR *) &(sin.sin_addr),
-             (char FAR *) phe->h_addr,
-             phe->h_length);
-#endif
+      MEMCPY(&(sin.sin_addr), phe->h_addr, phe->h_length);
    else {
       sin.sin_addr.s_addr = inet_addr(name);
 
@@ -432,7 +430,9 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 /*    or DG but not MS-DOS.                                           */
 /*--------------------------------------------------------------------*/
 
-unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
+unsigned int tsread(char UUFAR *output,
+                    unsigned int wanted,
+                    unsigned int timeout)
 {
    fd_set readfds;
    struct timeval tm;
@@ -448,10 +448,10 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 
    if (commBufferUsed >= wanted)
    {
-      memcpy( output, commBuffer, wanted );
+      MEMCPY( output, commBuffer, wanted );
       commBufferUsed -= wanted;
       if ( commBufferUsed )   /* Any data left over?                 */
-         memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+         MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
                               /* Yes --> Save it                     */
       return wanted + commBufferUsed;
    } /* if */
@@ -507,7 +507,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 /*       needs to be tuned)                                           */
 /*--------------------------------------------------------------------*/
 
-      if ( stop_time <= now ) 
+      if ( stop_time <= now )
       {
          tm.tv_usec = 5000;
          tm.tv_sec = 0;
@@ -585,10 +585,10 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
       commBufferUsed += received;
       if ( commBufferUsed >= wanted )
       {
-         memcpy( output, commBuffer, wanted );
+         MEMCPY( output, commBuffer, wanted );
          commBufferUsed -= wanted;
          if ( commBufferUsed )   /* Any data left over?              */
-            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+            MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
 
          return wanted;
 
@@ -619,7 +619,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 /*    gradually write out the entire buffer                           */
 /*--------------------------------------------------------------------*/
 
-int tswrite(char *data, unsigned int len)
+int tswrite(const char UUFAR *data, unsigned int len)
 {
    int status;
 

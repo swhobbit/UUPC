@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.32 1993/11/20 14:48:53 ahd Exp $
- *       $Log: ULIBOS2.C $
+ *       $Id: ulibos2.c 1.33 1993/12/06 01:59:07 ahd Exp $
+ *       $Log: ulibos2.c $
+ * Revision 1.33  1993/12/06  01:59:07  ahd
+ * Use bit AND, not logical AND, to determine modem logic
+ *
  * Revision 1.32  1993/11/20  14:48:53  ahd
  * Add support for passing port name/port handle/port speed/user id to child
  *
@@ -534,7 +537,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 /*    a timeout for us with very little CPU usage.                    */
 /*--------------------------------------------------------------------*/
 
-unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
+unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeout)
 {
    APIRET rc;
    time_t stop_time ;
@@ -566,10 +569,10 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
    if (commBufferUsed >= wanted)
    {
-      memcpy( output, commBuffer, wanted );
+      MEMCPY( output, commBuffer, wanted );
       commBufferUsed -= wanted;
       if ( commBufferUsed )   /* Any data left over?                 */
-         memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+         MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
                               /* Yes --> Save it                     */
       return wanted + commBufferUsed;
    } /* if */
@@ -753,10 +756,10 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       commBufferUsed += received;
       if ( commBufferUsed >= wanted )
       {
-         memcpy( output, commBuffer, wanted );
+         MEMCPY( output, commBuffer, wanted );
          commBufferUsed -= wanted;
          if ( commBufferUsed )   /* Any data left over?              */
-            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+            MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
 
          return wanted;
 
@@ -785,10 +788,10 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int nswrite(const char *input, unsigned int len)
+int nswrite(const char UUFAR *input, unsigned int len)
 {
 
-   char *data = (char *) input;
+   char UUFAR *data = (char UUFAR *) input;
 
 #ifdef __OS2__
     ULONG bytes;

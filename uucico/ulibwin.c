@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.7 1993/10/03 22:09:09 ahd Exp $
+ *    $Id: ULIBWIN.C 1.8 1993/10/12 01:33:23 ahd Exp $
  *
  *    Revision history:
- *    $Log: ulibwin.c $
+ *    $Log: ULIBWIN.C $
+ * Revision 1.8  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.8  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -327,7 +333,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                                                                    */
 /*--------------------------------------------------------------------*/
 
-unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
+unsigned int nsread(char UUFAR *output,
+                    unsigned int wanted,
+                    unsigned int timeout)
 
 {
    int rc, received;
@@ -446,7 +454,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int nswrite(const char *data, unsigned int len)
+int nswrite(const char UUFAR *data, unsigned int len)
 {
    int bytes;
    int rc;
@@ -553,7 +561,6 @@ void ncloseline(void)
 /*                                                                    */
 /*    Hangup the telephone by dropping DTR.  Works with HAYES and     */
 /*    many compatibles.                                               */
-/*    14 May 89 Drew Derbyshire                                       */
 /*--------------------------------------------------------------------*/
 
 void nhangup( void )

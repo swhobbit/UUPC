@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.25 1993/12/02 13:49:58 ahd Exp rommel $
+ *      $Id: dcpgpkt.c 1.26 1993/12/23 03:16:03 rommel Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.26  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.25  1993/12/02  13:49:58  ahd
  * 'e' protocol support
  *
@@ -227,19 +230,6 @@ typedef enum {
 #define nextpkt(x)    ((x + 1) % MAXSEQ)
 #define nextbuf(x)    ((x + 1) % (nwindows+1))
 
-/*--------------------------------------------------------------------*/
-/*                 Handle 16 bit vs. 32 bit compilers                 */
-/*--------------------------------------------------------------------*/
-
-#if defined(BIT32ENV)
-#define MEMSET(p,c,l)  memset(p,c,l)
-#define MEMCPY(t,s,l)  memcpy(t,s,l)
-#define MEMMOVE(t,s,l) memmove(t,s,l)
-#else
-#define MEMSET(p,c,l)  _fmemset(p,c,l)
-#define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
-#define MEMMOVE(t,s,l) _fmemmove(t,s,l)
-#endif
 
 /*--------------------------------------------------------------------*/
 /*              Global variables for packet definitions               */
@@ -294,7 +284,7 @@ static short  grpack(unsigned *yyy,
 
 static void gstats( void );
 
-static unsigned checksum(char *data, unsigned len);
+static unsigned checksum(const char UUFAR *data, unsigned len);
 
 /****************** SUB SUB SUB PACKET HANDLER ************/
 
@@ -700,7 +690,7 @@ static short initialize(const boolean caller, const char protocol )
 /*    Begin a file transfer (not used by "g" protocol)                */
 /*--------------------------------------------------------------------*/
 
-short gfilepkt( const boolean transmit, const unsigned long bytes)
+short gfilepkt( const boolean send, const unsigned long len)
 {
 
    return DCP_OK;
@@ -1303,24 +1293,10 @@ static void gspack(short type,
                    unsigned xxx,
                    unsigned len,
                    unsigned xmit,
-#if defined(BIT32ENV)
-                   char *data)
-#else
-                   char UUFAR *input)
-#endif
+                   char UUFAR *data)
 {
    unsigned check, i;
    unsigned char header[HDRSIZE];
-
-#if !defined(BIT32ENV)
-   char *data;                   /* Local data buffer address         */
-   if ( input == NULL )
-      data = NULL;               /* Make consistent with real buffer  */
-   else {                        /* Only copy if non-NULL              */
-      data = gspkt;
-      MEMCPY( data, input, xmit );
-   }
-#endif
 
 #ifdef   LINKTEST
    /***** Link Testing Mods *****/
@@ -1380,7 +1356,11 @@ static void gspack(short type,
             header[4] |= 0x40;/* Count byte handled at higher level */
 
 #ifdef UDEBUG
+#ifdef 32BITENV
             printmsg(7, "data=|%.*s|", len, data);
+#else
+            printmsg(7, "data=|%.*Fs|", len, data);
+#endif
 #endif
          break;
 
@@ -1719,7 +1699,7 @@ get_data:
    c h e c k s u m
 */
 
-static unsigned checksum(char *data, unsigned len)
+static unsigned checksum(const char UUFAR *data, unsigned len)
 {
    unsigned i, j;
    unsigned tmp, chk1, chk2;

@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.13 1993/11/16 05:37:01 ahd Exp $
+ *    $Id: COMMLIB.C 1.14 1993/11/20 14:48:53 ahd Exp $
  *
  *    Revision history:
- *    $Log: commlib.c $
+ *    $Log: COMMLIB.C $
+ * Revision 1.14  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
+ * Revision 1.14  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
  * Revision 1.13  1993/11/16  05:37:01  ahd
  * Up 16 bit buffer size
  *
@@ -72,6 +78,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#ifndef BIT32ENV
+#include <malloc.h>        /* _fmalloc, etc.                         */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                       UUPC/extended includes                       */
@@ -143,7 +153,7 @@ boolean portActive;         /* Port active flag for error handler   */
 boolean traceEnabled;        /* Trace active flag                     */
 size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
-char *commBuffer = NULL;
+char UUFAR *commBuffer = NULL;
 
 ref_activeopenline activeopenlinep;
 ref_passiveopenline passiveopenlinep;
@@ -308,20 +318,25 @@ boolean chooseCommunications( const char *name )
    if ( suite[subscript].buffered && ! commBufferLength)
    {
 
+      commBufferLength = (MAXPACK * 3);   /* 3 buffers, reduces overhead */
+
 #ifdef BIT32ENV
-      commBufferLength = (MAXPACK * 4);      /* Generous to reduce I/O's  */
+      commBuffer = malloc( commBufferLength );
 #else
-      commBufferLength = (MAXPACK * 2) + 20; /* 2 packet plus headers    */
+      commBuffer = _fmalloc( commBufferLength );
 #endif
 
-      commBuffer = malloc( commBufferLength );
       checkref( commBuffer );
 
    } /* if */
    else if ( (! suite[subscript].buffered) && commBufferLength )
    {
       commBufferLength = 0;
+#ifdef BIT32ENV
       free( commBuffer );
+#else
+      _ffree( commBuffer );
+#endif
       commBuffer = NULL;
    }
    commBufferUsed = 0;
@@ -405,11 +420,12 @@ void traceStop( void )
 /*       Write traced data to the log                                 */
 /*--------------------------------------------------------------------*/
 
-void traceData( const char *data,
+void traceData( const char UUFAR *data,
                 const unsigned len,
                 const boolean output)
 {
-#ifdef VERBOSE
+
+#if defined(VERBOSE) || !defined(BIT32ENV)
    unsigned subscript;
 #endif
 
@@ -428,13 +444,22 @@ void traceData( const char *data,
    }
 
 #ifdef VERBOSE
+
    for (subscript = 0; subscript < len; subscript++)
    {
       fprintf( traceStream, "%2.2x", data[subscript] );
    } /* for */
-#else
+
+#elif defined(BIT32ENV)
 
    fwrite(data, 1, len, traceStream ); /* Write out raw data           */
+
+#else
+
+   for (subscript = 0; subscript < len; subscript++)
+   {
+      fputc( data[subscript], traceStream );
+   } /* for */
 
 #endif
 
