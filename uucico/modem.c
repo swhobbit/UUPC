@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.25 1993/09/28 01:38:19 ahd Exp $
+ *    $Id: modem.c 1.26 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.26  1993/09/29  04:49:20  ahd
+ * Allow unique signal handler for suspend port processing
+ *
  * Revision 1.25  1993/09/28  01:38:19  ahd
  * Add configurable timeout for conversation start up phase
  *
@@ -449,7 +452,6 @@ CONN_STATE callin( const time_t exit_time )
          shutDown();
          if ( suspend_processing )        // Give up modem for another process?
          {
-           raised = 0;
            return CONN_WAIT;
          }
          return CONN_INITIALIZE;
@@ -463,13 +465,12 @@ CONN_STATE callin( const time_t exit_time )
       if (!sendlist( ring,modemTimeout, offset, noconnect))
       {                          /* Did it ring?                        */
          interactive_processing = TRUE;
+         raised = 0;
          shutDown();
          if ( suspend_processing )        // Give up modem for another process?
-         {
-           raised = 0;
-           return CONN_WAIT;
-         }
-         return CONN_INITIALIZE;     /* No --> Return to caller       */
+            return CONN_WAIT;
+         else
+            return CONN_INITIALIZE;     /* No --> Return to caller       */
       }
 
       interactive_processing = TRUE;
