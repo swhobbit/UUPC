@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.12 1994/10/03 02:52:29 ahd v1-12n $
+ *       $Id: uuclean.cmd 1.13 1995/08/27 23:35:00 ahd v1-12r $
  *
  *       $Log: uuclean.cmd $
+ *       Revision 1.13  1995/08/27 23:35:00  ahd
+ *       Clean up spool directory under OS/2
+ *
  *       Revision 1.12  1994/10/03 02:52:29  ahd
  *       Clean yup aging messages
  *
@@ -175,7 +178,7 @@ parse upper arg spooldir, input, archive, maxsize, generation
 maxgen = 5
 aged   = 0                    /* Next older version was aged         */
 moved  = 0                    /* This version was aged               */
-defaultmax = 20000;           /* Max size of files                   */
+defaultmax = 50000;           /* Max size of files                   */
 if generation = '' then
    generation = 1
 else
