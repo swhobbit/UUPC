@@ -5,6 +5,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
 /*    the code uses conditionals to use system-level DOS and OS/2     */
 /*    services.  Another option is to set global flags and do any     */
@@ -69,11 +88,33 @@ typedef struct _KBDKEYINFO {  /* kbci */
 #endif
 
 /*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+currentfile();
+
+/*--------------------------------------------------------------------*/
 /*    s a f e i n                                                     */
 /*                                                                    */
 /*    Inputs a character using system level calls.  From MicroSoft    */
 /*    Programmer's Workbench QuickHelp samples                        */
 /*--------------------------------------------------------------------*/
+
+#if defined(WIN32)
+static HANDLE hConsoleIn = INVALID_HANDLE_VALUE;
+
+void InitConsoleInputHandle(void)
+{
+   hConsoleIn = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE, 0, NULL,
+      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+   if (hConsoleIn == INVALID_HANDLE_VALUE) {
+      printmsg(0, "InitConsoleInputHandle:  could not open console handles!");
+      panic();
+   }
+}
+#endif
+
 
 int safein( void )
 {
@@ -83,9 +124,11 @@ int safein( void )
 #if defined( WIN32 )
    CHAR ch;
    DWORD dwBytesRead;
-   HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
 
-   ReadFile(hStdIn, &ch, 1, &dwBytesRead, NULL);      
+   if (hConsoleIn == INVALID_HANDLE_VALUE)
+      InitConsoleInputHandle();
+
+   ReadFile(hConsoleIn, &ch, 1, &dwBytesRead, NULL);
 
    return ch;
 #else /* WIN32 */
@@ -126,11 +169,13 @@ boolean safepeek( void )
    return 0;
 #else /* _Windows */
 #ifdef WIN32
-   HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
    INPUT_RECORD Buffer;
    DWORD nEventsRead;
 
-   PeekConsoleInput(hStdIn, &Buffer, 1, &nEventsRead);
+   if (hConsoleIn == INVALID_HANDLE_VALUE)
+      InitConsoleInputHandle();
+
+   PeekConsoleInput(hConsoleIn, &Buffer, 1, &nEventsRead);
 
    if (nEventsRead != 0 && Buffer.EventType == KEY_EVENT)
       return TRUE;
@@ -173,8 +218,10 @@ void safeflush( void )
 /*--------------------------------------------------------------------*/
 
 #ifdef WIN32
-   HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-   FlushConsoleInputBuffer(hStdIn);
+   if (hConsoleIn == INVALID_HANDLE_VALUE)
+      InitConsoleInputHandle();
+
+   FlushConsoleInputBuffer(hConsoleIn);
 #else
 #if defined( FAMILYAPI )
     KbdFlushBuffer( 0 );      /* That's all!  (Makes you love rich

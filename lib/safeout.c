@@ -5,6 +5,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
 /*    the code uses conditionals to use system-level DOS and OS/2     */
 /*    services.  Another option is to set global flags and do any     */
@@ -41,6 +60,28 @@
 #include "safeio.h"
 
 /*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+currentfile();
+
+#if defined(WIN32)
+static HANDLE hConsoleOut = INVALID_HANDLE_VALUE;
+
+void InitConsoleOutputHandle(void)
+{
+   hConsoleOut = CreateFile("CONOUT$", GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+      FILE_ATTRIBUTE_NORMAL, 0);
+
+   if (hConsoleOut == INVALID_HANDLE_VALUE) {
+      printmsg(0, "InitConsoleHandles:  could not open console handles!");
+      panic();
+   }
+}
+#endif
+
+/*--------------------------------------------------------------------*/
 /*    s a f e o u t                                                   */
 /*                                                                    */
 /*    Outputs a string using system level calls. from MicroSoft       */
@@ -55,12 +96,14 @@ void safeout( char *str )
    return;
 #else
 #if defined( WIN32 )
-   HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
    DWORD dwBytesWritten;
 
-   WriteFile(hStdOut, str, (DWORD)strlen(str), &dwBytesWritten, NULL);
+   if (hConsoleOut == INVALID_HANDLE_VALUE)
+      InitConsoleOutputHandle();
+
+   WriteFile(hConsoleOut, str, (DWORD)strlen(str), &dwBytesWritten, NULL);
    return;
-   
+
 #else
 #if defined( FAMILYAPI )
    VioWrtTTY( str, strlen( str ), 0 );
