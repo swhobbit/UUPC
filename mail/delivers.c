@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.16 1999/01/08 04:31:09 ahd Exp $
+ *       $Id: delivers.c 1.17 1999/01/11 05:43:36 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.17  1999/01/11 05:43:36  ahd
+ *       Revamp error processing to be more robust
+ *
  *       Revision 1.16  1999/01/08 04:31:09  ahd
  *       Improve SMTP error handling
  *
@@ -109,7 +112,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.16 1999/01/08 04:31:09 ahd Exp $");
+RCSID("$Id: delivers.c 1.17 1999/01/11 05:43:36 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */
@@ -191,7 +194,22 @@ bufferTrace( const char *prefix,
    static const char mName[] = "bufferTrace";
 
    /* We perform tracing to the program log for free */
-   printmsg(2, "%s %.120s", prefix, string);
+   switch(*prefix)
+   {
+      case '>':
+      case '<':
+      case ']':
+      case '[':
+         printmsg(2, "%s %.120s", prefix, string);
+         break;
+
+      default:
+         /*
+          *    No op for other characters, which prefixes to no-traffic
+          *    information for the log
+          */
+         break;
+   } /* switch(prefix) */
 
    if (stringLength == 0)
       stringLength = strlen(string);
