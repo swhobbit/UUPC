@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.21 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: maillib.c 1.22 1995/03/11 22:28:10 ahd v1-12q $
  *
  *    $Log: maillib.c $
+ *    Revision 1.22  1995/03/11 22:28:10  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.21  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *

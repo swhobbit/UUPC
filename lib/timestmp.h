@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.h 1.6 1995/01/02 05:04:57 ahd v1-12o $
+ *    $Id: timestmp.h 1.7 1995/09/11 00:25:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: timestmp.h $
+ *    Revision 1.7  1995/09/11 00:25:56  ahd
+ *    Correct spelling error in comment
+ *
  *    Revision 1.6  1995/01/02 05:04:57  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *

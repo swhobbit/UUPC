@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.24 1995/03/11 22:28:27 ahd v1-12p $
+ *    $Id: mailsend.c 1.25 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.25  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.24  1995/03/11 22:28:27  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *

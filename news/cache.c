@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.3 1995/12/03 13:51:44 ahd Exp $
+ *    $Id: cache.c 1.4 1995/12/12 13:48:54 ahd Exp $
  *
  * $Log: cache.c $
+ * Revision 1.4  1995/12/12 13:48:54  ahd
+ * Use binary tree for news group active file
+ * Use large buffers in news programs to avoid overflow of hist db recs
+ * Use true recursive function to walk entire active file
+ *
  * Revision 1.3  1995/12/03 13:51:44  ahd
  * Additional debugging cleanup
  *
@@ -39,7 +44,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-   "$Id: cache.c 1.3 1995/12/03 13:51:44 ahd Exp $";
+   "$Id: cache.c 1.4 1995/12/12 13:48:54 ahd Exp $";
 
 #include <io.h>
 #include <memory.h>

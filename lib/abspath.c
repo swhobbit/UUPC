@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.29 1995/01/29 14:09:13 ahd Exp $
+ *    $Id: abspath.c 1.1 1995/01/30 04:05:08 ahd v1-12q $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: abspath.c $
+ *    Revision 1.1  1995/01/30 04:05:08  ahd
+ *    Additional compiler warning fixes, optimize path normalizing
+ *
  */
 
 #include <uupcmoah.h>

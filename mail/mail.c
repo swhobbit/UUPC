@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.37 1995/03/08 02:58:08 ahd Exp $
+ *    $Id: mail.c 1.38 1995/03/11 22:27:46 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.38  1995/03/11 22:27:46  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.37  1995/03/08 02:58:08  ahd
  *    Delete KW from literal boolean strings
  *
@@ -163,7 +166,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.37 1995/03/08 02:58:08 ahd Exp $";
+      "$Id: mail.c 1.38 1995/03/11 22:27:46 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: remove2.c 1.2 1995/04/02 00:01:39 ahd v1-12o $
+ *    $Id: remove2.c 1.3 1995/09/24 19:07:05 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: remove2.c $
+ *    Revision 1.3  1995/09/24 19:07:05  ahd
+ *    Correct for 16 bit OS/2 compile
+ *
  *    Revision 1.2  1995/04/02 00:01:39  ahd
  *    Don't be quite so agressive about reporting reasonable errors
  *    (like file not found)

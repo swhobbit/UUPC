@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.4 1995/01/29 16:43:42 ahd Exp $
+ *    $Id: imfile.h 1.5 1995/02/20 17:30:32 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.5  1995/02/20 17:30:32  ahd
+ *    16 bit compiler warning cleanup
+ *
  *    Revision 1.4  1995/01/29 16:43:42  ahd
  *    IBM C/Set compiler warnings
  *

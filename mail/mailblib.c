@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.22 1995/08/27 23:34:11 ahd v1-12p $
+ *    $Id: mailblib.c 1.23 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.23  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.22  1995/08/27 23:34:11  ahd
  *    Allow COPY to work with PRN again
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.h 1.4 1995/01/07 16:19:31 ahd v1-12p $
+ *    $Id: address.h 1.5 1995/11/30 03:07:22 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: address.h $
+ *    Revision 1.5  1995/11/30 03:07:22  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.4  1995/01/07 16:19:31  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.9 1995/01/15 19:50:02 ahd Exp $
+ *    $Id: sys.h 1.10 1995/02/12 23:39:45 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.10  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.9  1995/01/15 19:50:02  ahd
  *    Delete global fullbatch option
  *    Add "local", "batch" options to SYS structure

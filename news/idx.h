@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,9 +18,12 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: idx.h 1.5 1995/02/20 00:05:26 ahd v1-12o $ */
+/* $Id: idx.h 1.6 1995/09/24 19:11:38 ahd v1-12q $ */
 
 /* $Log: idx.h $
+/* Revision 1.6  1995/09/24 19:11:38  ahd
+/* Use standard length buffer
+/*
 /* Revision 1.5  1995/02/20 00:05:26  ahd
 /* Kai Uwe Rommel's cache support
 /*

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.11 1995/01/07 16:13:16 ahd Exp $
+ *    $Id: mkmbox.c 1.12 1995/02/20 00:40:12 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *    Revision 1.12  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.11  1995/01/07 16:13:16  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

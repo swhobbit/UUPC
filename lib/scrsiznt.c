@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.11 1995/01/07 16:14:28 ahd v1-12n $
+ *    $Id: scrsiznt.c 1.12 1995/09/04 18:43:37 ahd v1-12q $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.12  1995/09/04 18:43:37  ahd
+ *    Correct compile warning
+ *
  *    Revision 1.11  1995/01/07 16:14:28  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -30,7 +33,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */

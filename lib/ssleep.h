@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.h 1.5 1995/02/22 12:15:00 ahd v1-12n $
+ *    $Id: ssleep.h 1.6 1995/05/07 14:40:13 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: ssleep.h $
+ *    Revision 1.6  1995/05/07 14:40:13  ahd
+ *    Add checkForBreak
+ *
  *    Revision 1.5  1995/02/22 12:15:00  ahd
  *    Correct 16 bit compiler warning errors
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.15 1995/01/07 16:14:09 ahd Exp $
+ *    $Id: safeio.c 1.16 1995/01/29 16:43:03 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *    Revision 1.16  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.15  1995/01/07 16:14:09  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

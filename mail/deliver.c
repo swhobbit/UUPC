@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.46 1995/09/27 11:15:53 ahd v1-12p $
+ *    $Id: deliver.c 1.47 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    $Log: deliver.c $
+ *    Revision 1.47  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.46  1995/09/27 11:15:53  ahd
  *    Correct "No known delivery path for host" to report the failing
  *    host name, not the current host name.

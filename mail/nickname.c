@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.20 1995/01/30 04:08:36 ahd v1-12p $
+ *    $Id: alias.c 1.21 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: alias.c $
+ *    Revision 1.21  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.20  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *

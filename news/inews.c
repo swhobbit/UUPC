@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.26 1995/08/27 23:33:15 ahd v1-12p $
+ *       $Id: inews.c 1.27 1995/11/30 12:50:15 ahd v1-12q $
  *
  * $Log: inews.c $
+ * Revision 1.27  1995/11/30 12:50:15  ahd
+ * Make header compares case insensitive
+ *
  * Revision 1.26  1995/08/27 23:33:15  ahd
  * Load and use ACTIVE file as tree structure
  *
@@ -118,7 +121,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.26 1995/08/27 23:33:15 ahd v1-12p $";
+      "$Id: inews.c 1.27 1995/11/30 12:50:15 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

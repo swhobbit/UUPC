@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.11 1994/12/22 00:07:21 ahd v1-12n $
+ *    $Id: bugout.c 1.12 1995/02/24 00:37:28 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.12  1995/02/24 00:37:28  ahd
+ *    Move panic_rc from catcher.c into bugout.c, keeps catcher from
+ *    being included into every module.
+ *
  *    Revision 1.11  1994/12/22 00:07:21  ahd
  *    Annual Copyright Update
  *

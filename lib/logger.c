@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.23 1995/03/11 22:26:25 ahd Exp $
+ *    $Id: logger.c 1.24 1995/03/12 16:42:24 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.24  1995/03/12 16:42:24  ahd
+ *    Use direct fopen() call, don't bother with fsopen()
+ *
  *    Revision 1.23  1995/03/11 22:26:25  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *

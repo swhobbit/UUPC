@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.15 1995/01/09 01:43:38 ahd v1-12o $
+ *    $Id: deliver.h 1.16 1995/09/11 00:24:49 ahd v1-12q $
  *
  *    $Log: deliver.h $
+ *    Revision 1.16  1995/09/11 00:24:49  ahd
+ *    Delete non-existent variable
+ *
  *    Revision 1.15  1995/01/09 01:43:38  ahd
  *    Optimize UUCP remote queuing
  *

@@ -10,7 +10,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: history.h 1.3 1995/01/03 05:33:54 ahd v1-12n $ */
+/* $Id: history.h 1.4 1995/03/11 02:02:28 ahd v1-12q $ */
 
 /* $Log: history.h $
+/* Revision 1.4  1995/03/11 02:02:28  ahd
+/* Return success of cancel to allow caller to report
+/*
 /* Revision 1.3  1995/01/03 05:33:54  ahd
 /* Make as many parameters CONST as possible
 /*

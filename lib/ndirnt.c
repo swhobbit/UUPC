@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.14 1995/01/09 12:35:15 ahd v1-12n $
+ *       $Id: ndirnt.c 1.15 1995/09/04 18:43:37 ahd v1-12q $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.15  1995/09/04 18:43:37  ahd
+ *       Shorten debugging output
+ *
  *       Revision 1.14  1995/01/09 12:35:15  ahd
  *       Correct VC++ compiler warnings
  *

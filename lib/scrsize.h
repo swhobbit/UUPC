@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize.h 1.1 1992/11/27 14:36:53 ahd v1-12k $
+ *    $Id: scrsize.h 1.2 1995/01/29 16:43:42 ahd v1-12q $
  *
  *    $Log: scrsize.h $
+ *    Revision 1.2  1995/01/29 16:43:42  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.1  1992/11/27 14:36:53  ahd
  *    Initial revision
  *

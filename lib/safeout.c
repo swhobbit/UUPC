@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.13 1994/12/22 00:10:51 ahd Exp $
+ *    $Id: safeout.c 1.14 1995/01/29 14:07:59 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *    Revision 1.14  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.13  1994/12/22 00:10:51  ahd
  *    Annual Copyright Update
  *

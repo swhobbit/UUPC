@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.64 1995/03/24 04:17:22 ahd Exp $
+ *       $Id: rnews.c 1.65 1995/04/02 00:01:39 ahd v1-12q $
  *
  *       $Log: rnews.c $
+ *       Revision 1.65  1995/04/02 00:01:39  ahd
+ *       Delete redundant (wrong!) ungetc() call
+ *
  *       Revision 1.64  1995/03/24 04:17:22  ahd
  *       Compiler warning message cleanup, optimize for low memory processing
  *
@@ -62,7 +65,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.64 1995/03/24 04:17:22 ahd Exp $";
+         "$Id: rnews.c 1.65 1995/04/02 00:01:39 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.5 1995/01/07 16:19:44 ahd Exp $
+ *    $Id: maillib.h 1.6 1995/02/20 17:30:32 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.6  1995/02/20 17:30:32  ahd
+ *    16 bit compiler warning cleanup
+ *
  *    Revision 1.5  1995/01/07 16:19:44  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arbmath.c 1.7 1995/01/07 16:11:47 ahd Exp $
+ *    $Id: arbmath.c 1.8 1995/01/29 14:07:59 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: arbmath.c $
+ *    Revision 1.8  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.7  1995/01/07 16:11:47  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

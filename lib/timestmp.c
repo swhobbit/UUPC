@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.15 1994/12/22 00:11:37 ahd v1-12n $
+ *    $Id: timestmp.c 1.16 1995/08/27 23:30:21 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.16  1995/08/27 23:30:21  ahd
+ *    Add debugging info to hello message
+ *
  *    Revision 1.15  1994/12/22 00:11:37  ahd
  *    Annual Copyright Update
  *

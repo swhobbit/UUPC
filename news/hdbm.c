@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,16 +17,19 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.12 1995/09/24 19:10:36 ahd v1-12q $";
+      "$Id: hdbm.c 1.13 1995/12/02 14:18:33 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.12 1995/09/24 19:10:36 ahd v1-12q $
+ * $Id: hdbm.c 1.13 1995/12/02 14:18:33 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.13  1995/12/02 14:18:33  ahd
+ * New debugging messages
+ *
  * Revision 1.12  1995/09/24 19:10:36  ahd
  * Use standard buffer length for processing in all environments
  *

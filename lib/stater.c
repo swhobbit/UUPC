@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.10 1994/12/22 00:11:25 ahd Exp $
+ *    $Id: stater.c 1.11 1995/01/07 15:43:07 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.11  1995/01/07 15:43:07  ahd
+ *    Don't try to dereference size pointer if NULL
+ *
  *    Revision 1.10  1994/12/22 00:11:25  ahd
  *    Annual Copyright Update
  *

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.15 1995/11/08 01:03:13 ahd v1-12p $
+#       $Id: nmakewnt.mak 1.16 1995/11/30 12:47:07 ahd v1-12q $
 #
-#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.16  1995/11/30 12:47:07  ahd
+#       *** empty log message ***
+#
 #       Revision 1.15  1995/11/08 01:03:13  ahd
 #       Allow copying between drives during install
 #

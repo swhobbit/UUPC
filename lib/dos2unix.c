@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.13 1995/09/04 19:37:49 dmwatt v1-12o $
+ *    $Id: dos2unix.c 1.14 1995/09/24 19:07:05 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.14  1995/09/24 19:07:05  ahd
+ *    Correct for 16 bit OS/2 compile
+ *
  *    Revision 1.13  1995/09/04 19:37:49  dmwatt
  *    Correct time zone conversion when converting NT timestamp to UNIX format
  *

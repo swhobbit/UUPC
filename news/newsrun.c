@@ -21,7 +21,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.10 1995/11/30 12:50:15 ahd v1-12q $
+ *       $Id: newsrun.c 1.11 1995/12/02 14:18:33 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.11  1995/12/02 14:18:33  ahd
+ *       Use longer buffers, add new debugging messages
+ *
  *       Revision 1.10  1995/11/30 12:50:15  ahd
  *       Make header compares case insensitive
  *
@@ -223,7 +226,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.10 1995/11/30 12:50:15 ahd v1-12q $";
+         "$Id: newsrun.c 1.11 1995/12/02 14:18:33 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.48 1995/09/11 00:20:45 ahd v1-12p $
+ *    $Id: rmail.c 1.49 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    $Log: rmail.c $
+ *    Revision 1.49  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.48  1995/09/11 00:20:45  ahd
  *    Add debugging information to X.* files
  *    Use "--" option to insure user names with leading dash don't

@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.7 1994/02/19 04:44:40 ahd v1-12k $
+ *    $Id: ndirwin.c 1.8 1994/12/22 00:09:57 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ *    Revision 1.8  1994/12/22 00:09:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/02/19 04:44:40  ahd
  *    Use standard first header
  *

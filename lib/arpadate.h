@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.32 1995/07/21 13:28:20 ahd v1-12o $
+ *    $Id: arpadate.h 1.3 1995/09/11 00:24:49 ahd v1-12q $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: arpadate.h $
+ *    Revision 1.3  1995/09/11 00:24:49  ahd
+ *    Bring in line with current header style
+ *
  */
 
 char *arpadate( void );          /* Returns current date in static

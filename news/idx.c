@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 #include "uupcmoah.h"
 
 static const char *rcsid =
-      "$Id: idx.c 1.10 1995/02/20 00:03:07 ahd v1-12o $";
+      "$Id: idx.c 1.11 1995/09/24 19:10:36 ahd v1-12q $";
 
 /*
  * $Log: idx.c $
+ * Revision 1.11  1995/09/24 19:10:36  ahd
+ * Use standard buffer length for processing in all environments
+ *
  * Revision 1.10  1995/02/20 00:03:07  ahd
  * Kai Uwe Rommel's cache support
  *

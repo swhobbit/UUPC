@@ -10,7 +10,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.h 1.7 1995/03/11 12:41:10 ahd v1-12o $
+ * $Id: hdbm.h 1.8 1995/09/24 19:11:38 ahd v1-12q $
  *
  * $Log: hdbm.h $
+ * Revision 1.8  1995/09/24 19:11:38  ahd
+ * Use standard length buffer
+ *
  * Revision 1.7  1995/03/11 12:41:10  ahd
  * Correct compiler warnings
  *

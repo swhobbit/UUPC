@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.h 1.7 1994/12/22 00:20:28 ahd Exp $
+ *    $Id: mlib.h 1.8 1995/01/07 16:19:52 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mlib.h $
+ *    Revision 1.8  1995/01/07 16:19:52  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.7  1994/12/22 00:20:28  ahd
  *    Annual Copyright Update
  *

@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h 1.1 1995/02/20 00:05:26 ahd v1-12q $ */
+/* $Id: cache.h 1.2 1995/12/03 13:52:32 ahd Exp $ */
 
 /*
  * $Log: cache.h $
+ * Revision 1.2  1995/12/03 13:52:32  ahd
+ * Use longs for processing cashe items
+ *
  * Revision 1.1  1995/02/20 00:05:26  ahd
  * Initial revision
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.11 1994/02/20 19:07:38 ahd v1-12k $
+ *    $Id: mkdir.c 1.12 1994/12/22 00:09:24 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *    Revision 1.12  1994/12/22 00:09:24  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1994/02/20 19:07:38  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *

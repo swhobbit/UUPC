@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.14 1995/01/07 16:13:22 ahd Exp $
+ *    $Id: mktempnm.c 1.15 1995/02/12 23:37:04 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.15  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.14  1995/01/07 16:13:22  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

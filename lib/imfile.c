@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.19 1995/09/24 19:07:05 ahd v1-12q $
+ *    $Id: imfile.c 1.20 1995/12/02 14:18:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.20  1995/12/02 14:18:33  ahd
+ *    Trap resizing buffer to zero bytes
+ *
  *    Revision 1.19  1995/09/24 19:07:05  ahd
  *    Reduce debugging output
  *

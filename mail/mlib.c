@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.15 1995/01/07 16:35:54 ahd Exp $
+ *    $Id: mlib.c 1.16 1995/02/20 17:28:43 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.16  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.15  1995/01/07 16:35:54  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

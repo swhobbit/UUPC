@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -25,10 +25,13 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.14 1995/12/03 13:51:44 ahd Exp $";
+      "$Id: history.c 1.15 1995/12/12 13:55:40 ahd Exp $";
 
 /*
  * $Log: history.c $
+ * Revision 1.15  1995/12/12 13:55:40  ahd
+ * Clean up log format
+ *
  * Revision 1.14  1995/12/03 13:51:44  ahd
  * Additional debugging cleanup
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.8 1994/12/22 00:07:39 ahd Exp $
+ *    $Id: checkptr.c 1.9 1995/01/29 14:07:59 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.9  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.8  1994/12/22 00:07:39  ahd
  *    Annual Copyright Update
  *

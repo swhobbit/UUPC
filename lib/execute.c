@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.40 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: execute.c 1.41 1995/03/11 22:33:46 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.41  1995/03/11 22:33:46  ahd
+ *    Blow off undelete processing if so configured under OS/2
+ *
  *    Revision 1.40  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.24 1995/03/24 04:17:22 ahd Exp $
+  *      $Id: hostable.c 1.25 1995/07/21 13:23:19 ahd v1-12q $
   *
   *      $Log: hostable.c $
+  *      Revision 1.25  1995/07/21 13:23:19  ahd
+  *      Clean up OS/2 compiler warnings
+  *
   *      Revision 1.24  1995/03/24 04:17:22  ahd
   *      Compiler warning message cleanup, optimize for low memory processing
   *

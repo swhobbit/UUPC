@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.17 1995/09/24 19:07:05 ahd Exp $
+ *    $Id: getseq.c 1.18 1995/09/26 00:37:40 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.18  1995/09/26 00:37:40  ahd
+ *    Use unsigned sequence number for jobs to prevent mapping errors
+ *
  *    Revision 1.17  1995/09/24 19:07:05  ahd
  *    Better debugging for funky 32 bit error
  *

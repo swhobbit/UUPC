@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.30 1995/01/30 04:05:39 ahd Exp $
+ *    $Id: getdrive.c 1.1 1995/02/12 23:37:04 ahd v1-12q $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: getdrive.c $
+ *    Revision 1.1  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  */
 
 #include <uupcmoah.h>

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.19 1995/09/24 19:09:26 ahd v1-12p $
+ *    $Id: address.c 1.20 1995/11/30 03:06:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.20  1995/11/30 03:06:56  ahd
+ *    Trap truly invalid addresses in tokenizer
+ *
  *    Revision 1.19  1995/09/24 19:09:26  ahd
  *    Change 'address is local' message to more correct report detected
  *    condition.

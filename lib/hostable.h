@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.12 1995/01/29 16:43:42 ahd v1-12n $
+  *   $Id: hostable.h 1.13 1995/07/21 13:28:20 ahd v1-12q $
   *
   *   $Log: hostable.h $
+  *   Revision 1.13  1995/07/21 13:28:20  ahd
+  *   Correct compiler warnings
+  *
   *   Revision 1.12  1995/01/29 16:43:42  ahd
   *   IBM C/Set compiler warnings
   *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.13 1995/05/07 14:38:19 ahd Exp $
+ *    $Id: printerr.c 1.14 1995/09/04 02:13:41 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.14  1995/09/04 02:13:41  ahd
+ *    Correct DOS compile error
+ *
  *    Revision 1.13  1995/05/07 14:38:19  ahd
  *    Drop automatic aborts under DOS, other systems don't provide
  *    the function and calling code now issues desired panic()

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.10 1995/02/12 23:35:59 ahd Exp $
+ *    $Id: chdir.c 1.11 1995/02/14 04:38:42 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.11  1995/02/14 04:38:42  ahd
+ *    Correct problems with directory processing under NT
+ *
  *    Revision 1.10  1995/02/12 23:35:59  ahd
  *    'compiler
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.15 1994/02/28 01:02:06 ahd v1-12k $
+ *    $Id: hostatus.c 1.16 1994/12/22 00:08:57 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.16  1994/12/22 00:08:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/02/28 01:02:06  ahd
  *    Use IMAGE_MODE in place of binary mode
  *

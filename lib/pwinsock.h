@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.h 1.5 1994/12/22 00:13:36 ahd Exp $
+ *    $Id: pwinsock.h 1.6 1995/01/07 16:16:17 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: pwinsock.h $
+ *    Revision 1.6  1995/01/07 16:16:17  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.5  1994/12/22 00:13:36  ahd
  *    Annual Copyright Update
  *

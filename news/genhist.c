@@ -8,7 +8,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,6 +20,11 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
+/* Revision 1.18  1995/12/12 13:48:54  ahd
+/* Use binary tree for news group active file
+/* Use large buffers in news programs to avoid overflow of hist db recs
+/* Use true recursive function to walk entire active file
+/*
  * Revision 1.17  1995/12/03 13:51:44  ahd
  * Additional debugging cleanup
  *
@@ -78,7 +83,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.17 1995/12/03 13:51:44 ahd Exp $";
+         "$Id: genhist.c 1.18 1995/12/12 13:48:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

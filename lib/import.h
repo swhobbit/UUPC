@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.h 1.6 1994/12/22 00:13:09 ahd Exp $
+ *    $Id: import.h 1.7 1995/01/07 16:15:57 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: import.h $
+ *    Revision 1.7  1995/01/07 16:15:57  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.6  1994/12/22 00:13:09  ahd
  *    Annual Copyright Update
  *

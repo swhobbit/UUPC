@@ -60,7 +60,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.20 1995/07/21 13:25:31 ahd v1-12o $
+ *    $Id: sys.c 1.21 1995/09/11 00:20:45 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.21  1995/09/11 00:20:45  ahd
+ *    Correct compile warning
+ *
  *    Revision 1.20  1995/07/21 13:25:31  ahd
  *    Check for lengths in additional to strings being non-null BEFORE
  *    copying them or otherwise processing them.

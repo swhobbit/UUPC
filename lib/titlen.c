@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.3 1994/05/31 00:08:11 ahd v1-12k $
+ *    $Id: titlen.c 1.4 1994/12/22 00:11:58 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: titlen.c $
+ *    Revision 1.4  1994/12/22 00:11:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/05/31 00:08:11  ahd
  *    Add missing title.h header file
  *

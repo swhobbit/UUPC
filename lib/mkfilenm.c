@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.10 1994/12/22 00:09:29 ahd v1-12n $
+ *    $Id: mkfilenm.c 1.11 1995/03/24 04:17:22 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *    Revision 1.11  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.10  1994/12/22 00:09:29  ahd
  *    Annual Copyright Update
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.23 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: confvars.h 1.24 1995/02/20 00:40:44 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.24  1995/02/20 00:40:44  ahd
+ *    News index caching support
+ *
  *    Revision 1.23  1994/12/31 03:51:25  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *

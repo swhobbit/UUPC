@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.h 1.7 1995/09/24 19:11:38 ahd Exp $
+ *    $Id: getseq.h 1.8 1995/09/26 00:38:35 ahd v1-12q $
  *
  *    $Log: getseq.h $
+ *    Revision 1.8  1995/09/26 00:38:35  ahd
+ *    Use unsigned sequence number for jobs to prevent mapping errors
+ *
  *    Revision 1.7  1995/09/24 19:11:38  ahd
  *    Use const parameters where possible
  *

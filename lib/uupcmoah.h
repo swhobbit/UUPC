@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.2 1994/12/22 00:14:32 ahd Exp $
+ *    $Id: uupcmoah.h 1.3 1995/01/05 03:45:13 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.3  1995/01/05 03:45:13  ahd
+ *    Don't allow Windows compiles under MSC, it doesn't work
+ *
  *    Revision 1.2  1994/12/22 00:14:32  ahd
  *    Annual Copyright Update
  *

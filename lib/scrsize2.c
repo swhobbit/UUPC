@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.5 1995/01/07 16:14:22 ahd Exp $
+ *    $Id: scrsize2.c 1.6 1995/01/29 16:43:03 ahd v1-12q $
  *
  *    $Log: scrsize2.c $
+ *    Revision 1.6  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.5  1995/01/07 16:14:22  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *

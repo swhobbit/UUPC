@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.31 1995/09/24 19:07:05 ahd v1-12q $
+ *    $Id: import.c 1.32 1995/12/12 13:48:54 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.32  1995/12/12 13:48:54  ahd
+ *    restrict issuing importPath messages to higher verbosity levels
+ *
  *    Revision 1.31  1995/09/24 19:07:05  ahd
  *    Trap invalid input names with spaces
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.6 1995/01/29 14:03:29 ahd Exp $
+ *    $Id: sendbats.c 1.7 1995/02/12 23:37:04 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.7  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.6  1995/01/29 14:03:29  ahd
  *    Clean up IBM C/Set compiler warnings
  *
@@ -48,7 +51,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.6 1995/01/29 14:03:29 ahd Exp $";
+            "$Id: sendbats.c 1.7 1995/02/12 23:37:04 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.11 1995/02/20 00:40:12 ahd v1-12n $
+ *    $Id: sysalias.c 1.12 1995/04/02 00:01:39 ahd v1-12q $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.12  1995/04/02 00:01:39  ahd
+ *    Properly handle case of comment immediately before new alias;
+ *    previously, starting location of alias was saved wrong
+ *
  *    Revision 1.11  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *

@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.15 1995/03/11 12:39:24 ahd Exp $
+ *    $Id: batch.c 1.16 1995/03/11 22:28:56 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.16  1995/03/11 22:28:56  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.15  1995/03/11 12:39:24  ahd
  *    Add missing header for stater
  *

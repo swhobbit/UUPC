@@ -4,7 +4,7 @@
 /*    Disk Transfer Address functions for MS C under DOS only for     */
 /*    UUPC/extended                                                   */
 /*                                                                    */
-/*    Changes and Compilation Copyright (c) 1989-1995, Andrew H.      */
+/*    Changes and Compilation Copyright (c) 1989-1996, Andrew H.      */
 /*    Derbyshire                                                      */
 /*--------------------------------------------------------------------*/
 

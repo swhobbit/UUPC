@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.7 1995/01/29 14:07:59 ahd Exp $
+ *    $Id: title2.c 1.8 1995/01/29 16:43:03 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.8  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.7  1995/01/29 14:07:59  ahd
  *    Clean up most IBM C/Set Compiler Warnings
  *

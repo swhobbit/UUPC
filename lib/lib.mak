@@ -1,17 +1,22 @@
 # *--------------------------------------------------------------------*
 # *     l i b . m a k                                                  *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1996 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.17 1995/02/12 23:27:23 ahd Exp $
+#       $Id: lib.mak 1.18 1995/02/21 02:45:44 ahd v1-12q $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.18  1995/02/21 02:45:44  ahd
+#       Move active.c, importng.c to news directory, add news index
+#       cache support, create news subroutine library, and use BCC
+#       to drive tlink.
+#
 #       Revision 1.17  1995/02/12 23:27:23  ahd
 #       split rnews into rnews/news, rename rnews dir to news, make inews COM file
 #

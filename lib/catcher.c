@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.18 1995/02/24 00:37:28 ahd v1-12n $
+ *    $Id: catcher.c 1.19 1995/03/12 16:42:24 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.19  1995/03/12 16:42:24  ahd
+ *    Correct compiler warnings
+ *
  *    Revision 1.18  1995/02/24 00:37:28  ahd
  *    Move panic_rc from catcher.c into bugout.c, keeps catcher from
  *    being included into every module.
@@ -81,7 +84,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-         "$Id: catcher.c 1.18 1995/02/24 00:37:28 ahd v1-12n $";
+         "$Id: catcher.c 1.19 1995/03/12 16:42:24 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
