@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.18 1997/03/31 07:05:39 ahd v1-12u $
+ *    $Id: printmsg.c 1.19 1998/03/01 01:24:50 ahd v1-12v $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.19  1998/03/01 01:24:50  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1997/03/31 07:05:39  ahd
  *    Annual Copyright Update
  *
@@ -112,11 +115,7 @@ currentfile();
 
 int debuglevel = 1;
 
-#ifdef __IBMC__
 FILE *logfile;
-#else
-FILE *logfile = stdout;
-#endif
 
 #ifdef __CORE__
 long  *lowcore = NULL;
