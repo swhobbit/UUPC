@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.5 1998/04/24 03:30:13 ahd v1-13b $
+ *       $Id: pop3lwc.c 1.6 1998/11/01 20:38:15 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.6  1998/11/01 20:38:15  ahd
+ *       Trap overlength operands on USER command
+ *
  * Revision 1.5  1998/04/24  03:30:13  ahd
  * Use local buffers, not client->transmit.buffer, for output
  * Rename receive buffer, use pointer into buffer rather than
@@ -62,7 +65,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.5 1998/04/24 03:30:13 ahd v1-13b $");
+RCSID("$Id: pop3lwc.c 1.6 1998/11/01 20:38:15 ahd Exp $");
 
 currentfile();
 
@@ -219,6 +222,7 @@ commandPASS(SMTPClient *client,
    checkref( client->transaction );
    memset(client->transaction, 0, sizeof *client->transaction);
    client->transaction->userp = userp;
+   client->magic = POP3T_MAGIC;
 
    /* Immediately process the load of the mailbox */
    setClientProcess(client, KWTrue );

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.12 1998/03/03 03:53:54 ahd v1-12v $
+ *    $Id: smtpd.c 1.13 1998/03/08 23:07:12 ahd v1-13b $
  *
  *    $Log: smtpd.c $
+ * Revision 1.13  1998/03/08  23:07:12  ahd
+ * More complete UUXQT support
+ *
  *    Revision 1.12  1998/03/03 03:53:54  ahd
  *    Routines to handle messages within a POP3 mailbox
  *
@@ -89,7 +92,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.12 1998/03/03 03:53:54 ahd v1-12v $");
+RCSID("$Id: smtpd.c 1.13 1998/03/08 23:07:12 ahd v1-13b $");
 
 currentfile();
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.29 1997/04/24 01:09:54 ahd v1-12u $
+ *    $Id: mailsend.c 1.30 1998/03/01 01:33:28 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.30  1998/03/01  01:33:28  ahd
+ * Annual Copyright Update
+ *
  *    Revision 1.29  1997/04/24 01:09:54  ahd
  *    Annual Copyright Update
  *

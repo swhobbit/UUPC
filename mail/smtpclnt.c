@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.15 1998/04/22 01:19:54 ahd Exp $
+ *       $Id: smtpclnt.c 1.16 1998/04/24 03:30:13 ahd v1-13b $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ * Revision 1.16  1998/04/24  03:30:13  ahd
+ * Use local buffers, not client->transmit.buffer, for output
+ * Rename receive buffer, use pointer into buffer rather than
+ *      moving buffered data to front of buffer every line
+ * Restructure main processing loop to give more priority
+ *      to client processing data already buffered
+ * Add flag bits to client structure
+ * Add flag bits to verb tables
+ *
  *       Revision 1.15  1998/04/22 01:19:54  ahd
  *       Performance improvements for SMTPD data mode
  *
@@ -89,7 +98,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.15 1998/04/22 01:19:54 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.16 1998/04/24 03:30:13 ahd v1-13b $");
 
 static size_t clientSequence = 0;
 
@@ -108,6 +117,7 @@ initializeClient(SOCKET handle, KWBoolean master)
    checkref(client);
    memset(client, 0, sizeof *client);
 
+   client->magic    = SMTPC_MAGIC;
    client->sequence = ++clientSequence;
    client->connectTime = client->lastTransactionTime = time(NULL);
 
@@ -188,9 +198,10 @@ initializeMaster(const char *portName, time_t exitTime)
    SMTPClient *master = malloc(sizeof *master);
 
    checkref(master);
+
    memset(master, 0, sizeof *master);
    master->sequence = ++clientSequence;
-
+   master->magic    = SMTPC_MAGIC;
 
    setClientMode(master, SM_MASTER);
    setClientHandle(master, openMaster(portName));
@@ -229,6 +240,8 @@ setClientClosed(SMTPClient *client)
 {
    static const char mName[] = "setClientClosed";
 
+   assertSMTP(client);
+
    if (getClientHandle(client) != INVALID_SOCKET)
    {
       printmsg(2,"%s: Closing client %d on handle %d",
@@ -261,6 +274,7 @@ freeClient(SMTPClient *client)
    static const char mName[] = "freeClient";
    time_t now;
 
+   assertSMTP(client);
    time(&now);
 
    printmsg(1,"%s: Dropping client %d, "
@@ -305,10 +319,17 @@ freeClient(SMTPClient *client)
 /*--------------------------------------------------------------------*/
 
    if (client->previous)
+   {
+
+      assertSMTP(client->previous);
       client->previous->next = client->next;
+   }
 
    if (client->next)
+   {
+      assertSMTP(client->next);
       client->next->previous = client->previous;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                     Now drop the client memory                     */
@@ -333,6 +354,9 @@ processClient(SMTPClient *client)
    static const char mName[] = "processClient";
    client->ignoreUntilTime = 0;     /* If we're called, this out of
                                        date ... short circuit checks */
+
+
+   assertSMTP(client);
 
    if (isClientFlag(client, SF_NO_READ))
    {
@@ -365,6 +389,8 @@ isClientValid(const SMTPClient *client)
    static const char mName[] = "isClientValid";
    KWBoolean result;
 
+   assertSMTP(client);
+
    if (client->mode == SM_DELETE_PENDING)
       result = KWFalse;
    else if (getClientHandle(client) == INVALID_SOCKET)
@@ -395,6 +421,8 @@ isClientTimedOut(const SMTPClient *client)
 {
    static const char mName[] = "isClientTimedOut";
    time_t now;
+
+   assertSMTP(client);
 
    /* Special case, since timeout is zero to force processing */
    if (getClientProcess(client))
@@ -448,6 +476,8 @@ isClientIgnored(const SMTPClient *client)
 {
    static const char mName[] = "isClientIgnored";
    time_t now;
+
+   assertSMTP(client);
 
    if (client->ignoreUntilTime == 0)
       return KWFalse;
@@ -557,7 +587,6 @@ getClientReady(const SMTPClient *client)
    return client->ready;
 } /* getClientReady */
 
-
 void setClientQueueRun(SMTPClient *client, KWBoolean needQueueRun)
 {
    client->needQueueRun = needQueueRun;
@@ -580,7 +609,6 @@ getClientProcess(const SMTPClient *client)
 {
    return client->process;
 } /* getClientProcess */
-
 
 KWBoolean
 getClientBufferedData(const SMTPClient *client)
@@ -628,6 +656,8 @@ getClientTimeout(const SMTPClient *client)
 {
    time_t now;
    time_t maximumTimeout = LONG_MAX;
+
+   assertSMTP(client);
 
    /* Clients ready to process should not be held up */
    if (getClientProcess(client))
@@ -706,57 +736,79 @@ setClientIgnore(SMTPClient *client, time_t delay)
 size_t
 getClientSequence(const SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->sequence;
 }
 
 void incrementClientLinesWritten(SMTPClient *client)
 {
+
+   assertSMTP(client);
    client->transmit.bytesTransferred++;
 }
 
 size_t getClientLinesWritten(SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->transmit.linesTransferred;
 }
 
 void incrementClientBytesWritten(SMTPClient *client,
                                size_t increment)
 {
+
+   assertSMTP(client);
    client->transmit.bytesTransferred += increment;
 }
 
 size_t getClientBytesWritten(SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->transmit.bytesTransferred;
 }
 
 void incrementClientLinesRead(SMTPClient *client)
 {
+
+   assertSMTP(client);
    client->receive.linesTransferred++;
 }
 
 size_t getClientLinesRead(SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->receive.bytesTransferred;
 }
 
 void incrementClientBytesRead(SMTPClient *client,
                                size_t increment)
 {
+
+   assertSMTP(client);
    client->receive.bytesTransferred += increment;
 }
 
 size_t getClientBytesRead(SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->receive.bytesTransferred;
 }
 
 void incrementClientTrivialCount(SMTPClient *client)
 {
+
+   assertSMTP(client);
    client->trivialTransactions++;
 }
 
 size_t getClientTrivialCount(const SMTPClient *client)
 {
+
+   assertSMTP(client);
    return client->trivialTransactions;
 }

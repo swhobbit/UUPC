@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.13 1998/05/11 13:55:01 ahd Exp $
+ *       $Id: pop3user.c 1.14 1998/05/15 03:13:48 ahd v1-13b $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ * Revision 1.14  1998/05/15  03:13:48  ahd
+ * Don't attempt to read size of mailbox at QUIT if no mailbox
+ * initialized
+ *
  *       Revision 1.13  1998/05/11 13:55:01  ahd
  *       Correct compile error from previous fix
  *
@@ -88,7 +92,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.13 1998/05/11 13:55:01 ahd Exp $");
+RCSID("$Id: pop3user.c 1.14 1998/05/15 03:13:48 ahd v1-13b $");
 
 currentfile();
 
@@ -473,6 +477,9 @@ listOneMessage(SMTPClient *client,
 {
    char xmitBuf[XMIT_LENGTH];
 
+   assertSMTP(client);
+   assertPOP3Message(current);
+   
    sprintf(xmitBuf, "%ld %ld",
            current->sequence,
            current->octets);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.47 1998/03/03 03:53:54 ahd v1-12v $
+ *    $Id: mail.c 1.48 1998/03/16 07:47:40 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.48  1998/03/16  07:47:40  ahd
+ * Add IUDL to ignored header list
+ *
  *    Revision 1.47  1998/03/03 03:53:54  ahd
  *    Routines to handle messages within a POP3 mailbox
  *
@@ -79,7 +82,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: mail.c 1.47 1998/03/03 03:53:54 ahd v1-12v $");
+RCSID("$Id: mail.c 1.48 1998/03/16 07:47:40 ahd v1-13b $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

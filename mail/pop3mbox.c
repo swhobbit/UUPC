@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.9 1998/04/19 15:30:08 ahd Exp $
+ *       $Id: pop3mbox.c 1.10 1998/04/24 03:30:13 ahd v1-13b $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ * Revision 1.10  1998/04/24  03:30:13  ahd
+ * Use local buffers, not client->transmit.buffer, for output
+ * Rename receive buffer, use pointer into buffer rather than
+ *      moving buffered data to front of buffer every line
+ * Restructure main processing loop to give more priority
+ *      to client processing data already buffered
+ * Add flag bits to client structure
+ * Add flag bits to verb tables
+ *
  *       Revision 1.9  1998/04/19 15:30:08  ahd
  *       Correctly count number of new lines in each message
  *
@@ -67,7 +76,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.9 1998/04/19 15:30:08 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.10 1998/04/24 03:30:13 ahd v1-13b $");
 
 currentfile();
 
@@ -107,6 +116,7 @@ newPopMessage(SMTPClient *client,
       client->transaction->top = current;
 
    /* Initialize information for our new box */
+   current->magic = POP3M_MAGIC;
    current->sequence = ++(client->transaction->messageCount);
    current->startPosition = position;
    current->previous = previous;
@@ -216,8 +226,8 @@ popBoxLoad(SMTPClient *client)
            bflag[F_COMMENTFROM] &&
            equaln(buffer, fromString, fromStringLength))
       {
-         imputs( commentString, client->transaction->imf );
-         current->octets += strlen( commentString );
+         imputs(commentString, client->transaction->imf);
+         current->octets += strlen(commentString);
       }
 
       firstHeader = KWFalse;
@@ -250,7 +260,7 @@ popBoxLoad(SMTPClient *client)
             {
                /* We take the last uidl we find */
                if (current->uidl != NULL)
-                  free( current->uidl );
+                  free(current->uidl);
 
                current->uidl = strdup(token);
                checkref(current->uidl);
@@ -308,6 +318,11 @@ static KWBoolean
 popMessageUnload( SMTPClient *client,
                   MailMessage *current )
 {
+
+
+   assertSMTP(client);
+   assertPOP3Message(current);
+
    /* Go to the beginning of the message */
    if (imseek(client->transaction->imf,
                current->startPosition,
@@ -358,7 +373,7 @@ popMessageUnload( SMTPClient *client,
                   length,
                   client->transaction->mailboxStream) != length)
       {
-         printerr( client->transaction->mailboxName );
+         printerr(client->transaction->mailboxName);
          return KWFalse;
       }
 
@@ -367,7 +382,7 @@ popMessageUnload( SMTPClient *client,
    /* Verify we didn't have an input problem */
    if (imerror(client->transaction->imf))
    {
-      printerr( client->transaction->mailboxName );
+      printerr(client->transaction->mailboxName);
       return KWFalse;
    }
 
@@ -383,7 +398,7 @@ popMessageUnload( SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-popBoxUnload( SMTPClient *client )
+popBoxUnload(SMTPClient *client)
 {
    KWBoolean success = KWTrue;
    MailMessage *current;
@@ -393,8 +408,10 @@ popBoxUnload( SMTPClient *client )
        (getMessageOctetCount(client->transaction->top, NULL) == 0))
    {
 
+      assertPOP3Transaction(client);
+
       /* Close and remove as fast we can */
-      imclose( client->transaction->imf );
+      imclose(client->transaction->imf);
       client->transaction->imf = NULL;
 
       fclose(client->transaction->mailboxStream);
@@ -411,12 +428,12 @@ popBoxUnload( SMTPClient *client )
    /* Truncate the mailbox in order to rewrite it */
    client->transaction->mailboxStream =
                      freopen(client->transaction->mailboxName,
-                             "wt",
+                             "w" TEXT_MODE,
                              client->transaction->mailboxStream);
 
-   if ( client->transaction->mailboxStream == NULL )
+   if (client->transaction->mailboxStream == NULL)
    {
-      printerr( client->transaction->mailboxName );
+      printerr(client->transaction->mailboxName);
       return KWFalse;
    }
 
@@ -428,10 +445,13 @@ popBoxUnload( SMTPClient *client )
 
    while((current != NULL) && success)
    {
-      if ( ! popBoxIsDeleted( current ))
-         success = popMessageUnload( client, current );
+      assertPOP3Message(current);
+
+      if (! popBoxIsDeleted( current))
+         success = popMessageUnload(client, current);
 
       current = current->next;
+
 
    } /* while((current != NULL) && success) */
 
@@ -439,7 +459,7 @@ popBoxUnload( SMTPClient *client )
 /*          Close up shop and return with saved error status          */
 /*--------------------------------------------------------------------*/
 
-   imclose( client->transaction->imf );
+   imclose(client->transaction->imf);
    client->transaction->imf = NULL;
 
    fclose(client->transaction->mailboxStream);
@@ -456,11 +476,13 @@ popBoxUnload( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 MailMessage *
-popBoxGet( MailMessage *current, const long sequence )
+popBoxGet(MailMessage *current, const long sequence)
 {
-   while( current != NULL )
+   while(current != NULL)
    {
-      if ( current->sequence == sequence )
+      assertPOP3Message(current);
+
+      if (current->sequence == sequence)
          return current;
 
       current = current->next;
@@ -478,21 +500,23 @@ popBoxGet( MailMessage *current, const long sequence )
 /*--------------------------------------------------------------------*/
 
 MailMessage *
-getBoxPopNext( MailMessage *current )
+getBoxPopNext(MailMessage *current)
 {
-   if ( current == NULL )
+   if (current == NULL)
       return NULL;
 
+   assertPOP3Message(current);
    current = current->next;
 
-   while( current != NULL )
+   while(current != NULL)
    {
-      if ( ! current->deleted )
+      assertPOP3Message(current);
+      if (! current->deleted)
          return current;
 
       current = current->next;
 
-   } /* while( current != NULL ) */
+   } /* while(current != NULL) */
 
    /* We did not find an undeleted message, report failure */
    return NULL;
@@ -506,13 +530,14 @@ getBoxPopNext( MailMessage *current )
 /*--------------------------------------------------------------------*/
 
 int
-popBoxUndelete( MailMessage *current )
+popBoxUndelete(MailMessage *current)
 {
    int count = 0;
 
-   while( current != NULL )
+   while(current != NULL)
    {
-      if ( current->deleted )
+      assertPOP3Message(current);
+      if (current->deleted)
       {
          current->deleted = KWFalse;
          count++;
@@ -537,9 +562,10 @@ getMessageOctetCount( MailMessage *current,
    long localMessageCount = 0;
    long octets = 0;
 
-   while( current != NULL )
+   while(current != NULL)
    {
-      if ( !current->deleted )
+      assertPOP3Message(current);
+      if (!current->deleted)
       {
          localMessageCount ++;
          octets += current->octets;
@@ -548,7 +574,7 @@ getMessageOctetCount( MailMessage *current,
       current = current->next;
    }
 
-   if ( messageCountPtr != NULL )
+   if (messageCountPtr != NULL)
       *messageCountPtr = localMessageCount;
 
    return octets;
@@ -562,14 +588,17 @@ getMessageOctetCount( MailMessage *current,
 /*--------------------------------------------------------------------*/
 
 char *
-popBoxUIDL( MailMessage *current )
+popBoxUIDL(MailMessage *current)
 {
-   char buffer[20];
-   if ( current->uidl != NULL )
+   char buffer[30];
+
+    assertPOP3Message(current);
+
+   if (current->uidl != NULL)
       return current->uidl;
 
    /* Build a fake UIDL */
-   sprintf( buffer, "<%x.%x.%d>",
+   sprintf( buffer, "<%08x.%08x.%04.4d>",
                    time(NULL),
                    current->octets,
                    current->sequence);
@@ -588,22 +617,22 @@ popBoxUIDL( MailMessage *current )
 /*--------------------------------------------------------------------*/
 
 void
-cleanupMailbox( MailMessage *current )
+cleanupMailbox(MailMessage *current)
 {
-   while( current != NULL )
+   while(current != NULL)
    {
       MailMessage *next = current->next;
 
-      if ( current->uidl != NULL )
+      if (current->uidl != NULL)
       {
-         free( current->uidl );
+         free(current->uidl);
          current->uidl = NULL;
       }
 
-      memset( current, 0, sizeof *current );
-      free( current );
+      memset(current, 0, sizeof *current);
+      free(current);
       current = next;
 
-   } /* while( current != NULL ) */
+   } /* while(current != NULL) */
 
 } /* cleanupMailbox */

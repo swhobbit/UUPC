@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MAILLIB.C 1.28 1998/03/16 06:39:32 ahd Exp $
+ *    $Id: maillib.c 1.29 1998/04/08 11:32:07 ahd v1-13b $
  *
- *    $Log: MAILLIB.C $
+ *    $Log: maillib.c $
+ * Revision 1.29  1998/04/08  11:32:07  ahd
+ * Correctly handle missing addresses on From: lines with trailing
+ * white space.
+ *
  *    Revision 1.28  1998/03/16 06:39:32  ahd
  *    Suppress UIDL headers on resent
  *

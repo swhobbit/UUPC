@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.20 1998/05/11 01:20:48 ahd Exp $
+ *    $Id: smtpnetw.c 1.21 1998/05/11 13:55:28 ahd v1-13b $
  *
  *    $Log: smtpnetw.c $
+ * Revision 1.21  1998/05/11  13:55:28  ahd
+ * Reduce buffer size to handle OS/2 builds
+ *
  *    Revision 1.20  1998/05/11 01:20:48  ahd
  *    Length line of trace messages in log
  *
@@ -118,7 +121,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.20 1998/05/11 01:20:48 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.21 1998/05/11 13:55:28 ahd v1-13b $");
 
 currentfile();
 
@@ -408,6 +411,8 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
    size_t totalLength;
    KWBoolean buffered = KWFalse;
    int printLevel = 2;
+
+   assertSMTP(client);
 
    switch(code)
    {
@@ -894,6 +899,8 @@ SMTPWrite(SMTPClient *client,
    int status;
    static const size_t maxWrite = 1024;
 
+   assertSMTP(client);
+
    status = send(getClientHandle(client),
                  (char UUFAR *)data,
                  (int) len,
@@ -943,6 +950,8 @@ SMTPRead(SMTPClient *client)
 {
    static const char mName[] = "SMTPRead";
    int received;
+
+   assertSMTP(client);
 
 /*--------------------------------------------------------------------*/
 /*               Reset flag which drives our invocation               */
@@ -1109,6 +1118,8 @@ SMTPBurpBuffer(SMTPClient *client)
 /*                 Verify the status of the input buffer              */
 /*--------------------------------------------------------------------*/
 
+   assertSMTP(client);
+
    if (client->receive.allocated < client->receive.used)
    {
          printmsg(0, "%s: Client has used more bytes (%d) "
@@ -1212,6 +1223,8 @@ selectReadySockets(SMTPClient *master)
 /*--------------------------------------------------------------------*/
 
    do {
+
+      assertSMTP(current);
 
       if (isClientValid(current) &&
            ! isClientIgnored(current) &&
