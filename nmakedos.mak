@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.17 1997/04/24 01:01:16 ahd v1-12u $
+#       $Id: nmakedos.mak 1.18 1998/03/01 01:22:00 ahd v1-13a $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.18  1998/03/01 01:22:00  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.17  1997/04/24 01:01:16  ahd
 #       Annual Copyright Update
 #
@@ -85,6 +88,7 @@ NODEBUG=1
 !endif
 !endif
 
+ICONS    = icons.win
 #MASMOPTS = /DUUPC /DDEBUG /n /v /t /z /W2 /ZD /Mx
 MASMOPTS = /DUUPC /n /v /t /z /W2 /ZI /ZD /Mx
 
