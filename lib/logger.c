@@ -13,13 +13,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.1 1992/11/16 05:00:26 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: LOGGER.C $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
 
-static char rcsid[] = "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */

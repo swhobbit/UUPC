@@ -33,9 +33,12 @@
 */
 
 /*
- *       $Id: dcpxfer.c 1.3 1992/11/17 13:44:24 ahd Exp ahd $
+ *       $Id: DCPXFER.C 1.4 1992/11/19 02:36:12 ahd Exp $
  *
- *       $Log: dcpxfer.c $
+ *       $Log: DCPXFER.C $
+ * Revision 1.4  1992/11/19  02:36:12  ahd
+ * Insure log file is flushed
+ *
  * Revision 1.3  1992/11/17  13:44:24  ahd
  * Drop command[BUFSIZ], using databuf instead.
  *
@@ -45,8 +48,6 @@
  *
  */
 
-static const char rcsid[] =
-         "$Id: dcpxfer.c 1.3 1992/11/17 13:44:24 ahd Exp ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

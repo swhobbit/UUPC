@@ -39,9 +39,12 @@
 */
 
 /*
- *     $Id: DCPSYS.C 1.4 1992/11/17 13:46:42 ahd Exp $
+ *     $Id: DCPSYS.C 1.5 1992/11/18 03:49:21 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.5  1992/11/18  03:49:21  ahd
+ * Move check of call window to avoid premature lock file overhead
+ *
  * Revision 1.4  1992/11/17  13:46:42  ahd
  * If host lookup fails, issue real error message, not malloc failure!
  *
@@ -53,8 +56,6 @@
  *
  */
 
- static const char rcsid[] =
-      "$Id: DCPSYS.C 1.4 1992/11/17 13:46:42 ahd Exp $";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 

@@ -20,12 +20,13 @@
 */
 
 /*
- *       $Id$
- *       $Log$
+ *       $Id: ULIBOS2.C 1.2 1992/11/15 20:11:48 ahd Exp $
+ *       $Log: ULIBOS2.C $
+ * Revision 1.2  1992/11/15  20:11:48  ahd
+ * Add English display of modem status and error bits
+ *
  */
 
- static const char rcsid[] =
-         "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

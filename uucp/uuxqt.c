@@ -18,16 +18,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: c:/src/uupc/uucp/RCS/uuxqt.c%v 1.1 1992/04/27 02:46:02 ahd Exp $
+ *    $Header: E:\SRC\UUPC\UUCP\RCS/UUXQT.C 1.1 1992/11/15 20:16:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: uuxqt.c%v $
+ *    $Log: UUXQT.C $
+ * Revision 1.1  1992/11/15  20:16:50  ahd
+ * Initial revision
+ *
  * Revision 1.1  1992/04/27  02:46:02  ahd
  * Initial revision
  *
  */
 
-static char rcsid[] = "$Id: uuxqt.c%v 1.1 1992/04/27 02:46:02 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -809,7 +811,11 @@ static int shell(char *command,
 
       while (( addr < argc )  && (result != -1 ))
       {
+#ifdef __TURBOC__
+         size_t rlen =  126 ;
+#else
          size_t rlen = (_osmode == DOS_MODE) ? 126 :  254;
+#endif
          char buf[255];
          rlen -= strlen( argv[0] );
                               /* Compute space left on command line  */

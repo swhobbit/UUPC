@@ -26,13 +26,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\LIB\RCS\MKTEMPNM.C 1.1 1992/11/16 05:00:26 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: MKTEMPNM.C $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
 
-static char rcsid[] = "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

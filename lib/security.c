@@ -12,13 +12,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\LIB\RCS\SECURITY.C 1.1 1992/11/16 05:00:26 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: SECURITY.C $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
 
-static char rcsid[] = "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -13,10 +13,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.2 1992/11/17 13:47:30 ahd Exp ahd $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.3 1992/11/19 02:54:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOCK.C $
+ * Revision 1.3  1992/11/19  02:54:47  ahd
  * Revision 1.2  1992/11/17  13:47:30  ahd
  * Do not buffer lock file
  *

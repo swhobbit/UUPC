@@ -26,16 +26,17 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.3 1992/11/16 02:10:27 ahd Exp $
+ *      $Id: DCPGPKT.C 1.4 1992/11/17 13:45:37 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.4  1992/11/17  13:45:37  ahd
+ * Add comments from Ian Talyor
+ *
  * Revision 1.3  1992/11/16  02:10:27  ahd
  * Rewrite protocol initialize to insure full exchange of packets
  *
  */
 
-static const char rcsid[] =
-        "$Id: DCPGPKT.C 1.3 1992/11/16 02:10:27 ahd Exp $";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 

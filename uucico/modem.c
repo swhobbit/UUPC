@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $
+ *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.3 1992/11/18 03:48:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.3  1992/11/18  03:48:24  ahd
+ * Move check of call window to avoid premature lock file overhead
+ *
  * Revision 1.2  1992/11/15  20:12:17  ahd
  * Clean up modem file support for different protocols
  *
@@ -30,7 +33,6 @@
  *
  */
 
-static char rcsid[] = "$Id: MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $";
 
 #include <limits.h>
 #include <stdio.h>
