@@ -32,10 +32,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.7 1992/12/11 12:43:53 ahd Exp ahd $
+#     $Id: makefile 1.8 1992/12/18 13:05:00 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#       Revision 1.8  1992/12/18  13:05:00  ahd
+#       Drop system aliases
+#
 #       Revision 1.7  1992/12/11  12:43:53  ahd
 #       Add aliases file to list of samples
 #
@@ -92,7 +95,7 @@ SUFFIX  = $(MODEL)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.11x
+VERS = 1.11y
 
 # *--------------------------------------------------------------------*
 # *   Hard Drive letter, and directories on the hard drive to be       *
