@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.7 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: commlib.c 1.8 1993/09/27 00:45:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.8  1993/09/27  00:45:20  ahd
+ * Allow named pipes under OS/2 16 bit
+ *
  * Revision 1.7  1993/09/24  03:43:27  ahd
  * Add os/2 named pipes
  *
@@ -69,8 +72,16 @@
 #include "ulib14.h"           // DOS ARTISOFT INT14 interface
 #endif
 
+/*--------------------------------------------------------------------*/
+/*       Use the NOTCPIP to suppress the TCP/IP when you don't        */
+/*       have WINSOCK.H                                               */
+/*--------------------------------------------------------------------*/
+
 #if defined(WIN32) || defined(_Windows)
+#ifndef NOTCPIP
 #include "ulibip.h"           // Windows sockets on TCP/IP interface
+#define TCPIP
+#endif
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
@@ -144,7 +155,7 @@ boolean chooseCommunications( const char *name )
         },
 #endif
 
-#if defined(WIN32) || defined(_Windows)
+#if defined(TCPIP)
         { "tcp/ip",                    // Win32 TCP/IP Winsock interface
           tactiveopenline, tpassiveopenline, tsread, tswrite,
           tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
