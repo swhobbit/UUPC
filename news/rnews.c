@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.16 1993/09/24 03:43:27 ahd Exp $
+ *       $Id: rnews.c 1.17 1993/09/27 04:04:06 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.17  1993/09/27  04:04:06  ahd
+ * Reduce buffer sizes to avoid 16 bit stack over flows
+ *
  * Revision 1.16  1993/09/24  03:43:27  ahd
  * Double buffers to avoid crashes during Disney Stock Flame War
  *
@@ -85,7 +88,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.16 1993/09/24 03:43:27 ahd Exp $";
+         "$Id: rnews.c 1.17 1993/09/27 04:04:06 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -191,7 +194,7 @@ void main( int argc, char **argv)
 
    struct tm *local_now;
 
-   long now = time(nil(long));
+   time_t now = time(nil(time_t));
    FILE *f;
    char in_filename[FILENAME_MAX];
    char filename[FILENAME_MAX];
@@ -1219,7 +1222,7 @@ static void get_snum(const char *group, char *snum)
    strcpy(snum, "0");
    cur = find_newsgroup(group);
    if (cur == NULL)
-   return;
+      return;
 
    sprintf(snum, "%d", cur->grp_high);
 
