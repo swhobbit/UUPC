@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\UTIL\RCS\GENSIG.C 1.2 1993/03/06 23:04:54 ahd Exp $
+ *    $Id: GENSIG.C 1.3 1993/04/11 00:33:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: GENSIG.C $
+ * Revision 1.3  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1993/03/06  23:04:54  ahd
  * Alter message to include output files
  *
@@ -27,7 +30,7 @@
  *
  */
 
-static char rcsid[] = "$Id: GENSIG.C 1.2 1993/03/06 23:04:54 ahd Exp $";
+static char rcsid[] = "$Id: GENSIG.C 1.3 1993/04/11 00:33:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -430,9 +433,8 @@ static long chooseavailable( const char *quoteused, long quotes )
 /*                       Now, choose the quote                        */
 /*--------------------------------------------------------------------*/
 
-   srand ( time( NULL ));     /* Initialize the generator      */
-   select = rand() % available ;
-                        /* ... Lucky seven?                    */
+   srand ( (unsigned) time( NULL )); /* Initialize the generator     */
+   select = rand() % available ; /* ... Lucky seven?                 */
 
 /*--------------------------------------------------------------------*/
 /*                         end debugging info                         */
