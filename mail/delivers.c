@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.14 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: delivers.c 1.15 1999/01/08 02:21:01 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.15  1999/01/08 02:21:01  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.14  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -107,7 +110,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: delivers.c 1.14 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: delivers.c 1.15 1999/01/08 02:21:01 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -615,13 +618,6 @@ SendSMTPData(
       panic();
    }
 
-/*--------------------------------------------------------------------*/
-/*        Send command to return data mode and get out of here        */
-/*--------------------------------------------------------------------*/
-
-   if (! SendSMTPCmdCheckReply(".", 250))
-      return KWFalse;
-
    return KWTrue;
 
 } /* SendSMTPData */
@@ -763,23 +759,31 @@ ConnectSMTP(
   {
       if (SendSMTPData(imf))         /* yes --> Transmit the message  */
       {
-          printmsg(0, "%s: Delivered %ld byte message from %s "
+         if (SendSMTPCmdCheckReply(".", 250))
+         {
+            printmsg(0, "%s: Delivered %ld byte message from %s "
                       "to %ld addresses via relay %s",
-                      mName,
+                       mName,
                       imlength( imf ),
                       sender->address,
                       successes,
-                      relay );
-      }
+                      relay);
+         }
+         else {
+             Bounce(imf,
+                    sender,
+                    "Final delivery error during SMTP delivery",
+                    relay,
+                    "*unknown*",
+                    validate);
+         } /* else */
+
+      } /* if (SendSMTPData(imf)) */
       else {
-          Bounce(imf,
-                 sender,
-                 "Data transmission error during SMTP delivery",
-                 relay,
-                 "*unknown*",
-                 validate);
+         printmsg(0,"SendSMTPData failed!");
+         panic();
       }
-  }
+  } /* if (successes) */
   else {
       SendSMTPCmdCheckReply("RSET", 250);    /* no --> Abort send    */
       successes = 1;                /* Avoid retries                 */
