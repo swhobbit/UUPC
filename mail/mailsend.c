@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.14 1994/02/19 04:18:30 ahd Exp $
+ *    $Id: mailsend.c 1.15 1994/05/08 02:41:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.15  1994/05/08  02:41:18  ahd
+ * Add blank lines
+ *
  * Revision 1.14  1994/02/19  04:18:30  ahd
  * Use standard first header
  *
@@ -623,7 +626,7 @@ boolean Collect_Mail(FILE *stream,
    if (editonly)              /* Enter editor immediately?     ahd   */
    {                          /* Yes --> Go to it                    */
       fclose(fmailbag);
-      Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
+      Invoke(E_editor, tmailbag );
    } /* if */
    else {                     /* No  --> prompt for data       ahd   */
       Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
@@ -677,7 +680,7 @@ boolean Collect_Mail(FILE *stream,
          case 'e':
             puts("Edit");
             fflush(stdout);
-            Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
+            Invoke(E_editor, tmailbag );
             break;
 
          case 'a':
@@ -799,7 +802,7 @@ static boolean Subcommand( char *buf,
          case 'e':
             /* invoke editor with current msg */
             fclose(fmailbag);
-            Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
+            Invoke(E_editor, tmailbag );
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;

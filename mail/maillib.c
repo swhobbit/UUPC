@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.16 1994/03/09 01:55:39 ahd Exp $
+ *    $Id: maillib.c 1.17 1994/06/05 01:57:26 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.17  1994/06/05  01:57:26  ahd
+ * Don't use exit as a variable name, scope errors are not trapped
+ * Make sure exitNow properly set for all returns in Pager()
+ *
  * Revision 1.16  1994/03/09  01:55:39  ahd
  * Error check the read which overshoots the buffer with memory files
  *
@@ -166,7 +170,7 @@ boolean Pager(const int msgnum,
       CopyMsg(msgnum, fmailbag, received, FALSE);
       fclose(fmailbag);
 
-      Invoke(E_pager, browse, bflag[F_NEWPAGERSESSION]);
+      Invoke(E_pager, browse );
       remove(browse);
 
    } /* if (external && (E_pager != nil(char))) */
@@ -256,7 +260,7 @@ void Sub_Pager(const char *tinput,
       external = ! external;
 
    if ( external && (E_pager != nil(char)) )
-      Invoke(E_pager, tinput, bflag[F_NEWPAGERSESSION]);
+      Invoke(E_pager, tinput );
    else {
       FILE *finput;
       char buf[BUFSIZ];

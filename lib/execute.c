@@ -17,13 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.30 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: execute.c 1.31 1994/05/23 22:47:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.31  1994/05/23  22:47:23  ahd
+ * Include commands ending in .cmd for ALL 32 bit environments
+ *
  * Revision 1.30  1994/02/28  01:02:06  ahd
  * Reopen output file after input file.
- * .\
  *
  * Revision 1.29  1994/02/19  04:39:30  ahd
  * Use standard first header
@@ -275,6 +277,7 @@ int execute( const char *command,
          printerr( perfect );
          panic();
       }
+
       fclose( stream );
 
       strcpy( path, batchFile );             /* Run the batch command */
@@ -426,30 +429,27 @@ int execute( const char *command,
          strcat( path, parameters );
       }
 
-#if defined(__OS2__) || defined(FAMILYAPI)
       result = system( path );
-#else
-      result = system( path );
-#endif
 
    } /* if (internal(command)) */
    else if ( ! *path )
       result = -3;            /* Flag we never ran command         */
-#if defined(__OS2__) || defined(FAMILYAPI)
-   else if ((foreground && ! redirected) || ! synchronous)
-      result = executeAsync( path, parameters, synchronous, foreground );
-#endif
    else {
-#ifdef WIN32
+#if defined(WIN32) || defined(__OS2__) || defined(FAMILYAPI)
+
       result = executeAsync( path, parameters, synchronous, foreground );
+
 #else
+
       result = spawnl(  P_WAIT,
                         (char *) path,
                         (char *) command,
                         (char *) parameters,
                         NULL);
+
       if (result == -1)       /* Did spawn fail?                   */
          printerr(command);   /* Yes --> Report error              */
+
 #endif
 
    } /* else */
@@ -467,6 +467,7 @@ int execute( const char *command,
          printerr("stdin");
          panic();
       }
+
       setvbuf( stdin, NULL, _IONBF, 0);
 
    } /* if ( input != NULL ) */
@@ -551,6 +552,17 @@ static boolean internal( const char *command )
                                "ver",     "verify",  "vol",
                                NULL };
    char **list;
+
+/*--------------------------------------------------------------------*/
+/*       Empty commands are a special signal to use the command       */
+/*       processor to run the arguments.                              */
+/*--------------------------------------------------------------------*/
+
+   if ( *command == '\0' )
+   {
+      printmsg(4,"internal: Empty command, using command processor");
+      return TRUE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                   Determine command list to use                    */
@@ -892,6 +904,7 @@ static int executeAsync( const char *command,
 } /* executeAsync */
 
 #elif defined(WIN32)
+
 /*--------------------------------------------------------------------*/
 /*    e x e c u t e A s y n c                   (Windows NT version)  */
 /*                                                                    */

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.10 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: mlib.c 1.11 1994/04/26 23:56:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.11  1994/04/26  23:56:16  ahd
+ * Allow for unique use of foreground flag under OS/2
+ *
  * Revision 1.10  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -127,8 +130,7 @@ int Get_One()
 /*--------------------------------------------------------------------*/
 
 int Invoke(const char *ecmd,
-           const char *filename,
-           const boolean unique )
+           const char *filename )
 {
    char command[FILENAME_MAX*2 + 1];
    char tempname[FILENAME_MAX];
@@ -154,22 +156,13 @@ int Invoke(const char *ecmd,
 /*          Execute command, report results if interesting.           */
 /*--------------------------------------------------------------------*/
 
-#if defined(FAMILYAPI) || defined(__OS2__)
-   rc = executeCommand(command, NULL, NULL, TRUE, unique );
-#else
-   rc = executeCommand(command, NULL, NULL, TRUE, TRUE );
-#endif
+   rc = execute("", command, NULL, NULL, TRUE, TRUE );
 
    if( rc )
    {
       printf("Invoke: \"%s\" failed, exit code %d.\n",
               command,
               rc );
-
-#if defined(__OS2__) || defined(FAMILYAPI)
-      if ( ! unique )
-         printf("Try setting NewEditorWindow or NewPagerWindow\n");
-#endif
 
       return(2);
    }
