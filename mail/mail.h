@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.11 1997/11/21 18:16:32 ahd v1-12u $
+ *    $Id: mail.h 1.12 1998/03/01 01:31:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.12  1998/03/01 01:31:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1997/11/21 18:16:32  ahd
  *    Command processing stub SMTP daemon
  *
@@ -46,6 +49,7 @@
  */
 
 #define  MISSING  -1L      /* Line not found in this mail header   ahd */
+#define  UIDL_HEADER       "X-UIDL:"
 
 #ifdef BIT32ENV
 #define LSIZE  1024

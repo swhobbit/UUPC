@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.8 1998/03/01 01:32:32 ahd Exp $
+ *       $Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtplwc.c $
+ *       $Log: pop3lwc.c $
+ *       Revision 1.1  1998/03/01 19:42:17  ahd
+ *       Initial revision
+ *
  *
  */
 
@@ -41,7 +44,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.8 1998/03/01 01:32:32 ahd Exp $");
+RCSID("$Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $");
 
 currentfile();
 
@@ -94,7 +97,7 @@ commandUSER(SMTPClient *client,
    SMTPResponse(client, verb->successResponse, client->transmit.data);
    return KWTrue;
 
-}
+} /* commandUSER */
 
 /*--------------------------------------------------------------------*/
 /*       r e j e c t L o g i n                                        */
@@ -115,7 +118,8 @@ rejectLogin( SMTPClient *client )
    client->clientName = NULL;
    SMTPResponse(client, PR_ERROR_GENERIC, FailureMessage );
    setClientMode( client, P3_AUTHORIZATION );
-}
+
+} /* rejectLogin */
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d P A S S                                        */
@@ -185,6 +189,7 @@ commandPASS(SMTPClient *client,
 
    client->transaction = malloc( sizeof *client->transaction );
    checkref( client->transaction );
+   memset(client->transaction, 0, sizeof *client->transaction);
    client->transaction->userp = userp;
 
    setClientProcess(client, KWTrue );
@@ -209,8 +214,9 @@ commandSequenceIgnore(SMTPClient *client,
                 verb->modeErrorResponse,
                 "Command issued out of sequence" );
 
-   return KWTrue;
-}
+   return KWFalse;
+
+}  /* commandSequenceIgnore */
 
 /*--------------------------------------------------------------------*/
 /*       s e t D e l i v e r y G r a d e                              */

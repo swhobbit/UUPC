@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.10 1998/03/01 01:33:00 ahd Exp $
+ *    $Id: smtpd.c 1.11 1998/03/01 19:40:21 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.11  1998/03/01 19:40:21  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.10  1998/03/01 01:33:00  ahd
  *    Annual Copyright Update
  *
@@ -83,7 +86,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.10 1998/03/01 01:33:00 ahd Exp $");
+RCSID("$Id: smtpd.c 1.11 1998/03/01 19:40:21 ahd Exp $");
 
 currentfile();
 
@@ -284,6 +287,18 @@ main( int argc, char ** argv )
 /*--------------------------------------------------------------------*/
 
    openlog( logfile_name );
+
+/*--------------------------------------------------------------------*/
+/*         Only run if UUPC/extended multi-tasking is enabled         */
+/*--------------------------------------------------------------------*/
+
+   if ( !bflag[ F_MULTITASK ] )
+   {
+      printmsg(0, "%s: options=multitask must be specified in "
+                  "configuration file to use this program",
+                  argv[0] );
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Trap control C exits                        */

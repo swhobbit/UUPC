@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.h 1.3 1998/03/01 01:28:37 ahd Exp $
+ *       $Id: smtpcmmn.h 1.1 1998/03/01 19:45:01 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtplwc.h $
+ *       $Log: smtpcmmn.h $
+ *       Revision 1.1  1998/03/01 19:45:01  ahd
+ *       Initial revision
+ *
  *
  */
 
@@ -36,16 +39,6 @@ commandAccept(SMTPClient *client,
 
 KWBoolean
 commandNOOP(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandRSET(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
 

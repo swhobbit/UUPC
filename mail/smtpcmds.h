@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.h 1.2 1998/03/01 01:28:37 ahd Exp $
+ *       $Id: smtpcmds.h 1.1 1998/03/01 19:43:52 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtprecv.h $
+ *       $Log: smtpcmds.h $
+ *       Revision 1.1  1998/03/01 19:43:52  ahd
+ *       Initial revision
+ *
  *       Revision 1.2  1998/03/01 01:28:37  ahd
  */
 
@@ -32,5 +35,6 @@
 SMTPVerb verbTable[];
 
 char *defaultPortName;           /* TCP/IP port to listen on */
+int missingOperandError;         /* Error number for missing operands */
 
 #endif /* _SMTPCMDS_H */

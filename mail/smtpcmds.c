@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.4 1998/03/01 01:31:39 ahd Exp $
+ *       $Id: smtpcmds.c 1.5 1998/03/01 19:42:17 ahd Exp $
  *
  *       $Log: smtpcmds.c $
+ *       Revision 1.5  1998/03/01 19:42:17  ahd
+ *       SMTP verb table
+ *
  *       Revision 1.4  1998/03/01 01:31:39  ahd
  *       Annual Copyright Update
  *
@@ -47,13 +50,14 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.4 1998/03/01 01:31:39 ahd Exp $");
+RCSID("$Id: smtpcmds.c 1.5 1998/03/01 19:42:17 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */
 /*--------------------------------------------------------------------*/
 
 char *defaultPortName = "smtp";
+int missingOperandError = SR_PE_OPER_MISS;
 
 /*--------------------------------------------------------------------*/
 /*       Master command verb table for SMTP                           */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.7 1997/11/29 13:03:13 ahd v1-12u $
+ *    $Id: smtpnetw.c 1.8 1998/03/01 19:42:17 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.8  1998/03/01 19:42:17  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.7  1997/11/29 13:03:13  ahd
  *    Clean up single client (hot handle) mode for OS/2, including correct
  *    network initialization, use unique client id (pid), and invoke all
@@ -69,7 +72,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.7 1997/11/29 13:03:13 ahd v1-12u $");
+RCSID("$Id: smtpnetw.c 1.8 1998/03/01 19:42:17 ahd Exp $");
 
 currentfile();
 
@@ -659,19 +662,21 @@ SMTPWrite(SMTPClient *client,
          shutdown(getClientHandle(client),
                   2);               /* Fail both reads and writes   */
       }
+
+      /* All write errors are treated as fatal, close the socket */
+      closeSocket( getClientHandle(client) );
+      setClientHandle( client, INVALID_SOCKET );
       return 0;
    }
 
    if (status < (int)len)     /* Breaks if len > 32K, which is unlikely */
-   {
       printmsg(0,"%s: Write to network failed.", mName);
-      return status;
-   }
+
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
 /*--------------------------------------------------------------------*/
 
-   return len;
+   return status;
 
 } /* SMTPWrite */
 

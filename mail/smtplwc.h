@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.h 1.3 1998/03/01 01:28:37 ahd Exp $
+ *       $Id: smtplwc.h 1.4 1998/03/01 19:43:52 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.h $
+ *       Revision 1.4  1998/03/01 19:43:52  ahd
+ *       First compiling POP3 server which accepts user id/password
+ *
  *       Revision 1.3  1998/03/01 01:28:37  ahd
  *       Annual Copyright Update
  *
@@ -44,6 +47,16 @@ commandInit(SMTPClient *client,
 
 KWBoolean
 commandHELO(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
+
+KWBoolean
+commandRSET(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
+
+KWBoolean
+commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
 

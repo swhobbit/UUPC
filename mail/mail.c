@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.45 1998/01/03 05:24:17 ahd Exp $
+ *    $Id: mail.c 1.46 1998/03/01 01:31:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.46  1998/03/01 01:31:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.45  1998/01/03 05:24:17  ahd
  *    Force load of user table to allow use of passwd definition
  *    of home
@@ -69,132 +72,11 @@
  *
  *    Revision 1.32  1995/01/07 16:18:46  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.31  1994/12/22 00:19:13  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.30  1994/12/09 03:53:30  ahd
- *    Allocate mailbox of 1000 letters, not 100, on first try in
- *    32 bit mode.
- *
- * Revision 1.29  1994/06/05  01:57:26  ahd
- * Add debugging message
- * Make success dependent on command actual working
- *
- * Revision 1.28  1994/05/04  02:03:11  ahd
- * Include title.h to correctly invoke setTitle()
- *
- * Revision 1.27  1994/04/26  23:56:16  ahd
- * Add title support
- *
- * Revision 1.26  1994/03/15  03:02:26  ahd
- * Correct spelling error
- *
- * Revision 1.25  1994/03/11  01:49:45  ahd
- * Make mailbox description array a UUFAR array
- *
- * Revision 1.24  1994/03/09  01:55:39  ahd
- * Sanity check setvbuf() calls, and don't use setvbuf() if creating
- * memory files
- *
- * Revision 1.23  1994/03/07  06:09:51  ahd
- * Add memory temporary mailbox for mail internal use
- *
- * Revision 1.22  1994/03/05  21:12:05  ahd
- * Initialize variable to suppress compiler warning
- *
- * Revision 1.21  1994/02/28  01:02:06  ahd
- * Cosmetic formatting clean ups
- * Increase size of from[] in PrintSubject o prevent storage overlays
- *
- * Revision 1.20  1994/02/26  17:18:40  ahd
- * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
- *
- * Revision 1.19  1994/02/25  03:17:43  ahd
- * Allow configurable ignore and reply to search lists
- *
- * Revision 1.18  1994/02/20  19:07:38  ahd
- * IBM C/Set 2 Conversion, memory leak cleanup
- *
- * Revision 1.17  1994/01/01  19:12:29  ahd
- * Annual Copyright Update
- *
- * Revision 1.16  1993/12/23  03:16:03  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.15  1993/11/30  04:18:14  ahd
- * Add current time to status command (for testing arpadate())
- *
- * Revision 1.14  1993/10/31  21:32:55  ahd
- * Don't print current header after headers command
- *
- * Revision 1.13  1993/10/31  19:04:03  ahd
- * Change "DOS" to "system" in short command help text
- *
- * Revision 1.12  1993/10/28  12:19:01  ahd
- * Cosmetic time formatting twiddles and clean ups
- *
- * Revision 1.11  1993/10/12  01:32:08  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.9  1993/10/09  20:16:12  rhg
- * ANSIfy the source
- *
- * Revision 1.8  1993/09/23  03:26:51  ahd
- * Use current version variables for Visual C++ under Windows NT
- *
- * Revision 1.7  1993/09/20  04:39:51  ahd
- * OS/2 2.x support
- *
- * Revision 1.6  1993/07/31  16:26:01  ahd
- * Changes in support of Robert Denny's Windows support
- *
- * Revision 1.5  1993/07/24  03:40:55  ahd
- * Change description of "-" command, previous command.
- *
- * version  1.0   Stuart Lynne
- * version 1.5 Samuel Lam <skl@van-bc.UUCP>  August/87
- *
- * version 1.6 Drew Derbyshire   May/89
- *             Support for single user aliases, -u option for reading
- *             alternate mailboxes, parsing addresses via external routine,
- *             parsing Resent- fields, suppressing Received: fields,
- *             automatic positioning to next message.                   ahd
- * 23 Sep 89   Version 1.07a
- *             Support lists in aliases                                 ahd
- *
- * 29 Sep 89   Version 1.07b
- *             Add prompting for subject in outgoing mail.              ahd
- * 01 Oct 89   Add additional function prototypes to catch bad calls    ahd
- * 02 Oct 89   Alter large strings/structures to use malloc()/free()    ahd
- * 12 Oct 89   Version 1.07d
- *             Correct free() of line in Send_Mail
- * 12 Dec 89   Version 1.07g
- *             Various spelling corrections
- * 18 Mar 90   Version 1.07i
- *             Add ~user support for save/write command
- *             Add ignore list for user
- *             Shorten lines printed by aborting from a print command   ahd
- * 30 Apr  90  Add autoedit support for sending mail                    ahd
- *  2 May  90  Add support for options= flags                           ahd
- *  3 May  90  Split selected subroutines into maillib.c                ahd
- *  4 May  90  Add 'save' option.                                       ahd
- *  8 May  90  Add 'pager' option                                       ahd
- * 10 May  90  Add 'purge' option                                       ahd
- * 13 May  90  Alter logging so that no numbers are printed on console  ahd
- * Additions for unofficial version 1.07k, Philip David Meese June 1990
- * 16 June 90
- *            -added mail command: Copy current (without delete)        pdm
- *            -altered calls to Collect_Mail to support mail subcmds    pdm
- *            -added handling of '+' to indicate "relative to home
- *                directory" for BSD like mail users.                   pdm
- * 12 Feb 91 rewrite parser a for more BSD like syntax
-*/
+ */
 
 #include "uupcmoah.h"
 
- static const char rcsid[] =
-      "$Id: mail.c 1.45 1998/01/03 05:24:17 ahd Exp $";
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -229,11 +111,13 @@
 #include "mailblib.h"
 #include "maillib.h"
 #include "mailsend.h"
+#include "mailnewm.h"
 #include "mlib.h"
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
 #include "arpadate.h"
+#include "usertabl.h"
 
 #include "title.h"
 
@@ -276,7 +160,6 @@ static void    Cleanup(void);
 static void Interactive_Mail( const KWBoolean PrintOnly,
                               const KWBoolean postoffice );
 
-static void    IncludeNew( const char *target, const char *user);
 
 static void    PrintSubject(const int msgnum,
                             const int letternum);
@@ -584,7 +467,10 @@ main(int argc, char **argv)
    } /* if (sendmail) */
    else  {
       if ( postoffice && bflag[ F_MULTITASK ] )
-         IncludeNew( mfilename, E_mailbox);
+      {
+         if ( !IncludeNew( mfilename, E_mailbox) )
+            panic();
+      }
       Interactive_Mail( PrintOnly, postoffice );
    }
 
@@ -1114,98 +1000,6 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
       UpdateMailbox(letternum, postoffice);
 
 } /*Interactive_Mail*/
-
-/*--------------------------------------------------------------------*/
-/*    I n c l u d e N e w                                             */
-/*                                                                    */
-/*    Includes mail from the system box into the user's local         */
-/*    mailbox                                                         */
-/*--------------------------------------------------------------------*/
-
-static void IncludeNew( const char *target, const char *user)
-{
-   time_t age;
-   long size;
-   FILE *stream_in;
-   FILE *stream_out;
-   size_t bytes;
-
-   char sysbox[FILENAME_MAX];
-   char buf[BUFSIZ];
-
-   mkmailbox(sysbox, user);
-
-/*--------------------------------------------------------------------*/
-/*      Return semi-quietly if we can't open the system mailbox       */
-/*--------------------------------------------------------------------*/
-
-   stream_in   = FOPEN( sysbox, "r", IMAGE_MODE);
-
-   if ( stream_in == NULL )
-   {
-      if ( debuglevel > 1 )
-         printerr( sysbox );
-      return;
-   }
-
-/*--------------------------------------------------------------------*/
-/*      Determine if we have new mail, returning quietly if not       */
-/*--------------------------------------------------------------------*/
-
-   age = stater( sysbox, &size );
-
-   if ( age == (time_t) -1L)
-      panic();
-
-   printmsg( 1, "Including mail from %s through %.24s",
-            sysbox,
-            ctime(&age));
-
-/*--------------------------------------------------------------------*/
-/*                    Now open up the output file                     */
-/*--------------------------------------------------------------------*/
-
-   stream_out  = FOPEN( target, "a+", IMAGE_MODE);
-
-   if ( stream_out == NULL )
-   {
-      printerr( target );
-      panic();
-   }
-
-/*--------------------------------------------------------------------*/
-/*                       Loop to read the data                        */
-/*--------------------------------------------------------------------*/
-
-   while ((bytes = fread(buf, sizeof(char), sizeof buf, stream_in)) > 0)
-   {
-      if (fwrite(buf, sizeof(char), bytes, stream_out) != bytes)
-      {
-         printmsg(0, "Error including new mail into %s", target );
-         printerr( target );
-         fclose( stream_in );
-         fclose( stream_out );
-         panic();
-      }
-   } /* while */
-
-/*--------------------------------------------------------------------*/
-/*                   Clean up and return to caller                    */
-/*--------------------------------------------------------------------*/
-
-   if ( ferror( stream_in ))
-   {
-      printerr( sysbox );
-      panic();
-   }
-
-   fclose( stream_in  );
-   fclose( stream_out );
-
-   filebkup( sysbox );
-   REMOVE(sysbox);
-
-} /* IncludeNew */
 
 /*--------------------------------------------------------------------*/
 /*    C r e a t e B o x                                               */

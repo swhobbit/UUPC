@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.h 1.2 1998/03/01 01:28:37 ahd Exp $
+ *       $Id: pop3user.h 1.1 1998/03/01 19:45:01 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtprecv.h $
+ *       $Log: pop3user.h $
+ *       Revision 1.1  1998/03/01 19:45:01  ahd
+ *       Initial revision
+ *
  *       Revision 1.2  1998/03/01 01:28:37  ahd
  *       Annual Copyright Update
  *
@@ -64,6 +67,16 @@ KWBoolean
 commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
+
+KWBoolean
+commandRETR(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
+
+KWBoolean
+commandRSET(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands);
 
 KWBoolean
 commandSTAT(SMTPClient *client,

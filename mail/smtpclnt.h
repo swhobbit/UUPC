@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.8 1997/11/29 13:06:52 ahd v1-12u $
+ *    $Id: smtpclnt.h 1.9 1998/03/01 19:43:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.9  1998/03/01 19:43:52  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.8  1997/11/29 13:06:52  ahd
  *    Correct compiler warnings under OS/2, copyright notice
  *
@@ -89,7 +92,7 @@ typedef unsigned long SMTPMode;
 typedef struct _SMTPBuffer
 {
    char    *data;
-   size_t  used;                    /* Valid data byes in data       */
+   size_t  used;                    /* Valid data bytes in data      */
    size_t  parsed;                  /* Valid data bytes processed    */
    size_t  length;                  /* Total buffer length of data   */
    size_t  bytesTransferred;        /* Bytes via network conn        */
