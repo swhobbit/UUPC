@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.20 1993/10/03 20:37:34 ahd Exp $
+ *    $Id: dcp.c 1.21 1993/10/12 01:32:46 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.21  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.20  1993/10/03  20:37:34  ahd
  * Don't attempt to suspend port if using network protocol suite
  *
@@ -155,7 +158,6 @@
 #include "winutil.h"
 #endif
 
-
 /*--------------------------------------------------------------------*/
 /*    Define passive and active polling modes; passive is             */
 /*    sometimes refered to as "slave", "active" as master.  Since     */
@@ -180,7 +182,7 @@ boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS     */
 FILE *fwork = NULL, *fsys= NULL ;
 FILE *syslog = NULL;
 char workfile[FILENAME_MAX];  /* name of current workfile         */
-char *Rmtname = nil(char);    /* system we want to call           */
+char *Rmtname = "any";        /* system we want to call           */
 char rmtname[20];             /* system we end up talking to      */
 struct HostTable *hostp;
 struct HostStats remote_stats; /* host status, as defined by hostatus */
@@ -195,6 +197,13 @@ currentfile();
 
 static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade );
 
+static boolean master( const char recvgrade,
+                       const boolean overrideGrade);
+
+static boolean client( const time_t exit_time,
+                       const char *hotuser,
+                       const BPS hotbaud );
+
 /*--------------------------------------------------------------------*/
 /*    d c p m a i n                                                   */
 /*                                                                    */
@@ -205,15 +214,14 @@ int dcpmain(int argc, char *argv[])
 {
 
    char *logfile_name = NULL;
-   boolean  Contacted = FALSE;
+   boolean  contacted = FALSE;
 
    int option;
    int poll_mode = POLL_ACTIVE;   /* Default = dial out to system     */
    time_t exit_time = LONG_MAX;
 
    char recvgrade = ALL_GRADES;
-   boolean override_grade = FALSE;
-   char sendgrade = ALL_GRADES;
+   boolean overrideGrade = FALSE;
 
    char *hotuser = NULL;
    BPS  hotbaud = 0;
@@ -231,7 +239,7 @@ int dcpmain(int argc, char *argv[])
       case 'd':
          exit_time = atoi( optarg );
          exit_time = time(NULL) + hhmm2sec(exit_time);
-         poll_mode = 0;          /* Implies passive polling           */
+         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
       case 'g':
@@ -243,12 +251,12 @@ int dcpmain(int argc, char *argv[])
             if ( ! recvgrade )   /* If no class, use the default  */
                recvgrade = ALL_GRADES;
          }
-         override_grade = TRUE;
+         overrideGrade = TRUE;
          break;
 
       case 'm':                     /* Override in modem name     */
          E_inmodem = optarg;
-         poll_mode = 0;             /* Presume passive polling */
+         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
       case 'l':                     /* Log file name              */
@@ -280,7 +288,7 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 'w':
-         poll_mode = 0;       /* Presume passive polling */
+         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
          hotuser = optarg;
          break;
 
@@ -299,9 +307,6 @@ int dcpmain(int argc, char *argv[])
       puts("Extra parameter(s) at end.");
       return 4;
    }
-
-   if (Rmtname == nil(char))
-      Rmtname = "any";
 
 /*--------------------------------------------------------------------*/
 /*        Initialize logging and the name of the systems file         */
@@ -348,253 +353,20 @@ int dcpmain(int argc, char *argv[])
 /*                     Begin main processing loop                     */
 /*--------------------------------------------------------------------*/
 
-   if (poll_mode == POLL_ACTIVE) {
-
-      CONN_STATE m_state = CONN_INITSTAT;
-      CONN_STATE old_state = CONN_EXIT;
-
-      printmsg(2, "calling \"%s\", debug=%d", Rmtname, debuglevel);
-
-      if ((fsys = FOPEN(E_systems, "r",TEXT_MODE)) == nil(FILE))
-      {
-         printerr(E_systems);
-         panic();
-      }
-
-      setvbuf( fsys, NULL, _IONBF, 0);
-
-      while (m_state != CONN_EXIT )
-      {
-         printmsg(old_state == m_state ? 10 : 4 ,
-                  "M state = %c", m_state);
-         old_state = m_state;
-
-         if (bflag[F_MULTITASK] &&
-              (hostp != NULL ) &&
-              (remote_stats.save_hstatus != hostp->hstatus ))
-         {
-            dcupdate();
-            remote_stats.save_hstatus = hostp->hstatus;
-         }
-
-         switch (m_state)
-         {
-            case CONN_INITSTAT:
-               HostStatus();
-               m_state = CONN_INITIALIZE;
-               break;
-
-            case CONN_INITIALIZE:
-               hostp = NULL;
-
-               if ( locked )
-                  UnlockSystem();
-
-               m_state = getsystem(recvgrade);
-               if ( hostp != NULL )
-                  remote_stats.save_hstatus = hostp->hstatus;
-               break;
-
-            case CONN_CHECKTIME:
-               sendgrade = checktime(flds[FLD_CCTIME]);
-
-               if ( (override_grade && sendgrade) || callnow )
-                  sendgrade = recvgrade;
-
-               if ( !CallWindow( sendgrade ))
-                  m_state = CONN_INITIALIZE;
-               else if ( LockSystem( hostp->hostname , B_UUCICO))
-               {
-                  dialed = TRUE;
-                  time(&hostp->hstats->ltime);
-                                 /* Save time of last attempt to call  */
-                  hostp->hstatus = autodial;
-                  m_state = CONN_MODEM;
-               }
-               else
-                  m_state = CONN_INITIALIZE;
-
-               break;
-
-            case CONN_MODEM:
-               if (getmodem(flds[FLD_TYPE]))
-                  m_state = CONN_DIALOUT;
-               else {
-                  hostp->hstatus = invalid_device;
-                  m_state = CONN_INITIALIZE;
-               }
-               break;
-
-            case CONN_DIALOUT:
-
-               if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
-               {
-                  hostp->hstatus =  nodevice;
-                  m_state = CONN_INITIALIZE;    /* Try next system     */
-               }
-               else
-                  m_state = callup( );
-               break;
-
-            case CONN_PROTOCOL:
-               m_state = startup_server( (char)
-                                          (bflag[F_SYMMETRICGRADES] ?
-                                          sendgrade  : recvgrade) );
-               break;
-
-            case CONN_SERVER:
-               m_state = process( poll_mode, recvgrade );
-               Contacted = TRUE;
-               break;
-
-            case CONN_TERMINATE:
-               m_state = sysend();
-               if ( hostp != NULL )
-               {
-                  if (hostp->hstatus == inprogress)
-                     hostp->hstatus = call_failed;
-                  dcstats();
-               }
-               break;
-
-            case CONN_DROPLINE:
-               shutDown();
-               UnlockSystem();
-               suspend_other(FALSE, M_device);
-               m_state = CONN_INITIALIZE;
-               break;
-
-            case CONN_EXIT:
-               break;
-
-            default:
-               printmsg(0,"dcpmain: Unknown master state = %c",m_state );
-               panic();
-               break;
-         } /* switch */
-
-         if ( terminate_processing )
-            m_state = CONN_EXIT;
-
-      } /* while */
-
-      fclose(fsys);
-
+   if (poll_mode == POLL_ACTIVE)
+      contacted = master(recvgrade, overrideGrade);
+   else if (poll_mode == POLL_PASSIVE)
+      contacted = client(exit_time, hotuser, hotbaud);
+   else {
+      printmsg(0,"Invalid -r flag, must be 0 or 1");
+      panic();
    }
-   else { /* client mode */
-
-      CONN_STATE s_state = CONN_INITIALIZE;
-      CONN_STATE old_state = CONN_EXIT;
-
-      if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
-         panic();                /* Avoid loop if bad modem name       */
-
-      if ( ! IsNetwork() )
-         suspend_init(M_device);
-
-      while (s_state != CONN_EXIT )
-      {
-         printmsg(s_state == old_state ? 10 : 4 ,
-                  "S state = %c", s_state);
-         old_state = s_state;
-
-         if (bflag[F_MULTITASK] &&
-              (hostp != NULL ) &&
-              (remote_stats.save_hstatus != hostp->hstatus ))
-         {
-            printmsg(2, "Updating status for host %s, status %d",
-                        hostp->hostname ,
-                        (int) hostp->hstatus );
-            dcupdate();
-            remote_stats.save_hstatus = hostp->hstatus;
-         }
-
-         switch (s_state) {
-            case CONN_INITIALIZE:
-               if ( hotuser == NULL )
-                  s_state = CONN_ANSWER;
-               else
-                  s_state = CONN_HOTMODEM;
-               break;
-
-            case CONN_WAIT:
-#if !defined(__TURBOC__) || defined(BIT32ENV)
-              s_state = suspend_wait();
-#else
-              panic();                 /* Why are we here?!           */
-#endif
-              break;
-
-            case CONN_ANSWER:
-               s_state = callin( exit_time );
-               break;
-
-            case CONN_HOTMODEM:
-               s_state = callhot( hotbaud );
-               break;
-
-            case CONN_HOTLOGIN:
-               if ( loginbypass( hotuser ) )
-                  s_state = CONN_INITSTAT;
-               else
-                  s_state = CONN_DROPLINE;
-               break;
-
-            case CONN_LOGIN:
-               if ( login( ) )
-                  s_state = CONN_INITSTAT;
-               else
-                  s_state = CONN_DROPLINE;
-               break;
-
-            case CONN_INITSTAT:
-               HostStatus();
-               s_state = CONN_PROTOCOL;
-               break;
-
-            case CONN_PROTOCOL:
-               s_state = startup_client(&sendgrade);
-               break;
-
-            case CONN_CLIENT:
-               Contacted = TRUE;
-               s_state = process( poll_mode, sendgrade );
-               break;
-
-            case CONN_TERMINATE:
-               s_state = sysend();
-               if ( hostp != NULL )
-                  dcstats();
-               break;
-
-            case CONN_DROPLINE:
-               shutDown();
-               if ( locked )     /* Cause could get here w/o
-                                    locking                    */
-                  UnlockSystem();
-               s_state = CONN_EXIT;
-               break;
-
-            case CONN_EXIT:
-               break;
-
-            default:
-               printmsg(0,"dcpmain: Unknown slave state = %c",s_state );
-               panic();
-               break;
-         } /* switch */
-
-         if ( terminate_processing )
-            s_state = CONN_EXIT;
-
-      } /* while */
-   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                         Report our results                         */
 /*--------------------------------------------------------------------*/
 
-   if (!Contacted && (poll_mode == POLL_ACTIVE))
+   if (!contacted && (poll_mode == POLL_ACTIVE))
    {
       if (dialed)
          printmsg(0, "Could not connect to remote system.");
@@ -608,10 +380,296 @@ int dcpmain(int argc, char *argv[])
    if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK])
       fclose(syslog);
 
-   return terminate_processing ? 100 : (Contacted ? 0 : 5);
+   return terminate_processing ? 100 : (contacted ? 0 : 5);
 
 } /*dcpmain*/
 
+/*--------------------------------------------------------------------*/
+/*       m a s t e r                                                  */
+/*                                                                    */
+/*       Call out to other sites                                      */
+/*--------------------------------------------------------------------*/
+
+static boolean master( const char recvgrade,
+                       const boolean overrideGrade)
+{
+
+   CONN_STATE m_state = CONN_INITSTAT;
+   CONN_STATE old_state = CONN_EXIT;
+
+   char sendgrade = ALL_GRADES;
+
+   boolean contacted = FALSE;
+
+/*--------------------------------------------------------------------*/
+/*                    Validate the system to call                     */
+/*--------------------------------------------------------------------*/
+
+   if ( !equal( Rmtname, "any" ) && !equal( Rmtname, "all" ))
+   {
+      if ( checkreal( Rmtname ) == NULL )
+      {
+         printmsg(0,"%s is not \"any\", \"all\", or a valid system to call",
+                     Rmtname);
+         printmsg(0,"Run UUNAME for a list of callable systems");
+         panic();
+      }
+
+   }
+
+   if ((fsys = FOPEN(E_systems, "r",TEXT_MODE)) == nil(FILE))
+   {
+      printerr(E_systems);
+      panic();
+   }
+
+   setvbuf( fsys, NULL, _IONBF, 0);
+
+   while (m_state != CONN_EXIT )
+   {
+      printmsg(old_state == m_state ? 10 : 4 ,
+               "M state = %c", m_state);
+      old_state = m_state;
+
+      if (bflag[F_MULTITASK] &&
+           (hostp != NULL ) &&
+           (remote_stats.save_hstatus != hostp->hstatus ))
+      {
+         dcupdate();
+         remote_stats.save_hstatus = hostp->hstatus;
+      }
+
+      switch (m_state)
+      {
+         case CONN_INITSTAT:
+            HostStatus();
+            m_state = CONN_INITIALIZE;
+            break;
+
+         case CONN_INITIALIZE:
+            hostp = NULL;
+
+            if ( locked )
+               UnlockSystem();
+
+            m_state = getsystem(recvgrade);
+            if ( hostp != NULL )
+               remote_stats.save_hstatus = hostp->hstatus;
+            break;
+
+         case CONN_CHECKTIME:
+            sendgrade = checktime(flds[FLD_CCTIME]);
+
+            if ( (overrideGrade && sendgrade) || callnow )
+               sendgrade = recvgrade;
+
+            if ( !CallWindow( sendgrade ))
+               m_state = CONN_INITIALIZE;
+            else if ( LockSystem( hostp->hostname , B_UUCICO))
+            {
+               dialed = TRUE;
+               time(&hostp->hstats->ltime);
+                              /* Save time of last attempt to call  */
+               hostp->hstatus = autodial;
+               m_state = CONN_MODEM;
+            }
+            else
+               m_state = CONN_INITIALIZE;
+
+            break;
+
+         case CONN_MODEM:
+            if (getmodem(flds[FLD_TYPE]))
+               m_state = CONN_DIALOUT;
+            else {
+               hostp->hstatus = invalid_device;
+               m_state = CONN_INITIALIZE;
+            }
+            break;
+
+         case CONN_DIALOUT:
+
+            if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
+            {
+               hostp->hstatus =  nodevice;
+               m_state = CONN_INITIALIZE;    /* Try next system     */
+            }
+            else
+               m_state = callup( );
+            break;
+
+         case CONN_PROTOCOL:
+            m_state = startup_server( (char)
+                                       (bflag[F_SYMMETRICGRADES] ?
+                                       sendgrade  : recvgrade) );
+            break;
+
+         case CONN_SERVER:
+            m_state = process( POLL_ACTIVE, recvgrade );
+            contacted = TRUE;
+            break;
+
+         case CONN_TERMINATE:
+            m_state = sysend();
+            if ( hostp != NULL )
+            {
+               if (hostp->hstatus == inprogress)
+                  hostp->hstatus = call_failed;
+               dcstats();
+            }
+            break;
+
+         case CONN_DROPLINE:
+            shutDown();
+            UnlockSystem();
+            suspend_other(FALSE, M_device);
+            m_state = CONN_INITIALIZE;
+            break;
+
+         case CONN_EXIT:
+            break;
+
+         default:
+            printmsg(0,"dcpmain: Unknown master state = %c",m_state );
+            panic();
+            break;
+      } /* switch */
+
+      if ( terminate_processing )
+         m_state = CONN_EXIT;
+
+   } /* while */
+
+   fclose(fsys);
+
+   return contacted;
+
+} /* master */
+
+/*--------------------------------------------------------------------*/
+/*       c l i e n t                                                  */
+/*                                                                    */
+/*       Allow other systems to call us                               */
+/*--------------------------------------------------------------------*/
+
+static boolean client( const time_t exit_time,
+                       const char *hotuser,
+                       const BPS hotbaud )
+{
+
+   CONN_STATE s_state = CONN_INITIALIZE;
+   CONN_STATE old_state = CONN_EXIT;
+
+   boolean contacted = FALSE;
+
+   char sendgrade = ALL_GRADES;
+
+   if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
+      panic();                /* Avoid loop if bad modem name       */
+
+   if ( ! IsNetwork() )
+      suspend_init(M_device);
+
+   while (s_state != CONN_EXIT )
+   {
+      printmsg(s_state == old_state ? 10 : 4 ,
+               "S state = %c", s_state);
+      old_state = s_state;
+
+      if (bflag[F_MULTITASK] &&
+           (hostp != NULL ) &&
+           (remote_stats.save_hstatus != hostp->hstatus ))
+      {
+         printmsg(2, "Updating status for host %s, status %d",
+                     hostp->hostname ,
+                     (int) hostp->hstatus );
+         dcupdate();
+         remote_stats.save_hstatus = hostp->hstatus;
+      }
+
+      switch (s_state) {
+         case CONN_INITIALIZE:
+            if ( hotuser == NULL )
+               s_state = CONN_ANSWER;
+            else
+               s_state = CONN_HOTMODEM;
+            break;
+
+         case CONN_WAIT:
+#if !defined(__TURBOC__) || defined(BIT32ENV)
+           s_state = suspend_wait();
+#else
+           panic();                 /* Why are we here?!           */
+#endif
+           break;
+
+         case CONN_ANSWER:
+            s_state = callin( exit_time );
+            break;
+
+         case CONN_HOTMODEM:
+            s_state = callhot( hotbaud );
+            break;
+
+         case CONN_HOTLOGIN:
+            if ( loginbypass( hotuser ) )
+               s_state = CONN_INITSTAT;
+            else
+               s_state = CONN_DROPLINE;
+            break;
+
+         case CONN_LOGIN:
+            if ( login( ) )
+               s_state = CONN_INITSTAT;
+            else
+               s_state = CONN_DROPLINE;
+            break;
+
+         case CONN_INITSTAT:
+            HostStatus();
+            s_state = CONN_PROTOCOL;
+            break;
+
+         case CONN_PROTOCOL:
+            s_state = startup_client(&sendgrade);
+            break;
+
+         case CONN_CLIENT:
+            contacted = TRUE;
+            s_state = process( POLL_PASSIVE, sendgrade );
+            break;
+
+         case CONN_TERMINATE:
+            s_state = sysend();
+            if ( hostp != NULL )
+               dcstats();
+            break;
+
+         case CONN_DROPLINE:
+            shutDown();
+            if ( locked )     /* Cause could get here w/o
+                                 locking                    */
+               UnlockSystem();
+            s_state = CONN_EXIT;
+            break;
+
+         case CONN_EXIT:
+            break;
+
+         default:
+            printmsg(0,"dcpmain: Unknown slave state = %c",s_state );
+            panic();
+            break;
+      } /* switch */
+
+      if ( terminate_processing )
+         s_state = CONN_EXIT;
+
+   } /* while */
+
+   return contacted;
+
+} /* client */
 
 /*--------------------------------------------------------------------*/
 /*    p r o c e s s                                                   */
