@@ -34,9 +34,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.31 1994/03/05 21:12:05 ahd Exp $
+ *       $Id: rnews.c 1.32 1994/03/07 06:09:51 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.32  1994/03/07  06:09:51  ahd
+ * Add additional error messages to error returns
+ *
+ * Revision 1.32  1994/03/07  06:09:51  ahd
+ * Add additional error messages to error returns
+ *
  * Revision 1.31  1994/03/05  21:12:05  ahd
  * Correct logging of control messages
  *
@@ -135,7 +141,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.31 1994/03/05 21:12:05 ahd Exp $";
+         "$Id: rnews.c 1.32 1994/03/07 06:09:51 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -217,8 +223,10 @@ static void fixEOF( char *buf, int bytes );
 
 static int Single( char *filename , FILE *stream );
 
-static int Compressed( char *filename , FILE *in_stream ,
-                       char *unpacker , char *suffix );
+static int Compressed( char *filename ,
+                       FILE *in_stream ,
+                       char *unpacker ,
+                       char *suffix );
 
 static int Batched( char *filename, FILE *stream);
 
@@ -416,18 +424,18 @@ void main( int argc, char **argv)
       if (buf[0] == MAGIC_FIRST)
         switch (buf[1])
         {
-        case MAGIC_COMPRESS:
-          unpacker = "compress";
-          suffix = "Z";
-          break;
-        case MAGIC_FREEZE:
-          unpacker = "freeze";
-          suffix = "F";
-          break;
-        case MAGIC_GZIP:
-          unpacker = "gzip";
-          suffix = "gz";
-          break;
+           case MAGIC_COMPRESS:
+             unpacker = "compress";
+             suffix = "Z";
+             break;
+           case MAGIC_FREEZE:
+             unpacker = "freeze";
+             suffix = "F";
+             break;
+           case MAGIC_GZIP:
+             unpacker = "gzip";
+             suffix = "gz";
+             break;
         }
 
       if (unpacker != NULL)
@@ -527,8 +535,10 @@ static int Single( char *filename , FILE *stream )
 /*    Decompress news                                                 */
 /*--------------------------------------------------------------------*/
 
-static int Compressed( char *filename , FILE *in_stream ,
-                       char *unpacker , char *suffix )
+static int Compressed( char *filename ,
+                       FILE *in_stream ,
+                       char *unpacker ,
+                       char *suffix )
 {
 
    FILE *work_stream;
@@ -605,7 +615,8 @@ static int Compressed( char *filename , FILE *in_stream ,
    if (cfile_size == 3)
    {
       unlink(zfile); /* Get rid of null file */
-      printmsg(1, "Compressed: %s empty, deleted", zfile);
+      printmsg(1, "Compressed: %s empty, deleted",
+                   zfile);
       return status;
    }
    else
@@ -638,8 +649,12 @@ static int Compressed( char *filename , FILE *in_stream ,
 /*          Uncompress the article and feed it back to rnews          */
 /*--------------------------------------------------------------------*/
 
-   sprintf(buf, "-d %s", zfile);
-   status = execute( unpacker, buf, NULL, NULL, TRUE, FALSE);
+   if ( E_uncompress == NULL )
+      sprintf(buf, "%s -d %s", unpacker, zfile);
+   else
+      sprintf(buf, E_uncompress, zfile, unzfile );
+
+   status = executeCommand ( unpacker, NULL, NULL, TRUE, FALSE);
 
    unlink( zfile );           /* Kill the compressed input file      */
 
