@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.24 1993/10/07 22:56:45 ahd Exp $
+ *       $Id: ulibos2.c 1.25 1993/10/12 01:33:23 ahd Exp rommel $
  *       $Log: ulibos2.c $
+ * Revision 1.25  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.24  1993/10/07  22:56:45  ahd
  * Use dynamically allocated buffer
  *
@@ -377,9 +380,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    com_dcbinfo.usWriteTimeout = 2999;  /* Write timeout 30 seconds   */
    com_dcbinfo.usReadTimeout = 24;     /* Read timeout .25 seconds   */
-   com_dcbinfo.fbCtlHndShake = (BYTE)
+   com_dcbinfo.fbCtlHndShake = (BYTE) MODE_DTR_CONTROL |
                                (direct ? 0 : MODE_CTS_HANDSHAKE);
-   com_dcbinfo.fbFlowReplace = 0;
+   com_dcbinfo.fbFlowReplace = MODE_RTS_HANDSHAKE;
                                        /* Unless rquested            */
    com_dcbinfo.fbTimeout = MODE_READ_TIMEOUT | MODE_NO_WRITE_TIMEOUT;
 
