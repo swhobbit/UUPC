@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.32 1994/05/06 03:55:50 ahd Exp $
+ *    $Id: dcp.c 1.33 1994/08/07 21:45:09 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.33  1994/08/07  21:45:09  ahd
+ *        Correct selected changes in host title
+ *
  *        Revision 1.32  1994/05/06  03:55:50  ahd
  *        Hot login support
  *
@@ -588,8 +591,6 @@ static boolean master( const char recvGrade,
             setTitle("Not connected");
             shutDown();
             UnlockSystem();
-            if (!IsNetwork())
-               suspend_other(FALSE, M_device);
             m_state = CONN_INITIALIZE;
             break;
 
@@ -684,7 +685,7 @@ static boolean client( const time_t exitTime,
            break;
 
          case CONN_ANSWER:
-            setTitle("Waiting for port %s", M_device);
+            setTitle("Monitoring port %s", M_device);
             s_state = callin( exitTime );
             break;
 
