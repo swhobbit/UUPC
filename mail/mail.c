@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.20 1994/02/26 17:18:40 ahd Exp $
+ *    $Id: mail.c 1.21 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.21  1994/02/28  01:02:06  ahd
+ * Cosmetic formatting clean ups
+ * Increase size of from[] in PrintSubject o prevent storage overlays
+ *
  * Revision 1.20  1994/02/26  17:18:40  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -108,7 +112,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.20 1994/02/26 17:18:40 ahd Exp $";
+      "$Id: mail.c 1.21 1994/02/28 01:02:06 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1074,7 +1078,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
    size_t dateprior = 0;
    size_t subjectprior = 0;
    size_t fromprior = 0;
-   int current;
+   int current = INT_MAX;
 
    while ((fgets(line, LSIZE, rmailbox) != nil(char)) )
    {
