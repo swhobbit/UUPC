@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.25 1995/01/07 15:49:37 ahd Exp $
+ *    $Id: uutypes.h 1.26 1995/01/07 16:10:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.26  1995/01/07 16:10:01  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.25  1995/01/07 15:49:37  ahd
  *    Add imfile flag fpr im-memory file support
  *
@@ -205,9 +208,6 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 /*                  Your basic Boolean logic values                   */
 /*--------------------------------------------------------------------*/
-
-#undef KWFalse
-#undef KWTrue
 
 typedef enum
       {

@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.4 1995/01/07 15:49:37 ahd Exp $
+ *    $Id: sys.h 1.5 1995/01/07 16:21:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.5  1995/01/07 16:21:58  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.4  1995/01/07 15:49:37  ahd
  *    Covnert SYS file to keep strings in memory, not on disk
  *
@@ -67,7 +70,7 @@ typedef struct sys
 
 } NEWS_SYS;
 
-void    init_sys( );
+void    init_sys( void );
 
 KWBoolean check_sys(struct sys *entry,char *group,char *distrib,char *path);
 
