@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.9 1993/10/12 01:33:59 ahd Exp $
+ *    $Id: uux.c 1.10 1993/10/24 19:42:48 rhg Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.10  1993/10/24  19:42:48  rhg
+ * Generalized support for UUX'ed commands
+ *
  * Revision 1.9  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *
@@ -538,11 +541,11 @@ static boolean do_copy(char *src_syst,
                        char *dest_syst,
                        char *dest_file)
 {
-      char    tmfile[25];               /* Unix style name for c file  */
-      char    idfile[25];       /* Unix style name for data file copy  */
-      char    work[66];             /* temp area for filename hacking  */
-      char    icfilename[66];               /* our hacked c file path  */
-      char    idfilename[66];               /* our hacked d file path  */
+      char    tmfile[25];               /* Unix name for c file      */
+      char    idfile[25];               /* Unix name for data file copy    */
+      char    work[FILENAME_MAX];       /* temp area for filename hacking  */
+      char    icfilename[FILENAME_MAX]; /* our hacked c file path    */
+      char    idfilename[FILENAME_MAX]; /* our hacked d file path    */
 
       struct  stat    statbuf;
 
