@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.7 1994/02/20 19:05:02 ahd v1-12k $
+ *    $Id: chdir.c 1.8 1994/12/22 00:07:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.8  1994/12/22 00:07:33  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/02/20 19:05:02  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -32,6 +35,10 @@
 
 #include <ctype.h>
 #include <direct.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */
@@ -58,10 +65,13 @@ int CHDIR(const char *path)
       return 0;
 
 /*--------------------------------------------------------------------*/
-/*                      Change to the new drive                       */
+/*       Change to the new drive, except under NT (which can swap     */
+/*       drives when it changes directories in changedir()            */
 /*--------------------------------------------------------------------*/
 
-   if ((*path != '\0') && (path[1] == ':'))
+#ifndef WIN32
+
+   if (path[1] == ':')
    {
       if (isalpha(*path))
       {
@@ -69,12 +79,17 @@ int CHDIR(const char *path)
             return -1;                 /* Return if failure          */
       } /* if */
       else {
-         printmsg(0,"changedir: Drive letter is not numeric: %s",
+
+         printmsg(0,"changedir: Drive letter is not alphabetic: %s",
                      path );
+
          return -1;
+
       } /* else */
 
    } /* if */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*        Try to change directories, returning if successful          */
@@ -98,12 +113,16 @@ int CHDIR(const char *path)
    if ( result )
    {
       printerr("chdir");         /* Report the error, real problem   */
+
+#ifndef WIN32
       _chdrive( originalDrive ); /* Return to original drive         */
+#endif
+
    }
 
    return result;
 
-} /*CHDIR*/
+} /* CHDIR */
 
 /*--------------------------------------------------------------------*/
 /*       c h a n g e d i r                                            */
@@ -115,11 +134,19 @@ static int changedir(const char *path)
 {
    static char savePath[FILENAME_MAX];
 
+#ifdef WIN32
+   int result = !SetCurrentDirectory(path);
+                                    /* It's opposite the RTL normal  */
+#else
    int result = chdir((char *) path);     /* Perform the change      */
+#endif
 
-   if ( ! result )               /* Did it work?                     */
-      E_cwd = strcpy( savePath, path );   /* yes --> Save directory  */
+   if ( ! result )                  /* Did it work?                  */
+   {
+      strcpy( savePath, path );
+      E_cwd = savePath;             /* Yes --> Save directory        */
+   }
 
    return result;
 
-} /*changedir*/
+} /* changedir */
