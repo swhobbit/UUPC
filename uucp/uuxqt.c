@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.6 1993/04/05 04:35:40 ahd Exp $
+ *    $Id: uuxqt.c 1.7 1993/04/11 00:35:46 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUXQT.C $
+ *    $Log: uuxqt.c $
+ * Revision 1.7  1993/04/11  00:35:46  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.6  1993/04/05  04:35:40  ahd
  * Use timestamp/file size information returned by directory search
  *
@@ -833,7 +836,7 @@ static int shell(char *command,
 /*                   Copy addresses into the buffer                   */
 /*--------------------------------------------------------------------*/
 
-         while (( addr < argc ) && (rlen >= strlen( argv[addr] )))
+         while (( addr < argc ) && (rlen > strlen( argv[addr] )))
          {
             if ( *argv[addr] == '-')   /* Option flag for mail?      */
             {
@@ -843,7 +846,7 @@ static int shell(char *command,
 
             strcat( buf, argv[addr] );
             rlen -= strlen( argv[addr++] ) + 1;
-            if (rlen > 0)     /* Room for another address?           */
+            if (rlen > 1)     /* Room for another address?           */
                strcat( buf, " ");   /* Yes --> Add space after addr  */
          } /* while (( addr < argc ) && (rlen >= strlen( argv[addr] ) */
 
