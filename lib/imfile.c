@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.18 1995/09/11 00:20:45 ahd Exp $
+ *    $Id: imfile.c 1.19 1995/09/24 19:07:05 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.19  1995/09/24 19:07:05  ahd
+ *    Reduce debugging output
+ *
  *    Revision 1.18  1995/09/11 00:20:45  ahd
  *    Close imfile on disk before passing it to executeCommand
  *    prevent possible sharing error
@@ -745,7 +748,8 @@ void imrewind( IMFILE *imf)
 
       imseek( imf, 0 , SEEK_SET );
 
-      if ( imf->inUse < (imf->length / 2))   /* Really overlength ?  */
+      if (imf->inUse && ( imf->inUse < (imf->length / 2)))
+                                    /* Really overlength ?           */
       {                             /* Yes --> Shorten it up         */
 
 #ifdef UDEBUG
@@ -855,7 +859,7 @@ int imunload( FILE *output, IMFILE *imf )
 
    if ( ioBuf == NULL )
    {
-      printmsg(0,"imunload: Unablet to allocate I/O buffer for copy");
+      printmsg(0,"imunload: Unable to allocate I/O buffer for copy");
       panic();
    }
 
