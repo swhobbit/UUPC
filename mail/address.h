@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*    a d d r e s s . h                                               */
+/*       a d d r e s s . h                                            */
 /*                                                                    */
-/*    Routines in address.c                                           */
+/*       Routines in address.c                                        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.h 1.6 1996/01/01 21:04:35 ahd v1-12r $
+ *    $Id: address.h 1.7 1997/04/24 01:10:34 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: address.h $
+ *    Revision 1.7  1997/04/24 01:10:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1996/01/01 21:04:35  ahd
  *    Annual Copyright Update
  *
@@ -44,9 +47,12 @@ tokenizeAddress( const char *address,
                   char *hisnode,
                   char *hisuser );
 
-char *HostAlias( char *host);
 
-char *HostPath( char *host, char *best);
+#define HostAlias( host ) hostAlias( host, __FILE__, __LINE__ )
+
+char *hostAlias( const char *host, const char *fname, const size_t lineno);
+
+char *HostPath( const char *host, const char *best);
 
 typedef enum
 {
@@ -56,3 +62,6 @@ typedef enum
 } FULLNAME;
 
 char *ExtractAddress( char *result, const char *column, FULLNAME fullname );
+
+
+#define isOnlyLocalAddress(address) (!strpbrk(address, "!@"))
