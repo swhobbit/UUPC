@@ -1,3 +1,6 @@
+#ifndef _PWSERR_H
+#define _PWSERR_H
+
 /*--------------------------------------------------------------------*/
 /*       p w s e r r . h                                              */
 /*                                                                    */
@@ -17,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.h 1.7 1999/01/04 03:55:33 ahd Exp $
+ *    $Id: pwserr.h 1.8 1999/01/08 02:21:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.h $
+ *    Revision 1.8  1999/01/08 02:21:16  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.7  1999/01/04 03:55:33  ahd
  *    Annual copyright change
  *
@@ -61,3 +67,5 @@ void pWSErr(const size_t lineno,
 /*--------------------------------------------------------------------*/
 
 #define printWSerror( x, rc )  pWSErr( __LINE__, _rcsId, x, rc)
+
+#endif /* _PWSERR_H */
