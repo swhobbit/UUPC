@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.27 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: rmail.c 1.28 1994/03/15 03:02:26 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.28  1994/03/15  03:02:26  ahd
+ * Delete obsolete comments about format restrictions in RFC-822 mode
+ *
  * Revision 1.27  1994/02/28  01:02:06  ahd
  * Don't close input file, redirect it to nul, in order to insure the
  * 0 file handle is not reused by other processing
@@ -781,7 +784,7 @@ static char **Parse822( boolean *header,
    {
       { "From:",   NULL,  FALSE, TRUE,  FALSE, FALSE },
       { "Sender:", NULL,  FALSE, FALSE, FALSE, FALSE },
-      { "To:",     NULL,  FALSE, TRUE,  TRUE,  FALSE },
+      { "To:",     NULL,  FALSE, FALSE, TRUE,  FALSE },
       { "Cc:",     NULL,  FALSE, FALSE, TRUE,  FALSE },
       { "Bcc:",    NULL,  TRUE,  FALSE, TRUE,  FALSE },
       { "Date:",   NULL,  FALSE, FALSE, FALSE, FALSE },
