@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.10 1997/03/31 07:07:18 ahd v1-12u $
+ *    $Id: title2.c 1.11 1998/03/01 01:25:44 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.11  1998/03/01  01:25:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1997/03/31 07:07:18  ahd
  *    Annual Copyright Update
  *
@@ -99,20 +102,24 @@ void setTitle( const char *fmt, ... )
 
    if ( fmt )
    {
+      char buffer[KW_BUFSIZ];
+
+      /* Clear old title         */
+      memset( buffer,
+              ' ',
+              sizeof swctl.szSwtitle );
+
       va_start(arg_ptr,fmt);
 
-      sprintf( swctl.szSwtitle, "%s: ", compilen );
+      sprintf( buffer, "%s: ", compilen );
 
-      vsprintf(swctl.szSwtitle + strlen(swctl.szSwtitle),
+      vsprintf(buffer + strlen(buffer),
                fmt,
                arg_ptr);
 
       va_end( arg_ptr );
+      memcpy(swctl.szSwtitle, buffer, sizeof swctl.szSwtitle );
 
-      memset( swctl.szSwtitle + strlen(swctl.szSwtitle),
-              ' ',
-              MAXNAMEL - strlen(swctl.szSwtitle));
-                                       /* Clear old title         */
    }
    else
       memcpy( &swctl, &swctlSave, sizeof swctl );
