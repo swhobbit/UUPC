@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: IMPORTNG.C 1.2 1992/11/20 12:39:57 ahd Exp $
+ *    $Id: importng.c 1.3 1993/10/12 00:45:27 ahd Exp $
  *
- *    $Log: IMPORTNG.C $
+ *    $Log: importng.c $
+ *     Revision 1.3  1993/10/12  00:45:27  ahd
+ *     Normalize comments
+ *
  * Revision 1.2  1992/11/20  12:39:57  ahd
  * Drop boring message reporting mapping of name
  *
@@ -22,6 +25,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>

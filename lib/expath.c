@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.9 1993/11/06 17:54:55 rhg Exp $
+ *    $Id: expath.c 1.10 1994/01/01 19:01:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.10  1994/01/01  19:01:38  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.9  1993/11/06  17:54:55  rhg
  *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -39,6 +42,8 @@
 /*                    MS-DOS and OS/2 header files                    */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.4 1993/10/30 22:02:31 dmwatt Exp $
+ *    $Id: pwinsock.c 1.5 1994/01/01 19:04:24 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ * Revision 1.5  1994/01/01  19:04:24  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/10/30  22:02:31  dmwatt
  * Correct host byte ordering errors
  *
@@ -42,6 +45,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <windows.h>
 #include "winsock.h"

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.2 1993/10/12 00:46:16 ahd Exp $
+ *    $Id: pnterr.c 1.3 1994/01/01 19:03:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ * Revision 1.3  1994/01/01  19:03:58  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1993/10/12  00:46:16  ahd
  * Normalize comments
  *
@@ -37,6 +40,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <windows.h>
 
 #include <stdio.h>

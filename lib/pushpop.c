@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.8 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: pushpop.c 1.9 1994/01/01 19:04:18 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.9  1994/01/01  19:04:18  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.8  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *
@@ -47,6 +50,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>

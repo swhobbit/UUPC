@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.8 1994/01/01 19:00:36 ahd Exp $
+ *    $Id: catcher.c 1.9 1994/02/14 01:03:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.9  1994/02/14  01:03:56  ahd
+ *     Use system include syntax for windows.h
+ *
  *     Revision 1.8  1994/01/01  19:00:36  ahd
  *     Annual Copyright Update
  *
@@ -57,6 +60,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <signal.h>
 #include <process.h>

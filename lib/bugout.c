@@ -17,15 +17,20 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.4 1993/10/12 00:49:39 ahd Exp $
+ *    $Id: bugout.c 1.5 1994/01/01 19:00:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *     Revision 1.5  1994/01/01  19:00:29  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.4  1993/10/12  00:49:39  ahd
  *     Normalize comments
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

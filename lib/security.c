@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.15 1994/01/01 19:05:30 ahd Exp $
+ *    $Id: security.c 1.16 1994/02/13 04:46:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.16  1994/02/13  04:46:01  ahd
+ *     Handle expansion of PUBDIR gracefully
+ *
  *     Revision 1.15  1994/01/01  19:05:30  ahd
  *     Annual Copyright Update
  *
@@ -78,6 +81,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

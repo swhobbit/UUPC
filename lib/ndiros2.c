@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.7 1993/10/03 20:37:34 ahd Exp $
+ *    $Id: ndiros2.c 1.8 1994/01/01 19:03:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *     Revision 1.8  1994/01/01  19:03:38  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.7  1993/10/03  20:37:34  ahd
  *     Delete debugging message of returned value to make consistent with
  *     other environment messages from ndir()
@@ -58,6 +61,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

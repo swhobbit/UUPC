@@ -14,6 +14,8 @@
 /*                  C run-time library include files                  */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <dos.h>
 

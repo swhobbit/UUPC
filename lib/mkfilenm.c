@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.4 1994/01/01 19:03:08 ahd Exp $
+ *    $Id: mkfilenm.c 1.5 1994/01/24 03:08:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *     Revision 1.5  1994/01/24  03:08:46  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.4  1994/01/01  19:03:08  ahd
  *     Annual Copyright Update
  *
@@ -38,6 +41,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

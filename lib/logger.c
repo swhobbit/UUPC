@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.12 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: logger.c 1.13 1994/01/06 12:45:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.13  1994/01/06  12:45:33  ahd
+ *     Abort if spool directory not initialized
+ *
  *     Revision 1.12  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *
@@ -60,6 +63,8 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>

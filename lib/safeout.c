@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.6 1993/10/12 00:49:39 ahd Exp $
+ *    $Id: safeout.c 1.7 1994/01/01 19:04:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.7  1994/01/01  19:04:55  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1993/10/12  00:49:39  ahd
  *     Normalize comments
  *
@@ -44,6 +47,8 @@
 
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 
 #ifdef WIN32

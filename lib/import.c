@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.17 1994/01/01 19:02:46 ahd Exp $
+ *    $Id: import.c 1.18 1994/01/24 03:08:21 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.18  1994/01/24  03:08:21  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.17  1994/01/01  19:02:46  ahd
  *     Annual Copyright Update
  *
@@ -74,6 +77,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>

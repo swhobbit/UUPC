@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.6 1994/01/01 19:04:31 ahd Exp $
+ *    $Id: readnext.c 1.7 1994/01/24 03:09:22 ahd Exp $
  *
  *    $Log: readnext.c $
+ *     Revision 1.7  1994/01/24  03:09:22  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1994/01/01  19:04:31  ahd
  *     Annual Copyright Update
  *
@@ -41,6 +44,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -26,6 +26,8 @@
  */
 
 #ifdef BSD
+
+#include "uupcmoah.h"
 #include <strings.h>
 #else
 #include <string.h>

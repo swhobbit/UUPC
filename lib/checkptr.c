@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.2 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: checkptr.c 1.3 1994/01/01 19:00:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *     Revision 1.3  1994/01/01  19:00:45  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.2  1993/12/24  05:12:54  ahd
  *     With check in-lined, always abort if called
  *
@@ -30,6 +33,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

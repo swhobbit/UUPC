@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.9 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: winutil.c 1.10 1994/01/01 19:07:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.10  1994/01/01  19:07:03  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.9  1993/12/26  16:20:17  ahd
  * Allow intercepting messages (none actually intercepted at this time)
  *
@@ -58,6 +61,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

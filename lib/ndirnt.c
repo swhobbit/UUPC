@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.6 1994/01/01 19:03:30 ahd Exp $
+ *       $Id: ndirnt.c 1.7 1994/01/24 03:09:04 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *     Revision 1.7  1994/01/24  03:09:04  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1994/01/01  19:03:30  ahd
  *     Annual Copyright Update
  *
@@ -48,6 +51,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

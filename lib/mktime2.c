@@ -4,6 +4,8 @@
 /*    Written by Gary Blaine (TeamB) and posted to CompuServe         */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdlib.h>
  #include <time.h>
  #include <dos.h>

@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize.c 1.7 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: scrsize.c 1.8 1993/10/12 00:45:27 ahd Exp $
  *
  *    $Log: scrsize.c $
+ *     Revision 1.8  1993/10/12  00:45:27  ahd
+ *     Normalize comments
+ *
  *     Revision 1.7  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *
@@ -39,6 +42,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <dos.h>

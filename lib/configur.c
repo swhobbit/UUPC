@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.36 1993/12/29 02:46:47 ahd Exp $
+ *    $Id: configur.c 1.37 1994/01/01 19:00:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.37  1994/01/01  19:00:55  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.36  1993/12/29  02:46:47  ahd
  *     Add Vmail queuing support
  *
@@ -140,6 +143,8 @@
  */
 
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

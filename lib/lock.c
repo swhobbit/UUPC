@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.9 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: lock.c 1.10 1993/11/30 04:18:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *     Revision 1.10  1993/11/30  04:18:14  ahd
+ *     Add newline to fprintf()
+ *
  *     Revision 1.9  1993/10/28  12:19:01  ahd
  *     Cosmetic time formatting twiddles and clean ups
  *
@@ -52,6 +55,8 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>

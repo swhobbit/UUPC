@@ -13,10 +13,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: STRLWR.C 1.4 1993/04/11 00:32:05 ahd Exp $
+ *    $Id: strlwr.c 1.5 1993/07/22 23:19:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: STRLWR.C $
+ *    $Log: strlwr.c $
+ *     Revision 1.5  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
+ *     Revision 1.5  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
  *     Revision 1.4  1993/04/11  00:32:05  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -36,6 +42,8 @@
 /*                       Standard include files                       */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

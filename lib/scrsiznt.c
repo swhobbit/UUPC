@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.5 1993/09/26 03:32:27 dmwatt Exp $
+ *    $Id: scrsiznt.c 1.6 1994/01/01 19:05:13 ahd Exp $
  *
  *    $Log: scrsiznt.c $
+ *     Revision 1.6  1994/01/01  19:05:13  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1993/09/26  03:32:27  dmwatt
  *     Use Standard Windows NT error message module
  *
@@ -32,6 +35,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 
 #include <windows.h>

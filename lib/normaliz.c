@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.9 1993/10/12 00:46:16 ahd Exp $
+ *    $Id: normaliz.c 1.10 1994/01/01 19:03:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.10  1994/01/01  19:03:52  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.9  1993/10/12  00:46:16  ahd
  *     Normalize comments
  *
@@ -61,6 +64,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

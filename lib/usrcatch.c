@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.3 1993/09/30 03:06:28 ahd Exp $
+ *    $Id: usrcatch.c 1.4 1994/01/01 19:06:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ * Revision 1.4  1994/01/01  19:06:51  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1993/09/30  03:06:28  ahd
  * Use straight signal value as flag
  *
@@ -39,6 +42,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <signal.h>
 #include <process.h>

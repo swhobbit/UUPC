@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.3 1993/10/12 00:48:44 ahd Exp $
+ *    $Id: trumpet.c 1.4 1994/01/01 19:06:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.4  1994/01/01  19:06:37  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1993/10/12  00:48:44  ahd
  * Normalize comments
  *
@@ -50,6 +53,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <io.h>

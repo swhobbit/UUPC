@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.9 1994/01/01 19:02:32 ahd Exp $
+ *    $Id: hostatus.c 1.10 1994/01/24 03:08:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.10  1994/01/24  03:08:03  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.9  1994/01/01  19:02:32  ahd
  *     Annual Copyright Update
  *
@@ -44,6 +47,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

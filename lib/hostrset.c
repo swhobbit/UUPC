@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.6 1994/01/01 19:02:38 ahd Exp $
+ *    $Id: hostrset.c 1.7 1994/01/24 03:08:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *     Revision 1.7  1994/01/24  03:08:10  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1994/01/01  19:02:38  ahd
  *     Annual Copyright Update
  *
@@ -41,6 +44,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

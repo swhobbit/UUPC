@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.7 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: printmsg.c 1.8 1994/01/01 19:04:11 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.8  1994/01/01  19:04:11  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.7  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *
@@ -46,6 +49,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: setstdin.c 1.3 1993/10/26 12:45:46 ahd Exp $
+ *    $Id: setstdin.c 1.4 1994/01/01 19:05:42 ahd Exp $
  *
  *    $Log: setstdin.c $
+ *     Revision 1.4  1994/01/01  19:05:42  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.3  1993/10/26  12:45:46  ahd
  *     Add include of own header file
  *
@@ -41,6 +44,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <windows.h>
 

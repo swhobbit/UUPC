@@ -9,9 +9,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: scrsize2.c 1.1 1992/11/27 14:36:10 ahd Exp $
  *
- *    $Log$
+ *    $Log: scrsize2.c $
+ *     Revision 1.1  1992/11/27  14:36:10  ahd
+ *     Initial revision
+ *
+ * Revision 1.1  1992/11/27  14:36:10  ahd
+ * Initial revision
+ *
  */
 
 
@@ -19,6 +25,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 
 #define INCL_SUB

@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.6 1994/01/01 19:03:02 ahd Exp $
+ *    $Id: mkdir.c 1.7 1994/01/24 03:08:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *     Revision 1.7  1994/01/24  03:08:38  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1994/01/01  19:03:02  ahd
  *     Annual Copyright Update
  *
@@ -37,6 +40,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.5 1994/01/01 19:01:18 ahd Exp $
+ *    $Id: dos2unix.c 1.6 1994/01/24 03:07:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *     Revision 1.6  1994/01/24  03:07:23  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1994/01/01  19:01:18  ahd
  *     Annual Copyright Update
  *
@@ -45,6 +48,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.15 1993/12/29 03:39:15 dmwatt Exp $
+ *    $Id: ssleep.c 1.16 1994/01/01 19:05:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.16  1994/01/01  19:05:54  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.15  1993/12/29  03:39:15  dmwatt
  *     Do not include winutil under Windows NT
  *
@@ -76,6 +79,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>

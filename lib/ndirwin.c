@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.2 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: ndirwin.c 1.3 1994/01/01 19:03:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ * Revision 1.3  1994/01/01  19:03:46  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1993/07/31  16:22:16  ahd
  * Changes in support of Robert Denny's Windows 3.x support
  *
@@ -37,6 +40,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

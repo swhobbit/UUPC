@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dater.c 1.2 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: dater.c 1.3 1994/01/01 19:01:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: dater.c $
+ *     Revision 1.3  1994/01/01  19:01:09  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.2  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *
@@ -33,6 +36,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.9 1994/02/13 13:52:33 rommel Exp $
+ *    $Id: arpadate.c 1.10 1994/02/14 01:03:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.10  1994/02/14  01:03:56  ahd
+ *     Drop unneeded currentfile() macro
+ *
  *     Revision 1.9  1994/02/13  13:52:33  rommel
  *     Use shorter logic  for computing TZ offset
  *
@@ -53,6 +56,8 @@
  *
  */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>

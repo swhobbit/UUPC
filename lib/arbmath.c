@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arbmath.c 1.2 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: arbmath.c 1.3 1994/01/01 19:00:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: arbmath.c $
+ *     Revision 1.3  1994/01/01  19:00:01  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.2  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *
@@ -30,14 +33,13 @@
 /*                     Standard library includes                      */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+
+#include "uupcmoah.h"
 #include "arbmath.h"
 
 /*--------------------------------------------------------------------*/

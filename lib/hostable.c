@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.9 1994/01/01 19:02:25 ahd Exp $
+  *      $Id: hostable.c 1.10 1994/01/24 03:07:52 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.10  1994/01/24  03:07:52  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.9  1994/01/01  19:02:25  ahd
  *     Annual Copyright Update
  *
@@ -56,6 +59,8 @@
  *
   */
 
+
+#include "uupcmoah.h"
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>

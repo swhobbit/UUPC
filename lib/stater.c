@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.4 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: stater.c 1.5 1994/01/01 19:06:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *     Revision 1.5  1994/01/01  19:06:07  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.4  1993/10/28  12:19:01  ahd
  *     Cosmetic time formatting twiddles and clean ups
  *
@@ -39,6 +42,8 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>

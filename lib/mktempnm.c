@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.6 1993/10/30 02:29:46 ahd Exp $
+ *    $Id: mktempnm.c 1.7 1994/01/01 19:03:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *     Revision 1.7  1994/01/01  19:03:21  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.6  1993/10/30  02:29:46  ahd
  *     Trim trailing slash from root directories
  *
@@ -46,6 +49,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

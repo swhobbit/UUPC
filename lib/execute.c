@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.24 1994/02/13 13:52:33 rommel Exp $
+ *    $Id: execute.c 1.25 1994/02/14 01:03:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.25  1994/02/14  01:03:56  ahd
+ * Use properly sized buffer for executeCommand processing
+ *
  * Revision 1.24  1994/02/13  13:52:33  rommel
  * Cosmetic changes to lower case file name extensions
  *
@@ -101,6 +104,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+
+#include "uupcmoah.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.7 1993/10/30 22:27:57 rommel Exp $
+ *    $Id: safeio.c 1.8 1994/01/01 19:04:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.8  1994/01/01  19:04:41  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.7  1993/10/30  22:27:57  rommel
  *     Handle missing define
  *
@@ -47,6 +50,8 @@
 
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
+
+#include "uupcmoah.h"
 #include <stdio.h>
 
 #if defined( WIN32 )

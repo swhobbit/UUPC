@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.4 1993/04/11 00:31:31 dmwatt Exp $
+ *    $Id: active.c 1.5 1994/02/18 23:04:24 ahd Exp $
  *
  *    $Log: active.c $
+ *     Revision 1.5  1994/02/18  23:04:24  ahd
+ *     Use standard first header
+ *
  *     Revision 1.4  1993/04/11  00:31:31  dmwatt
  *     Global edits for year, TEXT, etc.
  *
@@ -66,8 +69,9 @@
 
 #ifndef __GNUC__
 
-#include "uupcmoah.h"
 #include <io.h>
+
+#include "uupcmoah.h"
 #include <conio.h>
 #endif
 
