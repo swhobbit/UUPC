@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.59 1995/01/29 14:07:59 ahd Exp $
+ *    $Id: configur.c 1.60 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.60  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.59  1995/01/29 14:07:59  ahd
  *    Clean up most IBM C/Set Compiler Warnings
  *
@@ -327,66 +330,66 @@ static char *getregistry(char *envName, char **value);
 /*--------------------------------------------------------------------*/
 
 CONFIGTABLE envtable[] = {
-   {"aliases",      &E_nickname,     B_TOKEN|B_MUA},
-   {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
-   {"anonymouslogin", &E_anonymous,  B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
-   {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
-   {"backupext",    &E_backup,       B_TOKEN|B_MUA},
-   {"banner",       &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
-   {"batchsize",    &E_batchsize, B_GLOBAL|B_LONG|B_BATCH},
-   {"charset",      &E_charset,      B_TOKEN|B_GLOBAL|B_SPOOL},
-   {"compress",     &E_compress,     B_GLOBAL|B_STRING|B_BATCH|B_NEWS},
-   {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
-   {"domain",       &E_domain,       B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"editor",       &E_editor,       B_STRING|B_MUA|B_NEWS},
-   {"filesent",     &E_filesent,     B_TOKEN|B_MUA|B_NEWS},
-   {"folders",      &dummy,          B_PATH|B_MUSH },
-   {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
-   {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
-   {"ignore",       &E_ignoreList,   B_MUA|B_LIST},
-   {"firstGrade",   &E_firstGrade,   B_UUCICO|B_CHAR},
-   {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
-   {"internalcommands", &E_internal, B_GLOBAL|B_LIST|B_ALL},
-   {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
-   {"mailbox",      &E_mailbox,      B_REQUIRED|B_TOKEN|B_ALL},
-   {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
-   {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
-   {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"newsgrade",    &E_newsGrade,    B_BATCH|B_CHAR},
-   {"maximumhops",  &E_maxhops,      B_MTA | B_SHORT | B_GLOBAL},
-   {"maximumuuxqt", &E_maxuuxqt,     B_MTA | B_SHORT | B_GLOBAL},
-   {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
-   {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
-   {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
-   {"mailgrade",    &E_mailGrade,    B_MTA|B_CHAR},
-   {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
-   {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
-   {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
-   {"nodename",     &E_nodename,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"options",      bflag,           B_ALL|B_BOOLEAN},
-   {"organization", &E_organization, B_STRING|B_MAIL|B_NEWS},
-   {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
-   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
-   {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
-   {"permissions",  &E_permissions,  B_GLOBAL|B_PATH|B_ALL},
-   {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"priority",     &dummy,          B_OBSOLETE },
-   {"prioritydelta",&dummy,          B_OBSOLETE },
-   {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
-   {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
-   {"replytoList",  &E_replyToList,  B_MUA|B_LIST},
-   {"rmail",        &dummy,          B_OBSOLETE },
-   {"rnews",        &dummy,          B_OBSOLETE },
-   {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
-   {"spooldir",     &E_spooldir,     B_GLOBAL|B_PATH|B_ALL},
-   {"systems",      &E_systems,      B_GLOBAL|B_PATH|B_ALL},
-   {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
-   {"tz",           &E_tz,           B_TOKEN|B_ALL},
-   {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
-   {"version",      &E_version,      B_TOKEN|B_INSTALL},
-   {"vmail",        &E_vmail,        B_MTA|B_PATH},
-   {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA|B_PATH},
-   {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT|B_PATH|B_ALL},
+   {"aliases",      &E_nickname,     B_MUA,     B_TOKEN },
+   {"altsignature", &E_altsignature, B_MUA,     B_TOKEN },
+   {"anonymouslogin", &E_anonymous,  (B_ALL & ~ B_MAIL), B_GLOBAL|B_TOKEN },
+   {"archivedir",   &E_archivedir,   B_ALL,     B_GLOBAL|B_PATH },
+   {"backupext",    &E_backup,       B_MUA,     B_TOKEN },
+   {"banner",       &E_banner,       B_UUCICO,  B_GLOBAL|B_PATH },
+   {"batchsize",    &E_batchsize,    B_SENDBATS,B_GLOBAL|B_LONG },
+   {"charset",      &E_charset,      B_SPOOL,   B_TOKEN|B_GLOBAL },
+   {"compress",     &E_compress,     B_SENDBATS,B_GLOBAL|B_STRING },
+   {"confdir",      &E_confdir,      B_ALL,     B_GLOBAL|B_PATH },
+   {"domain",       &E_domain,       B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"editor",       &E_editor,       B_MUA,     B_STRING },
+   {"filesent",     &E_filesent,     B_MUA,     B_TOKEN },
+   {"folders",      &dummy,          B_MUSH,    B_PATH  },
+   {"fromdomain",   &E_fdomain,      B_ALL,     B_GLOBAL|B_TOKEN },
+   {"home",         &E_homedir,      B_ALL,     B_PATH|B_REQUIRED },
+   {"ignore",       &E_ignoreList,   B_MUA,     B_LIST },
+   {"firstGrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
+   {"inmodem",      &E_inmodem,      B_UUCICO,  B_GLOBAL|B_TOKEN },
+   {"internalcommands", &E_internal, B_ALL,     B_GLOBAL|B_LIST },
+   {"localdomain",  &E_localdomain,  B_MAIL,    B_GLOBAL|B_TOKEN   },
+   {"mailbox",      &E_mailbox,      B_ALL,     B_REQUIRED|B_TOKEN },
+   {"maildir",      &E_maildir,      B_ALL,     B_GLOBAL|B_PATH },
+   {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
+   {"mailserv",     &E_mailserv,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"newsgrade",    &E_newsGrade,    B_NEWS,    B_CHAR },
+   {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
+   {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
+   {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
+   {"mushdir",      &dummy,          B_MUSH,    B_GLOBAL|B_PATH },
+   {"name",         &E_name,         B_INEWS|B_MAIL, B_REQUIRED|B_STRING },
+   {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
+   {"newsdir",      &E_newsdir,      B_NEWS,    B_GLOBAL|B_PATH },
+   {"newsserv",     &E_newsserv,     B_NEWS,    B_GLOBAL|B_TOKEN },
+   {"nickname",     &E_nickname,     B_MUA,     B_TOKEN },
+   {"nodename",     &E_nodename,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"options",      bflag,           B_ALL,     B_BOOLEAN },
+   {"organization", &E_organization, B_INEWS|B_MAIL, B_STRING },
+   {"pager",        &E_pager,        B_INEWS|B_MUA, B_STRING },
+   {"passwd",       &E_passwd,       B_ALL,     B_GLOBAL|B_PATH },
+   {"path",         &E_uuxqtpath,    B_UUXQT,   B_STRING|B_GLOBAL },
+   {"permissions",  &E_permissions,  B_ALL,     B_GLOBAL|B_PATH },
+   {"postmaster",   &E_postmaster,   B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"priority",     &dummy,          B_OBSOLETE  },
+   {"prioritydelta",&dummy,          B_OBSOLETE  },
+   {"pubdir",       &E_pubdir,       B_ALL,     B_GLOBAL|B_PATH },
+   {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
+   {"replytoList",  &E_replyToList,  B_MUA,     B_LIST },
+   {"rmail",        &dummy,          B_OBSOLETE  },
+   {"rnews",        &dummy,          B_OBSOLETE  },
+   {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
+   {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
+   {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
+   {"tempdir",      &E_tempdir,      B_ALL,     B_GLOBAL|B_PATH },
+   {"tz",           &E_tz,           B_ALL,     B_TOKEN },
+   {"uncompress",   &E_uncompress,   B_RNEWS,   B_GLOBAL|B_STRING  },
+   {"version",      &E_version,      B_INSTALL, B_TOKEN },
+   {"vmail",        &E_vmail,        B_MTA,     B_PATH },
+   {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA,     B_PATH },
+   {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT,   B_PATH },
    { nil(char) }
 }; /* table */
 
@@ -423,6 +426,7 @@ FLAGTABLE configFlags[] = {
  { "compressbatch",           F_COMPRESSBATCH,         B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
+ { "fastnews",                F_NEWSRUN,               B_GLOBAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},
@@ -430,6 +434,7 @@ FLAGTABLE configFlags[] = {
  { "monocase",                F_ONECASE,               B_GLOBAL},
  { "multiqueue",              F_MULTI,                 B_GLOBAL},
  { "multitask",               F_MULTITASK,             B_GLOBAL},
+ { "nns",                     F_NNS,                   B_GLOBAL},
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
  { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
  { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
@@ -486,12 +491,14 @@ KWBoolean processconfig(char *buff,
    }
    else {
 
-      typedef struct _ENVLIST {
-            char *name;
-            ENV_TYPE value;
+      typedef struct _ENVLIST
+      {
+         char *name;
+         ENV_TYPE value;
       } ENVLIST;
 
-      static ENVLIST envtable[] = {
+      static ENVLIST envtable[] =
+      {
          { "dos",      ENV_DOS      },
          { "16bit",    ENV_BIT16    },
          { "32bit",    ENV_BIT32    },
@@ -555,57 +562,73 @@ KWBoolean processconfig(char *buff,
 /*                      Handle obsolete options                       */
 /*--------------------------------------------------------------------*/
 
-        else if (tptr->bits & B_OBSOLETE)
+        else if (tptr->flag & B_OBSOLETE)
             printmsg(2,"Obsolete keyword \"%s\" ignored.", keyword);
 
 /*--------------------------------------------------------------------*/
 /*                  Handle mis-placed system options                  */
 /*--------------------------------------------------------------------*/
 
-        else if ((tptr->bits & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
+        else if ((tptr->flag & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
             printmsg(0,
                "User specified system keyword \"%s\" ignored.",
                keyword);
 
-         else {
+/*--------------------------------------------------------------------*/
+/*       Skip options we don't need for this particular program       */
+/*--------------------------------------------------------------------*/
+
+         else if (program && !(tptr->program & program))
+         {
+                  // No operation if we don't need the keyword
+         }
 
 /*--------------------------------------------------------------------*/
 /*                       Handle Boolean options                       */
 /*--------------------------------------------------------------------*/
 
-            if (tptr->bits & B_BOOLEAN)
-               options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
+         else if (tptr->flag & B_BOOLEAN )
+            options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
 
 /*--------------------------------------------------------------------*/
 /*                       Handle integer values                        */
 /*--------------------------------------------------------------------*/
-            else if (tptr->bits & (B_SHORT|B_LONG))
-            {
-               long foo;
-               cp = strtok(cp,WHITESPACE);
-               if ( equal(cp,"0"))
-                  foo = 0;
-               else {
-                  foo = atol(cp);
 
-                  if ( foo == 0)
-                  {
-                     printmsg(0,
-                        "Unable to convert \"%s\" value \"%s\" to integer",
-                        keyword, cp);
-                     error = KWTrue;
-                  } /* if */
-               } /* else */
+         else if (tptr->flag & (B_SHORT|B_LONG))
+         {
+            long foo;
+            cp = strtok(cp,WHITESPACE);
 
-               if (tptr->bits & B_LONG)
-                  *((long *) tptr->loc) = foo;
-               else
-                  *((KEWSHORT *) tptr->loc) = (KEWSHORT) foo;
+            if ( equal(cp,"0"))
+               foo = 0;
+            else {
+
+               foo = atol(cp);
+
+               if ( foo == 0)
+               {
+                  printmsg(0,
+                     "Unable to convert \"%s\" value \"%s\" to integer",
+                     keyword, cp);
+                  error = KWTrue;
+
+               } /* if */
+
             } /* else */
+
+            if (tptr->flag & B_LONG)
+               *((long *) tptr->loc) = foo;
+            else
+               *((KEWSHORT *) tptr->loc) = (KEWSHORT) foo;
+
+         } /* else if (tptr->flag & (B_SHORT|B_LONG)) */
+
 /*--------------------------------------------------------------------*/
 /*                       Handle lists of tokens                       */
 /*--------------------------------------------------------------------*/
-            else if ((tptr->bits & program) && (tptr->bits & (B_LIST | B_CLIST)))
+
+         else {
+            if (tptr->flag & (B_LIST | B_CLIST))
             {
                char **list = malloc( (MAXLIST+1) * sizeof (*list));
                char *colon;
@@ -613,11 +636,14 @@ KWBoolean processconfig(char *buff,
 
                checkref( list );
 
-               if (tptr->bits & B_CLIST)  /* Use colon as delimiter?  */
+               if (tptr->flag & B_CLIST)  /* Use colon as delimiter?  */
+               {
                   while ( (colon = strchr( cp , ':')) != NULL)
                      *colon = ' ';     /* Make colons spaces ...      */
+               }
 
                words = getargs(cp, list);
+
                if( words > MAXLIST)
                   panic();
 
@@ -625,6 +651,7 @@ KWBoolean processconfig(char *buff,
                {
                   if ( *(varPtr) )
                      free( *(varPtr) );
+
                   list = realloc( list, (size_t) (words+1) * sizeof(*list));
                   checkref( list );
                   *(varPtr) = (char *) list;
@@ -632,6 +659,7 @@ KWBoolean processconfig(char *buff,
 
                   while( *list != NULL)
                   {
+
                      if (strlen(*list))
                      {
                         *list = newstr(*list);
@@ -639,19 +667,27 @@ KWBoolean processconfig(char *buff,
                      }
                      else
                         *list++ = "";
+
                   } /* while */
+
                } /* if (words > 0) */
                else {
+
                   printmsg(0,"No parameters given for keyword \"%s\"",
                            keyword);
+
                   error = KWTrue;
+
                } /* else */
+
             } /* else if */
+
 /*--------------------------------------------------------------------*/
 /*                  Handle single tokens and strings                  */
 /*--------------------------------------------------------------------*/
-            else if (tptr->bits & program)
-            {
+
+            else {
+
                while( *cp == ' ' )     /* Trim leading whitespace     */
                   cp++;
 
@@ -663,13 +699,13 @@ KWBoolean processconfig(char *buff,
                            keyword);
                } /* if */
 
-               if (tptr->bits & (B_TOKEN|B_CHAR))  /* One word value?   */
+               if (tptr->flag & (B_TOKEN|B_CHAR))  /* One word value?   */
                   cp = strtok(cp,WHITESPACE); /* Yes --> Tokenize */
 
-               if (tptr->bits & B_NORMAL)  /* Normalize path?     */
+               if (tptr->flag & B_NORMAL)  /* Normalize path?     */
                   cp = normalize( cp );
 
-               if (tptr->bits & B_CHAR )   /* Simple character?   */
+               if (tptr->flag & B_CHAR )   /* Simple character?   */
                {
                   if ( strlen( cp ) > 1 )
                   {
@@ -682,8 +718,8 @@ KWBoolean processconfig(char *buff,
                   else
                      *((char *) tptr->loc) = *cp;
 
-               } /* if (tptr->bits & B_CHAR ) */
-               else if (tptr->bits & B_MALLOC)  /* Allocate normally?  */
+               } /* if (tptr->flag & B_CHAR ) */
+               else if (tptr->flag & B_MALLOC)  /* Allocate normally?  */
                {
                   *(varPtr) = strdup(cp);    /* Save string           */
                   checkref( *(varPtr) );     /* Verify malloc()       */
@@ -696,7 +732,8 @@ KWBoolean processconfig(char *buff,
          } /* else */
 
          if (!error)
-            tptr->bits |= B_FOUND;
+            tptr->flag |= B_FOUND;
+
          return KWTrue;        /* Report we found the keyword      */
 
       } /* if (equal(keyword, tptr->sym)) */
@@ -798,6 +835,7 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
       {
          if ((flags[subscript].bits & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
             continue;
+
          if (negate)
          {
             if (equal(&token[2],flags[subscript].sym))
@@ -840,35 +878,46 @@ KWBoolean configure( CONFIGBITS program)
 
    CONFIGTABLE *tptr;
 
-   static char *envlist[] = { "EDITOR",   "EDITOR",
-                              "HOME",     "HOME",
-                              "NAME",     "NAME",
-                              "MAILBOX",  "MAILBOX",
-                              "LOGNAME",  "MAILBOX",  /* Same as rcs   */
-                              "USERNAME", "MAILBOX",  /* Useful for NT */
-                              "TEMP",     "TEMPDIR",
-                              "TMP",      "TEMPDIR",
-                              NULL } ;
+   typedef struct _ENVNAMES
+   {
+      char *envName;
+      char *confName;
+   } ENVNAMES;
 
-   typedef struct _DEFAULTS {
+   static ENVNAMES envlist[] =
+   {
+      { "EDITOR",   "EDITOR",  },
+      { "HOME",     "HOME",    },
+      { "NAME",     "NAME",    },
+      { "MAILBOX",  "MAILBOX", },
+      { "LOGNAME",  "MAILBOX", },   /* Same as rcs                   */
+      { "USERNAME", "MAILBOX", },   /* Useful for NT                 */
+      { "TEMP",     "TEMPDIR", },
+      { "TMP",      "TEMPDIR", },
+      { "TZ",       "TZ",      },
+      { NULL }
+   } ;
+
+   typedef struct _DEFAULTS
+   {
       char **value;
       char *literal;
       KWBoolean path;
    } DEFAULTS;
 
-   static DEFAULTS deflist[] = {
-        {&E_archivedir,   "archive" , KWTrue },
-        {&E_maildir,      "mail"    , KWTrue },
-        {&E_newsdir,      "news"    , KWTrue },
-        {&E_pubdir,       "public"  , KWTrue },
-        {&E_spooldir,     "spool"   , KWTrue },
-        {&E_tempdir,      "tmp"     , KWTrue },
-        {&E_systems,      "systems" , KWTrue },
-        {&E_passwd,       "passwd"  , KWTrue },
-        {&E_permissions,  "permissn", KWTrue },
-        {&E_tz,           "tz"      , KWFalse},
-        { NULL  }
-        } ;
+   static DEFAULTS deflist[] =
+   {
+      {&E_archivedir,   "archive" , KWTrue },
+      {&E_maildir,      "mail"    , KWTrue },
+      {&E_newsdir,      "news"    , KWTrue },
+      {&E_pubdir,       "public"  , KWTrue },
+      {&E_spooldir,     "spool"   , KWTrue },
+      {&E_tempdir,      "tmp"     , KWTrue },
+      {&E_systems,      "systems" , KWTrue },
+      {&E_passwd,       "passwd"  , KWTrue },
+      {&E_permissions,  "permissn", KWTrue },
+      { NULL  }
+   } ;
 
 /*--------------------------------------------------------------------*/
 /*     In Windows/NT, set the console input mode to non-linebased     */
@@ -898,13 +947,16 @@ KWBoolean configure( CONFIGBITS program)
 /*          Extract selected variables from our environment           */
 /*--------------------------------------------------------------------*/
 
-   while( envlist[subscript] != NULL )
+   for ( subscript = 0; envlist[subscript].envName != NULL; subscript++ )
    {
-      s = getenv( envlist[subscript++] );
+      s = getenv( envlist[subscript].envName );
 
       if (s != NULL )
       {
-         sprintf(buf,"%s=%s",envlist[subscript], s );
+         sprintf(buf,"%s=%s", envlist[subscript].confName, s );
+         printmsg(5,"Inserting environment variable %s as %s",
+                     s, buf );
+
          if ( !processconfig( buf,
                               SYSTEM_CONFIG,
                               program,
@@ -912,13 +964,13 @@ KWBoolean configure( CONFIGBITS program)
                               configFlags))
          {
             printmsg(0,"Internal error: Invalid keyword %s",
-                       envlist[subscript]  );
+                       envlist[subscript].confName  );
             panic();
          }
+
       } /* if (sysrc != NULL ) */
 
-      subscript++;            /* Step to next environment var in list */
-   }
+   } /* for ( subscript = 0; ... ) */
 
 /*--------------------------------------------------------------------*/
 /*       If the user specified a user name in the environment but     */
@@ -1018,10 +1070,10 @@ KWBoolean configure( CONFIGBITS program)
    for (tptr = envtable; tptr->sym != nil(char); tptr++)
    {
 
-      if ((tptr->bits & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
+      if ((tptr->flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "%s configuration parameter \"%s\" must be set.",
-            (tptr->bits & B_GLOBAL) ? "System" : "User",
+            (tptr->flag & B_GLOBAL) ? "System" : "User",
             tptr->sym);
          success = KWFalse;
       } /* if */

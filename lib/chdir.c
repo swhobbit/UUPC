@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.8 1994/12/22 00:07:33 ahd Exp $
+ *    $Id: chdir.c 1.9 1995/01/30 04:03:57 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.9  1995/01/30 04:03:57  dmwatt
+ *    Optimize Windows NT processing
+ *
  *    Revision 1.8  1994/12/22 00:07:33  ahd
  *    Annual Copyright Update
  *
@@ -38,6 +41,10 @@
 
 #ifdef WIN32
 #include <windows.h>
+#endif
+
+#ifdef __TURBOC__
+#define _getcwd(path,length) getcwd(path,length)
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -59,7 +66,7 @@ int CHDIR(const char *path)
 {
 
    int result;
-   int originalDrive = _getdrive(); /* Remember in case we fail       */
+   int originalDrive = getDrive( NULL );  /* Remember should CD fail */
 
    if (*path == '\0')
       return 0;
@@ -115,7 +122,7 @@ int CHDIR(const char *path)
       printerr("chdir");         /* Report the error, real problem   */
 
 #ifndef WIN32
-      _chdrive( originalDrive ); /* Return to original drive         */
+      _chdrive( originalDrive - 'A' + 1); /* Return to original drive   */
 #endif
 
    }
@@ -132,19 +139,27 @@ int CHDIR(const char *path)
 
 static int changedir(const char *path)
 {
-   static char savePath[FILENAME_MAX];
 
 #ifdef WIN32
    int result = !SetCurrentDirectory(path);
                                     /* It's opposite the RTL normal  */
 #else
+
    int result = chdir((char *) path);     /* Perform the change      */
+
 #endif
 
    if ( ! result )                  /* Did it work?                  */
-   {
-      strcpy( savePath, path );
-      E_cwd = savePath;             /* Yes --> Save directory        */
+   {                                /* Yes --> Save directory name   */
+
+      char savePath[FILENAME_MAX];
+
+      _getcwd(savePath, sizeof savePath);
+      E_cwd = newstr( savePath );   /* Yes --> Save directory        */
+      *E_cwd = (char) toupper( *E_cwd );
+                                    /* Insure driver letter is upper
+                                       case                          */
+
    }
 
    return result;
