@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.9 1993/09/24 03:42:24 ahd Exp $
+#     $Id: uucico.mak 1.10 1993/09/25 03:07:09 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.10  1993/09/25  03:07:09  ahd
+# Add OS/2 priority function
+#
 # Revision 1.9  1993/09/24  03:42:24  ahd
 # Add OS/2 named pipes support
 #
@@ -56,13 +59,14 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
 
 !if $d(__OS2__)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
-            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj
+            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend.obj
 !elif $d(WINDOWS)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
-            $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj
+            $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj $(OBJ)\suspend.obj
 !else
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj $(OBJ)\fossil.obj \
-            $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj
+            $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj \
+            $(OBJ)\suspend.obj
 !endif
 
 # *--------------------------------------------------------------------*
@@ -75,6 +79,19 @@ uucico$(PSUFFIX).exe: $(COMMON) $(UUCICOOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(UUCICOOBJ)
+$<
+$(MAP)
+$(LIBRARY)
+$(DEFFILE)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+uuport$(PSUFFIX).exe: $(COMMON) $(OBJ)\uuport.obj $(LIBRARIES)
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(OBJ)\uuport.obj
 $<
 $(MAP)
 $(LIBRARY)
