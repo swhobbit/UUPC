@@ -1,0 +1,118 @@
+/*--------------------------------------------------------------------*/
+/*    p r i n t e r r . c                                             */
+/*                                                                    */
+/*    Support routines for UUPC/extended                              */
+/*                                                                    */
+/*    Changes Copyright 1989, 1992 (c) Andrew H. Derbyshire           */
+/*                                                                    */
+/*    History:                                                        */
+/*       21Nov1991 Break out of lib.c                          ahd    */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Header$
+ *
+ *    Revision history:
+ *    $Log$
+ */
+
+static char rcsid[] = "$Id$";
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <errno.h>
+
+#ifndef __GNUC__
+#include <dos.h>
+#include <io.h>
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
+
+#include "lib.h"
+
+/*--------------------------------------------------------------------*/
+/*    p r i n t e r r                                                 */
+/*                                                                    */
+/*    Perform a perror() with logging                                 */
+/*--------------------------------------------------------------------*/
+
+void prterror(const size_t lineno, const char *fname, const char *prefix)
+{
+   char buf[50];
+   char *s = strerror(errno);
+   int l = strlen( s );
+
+   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+
+/*--------------------------------------------------------------------*/
+/*    Drop extra new from error message if we have room in our        */
+/*    small buffer                                                    */
+/*--------------------------------------------------------------------*/
+
+   if (( s[l-1] == '\n') & (l < sizeof buf ))
+   {
+      s = strcpy( buf, s);    /* Make buf copy of string we use below*/
+      s[l-1] = '\0';          /* Drop extra newline from string      */
+   }
+
+/*--------------------------------------------------------------------*/
+/*           Display the message with option file location            */
+/*--------------------------------------------------------------------*/
+
+   printmsg(2,"Run time library error in %s at line %d ...",
+            fname, lineno);
+
+   printmsg(0,"%s: %s", prefix, s);
+   if ( redirect )
+      fprintf(stdout,"%s: %s\n", prefix, s);
+
+#ifdef __TURBOC__
+   if (_osmajor >= 3 )
+   {
+      union REGS regs;
+      struct SREGS sregs;
+      regs.h.ah = 0x59;       /* Extended error information          */
+      regs.x.bx = 0x00;       /* Set up for call                     */
+      intdosx(&regs, &regs, &sregs);
+
+      printmsg(1,"Extended DOS Error Information: "
+            "Number = %d, Class = %d, Action = %d, Locus = %d",
+                  (int) regs.x.ax, (int) regs.h.bh,
+                  (int) regs.h.bl, (int) regs.h.ch );
+
+      if ( redirect )
+      {
+         fprintf(stdout, "Extended DOS Error Information: "
+            "Number = %d, Class = %d, Action = %d, Locus = %d",
+                  (int) regs.x.ax, (int) regs.h.bh,
+                  (int) regs.h.bl, (int) regs.h.ch );
+         fputc('\n',stdout);  /* Allows compiler to avoid generating
+                                 second almost duplicate literal str */
+      } /* if ( redirect ) */
+
+/*--------------------------------------------------------------------*/
+/*               Abort if that is the suggested action                */
+/*--------------------------------------------------------------------*/
+
+      switch( regs.h.bl )
+      {
+         case 0x04:
+         case 0x05:
+               bugout( lineno, fname);
+
+         default:
+               break;
+      } /* switch */
+   } /* (_osmajor >= 3 ) */
+#endif
+
+} /* printerr */

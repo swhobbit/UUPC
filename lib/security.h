@@ -1,0 +1,74 @@
+#ifndef _SECURITY
+#define _SECURITY
+
+#define ANY_HOST     "OTHER"
+#define ANY_COMMAND  "ALL"
+
+/*--------------------------------------------------------------------*/
+/*             Directory list structed used by host table             */
+/*--------------------------------------------------------------------*/
+
+typedef enum {
+   ALLOW_READ,
+   ALLOW_WRITE,
+   } REMOTE_ACCESS;
+
+struct DIRLIST {
+   char *path;                /* Directory we are authorizing        */
+   REMOTE_ACCESS priv;        /* ALLOW_READ/ALLOW_WRITE              */
+   boolean grant;             /* TRUE = excplitly Allow access,
+                                 FALSE = explicit deny access        */
+   } ;
+
+/*--------------------------------------------------------------------*/
+/*                        Security information                        */
+/*--------------------------------------------------------------------*/
+
+struct HostSecurity {
+      char **validate;           /* List of machines allowed to use
+                                    logname when calling in             */
+      char *myname;              /* Name to use when communicating with
+                                    this remote system                  */
+      char *pubdir;              /* Public directory to use for this
+                                    system                              */
+      char **commands;           /* Commands allowed for this system    */
+      struct DIRLIST *dirlist;   /* List of directories this system
+                                    can access                          */
+      size_t dirsize;            /* Size of the directory list          */
+      boolean request;           /* TRUE = Remote system can request
+                                    files FROM local system             */
+      boolean sendfiles;         /* TRUE = Send locally queued requests
+                                    when other system has called us;
+                                    default is FALSE, only send files
+                                    when we are the caller.  (Stupid
+                                    default if you fill in other para-
+                                    meters properly, but that's UUCP    */
+      boolean callback;          /* TRUE = Do not process work for
+                                    system when it calls in, but rather
+                                    call it back    */
+      boolean local;             /* TRUE = Local system, grant all
+                                    requests                            */
+      } ; /* HostSecurity */
+
+/*--------------------------------------------------------------------*/
+/*                             Prototypes                             */
+/*--------------------------------------------------------------------*/
+
+boolean ValidateFile( const char *input,  /* Full path name          */
+                      const REMOTE_ACCESS needed );
+
+boolean ValidateHost( const char *host );
+
+boolean ValidateCommand( const char *command);
+
+boolean LoadSecurity( void );
+
+struct HostSecurity *GetSecurity( struct HostTable *hostp);
+
+/*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+extern struct HostSecurity *securep;
+
+#endif /* ifdef _SECURITY */
