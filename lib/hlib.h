@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.5 1994/02/28 01:11:02 ahd v1-12k $
+ *    $Id: hlib.h 1.6 1994/12/22 00:12:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.6  1994/12/22 00:12:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/02/28 01:11:02  ahd
  *    Change BINARY_MODE to IMAGE_MODE,  allow longer addresses in real OS's
  *
@@ -65,7 +68,11 @@ void mkfilename(char *pathname,
                 const char *name);                             /* ahd  */
 
 char *mktempname( char *input,
-                  char *extension);                            /* ahd  */
+                  const char *extension);                      /* ahd  */
+
+char *mkdirfilename(char *input,
+                    const char *dir,
+                    const char *extension);                     /* gmm */
 
 char *mkmailbox(char *buf, const char *userid);
 

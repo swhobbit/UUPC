@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.21 1994/11/27 17:09:27 ahd v1-12k $
+ *    $Id: uutypes.h 1.22 1994/12/22 00:14:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.22  1994/12/22 00:14:38  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1994/11/27 17:09:27  ahd
  *    Add F_SUPPRESSBEEP, to trap OS/2 dos box crash (not UUPC's fault)
  *
@@ -161,6 +164,8 @@ typedef enum {
                F_BOUNCE,      /* TRUE = Bounce bad mail to sender      */
                F_COLLECTSTATS,/* TRUE = Report additional information in
                                         various logs                   */
+               F_COMPRESSBATCH,
+                              /* TRUE = Compress outgoing news batches  */
                F_DIRECT,      /* TRUE = Deliver to subdirectories, not
                                         files                          */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
@@ -168,6 +173,8 @@ typedef enum {
                F_ESCAPE,      /* TRUE = ESCAPE acts as Ctrl-Break      */
                F_HISTORY,     /* TRUE = Maintain history of of articles
                                         read and posted                 */
+               F_FULLBATCH,   /* TRUE = Batch only sends batches that are
+                                 full size.                             */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
                F_LONGNAME,    /* TRUE = Exploit OS/2 and NT long names  */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on

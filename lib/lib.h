@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.24 1994/12/22 00:13:16 ahd Exp $
+ *    $Id: lib.h 1.25 1994/12/27 20:50:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.25  1994/12/27 20:50:28  ahd
+ *    Smoother call grading
+ *
  *    Revision 1.24  1994/12/22 00:13:16  ahd
  *    Annual Copyright Update
  *
@@ -168,7 +171,7 @@
 #define B_GENERIC  0x00008000L /* Generic utilties with no spec vars  */
 #define B_MAIL     (B_MUA | B_MTA | B_MUSH)
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
-#define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH|B_GENERIC)
+#define B_ALL      (B_MAIL | B_SPOOL | B_NEWS | B_UUPOLL | B_BATCH | B_GENERIC)
 
 #define B_SHORT    0x80000000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x40000000L /* Pointer is one word, ignore blanks  */
@@ -184,7 +187,6 @@
 #define B_OBSOLETE 0x00800000L /* Option is obsolete, should be
                                   deleted                             */
 #define B_MALLOC   0x00400000L  /* Use malloc(), not newstr()         */
-#define B_LONG     0x00200000L  /* Pointer is to long, not string     */
 #define B_LONG     0x00200000L  /* Pointer is to long, not string     */
 #define B_PATH     (B_TOKEN | B_NORMAL)
                                /* DOS Path name                       */

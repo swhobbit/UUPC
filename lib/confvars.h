@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.21 1994/12/22 00:12:24 ahd Exp $
+ *    $Id: confvars.h 1.22 1994/12/27 20:50:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.22  1994/12/27 20:50:28  ahd
+ *    Smoother call grading
+ *
  *    Revision 1.21  1994/12/22 00:12:24  ahd
  *    Annual Copyright Update
  *
@@ -131,7 +134,11 @@ extern char *E_vmail;
 extern char **E_ignoreList;      /* Headers not displayed by print      */
 extern char **E_replyToList;     /* Primary Addr used to reply to mail  */
 extern char E_firstGrade;        /* First class searched for by UUCICO  */
+extern char E_mailGrade;         /* Default grade for mail              */
+extern char E_newsGrade;         /* Default grade for news              */
+
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
+extern long E_batchsize;         /* Size of remote batches                */
 
 #endif

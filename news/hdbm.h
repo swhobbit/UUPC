@@ -5,10 +5,21 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  */
- 
-/* $Id: hdbm.h 1.1 1993/09/05 10:56:49 rommel Exp $ */
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/* $Id: hdbm.h 1.2 1994/06/14 01:20:12 ahd v1-12k $ */
 
 /* $Log: hdbm.h $
+/* Revision 1.2  1994/06/14 01:20:12  ahd
+/* Clean up RCS information
+/*
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  *
@@ -24,8 +35,8 @@
 #define DBM_EXT_DBF     ".pag"
 #define DBM_EXT_IDX     ".dir"
 
-#define DBM_INSERT	0
-#define DBM_REPLACE	1
+#define DBM_INSERT      0
+#define DBM_REPLACE     1
 
 typedef struct
 {
@@ -39,11 +50,11 @@ typedef struct
 }
 DBM;
 
-typedef struct 
+typedef struct
 {
   char *dptr;
   int dsize;
-} 
+}
 datum;
 
 extern datum nullitem;

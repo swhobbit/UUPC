@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.51 1994/12/27 20:47:55 ahd Exp $
+ *    $Id: configur.c 1.52 1994/12/31 03:41:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.52  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.51  1994/12/27 20:47:55  ahd
  *    Smoother call grading'
  *
@@ -402,7 +405,6 @@ FLAGTABLE configFlags[] = {
  { "history",                 F_HISTORY,               B_GLOBAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
- { "junk",                    F_JUNK,                  B_GLOBAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},
  { "longname",                F_LONGNAME,              B_GLOBAL},
  { "monocase",                F_ONECASE,               B_GLOBAL},
