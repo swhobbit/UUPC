@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.6 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: cache.c 1.7 1997/04/24 00:56:54 ahd v1-12t $
  *
  * $Log: cache.c $
+ * Revision 1.7  1997/04/24 00:56:54  ahd
+ * correct if ferror() to if ( ferror() )
+ *
  * Revision 1.6  1996/11/18 04:46:49  ahd
  * Normalize arguments to bugout
  * Reset title after exec of sub-modules
@@ -51,7 +54,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.6 1996/11/18 04:46:49 ahd Exp $");
+RCSID("$Id: cache.c 1.7 1997/04/24 00:56:54 ahd v1-12t $");
 
 #include <io.h>
 #include <memory.h>
@@ -63,7 +66,7 @@ currentfile();
 
 /* I/O functions */
 
-static int cache_read(CACHE *cache, long index, void *buffer)
+static int cache_read(CACHE UUFAR *cache, long index, void *buffer)
 {
   if (lseek(cache->file, (long) (index * cache->itemsize), SEEK_SET) == -1)
   {
@@ -82,7 +85,7 @@ static int cache_read(CACHE *cache, long index, void *buffer)
   return 0;
 }
 
-static int cache_write(CACHE *cache, long index, void *buffer)
+static int cache_write(CACHE UUFAR *cache, long index, void *buffer)
 {
 
   if (lseek(cache->file, (long) (index * cache->itemsize), SEEK_SET) == -1)
@@ -105,7 +108,7 @@ static int cache_write(CACHE *cache, long index, void *buffer)
 
 /* cache maintenance functions */
 
-static void cache_alloc(CACHE *cache)
+static void cache_alloc(CACHE UUFAR *cache)
 {
   CACHEITEM UUFAR *newItem;
   long i;
@@ -147,7 +150,7 @@ static void cache_alloc(CACHE *cache)
 
 } /* cache_alloc */
 
-static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
+static int cache_add(CACHE UUFAR *cache, long index, void *buffer, int dirty)
 {
   CACHEITEM UUFAR *item;
 
@@ -189,7 +192,7 @@ static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
 
 } /* cache_add */
 
-static CACHEITEM UUFAR *cache_find(CACHE *cache, long index)
+static CACHEITEM UUFAR *cache_find(CACHE UUFAR *cache, long index)
 {
   CACHEITEM UUFAR *item;
 
@@ -256,7 +259,7 @@ CACHE UUFAR *cache_init(int file, const long items, const size_t itemsize)
 
 } /* cache_init */
 
-void cache_flush(CACHE *cache)
+void cache_flush(CACHE UUFAR *cache)
 {
   CACHEITEM UUFAR *item;
   char *tempBuffer;
@@ -288,7 +291,7 @@ void cache_flush(CACHE *cache)
 
 } /* cache_flush */
 
-void cache_exit(CACHE *cache)
+void cache_exit(CACHE UUFAR *cache)
 {
   CACHEITEM UUFAR *item;
   CACHEITEM UUFAR *next;
@@ -317,7 +320,7 @@ void cache_exit(CACHE *cache)
 
 } /* cache_exit */
 
-int cache_get(CACHE *cache, long index, void *buffer)
+int cache_get(CACHE UUFAR *cache, long index, void *buffer)
 {
   CACHEITEM UUFAR *item;
   int rc;
@@ -348,7 +351,7 @@ int cache_get(CACHE *cache, long index, void *buffer)
   return rc;
 }
 
-int cache_put(CACHE *cache, long index, void *buffer)
+int cache_put(CACHE UUFAR *cache, long index, void *buffer)
 {
   CACHEITEM UUFAR *item;
 
