@@ -8,7 +8,15 @@
    Update History:
 
    18Mar90     Create from router.c                                  ahd
+   21Dec92     Make all "enum hostatus"'s into unsigned shorts for
+               NT portability                                        dmw
  */
+
+ /*
+  *   $Id$
+  *
+  *   $Log$
+  */
 
 #ifndef __HOSTABLE
 #define __HOSTABLE
@@ -72,7 +80,7 @@ struct HostStats {
       unsigned long breceived;   /* Total bytes received from this host */
       unsigned long errors;      /* Total transmission errors noted     */
       unsigned long packets;     /* Total packets exchanged             */
-      hostatus save_hstatus;     /* host status, as defined by hostatus */
+      unsigned short save_hstatus;
    };
 
 /*--------------------------------------------------------------------*/
@@ -90,7 +98,7 @@ struct  HostTable {
                                     user id                             */
       boolean  aliased;          /* TRUE = alias has been optimized     */
       boolean  routed;           /* TRUE = route has been optimized     */
-      hostatus hstatus;          /* host status, as defined by hostatus */
+      unsigned short hstatus;          /* host status, as defined by hostatus */
    };
 
 struct HostTable *searchname(const char *name, const size_t namel);
