@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.16 1995/01/07 16:31:34 ahd Exp $
+ *    $Id: active.c 1.17 1995/01/15 19:48:35 ahd v1-12n $
  *
  *    $Log: active.c $
+ *    Revision 1.17  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.16  1995/01/07 16:31:34  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -324,19 +329,17 @@ KWBoolean add_newsgroup(const char *grp, const KWBoolean moderated)
 {
    struct grp *cur = group_list;
 
-   while ((strcmp(grp, cur->grp_name) != 0))
+   for ( ;; )
    {
-      if (cur->grp_next != NULL)
-      {
-         if ( equali( cur->grp_name, grp ) ) /* Group exists?        */
-            return KWFalse;          /* Yes --> Cannot add it again   */
+     if ( equali( cur->grp_name, grp ) )  /* Group exists?        */
+        return KWFalse;          /* Yes --> Cannot add it again   */
 
-         cur = cur->grp_next;
-      }
-      else                          /* Add group at end              */
-         break;
+     if (cur->grp_next == NULL)
+        break;
+     else
+        cur = cur->grp_next;
 
-   } /* while ((strcmp(grp, cur->grp_name) != 0)) */
+   } /* for */
 
 /*--------------------------------------------------------------------*/
 /*       We're at the end of the chain with no group found, add it    */
