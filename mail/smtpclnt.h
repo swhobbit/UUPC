@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.9 1998/03/01 19:43:52 ahd Exp $
+ *    $Id: smtpclnt.h 1.10 1998/03/03 03:55:05 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.10  1998/03/03 03:55:05  ahd
+ *    Routines to handle messages within a POP3 mailbox
+ *
  *    Revision 1.9  1998/03/01 19:43:52  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -118,6 +121,7 @@ typedef struct _SMTPClient
    time_t connectTime;
    time_t timeoutPeriod;
    time_t terminationTime;
+   time_t timeout;                  /* Overrides default mode timeout */
 
    size_t sequence;
    KWBoolean ready;                 /* Socket ready for read/accept  */
@@ -174,6 +178,10 @@ void setClientIgnore(SMTPClient *client, time_t delay);
 
 /* Report timeout based on various flags, including mode and ignore */
 time_t getClientTimeout(const SMTPClient *client);
+
+/* Set override for mode time out */
+void
+setClientTimeout( SMTPClient *client, time_t timeout );
 
 /* Get unique sequence number for this client, used in debug msgs */
 size_t getClientSequence(const SMTPClient *client);
