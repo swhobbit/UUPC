@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.48 1995/03/08 03:01:54 ahd Exp $
+ *    $Id: uuxqt.c 1.49 1995/03/11 22:31:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.49  1995/03/11 22:31:15  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.48  1995/03/08 03:01:54  ahd
  *    Always pass debuglevel to rnews under OS/2 to avoid C/Set++
  *    bug with spawns for with no program args
@@ -578,7 +581,7 @@ static KWBoolean do_uuxqt( const char *sysname )
 /*    Process a single execute file                                   */
 /*--------------------------------------------------------------------*/
 
-static void process( const char *fname,
+static void process( const char *eXecFileName,
                      const char *remote,
                      const char *executeDirectory)
 {
@@ -623,13 +626,13 @@ static void process( const char *fname,
 /*                         Open the X.* file                          */
 /*--------------------------------------------------------------------*/
 
-   if ( (fxqt = FOPEN(fname, "r", IMAGE_MODE)) == NULL)
+   if ( (fxqt = FOPEN(eXecFileName, "r", IMAGE_MODE)) == NULL)
    {
-      printerr(fname);
+      printerr(eXecFileName);
       return;
    }
    else
-      printmsg(2, "processing %s", fname);
+      printmsg(2, "processing %s", eXecFileName);
 
 /*--------------------------------------------------------------------*/
 /*                  Begin loop to read the X.* file                   */
@@ -661,7 +664,7 @@ static void process( const char *fname,
       case 'U':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No user on U line in %s", fname );
+            printmsg(0,"No user on U line in %s", eXecFileName );
             reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
@@ -671,13 +674,13 @@ static void process( const char *fname,
                                     /* Get the system name            */
          if ( (cp = strtok(NULL, WHITESPACE)) == NULL)
          {                          /* Did we get a string?           */
-            printmsg(2,"No node on U line in %s", fname );
+            printmsg(2,"No node on U line in %s", eXecFileName );
             cp = (char *) remote;
          }
          else if (!equal(cp,remote))
          {
             printmsg(2,"Node on U line in %s doesn't match remote",
-                     fname );
+                     eXecFileName );
             cp = (char * ) remote;
          };
          machine = newstr(cp);
@@ -791,7 +794,7 @@ static void process( const char *fname,
       case 'J':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No job id on J line in %s", fname );
+            printmsg(0,"No job id on J line in %s", eXecFileName );
             reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
@@ -810,7 +813,7 @@ static void process( const char *fname,
          if (cp == NULL)
          {
             printmsg(0,"Missing F parameter in %s, command rejected",
-                       fname);
+                       eXecFileName);
             reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
@@ -827,7 +830,7 @@ static void process( const char *fname,
             if ( access( hostfile, 0 ))   /* Does the host file exist?   */
             {                             /* No --> Skip the file        */
                printmsg(0,"Missing file %s (%s) for %s, command skipped",
-                        cp, hostfile, fname);
+                        cp, hostfile, eXecFileName);
                skip = KWTrue;
                break;
             }
@@ -845,7 +848,7 @@ static void process( const char *fname,
          else
          {
             printmsg(0,"Invalid F parameter in %s, command rejected",
-                       fname);
+                       eXecFileName);
             reject = xflag[F_BADF] = KWTrue;
             break;
          }
@@ -856,7 +859,8 @@ static void process( const char *fname,
             if (!ValidDOSName(cp, KWFalse))
             {  /* Illegal filename --> reject the whole request */
                printmsg(0,"Illegal file %s in %s, command rejected",
-                          cp, fname);
+                          cp,
+                          eXecFileName);
                reject = xflag[F_BADF] = KWTrue;
                break;
             }
@@ -877,7 +881,7 @@ static void process( const char *fname,
       case 'R':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No requestor on R line in %s", fname );
+            printmsg(0,"No requestor on R line in %s", eXecFileName );
             reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
@@ -894,7 +898,7 @@ static void process( const char *fname,
       case 'M':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No file name on M line in %s", fname);
+            printmsg(0,"No file name on M line in %s", eXecFileName);
             break;
          }
 
@@ -945,7 +949,8 @@ static void process( const char *fname,
 
    if ((command == NULL) && !skip)
    {
-      printmsg(0,"No command supplied for X.* file %s, rejected", fname);
+      printmsg(0,"No command supplied for X.* file %s, rejected",
+                 eXecFileName);
       reject = xflag[F_CORRUPT] = KWTrue;
    }
 
@@ -1140,7 +1145,10 @@ static void process( const char *fname,
                   status = shell(next_cmd, pipefile, outputName, remote, xflag);
                }
 
-               REMOVE(pipefile);
+
+               if (REMOVE(pipefile))
+                  printerr( pipefile );
+
                free(pipefile);
             }
 
@@ -1154,13 +1162,16 @@ static void process( const char *fname,
          PopDir();
 
          for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
-            if (qPtr->xqtname != NULL)
-               REMOVE(qPtr->xqtname);
+            if ((qPtr->xqtname != NULL) && REMOVE(qPtr->xqtname))
+               printerr( qPtr->xqtname);
 
       } /* if (!reject) */
 
       for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
-         REMOVE(qPtr->spoolname);
+      {
+         if ( REMOVE(qPtr->spoolname) )
+            printerr( qPtr->spoolname );
+      }
 
       ReportResults( status,
                      inputName,
@@ -1176,10 +1187,11 @@ static void process( const char *fname,
                      machine,
                      user);
 
-      if (!reject)
-         REMOVE(outputName);
+      if ((!reject) && (outputName != NULL ) && REMOVE(outputName))
+         printerr( outputName );
 
-      REMOVE(fname);
+      if (REMOVE(eXecFileName))
+         printerr( eXecFileName );
 
    } /* (!skip) */
 
@@ -1793,7 +1805,9 @@ static void ReportResults(const int status,
 
    }
 
-   REMOVE(tempmail);
+   if (REMOVE(tempmail))
+      printerr( tempmail );
+
    return;
 
 } /* ReportResults */
@@ -1933,6 +1947,7 @@ static void purify( const char *where )
       sprintf(fname, "%s/%s", where, dp->d_name);
 
       printmsg(0,"purify: Deleting file %s", fname );
+
       if ( chmod( fname, S_IREAD | S_IWRITE ) || REMOVE( fname ))
       {
          printerr( fname );
