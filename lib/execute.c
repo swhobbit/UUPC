@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.14 1993/10/30 17:10:40 rhg Exp $
+ *    $Id: execute.c 1.15 1993/11/06 17:54:55 rhg Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.15  1993/11/06  17:54:55  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.14  1993/10/30  17:10:40  rhg
  * Correct direction of redirection for Windows batch files
  *
@@ -83,9 +86,11 @@
 #ifdef WIN32
 #include <windows.h>
 #include <signal.h>
-#elif defined(_Windows)
-#include <windows.h>
-#include <shellapi.h>
+#elif defined(__OS2__) || defined(FAMILYAPI)
+#define INCL_DOSSESMGR
+#define INCL_DOSQUEUES
+#define INCL_NOPM
+#include <os2.h>
 #endif
 
 #include <direct.h>
@@ -100,10 +105,10 @@
 
 #ifdef _Windows
 #include "winutil.h"
-#endif
-
-#ifdef WIN32
+#elif defined(WIN32)
 #include "pnterr.h"
+#elif defined(__OS2__) || defined(FAMILYAPI)
+#include "pos2err.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -119,6 +124,14 @@ currentfile();
 static boolean internal( const char *command );
 
 static boolean batch( const char *input, char *output);
+
+#if defined(__OS2__) || defined(FAMILYAPI)
+
+static int executeAsync( const char *command,
+                         const char *parameters,
+                         const boolean synchronous,
+                         const boolean foreground );
+#endif
 
 #ifdef _Windows
 
@@ -142,6 +155,17 @@ int execute( const char *command,
    char path[FILENAME_MAX];         /* String for executable file   */
    char batchFile[FILENAME_MAX];    /* String for batch driver file */
    char perfect[FILENAME_MAX];      /* String for results test file */
+
+/*--------------------------------------------------------------------*/
+/*                    Validate command redirection                    */
+/*--------------------------------------------------------------------*/
+
+   if ( ((input != NULL) || (output != NULL)) && ! synchronous )
+   {
+      printerr( "execute: Internal error, cannot redirect asynchronous command %s",
+                 command );
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*                          Locate the command                        */
@@ -267,6 +291,17 @@ int execute( const char *command,
    char path[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
+/*                    Validate command redirection                    */
+/*--------------------------------------------------------------------*/
+
+   if ( ((input != NULL) || (output != NULL)) && ! synchronous )
+   {
+      printerr( "execute: Internal error, cannot redirect asynchronous command %s",
+                 command );
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
 
@@ -298,7 +333,9 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(strcpy(path,command)) ||
+   strcpy(path, command);
+
+   if (internal(path) ||
        batch(command, path))        /* Internal or batch command?     */
    {
 
@@ -327,7 +364,6 @@ int execute( const char *command,
       si.lpTitle = (LPSTR)command;
       si.dwFlags = STARTF_USESHOWWINDOW;
       si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
-
 
       if (parameters != NULL)
       {
@@ -423,9 +459,7 @@ int execute( const char *command,
 
 #else
 
-#ifdef __TURBOC__
-#pragma argsused
-#elif _MSC_VER >= 700
+#if _MSC_VER >= 700
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
@@ -445,10 +479,27 @@ int execute( const char *command,
 {
    int result;
    char path[BUFSIZ];
+   boolean redirected;
 
 /*--------------------------------------------------------------------*/
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
+
+   if ( (input != NULL) || (output != NULL) )
+   {
+      redirected = TRUE;
+
+      if ( ! synchronous )
+      {
+         printmsg(0, "execute: Internal error, "
+                     "cannot redirect asynchronous command %s",
+                 command );
+         panic();
+
+      } /* if ( ! synchronous ) */
+   }
+   else
+      redirected = FALSE;
 
    if ((input != NULL) && (freopen(input , "rb", stdin) == NULL))
    {
@@ -479,46 +530,47 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(strcpy(path,command)) ||
-       batch(command,path))         /* Internal command or batch file? */
+   strcpy(path, command);
+
+   if (internal(path) ||
+       batch(command, path))        /* Internal command or batch file? */
    {
 
-      if ( parameters == NULL )
-         result = system( path );
-      else {
-
+      if ( parameters != NULL )
+      {
          strcat( path, " ");
          strcat( path, parameters );
+      }
 
+#if defined(__OS2__) || defined(FAMILYAPI)
+      if ( redirected )
          result = system( path );
-      } /* else */
+      else
+         result = executeAsync( NULL,
+                                path,
+                                synchronous,
+                                foreground );
+#else
+      result = system( path );
+#endif
 
    } /* if (internal(command)) */
-   else  {                       /* No --> Invoke normally            */
+   else if ( ! *path )
+      result = -3;            /* Flag we never ran command         */
+#if defined(__OS2__) || defined(FAMILYAPI)
+   else if ((foreground && ! redirected) || ! synchronous)
+      result = executeAsync( path, parameters, synchronous, foreground );
+#endif
+   else {
 
-      if ( *path )
-      {
-         int mode = (synchronous || IsDOS()) ? P_WAIT : P_NOWAIT;
+      result = spawnlp( P_WAIT,
+                        (char *) path,
+                        (char *) command,
+                        (char *) parameters,
+                        NULL);
 
-
-         printmsg(4,"execute: spawnlp(%d, %s, %s%s%s)",
-                              mode,
-                              path,
-                              command,
-                              parameters == NULL ? "" : ", ",
-                              parameters == NULL ? "" : parameters );
-
-         result = spawnlp( mode,
-                           (char *) path,
-                           (char *) command,
-                           (char *) parameters,
-                           NULL);
-
-         if (result == -1)       /* Did spawn fail?                   */
-            printerr(command);   /* Yes --> Report error              */
-      } /* else */
-      else
-         result = -3;            /* Flag we never ran command         */
+      if (result == -1)       /* Did spawn fail?                   */
+         printerr(command);   /* Yes --> Report error              */
 
    } /* else */
 
@@ -799,6 +851,167 @@ static boolean batch( const char *input, char *output)
    printmsg(0, "batch: Unable to locate %s in search path", input);
 
    *output = '\0';                  /* Flag no file found!            */
+
    return FALSE;
 
 } /* batch */
+
+#if defined(__OS2__) || defined(FAMILYAPI)
+
+/*--------------------------------------------------------------------*/
+/*       e x e c u t e A s y n c                                      */
+/*                                                                    */
+/*       Run a command in a new session under OS/2                    */
+/*--------------------------------------------------------------------*/
+
+static int executeAsync( const char *command,
+                         const char *parameters,
+                         const boolean synchronous,
+                         const boolean foreground )
+{
+   STARTDATA sd;
+   PID   childPID;
+   static int instance = 0;      /* Number of program we've invoke   */
+
+   char  queueName[FILENAME_MAX];
+   PVOID queueDataAddress;
+   BYTE  queueElementPriority;
+   HQUEUE queueHandle;
+
+#ifdef __OS2__
+   APIRET rc;
+   REQUESTDATA  queueRequest;
+   ULONG sessID;
+   ULONG queueDataLength;
+#else
+   USHORT rc;
+   QUEUERESULT  queueRequest;
+   USHORT sessID;
+   USHORT queueDataLength;
+
+#ifndef SSF_RELATED_CHILD
+
+   #define SSF_RELATED_INDEPENDENT 0
+   #define SSF_RELATED_CHILD       1
+
+   #define SSF_FGBG_FORE           0
+   #define SSF_FGBG_BACK           1
+
+   #define SSF_TRACEOPT_NONE       0
+
+   #define SSF_INHERTOPT_PARENT    1
+
+   #define SSF_TYPE_DEFAULT        0
+
+   #define SSF_CONTROL_MAXIMIZE    0x0002
+   #define SSF_CONTROL_MINIMIZE    0x0004
+
+#endif  /* SSF_RELATED_CHILD */
+#endif
+
+/*--------------------------------------------------------------------*/
+/*              Initialize the start session parameters               */
+/*--------------------------------------------------------------------*/
+
+   memset( (void *) &sd, 0, sizeof sd );
+
+   sd.Length      = 32;          /* Just basic info + InheritOpt     */
+
+   sd.FgBg        = (USHORT) (foreground ? SSF_FGBG_FORE : SSF_FGBG_BACK);
+   sd.TraceOpt    = SSF_TRACEOPT_NONE;
+   sd.PgmName     = (PSZ) command;
+   sd.PgmInputs   = (PSZ) parameters;
+   sd.Environment = 0;           /* Just use our own envionment      */
+   sd.InheritOpt  = SSF_INHERTOPT_PARENT; /* Pass it to child        */
+   sd.SessionType = SSF_TYPE_DEFAULT;     /* Let the system pick
+                                             session type            */
+   sd.PgmControl  = (USHORT) (foreground ?
+                        SSF_CONTROL_MAXIMIZE : SSF_CONTROL_MINIMIZE);
+
+/*--------------------------------------------------------------------*/
+/*          Build the queue to listen for the subtask ending          */
+/*--------------------------------------------------------------------*/
+
+   if ( synchronous )
+   {
+      sprintf(queueName,
+              "\\queues\\pid%d\\pgm%d",
+              (int) getpid(),
+              instance++);
+
+      rc = DosCreateQueue( &queueHandle,
+#ifdef __OS2__
+                           QUE_FIFO | QUE_CONVERT_ADDRESS,
+#else
+                           QUE_FIFO,
+#endif
+                           (PSZ) queueName );
+
+      if ( rc )
+      {
+         printOS2error( queueName, rc );
+         return -4;                 /* Report command never was run     */
+      }
+
+      sd.TermQ       = (PSZ) queueName;
+      sd.Related     = SSF_RELATED_CHILD;       /* Child session        */
+
+   } /* if ( synchronous ) */
+   else {
+
+      sd.TermQ       = (PSZ) 0;     /* Don't wait for session end       */
+      sd.Related     = SSF_RELATED_INDEPENDENT; /* Not a child session  */
+
+   } /* else */
+
+   rc = DosStartSession( &sd,
+                         &sessID,
+                         &childPID );
+
+   if ( rc )
+   {
+      printOS2error( command ? command : parameters, rc );
+      return -5;
+   }
+
+/*--------------------------------------------------------------------*/
+/*      If the command is running asynchonously return to caller      */
+/*--------------------------------------------------------------------*/
+
+   if ( ! synchronous )
+      return 0;
+
+/*--------------------------------------------------------------------*/
+/*                   Wait for the child to complete                   */
+/*--------------------------------------------------------------------*/
+
+   memset( (void *) &queueRequest, 0, sizeof queueRequest );
+
+   rc = DosReadQueue( queueHandle,
+                      &queueRequest,
+                      &queueDataLength,
+                      &queueDataAddress,
+                      0,            /* First element in the queue    */
+                      0,            /* Wait for queue to be ready    */
+                      &queueElementPriority,
+                      0);           /* Semaphore handle -- not used  */
+
+   if ( rc )
+   {
+      printOS2error( queueName, rc );
+      panic();
+   }
+
+   rc = ((unsigned short FAR*) queueDataAddress)[1];
+
+#ifdef __OS2__
+   DosFreeMem( queueDataAddress );
+#else
+   DosFreeSeg( SELECTOROF(queueDataAddress) );
+#endif
+
+   return rc;
+
+} /* executeAsync */
+
+#endif
