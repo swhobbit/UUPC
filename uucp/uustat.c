@@ -197,6 +197,7 @@ void main(int  argc, char  **argv)
 /*                   Switch to the spool directory                    */
 /*--------------------------------------------------------------------*/
 
+   tzset();                      /* Set up time zone information      */
    PushDir( E_spooldir );
    atexit( PopDir );
 
@@ -344,7 +345,8 @@ void main(int  argc, char  **argv)
 void all( const char *system, const char *userid)
 {
    char  canon[FILENAME_MAX];
-   long  size, ltime;
+   long  size;
+   time_t ltime;
    struct HostTable *hostp;
    boolean hit = FALSE;
 
@@ -565,7 +567,9 @@ static void long_stats( const char *system )
 
       while( readnext(fname, hostp->hostname, "C", NULL, &ltime, &size) != NULL )
       {
-         if ((ltime > -1) && (ltime < oldest_file ))
+         if ((ltime < oldest_file)
+             && (ltime != (time_t) -1L)
+             && (ltime != (time_t) -2L))
             oldest_file = ltime;
 
          jobs++;
