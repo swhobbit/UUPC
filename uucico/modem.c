@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.39 1993/12/30 03:26:21 ahd Exp $
+ *    $Id: modem.c 1.40 1994/01/01 19:20:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.40  1994/01/01  19:20:13  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.39  1993/12/30  03:26:21  ahd
  * Add timeout parameter for 'e' protocol
  *
@@ -198,6 +201,7 @@ static char *dummy;
 
 static KEWSHORT dialTimeout, modemTimeout, scriptTimeout, scriptEchoTimeout;
 static KEWSHORT answerTimeout;
+static KEWSHORT answerDelay;
 static BPS inspeed;
 static KEWSHORT gWindowSize, gPacketSize;
 static KEWSHORT vWindowSize, vPacketSize;
@@ -230,42 +234,43 @@ static FLAGTABLE modemFlags[] = {
 
 static CONFIGTABLE modemtable[] = {
    { "answer",        (char **) &answer,       B_LIST   | B_UUCICO },
-   { "answertimeout", (char **) &answerTimeout,B_SHORT| B_UUCICO },
-   { "biggpacketsize",(char **) &GPacketSize,  B_SHORT| B_UUCICO },
-   { "biggwindowsize",(char **) &GWindowSize,  B_SHORT| B_UUCICO },
-   { "chardelay",     (char **) &M_charDelay,  B_SHORT| B_UUCICO },
+   { "answerdelay",   (char **) &answerDelay,  B_SHORT  | B_UUCICO },
+   { "answertimeout", (char **) &answerTimeout,B_SHORT  | B_UUCICO },
+   { "biggpacketsize",(char **) &GPacketSize,  B_SHORT  | B_UUCICO },
+   { "biggwindowsize",(char **) &GWindowSize,  B_SHORT  | B_UUCICO },
+   { "chardelay",     (char **) &M_charDelay,  B_SHORT  | B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
    { "description",   &dummy,                  B_TOKEN  },
-   { "device",        &M_device,               B_TOKEN| B_UUCICO | B_REQUIRED },
+   { "device",        &M_device,               B_TOKEN  | B_UUCICO | B_REQUIRED },
    { "dialprefix",    &dialPrefix,             B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
-   { "dialtimeout",   (char **) &dialTimeout,  B_SHORT| B_UUCICO },
+   { "dialtimeout",   (char **) &dialTimeout,  B_SHORT  | B_UUCICO },
    { "epackettimeout",(char **) &M_ePacketTimeout, B_SHORT | B_UUCICO },
-   { "fpacketsize",   (char **) &M_fPacketSize,B_SHORT| B_UUCICO },
+   { "fpacketsize",   (char **) &M_fPacketSize,B_SHORT  | B_UUCICO },
    { "fpackettimeout",(char **) &M_fPacketTimeout, B_SHORT | B_UUCICO },
-   { "gpacketsize",   (char **) &gPacketSize,  B_SHORT| B_UUCICO },
+   { "gpacketsize",   (char **) &gPacketSize,  B_SHORT  | B_UUCICO },
    { "gpackettimeout",(char **) &M_gPacketTimeout, B_SHORT | B_UUCICO },
-   { "gwindowsize",   (char **) &gWindowSize,  B_SHORT| B_UUCICO },
+   { "gwindowsize",   (char **) &gWindowSize,  B_SHORT  | B_UUCICO },
    { "hangup",        (char **) &dropline,     B_LIST   | B_UUCICO },
    { "initialize",    (char **) &initialize,   B_LIST   | B_UUCICO },
    { "inspeed",       (char **) &inspeed,      B_LONG   | B_UUCICO },
-   { "maximumerrors", (char **) &M_MaxErr,     B_SHORT| B_UUCICO },
-   { "modemtimeout",  (char **) &modemTimeout, B_SHORT| B_UUCICO },
+   { "maximumerrors", (char **) &M_MaxErr,     B_SHORT  | B_UUCICO },
+   { "modemtimeout",  (char **) &modemTimeout, B_SHORT  | B_UUCICO },
    { "noconnect",     (char **) &noconnect,    B_LIST   | B_UUCICO },
    { "options",       (char **) bmodemflag,    B_ALL    | B_BOOLEAN},
    { "porttimeout",   NULL,                    B_OBSOLETE },
-   { "priority",      (char **) &M_priority,     B_SHORT |B_UUCICO},
+   { "priority",      (char **) &M_priority,    B_SHORT | B_UUCICO},
    { "prioritydelta", (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
-   { "scripttimeout", (char **) &scriptTimeout,B_SHORT| B_UUCICO },
+   { "scripttimeout", (char **) &scriptTimeout,B_SHORT  | B_UUCICO },
    { "scriptechotimeout", (char **) &scriptEchoTimeout,B_SHORT| B_UUCICO },
    { "startuptimeout",(char **) &M_startupTimeout, B_SHORT | B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
    { "transferbuffer",(char **) &M_xfer_bufsize, B_LONG| B_UUCICO },
    { "tpackettimeout",(char **) &M_tPacketTimeout, B_SHORT | B_UUCICO },
    { "version",       &dummy,                  B_TOKEN  },
-   { "vpacketsize",   (char **) &vPacketSize,  B_SHORT| B_UUCICO },
-   { "vwindowsize",   (char **) &vWindowSize,  B_SHORT| B_UUCICO },
+   { "vpacketsize",   (char **) &vPacketSize,  B_SHORT  | B_UUCICO },
+   { "vwindowsize",   (char **) &vWindowSize,  B_SHORT  | B_UUCICO },
    { nil(char) }
 }; /* modemtable */
 
@@ -566,6 +571,9 @@ CONN_STATE callin( const time_t exit_time )
       while (sread(&c ,1,0)); /* Discard trailing trash from modem
                                  connect message                     */
 
+      ssleep( answerDelay );  /* Delay before presenting prompt, if
+                                 if needed                           */
+
    } /* else */
 
    memset( &remote_stats, 0, sizeof remote_stats);
@@ -573,8 +581,6 @@ CONN_STATE callin( const time_t exit_time )
 
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
-
-
    return CONN_LOGIN;
 
 } /* callin */
@@ -630,9 +636,11 @@ boolean getmodem( const char *brand)
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
    scriptEchoTimeout = 5;     /* Default is 5 seconds for script echo */
    answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
+   answerDelay   = 30;        /* No default delay before presenting
+                                 login prompt to remote system        */
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
-   M_suite = NULL;            /* Use default suite for communications  */
+   M_suite = NULL;            /* Use default suite for communications */
    M_startupTimeout = 40;     /* 40 seconds per message to exchange protocols  */
 
    M_priority = 999;
