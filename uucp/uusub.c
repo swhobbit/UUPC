@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUSUB.C 1.3 1993/04/11 00:35:46 ahd Exp $
+ *    $Id: UUSUB.C 1.4 1993/05/09 12:44:25 ahd Exp $
  *
  *    $Log: UUSUB.C $
+ * Revision 1.4  1993/05/09  12:44:25  ahd
+ * Reset collection time start before writing it out to disk
+ *
  * Revision 1.3  1993/04/11  00:35:46  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -105,16 +108,8 @@ void main( int argc , char **argv)
    copywrong = strdup(copyright);
    checkref(copywrong);
 #endif
+
    banner( argv );
-
-/*--------------------------------------------------------------------*/
-/*       Load system configuration and then the UUPC host stats       */
-/*--------------------------------------------------------------------*/
-
-   if (!configure( B_UUSTAT ))
-      panic();
-
-   HostStatus();
 
 /*--------------------------------------------------------------------*/
 /*                        Process option flags                        */
@@ -144,6 +139,19 @@ void main( int argc , char **argv)
       exit(4);
    }
 
+/*--------------------------------------------------------------------*/
+/*       Load system configuration and then the UUPC host stats       */
+/*--------------------------------------------------------------------*/
+
+   if (!configure( B_UUSTAT ))
+      panic();
+
+   HostStatus();
+
+/*--------------------------------------------------------------------*/
+/*            Now display or clear the loaded information             */
+/*--------------------------------------------------------------------*/
+
    if ( (name != NULL) && (checkreal( name ) == BADHOST) )
        printf("Unknown host \"%s\"\n", name );
    else if (clear_stats)
@@ -156,7 +164,6 @@ void main( int argc , char **argv)
        showstats((const char *)name);
 
 } /* main */
-
 
 /*--------------------------------------------------------------------*/
 /*    s h o w s t a t s                                               */
