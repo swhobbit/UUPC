@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.19 1993/12/02 02:25:12 ahd Exp $
+ *    $Id: deliver.c 1.20 1993/12/07 04:57:53 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.20  1993/12/07  04:57:53  ahd
+ * rename from fromUser and fromNode
+ *
  * Revision 1.19  1993/12/02  02:25:12  ahd
  * Add max generated UUXQT command line length
  *
@@ -806,7 +809,7 @@ static int CopyData( const boolean remotedelivery,
                               /* Assume no Kanji translation needed   */
 
    if ( bflag[F_SHORTFROM] )
-      *trailer = '\0';
+      sprintf(trailer, " %.24s", ctime( &now ));
    else {
       time_t now;
 
@@ -906,30 +909,6 @@ static int CopyData( const boolean remotedelivery,
                        E_domain,
                        fromUser,
                        trailer );
-                              /* No --> Use domain address            */
-         }
-         break;
-
-      case 9:                 /* Local sender, remote delivery        */
-         if ( bflag[F_KANJI]) /* Translation enabled?                 */
-            put_string = (int (*)(char *, FILE *)) fputs_jis7bit;
-                              /* Translate into 7 bit Kanji           */
-
-         if ( ! bflag[ F_SUPPRESSFROM ] )
-         {
-            column = strlen(E_domain) - 5;
-            if ((column > 0) && equali(&E_domain[column],".UUCP"))
-                              /* UUCP domain?                         */
-               fprintf(dataout,
-                       "From %s%s\n",
-                       fromUser,
-                       trailer );
-                              /* Yes --> Use simple address           */
-            else
-               fprintf(dataout, "From %s!%s%s\n",
-                      E_domain,
-                      fromUser,
-                      trailer );
                               /* No --> Use domain address            */
          }
          break;
