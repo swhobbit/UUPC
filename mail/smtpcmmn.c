@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.8 1998/03/01 01:32:32 ahd Exp $
+ *       $Id: smtpcmmn.c 1.1 1998/03/01 19:42:17 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtplwc.c $
+ *       $Log: smtpcmmn.c $
+ *       Revision 1.1  1998/03/01 19:42:17  ahd
+ *       Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -36,7 +39,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.8 1998/03/01 01:32:32 ahd Exp $");
+RCSID("$Id: smtpcmmn.c 1.1 1998/03/01 19:42:17 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */
@@ -160,40 +163,5 @@ commandNOOP(SMTPClient *client,
             char **operands)
 {
    SMTPResponse(client, verb->successResponse, "OK (No operation)");
-   return KWTrue;
-}
-
-/*--------------------------------------------------------------------*/
-/*       c o m m a n d R S E T                                        */
-/*                                                                    */
-/*       Reset server state to allow new transaction                  */
-/*--------------------------------------------------------------------*/
-
-KWBoolean
-commandRSET(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands)
-{
-
-   cleanupTransaction(client);
-   SMTPResponse(client, verb->successResponse, "Reset state");
-   return KWTrue;
-}
-
-/*--------------------------------------------------------------------*/
-/*       c o m m a n d Q U I T                                        */
-/*                                                                    */
-/*       Respond to server termination                                */
-/*--------------------------------------------------------------------*/
-
-KWBoolean
-commandQUIT(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands)
-{
-   sprintf(client->transmit.data,
-            "%s Closing connection, adios",
-            E_domain);
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
    return KWTrue;
 }
