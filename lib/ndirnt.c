@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.11 1994/02/19 04:44:20 ahd v1-12k $
+ *       $Id: ndirnt.c 1.12 1994/12/22 00:09:47 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.12  1994/12/22 00:09:47  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.11  1994/02/19 04:44:20  ahd
  *       Use standard first header
  *
@@ -115,8 +118,8 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
    dirHandle = FindFirstFile(pathname, &dirData);
 
-   printmsg(5, "dirhandle = %d\n",dirHandle);
-   printmsg(5, "file, = %s\n", dirData.cFileName);
+   printmsg(5, "dirhandle = %d",dirHandle);
+   printmsg(5, "file, = %s", dirData.cFileName);
 
    if ((int)dirHandle == -1) {
       printmsg(2,"opendir: Error on directory %s",pathname );
@@ -148,29 +151,26 @@ struct direct *readdir(DIR *dirp)
       printmsg(5,"readdir: Opening directory %s", pathname );
       dirp->dirfirst = 0;
    } else {
-      printmsg(5, "dirhandle = %d\n",dirHandle);
-      rc = FindNextFile(dirHandle, &dirData);
+      printmsg(5, "dirhandle = %d",dirHandle);
+      strcpy( dirData.cFileName, "." );
    }
 
-   if (!strcmp(dirData.cFileName,"."))
+   while( equal(dirData.cFileName,".") ||
+          equal(dirData.cFileName,".."))
+   {
       rc = FindNextFile(dirHandle, &dirData);
-
-   printmsg(9, "readdir: file = %s\n", dirData.cFileName);
-
-   if (!strcmp(dirData.cFileName,".."))
-      rc = FindNextFile(dirHandle, &dirData);
-
-        printmsg(9, "file = %s\n", dirData.cFileName);
+      if ( rc )
+         printmsg(9, "file = %s", dirData.cFileName);
+   }
 
    if ( rc )
    {
-      printmsg(9, "file = %s\n", dirData.cFileName);
 
       dirp->dirent.d_ino = -1;   /* no inode information */
       strlwr(strcpy(dirp->dirent.d_name, dirData.cFileName));
       dirp->dirent.d_namlen = strlen(dirData.cFileName);
 
-      printmsg(9, "%d \n",dirp->dirent.d_namlen);
+      printmsg(9, "%d",dirp->dirent.d_namlen);
       dirp->dirent.d_modified = nt2unix(&dirData.ftLastWriteTime);
 
       if (dirData.nFileSizeHigh > 0) {
