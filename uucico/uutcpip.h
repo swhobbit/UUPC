@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutcpip.h 1.2 1997/11/21 18:11:31 ahd v1-12t $
+ *    $Id: uutcpip.h 1.3 1997/11/28 04:52:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutcpip.h $
+ *    Revision 1.3  1997/11/28 04:52:53  ahd
+ *    Initial UUSMTPD OS/2 support
+ *
  *    Revision 1.2  1997/11/21 18:11:31  ahd
  *    Add definition of UUCP port number
  *
@@ -49,6 +52,7 @@
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #define SOCKADDR_IN struct sockaddr_in
+#define SOCKADDR struct sockaddr
 #define LPHOSTENT struct hostent *
 #define LPSERVENT struct servent *
 #define PSOCKADDR struct sockaddr *

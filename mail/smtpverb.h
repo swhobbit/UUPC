@@ -8,11 +8,11 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.5 1997/11/26 03:34:44 ahd v1-12t $
+ *       $Id: smtpverb.h 1.6 1997/11/28 04:52:53 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.6  1997/11/28 04:52:53  ahd
+ *       Initial UUSMTPD OS/2 support
+ *
  *       Revision 1.5  1997/11/26 03:34:44  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -93,7 +96,7 @@ typedef struct _SMTPVerb
 {
    ref_verbproc processor;          /* Command processor             */
    ref_verbproc rejecter;           /* Processor for bad modes       */
-   const char name[5];              /* VERB issued by client         */
+   const char *name;                /* VERB issued by client         */
    KWBoolean trivial;               /* trivial command used in DoS?  */
    unsigned long validModes;        /* Modes we invoke comm proc for */
    SMTPMode newMode;                /* New mode if comm proc success */
