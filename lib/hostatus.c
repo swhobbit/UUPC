@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: hostatus.c 1.4 1993/07/06 10:56:27 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: hostatus.c $
+ *     Revision 1.4  1993/07/06  10:56:27  ahd
+ *     Always report bad record failures
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -167,9 +170,6 @@ void HostStatus( void )
          struct HostStats stats;    /* host status, as defined by hostatus */
 
          fread( &stats , len2, 1,  stream);
-
-         printmsg(5,"HostStatus: Loaded status for host %s",
-                  host->hostname);
 
 /*--------------------------------------------------------------------*/
 /*        Update the host status to the best known information        */
