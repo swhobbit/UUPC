@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.6 1993/10/03 20:37:34 ahd Exp $
+ *       $Id: ulibnmp.c 1.7 1993/10/03 22:09:09 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.7  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.6  1993/10/03  20:37:34  ahd
  * Delete redundant error messages
  *
@@ -36,7 +39,6 @@
  *
  * Revision 1.1  1993/09/23  03:26:51  ahd
  * Initial revision
- *
  *
  */
 
@@ -134,16 +136,16 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         MAXPACK,
-                         MAXPACK,
+                         32 * 1024 ,
+                         32 * 1024 ,
                          30000 );
 #else
    rc =  DosMakeNmPipe(  (PSZ) "\\pipe\\uucp",
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         MAXPACK,
-                         MAXPACK,
+                         32 * 1024 ,
+                         32 * 1024 ,
                          30000 );
 #endif
 
@@ -153,12 +155,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*    report the raw error code.                                      */
 /*--------------------------------------------------------------------*/
 
-   if ( rc == ERROR_SHARING_VIOLATION)
-   {
-      printmsg(0,"Pipe %s already in use", name);
-      return TRUE;
-   }
-   else if ( rc )
+   if ( rc )
    {
       printOS2error("DosCreateNPipe", rc );
       return TRUE;
@@ -304,25 +301,62 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 
 unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 {
+#ifdef __OS2__
+      ULONG received;
+#else
+      USHORT received;
+#endif
+
    APIRET rc;
-   static char save[MAXPACK];
-   static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
 
    reads++;
 
+   if ( wanted > commBufferLength )
+   {
+      printmsg(0,"psread: Overlength read!");
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*      Perform a buffered read if our lookaside buffer is empty      */
+/*--------------------------------------------------------------------*/
+
+   if ( ! commBufferUsed )
+   {
+      rc = DosRead( pipeHandle,
+                    commBuffer,
+                    commBufferLength,
+                    &received );
+
+      if ( rc == ERROR_NO_DATA)
+         commBufferUsed = 0;
+      else if ( rc )
+      {
+         printmsg(0,"psread: Read from pipe for %d bytes failed.",
+                     commBufferLength );
+         printOS2error("DosRead", rc );
+      }
+      else {
+         commBufferUsed = received;
+         traceData( commBuffer, commBufferUsed , FALSE );
+      }
+
+   } /* if ( ! commBufferUsed ) */
+
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
 /*--------------------------------------------------------------------*/
 
-   if (bufsize >= wanted)
+   if (commBufferUsed >= wanted)
    {
-      memmove( output, save, wanted );
-      bufsize -= wanted;
-      if ( bufsize )          /* Any data left over?                 */
-         memmove( save, &save[wanted], bufsize );  /* Yes --> Save it*/
-      return wanted + bufsize;
+      memcpy( output, commBuffer, wanted );
+      commBufferUsed -= wanted;
+      if ( commBufferUsed )   /* Any data left over?                 */
+         memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+                              /* Yes --> Save it                     */
+      return wanted;
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -344,13 +378,8 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
    do {
-      USHORT needed =  (USHORT) wanted - bufsize;
+      USHORT needed =  (USHORT) wanted - commBufferUsed;
 
-#ifdef __OS2__
-      ULONG received = 0;
-#else
-      USHORT received = 0;
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Handle an aborted program                      */
@@ -361,7 +390,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          static boolean recurse = FALSE;
          if ( ! recurse )
          {
-            printmsg(2,"sread: User aborted processing");
+            printmsg(2,"psread: User aborted processing");
             recurse = TRUE;
          }
          return 0;
@@ -375,7 +404,10 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*                 Read the data from the named pipe                  */
 /*--------------------------------------------------------------------*/
 
-      rc = DosRead( pipeHandle, &save[bufsize], needed, &received );
+      rc = DosRead( pipeHandle,
+                    commBuffer + commBufferUsed,
+                    needed,
+                    &received );
 
       if ( rc == ERROR_NO_DATA)
       {
@@ -386,30 +418,32 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          printmsg(0,"psread: Read from pipe for %d bytes failed.",
                   needed);
          printOS2error("DosRead", rc );
-         bufsize = 0;
+         commBufferUsed = 0;
          return 0;
       }
 
 #ifdef UDEBUG
       printmsg(15,"psread: Want %d characters, received %d, total %d in buffer",
-            (int) wanted, (int) received, (int) bufsize + received);
+                  (int) wanted,
+                  (int) received,
+                  (int) commBufferUsed + received);
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( &save[bufsize], received, FALSE );
+      traceData( commBuffer + commBufferUsed, received, FALSE );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
 /*--------------------------------------------------------------------*/
 
-      bufsize += received;
-      if ( bufsize == wanted )
+      commBufferUsed += received;
+      if ( commBufferUsed == wanted )
       {
-         memmove( output, save, bufsize);
-         bufsize = 0;
+         memmove( output, commBuffer, commBufferUsed);
+         commBufferUsed = 0;
 
          return wanted;
       } /* if */
@@ -427,9 +461,13 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*         We don't have enough data; report what we do have          */
 /*--------------------------------------------------------------------*/
 
-   return bufsize;
+   printmsg(0,"psread: User wanted %d bytes in %d seconds, we have %d",
+              (int) wanted,
+              (int) timeout,
+              (int) commBufferUsed );
+   return commBufferUsed;
 
-} /* nsread */
+} /* psread */
 
 /*--------------------------------------------------------------------*/
 /*    p s w r i t e                                                   */
@@ -487,7 +525,7 @@ int pswrite(const char *input, unsigned int len)
 
    return len;
 
-} /* nswrite */
+} /* pswrite */
 
 #ifdef __TURBOC__
 #pragma argsused
@@ -528,7 +566,7 @@ void pcloseline(void)
    printmsg(4,
          "pcloseline: %d reads (%d waits), %d writes (%d waits)",
          (int) reads,
-         (int) readSpins - reads,
+         (int) readSpins,
          (int) writes,
          (int) writeSpins - writes );
 
