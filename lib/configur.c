@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.68 1995/03/08 02:58:08 ahd Exp $
+ *    $Id: configur.c 1.69 1995/03/23 01:30:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.69  1995/03/23 01:30:34  ahd
+ *    Load the mailserv variable for any news program which could generate
+ *    a SYSTEMS file.
+ *
  *    Revision 1.68  1995/03/08 02:58:08  ahd
  *    Delete redundant boolean options
  *
@@ -475,6 +479,7 @@ FLAGTABLE configFlags[] = {
  { "snews",                   F_SNEWS,                 B_GLOBAL},
  { "suppressemptypassword",   F_SUPPRESSEMPTYPASSWORD, B_GLOBAL},
  { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
+ { "suppresslogininfo",       F_SUPPRESSLOGININFO,     B_GLOBAL},
  { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
  { "syslog",                  F_SYSLOG,                B_GLOBAL},
  { nil(char) }
