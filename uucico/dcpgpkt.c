@@ -2,7 +2,7 @@
 /*       d c p g p k t . c                                            */
 /*                                                                    */
 /*       UUCP 'g' protocol module for UUPC/extended.  Supports 7      */
-/*       window variable length packets of up yo 512 bytes in         */
+/*       window variable length packets of up to MAXPACK bytes in     */
 /*       length.                                                      */
 /*--------------------------------------------------------------------*/
 
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.21 1993/10/12 01:32:08 ahd Exp $
+ *      $Id: dcpgpkt.c 1.22 1993/10/13 01:47:46 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.22  1993/10/13  01:47:46  ahd
+ * Don't NAK upon startup
+ *
  * Revision 1.21  1993/10/12  01:32:08  ahd
  * Normalize comments to PL/I style
  *
@@ -458,7 +461,6 @@ static short initialize(const boolean caller, const char protocol )
 /*    (I_INITA_SEND).                                                 */
 /*--------------------------------------------------------------------*/
 
-
    while( state != I_COMPLETE )
    {
       printmsg(4, "gopenpk: I State = %2d, flag = 0x%02x",
@@ -652,7 +654,6 @@ static short initialize(const boolean caller, const char protocol )
    nerr = 0;
    lazynak = 0;
 
-
 #if defined(BIT32ENV) || defined(_Windows)
    printmsg(2,"%s packets, "
               "Window size %d, "
@@ -797,7 +798,8 @@ short ggetpkt(char *data, short *len)
       if (!arrived[rbl] )
       {
          time_t now;
-         if (time( &now ) > (start + M_gPacketTimeout) )
+
+         if (time( &now ) >= (start + M_gPacketTimeout) )
          {
 #ifdef _DEBUG
             if ( debuglevel < 6 )
@@ -809,7 +811,9 @@ short ggetpkt(char *data, short *len)
             timeouts++;
             start = now;
          } /* if (time( now ) > (start + M_gPacketTimeout) ) */
+
       } /* if (!arrived[rbl] ) */
+
    } /* while (!arrived[rbl] && retry) */
 
 #ifdef _DEBUG
@@ -838,21 +842,19 @@ short ggetpkt(char *data, short *len)
 
 } /*ggetpkt*/
 
-
-/*
-   g s e n d p k t
-
-   Put at most a packet's worth of data in the packet state
-   machine for transmission.
-   May have to run the packet machine a few times to get
-   an available output slot.
-
-   on input: data=*data; len=length of data in data.
-
-   return:
-    0 if all's well
-   -1 if problems (failed)
-*/
+/*--------------------------------------------------------------------*/
+/*       g s e n d p k t                                              */
+/*                                                                    */
+/*       Put at most a packet's worth of data in the packet state     */
+/*       machine for transmission.  May have to run the packet        */
+/*       machine a few times to get an available output slot.         */
+/*                                                                    */
+/*       on input: data=*data; len=length of data in data.            */
+/*                                                                    */
+/*       return:                                                      */
+/*        0 if all's well                                             */
+/*       -1 if problems (failed)                                      */
+/*--------------------------------------------------------------------*/
 
 short gsendpkt(char *data, short len)
 {
@@ -864,6 +866,10 @@ short gsendpkt(char *data, short len)
    checkref( data );
    irec = 0;
 
+#ifdef UDEBUG
+   printmsg(5,"Sending %d bytes from %p", (int) len, data);
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       WAIT FOR INPUT i.e. if we have sent SWINDOW pkts and none    */
 /*       have been acked, wait for acks.  Note that we always go      */
@@ -871,6 +877,7 @@ short gsendpkt(char *data, short len)
 /*       ACK's sent by remote machine.                                */
 /*--------------------------------------------------------------------*/
 
+   if ( nbuffers )
    do {
       if (gmachine(0) != POK)    /* Spin with no timeout             */
          return(-1);
@@ -940,7 +947,6 @@ short gsendpkt(char *data, short len)
    return(0);
 
 } /*gsendpkt*/
-
 
 /*--------------------------------------------------------------------*/
 /*    g e o f p k t                                                   */
@@ -1025,8 +1031,7 @@ static short gmachine(const short timeout )
       unsigned rack, rseq, rlen, rbuf, i1;
       time_t now;
 
-#ifdef UDEBUG
-      if ( debuglevel >= 7 )     /* Optimize processing a little bit */
+      if ( debuglevel >= 10 )    /* Optimize processing a little bit */
       {
 
          printmsg(10, "* send %d %d < W < %d %d, "
@@ -1041,7 +1046,6 @@ static short gmachine(const short timeout )
 /*--------------------------------------------------------------------*/
 
       }
-#endif
 
 /*--------------------------------------------------------------------*/
 /*             Attempt to retrieve a packet and handle it             */
@@ -1207,9 +1211,9 @@ static short gmachine(const short timeout )
       } /* for */
 
 /*--------------------------------------------------------------------*/
-/*  If we have an error and have not recently sent a NAK, do so now.  */
-/*  We then reset our counter so we receive at least a window full of */
-/*                 packets before sending another NAK                 */
+/*       If we have an error and have not recently sent a NAK, do     */
+/*       so now.  We then reset our counter so we receive at least    */
+/*       a window full of packets before sending another NAK          */
 /*--------------------------------------------------------------------*/
 
       if ( donak )
@@ -1257,6 +1261,10 @@ static short gmachine(const short timeout )
 /*    requested                                                       */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
+   printmsg(5,"gmachine: Exit %s", close ? "closed" : "open");
+#endif
+
    if ( close )
    {
       gspack(CLOSE, 0, 0, 0, 0, NULL);
@@ -1266,7 +1274,6 @@ static short gmachine(const short timeout )
       return POK;
 
 } /*gmachine*/
-
 
 /*************** FRAMING *****************************/
 
@@ -1440,7 +1447,6 @@ static void gspack(short type,
       swrite(data, xmit);
 
 } /*gspack*/
-
 
 /*
    g r p a c k
@@ -1696,7 +1702,6 @@ get_data:
    return(type);
 
 } /*grpack*/
-
 
 /*
    c h e c k s u m
