@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.35 1998/03/16 06:38:22 ahd Exp $
+ *    $Id: imfile.c 1.36 1998/03/16 07:47:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.36  1998/03/16 07:47:40  ahd
+ *    Correct imgets for long strings
+ *    ,.
+ *
  *    Revision 1.35  1998/03/16 06:38:22  ahd
  *    Correct one byte overrun
  *
@@ -524,7 +528,7 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 
    p = imf->buffer + (size_t) imf->position;
 
-   while ((subscript+1) < userLength)
+   while ((subscript+1) < (size_t) userLength)
    {
       if (p[subscript] == '\0')
       {
