@@ -82,9 +82,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.15 1993/10/12 01:31:06 ahd Exp $
+ *    $Id: uupoll.c 1.16 1993/10/16 15:13:17 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.16  1993/10/16  15:13:17  ahd
+ * Call UUXQT in sync mode
+ *
+ * Revision 1.16  1993/10/16  15:13:17  ahd
+ * Call UUXQT in sync mode
+ *
  * Revision 1.15  1993/10/12  01:31:06  ahd
  * Normalize comments to PL/I style
  *
@@ -139,7 +145,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.15 1993/10/12 01:31:06 ahd Exp $";
+         "$Id: uupoll.c 1.16 1993/10/16 15:13:17 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -262,7 +268,6 @@ currentfile();
    if (!configure( B_UUPOLL ))
       panic();
 
-   tzset();
    time( &now );
 
     if( signal( SIGINT, Catcher ) == SIG_ERR )

@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.19 1993/10/12 01:31:06 ahd Exp $
+ *       $Id: rnews.c 1.20 1993/10/24 21:51:14 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.20  1993/10/24  21:51:14  ahd
+ * Use one token on Requestor line, per rhg
+ *
  * Revision 1.19  1993/10/12  01:31:06  ahd
  * Normalize comments to PL/I style
  *
@@ -94,7 +97,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.19 1993/10/12 01:31:06 ahd Exp $";
+         "$Id: rnews.c 1.20 1993/10/24 21:51:14 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -257,7 +260,6 @@ void main( int argc, char **argv)
        } /* while */
     } /* if (argc > 1) */
 
-   tzset();                   /* Set up time zone information  */
    setmode(fileno(stdin), O_BINARY);   /* Don't die on control-Z, etc */
 
 /*--------------------------------------------------------------------*/
