@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: MODEM.C 1.5 1992/11/22 21:20:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.5  1992/11/22  21:20:45  ahd
+ * Use strpool for const string allocation
+ *
  * Revision 1.4  1992/11/19  03:01:21  ahd
  * drop rcsid
  *
@@ -36,6 +39,9 @@
  *
  */
 
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <limits.h>
 #include <stdio.h>
@@ -46,9 +52,14 @@
 #include <limits.h>
 #include <sys/types.h>
 
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
+
 #include "lib.h"
 #include "arpadate.h"
 #include "checktim.h"
+#include "dater.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "hlib.h"
@@ -59,6 +70,10 @@
 #include "ssleep.h"
 #include "catcher.h"
 #include "ulib.h"
+
+/*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
 
 char *device = NULL;          /*Public to show in login banner     */
 
@@ -270,7 +285,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*    Answer the modem in passive mode                                */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE callin( time_t exit_time )
+CONN_STATE callin( const time_t exit_time )
 {
    char c;                    /* A character for input buffer        */
 
@@ -291,6 +306,7 @@ CONN_STATE callin( time_t exit_time )
          offset = INT_MAX;
       else
          offset = (int) left;
+
 /*--------------------------------------------------------------------*/
 /*                        Open the serial port                        */
 /*--------------------------------------------------------------------*/
@@ -339,8 +355,10 @@ configuration file.");
 /*                   Wait for the telephone to ring                   */
 /*--------------------------------------------------------------------*/
 
-   printmsg(1,"callin: Waiting for answer on port %s device %s for %d minutes",
-                     device, E_inmodem , (int) (offset / 60) );
+   printmsg(1,"callin: Monitoring port %s device %s"
+                     " for %d minutes until %s",
+                     device, E_inmodem , (int) (offset / 60),
+                      dater( exit_time , NULL));
 
    interactive_processing = FALSE;
 
