@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.17 1995/02/23 15:58:39 ahd Exp $
+ *    $Id: catcher.c 1.18 1995/02/24 00:37:28 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.18  1995/02/24 00:37:28  ahd
+ *    Move panic_rc from catcher.c into bugout.c, keeps catcher from
+ *    being included into every module.
+ *
  *    Revision 1.17  1995/02/23 15:58:39  ahd
  *    Add RCS id to allow tracing module
  *
@@ -74,8 +78,10 @@
  *
  */
 
+#include "uupcmoah.h"
+
  static const char rcsid[] =
-         "$Id: catcher.c 1.17 1995/02/23 15:58:39 ahd Exp $";
+         "$Id: catcher.c 1.18 1995/02/24 00:37:28 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
@@ -87,8 +93,6 @@
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
-
-#include "uupcmoah.h"
 
 #include <signal.h>
 
