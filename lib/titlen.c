@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: titlen.c 1.1 1994/04/24 20:07:58 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: titlen.c $
+ * Revision 1.1  1994/04/24  20:07:58  dmwatt
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -29,6 +32,8 @@
 
 #include "uupcmoah.h"
 #include <windows.h>
+
+#include "timestmp.h"
 
 /*--------------------------------------------------------------------*/
 /*       s e t T i t l e                                              */
@@ -43,7 +48,8 @@ void setTitle( const char *fmt, ... )
 
    va_start(arg_ptr,fmt);
 
-   vsprintf(buf, fmt, arg_ptr);
+   sprintf(buf, "%s: ", compilen);
+   vsprintf(buf + strlen(buf), fmt, arg_ptr);
 
    va_end( arg_ptr );
 
