@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.31 1997/05/20 03:55:46 ahd v1-12s $
+ *    $Id: ulibip.c 1.32 1997/06/03 03:25:31 ahd v1-12u $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.32  1997/06/03 03:25:31  ahd
+ *    First compiling SMTPD
+ *
  *    Revision 1.31  1997/05/20 03:55:46  ahd
  *    Correct FAR to UUFAR in setsocketopt
  *
@@ -260,7 +263,7 @@ void AtWinsockExit(void)
 #endif
 
 /*--------------------------------------------------------------------*/
-/*    t o p e n a c t i v e                                           */
+/*    t o p e n a c t i v e l i n e                                   */
 /*                                                                    */
 /*    Open an active socket connection for I/O                        */
 /*--------------------------------------------------------------------*/
@@ -276,6 +279,7 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
    LPSERVENT pse;
    u_short remotePort = htons((u_short) bps);
    char *portStr;
+   char addrBuf[ sizeof (unsigned long) * 4 + 1 ];
 
    if (!InitWinsock())           /* Initialize library?               */
       return KWTrue;             /* No --> Report error               */
@@ -377,9 +381,10 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
       return KWTrue;
    }
 
+   STRCPY(addrBuf, inet_ntoa(sin.sin_addr));
+
    printmsg( 1, "Connecting to host %s [%s] port %d",
-                     name,
-                     inet_ntoa( sin.sin_addr ),
+                     addrBuf,
                      ntohs( sin.sin_port ));
 
    if (connect( connectedSock, (PSOCKADDR) (void *) &sin, sizeof(sin)) < 0)

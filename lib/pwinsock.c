@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.13 1997/03/31 07:05:51 ahd Exp $
+ *    $Id: pwinsock.c 1.14 1997/05/13 04:16:04 dmwatt v1-12u $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.14  1997/05/13 04:16:04  dmwatt
+ *    Support setsockopt
+ *
  *    Revision 1.13  1997/03/31 07:05:51  ahd
  *    Annual Copyright Update
  *
@@ -244,3 +247,35 @@ void pWinSockExit( void )
    }
 
 } /* pWinSockExit */
+
+#ifdef __BORLANDC__
+
+/*--------------------------------------------------------------------*/
+/*       i n e t _ n t o a                                            */
+/*                                                                    */
+/*       Convert internet address to printable (normally in           */
+/*       library, missing for WinSock for some reason)                */
+/*--------------------------------------------------------------------*/
+
+char FAR *
+PASCAL FAR inet_ntoa (struct in_addr in)
+{
+   char buf[sizeof (unsigned long) * 4 + 1 ];
+   int subscript;
+   unsigned long addr = ntohl( in.S_un.S_addr );
+
+   for ( subscript = 0; subscript < sizeof (unsigned long); subscript ++ )
+   {
+      if ( subscript )
+         strcat( buf, "." );
+      else
+         buf[0] = '\0';
+
+      sprintf( buf + strlen( buf ), "%.3ld", addr & 0x000000ff );
+      addr >>= 8;
+   }
+
+   return buf;
+}
+
+#endif
