@@ -252,7 +252,6 @@ void main(int argc, char **argv)
       exit(1);    /* system configuration failed */
 
    tmailbox = mktempname(NULL, "TMP");
-   tzset();                      /* Set up time zone information  */
    PushDir(".");
 
 /*--------------------------------------------------------------------*/
