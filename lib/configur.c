@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFIGUR.C 1.81 1998/03/01 01:23:02 ahd v1-12v $
+ *    $Id: configur.c 1.82 1998/04/08 11:32:07 ahd Exp $
  *
  *    Revision history:
- *    $Log: CONFIGUR.C $
+ *    $Log: configur.c $
+ *    Revision 1.82  1998/04/08 11:32:07  ahd
+ *    Add Boolean option commentfrom
+ *
  *    Revision 1.81  1998/03/01 01:23:02  ahd
  *    Annual Copyright Update
  *
@@ -142,7 +145,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: CONFIGUR.C 1.81 1998/03/01 01:23:02 ahd v1-12v $");
+RCSID("$Id: configur.c 1.82 1998/04/08 11:32:07 ahd Exp $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -314,7 +317,7 @@ CONFIGTABLE rcTable[] = {
    {"timeoutsmtp",  &E_timeoutSMTP,  B_MTA,     B_SHORT },
    {"tz",           &E_tz,           B_ALL,     B_TOKEN },
    {"uncompress",   &E_uncompress,   B_RNEWS,   B_GLOBAL|B_STRING  },
-   {"version",      &E_version,      B_INSTALL, B_TOKEN },
+   {"version",      &E_version,      B_ALL,     B_GLOBAL|B_TOKEN },
    {"vmail",        &E_vmail,        B_MTA,     B_PATH },
    {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA,     B_PATH },
    {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT,   B_PATH }
@@ -324,62 +327,68 @@ size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
 
 /*--------------------------------------------------------------------*/
 /*               Boolean options shared by all programs               */
+/*                                                                    */
+/*       NOTE NOTE NOTE -- it violates the the UUPC/extended          */
+/*       copyright to disable the option "displaycopyright" in the    */
+/*       source code or to distribute a configuration file with       */
+/*       this option disabled outside your own organization.          */
+/*                                                                    */
+/*       Note: This table MUST be sorted because it's searched via    */
+/*       a binary search.                                             */
 /*--------------------------------------------------------------------*/
 
 FLAGTABLE configFlags[] =
 {
- { "askcc",                   F_ASKCC,                 B_LOCAL},
- { "autoedit",                F_AUTOEDIT,              B_LOCAL},
- { "autoinclude",             F_AUTOINCLUDE,           B_LOCAL},
- { "autoprint",               F_AUTOPRINT,             B_LOCAL},
- { "autosign",                F_AUTOSIGN,              B_LOCAL},
- { "backup",                  F_BACKUP,                B_LOCAL},
- { "bang",                    F_BANG,                  B_GLOBAL},
- { "bounce",                  F_BOUNCE,                B_GLOBAL},
- { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
- { "commentfrom",             F_COMMENTFROM,           B_GLOBAL },
- { "directory",               F_DIRECT,                B_GLOBAL},
- { "domainfrom",              F_DOMAINFROM,            B_GLOBAL },
- { "doskey",                  F_DOSKEY,                B_LOCAL},
- { "dot",                     F_DOT,                   B_LOCAL},
- { "escape",                  F_ESCAPE,                B_GLOBAL},
- { "expert",                  F_EXPERT,                B_LOCAL},
- { "fastnews",                F_NEWSRUN,               B_GLOBAL},
- { "fastsmtp",                F_FASTSMTP,              B_LOCAL},
- { "forwardsave",             F_SAVERESENT,            B_LOCAL},
- { "fromsep",                 F_FROMSEP,               B_LOCAL},
- { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
- { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
- { "imfile",                  F_IMFILE,                B_LOCAL},
- { "kanji",                   F_KANJI,                 B_GLOBAL},
- { "longname",                F_LONGNAME,              B_GLOBAL},
- { "monocase",                F_ONECASE,               B_GLOBAL},
- { "multiqueue",              F_MULTI,                 B_GLOBAL},
- { "multitask",               F_MULTITASK,             B_GLOBAL},
- { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
- { "nns",                     F_NNS,                   B_GLOBAL},
- { "pager",                   F_PAGER,                 B_LOCAL},
- { "purge",                   F_PURGE,                 B_LOCAL},
- { "save",                    F_SAVE,                  B_LOCAL},
- { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
- { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
- { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
- { "smtprelay",               F_SMTPRELAY,             B_GLOBAL},
- { "snews",                   F_SNEWS,                 B_GLOBAL},
- { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
- { "suppressbeep",            F_SUPPRESSBEEP,          B_LOCAL},
- { "suppresscopyright",       F_SUPPRESSCOPYRIGHT,     B_LOCAL},
+ { "askcc",               F_ASKCC,             B_LOCAL,     KWTrue},
+ { "autoedit",            F_AUTOEDIT,          B_LOCAL,     KWTrue},
+ { "autoinclude",         F_AUTOINCLUDE,       B_LOCAL,     KWTrue},
+ { "autoprint",           F_AUTOPRINT,         B_LOCAL,     KWTrue},
+ { "autosign",            F_AUTOSIGN,          B_LOCAL,     KWTrue},
+ { "backup",              F_BACKUP,            B_LOCAL,     KWTrue},
+ { "bang",                F_BANG,              B_GLOBAL},
+ { "bounce",              F_BOUNCE,            B_GLOBAL,    KWTrue},
+ { "collect",             F_COLLECTSTATS,      B_GLOBAL},
+ { "commentfrom",         F_COMMENTFROM,       B_GLOBAL },
+ { "directory",           F_DIRECT,            B_GLOBAL},
+ { "displaycopyright",    F_DISPLAYCOPYRIGHT,  B_LOCAL,    KWTrue},
+ { "domainfrom",          F_DOMAINFROM,        B_GLOBAL,    KWTrue},
+ { "doskey",              F_DOSKEY,            B_LOCAL},
+ { "dot",                 F_DOT,               B_LOCAL,     KWTrue},
+ { "escape",              F_ESCAPE,            B_GLOBAL},
+ { "expert",              F_EXPERT,            B_LOCAL},
+ { "fastnews",            F_NEWSRUN,           B_GLOBAL},
+ { "fastsmtp",            F_FASTSMTP,          B_LOCAL},
+ { "forwardsave",         F_SAVERESENT,        B_LOCAL},
+ { "fromsep",             F_FROMSEP,           B_LOCAL},
+ { "honorcontrol",        F_HONORCTRL,         B_GLOBAL},
+ { "honordebug",          F_HONORDEBUG,        B_GLOBAL},
+ { "imfile",              F_IMFILE,            B_LOCAL,    KWTrue},
+ { "kanji",               F_KANJI,             B_GLOBAL},
+ { "longname",            F_LONGNAME,          B_GLOBAL,   KWTrue},
+ { "monocase",            F_ONECASE,           B_GLOBAL},
+ { "multiqueue",          F_MULTI,             B_GLOBAL,   KWTrue},
+ { "multitask",           F_MULTITASK,         B_GLOBAL,   KWTrue},
+ { "newspanic",           F_NEWSPANIC,         B_GLOBAL,   KWTrue},
+ { "nns",                 F_NNS,               B_GLOBAL},
+ { "pager",               F_PAGER,             B_LOCAL,    KWTrue},
+ { "promiscuousrelay",    F_SMTPRELAY,         B_GLOBAL},
+ { "purge",               F_PURGE,             B_LOCAL,    KWTrue},
+ { "senddebug",           F_SENDDEBUG,         B_GLOBAL},
+ { "shortfrom",           F_SHORTFROM,         B_GLOBAL},
+ { "showspool",           F_SHOWSPOOL,         B_GLOBAL,   KWTrue},
+ { "snews",               F_SNEWS,             B_GLOBAL},
+ { "speedovermemory",     F_SPEEDOVERMEMORY,   B_LOCAL},
+ { "suppressbeep",        F_SUPPRESSBEEP,      B_LOCAL},
  { "suppressemptypassword",   F_SUPPRESSEMPTYPASSWORD, B_GLOBAL},
- { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
- { "suppresslogininfo",       F_SUPPRESSLOGININFO,     B_GLOBAL},
- { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
- { "syslog",                  F_SYSLOG,                B_GLOBAL},
- { "undelete",                F_UNDELETE,              B_LOCAL},
- { "uniquemailbox",           F_UNIQUEMBOX,            B_GLOBAL},
- { "verbose",                 F_VERBOSE,               B_LOCAL},
- { "windows",                 F_WINDOWS,               B_LOCAL}
+ { "suppressfrom",        F_SUPPRESSFROM,      B_GLOBAL},
+ { "suppresslogininfo",   F_SUPPRESSLOGININFO, B_GLOBAL},
+ { "symmetricgrades",     F_SYMMETRICGRADES,   B_GLOBAL,   KWTrue},
+ { "syslog",              F_SYSLOG,            B_GLOBAL,   KWTrue},
+ { "undelete",            F_UNDELETE,          B_LOCAL},
+ { "uniquemailbox",       F_UNIQUEMBOX,        B_GLOBAL},
+ { "verbose",             F_VERBOSE,           B_LOCAL,    KWTrue},
+ { "windows",             F_WINDOWS,           B_LOCAL}
 };
-
 
 size_t configFlagsSize = (sizeof configFlags / sizeof (FLAGTABLE));
 
@@ -890,6 +899,24 @@ KWBoolean getconfig(FILE *fp,
 } /* getconfig */
 
 /*--------------------------------------------------------------------*/
+/*       r e s e t O p t i o n s                                      */
+/*                                                                    */
+/*       Set boolean options to known defaults                        */
+/*--------------------------------------------------------------------*/
+
+void
+resetOptions(FLAGTABLE *flags,
+             KWBoolean *barray,
+             const size_t flagSize)
+{
+   size_t subscript;
+   for ( subscript = 0; subscript < flagSize; subscript ++ )
+   {
+      barray[ flags[subscript].position ] = flags[subscript].initial;
+   }
+} /* resetOptions */
+
+/*--------------------------------------------------------------------*/
 /*    o p t i o n s                                                   */
 /*                                                                    */
 /*    Process a line of KWBoolean option flags.                       */
@@ -1002,6 +1029,12 @@ KWBoolean configure( CONFIGBITS program)
 
    if (!getrcnames(&sysrc, &usrrc))
       return KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*             Reset boolean options to preferred values              */
+/*--------------------------------------------------------------------*/
+
+   resetOptions(configFlags, bflag, configFlagsSize);
 
 /*--------------------------------------------------------------------*/
 /*          Extract selected variables from our environment           */
@@ -1128,13 +1161,33 @@ KWBoolean configure( CONFIGBITS program)
    } /* if (usrrc != nil(char)) */
 
 /*--------------------------------------------------------------------*/
+/*            Check our version vs. configuration file level          */
+/*--------------------------------------------------------------------*/
+
+   if (E_version == NULL)
+      E_version = "not set";
+
+   if ((E_version == NULL) || !equal(E_version,compilev))
+   {
+      /* Always display copyright for new versions */
+      bflag[F_DISPLAYCOPYRIGHT] = KWTrue;
+
+      fprintf(stderr,
+"Warning: UUPC configuration file version (%s) does not match program\n"
+"level (%s).  Refer to UUPC/extended upgrade documention to complete\n"
+"upgrade and suppress this message.\n\n",
+              E_version,
+              compilev );
+   }
+
+/*--------------------------------------------------------------------*/
 /*                       Display our copyright                        */
 /*--------------------------------------------------------------------*/
 
-   if (! bflag[F_SUPPRESSCOPYRIGHT] &&
+   if (bflag[F_DISPLAYCOPYRIGHT] &&
         (program != B_MTA) &&
         isatty(fileno(stdout)))
-      fprintf(stdout,
+      fprintf(stderr,
 "Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
