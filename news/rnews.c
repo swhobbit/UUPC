@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $
+ *       $Id: rnews.c 1.35 1994/10/03 01:05:58 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.35  1994/10/03  01:05:58  ahd
+ * Correct flag for posting to 'y'/'n'
+ *
  * Revision 1.34  1994/05/09  02:19:31  ahd
  * Report command executed to unpack
  * Use final formatted command to execute
@@ -152,7 +155,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $";
+         "$Id: rnews.c 1.35 1994/10/03 01:05:58 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1553,10 +1556,16 @@ static void xmit_news( char *sysname, FILE *in_stream )
       panic();
    } /* if */
 
-   fprintf(out_stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC rnews\n",
-               "uucp", E_domain,
-               "uucp", E_nodename,
-               rdfile, rdfile);
+   fprintf(out_stream, "U %s %s\n", "news" , E_nodename );
+                                 /* Actual user running command      */
+   fprintf(out_stream, "R %s@%s\n", "news" , E_nodename );
+                                 /* Original requestor of command    */
+   fprintf(out_stream, "F %s\n", rdfile );
+                                 /* Required file for input          */
+   fprintf(out_stream, "I %s\n", rdfile );
+                                 /* stdin for command                */
+   fprintf(out_stream, "C %s\n", "rnews" );
+                                 /* Command to execute using file    */
    fclose(out_stream);
 
 /*--------------------------------------------------------------------*/

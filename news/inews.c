@@ -19,9 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.11 1994/04/27 00:00:29 ahd Exp $
+ *       $Id: inews.c 1.12 1994/06/14 01:19:24 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.12  1994/06/14  01:19:24  ahd
+ * Clean yp RCS information
+ * patches from Kai Uwe Rommel
+ *
  * Revision 1.11  1994/04/27  00:00:29  ahd
  * back to text mode on that input file!
  *
@@ -71,7 +75,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.11 1994/04/27 00:00:29 ahd Exp $";
+      "$Id: inews.c 1.12 1994/06/14 01:19:24 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -543,8 +547,8 @@ static int spool_news(char *sysname, FILE *article, char *command)
     return -1;
   } /* if */
 
-  fprintf(out_stream, "R news %s\n", E_domain);
   fprintf(out_stream, "U news %s\n", E_nodename);
+  fprintf(out_stream, "R news %s\n", E_domain);
   fprintf(out_stream, "F %s\n", rdfile);
   fprintf(out_stream, "I %s\n", rdfile);
   fprintf(out_stream, "C %s\n", command);
