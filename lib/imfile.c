@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.31 1998/03/08 23:07:12 ahd Exp $
+ *    $Id: imfile.c 1.32 1998/03/09 01:18:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.32  1998/03/09 01:18:19  ahd
+ *    Correct DOS near/far memory problems in imReserve fix
+ *
  *    Revision 1.31  1998/03/08 23:07:12  ahd
  *    Correct automatic switching from memory to disk based
  *    backing store, including clearing pointer and copying data.
@@ -809,8 +812,10 @@ long imtell( IMFILE *imf )
 {
    if ( imf->buffer ==  NULL )
       return ftell( imf->stream );
-   else
+   else {
+      imf->flag |= IM_FLAG_TELL;
       return (long) imf->position;
+   }
 
 } /* imtell */
 
