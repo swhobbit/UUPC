@@ -2,7 +2,6 @@
 /*    h i s t o r y . h                                               */
 /*                                                                    */
 /*    News history file maintenance for UUPC/extended.                */
-/*                                                                    */
 /*--------------------------------------------------------------------*/
 
 /* new version, rewritten for history-based news database
@@ -10,9 +9,24 @@
  * Created: Sun Aug 15 1993
  */
 
-/* $Id: history.h 1.2 1994/06/14 01:20:12 ahd v1-12k $ */
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/* $Id: history.h 1.3 1995/01/03 05:33:54 ahd v1-12n $ */
 
 /* $Log: history.h $
+/* Revision 1.3  1995/01/03 05:33:54  ahd
+/* Make as many parameters CONST as possible
+/*
 /* Revision 1.2  1994/06/14 01:20:12  ahd
 /* Clean up RCS information
 /*
@@ -39,4 +53,4 @@ int get_next_histentry(void *hdbm_file, char **messageID, char **histentry);
 
 int count_postings(char *histentry);
 char *purge_article(char *histentry, char **groups);
-void cancel_article(void *hdbm_file, const char *messageID);
+KWBoolean cancel_article(void *hdbm_file, const char *messageID);
