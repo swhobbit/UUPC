@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.8 1993/10/07 22:32:45 ahd Exp $
+ *    $Id: commlib.h 1.9 1993/10/12 01:35:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.9  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.8  1993/10/07  22:32:45  ahd
  * Add commBuffer information
  *
@@ -54,16 +57,34 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Declare pointers to the functions we use the                 */
-/*       communications driver                                        */
+/*       Declare typedefs for pointers to the functions we use        */
+/*       in the communications drivers                                */
 /*--------------------------------------------------------------------*/
 
-typedef int (*commrefi)();
-typedef unsigned int (*commrefu)();
-typedef void    (*commrefv)();
-typedef boolean (*commrefb)();
-typedef BPS     (*commrefB)();
+typedef int (*ref_activeopenline)(char *name, BPS baud, const boolean direct);
 
+typedef int (*ref_passiveopenline)(char *name, BPS baud, const boolean direct);
+typedef unsigned int (*ref_sread)(char *buffer,
+                                  unsigned int wanted,
+                                  unsigned int timeout);
+
+typedef int (*ref_swrite)(const char *data, unsigned int len);
+
+typedef void (*ref_ssendbrk)(unsigned int duration);
+
+typedef void (*ref_closeline)(void);
+
+typedef void (*ref_SIOSpeed)(BPS baud);
+
+typedef void (*ref_flowcontrol)(boolean);
+
+typedef void (*ref_hangup)( void );
+
+typedef BPS (*ref_GetSpeed)( void );
+
+typedef boolean (*ref_CD)( void );
+
+typedef boolean (*ref_WaitForNetConnect)(const unsigned int timeout);
 
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
@@ -83,38 +104,25 @@ boolean traceStart( const char *port );
 void traceStop( void );
 
 void traceData( const char *data,
-                const short len,
+                const unsigned len,
                 const boolean output);
 
 /*--------------------------------------------------------------------*/
 /*           Declare the functions used by various routines           */
 /*--------------------------------------------------------------------*/
 
-extern int (*activeopenlinep)(char *name, BPS baud, const boolean direct);
-
-extern int (*passiveopenlinep)(char *name, BPS baud, const boolean direct);
-
-extern unsigned int (*sreadp)(char *buffer,
-                          unsigned int wanted,
-                          unsigned int timeout);
-
-extern int (*swritep)(const char *data, unsigned int len);
-
-extern void (*ssendbrkp)(unsigned int duration);
-
-extern void (*closelinep)(void);
-
-extern void (*SIOSpeedp)(BPS baud);
-
-extern void (*flowcontrolp)( boolean );
-
-extern void (*hangupp)( void );
-
-extern BPS (*GetSpeedp)( void );
-
-extern boolean (*CDp)( void );
-
-extern boolean (*WaitForNetConnectp)( const unsigned int timeout);
+extern ref_activeopenline activeopenlinep;
+extern ref_passiveopenline passiveopenlinep;
+extern ref_sread sreadp;
+extern ref_swrite swritep;
+extern ref_ssendbrk ssendbrkp;
+extern ref_closeline closelinep;
+extern ref_SIOSpeed SIOSpeedp;
+extern ref_flowcontrol flowcontrolp;
+extern ref_hangup hangupp;
+extern ref_GetSpeed GetSpeedp;
+extern ref_CD CDp;
+extern ref_WaitForNetConnect WaitForNetConnectp;
 
 /*--------------------------------------------------------------------*/
 /*       Declare macros which define the prev-generic driver names    */

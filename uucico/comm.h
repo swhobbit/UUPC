@@ -17,13 +17,13 @@ void far restore_com(void);   /* restore those vectors */
 int far install_com(void); /* install our vectors */
 
 void far open_com(         /* open com port */
-   int,  /* baud */
+   unsigned,  /* baud */
    int,  /* 'M'odem or 'D'irect */
    int,  /* Parity 'N'one, 'O'dd, 'E'ven, 'S'pace, 'M'ark */
    int,  /* stop bits (1 or 2) */
    int); /* Xon/Xoff 'E'nable, 'D'isable */
 
-void far ioctl_com( int flags, int operand, ...);
+void far ioctl_com( int flags, /* operands */...);
 
 void far close_com(void);  /* close com port */
 

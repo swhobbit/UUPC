@@ -42,7 +42,7 @@ int CHDIR(const char *path)
       return 0;
 
 /*--------------------------------------------------------------------*/
-/*        Try to change directories, returning if successfull         */
+/*        Try to change directories, returning if successful          */
 /*--------------------------------------------------------------------*/
 
    if (!changedir( path ))
@@ -65,18 +65,20 @@ int CHDIR(const char *path)
 /*    Like chdir() but also changes the current drive                 */
 /*--------------------------------------------------------------------*/
 
-static int changedir(const char *path)
+static int changedir(const char *pathx)
 {
+   static char path[FILENAME_MAX];
+
+   strcpy( path, pathx );
 
    if ((*path != '\0') && (path[1] == ':')) {
-      unsigned char drive = (unsigned char) toupper(*path);
-      if ((drive >= 'A') && (drive <= 'Z'))
+      if (isalpha(*path))
       {
 #ifdef __TURBOC__
-         setdisk(drive - (unsigned char)'A');
+         setdisk(toupper(*path) - 'A');
 #else
-         if (_chdrive( drive - (unsigned char)'A' + 1))  /* MS C     */
-            return -1;                 /* Return if failure          */
+         if (_chdrive( toupper(*path) - 'A' + 1))  /* MS C      */
+            return -1;                 /* Return if failure           */
 #endif
       } /* if */
       else

@@ -68,6 +68,8 @@ int getargs(char *line, char **flds)
                      case '"':
                      case '\'':
                         *out++ = *line++;
+                     case '\0':
+                        ;
                   }
                   break;
 

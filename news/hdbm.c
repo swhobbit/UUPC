@@ -6,10 +6,13 @@
  * Created: Sun Aug 15 1993
  */
  
-static char *rcsid = "$Id$";
-static char *rcsrev = "$Revision$";
+static char *rcsid = "$Id: HDBM.C 1.1 1993/09/05 10:56:49 rommel Exp $";
+static char *rcsrev = "$Revision: 1.1 $";
 
-/* $Log$ */
+/* $Log: HDBM.C $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +66,12 @@ void dbm_close(DBM *db)
   free(db);
 }
 
+#ifdef __TURBOC__
+#pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
+#endif
+
 int dbm_store(DBM *db, datum key, datum val, int flag)
 {
   char buffer[BUFSIZ];
@@ -90,6 +99,10 @@ int dbm_store(DBM *db, datum key, datum val, int flag)
 
   return 0;
 }
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 int dbm_delete(DBM *db, datum key)
 {

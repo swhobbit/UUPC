@@ -1,8 +1,7 @@
 /*--------------------------------------------------------------------*/
 /*       u l i b 1 4 . c                                              */
 /*                                                                    */
-/*       Serial port communications driver for ARTICOMM INT14         */
-/*       driver                                                       */
+/*       Serial port communications driver for INT14 NET interface    */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,23 +16,6 @@
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
-/*--------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------*/
-/*       This suite needs some tuning, but the Wonderworks lacks      */
-/*       the time and more importantly the software to do so.         */
-/*       Specific problems:                                           */
-/*                                                                    */
-/*          The INT14 interface is not checked to be ARTICOMM, and    */
-/*          thus the extensions to the generic INT14 functions may    */
-/*          fail with no warning to the user.                         */
-/*                                                                    */
-/*          Non-ARTICOMM programs are not supported.                  */
-/*                                                                    */
-/*          No error is returned if a write times out                 */
-/*                                                                    */
-/*          Input data is discarded if a read times out, which        */
-/*          will confuse the 'g' packet input processor.              */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -68,6 +50,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 #include <dos.h>    /* Declares union REGS and int86(). */
 
@@ -78,17 +61,20 @@
 #include "lib.h"
 #include "hlib.h"
 #include "ulib.h"
-#include "comm.h"          /* Modem status bits                       */
+#include "comm.h"          /*  Modem status bits */
 #include "ssleep.h"
 #include "catcher.h"
 
-#include "fossil.h"        /* Various INT14 definitions               */
-#include "commlib.h"       /* Trace functions, etc.                    */
+#include "fossil.h"        /* Various INT14 definitions */
+#include "commlib.h"       /* Trace functions, etc. */
+
+#include "dcp.h"           /* defines RECV_BUF */
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
+unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout);
 static void modemControl( char mask, boolean on);
 static void ShowModem( void );
 static unsigned char bps_table(int);
@@ -100,6 +86,9 @@ static unsigned char bps_table(int);
 static BPS currentBPS;
 static char currentDirect;
 static boolean carrierDetect;
+static unsigned int rcv_pending = 0;
+static char *rcv_buffer = NULL;
+#define IMPOSSIBLE_SREAD (RECV_BUF + 1)
 
 currentfile();
 static boolean hangupNeeded = TRUE;
@@ -139,7 +128,7 @@ int iopenline(char *name, BPS bps, const boolean direct)
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
-   printmsg(15, "openline: %s, %lu", name, bps);
+   printmsg(15, "iopenline: %s, %ul", name, bps);
 
    currentDirect = (char) (direct ? 'D' : 'M');
 
@@ -150,8 +139,7 @@ int iopenline(char *name, BPS bps, const boolean direct)
       panic();
    }
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
-                           /* Cntl-BREAK                              */
+   norecovery = FALSE; /* Flag we need a graceful shutdown after Cntl-BREAK */
 
 /*--------------------------------------------------------------------*/
 /*       With the INT14 setup, we don't worry about the lock file     */
@@ -170,7 +158,14 @@ int iopenline(char *name, BPS bps, const boolean direct)
 
    portActive = TRUE;     /* record status for error handler */
 
-   return 0;               /* Return success to caller                 */
+   rcv_pending = 0;
+   if (rcv_buffer == NULL)
+      if ((rcv_buffer = malloc(RECV_BUF)) == NULL)
+         return ENOMEM;
+   isread(NULL, IMPOSSIBLE_SREAD, 2);   /* do some read-ahead */
+   rcv_pending = 0;                     /* and discard what we got */
+
+   return 0;               /* Return success to caller */
 
 } /* iopenline */
 
@@ -191,43 +186,73 @@ int iopenline(char *name, BPS bps, const boolean direct)
 
 unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
 {
+   union REGS rcvregs, outregs;
+   time_t quit = time( NULL ) + timeout;
 
-   union REGS regs;          /* Scratch area for interrupt calls. */
+#ifdef ARTICOMM_INT14   /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
+   union REGS timregs;          /* Scratch area for interrupt calls. */
 
-   /* With INT14, don't bother with a counter; just set a timeout    */
-   /*  value with INT14/AX=8009.  This is Artisoft-specific.         */
+   timregs.x.ax = 0x8009;               /* Set timeouts */
+   timregs.x.cx = timeout * 91 / 5;     /* Receive timeout in ticks */
+   timregs.x.bx = 0x7FFF/*???*/;        /* Send timeout in ticks */
+   timregs.x.dx = portNum;              /* Port number */
+   int86(0x14, &timregs, &outregs);
+#endif /* ARTICOMM_INT14 */
 
-   int count = 0;
+   rcvregs.h.ah = FS_RECV1;
+   rcvregs.h.al = 0;
+   rcvregs.x.dx = portNum;              /* Port number */
+   rcvregs.x.bx = 0;
 
-   ShowModem();                  /* Report modem status               */
-
-/*--------------------------------------------------------------------*/
-/*             Now actually try to read a buffer of data              */
-/*--------------------------------------------------------------------*/
-
-   regs.x.ax = 0x8009;            /* Set timeouts */
-   regs.x.bx = timeout * 91 / 5;  /* Send timeout in ticks */
-   regs.x.cx = timeout * 91 / 5;  /* Receive timeout in ticks */
-   regs.x.dx = portNum;           /* Port number */
-   int86 (FS_INTERRUPT, &regs, &regs);
-
-   for ( count = 0; count < (int) wanted; count++ )
+   while (rcv_pending < wanted)
    {
-      unsigned short result = FossilCntl( FS_RECV1, 0);
-
-      if (result & 0x8000)          /* Did read time out?              */
+      if ( terminate_processing )
       {
-         printmsg (20, "Timeout in sread().");
-         traceData( buffer, count + 1, FALSE );
-         return count;
+         static boolean recurse = FALSE;
+         if ( ! recurse )
+         {
+            printmsg(2,"isread: User aborted processing");
+            recurse = TRUE;
+         }
+         rcv_pending = 0;
+         return rcv_pending;
       }
 
-      buffer[count] = (char) (result & 0x00ff);
+      if (rcv_pending >= RECV_BUF)      /* rcv_buffer full? */
+         return rcv_pending;
+
+      int86(0x14, &rcvregs, &outregs);
+      if (!(outregs.h.ah & 0x80))
+         rcv_buffer[rcv_pending++] = (char) outregs.h.al;
+      else
+      {                                 /* the read timed out */
+         time_t now;
+
+         if (timeout == 0)              /* If not interested in waiting */
+            return rcv_pending;         /* then get out of here fast */
+
+         ShowModem();                   /* Report modem status */
+
+         if ( (now = time(NULL)) >= quit )
+         {
+            printmsg(20, "isread: Timeout (timeout=%u, want=%u, have=%u)",
+                          timeout, wanted, rcv_pending);
+            return rcv_pending;
+         }
+
+#ifdef ARTICOMM_INT14 /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
+         timregs.x.cx = (unsigned short)(quit - now) * 91 / 5; /* Receive timeout in ticks */
+         int86(0x14, &timregs, &outregs);
+#endif /* ARTICOMM_INT14 */
+      }
    }
 
-   traceData( buffer, count + 1, FALSE );
-   return count + 1;
-
+   memcpy(buffer, rcv_buffer, wanted);
+   rcv_pending -= wanted;
+   if (rcv_pending)
+      memmove(rcv_buffer, rcv_buffer + wanted, rcv_pending);
+   traceData( buffer, wanted, FALSE );
+   return wanted + rcv_pending;
 } /* isread */
 
 /*--------------------------------------------------------------------*/
@@ -239,6 +264,7 @@ unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
 int iswrite(char *data, unsigned int len)
 {
    unsigned int i;
+   union REGS xmtregs;
 
    ShowModem();
 
@@ -247,8 +273,24 @@ int iswrite(char *data, unsigned int len)
 /*       at a time.                                                   */
 /*--------------------------------------------------------------------*/
 
+   xmtregs.h.ah = FS_XMIT1;
+   xmtregs.x.dx = portNum;              /* Port number */
+   xmtregs.x.bx = 0;
+
    for (i = 0; i < len; i++)
-      FossilCntl( FS_XMIT1, data[i] );
+   {
+      union REGS outregs;
+
+      xmtregs.h.al = (unsigned char) data[i];
+
+      int86(0x14, &xmtregs, &outregs);
+
+#if 1 /* Richard H. Gumpertz (RHG@CPS.COM), 29 September 1993 */
+      if (((outregs.h.ah & 0x61) == 0x01)
+          && (rcv_pending < RECV_BUF))
+         isread(NULL, IMPOSSIBLE_SREAD, 0); /* do some read ahead */
+#endif /* RHG */
+   }
 
    traceData( data, len, TRUE );
 
@@ -268,7 +310,7 @@ int iswrite(char *data, unsigned int len)
 
 void issendbrk(unsigned int duration)
 {
-   printmsg(12, "ssendbrk: %d", duration);
+   printmsg(12, "issendbrk: %d", duration);
 
 /*--------------------------------------------------------------------*/
 /*       With INT14, we drop DSR for a quarter of a second to         */
@@ -277,11 +319,11 @@ void issendbrk(unsigned int duration)
 /*       (Snuffles doubts this works properly)                        */
 /*--------------------------------------------------------------------*/
 
-   modemControl( 0x20, TRUE );   /* Raise flag, which lowers DSR      */
+   modemControl( 0x20, TRUE );   /* Raise flag, which lowers DSR */
 
-   ddelay (250);                 /* Wait a quarter second              */
+   ddelay (250);                 /* Wait a quarter second */
 
-   modemControl( 0x20, FALSE);   /* Lower flag, which raises DSR      */
+   modemControl( 0x20, FALSE);   /* Lower flag, which raises DSR */
 
 } /* issendbrk */
 
@@ -299,11 +341,17 @@ void icloseline(void)
 
    portActive = FALSE;     /* flag port closed for error handler  */
 
-   modemControl( 0x20, FALSE );  /* Lower DSR                          */
+   modemControl( 0x20, FALSE );  /* Lower DSR */
 
    ddelay (500);
 
    traceStop();
+
+   if (rcv_buffer != NULL)
+   {
+      free(rcv_buffer);
+      rcv_buffer = NULL;
+   }
 
 } /* icloseline */
 
@@ -320,15 +368,15 @@ void ihangup( void )
       return;
    hangupNeeded = FALSE;
 
-   modemControl( 0x20, FALSE );  /* Lower DSR                          */
+   modemControl( 0x20, FALSE );  /* Lower DSR */
 
    ddelay (500);                 /* Pause half a second */
 
-   modemControl( 0x20, TRUE );   /* Restore DSR                       */
+   modemControl( 0x20, TRUE );   /* Restore DSR */
 
    ddelay (2000);                /* Wait two seconds to recover */
 
-   printmsg(3,"hangup: complete.");
+   printmsg(3,"ihangup: complete.");
    carrierDetect = FALSE;  /* No modem connected yet               */
 
 } /* ihangup */
@@ -348,9 +396,9 @@ void iSIOSpeed(BPS bps)
    regs.h.bh = 0x00;            /* No parity */
    regs.h.bl = 0x00;            /* One stop bit */
    regs.h.ch = 0x03;            /* Eight-bit words */
-   regs.h.cl = bps_table(bps);  /* New baud rate */
+   regs.h.cl = bps_table((int) bps);  /* New baud rate */
    regs.x.dx = portNum;
-   int86 (FS_INTERRUPT, &regs, &regs);
+   int86(0x14, &regs, &regs);
 
    ShowModem();
    currentBPS = bps;
@@ -366,19 +414,26 @@ void iSIOSpeed(BPS bps)
 void iflowcontrol( boolean flow )
 {
 
+#ifdef ARTICOMM_INT14 /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
    union REGS regs;          /* Scratch area for interrupt calls. */
 
 /*
    With INT14, don't open and close the port; toggle it in place
    by using INT14/AX=800A, which is again Artisoft-specific.
 */
-   printmsg (4, "flowcontrol: %abling in-band flow control",
-                              (flow ? "en" : "dis"));
+   printmsg(4, "iflowcontrol: %sabling in-band flow control",
+                               (flow ? "en" : "dis"));
    regs.x.ax = 0x800A;
    regs.h.bl = (unsigned char) (flow ? 2 : 1);
-                                 /* 2 is hardware, 1 is XON/XOFF      */
+                                 /* 2 is hardware, 1 is XON/XOFF */
    regs.x.dx = portNum;
-   int86 (FS_INTERRUPT, &regs, &regs);
+   int86(0x14, &regs, &regs);
+#else /* ARTICOMM_INT14 */
+   if (flow)
+   {
+      printmsg(4, "iflowcontrol: in-band flow control not supported");
+   }
+#endif /* ARTICOMM_INT14 */
 
    ShowModem();
 
@@ -473,7 +528,7 @@ static void modemControl( char mask, boolean on)
    regs.x.ax = 0x0500;           /* Extended port control: get modem
                                     control register                  */
    regs.x.dx = portNum;
-   int86(FS_INTERRUPT, &regs, &regs);
+   int86(0x14, &regs, &regs);
 
    regs.x.ax = 0x0501;           /* Set modem control register */
    regs.x.dx = portNum;
@@ -482,6 +537,6 @@ static void modemControl( char mask, boolean on)
    else
       regs.h.bl &= ~ mask;       /* Lower flag */
 
-   int86(FS_INTERRUPT, &regs, &regs);
+   int86(0x14, &regs, &regs);
 
 } /* modemControl */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.5 1993/06/15 12:37:16 ahd Exp $
+ *    $Id: pushpop.c 1.6 1993/10/24 21:45:49 rhg Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.6  1993/10/24  21:45:49  rhg
+ *     Save the changed directory of the correct drive!
+ *
  *     Revision 1.5  1993/06/15  12:37:16  ahd
  *     Correct compile warning message about const assignment
  *
@@ -88,7 +91,7 @@ void PushDir( const char *directory )
 /*       from which PushDir changed away.  If any UUPC/extended       */
 /*       code really did this, then drivestack would have to be       */
 /*       changed to a full pathname like dirstack.  Lucky for us,     */
-/*       it doesn't do in any sequences.  --RHG                       */
+/*       it doesn't do so in any known sequences.  --RHG/AHD          */
 /*--------------------------------------------------------------------*/
 
 #ifdef __TURBOC__

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.9 1993/10/16 15:13:17 ahd Exp $
+ *    $Id: ulibip.c 1.10 1993/10/30 22:07:49 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.10  1993/10/30  22:07:49  dmwatt
+ * Host byte ordering corrections
+ *
  * Revision 1.9  1993/10/16  15:13:17  ahd
  * Allow parsing target port address when connecting to remote
  *
@@ -564,7 +567,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       traceData( commBuffer + commBufferUsed,
-                 received,
+                 (unsigned) received,
                  FALSE );
 
 /*--------------------------------------------------------------------*/

@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.28 1993/10/12 01:33:59 ahd Exp $
+ *     $Id: dcpsys.c 1.29 1993/10/28 12:19:01 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.29  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.28  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *
@@ -169,6 +172,10 @@ currentfile();
 /*--------------------------------------------------------------------*/
 /*                     Define available protocols                     */
 /*--------------------------------------------------------------------*/
+
+#if _MSC_VER >= 700
+#pragma warning(disable:4121)   /* suppress packing-sensitivity warning */
+#endif
 
 typedef struct {
         char type;
@@ -953,8 +960,8 @@ XFER_STATE scandir(char *remote, const char grade )
       sprintf(workfile, "%s/%s", remotedir, dp->d_name);
 
       if ( HostGrade( workfile, remote ) > grade )
-         printmsg(5, "scandir: skipped \"%s\" (grade %c not met)",             workfile,
-                      grade );
+         printmsg(5, "scandir: skipped \"%s\" (grade %c not met)",
+                     workfile, grade );
       else if ((fwork = FOPEN(workfile, "r",TEXT_MODE)) == nil(FILE))
       {
          printmsg(0,"scandir: open failed for %s",workfile);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.10 1993/10/07 22:51:00 ahd Exp $
+ *    $Id: commlib.c 1.11 1993/10/12 01:32:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.11  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.10  1993/10/07  22:51:00  ahd
  * Allocate communications input buffer for selected suites
  *
@@ -90,14 +93,18 @@
 
 typedef struct _COMMSUITE {
         char     *type;
-        commrefi activeopenline;
-        commrefi passiveopenline;
-        commrefu sread;
-        commrefi swrite;
-        commrefv ssendbrk, closeline, SIOSpeed, flowcontrol, hangup;
-        commrefB GetSpeed;
-        commrefb CD;
-        commrefb WaitForNetConnect;
+        ref_activeopenline      activeopenline;
+        ref_passiveopenline     passiveopenline;
+        ref_sread               sread;
+        ref_swrite              swrite;
+        ref_ssendbrk            ssendbrk;
+        ref_closeline           closeline;
+        ref_SIOSpeed            SIOSpeed;
+        ref_flowcontrol         flowcontrol;
+        ref_hangup              hangup;
+        ref_GetSpeed            GetSpeed;
+        ref_CD                  CD;
+        ref_WaitForNetConnect   WaitForNetConnect;
         boolean  network;
         boolean  buffered;
         char     *netDevice;           /* Network device name         */
@@ -131,12 +138,18 @@ size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
 char *commBuffer = NULL;
 
-commrefi activeopenlinep, passiveopenlinep, swritep;
-commrefu sreadp;
-commrefv ssendbrkp, closelinep, SIOSpeedp, flowcontrolp, hangupp;
-commrefB GetSpeedp;
-commrefb WaitForNetConnectp;
-commrefb CDp;
+ref_activeopenline activeopenlinep;
+ref_passiveopenline passiveopenlinep;
+ref_sread sreadp;
+ref_swrite swritep;
+ref_ssendbrk ssendbrkp;
+ref_closeline closelinep;
+ref_SIOSpeed SIOSpeedp;
+ref_flowcontrol flowcontrolp;
+ref_hangup hangupp;
+ref_GetSpeed GetSpeedp;
+ref_CD CDp;
+ref_WaitForNetConnect WaitForNetConnectp;
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -167,7 +180,7 @@ boolean chooseCommunications( const char *name )
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
           nCD,
-          (commrefb) NULL,
+          (ref_WaitForNetConnect) NULL,
           FALSE,                       /* Not network based           */
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           TRUE,                        /* Buffered under OS/2 and Windows NT  */
@@ -182,7 +195,7 @@ boolean chooseCommunications( const char *name )
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD,
-          (commrefb) NULL,
+          (ref_WaitForNetConnect) NULL,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
@@ -192,7 +205,7 @@ boolean chooseCommunications( const char *name )
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD,
-          (commrefb) NULL,
+          (ref_WaitForNetConnect) NULL,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
@@ -375,19 +388,19 @@ void traceStop( void )
 /*--------------------------------------------------------------------*/
 
 void traceData( const char *data,
-                const short len,
+                const unsigned len,
                 const boolean output)
 {
 #ifdef VERBOSE
-   int subscript;
+   unsigned subscript;
 #endif
 
 
    if ( ! traceEnabled || ! len )
       return;
 
-   printmsg(network ? 4 : 15,"traceData: %d bytes %s",
-               (int) len,
+   printmsg(network ? 4 : 15, "traceData: %u bytes %s",
+               len,
                output ? "written" : "read" );
 
    if ( traceMode != (short) output )

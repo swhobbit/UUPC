@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uundir.h 1.3 1993/04/10 21:35:30 dmwatt Exp $
+ *    $Id: uundir.h 1.4 1993/10/12 01:22:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: uundir.h $
+ *     Revision 1.4  1993/10/12  01:22:27  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.3  1993/04/10  21:35:30  dmwatt
  *     Windows/NT fixes
  *
@@ -54,6 +57,13 @@ struct direct {
 };
 
 #ifndef FAMILY_API
+
+#if _MSC_VER >= 800
+#pragma warning(disable:4214)   /* suppress non-standard bit-field warnings */
+#elif _MSC_VER >= 700
+#pragma warning(disable:4001)   /* suppress non-standard bit-field warnings */
+#endif
+
 typedef struct _FTIME           /* ftime */
         {
         unsigned short   twosecs : 5;
@@ -67,6 +77,13 @@ typedef struct _FDATE           /* fdate */
         unsigned short   month   : 4;
         unsigned short   year    : 7;
         } FDATE;
+
+#if _MSC_VER >= 800
+#pragma warning(default:4214)   /* restore non-standard bit-field warnings */
+#elif _MSC_VER >= 700
+#pragma warning(disable:4001)   /* restore non-standard bit-field warnings */
+#endif
+
 #endif
 
 typedef struct {

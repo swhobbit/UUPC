@@ -11,10 +11,13 @@
  * Created: Sun Aug 15 1993
  */
 
-static char *rcsid = "$Id: history.c,v 1.1 1993/09/05 10:56:49 rommel Exp rommel $";
-static char *rcsrev = "$Revision: 1.1 $";
+static char *rcsid = "$Id: HISTORY.C 1.2 1993/10/30 11:39:26 rommel Exp $";
+static char *rcsrev = "$Revision: 1.2 $";
 
-/* $Log: history.c,v $
+/* $Log: HISTORY.C $
+ * Revision 1.2  1993/10/30  11:39:26  rommel
+ * fixed some function error returns missing a value
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -306,7 +309,7 @@ void cancel_article(void *hdbm_file, char *messageID)
   char *groups;
 
   if (hdbm_file == NULL)
-    return NULL;
+    return;
 
   key.dptr = messageID;
   key.dsize = strlen(key.dptr) + 1;

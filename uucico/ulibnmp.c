@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.9 1993/10/12 01:33:23 ahd Exp $
+ *       $Id: ulibnmp.c 1.10 1993/10/24 12:48:56 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.10  1993/10/24  12:48:56  ahd
+ * Additional bug fixes
+ *
  * Revision 1.9  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -430,7 +433,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( commBuffer + commBufferUsed, received, FALSE );
+      traceData( commBuffer + commBufferUsed, (unsigned) received, FALSE );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */

@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.7 1993/10/07 22:56:45 ahd Exp $
+ *       $Id: ulibnt.c 1.8 1993/10/12 01:33:23 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.8  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/10/07  22:56:45  ahd
  * Use dynamically allocated buffer
  *
@@ -476,7 +479,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       if (!rc) {
          printmsg(0,
             "sread: Read from comm port for %d bytes failed, received = %d.",
-            needed, received);
+            needed, (int) received);
          commBufferUsed = 0;
          return 0;
       }
@@ -485,7 +488,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       printmsg(15,"sread: Want %d characters, received %d, total %d in buffer",
                   (int) wanted,
                   (int) received,
-                  (int) commBufferUsed + received);
+                  (int) (commBufferUsed + received));
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -493,7 +496,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       traceData( commBuffer + commBufferUsed,
-                 received,
+                 (unsigned) received,
                  FALSE );
 
 /*--------------------------------------------------------------------*/

@@ -15,10 +15,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.14 1993/10/09 15:48:20 rhg Exp $
+ *    $Id: lib.h 1.15 1993/10/12 01:22:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.15  1993/10/12  01:22:27  ahd
+ *     Normalize comments to PL/I style
+ *
+ *     Revision 1.15  1993/10/12  01:22:27  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.14  1993/10/09  15:48:20  rhg
  *     ANSIfy the source
  *
@@ -67,6 +73,14 @@
 
 #ifndef __LIB
 #define __LIB
+
+#if _MSC_VER == 700
+#pragma function(strcpy)        /* Get around a MS C7 code-generation bug:
+                                   The C 7.00 compiler uses the wrong register
+                                   for passing the return value of strcpy to
+                                   another function!  The bug appears to be
+                                   only in C7; Visual C fixed the problem. */
+#endif /* _MSC_VER == 700 */
 
 #if defined(WIN32) || defined(__OS2__)
 #define BIT32ENV

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FOSSIL.H 1.2 1993/05/30 15:27:22 ahd Exp $
+ *    $Id: fossil.h 1.3 1993/10/12 01:35:12 ahd Exp $
  *
  *    Revision history:
- *    $Log: FOSSIL.H $
+ *    $Log: fossil.h $
+ * Revision 1.3  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.2  1993/05/30  15:27:22  ahd
  * Correct CTS high macro
  *
@@ -93,7 +96,7 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
 /*--------------------------------------------------------------------*/
 
 #define FSSetSpeed( speed, parity, stopBits, charLen ) \
-         FossilCntl(FS_SPEED, (char) \
+         FossilCntl(FS_SPEED, (unsigned char) \
                     ((speed << 5) | (parity << 3) | \
                     (stopBits << 2) | charLen))
 
@@ -129,7 +132,7 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
 
 #define FSFlushRecv( )      FossilCntl(FS_RECVPURG, 0)
 
-#define FSFlowControl(type) FossilCntl(FS_FLOWCNTL, (char) (0xf0 | (type)))
+#define FSFlowControl(type) FossilCntl(FS_FLOWCNTL, (unsigned char) (0xf0 | (type)))
 
 #define FS_NOFLOW   0x00
 #define FS_XONXMIT  0x01
@@ -146,6 +149,6 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
 
 extern short portNum;        /* Must be set by openline()              */
 
-short FossilCntl( const char function, const char info );
+short FossilCntl( const char function, const unsigned char info );
 
 #endif

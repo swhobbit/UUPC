@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.13 1993/10/12 00:43:34 ahd Exp rhg $
+ *    $Id: execute.c 1.14 1993/10/30 17:10:40 rhg Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.14  1993/10/30  17:10:40  rhg
+ * Correct direction of redirection for Windows batch files
+ *
  * Revision 1.13  1993/10/12  00:43:34  ahd
  * Normalize comments
  *
@@ -422,6 +425,8 @@ int execute( const char *command,
 
 #ifdef __TURBOC__
 #pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -549,6 +554,10 @@ int execute( const char *command,
    return result;
 
 } /* execute */
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 #endif
 

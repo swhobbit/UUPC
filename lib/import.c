@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.10 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: import.c 1.11 1993/10/12 00:48:44 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.11  1993/10/12  00:48:44  ahd
+ *     Normalize comments
+ *
  *     Revision 1.10  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *
@@ -852,11 +855,17 @@ static boolean advancedFS( const char *path )
 
 #ifdef __TURBOC__
 #pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
 static boolean advancedFS( const char *path )
 {
    return FALSE;                 /* DOS is always dumb on file systems! */
 } /* advancedFS for MS-DOS */
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 #endif

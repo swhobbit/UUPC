@@ -62,8 +62,7 @@ char far *getdta( void )
 
    /* Move the result from (ES:BX) to (DX:AX) so it will act
     * as the return value for the function. */
-   mov   ax,es
-   mov   dx,ax
+   mov   dx,es
    mov   ax,bx
    }
 } /* getdta */

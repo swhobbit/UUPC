@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.15 1993/10/28 00:18:10 ahd Exp $
+ *    $Id: rmail.c 1.16 1993/11/06 13:04:13 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.16  1993/11/06  13:04:13  ahd
+ * Add For to Received: lines ... but is it backwards?
+ *
  * Revision 1.15  1993/10/28  00:18:10  ahd
  * Correct initialize of arpadate to after implied tzset()
  *
@@ -229,7 +232,7 @@ void main(int argc, char **argv)
    char *token;
    size_t addressees;            /* Number of targets in address      */
    size_t count;                 /* Loop variable for delivery        */
-   size_t delivered = 0;         /* Count of successfull deliveries   */
+   size_t delivered = 0;         /* Count of successful deliveries    */
    int user_debug  = -1;
    boolean header = TRUE;
    boolean DeleteInput = FALSE;

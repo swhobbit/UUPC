@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.7 1993/10/12 00:43:34 ahd Exp rhg $
+ *    $Id: expath.c 1.8 1993/10/30 17:10:40 rhg Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.8  1993/10/30  17:10:40  rhg
+ *     Be more conservative about the need to push to new directory
+ *
  *     Revision 1.7  1993/10/12  00:43:34  ahd
  *     Normalize comments
  *
@@ -196,12 +199,14 @@ char *expand_path(char *input,         /* Input/output path name      */
    while ((p = strchr(p,'\\')) != NULL)
       *p++ = '/';
 
-   if ( path[ strlen( path ) - 1 ] != '/' )
-      strcat( path, "/");
-
    strlwr( path );            /* Can lower case path, but not the
                                  name because name may be UNIX!       */
-   strcat( path, fname );
+
+   p = path + strlen(path);
+   if (*path == '\0' || p[-1] != '/')
+      *p++ = '/';
+
+   strcpy( p, fname );
 
 /*--------------------------------------------------------------------*/
 /*                       Return data to caller                        */

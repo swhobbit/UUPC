@@ -6,10 +6,13 @@
  * Created: Sun Aug 15 1993
  */
  
-static char *rcsid = "$Id$";
-static char *rcsrev = "$Revision$";
+static char *rcsid = "$Id: IDX.C 1.1 1993/09/05 10:56:49 rommel Exp $";
+static char *rcsrev = "$Revision: 1.1 $";
 
-/* $Log$ */
+/* $Log: IDX.C $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -316,7 +319,7 @@ int idx_addkey(IDX *idx, char *key, long offset, int size)
 
   strcpy(new.key, key);
   new.offset = offset;
-  new.size   = size;
+  new.size   = (short) size;
   new.child  = 0;
 
   if (idx_add(idx, new) == -1)

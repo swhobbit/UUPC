@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.18 1993/10/03 22:09:09 ahd Exp $
+ *    $Id: ulib.c 1.19 1993/10/12 01:33:59 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.19  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.18  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -114,7 +117,7 @@ static void ShowModem( void );
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static unsigned short current_bps;
+static BPS current_bps;
 static char current_direct;
 static boolean carrierdetect;
 
@@ -190,7 +193,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
    }
 
    current_bps = bps;
-   open_com(current_bps, current_direct, 'N', STOPBIT, 'D');
+   open_com((unsigned) current_bps, current_direct, 'N', STOPBIT, 'D');
    dtr_on();
    ssleep(2);                 /* Wait two seconds as required by V.24  */
    carrierdetect = FALSE;     /* No modem connected yet                */
@@ -351,7 +354,7 @@ int nswrite(const char *input, unsigned int len)
                      ", pass %d",
                      wait, needed, spin);
 
-         ddelay( wait );      /* Actually perform the wait           */
+         ddelay( (KEWSHORT) wait ); /* Actually perform the wait     */
 
          new_free = s_count_free();
 
@@ -368,8 +371,9 @@ int nswrite(const char *input, unsigned int len)
          printmsg(0,"nswrite: Buffer overflow, needed %d bytes"
                      " from queue of %d",
                      len, queue_size);
+         // Why was following return outside this if-block?  A bug?  --RHG
+         return 0;
       } /* if ( queue_free < len ) */
-      return 0;
 
    } /* if ( s_count_free() < len ) */
 
@@ -487,7 +491,7 @@ void nSIOSpeed(BPS bps)
    printmsg(4,"SIOSspeed: Changing port speed from %lu BPS to %lu BPS",
                (unsigned long) current_bps, (unsigned long) bps);
    current_bps = bps;
-   ioctl_com(0, current_bps);
+   ioctl_com(0, (unsigned) current_bps);
 
    ShowModem();
 
@@ -506,7 +510,7 @@ void nflowcontrol( boolean flow )
    ShowModem();
    printmsg(4,"flowcontrol: Opening port to %sable flow control",
                flow ? "en" : "dis");
-   open_com(current_bps, current_direct, 'N', STOPBIT, flow ? 'E' : 'D');
+   open_com((unsigned) current_bps, current_direct, 'N', STOPBIT, flow ? 'E' : 'D');
    ShowModem();
 
 } /* nflowcontrol */
@@ -586,6 +590,8 @@ static void ShowModem( void )
 
 #ifdef __TURBOC__
 #pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -597,6 +603,10 @@ static void ShowModem( void )
 void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 {
 }
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       r e s e t P r t y                                            */

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.4 1993/10/09 22:21:55 rhg Exp $
+ *    $Id: ulibfs.c 1.5 1993/10/12 01:33:23 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ * Revision 1.5  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.4  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -175,7 +178,7 @@ unsigned int fsread(char *buffer,
       {
          unsigned int moved = blockIO( buffer, wanted, FS_READBLOK );
                                              /* Get the data           */
-         traceData( buffer, (short) moved, FALSE );  /* Trace the data  */
+         traceData( buffer, moved, FALSE );  /* Trace the data         */
 
          if ( moved < wanted)                /* Promised data delivered?  */
          {                                   /* NO --> Panic (literally)  */
@@ -240,7 +243,7 @@ unsigned int fsread(char *buffer,
 int fswrite(const char *data, unsigned int queued)
 {
 
-   unsigned short moved;
+   unsigned moved;
    int total;
    int spin;
    static int const max_spin = 20;
@@ -302,7 +305,7 @@ int fswrite(const char *data, unsigned int queued)
 
       moved = blockIO( (char *) data + total, queued, FS_WRITBLOK );
                                                 /* Write the data     */
-      traceData( data + total, (short) moved, TRUE); /* Trace our output  */
+      traceData( data + total, moved, TRUE);    /* Trace our output   */
 
       if ( moved != 0)
          spin--;           /* No progress, consider timing out    */

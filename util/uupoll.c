@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.16 1993/10/16 15:13:17 ahd Exp $
+ *    $Id: uupoll.c 1.17 1993/10/28 00:18:10 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.17  1993/10/28  00:18:10  ahd
+ * Drop unneeded tzset() call
+ *
  * Revision 1.16  1993/10/16  15:13:17  ahd
  * Call UUXQT in sync mode
  *
@@ -145,7 +148,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.16 1993/10/16 15:13:17 ahd Exp $";
+         "$Id: uupoll.c 1.17 1993/10/28 00:18:10 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -971,6 +974,8 @@ static hhmm firstpoll(hhmm interval)
 
 #ifdef __TURBOC__
 #pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
  void
@@ -984,6 +989,10 @@ __cdecl
 
     _exit(100);
  } /* Catcher */
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */

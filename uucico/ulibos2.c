@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.26 1993/11/06 12:19:26 rommel Exp ahd $
+ *       $Id: ulibos2.c 1.27 1993/11/06 13:04:13 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.27  1993/11/06  13:04:13  ahd
+ * Disable RTS handshaking ... OS/2 rejects it
+ *
  * Revision 1.26  1993/11/06  12:19:26  rommel
  * Enable DTR and RTS for modem
  *
@@ -698,7 +701,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( commBuffer + commBufferUsed, received, FALSE );
+      traceData( commBuffer + commBufferUsed, (unsigned) received, FALSE );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */

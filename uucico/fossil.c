@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.2 1993/10/09 22:21:55 rhg Exp $
+ *    $Id: fossil.c 1.3 1993/10/12 01:33:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: fossil.c $
+ * Revision 1.3  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.2  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -60,7 +63,7 @@ short portNum;                      /* Must be set by openline()     */
 /*       Perform control functions on a FOSSIL port                   */
 /*--------------------------------------------------------------------*/
 
- short FossilCntl( const char function, const char info )
+ short FossilCntl( const char function, const unsigned char info )
  {
    union REGS regs;
 

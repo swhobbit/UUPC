@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.31 1993/10/31 12:01:35 ahd Exp $
+ *       $Id: dcpxfer.c 1.32 1993/11/06 13:04:13 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.32  1993/11/06  13:04:13  ahd
+ * Make sequence unqiue in session
+ *
  * Revision 1.31  1993/10/31  12:01:35  ahd
  * Make buffering for flexible for under OS/2 32 bit
  *
@@ -1434,7 +1437,7 @@ static void buf_init( void )
    xferBufSize = max( s_pktsize, r_pktsize ) * 4;
    if ( xferBufSize < BUFSIZ )
       xferBufSize = BUFSIZ;
-   if ( xferBufSize < M_xfer_bufsize )
+   if ( xferBufSize < (unsigned) M_xfer_bufsize )
       xferBufSize = M_xfer_bufsize;
 
    if (databuf == NULL)

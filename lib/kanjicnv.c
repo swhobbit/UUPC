@@ -138,8 +138,7 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
          hi = *buf++;
          if ((lo = *buf++) == '\0')
             break;
-         hi -= (unsigned char) ((hi <= 0x9f) ? 0x71 : 0xb1);
-         hi = (unsigned char) (hi * 2 + 1);
+         hi = (unsigned char) ((hi - ((hi <= 0x9f) ? 0x71 : 0xb1)) * 2 + 1);
          if (lo > 0x7f) lo -= 1;
          if (lo >= 0x9e) {
             lo -= 0x7d;

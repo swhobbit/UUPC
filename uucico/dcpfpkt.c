@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.12 1993/10/02 19:07:49 ahd Exp $
+ *    $Id: dcpfpkt.c 1.13 1993/10/09 22:21:55 rhg Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.13  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.12  1993/10/02  19:07:49  ahd
  * Suppress compiler warning
  *
@@ -133,6 +136,8 @@ static short chksum;
 
 #ifdef __TURBOC__
 #pragma argsused
+#elif _MSC_VER >= 700
+#pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
 short fopenpk(const boolean master)
@@ -146,6 +151,10 @@ short fopenpk(const boolean master)
    ssleep(2); /* Give peer time to perform corresponding port setup */
    return DCP_OK;
 } /* fopenpk */
+
+#if _MSC_VER >= 700
+#pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    f c l o s e p k                                                 */
