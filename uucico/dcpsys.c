@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.21 1993/09/27 04:04:06 ahd Exp $
+ *     $Id: dcpsys.c 1.22 1993/09/28 01:38:19 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.22  1993/09/28  01:38:19  ahd
+ * Add configurable timeout for conversation start up phase
+ *
  * Revision 1.21  1993/09/27  04:04:06  ahd
  * Normalize references to modem speed to avoid incorrect displays
  *
@@ -320,7 +323,7 @@ CONN_STATE getsystem( const char sendgrade )
       }
 
       memset( &remote_stats, 0, sizeof remote_stats);
-      return CONN_CALLUP1;    /* startup this system */
+      return CONN_CHECKTIME;  /* startup this system */
 
    } /* if */
    else
@@ -346,7 +349,6 @@ CONN_STATE sysend()
    return CONN_DROPLINE;
 } /*sysend*/
 
-
 /*--------------------------------------------------------------------*/
 /*    w m s g                                                         */
 /*                                                                    */
@@ -367,7 +369,6 @@ void wmsg(const char *msg, const boolean synch)
       swrite("\0", 1);
 
 } /*wmsg*/
-
 
 /*--------------------------------------------------------------------*/
 /*    r m s g                                                         */
@@ -457,7 +458,6 @@ int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
 
 } /*rmsg*/
 
-
 /*--------------------------------------------------------------------*/
 /*    s t a r t u p _ s e r v e r                                     */
 /*                                                                    */
@@ -468,7 +468,6 @@ CONN_STATE startup_server(const char recvgrade )
 {
    char msg[80];
    char *s;
-
 
    hostp->hstatus = startup_failed;
    hostp->via     = hostp->hostname;   // Save true hostname
@@ -605,7 +604,6 @@ CONN_STATE startup_server(const char recvgrade )
    return CONN_SERVER;
 
 } /*startup_server*/
-
 
 /*--------------------------------------------------------------------*/
 /*    s t a r t u p _ c l i e n t                                     */
@@ -826,7 +824,6 @@ CONN_STATE startup_client( char *sendgrade )
 
 } /*startup_client*/
 
-
 /*--------------------------------------------------------------------*/
 /*    s e t p r o t o                                                 */
 /*                                                                    */
@@ -861,7 +858,6 @@ static void setproto(char wanted)
    filepkt = tproto->filepkt;
 
 } /*setproto*/
-
 
 /*--------------------------------------------------------------------*/
 /*    s c a n d i r                                                   */
@@ -951,7 +947,6 @@ XFER_STATE scandir(char *remote, const char grade )
 
 } /*scandir*/
 
-
 /*--------------------------------------------------------------------*/
 /*    H o s t G r a d e                                               */
 /*                                                                    */
@@ -972,7 +967,6 @@ static char HostGrade( const char *fname, const char *remote )
    return tempname[len + 2 ];
 
 } /* HostGrade */
-
 
 /*--------------------------------------------------------------------*/
 /*    C a l l W i n d o w                                             */
