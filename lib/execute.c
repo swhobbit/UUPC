@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.29 1994/02/19 04:39:30 ahd Exp $
+ *    $Id: execute.c 1.30 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.30  1994/02/28  01:02:06  ahd
+ * Reopen output file after input file.
+ * .\
+ *
  * Revision 1.29  1994/02/19  04:39:30  ahd
  * Use standard first header
  *
@@ -595,7 +599,7 @@ static boolean batch( const char *input, char *output)
 
    static const char *extensions[] = { ".exe",
                                        ".com",
-#if !defined(_DOS) && !defined(_Windows)
+#if (!defined(_DOS) && !defined(_Windows)) || defined(BIT32ENV)
                                        ".cmd",
 #endif
                                        ".bat",
