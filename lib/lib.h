@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.6 1993/05/30 00:11:03 ahd Exp $
+ *    $Id: LIB.H 1.7 1993/05/30 15:27:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: LIB.H $
+ *     Revision 1.7  1993/05/30  15:27:22  ahd
+ *     Drop PASSWD, SYSTEMS definitions
+ *
  *     Revision 1.6  1993/05/30  00:11:03  ahd
  *     Drop free() macro
  *     Drop hardcoded PASSWD and SYSTEM file names
@@ -104,9 +107,10 @@
 #define B_UUSTAT   0x00000800L /* UUSTAT, UUSUB, UUNAME programs      */
 #define B_UUXQT    0x00001000L /* Used by queue processor UUXQT       */
 #define B_INSTALL  0x00002000L /* Used by install program only        */
+#define B_BATCH    0x00004000L // Used by news batching program - GMM
 #define B_MAIL     (B_MUA | B_MTA | B_MUSH)
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
-#define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT)
+#define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH)
 
 #define B_INTEGER  0x00010000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x00020000L /* Pointer is one word, ignore blanks  */

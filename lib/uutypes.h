@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUTYPES.H 1.4 1993/05/09 03:50:05 ahd Exp $
+ *    $Id: UUTYPES.H 1.5 1993/05/30 00:11:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUTYPES.H $
+ *     Revision 1.5  1993/05/30  00:11:03  ahd
+ *     Add UUFAR (far modifier)
+ *
  *     Revision 1.4  1993/05/09  03:50:05  ahd
  *     Support longname, honordebug, senddebug options
  *
@@ -110,6 +113,8 @@ typedef enum {
                                         each file transferred              */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
                                  support                                   */
+               F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file   */
+                              // GMM - Batched ouytbound news support
                F_LAST }       /* Dummy - Must be last - defines array size */
                B_FLAG;        /* Boolean flag array - ahd                  */
 

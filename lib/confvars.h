@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFVARS.H 1.4 1993/05/09 03:50:05 ahd Exp $
+ *    $Id: CONFVARS.H 1.5 1993/05/30 00:11:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFVARS.H $
+ *     Revision 1.5  1993/05/30  00:11:03  ahd
+ *     Add E_passwd and E_systems
+ *
  *     Revision 1.4  1993/05/09  03:50:05  ahd
  *     Support motd, banner strings in configuration
  *
@@ -62,6 +65,7 @@ extern char *E_charset;
 extern char *E_anonymous;
 extern char *E_version;
 extern char *E_uncompress;
+extern char *E_compress;         // GMM - Outbound batched news support
 extern char *E_banner;
 extern char *E_motd;
 extern char *E_systems;
