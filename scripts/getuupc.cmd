@@ -11,9 +11,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: GETUUPC.CMD 1.4 1993/05/10 11:35:05 ahd Exp $
+ *       $Id: getuupc.cmd 1.5 1994/01/01 19:16:13 ahd Exp ahd $
  *
- *       $Log: GETUUPC.CMD $
+ *       $Log: getuupc.cmd $
+ *      Revision 1.5  1994/01/01  19:16:13  ahd
+ *      Annual Copyright Update
+ *
  *      Revision 1.4  1993/05/10  11:35:05  ahd
  *      Drop extra parse command which broken selected sewarches
  *
@@ -50,7 +53,7 @@ if uupcusrrc <> '' then
 do;
    uupcusrrc = translate( uupcusrrc , '\', '/');
 
-   if verify( uupcusrrc, '\/', 'N') == 0 then
+   if pos( '\',uupcusrrc ) == 0 then
       uupcusrrc = confdir || '\' || uupcusrrc;
 
    answer = search( keyword, answer, confdir, uupcusrrc );
