@@ -33,5 +33,6 @@ struct UserTable *checkuser ( const char *user );
 char *NextField( char *input );
 
 #define BADUSER NULL
+#define EMPTY_GCOS "????"
 
 #endif
