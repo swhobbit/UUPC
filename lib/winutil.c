@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.3 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: winutil.c 1.4 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.4  1993/08/03  03:11:49  ahd
+ * Further Windows 3.x fixes
+ *
  * Revision 1.3  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -74,8 +77,7 @@ HWND hOurWindow;              // Our EasyWin main window handle
 /*                         Used only locally                          */
 /*--------------------------------------------------------------------*/
 
-static HWND hChildWindow;               // Child proc Window handle
-static HINSTANCE hChildInst;    // Instance of child proc
+static HINSTANCE hChildInst;            // Instance of child proc
 static HWND hTheWindow;                 // Used by WindCatcher() during enumeration
 
 
@@ -192,7 +194,9 @@ int SpawnWait( const char *command,
          FreeProcInstance(lpfnNotifyCB);
       }
 
-      printmsg(0, "SpawnWait: WinExec() failed. Code = %d\n",
+      printmsg(0, "SpawnWait: WinExec(%s %s) failed. Code = %d\n",
+                  command,
+                  parameters ? parameters : "",
                   (int)hChildInst);
       return(-1);
 
