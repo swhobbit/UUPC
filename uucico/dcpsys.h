@@ -39,7 +39,7 @@ CONN_STATE     sysend(void);
 XFER_STATE scandir(char *remote, const char grade );
 
 int   rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len);
-void  wmsg(char *msg, const boolean synch);
+void  wmsg(const char *msg, const boolean synch);
 
 extern short (*sendpkt)(char *data, short len);
 extern short (*getpkt)(char *data, short *len);
