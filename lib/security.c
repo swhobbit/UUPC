@@ -17,10 +17,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.26 1995/02/12 23:37:04 ahd v1-12q $
+ *    $Id: security.c 1.27 1996/01/02 00:00:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.27  1996/01/02 00:00:24  ahd
+ *    Break out search loop for configuration file keywords from
+ *    processing of them.
+ *    Use proper binary search for configuration file keywords rather
+ *    than lineaer search.  Also includes pre-computing size of configuration
+ *    tables.
+ *
  *    Revision 1.26  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -302,15 +309,14 @@ static KWBoolean InitEntry( char *buf, const char *fname)
      { "logname",       &logname,      0, B_TOKEN  } ,
      { "machine",       &machine,      0, B_TOKEN  | B_MALLOC } ,
      { "myname",        &myname,       0, B_TOKEN  } ,
-     { "pubdir",        &xpubdir,      0, B_TOKEN  } ,
      { "noread",        &noread,       0, B_TOKEN  | B_MALLOC } ,
      { "nowrite",       &nowrite,      0, B_TOKEN  | B_MALLOC } ,
+     { "pubdir",        &xpubdir,      0, B_TOKEN  } ,
      { "read",          &read,         0, B_TOKEN  | B_MALLOC} ,
      { "request",       &request,      0, B_TOKEN  } ,
      { "sendfiles",     &sendfiles,    0, B_TOKEN  } ,
      { "validate",      &validate,     0, B_CLIST  } ,
-     { "write",         &write,        0, B_TOKEN  | B_MALLOC } ,
-     { nil(char) }
+     { "write",         &write,        0, B_TOKEN  | B_MALLOC }
    }; /* secureTable */
 
    static size_t secureTableSize =
