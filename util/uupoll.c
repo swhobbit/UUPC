@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.32 1997/04/24 01:31:34 ahd v1-12u $
+ *    $Id: uupoll.c 1.33 1998/03/01 01:36:45 ahd v1-13a $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.33  1998/03/01 01:36:45  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.32  1997/04/24 01:31:34  ahd
  *    Annual Copyright Update
  *
@@ -200,7 +203,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.32 1997/04/24 01:31:34 ahd v1-12u $";
+         "$Id: uupoll.c 1.33 1998/03/01 01:36:45 ahd v1-13a $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -861,6 +864,7 @@ static void busywork( time_t next)
    int result;
 
 #ifdef UDEBUG
+   char filename[FILENAME_MAX];
    FILE *stream = NULL;
 #endif
 
@@ -870,10 +874,11 @@ static void busywork( time_t next)
 
 #ifdef UDEBUG                  /* ahd */
 
-   stream = FOPEN("UUPOLL.LOG","a",TEXT_MODE);
+   mkfilename( filename, E_logdir, "uupoll.log" );
+   stream = fopen(filename,"a");
 
    if (stream == NULL)
-      printerr("UUPOLL.LOG");
+      printerr(filename);
    else {
       fprintf(stream, "%s: %s\n",arpadate(), command);
       fclose(stream);
