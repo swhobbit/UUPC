@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.h 1.2 1993/07/31 16:28:59 ahd Exp $
+ *    $Id: mlib.h 1.3 1993/10/12 01:35:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.h $
+ * Revision 1.3  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.2  1993/07/31  16:28:59  ahd
  * Changes in support of Robert Denny's Windows Support
  *
@@ -38,7 +41,8 @@ extern boolean Console_fgets(char *buff,
                               int buflen, char *prompt);          /* ahd  */
 
 int Invoke(const char *ecmd,
-           const char *filename);
+           const char *filename,
+           const boolean unique );
 
 extern boolean Is_Console(FILE *stream);                          /* ahd  */
 
