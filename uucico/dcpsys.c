@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.22 1993/09/28 01:38:19 ahd Exp $
+ *     $Id: dcpsys.c 1.23 1993/09/29 04:52:03 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.23  1993/09/29  04:52:03  ahd
+ * Use additional state in support of suspend port code
+ *
  * Revision 1.22  1993/09/28  01:38:19  ahd
  * Add configurable timeout for conversation start up phase
  *
@@ -598,8 +601,8 @@ CONN_STATE startup_server(const char recvgrade )
 /*    The connection is complete; report this and return to caller    */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s connected to %s: %lu bps, %c protocol, %c grade",
-         E_nodename, rmtname, (unsigned long) GetSpeed() , *s, recvgrade );
+   printmsg(0,"%s connected to %s: %ld bps, %c protocol, %c grade",
+         E_nodename, rmtname, (long) GetSpeed() , *s, recvgrade );
 
    return CONN_SERVER;
 
@@ -807,10 +810,10 @@ CONN_STATE startup_client( char *sendgrade )
 /*            Report that we connected to the remote host             */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s called by %s: %lu bps, %c protocol, %c grade",
+   printmsg(0,"%s called by %s: %ld bps, %c protocol, %c grade",
          E_nodename,
          hostp->via,
-         (unsigned long) GetSpeed(),
+         (long) GetSpeed(),
          msg[1],
          *sendgrade );
 

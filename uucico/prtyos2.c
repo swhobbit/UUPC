@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.1 1993/09/25 03:07:56 ahd Exp $
+ *    $Id: prtyos2.c 1.2 1993/09/29 04:52:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ * Revision 1.2  1993/09/29  04:52:03  ahd
+ * Pass priority values as parameters
+ *
  * Revision 1.1  1993/09/25  03:07:56  ahd
  * Initial revision
  *
@@ -40,7 +43,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "lib.h"
 #include "pos2err.h"
 
@@ -101,7 +103,7 @@ void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 
    if (rc)
    {
-      printmsg(0,"setPrty: Unable to set priority %u,%u for task",
+      printmsg(0,"setPrty: Unable to set priority %hu,%hu for task",
                    priority, prioritydelta);
       printOS2error( "DosSetPrty", rc );
 
