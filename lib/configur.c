@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.78 1997/05/11 18:15:50 ahd v1-12t $
+ *    $Id: configur.c 1.79 1997/12/13 18:06:38 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.79  1997/12/13 18:06:38  ahd
+ *    Add new delivery options
+ *
  *    Revision 1.78  1997/05/11 18:15:50  ahd
  *    Allow faster SMTP delivery via fastsmtp flag
  *    Move TCP/IP dependent code from rmail.c to deliver.c
@@ -108,166 +111,6 @@
  *
  *    Revision 1.54  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
- *
- *    Revision 1.53  1994/12/31 03:51:01  ahd
- *    First pass of integrating Mike McLagan's news SYS file suuport
- *
- *    Revision 1.52  1994/12/31 03:41:08  ahd
- *    First pass of integrating Mike McLagan's news SYS file suuport
- *
- *    Revision 1.51  1994/12/27 20:47:55  ahd
- *    Smoother call grading'
- *
- *    Revision 1.50  1994/12/22 00:07:46  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.49  1994/12/09 03:42:09  ahd
- *    All suppressbeep support to allow NOT making any sound
- *
- *     Revision 1.48  1994/05/24  03:44:04  ahd
- *     Sort KWBoolean options
- *     Add suppressemptypassword option
- *
- *     Revision 1.47  1994/05/04  02:03:11  ahd
- *     Don't declare registry function if not under Windows NT
- *
- *     Revision 1.46  1994/04/26  23:49:06  dmwatt
- *     Windows NT registry support
- *
- *     Revision 1.45  1994/03/05  21:12:05  ahd
- *     Correct spelling of LONGNAME flag
- *
- *     Revision 1.44  1994/02/28  01:02:06  ahd
- *     Add 'HonorControl' KWBoolean option
- *
- *     Revision 1.43  1994/02/25  02:23:42  ahd
- *     Add Ignore, ReplyToList for Mail user agent (mail)
- *
- *     Revision 1.42  1994/02/20  19:05:02  ahd
- *     IBM C/Set 2 Conversion, memory leak cleanup
- *
- *     Revision 1.41  1994/02/19  04:40:04  ahd
- *     Use standard first header
- *
- *     Revision 1.37  1994/01/01  19:00:55  ahd
- *     Annual Copyright Update
- *
- *     Revision 1.36  1993/12/29  02:46:47  ahd
- *     Add Vmail queuing support
- *
- *     Revision 1.35  1993/12/23  03:11:17  rommel
- *     OS/2 32 bit support for additional compilers
- *
- *     Revision 1.34  1993/12/02  02:25:12  ahd
- *     Add max generated UUXQT command line length
- *
- *     Revision 1.33  1993/11/30  04:18:14  ahd
- *     Correct spelling error in message
- *
- *     Revision 1.32  1993/11/21  02:47:07  ahd
- *     Allow UUPCUSRRC to be set from environment variables
- *
- *     Revision 1.31  1993/11/14  20:51:37  ahd
- *     Add showspool
- *
- *     Revision 1.30  1993/11/13  17:37:02  ahd
- *     Add new options supporting mail formats and new windows under OS/2
- *
- *     Revision 1.29  1993/10/31  15:51:11  ahd
- *     Allow configuring permissions file name
- *     Restore period in names before printing error messages
- *
- *     Revision 1.28  1993/10/30  22:27:57  rommel
- *     News history support
- *
- *     Revision 1.27  1993/10/26  12:46:10  ahd
- *     Add include for setstdin.h
- *
- *     Revision 1.26  1993/10/25  02:39:44  ahd
- *     Delete OBSOLETE keyword from aliases, it breaks it
- *
- *     Revision 1.25  1993/10/25  01:21:22  ahd
- *     Rename Aliases to Nickname to make more unique for end users; allow
- *     Aliases as obsolete alias for now.
- *
- *     Revision 1.24  1993/10/12  00:47:04  ahd
- *     Normalize comments
- *
- *     Revision 1.23  1993/10/09  15:47:16  ahd
- *     Add run time IsDOS query function
- *
- *     Revision 1.22  1993/09/29  23:29:56  ahd
- *     Add xqtrootdir for UUXQT
- *
- *     Revision 1.21  1993/09/29  04:49:20  ahd
- *     Move priority variables to modem file
- *
- *     Revision 1.20  1993/09/24  03:43:27  ahd
- *     Use positive defaults for unsigned priority values
- *
- *     Revision 1.19  1993/09/20  04:38:11  ahd
- *     TCP/IP support from Dave Watt
- *     't' protocol support
- *     OS/2 2.x support
- *
- *     Revision 1.18  1993/07/31  16:22:16  ahd
- *     Changes in support of Robert Denny's Windows 3.x support
- *
- *     Revision 1.17  1993/07/22  23:19:50  ahd
- *     First pass for Robert Denny's Windows 3.x support changes
- *
- *     Revision 1.16  1993/07/05  14:45:29  ahd
- *     Correct message-of-the-day variable name
- *     Correct WIN32 prefix support
- *
- *     Revision 1.15  1993/06/16  04:03:25  ahd
- *     Special case root directories for UUPC/extended variable default
- *
- *     Revision 1.14  1993/06/15  12:18:06  ahd
- *     Saved changed directory name for debugging
- *
- *     Revision 1.13  1993/05/30  15:25:50  ahd
- *     Multiple driver support
- *
- *     Revision 1.12  1993/05/29  15:19:59  ahd
- *     Add systems file, passwd files
- *
- *     Revision 1.11  1993/05/09  03:49:21  ahd
- *     Support banner, motd strings
- *     Support longname, honordebug, senddebug options
- *
- *     Revision 1.10  1993/04/15  03:17:21  ahd
- *     Add bounce system option
- *
- *     Revision 1.9  1993/04/11  00:31:31  dmwatt
- *     Global edits for year, TEXT, etc.
- *
- *     Revision 1.8  1993/04/05  04:32:19  ahd
- *     Set timezone, windows input mode in common routine
- *
- *     Revision 1.7  1993/04/04  04:57:01  ahd
- *     Default configuration directory from UUPCSYSRC
- *     Default system directories from Configuration directory
- *
- *     Revision 1.6  1993/03/06  22:48:23  ahd
- *     Don't fall off end of shorter tables
- *
- *     Revision 1.5  1993/01/23  19:08:09  ahd
- *     Add Windows/NT to allowed environments
- *
- * Revision 1.4  1992/12/01  04:37:03  ahd
- * Add SpeedOverMemory
- *
- * Revision 1.3  1992/11/22  20:58:55  ahd
- * Normalize directories as read
- * Use strpool to allocate const strings
- *
- * Revision 1.2  1992/11/19  02:56:47  ahd
- * drop rcsid
- *
- * Revision 1.1  1992/11/16  05:00:26  ahd
- * Initial revision
- *
  */
 
 #include "uupcmoah.h"
@@ -293,7 +136,10 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
+RCSID("$Id$");
 currentfile();
+
+#define HOMEDIRLIT "*HOME*"
 
 KWBoolean bflag[F_LAST];       /* Initialized to zero by compiler      */
 
@@ -420,7 +266,7 @@ CONFIGTABLE rcTable[] = {
    {"firstGrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
    {"folders",      0     ,          B_MUSH,    B_PATH  },
    {"fromdomain",   &E_fdomain,      B_ALL,     B_GLOBAL|B_TOKEN },
-   {"home",         &E_homedir,      B_ALL,     B_PATH|B_REQUIRED },
+   {"home",         &E_homedir,      B_ALL,     B_PATH },
    {"ignore",       &E_ignoreList,   B_MUA,     B_LIST },
    {"inmodem",      &E_inmodem,      B_UUCICO,  B_GLOBAL|B_TOKEN },
    {"internalcommands", &E_internal, B_ALL,     B_GLOBAL|B_LIST },
@@ -573,6 +419,7 @@ static ENV_VARS envVarList[] =
    { "HOME",     "HOME"     },
    { "NAME",     "NAME"     },
    { "HOSTNAME", "NODENAME" },   /* Useful for OS/2 TCP/IP        */
+   { "COMPUTERNAME", "NODENAME" },   /* Useful for NT             */
    { "MAILBOX",  "MAILBOX"  },
    { "LOGNAME",  "MAILBOX"  },   /* Same as RCS                   */
    { "USER",     "MAILBOX"  },   /* Useful for OS/2 TCP/IP        */
@@ -605,6 +452,7 @@ static DEFAULTS directoryList[] =
    {&E_systems,      "systems" , KWTrue },
    {&E_passwd,       "passwd"  , KWTrue },
    {&E_permissions,  "permissn", KWTrue },
+   {&E_homedir,      HOMEDIRLIT, KWTrue },
    { NULL  }
 } ;
 
@@ -1311,9 +1159,14 @@ KWBoolean configure( CONFIGBITS program)
    while( directoryList[subscript].value != NULL )
    {
       if ( *(directoryList[subscript].value) == NULL )
+      {
+         if ( equal( directoryList[subscript].literal, HOMEDIRLIT ))
+            directoryList[subscript].literal = E_mailbox;
+
          *(directoryList[subscript].value) = directoryList[subscript].path ?
                      newstr( normalize(directoryList[subscript].literal) ) :
                      directoryList[subscript].literal;
+      }
       subscript++;
    }
 
