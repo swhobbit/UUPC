@@ -23,10 +23,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.13 1994/05/04 02:52:15 ahd Exp $
+ *    $Id: uuport.c 1.14 1994/10/03 01:01:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *        Revision 1.14  1994/10/03  01:01:25  ahd
+ *        Give up time slice during processing to allow other programs
+ *        to run (and basic stuff like Mouse clicks to be handled) under
+ *        Windows.
+ *
  *        Revision 1.13  1994/05/04  02:52:15  ahd
  *        Correct declare of main() to suppress compile warning
  *
@@ -133,11 +138,9 @@ void main(int argc, char **argv)
 
   banner( argv );
 
-#ifdef _Windows
-   if (!configure( B_MUA ))         /* Need the spool directory
+   if (!configure( B_UUSTAT ))      /* Need the spool directory
                                        for logging under Windows  */
       exit(1);    /* system configuration failed */
-#endif
 
   if ( argc < 2 )
     usage(argv[0]);
