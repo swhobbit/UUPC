@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.23 1993/09/29 04:52:03 ahd Exp $
+ *     $Id: dcpsys.c 1.24 1993/10/03 22:34:33 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.24  1993/10/03  22:34:33  ahd
+ * Alter format of numbers printed
+ *
  * Revision 1.23  1993/09/29  04:52:03  ahd
  * Use additional state in support of suspend port code
  *
@@ -284,9 +287,11 @@ CONN_STATE getsystem( const char sendgrade )
       int   i;
       flds[ kflds ] = "";     /* Insure valid send string            */
 
+#ifdef UDEBUG
       for (i = FLD_EXPECT; i < kflds; i += 2)
          printmsg(6, "expect [%02d]:\t%s\nsend   [%02d]:\t%s",
             i, flds[i], i + 1, flds[i + 1]);
+#endif
    }
 
 /*--------------------------------------------------------------------*/
