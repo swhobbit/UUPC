@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.11 1993/10/12 01:21:25 ahd Exp rommel $
+ *    $Id: uutypes.h 1.12 1993/10/30 22:29:23 rommel Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.12  1993/10/30  22:29:23  rommel
+ *     inews support
+ *
  *     Revision 1.11  1993/10/12  01:21:25  ahd
  *     Normalize comments to PL/I style
  *
@@ -90,6 +93,10 @@ typedef enum {
                F_EXPERT,      /* TRUE = Let user shoot self in foot w/o
                                         a message.                     */
                F_FROMSEP,     /* TRUE = Allow From to split messages   */
+               F_NEWEDITORSESSION,
+                              /* TRUE = Start new session for editor   */
+               F_NEWPAGERSESSION,
+                              /* TRUE = Start new session for pager    */
                F_PAGER,       /* TRUE = Invert meaning of P/p T/t commands */
                F_PURGE,       /* TRUE = Delete mailbox, if empty       */
                F_SAVE,        /* TRUE = Save read messages in =mbox when
@@ -115,26 +122,29 @@ typedef enum {
                F_HONORDEBUG,  /* True = Accept -x flag from remote systems */
                F_ESCAPE,      /* TRUE = Allow ESCAPE to act as Ctrl-Break */
                F_HISTORY,     /* TRUE = Maintain history of of articles
-                                        read and posted                */
+                                        read and posted                 */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
-               B_LONGNAME,      /* TRUE = Exploit long names under OS/2, NT */
+               B_LONGNAME,    /* TRUE = Exploit long names under OS/2, NT */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on
-                                        remote host at once            */
+                                        remote host at once             */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
-                                        for race conditions            */
+                                        for race conditions             */
                F_ONECASE,     /* TRUE = Remote host is case insensitive */
-               F_SENDDEBUG,   /* True = Send -x flag to remote systems */
-               F_SNEWS,       /* TRUE = Use Simple news delivery       */
+               F_SENDDEBUG,   /* True = Send -x flag to remote systems  */
+               F_SHORTFROM,   /* TRUE = Use short From remote header    */
+               F_SNEWS,       /* TRUE = Use Simple news delivery        */
+               F_SUPPRESSFROM,
+                              /* Suppress writing From lines in Mail   */
                F_SYMMETRICGRADES,
                               /* TRUE = Use send grade as receive grade */
                F_SYSLOG,      /* TRUE = Write syslog with name and time of
-                                        each file transferred          */
+                                        each file transferred           */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
                                  support                               */
                F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file  */
                               /* GMM - Batched ouytbound news support  */
                F_UUPCNEWSSERV,
-                            /* TRUE = Our news server runs UUPC too      */
+                              /* TRUE = Our news server runs UUPC too    */
                F_LAST }       /* Dummy - Must be last - defines array size */
                B_FLAG;        /* Boolean flag array - ahd              */
 
