@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.19 1994/02/19 04:48:22 ahd Exp $
+ *    $Id: security.c 1.20 1994/02/20 19:07:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.20  1994/02/20  19:07:38  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.19  1994/02/19  04:48:22  ahd
  *     Use standard first header
  *
@@ -533,7 +536,6 @@ static boolean InitEntry( char *buf, const char *fname)
       } /* else */
       else
          anchor->pubdir = newstr(path );
-      printmsg(2,"Public directory is %s", anchor->pubdir );
    }
 
 /*--------------------------------------------------------------------*/
