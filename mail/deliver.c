@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.7 1993/04/16 12:55:36 dmwatt Exp $
+ *    $Id: DELIVER.C 1.8 1993/05/03 02:41:57 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.8  1993/05/03  02:41:57  ahd
+ * Make deliver not rebounce mail to the postmonstor
+ *
  * Revision 1.7  1993/04/16  12:55:36  dmwatt
  * Windows/NT sound support
  *
@@ -176,7 +179,7 @@ size_t Bounce( const char *input,
                const char *text,
                const char *data,
                const char *address,
-               boolean validate );
+               const boolean validate );
 
 /*--------------------------------------------------------------------*/
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
@@ -459,6 +462,7 @@ static int DeliverFile( const char *input,
 {
    char buf[BUFSIZ];
    FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
+   char *cwd = sysalias ? E_tempdir : userp->homedir;
    int delivered = 0;
 
    if ( fwrd == NULL )
@@ -474,7 +478,7 @@ static int DeliverFile( const char *input,
    if ( start != 0 )
       fseek( fwrd, start, SEEK_SET);
 
-   while((ftell(fwrd) < end) && (fgets( buf , BUFSIZ , fwrd) != NULL ))
+   while((ftell(fwrd) < end) && (fgets( buf, BUFSIZ, fwrd) != NULL ))
    {
       char command[BUFSIZ];
       char *s = buf;
@@ -522,9 +526,8 @@ static int DeliverFile( const char *input,
             long here = ftell(fwrd);
             fclose(fwrd);
             sprintf(command , "%s < %s", &s[1], input);
-            printmsg(1,"Executing \"%s\" in %s",
-                  command, userp->homedir);
-            PushDir( userp->homedir );
+            printmsg(1,"Executing \"%s\" in %s", command, cwd );
+            PushDir( cwd );
             system(command);                 /* FIX THIS */
             PopDir();
             delivered += 1;
@@ -539,15 +542,20 @@ static int DeliverFile( const char *input,
             break;
 
          case ':':
+         {
+            char fname[FILENAME_MAX];
+            PushDir( cwd );
+            strcpy( fname, normalize( nextfile ));
+            PopDir();
             delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
                                       announce, userp,
                                       FALSE, TRUE, user );
             break;
+         }
 
          case '/':               /* Save in absolute path name */
          case '~':
-            if (expand_path(s, NULL, userp->homedir,
-                            E_mailext) == NULL )
+            if (expand_path(s, NULL, cwd, E_mailext) == NULL )
             {
                return Bounce(input,
                              "Invalid path in forwarding file name",
