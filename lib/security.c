@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.14 1993/12/23 03:13:18 ahd Exp $
+ *    $Id: security.c 1.15 1994/01/01 19:05:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.15  1994/01/01  19:05:30  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.14  1993/12/23  03:13:18  ahd
  *     Add type of access definition not found to message
  *
@@ -262,7 +265,7 @@ static boolean InitEntry( char *buf, const char *fname)
      { "logname",       &logname,      B_TOKEN  | B_UUXQT } ,
      { "machine",       &machine,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
      { "myname",        &myname,       B_TOKEN  | B_UUXQT } ,
-     { "pubdir",        &xpubdir,      B_PATH   | B_UUXQT } ,
+     { "pubdir",        &xpubdir,      B_TOKEN  | B_UUXQT } ,
      { "noread",        &noread,       B_TOKEN  | B_UUXQT | B_MALLOC } ,
      { "nowrite",       &nowrite,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
      { "read",          &read,         B_TOKEN  | B_UUXQT | B_MALLOC} ,
@@ -505,6 +508,26 @@ static boolean InitEntry( char *buf, const char *fname)
       anchor->myname = myname;
 
 /*--------------------------------------------------------------------*/
+/*                 Provide a default public directory                 */
+/*--------------------------------------------------------------------*/
+
+   if (xpubdir == NULL)
+       anchor->pubdir = E_pubdir;
+   else {
+      char path[FILENAME_MAX];
+      strcpy( path, xpubdir );
+      if ( expand_path( path, E_pubdir, E_pubdir , NULL) == NULL )
+      {
+         printmsg(0, "Unable to expand path \"%s\"",path );
+         anchor->pubdir = E_pubdir;
+         success = FALSE;
+      } /* else */
+      else
+         anchor->pubdir = newstr(path );
+      printmsg(2,"Public directory is %s", anchor->pubdir );
+   }
+
+/*--------------------------------------------------------------------*/
 /*                      Directory processing                          */
 /*--------------------------------------------------------------------*/
 
@@ -523,15 +546,6 @@ static boolean InitEntry( char *buf, const char *fname)
    max_elements = InitDir( nowrite, ALLOW_WRITE, FALSE, anchor,
                            max_elements );
    free( nowrite );
-
-/*--------------------------------------------------------------------*/
-/*                 Provide a default public directory                 */
-/*--------------------------------------------------------------------*/
-
-   if (xpubdir == NULL)
-       anchor->pubdir = E_pubdir;
-   else
-       anchor->pubdir = xpubdir;
 
 /*--------------------------------------------------------------------*/
 /*    If no explicit directories given, give them access to pubdir    */
@@ -618,7 +632,10 @@ static size_t InitDir( char *directories,
       strcpy( path, token);
       if (isalpha(path[0]) && (path[1] != ':') && (strlen(path) == 2))
          ;                 /* Yup, do nothing for root drive names  */
-      else if ( expand_path( path, NULL, E_pubdir , NULL) == NULL )
+      else if ( expand_path( path,
+                             anchor->pubdir,
+                             anchor->pubdir,
+                             NULL) == NULL )
       {
          printmsg(0, "Unable to expand path \"%s\"",path );
          return 0;
@@ -646,9 +663,10 @@ static size_t InitDir( char *directories,
       {                       /* Yes --> Go check disk for path       */
          if (stat(field , &statbuf) != 0)
          {
-            printmsg(0,"Warning ... invalid PERMISSIONS file entry %s:",
+            printmsg(2,"Warning ... invalid PERMISSIONS file entry %s:",
                        token );
-            printerr(field);
+            if ( debuglevel > 1 )
+               printerr(field);
          }
          else if ((statbuf.st_mode & S_IFDIR) == 0)
          {
