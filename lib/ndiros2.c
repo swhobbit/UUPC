@@ -1,4 +1,10 @@
 /*--------------------------------------------------------------------*/
+/*       n d i r o s 2 . c                                            */
+/*                                                                    */
+/*       UUPC/extended OS/2 directory search functions                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
@@ -11,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NDIROS2.C 1.3 1993/04/05 04:32:19 ahd Exp $
+ *    $Id: NDIROS2.C 1.4 1993/04/05 12:26:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: NDIROS2.C $
+ *     Revision 1.4  1993/04/05  12:26:01  ahd
+ *     Drop RCSID
+ *
  *     Revision 1.3  1993/04/05  04:32:19  ahd
  *     Add timestamp, size to information returned by directory searches
  *
