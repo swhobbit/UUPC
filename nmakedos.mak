@@ -1,10 +1,15 @@
-#       $Id: nmakedos.mak 1.7 1995/02/24 00:35:30 ahd v1-12n $
+#       $Id: nmakedos.mak 1.8 1995/03/23 01:28:55 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.8  1995/03/23 01:28:55  ahd
+#       Clean up DOS build -- modules were not always regenerated
+#       Clean up OS/2 build -- those messages should be tacked on the DLL,
+#       not the modules.
+#
 #       Revision 1.7  1995/02/24 00:35:30  ahd
 #       Lower stack size on COM modules
 #
@@ -42,8 +47,10 @@ ERASE    = del
 MODEL   = S
 !endif
 
+!ifndef UDEBUG
 !if "$(MODEL)" == "T"
 NODEBUG=1
+!endif
 !endif
 
 #MASMOPTS = /DUUPC /DDEBUG /n /v /t /z /W2 /ZD /Mx
