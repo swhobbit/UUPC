@@ -5,15 +5,24 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.  Changes    */
-/*    Copyright (c) 1990-1993 by Kendra Electronic Wonderworks;       */
-/*    all rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license.                                          */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.9 1993/04/11 00:33:54 ahd Exp $
+ *    $Id: ULIB.C 1.10 1993/05/09 03:41:47 ahd Exp $
+ *
  *    $Log: ULIB.C $
+ * Revision 1.10  1993/05/09  03:41:47  ahd
+ * Make swrite accept constant input strings
+ *
  * Revision 1.9  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -67,6 +76,7 @@
 #include "comm.h"
 #include "ssleep.h"
 #include "catcher.h"
+#include "commlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -77,8 +87,6 @@ static void ShowModem( void );
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
-
-boolean   port_active = FALSE;  /* TRUE = port handler handler active  */
 
 static BPS current_bps;
 static char current_direct;
@@ -101,23 +109,17 @@ currentfile();
 
 
 #define  STOPBIT  1
-#define LINELOG "LineData.Log"      /* log serial line data here */
 
-static int log_handle;
-static int logmode = 0;             /* Not yet logging            */
-#define WRITING 1
-#define READING 2
-static FILE *log_stream;
 static int com_handle;
 static boolean hangup_needed = TRUE;
 
 /*--------------------------------------------------------------------*/
-/*    o p e n l i n e                                                 */
+/*    n o p e n l i n e                                               */
 /*                                                                    */
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int openline(char *name, BPS bps, const boolean direct)
+int nopenline(char *name, BPS bps, const boolean direct)
 {
    int   value;
 
@@ -125,8 +127,6 @@ int openline(char *name, BPS bps, const boolean direct)
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
    printmsg(15, "openline: %s, %d", name, bps);
-
-   logmode = 0;
 
    current_direct = (char) (direct ? 'D' : 'M') ;
 
@@ -137,12 +137,15 @@ int openline(char *name, BPS bps, const boolean direct)
       panic();
    }
 
-   com_handle = sopen( name, O_BINARY | O_RDWR, SH_DENYRW );
-                                 /* Used soly for lock abilities  */
-   if ( com_handle == -1 )
+   if ( bflag[F_MULTITASK] )
    {
-      printerr( name );
-      return 1;
+      com_handle = sopen( name, O_BINARY | O_RDWR, SH_DENYRW );
+                                 /* Used soly for lock abilities  */
+      if ( com_handle == -1 )
+      {
+         printerr( name );
+         return 1;
+      }
    }
 
    select_port(value);
@@ -150,7 +153,7 @@ int openline(char *name, BPS bps, const boolean direct)
 
    if (!install_com())
    {
-      printmsg(0,"Commuications handler install failed; "
+      printmsg(0,"Communications handler install failed; "
                   "probable cause ... memory shortage.");
 
 #ifdef __TURBOC__
@@ -167,25 +170,17 @@ int openline(char *name, BPS bps, const boolean direct)
    ssleep(2);                 /* Wait two seconds as required by V.24   */
    carrierdetect = FALSE;     /* No modem connected yet                 */
 
-/*--------------------------------------------------------------------*/
-/*        Log serial line data only if log file already exists        */
-/*--------------------------------------------------------------------*/
-
-   log_handle = open(LINELOG, O_WRONLY | O_TRUNC | O_BINARY);
-   if (log_handle != -1) {
-      printmsg(15, "openline: logging serial line data to %s", LINELOG);
-      log_stream = fdopen(log_handle, "wb");
-   }
+   traceStart( name );
 
    port_active = TRUE;     /* record status for error handler */
 
    return 0;
 
-} /*openline*/
+} /* nopenline */
 
 
 /*--------------------------------------------------------------------*/
-/*    s r e a d                                                       */
+/*    n s r e a d                                                     */
 /*                                                                    */
 /*    Read from the serial port                                       */
 /*                                                                    */
@@ -198,7 +193,9 @@ int openline(char *name, BPS bps, const boolean direct)
 /*    or DG but not MS-DOS.                                           */
 /*--------------------------------------------------------------------*/
 
-unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
+unsigned int nsread(char *input,
+                    unsigned int wanted,
+                    unsigned int timeout)
 {
    time_t start;
 
@@ -226,16 +223,19 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
          static boolean recurse = FALSE;
          if ( ! recurse )
          {
-            printmsg(2,"sread: User aborted processing");
+            printmsg(2,"nsread: User aborted processing");
             recurse = TRUE;
          }
          return 0;
       }
 
-      printmsg(20, "sread: pending=%d, wanted=%d", pending, wanted);
+      printmsg(20, "nsread: pending=%d, wanted=%d", pending, wanted);
 
       if (pending >= wanted) {   /* got enough in the buffer? */
          unsigned int i;
+
+         char *buffer = input;
+
          for (i = 0; i < wanted; i++)
          {
             int Received;
@@ -243,37 +243,18 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
             Received = receive_com();       /* Get character from com port */
             if ( Received < 0 )
             {
-                printmsg( 10, "sread: recv error" );
+                printmsg( 10, "nsread: recv error" );
                 return 0;                   /* Indicate carrier loss */
             }
             *buffer++ = (char) Received;
-            printmsg( 19, "sread: char = %c", Received );
+            if ( debuglevel >= 19 )
+               printmsg( 19, "nsread: char = %c", Received );
          }
 
-         if (log_handle != -1)
-         {
-#ifdef VERBOSE
-            char s[18];
-#endif
-            buffer -= wanted;
-            if (logmode != READING)
-            {
-               fputs("\nRead:  ", log_stream);
-               logmode = READING;
-            } /* if */
-#ifdef VERBOSE
-            for (i = 0; i < wanted; i++) {
-               itoa(0x100 | (unsigned) *buffer++, s, 16);
-                                             /* Make it printable hex */
-               fwrite(s, 1, 2, log_stream);  /* Write hex to the log    */
-            } /* for */
-#else
-            fwrite(buffer, 1, wanted, log_stream);
-                                             /* Write data to the log */
-#endif
-         } /* if (log_handle != -1) */
+         traceData( input, wanted, FALSE );
 
          return pending;
+
       } else {
          time_t   now     = time(nil(time_t));
          time_t   elapsed = now - start;
@@ -286,15 +267,15 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
       } /* else */
    } /* for ( ; ; ) */
 
-} /*sread*/
+} /* nsread */
 
 /*--------------------------------------------------------------------*/
-/*    s w r i t e                                                     */
+/*    n s w r i t e                                                   */
 /*                                                                    */
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int swrite(const char *input, unsigned int len)
+int nswrite(const char *input, unsigned int len)
 {
    unsigned int i;
    char *data = (char *) input;
@@ -342,7 +323,7 @@ int swrite(const char *input, unsigned int len)
                               /* Compute time in milliseconds
                                  assuming 10 bits per byte           */
 
-         printmsg(4,"swrite: Waiting %d milliseconds for %d bytes in queue"
+         printmsg(4,"swrite: Waiting %d ms for %d bytes in queue"
                      ", pass %d",
                      wait, needed, spin);
 
@@ -360,7 +341,7 @@ int swrite(const char *input, unsigned int len)
 
       if ( queue_free < (int) len )
       {
-         printmsg(0,"swrite: Transmit buffer overflow, needed %d bytes",
+         printmsg(0,"swrite: Buffer overflow, needed %d bytes",
                      len);
       } /* if ( queue_free < len ) */
       return 0;
@@ -374,30 +355,7 @@ int swrite(const char *input, unsigned int len)
    for (i = 0; i < len; i++)
       send_com(*data++);
 
-/*--------------------------------------------------------------------*/
-/*                Log the transmitted data, if desired                */
-/*--------------------------------------------------------------------*/
-
-   if (log_handle != -1) {
-#ifdef VERBOSE
-      char s[18];
-#endif
-      if (logmode != WRITING)
-      {
-         fputs("\nWrite: ", log_stream);
-         logmode = WRITING;
-      } /* if */
-      data -= len;
-#ifdef VERBOSE
-      for (i = 0; i < len; i++) {
-         itoa(0x100 | (unsigned) *data++, s, 16);
-                                        /* Make it printable hex  ahd */
-         fwrite(s, 1, 2, log_stream);
-      } /* for */
-#else
-      fwrite(data, 1, len, log_stream);   /* Write data to the log */
-#endif
-   } /* if */
+   traceData( input, len, TRUE );
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -405,32 +363,32 @@ int swrite(const char *input, unsigned int len)
 
    return len;
 
-} /*swrite*/
+} /* nswrite */
 
 
 /*--------------------------------------------------------------------*/
-/*    s s e n d b r k                                                 */
+/*    n s s e n d b r k                                               */
 /*                                                                    */
 /*    Send a break signal out the serial port                         */
 /*--------------------------------------------------------------------*/
 
-void ssendbrk(unsigned int duration)
+void nssendbrk(unsigned int duration)
 {
 
-   printmsg(12, "ssendbrk: %d", duration);
+   printmsg(12, "nssendbrk: %d", duration);
 
    break_com();
 
-} /*ssendbrk*/
+} /* nssendbrk */
 
 
 /*--------------------------------------------------------------------*/
-/*    c l o s e l i n e                                               */
+/*    n c l o s e l i n e                                             */
 /*                                                                    */
 /*    Close the serial port down                                      */
 /*--------------------------------------------------------------------*/
 
-void closeline(void)
+void ncloseline(void)
 {
    int far *stats;
 
@@ -443,12 +401,11 @@ void closeline(void)
    ddelay(500);               /* Required for V.24             */
    close_com();
    restore_com();
-   close( com_handle );
 
-   if (log_handle != -1) {    /* close serial line log file */
-      fclose(log_stream);
-      close(log_handle);
-   };
+   if ( bflag[F_MULTITASK] )
+      close( com_handle );
+
+   traceStop();
 
    stats = com_errors();
    printmsg(3, "Buffer overflows: %-4d", stats[COM_EOVFLOW]);
@@ -464,30 +421,31 @@ void closeline(void)
 
 
 /*--------------------------------------------------------------------*/
-/*    H a n g u p                                                     */
+/*    n h a n g u p                                                   */
 /*                                                                    */
 /*    Hangup the telephone by dropping DTR.  Works with HAYES and     */
 /*    many compatibles.                                               */
 /*    14 May 89 Drew Derbyshire                                       */
 /*--------------------------------------------------------------------*/
 
-void hangup( void )
+void nhangup( void )
 {
       if (!hangup_needed)
          return;
+
       hangup_needed = FALSE;
       dtr_off();              /* Hang the phone up                         */
       ddelay(500);            /* Really only need 250 milliseconds         */
       dtr_on();               /* Bring the modem back on-line              */
       ddelay(2000);           /* Now wait for the poor thing to recover    */
                               /* two seconds is required by V.24           */
-      printmsg(3,"hangup: complete.");
+      printmsg(3,"nhangup: complete.");
       carrierdetect = FALSE;  /* No modem connected yet                    */
 
-} /* hangup */
+} /* nhangup */
 
 /*--------------------------------------------------------------------*/
-/*    S I O S p e e d                                                 */
+/*    n S I O S p e e d                                               */
 /*                                                                    */
 /*    Re-specify the speed of an opened serial port                   */
 /*                                                                    */
@@ -501,7 +459,7 @@ void hangup( void )
 /*    command state because it is at the wrong speed or whatever.)    */
 /*--------------------------------------------------------------------*/
 
-void SIOSpeed(BPS bps)
+void nSIOSpeed(BPS bps)
 {
 
    printmsg(4,"SIOSspeed: Changing port speed from %ld BPS to %ld BPS",
@@ -511,15 +469,15 @@ void SIOSpeed(BPS bps)
    ShowModem();
    current_bps = bps;
 
-} /*SIOSpeed*/
+} /* nSIOSpeed */
 
 /*--------------------------------------------------------------------*/
-/*    f l o w c o n t r o l                                           */
+/*    n f l o w c o n t r o l                                         */
 /*                                                                    */
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void flowcontrol( boolean flow )
+void nflowcontrol( boolean flow )
 {
    printmsg(4,"flowcontrol: Closing port");
    close_com();
@@ -529,26 +487,28 @@ void flowcontrol( boolean flow )
    open_com(current_bps, current_direct, 'N', STOPBIT, flow ? 'E' : 'D');
    ShowModem();
 
-} /*flowcontrol*/
+} /* nflowcontrol */
 
 /*--------------------------------------------------------------------*/
-/*    G e t S p e e d                                                 */
+/*    n G e t S p e e d                                               */
 /*                                                                    */
 /*    Report current speed of communications connection               */
 /*--------------------------------------------------------------------*/
 
-BPS GetSpeed( void )
+BPS nGetSpeed( void )
 {
+
    return current_bps;
-} /* GetSpeed */
+
+} /* nGetSpeed */
 
 /*--------------------------------------------------------------------*/
-/*    C D                                                             */
+/*    n C D                                                           */
 /*                                                                    */
 /*    Report if we have carrier detect and lost it                    */
 /*--------------------------------------------------------------------*/
 
-boolean CD( void )
+boolean nCD( void )
 {
    boolean online = carrierdetect;
 
@@ -566,7 +526,7 @@ boolean CD( void )
    else
       return is_dsr_high();
 
-} /* CD */
+} /* nCD */
 
 /*--------------------------------------------------------------------*/
 /*    S h o w M o d e m                                               */
