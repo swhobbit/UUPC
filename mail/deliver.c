@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.24 1993/12/29 02:46:47 ahd Exp $
+ *    $Id: deliver.c 1.25 1994/01/01 19:12:17 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.25  1994/01/01  19:12:17  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.24  1993/12/29  02:46:47  ahd
  * Add Vmail queuing support
  *
@@ -504,17 +507,28 @@ static int DeliverFile( const char *input,
 
    while((ftell(fwrd) < end) && (fgets( buf, BUFSIZ, fwrd) != NULL ))
    {
-      char *s = buf;
+      char *s;
       char c;
       char *nextfile = NULL;
 
-      if ( buf[ strlen(buf) - 1 ]== '\n')
-         buf[ strlen(buf) - 1 ] = '\0';
+/*--------------------------------------------------------------------*/
+/*     Kill both leading and trailing white space from this line      */
+/*--------------------------------------------------------------------*/
 
+      s = buf + strlen(buf) - 1;
+      while( (s >= buf) && !isgraph(*s))
+         *s-- = '\0';                  /* Trim trailing white space     */
+
+      s = buf;
       while( *s && ! isgraph( *s ))    /* Trim leading white space     */
          s++;
 
+/*--------------------------------------------------------------------*/
+/*                     Now process the input line                     */
+/*--------------------------------------------------------------------*/
+
       printmsg(8,"Forwarding to \"%s\"", s);
+
       if ( equalni( buf, INCLUDE, strlen(INCLUDE)))
       {
          nextfile = strtok( s + strlen(INCLUDE), WHITESPACE );
