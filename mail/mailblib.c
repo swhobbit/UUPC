@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.3 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: mailblib.c 1.4 1993/09/20 04:41:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.4  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.3  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -1026,14 +1029,14 @@ boolean Get_Operand( int *item,
       if (first_pass)
          rest = *token;
 
-      if ((rest == NULL) || (*rest == (char) NULL))
+      if ((rest == NULL) || (*rest == '\0'))
       {
          *token = NULL;
          return first_pass;
       } /* if */
 
       *token = strtok( rest , WHITESPACE );
-      if ( *token == (char) NULL)
+      if ( token == NULL )
       {
          rest = NULL;
          return first_pass;
