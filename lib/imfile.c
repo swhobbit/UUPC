@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.29 1998/03/03 03:10:53 ahd v1-12v $
+ *    $Id: imfile.c 1.30 1998/03/08 04:50:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.30  1998/03/08 04:50:04  ahd
+ *    When switching from memory to disk, remember to copy the data
+ *    and clear pointer which implies we are using memory.
+ *
  *    Revision 1.29  1998/03/03 03:10:53  ahd
  *    Correct cosmetic errors
  *
@@ -157,9 +161,7 @@ static void imStatus( IMFILE *imf )
 {
 
 #ifdef UDEBUG
-   if ( imf->buffer == NULL )
-      printmsg(20,"imStatus: File resides on disk as %s", imf->filename );
-   else
+   if ( imf->buffer != NULL )
       printmsg(18,"imStatus: "
 #ifdef BIT32ENV
                "%p"
@@ -175,6 +177,10 @@ static void imStatus( IMFILE *imf )
                   imeof(imf)     ? ", EOF"   : "",
                   imerror( imf ) ? ", ERROR" : "" );
 #endif
+   else if ( imf->filename != NULL )
+      printmsg(20,"imStatus: File resides on disk as %s", imf->filename );
+   else
+      printmsg(5,"imstatus: No backing store exists for file");
 
 } /* imStatus */
 #else
@@ -402,8 +408,10 @@ int imclose( IMFILE *imf)
    {
       result = fclose( imf->stream );
       REMOVE( imf->filename );
-      free( imf->filename );
    }
+
+   if ( imf->filename != NULL )
+      free( imf->filename );
 
    memset( imf, 0, sizeof *imf );
    free( imf );
