@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.2 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: pwinsock.c 1.3 1993/10/12 00:47:04 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ * Revision 1.3  1993/10/12  00:47:04  ahd
+ * Normalize comments
+ *
  * Revision 1.2  1993/09/27  00:45:20  ahd
  * Add missing def for shutdown()
  *
@@ -106,9 +109,11 @@ int PASCAL FAR (*pclosesocket)(SOCKET s);
 
 u_short PASCAL FAR (*pntohs)(u_short netshort);
 
-u_long PASCAL FAR (*phtonl) (u_long hostlong);
+u_short PASCAL FAR (*phtons)(u_short hostshort);
 
 u_long PASCAL FAR (*pntohl) (u_long netlong);
+
+u_long PASCAL FAR (*phtonl) (u_long hostlong);
 
 int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 
@@ -160,6 +165,7 @@ boolean pWinSockInit( void )
    pclosesocket           = GetProcAddress(hWinsock, (LPSTR)MAKELONG(  3,0));
    pconnect               = GetProcAddress(hWinsock, (LPSTR)MAKELONG(  4,0));
    phtonl                 = GetProcAddress(hWinsock, (LPSTR)MAKELONG(  8,0));
+   phtons                 = GetProcAddress(hWinsock, (LPSTR)MAKELONG(  9,0));
    pinet_addr             = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 10,0));
    plisten                = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 13,0));
    pntohl                 = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 14,0));

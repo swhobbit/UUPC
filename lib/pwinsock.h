@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.h 1.1 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: pwinsock.h 1.2 1993/09/27 00:50:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwinsock.h $
+ * Revision 1.2  1993/09/27  00:50:57  ahd
+ * Add missing shutdown definition
+ *
  * Revision 1.1  1993/09/20  04:51:31  ahd
  * Initial revision
  *
@@ -54,6 +57,7 @@
 #define recv precv
 #define closesocket pclosesocket
 #define ntohs pntohs
+#define htons pntohs
 #define ntohl pntohl
 #define htonl phtonl
 #define shutdown pshutdown
@@ -80,6 +84,8 @@ extern int PASCAL FAR (*precv) (SOCKET s, char FAR * buf, int len, int flags);
 extern int PASCAL FAR (*pclosesocket)(SOCKET s);
 
 extern u_short PASCAL FAR (*pntohs)(u_short netshort);
+
+extern u_short PASCAL FAR (*phtons)(u_short hostshort);
 
 extern u_long PASCAL FAR (*phtonl) (u_long hostlong);
 
