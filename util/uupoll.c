@@ -82,9 +82,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.26 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: uupoll.c 1.27 1995/03/11 02:04:36 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.27  1995/03/11 02:04:36  ahd
+ *    If running in autoUUXQT mode, still run UUXQT for local system
+ *    in support of newsrun.
+ *
  *    Revision 1.26  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -180,7 +184,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.26 1995/02/20 17:28:43 ahd v1-12n $";
+         "$Id: uupoll.c 1.27 1995/03/11 02:04:36 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -783,12 +787,12 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
    else {
       char buf[128];
 
-      sprintf(buf,"uucico -r1 -s%s -x%d",
+      sprintf(buf,"uucico -r 1 -s %s -x %d",
               Rmtname,
               debuglevel);
 
       if ( logname != NULL )
-         strcat( strcat( buf, " -l") , logname );
+         strcat( strcat( buf, " -l ") , logname );
 
       if ( autoUUXQT )
          strcat( buf, " -U" );
@@ -1004,15 +1008,15 @@ static hhmm firstpoll(hhmm interval)
 
    minutes = seconds / 60;
 
-   sprintf(buf,"uucico -r0 -x%d -d%02ld%02ld",
+   sprintf(buf,"uucico -r 0 -x %d -d %02ld%02ld",
                debuglevel,
                minutes / 60, minutes % 60);
 
    if ( logname != NULL )
-      strcat( strcat( buf, " -l") , logname );
+      strcat( strcat( buf, " -l ") , logname );
 
    if ( modem != NULL )
-      strcat( strcat( buf, " -m") , modem );
+      strcat( strcat( buf, " -m ") , modem );
 
    if ( autoUUXQT )
       strcat( buf, " -U" );
