@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.59 1995/02/21 02:47:44 ahd v1-12n $
+ *       $Id: rnews.c 1.60 1995/03/07 23:36:50 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.60  1995/03/07 23:36:50  ahd
+ *       Add options to newsrun to avoid aborts from bogus args under OS/2
+ *
  *       Revision 1.59  1995/02/21 02:47:44  ahd
  *       The compiler warnings war never ends!
  *
@@ -46,7 +49,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.59 1995/02/21 02:47:44 ahd v1-12n $";
+         "$Id: rnews.c 1.60 1995/03/07 23:36:50 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -257,8 +260,6 @@ static char *Compressed( FILE *in_stream ,
       printerr(zfile);
       panic();
    }
-
-   printmsg(2, "Compressed: Copy to %s for later processing", zfile);
 
 /*--------------------------------------------------------------------*/
 /*                 Main loop to copy compressed file                  */
