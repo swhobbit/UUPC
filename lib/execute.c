@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.10 1993/10/02 22:56:59 ahd Exp $
+ *    $Id: execute.c 1.11 1993/10/03 22:09:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.11  1993/10/03  22:09:09  ahd
+ * Change debugging messages
+ *
  * Revision 1.10  1993/10/02  22:56:59  ahd
  * Suppress compile warning
  *
@@ -484,14 +487,17 @@ int execute( const char *command,
 
       if ( *path )
       {
+         int mode = (synchronous || IsDOS()) ? P_WAIT : P_NOWAIT;
+
+
          printmsg(4,"execute: spawnlp(%d, %s, %s%s%s)",
-                              synchronous ? P_WAIT : P_NOWAIT,
+                              mode,
                               path,
                               command,
                               parameters == NULL ? "" : ", ",
                               parameters == NULL ? "" : parameters );
 
-         result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
+         result = spawnlp( mode,
                            (char *) path,
                            (char *) command,
                            (char *) parameters,

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: stater.c 1.2 1993/07/20 21:45:37 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: stater.c $
+ *     Revision 1.2  1993/07/20  21:45:37  ahd
+ *     Report last modified time, not created time, per Kae Uwe Rommel
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -65,7 +68,7 @@ time_t stater(const char *file, long *size)
       printerr( file );
       if ( size != NULL )
          *size = 0;
-      return -1;              /* Flag file as missing          */
+      return (time_t) -1L;    /* Flag file as missing          */
    }
 
 /*--------------------------------------------------------------------*/

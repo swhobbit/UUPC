@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.5 1992/12/30 05:27:11 plummer Exp $
+ *    $Id: SCRSIZE.C 1.6 1993/05/03 02:41:57 ahd Exp $
  *
  *    $Log: SCRSIZE.C $
+ *     Revision 1.6  1993/05/03  02:41:57  ahd
+ *     Trap funky screen size on pre-DOS 4.0 boxes (poor babies...)
+ *
  *     Revision 1.5  1992/12/30  05:27:11  plummer
  *     MS C compile fixes
  *
@@ -57,7 +60,7 @@ short scrsize( void )
    static unsigned char far *bios_rows = MK_FP( 0x0040, 0x0084 );
 /* static unsigned char far *bios_cols = MK_FP( 0x40, 0x4a ); */
 #else
-   static unsigned char far *bios_rows = 0x0484;
+   static unsigned char far *bios_rows = (unsigned char far *) 0x0484L;
 #endif
 
    static boolean error = FALSE;

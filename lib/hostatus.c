@@ -61,7 +61,7 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 time_t start_stats = 0;
-time_t hstatus_age = -2;
+time_t hstatus_age = (time_t) -2L;
 
 void HostStatus( void )
 {

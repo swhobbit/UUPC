@@ -14,10 +14,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.4 1993/07/22 23:19:50 ahd Exp $
+ *    $Id: printerr.c 1.5 1993/09/20 04:38:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *     Revision 1.5  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  *     Revision 1.4  1993/07/22  23:19:50  ahd
  *     First pass for Robert Denny's Windows 3.x support changes
  *
@@ -86,7 +91,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    if ( redirect )
       fprintf(stdout,"%s: %s\n", prefix, s);
 
-#if defined(__TURBOC__) && !defined(_Windows) && !defined(__OS2__)
+#if !defined(_Windows) && !defined(BIT32ENV) && defined(__TURBOC__)
    if (_osmajor >= 3 )
    {
       union REGS regs;

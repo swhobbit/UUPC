@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: hostrset.c 1.3 1993/05/03 02:41:57 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: hostrset.c $
+ *     Revision 1.3  1993/05/03  02:41:57  ahd
+ *     Use correct directory for new status file
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -63,8 +66,8 @@ void HostReset( const char *name )
    struct HostTable *host;
    char fname[FILENAME_MAX];
    FILE *stream;
-   unsigned short len1 = strlen(compilep );
-   unsigned short len2 = strlen(compilev );
+   unsigned short len1 = (unsigned short) strlen(compilep );
+   unsigned short len2 = (unsigned short) strlen(compilev );
 
 /*--------------------------------------------------------------------*/
 /*         Get the file name for the status file and open it          */
@@ -96,7 +99,7 @@ void HostReset( const char *name )
 
    while  ((host = nexthost( firsthost )) != BADHOST)
    {
-      len1 = strlen( host->hostname );
+      len1 = (unsigned short) strlen( host->hostname );
       len2 = sizeof *(host->hstats);
 
       firsthost = FALSE;

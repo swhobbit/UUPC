@@ -4,11 +4,38 @@
 /*    File name mapping routines for UUPC/extended                    */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "arbmath.h"
@@ -20,12 +47,18 @@
 
 currentfile();
 
-void exportpath(char *canon, const char *host, char const *remote)
+/*--------------------------------------------------------------------*/
+/*       e x p o r t p a t h                                          */
+/*                                                                    */
+/*       Convert a local environment name to UNIX format name         */
+/*--------------------------------------------------------------------*/
+
+void exportpath(char *canon, const char *host, const char *remote)
 {
    const char *xhost;
    char *copy;
    char tempname[FILENAME_MAX];
-   size_t subscript;
+   unsigned subscript;
    unsigned char number[MAX_DIGITS];
    char *token, *out;
 

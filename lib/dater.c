@@ -2,9 +2,26 @@
 /*    d a t e r . c                                                   */
 /*                                                                    */
 /*    Date formatting routines for UUPC/extended                      */
-/*                                                                    */
-/*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -34,7 +51,7 @@ char *dater( const time_t t , char *buf)
    static char sabuf[DATEBUF]  = "           ";
    static char never[DATEBUF]  = "  (never)  ";
    static char missing[DATEBUF]= " (missing) ";
-   static time_t last = -1;
+   static time_t last = (time_t) -1L;
 
    if ( buf == NULL )
       buf = mybuf;

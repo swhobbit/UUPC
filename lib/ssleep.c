@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.9 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: ssleep.c 1.10 1993/09/27 02:42:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.10  1993/09/27  02:42:11  ahd
+ *     Use signed number for delay computations under DOS
+ *
  *     Revision 1.9  1993/09/24  03:43:27  ahd
  *     Use OS/2 error messages
  *
@@ -340,24 +343,25 @@ static void DVGiveUpTimeSlice(void)
 
 void ssleep(time_t interval)
 {
-   time_t start = time((time_t *)NULL);
-   time_t left = interval;
+   time_t quit = time((time_t *)NULL) + interval;
+   long left = (long) interval;
 
 /*--------------------------------------------------------------------*/
 /*            Break the spin into chunks ddelay can handle            */
 /*--------------------------------------------------------------------*/
 
-   while ( (left*1000L) > (long) INT_MAX )
+   while ( left > SHRT_MAX / 1000 )
    {
       ddelay( 5000 );         /* Five seconds per pass               */
-      left = max(interval - (time( NULL ) - start),0);
+      if ((left = (long) quit - (long) time( NULL )) <= 0)
+         return;
    } /* while */
 
 /*--------------------------------------------------------------------*/
 /*                 Final delay for the time remaining                 */
 /*--------------------------------------------------------------------*/
 
-   ddelay( (int) (left * 1000L) );
+   ddelay( (KEWSHORT) ((short) left * 1000) );
 
 } /*ssleep*/
 
@@ -376,10 +380,7 @@ void   ddelay   (KEWSHORT interval )
 
 #elif !defined(_Windows)
 
-   struct timeb t;
-   time_t seconds;
-   unsigned last;
-   time_t milliseconds = interval;
+   struct timeb start;
 
 #endif
 
@@ -453,7 +454,7 @@ void   ddelay   (KEWSHORT interval )
 /*                  request to give up our timeslice                  */
 /*--------------------------------------------------------------------*/
 
-   if (milliseconds == 0)     /* Make it compatible with DosSleep    */
+   if (interval == 0)     /* Make it compatible with DosSleep    */
    {
 
       if (RunningUnderWindows())
@@ -464,12 +465,19 @@ void   ddelay   (KEWSHORT interval )
       return;
    } /* if */
 
-   ftime(&t);                 /* Get a starting time                 */
-   last = t.millitm;          /* Save milliseconds portion           */
-   seconds = t.time;          /* Save seconds as well                */
+   ftime(&start);             /* Get a starting time                 */
 
-   while( milliseconds > 0)   /* Begin the spin loop                 */
+   for( ; ; )
    {
+      struct timeb now;
+      long elapsed;
+
+      ftime(&now);           /* See how much time has elapsed */
+      elapsed = ((long) (now.time - start.time) - 1) * 1000L
+                + (now.millitm + 1000 - start.millitm);
+
+      if (elapsed > (long) interval)
+         return;
 
       if (RunningUnderWindows())
          WinGiveUpTimeSlice();
@@ -479,7 +487,7 @@ void   ddelay   (KEWSHORT interval )
 
 #ifdef __TURBOC__
 
-         delay( (short) milliseconds );
+         delay( (short) ((long) interval - elapsed) );
 
 #else
 
@@ -490,20 +498,6 @@ void   ddelay   (KEWSHORT interval )
 #endif
 
       } /* else */
-
-      ftime(&t);              /* Take a new time check               */
-
-      if (t.time == seconds)  /* Same second as last pass?           */
-         milliseconds -= (t.millitm - last); /* Yes --> mSecond delta*/
-      else
-         milliseconds -= 1000 * (int) (t.time - seconds)
-                              - (last - t.millitm);
-                              /* No --> Handle wrap of mSeconds      */
-
-      last = t.millitm;       /* Update last tick indicator          */
-      seconds = t.time;       /* Update this as well; only needed if
-                                 it changed (see above), but it
-                                 kills time (which is our job)       */
    } /* while */
 
 #endif /* FAMILYAPI */

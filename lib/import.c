@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.8 1993/09/26 03:32:27 dmwatt Exp $
+ *    $Id: import.c 1.9 1993/09/27 04:04:06 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.9  1993/09/27  04:04:06  ahd
+ *     Correct creation of pointer to file system name
+ *
  *     Revision 1.8  1993/09/26  03:32:27  dmwatt
  *     Use Standard Windows NT error message module
  *
@@ -54,7 +57,7 @@
 #include <time.h>
 
 #if defined(FAMILYAPI) || defined(__OS2__)
-#define INCL_NOPM             // No need to include OS/2 PM info
+#define INCL_NOPM             /* No need to include OS/2 PM info */
 #define INCL_BASE
 #include <os2.h>
 #elif defined(WIN32)
@@ -201,7 +204,7 @@ static boolean advancedFS( const char *path );
 /*   format for the user.                                            */
 /*-------------------------------------------------------------------*/
 
-void importpath(char *local, char const *canon, char const *remote)
+void importpath(char *local, const char *canon, const char *remote)
 {
    char *s, *out;
    size_t charsetsize;     /* Number of allowed characters in
@@ -232,10 +235,10 @@ void importpath(char *local, char const *canon, char const *remote)
 /*                 Determine if spool file directory                  */
 /*--------------------------------------------------------------------*/
 
-   if ((s = strrchr(canon, '/')) == (char *)NULL)
+   if ((s = strrchr(canon, '/')) == NULL)
    {                          /* File for spooling directory, use
                                  internal character set to avoid
-                                 collisons                           */
+                                 collisions                          */
       static size_t range =  UNIX_END_C - UNIX_START_C + 1;
                               /* Determine unique number characters in
                                  the UNIX file names we are mapping  */
@@ -649,7 +652,7 @@ boolean ValidDOSName( const char *s,
    strcpy( tempname, s);      /* Make a temp copy we can alter       */
 
 /*--------------------------------------------------------------------*/
-/*    Simple file name without extension must be eight chracters      */
+/*    Simple file name without extension must be eight characters     */
 /*    or less                                                         */
 /*--------------------------------------------------------------------*/
 

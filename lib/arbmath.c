@@ -2,9 +2,26 @@
 /*    a r b m a t h . c                                               */
 /*                                                                    */
 /*    Arbitary length math routines for UUPC/extended                 */
-/*                                                                    */
-/*    Copyright (c) 1990, 1991 Andrew H. Derbyshire                   */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                     Standard library includes                      */
@@ -36,10 +53,10 @@ currentfile();
 
 boolean adiv( unsigned char *number,
              const unsigned divisor,
-         unsigned *remain,
+             unsigned *remain,
              const unsigned digits)
 {
-   size_t subscript;
+   unsigned subscript;
    boolean nonzero = FALSE;
    *remain = 0;
 
@@ -63,7 +80,7 @@ void mult(unsigned char *number,
       const unsigned range,
       const unsigned digits)
 {
-   int subscript = digits;
+   unsigned subscript = digits;
    unsigned carry = 0;
 
    while( subscript-- > 0)
@@ -87,7 +104,7 @@ void add(unsigned char *number,
       const unsigned range,
       const unsigned digits)
 {
-   int subscript = digits;
+   unsigned subscript = digits;
    unsigned carry = range;
 
    while(( carry > 0) && ( subscript-- > 0))

@@ -186,9 +186,9 @@ struct direct *readdir(DIR *dirp)
 
    dirp->dirent.d_ino = -1;   /* no inode information */
    strlwr(strcpy(dirp->dirent.d_name, dirp->dirdta.filename));
-   dirp->dirent.d_namlen = strlen(dirp->dirent.d_name);
-   dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
-      ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
+   dirp->dirent.d_namlen = (short) strlen(dirp->dirent.d_name);
+   dirp->dirent.d_reclen = (short) (sizeof(struct direct) - (MAXNAMLEN + 1) +
+      ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4));
 
    dirp->dirent.d_modified = dos2unix( dirp->dirdta.filedate,
                                         dirp->dirdta.filetime );
