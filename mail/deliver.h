@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.26 1999/01/11 05:44:47 ahd Exp $
+ *    $Id: deliver.h 1.27 2000/05/12 12:42:31 ahd v1-13g $
  *
  *    $Log: deliver.h $
+ *    Revision 1.27  2000/05/12 12:42:31  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.26  1999/01/11 05:44:47  ahd
  *    Delete obsolete SMTP retry routine
  *
@@ -70,6 +73,8 @@
 #include "mailaddr.h"
 
 #define POSTMASTER "postmaster"
+#define SMTP_BOUNCE_POSTMASTER "<>"
+#define UUCP_BOUNCE_POSTMASTER "uucp"
 
 size_t Deliver( IMFILE *imf,           /* Input file name            */
                 const MAIL_ADDR *sender,
