@@ -29,10 +29,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.88 1998/03/09 04:28:51 ahd v1-12x $
+#     $Id: borlandc.mak 1.89 1998/04/19 03:58:06 ahd Exp $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.89  1998/04/19 03:58:06  ahd
+#     *** empty log message ***
+#
 #     Revision 1.88  1998/03/09 04:28:51  ahd
 #     Go to version 1.12w
 #
@@ -99,6 +102,13 @@
 
 #.silent
 
+
+# *--------------------------------------------------------------------*
+# *          Version information, shared with nmake builds             *
+# *--------------------------------------------------------------------*
+
+!include "nmakever.mak"
+
 #       The memory model to be built, and other environment
 #       specific information
 
@@ -136,18 +146,6 @@ ENVIRONMENT=MS-DOS
 TDSTRIP=tdstrip
 !endif
 
-
-# *--------------------------------------------------------------------*
-# *   Our release number.  This is updated each time we ship it        *
-# *   out to some unsuspecting user, or sometimes when we do a         *
-# *   major fix even if we don't ship it out to the lusers.  ANY       *
-# *   VERSION NOT DONE ON kendra SHOULD BE TAGGED AS N.NNAm, WHERE     *
-# *   N.NNA IS THE NUMBER UUPC was shipped as, and 'm' any string      *
-# *   to indentify your special version.  Just upping the              *
-# *   distributed version number will confuse you AND me.              *
-# *--------------------------------------------------------------------*
-
-VERS = 1.12z
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
