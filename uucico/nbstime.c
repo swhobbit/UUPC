@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NBSTIME.C 1.3 1993/04/11 00:34:11 ahd Exp $
+ *    $Id: NBSTIME.C 1.4 1993/04/13 02:27:31 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: NBSTIME.C $
+ * Revision 1.4  1993/04/13  02:27:31  dmwatt
+ * Windows/NT updates
+ *
  * Revision 1.3  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -185,17 +188,18 @@ boolean nbstime( void )
    today -= timezone;
 #endif
 
+#ifdef FAMILYAPI
+   today -= timezone;
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
    tp = localtime(&today);    /* Get local time as a record          */
 
-#ifdef WIN32
-   GetSystemTime( &DateTime );
-#endif
-
 #ifdef FAMILYAPI
+
    rc = DosGetDateTime( &DateTime );
    if ( rc != 0 )
    {
@@ -203,9 +207,6 @@ boolean nbstime( void )
       panic();
    }
 
-#endif /* FAMILYAPI */
-
-#if defined( FAMILYAPI )
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
@@ -217,11 +218,23 @@ boolean nbstime( void )
    DateTime.hours   = (UCHAR) tp->tm_hour;
    DateTime.minutes = (UCHAR) tp->tm_min;
    DateTime.seconds = (UCHAR) tp->tm_sec;
+
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
+
+   rc = DosSetDateTime( &DateTime );
+   if ( rc != 0 )
+   {
+      printmsg(0,"Return code from DosGetDateTime %d", rc);
+      panic();
+   }
+
 #elif defined( WIN32 )
+
+   GetSystemTime( &DateTime );
+
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
       (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
@@ -233,14 +246,11 @@ boolean nbstime( void )
    DateTime.wHour    = (WORD) tp->tm_hour;
    DateTime.wMinute  = (WORD) tp->tm_min;
    DateTime.wSecond  = (WORD) tp->tm_sec;
+
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
       (int) DateTime.wHour, (int) DateTime.wMinute, (int) DateTime.wSecond ,
       (int) DateTime.wDayOfWeek );
-
-#endif
-
-#ifdef WIN32  /* See July edition of Programmer's Overview, p. 268-69 */
 
    if (!OpenProcessToken(GetCurrentProcess(),
       TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
@@ -281,19 +291,7 @@ boolean nbstime( void )
       return FALSE;
    }
 
-#endif /* WIN32 */
-
-#ifdef FAMILY_API
-   rc = DosSetDateTime( &DateTime );
-   if ( rc != 0 )
-   {
-      printmsg(0,"Return code from DosGetDateTime %d", rc);
-      panic();
-   }
-#endif /* FAMILYAPI */
-
-#ifndef NONDOS
-#ifdef __TURBOC__
+#elif defined( __TURBOC__ )
 
 /*--------------------------------------------------------------------*/
 /*    If this timezone uses daylight savings and we are in the        */
@@ -305,6 +303,7 @@ boolean nbstime( void )
    stime( &today );
 
 #else /* __TURBOC__ */
+
    tp = localtime(&today);    /* Get local time as a record          */
 
    ddate.day     = (unsigned char) tp->tm_mday;
@@ -334,8 +333,7 @@ boolean nbstime( void )
       panic();
    }
 
-#endif /* __TURBOC__ */
-#endif /* NONDOS */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*             Print debugging information, if requested              */
