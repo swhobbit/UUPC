@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.25 1997/04/24 01:41:01 ahd v1-12u $
+ *    $Id: uucp.c 1.26 1998/03/01 01:46:11 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.26  1998/03/01 01:46:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1997/04/24 01:41:01  ahd
  *    Annual Copyright Update
  *
@@ -451,14 +454,10 @@ int   do_copy(char *src_syst,
       {
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
-         strcpy( dest_file, normalize( dest_file ));
-         p  = src_file;
-         while (*p)
-         {
-            if (*p ==  '\\')
-               *p = '/';
-            p++;
-         }
+
+         strcpy( dest_file, normalize(dest_file));
+         renormalize(src_file);
+
          printmsg(1, "uucp - from \"%s\" - control = %s", src_syst,
                   tmfile);
 
@@ -842,6 +841,7 @@ main(int argc, char *argv[])
 
          if ((*src_system != '\0') && (strcspn(src_file, "*?[") < strlen(src_file)))
          {
+            renormalize(src_file);
             do_uux(src_system, src_system, src_file, dest_system, dest_inter, dest_file);
             continue;
          }
@@ -852,6 +852,7 @@ main(int argc, char *argv[])
 
          if (*dest_inter != '\0')
          {
+            renormalize(src_file);
             do_uux(dest_system, src_system, src_file, "", dest_inter, dest_file);
             continue;
          }
@@ -863,6 +864,7 @@ main(int argc, char *argv[])
          if ((*src_system != '\0') && (!equal(src_system, E_nodename)) &&
              (*dest_system != '\0') && (!equal(dest_system, E_nodename)))
          {
+            renormalize(src_file);
             do_uux(dest_system, src_system, src_file, "", dest_inter, dest_file);
             continue;
          }
