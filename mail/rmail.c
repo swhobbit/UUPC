@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.65 1997/12/15 02:33:58 ahd Exp $
+ *    $Id: rmail.c 1.66 1998/03/01 01:32:49 ahd v1-12v $
  *
  *    $Log: rmail.c $
+ *    Revision 1.66  1998/03/01 01:32:49  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.65  1997/12/15 02:33:58  ahd
  *    Cleanup OS/2 compiler errors
  *
@@ -414,6 +417,7 @@ int main(int argc, char **argv)
    atexit(CloseEasyWin);            /* Auto-close EasyWin on exit      */
 #endif
 
+   /* Never deliver immediately if called from another daemon  */
    if (daemonMode)
       bflag[F_FASTSMTP] = KWFalse;
 
@@ -564,7 +568,7 @@ int main(int argc, char **argv)
       else
          Terminate(EX_TEMPFAIL, imf, datain);
 
-   } /* if (queueMode && remoteMail) */
+   } /* if (queueMode && !(readHeader || daemonMode)) */
 
 /*--------------------------------------------------------------------*/
 /*                    Perform delivery of the mail                    */
@@ -642,6 +646,8 @@ static void ParseFrom(
    char *token;
    char buf[BUFSIZ];
    KWBoolean hit;
+
+   sender->remote = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*           Use UUXQT Information for nodename, if available         */
@@ -770,7 +776,7 @@ static void ParseFrom(
             E_domain,
             compilep,
             compilev,
-            sender->relay ? "UUCP" : "WTFN",
+            sender->relay ? "UUCP" : "unknown protocol",
             " ",
             forwho,
             arpadate());
@@ -791,10 +797,6 @@ static void ParseFrom(
       } /* if */
 
    } /* if */
-
-/*--------------------------------------------------------------------*/
-/*              Determine the requestor user id and node              */
-/*--------------------------------------------------------------------*/
 
 }  /* ParseFrom */
 
@@ -1135,6 +1137,13 @@ static char **Parse822(
 
    sender->address = newstr( sender->address ); /* Make static copy    */
 
+
+/*--------------------------------------------------------------------*/
+/*                 Flag who is running the command                    */
+/*--------------------------------------------------------------------*/
+
+   sender->activeUser = E_mailbox;
+
 /*--------------------------------------------------------------------*/
 /*                     Insert a date field if needed                  */
 /*--------------------------------------------------------------------*/
@@ -1248,6 +1257,7 @@ static KWBoolean DaemonMail(
    if (sender->user == NULL)
       sender->user = E_mailbox;
 
+   sender->activeUser = sender->user;
    sender->host = bflag[F_BANG] ? E_nodename : E_fdomain;
                                     /* Use full address, if possible   */
 
