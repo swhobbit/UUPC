@@ -39,9 +39,12 @@
 */
 
 /*
- *     $Id: DCPSYS.C 1.6 1992/11/19 03:00:51 ahd Exp $
+ *     $Id: DCPSYS.C 1.7 1992/11/21 06:17:08 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.7  1992/11/21  06:17:08  ahd
+ * Transmit only one character in response to P (protocol) request
+ *
  * Revision 1.6  1992/11/19  03:00:51  ahd
  * drop rcsid
  *
@@ -637,7 +640,7 @@ CONN_STATE startup_client( char *sendgrade )
             return CONN_TERMINATE;
          }
 
-         hostp->via = strdup( sysname );
+         hostp->via = newstr( sysname );
          sysname = ANONYMOUS_HOST;
 
          if ((xdebug > 3)  && (xdebug > debuglevel))
@@ -792,19 +795,17 @@ static void setproto(char wanted)
 
 } /*setproto*/
 
-/*
-      s c a n d i r
-
-      Scan spooling directory for C.* files for the remote host
-      (rmtname)
-
-      Assumes the parameter remote is from static storage!
-*/
+/*--------------------------------------------------------------------*/
+/*    s c a n d i r                                                   */
+/*                                                                    */
+/*    Scan spooling directory for C.* files for the remote host       */
+/*    (rmtname)                                                       */
+/*--------------------------------------------------------------------*/
 
 XFER_STATE scandir(char *remote, const char grade )
 {
    static DIR *dirp;
-   static char SaveRemote[HOSTLEN+1] = "";
+   static char *SaveRemote = NULL;
    static char remotedir[FILENAME_MAX];
 
    struct direct *dp;
@@ -819,13 +820,13 @@ XFER_STATE scandir(char *remote, const char grade )
       fwork = NULL;
    }
 
-   if ( (remote == NULL) || (! strlen(SaveRemote) ) ||
+   if ( (remote == NULL) || ( SaveRemote == NULL ) ||
         !equaln(remote, SaveRemote, sizeof SaveRemote - 1 ) )
    {
-      if ( strlen( SaveRemote )) /* Clean up old directory? */
+      if ( SaveRemote != NULL ) /* Clean up old directory? */
       {                          /* Yes --> Do so           */
          closedir(dirp);
-         *SaveRemote = '\0';
+         SaveRemote = NULL;
       } /* if */
 
       if ( remote == NULL )      /* Clean up only, no new search? */
@@ -838,10 +839,8 @@ XFER_STATE scandir(char *remote, const char grade )
          return XFER_NOLOCAL;
       } /* if */
 
-      strncpy( SaveRemote , (char *) remote, sizeof SaveRemote - 1 );
+      SaveRemote = newstr( remote );
                               /* Flag we have an active search    */
-
-      SaveRemote[ sizeof SaveRemote - 1 ] = '\0';
 
    } /* if */
 
@@ -859,7 +858,7 @@ XFER_STATE scandir(char *remote, const char grade )
       else if ((fwork = FOPEN(workfile, "r", TEXT)) == nil(FILE))
       {
          printmsg(0,"scandir: open failed for %s",workfile);
-         *SaveRemote = '\0';
+         SaveRemote = NULL;
          return XFER_ABORT;   /* Very bad, since we just read its
                                  directory entry!                 */
       }
@@ -877,7 +876,7 @@ XFER_STATE scandir(char *remote, const char grade )
 
    printmsg(5, "scandir: \"%s\" not matched", remotedir);
    closedir(dirp);
-   *SaveRemote = '\0';
+   SaveRemote = NULL;
    return XFER_NOLOCAL;
 
 } /*scandir*/

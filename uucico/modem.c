@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.3 1992/11/18 03:48:24 ahd Exp $
+ *    $Id$
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.4  1992/11/19  03:01:21  ahd
+ * drop rcsid
+ *
  * Revision 1.3  1992/11/18  03:48:24  ahd
  * Move check of call window to avoid premature lock file overhead
  *
@@ -56,8 +59,6 @@
 #include "ssleep.h"
 #include "catcher.h"
 #include "ulib.h"
-
-#define MAX_MODEM 8           /* Max length of a modem name          */
 
 char *device = NULL;          /*Public to show in login banner     */
 
@@ -396,7 +397,7 @@ configuration file.");
 static boolean getmodem( const char *brand)
 {
    char filename[FILENAME_MAX];
-   static char modem[MAX_MODEM+1] = "";
+   static char *modem = NULL;
    FILE *fp;
    CONFIGTABLE *tptr;
    size_t subscript;
@@ -405,13 +406,6 @@ static boolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 /*                      Validate the modem name                       */
 /*--------------------------------------------------------------------*/
-
-   if (strlen(brand) > MAX_MODEM)
-   {
-      printmsg(0,"getmodem: Invalid modem %s; must be %d characters or less",
-         brand, modem);
-      return FALSE;
-   }
 
    if (equal(modem, brand))   /* Already initialized?                */
       return TRUE;            /* Yes --> Don't process it again      */
@@ -488,7 +482,7 @@ your %s file is obsolete.", brand, SYSTEMS);
    } /* for */
 
    if ( success )             /* Good modem setup?                   */
-      strcpy( modem, brand);  /* Yes --> Remember it for next time   */
+      modem = newstr(brand);  /* Yes --> Remember it for next time   */
 
    return success;
 
