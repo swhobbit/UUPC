@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.4 1993/08/08 17:39:09 ahd Exp $
+ *    $Id: execute.c 1.5 1993/09/20 04:38:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.5  1993/09/20  04:38:11  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support
+ *
  * Revision 1.4  1993/08/08  17:39:09  ahd
  * Denormalize path for opening on selected networks
  *
@@ -46,6 +51,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <process.h>
+#include <io.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -86,7 +92,7 @@ static boolean batch( const char *input, char *output);
 #ifdef _Windows
 
 /*--------------------------------------------------------------------*/
-/*       e x e c u t e                                                */
+/*       e x e c u t e                       (Windows 3.x version)    */
 /*                                                                    */
 /*       execute external command under Windows                       */
 /*--------------------------------------------------------------------*/
@@ -99,112 +105,37 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
-   static char *myDirectory = NULL;
 
    boolean usebat = (input != NULL) || (output != NULL );
 
-   char batch[FILENAME_MAX];
-   char perfect[FILENAME_MAX];
-   char lpszResult[FILENAME_MAX];  /* String for executable file   */
+   char path[FILENAME_MAX];         /* String for executable file   */
+   char batchFile[FILENAME_MAX];    /* String for batch driver file */
+   char perfect[FILENAME_MAX];      /* String for results test file */
 
    printmsg(2, "execute: command %s %s",
                command,
                parameters == NULL ? "" : parameters );
 
 /*--------------------------------------------------------------------*/
-/*                Determine local environment information             */
-/*--------------------------------------------------------------------*/
-
-   if ( myDirectory == NULL )
-   {
-      char *last;
-
-      *batch = '\0';
-
-      if ( GetModuleFileName( _hInstance, batch, sizeof batch ))
-      {
-         myDirectory = normalize( batch );   // Make slashes
-         last = strrchr(myDirectory, '/');   // Locate file name start
-
-         if ( last == NULL )
-         {
-            printmsg(0,"No path in module name: %s", myDirectory );
-            panic();
-         }
-
-         *last = '\0';                          // Drop module name
-         myDirectory = newstr( myDirectory );   // Save for posterity
-         printmsg(4,"execute: Load directory is %s", myDirectory );
-      }
-      else {
-         printmsg(0,"GetModuleFileName failed! (Buffer = \"%s\")",
-                  batch);
-         panic();
-      }
-
-   } /* if ( myDirectory == NULL ) */
-
-/*--------------------------------------------------------------------*/
 /*                          Locate the command                        */
 /*--------------------------------------------------------------------*/
 
-   if ( internal( command ))
+   if ( internal( command ) )
    {
-      strcpy( lpszResult, command );
+      strcpy( path , command );
       usebat = TRUE;
    }
-   else {
-
-      char *p;
-
-      strcpy( batch, command );
-
-      p = strrchr( batch, '/' ); // Get simple file name
-
-      if ( p == NULL )
-         p = strrchr( batch, '\\' );   // Try again for simple name
-
-      if ( p == NULL )
-         p = batch;                    // Okay, it's ALL simple.
-
-      if ( strchr( p, '.' ) == NULL )  // If no extension ...
-         strcat(p,".bat");             // ... search for .bat
-
-      if ( equali(strrchr( batch, '.' ), ".bat") &&
-          ((p = searchpath( batch )) != NULL ) )   // .bat exist?
-      {
-         if ( usebat )           // Using redirection?
-         {
-            printmsg(0,"Cannot use file redirection to batch file %s",
-                        p );
-            panic();
-         }
-         strcpy( lpszResult, command );   // Use simple name to allow
-                                          // using normal DOS search rules
-         usebat = TRUE;
-      } /* if */
-
-   } /* else */
-
-/*--------------------------------------------------------------------*/
-/*       Not an internal command nor is it a possible batch file;     */
-/*       search for the actual executable file                        */
-/*--------------------------------------------------------------------*/
-
-   if ( ! usebat )
+   else if (batch( command, path ))
    {
-
-      result = FindExecutable((LPSTR) command, myDirectory, lpszResult);
-
-      if ( result <= 32 )
+      if (useBat)                      // Using redirection?
       {
-         printmsg(0,"execute: FindExecutable returned error code %d", result);
-         printmsg(2,"Command to execute for %s is %s",
-                     command,
-                     lpszResult );
-         return -1;
+         printmsg(0,"Cannot use redirection with batch file %s",
+                     path );
+         return -2;
       }
-   }  /* else */
+   } /* else */
+   else if ( !*path )                  // Error returned from search?
+      return -1;                       // Yes --> Error already reported
 
 /*--------------------------------------------------------------------*/
 /*     Generate a batch file for redirected DOS programs, if needed   */
@@ -214,19 +145,19 @@ int execute( const char *command,
    {
       FILE *stream ;
 
-      mktempname( batch, "BAT");
+      mktempname( batchFile, "BAT");
       mktempname( perfect, "TMP");
-      stream = FOPEN( batch, "w", TEXT_MODE );
+      stream = FOPEN( batchFile, "w", TEXT_MODE );
 
       if ( stream == NULL )
       {
-         printerr( batch );
+         printerr( batchFile );
          panic();
       }
 
       fprintf( stream ,
                "@echo off\n%s %s",
-               lpszResult,
+               path,
                parameters == NULL ? "" : parameters );
 
       if ( input != NULL )
@@ -249,7 +180,7 @@ int execute( const char *command,
       }
       fclose( stream );
 
-      strcpy( lpszResult, batch );     // Run the batch command
+      strcpy( path, batchFile );             // Run the batch command
 
    } /* if ( usebat ) */
 
@@ -257,7 +188,7 @@ int execute( const char *command,
 /*                       Actually run the command                     */
 /*--------------------------------------------------------------------*/
 
-   result = SpawnWait( lpszResult,
+   result = SpawnWait( path,
                        parameters,
                        synchronous,
                        foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE );
@@ -275,8 +206,8 @@ int execute( const char *command,
       if (( result == 0 ) && (unlinkResult != 0))
          result = 255;
 
-      if (unlink( batch ))
-         printerr( batch );
+      if (unlink( batchFile ))
+         printerr( batchFile );
 
    } /* if ( usebat ) */
 
@@ -284,14 +215,20 @@ int execute( const char *command,
 /*                     Report results of command                      */
 /*--------------------------------------------------------------------*/
 
-   printmsg( (result == 0 ) ? 8 : 1,"Result of spawn %s is ... %d",
-                                 command, result);
+   printmsg( 4,"Result of spawn %s is ... %d", command, result);
 
    return result;
 
 } /* execute */
 
 #elif defined(WIN32)
+
+/*--------------------------------------------------------------------*/
+/*    e x e c u t e                             (Windows NT version)  */
+/*                                                                    */
+/*    Execute an external program                                     */
+/*--------------------------------------------------------------------*/
+
 int execute( const char *command,
              const char *parameters,
              const char *input,
@@ -300,6 +237,8 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
+   char path[BUFSIZ];
+
 /*--------------------------------------------------------------------*/
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
@@ -332,96 +271,92 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(command))
-   {                             /* Internal command?                */
+   if (internal(strcpy(path,command)) ||
+       batch(command, path))        // Internal or batch command?
+   {
 
       if ( parameters == NULL )
-         result = system( command );
+         result = system( path );
       else {
-         char buf[BUFSIZ];
 
-         strcpy( buf, command );
-         strcat( buf, " ");
-         strcat( buf, parameters );
+         strcat( path, " ");
+         strcat( path, parameters );
 
-         result = system( buf );
+         result = system( path );
+
       } /* else */
 
    } /* if (internal(command)) */
    else  {                       /* No --> Invoke normally           */
-      char buf[BUFSIZ];
       STARTUPINFO si;
       PROCESS_INFORMATION pi;
       void *oldCtrlCHandler;
-      const static char *extensions[] = { ".exe",
-                                          ".bat",
-                                          ".cmd",
-                                          ".com",
-                                          NULL };
-      char *currentExtension = extensions[0];
-      char *filePart;
+
+      if ( ! *path )                // Did search fail?
+         return -2;                 // Yes --> Msg issued, just return
 
       memset(&si, 0, sizeof(STARTUPINFO));
       si.cb = sizeof(STARTUPINFO);
-      si.lpTitle = command;
+      si.lpTitle = (LPSTR)command;
       si.dwFlags = STARTF_USESHOWWINDOW;
       si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
 
-      strcpy( buf, command );
 
-      strlwr(buf);
-
-/* Put the extension on the file */
-      if (strchr(buf, '.') == NULL) {
-         char filename[BUFSIZ];
-
-         while (currentExtension != NULL) {
-            if (0 == SearchPath(NULL, buf, currentExtension, BUFSIZ, filename,
-                  &filePart)) {
-               currentExtension++;
-            } else {
-               strcpy(buf, filePart);
-               break;
-            }
-         }
+      if (parameters != NULL)
+      {
+         strcat( path, " ");
+         strcat( path, parameters );
       }
 
-      if (parameters != NULL) {
-         strcat( buf, " ");
-         strcat( buf, parameters );
+      result = CreateProcess(NULL,
+                             path,
+                             NULL,
+                             NULL,
+                             TRUE,
+                             0,
+                             NULL,
+                             NULL,
+                             &si,
+                             &pi);
+
+      if (!result)                  // Did CreateProcess() fail?
+      {                             // Yes --> Report error
+         printmsg(0, "execute:  CreateProcess failed, error %d",
+                     GetLastError());
       }
+      else {
 
-      result = CreateProcess(NULL, buf, NULL, NULL, TRUE,
-         0, NULL, NULL, &si, &pi);
+         if (synchronous)
+         {
 
-      if (!result) {       /* Did CreateProcess() fail?              */
-         printmsg(0, "execute:  CreateProcess failed, error %d", GetLastError());
-         printerr(command);   /* Yes --> Report error                */
-      } else {
+/*--------------------------------------------------------------------*/
+/*       Set things up so that we ignore Ctrl-C's coming in to the    */
+/*       child, and wait for other application to finish.             */
+/*--------------------------------------------------------------------*/
 
-         result = 0;
-
-         if (synchronous) {
-
-/* Set things up so that we ignore Ctrl-C's coming in to the child */
             oldCtrlCHandler = signal(SIGINT, SIG_IGN);
 
-/* Wait for other app to finish */
             WaitForSingleObject(pi.hProcess, INFINITE);
             GetExitCodeProcess(pi.hProcess, &result);
 
-/* Re-enable Ctrl-C handling */
-            signal(SIGINT, oldCtrlCHandler);
-         }
+            signal(SIGINT, oldCtrlCHandler); // Re-enable Ctrl-C handling
 
-         /* If we're spawning asynchronously, I'm assuming that we
-         don't care about the exit code from the spawned process.  Closing
-         these makes it impossible to get at the old process's exit code. */
+         }  /* if (synchronous) */
+         else
+            result = 0;
+
+/*--------------------------------------------------------------------*/
+/*       If we're spawning asynchronously, we assume that we don't    */
+/*       care about the exit code from the spawned process.           */
+/*       Closing these makes it impossible to get at the old          */
+/*       process's exit code.                                         */
+/*--------------------------------------------------------------------*/
 
          CloseHandle(pi.hProcess);
          CloseHandle(pi.hThread);
 
       } /* else !result */
+
    } /* else internal command */
 
 /*--------------------------------------------------------------------*/
@@ -457,8 +392,7 @@ int execute( const char *command,
 
    return result;
 
-
-}
+} /* execute */
 
 #else
 
@@ -467,7 +401,7 @@ int execute( const char *command,
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       e x e c u t e                                                */
+/*       e x e c u t e                       (OS/2 + DOS version)     */
 /*                                                                    */
 /*       Generic execute external command with optional redirection   */
 /*       of standard input and output                                 */
@@ -481,7 +415,7 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
-   char path[FILENAME_MAX];
+   char path[BUFSIZ];
 
    printmsg(2, "execute: command %s %s",
                command,
@@ -520,19 +454,18 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(command) || batch(command,path))  /* Internal command?*/
+   if (internal(strcpy(path,command)) ||
+       batch(command,path))         // Internal command or batch file?
    {
 
       if ( parameters == NULL )
          result = system( path );
       else {
-         char buf[BUFSIZ];
 
-         strcpy( buf, path );
-         strcat( buf, " ");
-         strcat( buf, parameters );
+         strcat( path, " ");
+         strcat( path, parameters );
 
-         result = system( buf );
+         result = system( path );
       } /* else */
 
    } /* if (internal(command)) */
@@ -604,7 +537,7 @@ int executeCommand( const char *command,
 {
    char *cmdname;
    char *parameters;
-   char buffer[BUFSIZ];
+   char buffer[FILENAME_MAX];
    int result;
 
    strcpy( buffer, command );
@@ -693,6 +626,10 @@ static boolean internal( const char *command )
 
 static boolean batch( const char *input, char *output)
 {
+   char *search = getenv("PATH");
+   char *gotPath;
+   char *period;
+
    const static char *extensions[] = { ".exe",
                                        ".com",
 #if !defined(_DOS) && !defined(_Windows)
@@ -701,37 +638,127 @@ static boolean batch( const char *input, char *output)
                                        ".bat",
                                        NULL };
 
-   int subscript = 0;
+/*--------------------------------------------------------------------*/
+/*                  Validate the search path exists                   */
+/*--------------------------------------------------------------------*/
 
-   while( extensions[subscript] != NULL )
+   if ( search == NULL )
    {
-      char buf[FILENAME_MAX];
-      char *result;
+      printmsg(0,"batch: Unable to retrieve PATH environment variable!");
+      panic();
+   }
 
-      strcpy( buf, input );
-      strcat( buf, extensions[subscript] );
+/*--------------------------------------------------------------------*/
+/*        Determine if we have path, and if we have an extension      */
+/*--------------------------------------------------------------------*/
 
-      result = searchpath(buf);
-      if ( result != NULL )
+   gotPath = strchr( input, '/');
+   if ( gotPath == NULL )
+      gotPath = strchr( input, '\\');
+
+   period = strchr( (gotPath == NULL) ? input : gotPath, '.');
+
+   if ( period != NULL )         //    We have extension?
+   {
+      if ( gotPath )             // Extension + path?
+      {                          // Yes --> Just look for the file
+
+         char *fname = normalize( input );
+
+         if ( access( input, 00))
+            *output = '\0';
+         else
+            strcpy( output, fname );
+
+      } /* if ( gotPath ) */
+      else
+         _searchenv( input, "PATH", output );
+
+      if ( ! *output )           // No file found?
       {
-         if ( output != NULL )
-            strcpy( output, result );
 
-         printmsg(8,"batch: found %s", result);
+         printerr( input );
+         return FALSE;
+
+      }  /* if ( ! *output ) */
 
 #if defined(_DOS) || defined(_Windows)
-         return equal( extensions[subscript] , ".bat" );
+      return equal( period, ".bat" );
 #else
-         return equal( extensions[subscript] , ".cmd" ) ||
-                equal( extensions[subscript] , ".bat" );
+      return equali( period, ".cmd" ) || equali( period, ".bat" );
 #endif
+
+   } /* if ( p != NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*       Walk the path looking for the file's possible types in       */
+/*       the path's directories                                       */
+/*--------------------------------------------------------------------*/
+
+   while( *search )
+   {
+      char base[FILENAME_MAX];
+      int extension = 0;
+
+      if ( gotPath )
+      {
+         strcpy( base, input );
+         search = "";                        // Force this to be last pass
       }
+      else {
 
-      subscript++;
+         char *next = strchr(search,';');    // Find next path component
+         int len;
 
-   }  /* while */
+         if ( next == NULL )
+            len = strlen( search );
+         else
+            len = next - search;
 
-   printmsg(0,"batch: Unable to locate %s in search path",input);
+         memcpy( base, search, len );        // Path for search ...
+         search += len + 1;                  // Step past semicolon
+         if ( base[len - 1 ] != '\\' )       // Ending in back slash?
+            base[len++] = '\\';              // No --> Add one
+         strcpy( base + len , input );       // ... plus file name
+
+      } /* else */
+
+      printmsg(8,
+               "Searching for extension of %s",
+               base );
+
+/*--------------------------------------------------------------------*/
+/*       Search a single directory in a path for a file with          */
+/*       various extensions.                                          */
+/*--------------------------------------------------------------------*/
+
+      while( extensions[extension] != NULL )
+      {
+         strcpy( output, base );
+         strcat( output, extensions[extension] );
+
+         if ( ! access(output, 00 ))
+         {
+
+#if defined(_DOS) || defined(_Windows)
+            return equal( extensions[extension] , ".bat" );
+#else
+            return equal( extensions[extension] , ".cmd" ) ||
+                   equal( extensions[extension] , ".bat" );
+#endif
+         } /* if ( result != NULL ) */
+
+         extension++;
+
+      }  /* while( extensions[extension] != NULL ) */
+
+   } /* while( *search ) */
+
+/*--------------------------------------------------------------------*/
+/*       We could not find the file, report failure to the caller     */
+/*--------------------------------------------------------------------*/
+
+   printmsg(0, "batch: Unable to locate %s in search path", input);
 
    *output = '\0';                  // Flag no file found!
    return FALSE;
