@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.6 1994/01/01 19:20:39 ahd Exp $
+ *    $Id: pwserr.c 1.7 1994/02/19 05:09:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ * Revision 1.7  1994/02/19  05:09:44  ahd
+ * Use standard first header
+ *
  * Revision 1.6  1994/01/01  19:20:39  ahd
  * Annual Copyright Update
  *
@@ -69,7 +72,7 @@ const char UUFAR *LookupWSError(int err);
 /*--------------------------------------------------------------------*/
 
 typedef struct wserr {
-        int errno;
+        int errNo;
         const char UUFAR *str;
 } WSERR;
 
@@ -199,7 +202,7 @@ const char UUFAR *LookupWSError(int err)
 {
    WSERR *pwsErr = wsErrors;
 
-   while (pwsErr->errno != -1 && pwsErr->errno != err)
+   while (pwsErr->errNo != -1 && pwsErr->errNo != err)
       pwsErr++;
 
    return pwsErr->str;
