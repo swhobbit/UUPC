@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.29 1993/10/01 01:17:44 ahd Exp $
+ *    $Id: modem.c 1.30 1993/10/03 20:43:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.30  1993/10/03  20:43:08  ahd
+ * Move slowWrite to script.c
+ *
  * Revision 1.29  1993/10/01  01:17:44  ahd
  * Use atol() for reading port speed
  *
@@ -488,6 +491,9 @@ CONN_STATE callin( const time_t exit_time )
 
       interactive_processing = TRUE;
 
+      setPrty(M_priority, M_prioritydelta );
+                              // Into warp drive for actual transfers
+
       if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
       {                           /* Pick up the telephone               */
          printmsg(1,"callin: Modem failed to connect to incoming call");
@@ -514,8 +520,6 @@ CONN_STATE callin( const time_t exit_time )
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
 
-   setPrty(M_priority, M_prioritydelta );
-                              // Into warp drive for actual transfers
 
    return CONN_LOGIN;
 
@@ -574,6 +578,9 @@ boolean getmodem( const char *brand)
    M_MaxErr= 10;              /* Allowed errors per single packet     */
    M_suite = NULL;            // Use default suite for communications
    M_startupTimeout = 40;     // 40 seconds per message to exchange protocols
+
+   M_priority = 999;
+   M_prioritydelta = 999;
 
 /*--------------------------------------------------------------------*/
 /*                 Open the modem configuration file                  */
