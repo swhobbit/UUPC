@@ -20,15 +20,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.h 1.4 1997/11/25 05:05:36 ahd Exp $
+ *       $Id: smtptrns.h 1.1 1997/11/26 03:34:44 ahd v1-12t $
  *
  *       Revision history:
- *       $Log: smtpclnt.h $
+ *       $Log: smtptrns.h $
+ *       Revision 1.1  1997/11/26 03:34:44  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  */
 
 typedef struct _SMTPTransaction
 {
-   char *sender;                    /* RFC-822 address of sender     */
+   char sender[MAXADDR];            /* RFC-822 address of sender     */
    char **address;                  /* List of addresses             */
    IMFILE *imf;
    size_t addressLength;            /* Size of address array         */
