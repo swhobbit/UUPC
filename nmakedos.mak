@@ -1,10 +1,17 @@
-#       $Id: nmakedos.mak 1.4 1994/12/22 00:05:21 ahd Exp $
+#       $Id: nmakedos.mak 1.5 1995/02/20 00:07:07 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.5  1995/02/20 00:07:07  ahd
+#       Move various common news subroutines into own library
+#       Break common library into two parts to prevent NMAKE failures
+#       Kai Uwe Rommel's news cache support
+#       Support MS C++ 8.0 compiler
+#       General makefile clean up
+#
 #       Revision 1.4  1994/12/22 00:05:21  ahd
 #       Annual Copyright Update
 #
@@ -45,7 +52,7 @@ UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
 EXTRAT  = comm34.com
 LINKER  = link
 STACKSIZE=3000                  # In hex, because /F below is brain dead
-LINKOPT = /batch /far /noignorecase /stack:0x$(STACKSIZE)
+LINKOPT = /batch /map:nul /far /noig /stack:0x$(STACKSIZE)
 ZIPID   = d
 
 # *--------------------------------------------------------------------*
@@ -74,4 +81,4 @@ DBGOPT  = -Odr -Zi -DUDEBUG # -FR$(SBR)\$(@B).sbr
 
 COMMOPT = -nologo -W4 -A$(MODEL) $(DBGOPT)
 CCOPT   = $(COMMOPT) -I$(UULIB) -c -Fo$@
-LDOPT   = $(COMMOPT) -F $(STACKSIZE) -Fe$@
+LDOPT   = $(COMMOPT) -F $(STACKSIZE) -Fmnul -Fe$@
