@@ -2,14 +2,26 @@
 /*    u u s u b . c                                                   */
 /*                                                                    */
 /*    Report summary of UUPC activity                                 */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Copyright (c) 1990-1993 by Kendra Electronic Wonderworks        */
 /*                                                                    */
-/*    Copyright (C) 1991-1993, Andrew H. Derbyshire                   */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUSUB.C 1.2 1992/11/19 03:03:24 ahd Exp $
+ *    $Id: UUSUB.C 1.3 1993/04/11 00:35:46 ahd Exp $
  *
  *    $Log: UUSUB.C $
+ * Revision 1.3  1993/04/11  00:35:46  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/19  03:03:24  ahd
  * drop rcsid
  *
@@ -136,9 +148,9 @@ void main( int argc , char **argv)
        printf("Unknown host \"%s\"\n", name );
    else if (clear_stats)
    {
-       HostReset((const char *)name);
        if ( name == NULL )
          time( &start_stats );
+       HostReset((const char *)name);
    }
    else
        showstats((const char *)name);
