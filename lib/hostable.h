@@ -1,21 +1,32 @@
-/*
-   hostable.h
+/*--------------------------------------------------------------------*/
+/*    h  o s t a b l e . h                                            */
+/*                                                                    */
+/*    Routines included in hostable.c                                 */
+/*--------------------------------------------------------------------*/
 
-   routines included in hostable.c
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
 
-   Copyright (c) 1989, 1990  Andrew H. Derbyshire
-
-   Update History:
-
-   18Mar90     Create from router.c                                  ahd
-   21Dec92     Make all "enum hostatus"'s into unsigned shorts for
-               NT portability                                        dmw
- */
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
 
  /*
-  *   $Id$
+  *   $Id: hostable.h 1.2 1992/12/30 12:52:31 dmwatt Exp $
   *
-  *   $Log$
+  *   $Log: hostable.h $
+  *    Revision 1.2  1992/12/30  12:52:31  dmwatt
+  *    Use shorts for table to insure compatiablity across 32 bit/16 bit OSes
+  *
+  *
+  *   18Mar90     Create from router.c
+  *   21Dec92     Make all "enum hostatus"'s into unsigned shorts for
+  *               NT portability
   */
 
 #ifndef __HOSTABLE
@@ -69,6 +80,10 @@ typedef enum
 /*                          Status information                        */
 /*--------------------------------------------------------------------*/
 
+#if defined(WIN32)
+#pragma pack(1)
+#endif
+
 struct HostStats {
       time_t ltime;              /* Last time this host was called      */
       time_t lconnect;           /* Last time we actually connected     */
@@ -82,6 +97,10 @@ struct HostStats {
       unsigned long packets;     /* Total packets exchanged             */
       unsigned short save_hstatus;
    };
+
+#if defined(WIN32)
+#pragma pack()
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Master hostable                           */
