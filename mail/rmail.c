@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.67 1998/03/08 23:07:12 ahd Exp $
+ *    $Id: rmail.c 1.68 1998/03/16 06:39:32 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.68  1998/03/16 06:39:32  ahd
+ *    Add trumpet remote user support
+ *
  *    Revision 1.67  1998/03/08 23:07:12  ahd
  *    Better support of remote vs. local source of mail
  *
@@ -221,11 +224,7 @@
 /*                           Local defines                            */
 /*--------------------------------------------------------------------*/
 
-#ifdef UDEBUG
-#define LOCAL_BUFSIZ 128
-#else
-#define LOCALBUFSIZ BUFSIZ
-#endif
+#define LOCAL_BUFSIZ BUFSIZ
 
 /*--------------------------------------------------------------------*/
 /*                   Prototypes for internal files                    */
