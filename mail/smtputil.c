@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.3 1998/03/01 01:32:04 ahd v1-13a $
+ *       $Id: smtputil.c 1.4 1998/05/11 01:20:48 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.4  1998/05/11 01:20:48  ahd
+ *       Correct resolution of host name to better determine
+ *       local/neighorhood/remote nature of addresses
+ *
  *       Revision 1.3  1998/03/01 01:32:04  ahd
  *       Annual Copyright Update
  *
@@ -48,7 +52,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.3 1998/03/01 01:32:04 ahd v1-13a $");
+RCSID("$Id: smtputil.c 1.4 1998/05/11 01:20:48 ahd Exp $");
 
 currentfile();
 
@@ -165,7 +169,7 @@ isValidAddress(const char *address,
    char user[MAXADDR];
    char path[MAXADDR];
    struct HostTable *hostp;
-   ourProblem = KWTrue;          /* Assume it's our mail             */
+   *ourProblem = KWTrue;         /* Assume it's our mail             */
 
 /*--------------------------------------------------------------------*/
 /*                    Perform basic syntax checks                     */
@@ -174,7 +178,7 @@ isValidAddress(const char *address,
    if (equal(address, "<>"))
    {
       strcpy(response, "SMTP Postmaster");
-      ourProblem = KWFalse;      /* Too generic to trust             */
+      *ourProblem = KWFalse;     /* Too generic to trust             */
       return KWTrue;
    }
 
@@ -254,7 +258,7 @@ isValidAddress(const char *address,
 /*--------------------------------------------------------------------*/
 
    strcpy(response, "Generic remote address");
-   ourProblem = KWFalse;         /* We don't know, their host        */
+   *ourProblem = KWFalse;         /* We don't know their host        */
    return KWTrue;
 
 } /* isValidAddress */
