@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.25 1993/10/12 01:33:23 ahd Exp rommel $
+ *       $Id: ulibos2.c 1.26 1993/11/06 12:19:26 rommel Exp ahd $
  *       $Log: ulibos2.c $
+ * Revision 1.26  1993/11/06  12:19:26  rommel
+ * Enable DTR and RTS for modem
+ *
  * Revision 1.25  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -382,8 +385,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
    com_dcbinfo.usReadTimeout = 24;     /* Read timeout .25 seconds   */
    com_dcbinfo.fbCtlHndShake = (BYTE) MODE_DTR_CONTROL |
                                (direct ? 0 : MODE_CTS_HANDSHAKE);
-   com_dcbinfo.fbFlowReplace = MODE_RTS_HANDSHAKE;
-                                       /* Unless rquested            */
+
+   com_dcbinfo.fbFlowReplace = 0;   /* No RTS handshake, causes error */
+
    com_dcbinfo.fbTimeout = MODE_READ_TIMEOUT | MODE_NO_WRITE_TIMEOUT;
 
 #ifdef UDEBUG
