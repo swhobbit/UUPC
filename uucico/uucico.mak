@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.18 1994/01/01 19:24:50 ahd Exp $
+#     $Id: uucico.mak 1.19 1994/05/04 02:01:23 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.19  1994/05/04  02:01:23  ahd
+# Allow disable of TDSTRIP
+#
 # Revision 1.18  1994/01/01  19:24:50  ahd
 # Annual Copyright Update
 #
@@ -130,7 +133,7 @@ $(MAP)
 $(LIBRARY)
 $(DEFFILE)
 |
-!if $(WINDOWS)
+!if $(WINDOWSXX)
         rc -I$(UUCICO) &&|
 uucicow  ICON uucicow.ico
 | $<
