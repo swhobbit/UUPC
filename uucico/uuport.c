@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.3 1993/10/01 02:36:45 dmwatt Exp $
+ *    $Id: uuport.c 1.4 1993/10/07 22:56:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.4  1993/10/07  22:56:45  ahd
+ * Adding missing copy of port name
+ *
  * Revision 1.3  1993/10/01  02:36:45  dmwatt
  * Correct increment of pointer to pipe name
  *
@@ -86,6 +89,12 @@ static void usage(const char *program)
 
 int main(int argc, char **argv)
 {
+
+#if defined(_Windows)
+   openlog( NULL );
+   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
+#endif
+
   int file;
   char name[64], pipe[FILENAME_MAX];
   char *ptr, cmd = 'Q';
