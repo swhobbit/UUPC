@@ -4,6 +4,25 @@
 /*    Routines in address.c                                           */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
 void user_at_node( const char *address,
                   char *hispath,
                   char *hisnode,
