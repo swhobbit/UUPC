@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: USERTABL.C 1.3 1993/04/11 00:31:04 ahd Exp $
+ *    $Id: USERTABL.C 1.4 1993/04/15 03:17:21 ahd Exp $
  *
  *    $Log: USERTABL.C $
+ *     Revision 1.4  1993/04/15  03:17:21  ahd
+ *     Use standard define for undefined user names
+ *
  *     Revision 1.3  1993/04/11  00:31:04  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -37,6 +40,7 @@
 #include "usertabl.h"
 #include "hostable.h"
 #include "security.h"
+#include "pushpop.h"
 
 #define MAXUSERS  100         /* max number of unique users in PASSWD */
 
@@ -200,6 +204,9 @@ static size_t loaduser( void )
       return UserElements;
    } /* if */
 
+   PushDir( E_confdir );      // Use standard reference point for
+                              // for directories
+
 /*--------------------------------------------------------------------*/
 /*                 The password file is open; read it                 */
 /*--------------------------------------------------------------------*/
@@ -248,6 +255,8 @@ static size_t loaduser( void )
          userp->sh = newstr(token); /* Yes --> Copy it in            */
 
    }  /* while */
+
+   PopDir();
 
    fclose(stream);
    users = realloc(users, UserElements *  sizeof(*users));

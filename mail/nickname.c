@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ALIAS.C 1.2 1992/11/22 21:06:14 ahd Exp $
+ *    $Id: ALIAS.C 1.3 1993/04/11 00:33:05 ahd Exp $
  *
  *    $Log: ALIAS.C $
+ * Revision 1.3  1993/04/11  00:33:05  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/22  21:06:14  ahd
  * Use strpool for memory allocation
  *
@@ -47,6 +50,7 @@
 #include "hlib.h"
 #include "alias.h"
 #include "address.h"
+#include "expath.h"
 
 static size_t AliasCount = 0;
 
@@ -298,11 +302,15 @@ size_t LoadAliases(void)
 
    if (E_aliases != NULL )    /* Did the user specify aliases file?  */
    {
+      char fname[FILENAME_MAX];
 
-      ff = FOPEN(E_aliases, "r",TEXT_MODE);
+      strcpy( fname, E_aliases);
+      expand_path( fname, E_homedir, E_homedir , NULL );
+      ff = FOPEN(fname , "r",TEXT_MODE);
+
       if (ff == NULL)
       {
-         printerr(E_aliases);
+         printerr(fname);
          return elements;
       } /* if */
 
