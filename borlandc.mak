@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.77 1995/03/08 02:56:22 ahd v1-12o $
+#     $Id: makefile 1.78 1995/09/24 19:05:05 ahd v1-12p $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.78  1995/09/24 19:05:05  ahd
+#     Update to 1.12p
+#
 #     Revision 1.77  1995/03/08 02:56:22  ahd
 #     Update version number
 #
@@ -530,9 +533,9 @@ REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)21.ZIP
 OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)22.ZIP
 NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)23.ZIP
 !else
-REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)D1.ZIP
-OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)D2.ZIP
-NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)D3.ZIP
+REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)B1.ZIP
+OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)B2.ZIP
+NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)B3.ZIP
 WREQZIPV = $(ARCHIVE)\$(ZIPPREFIX)W1.ZIP
 WOPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)W2.ZIP
 #WNEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)W3.ZIP
