@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: address.c 1.5 1993/06/21 02:17:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: address.c $
+ * Revision 1.5  1993/06/21  02:17:31  ahd
+ * Correct errors in mail routing via HOSTPATH
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -362,8 +365,9 @@ char *HostAlias( char *input)
 /*                        Announce our results                        */
 /*--------------------------------------------------------------------*/
 
-   printmsg( 5 ,
-            "HostAlias: \"%s\" is alias of \"%s\"",input,hostp->realname);
+   printmsg( 5 , "HostAlias: \"%s\" is alias of \"%s\"",
+                  input,
+                  hostp->realname);
 
    return hostp->realname;
 
@@ -391,6 +395,7 @@ char *HostPath( char *input, char *best)
    if (hostp->hstatus == gatewayed)  /* Gatewayed?                    */
       return hostp->hostname;      /* Yes --> Use name for path       */
 
+
 /*--------------------------------------------------------------------*/
 /*      If we already chased this chain, return result to caller      */
 /*--------------------------------------------------------------------*/
@@ -399,9 +404,14 @@ char *HostPath( char *input, char *best)
    {
       if ( hostp->via == NULL )
       {
-         printmsg(0,"Routing table loop discovered at host %s",
+         if ( hostp->aliased &&
+              ! equali(hostp->hostname,hostp->realname))
+            hostp->via = best;
+         else {
+            printmsg(0,"Routing table loop discovered at host %s",
                      hostp->hostname);
-         panic();
+            panic();
+         }
 
       } /* if ( hostp->via == NULL ) */
 
@@ -431,6 +441,7 @@ char *HostPath( char *input, char *best)
       } /* if ( hostp->via == NULL ) */
       else
          hostp->via = HostPath( alias, best);
+
    } /* if ( hostp->via == NULL ) */
 
    hostp->via = HostPath( hostp->via, best );
