@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.12 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: commlib.c 1.13 1993/11/16 05:37:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.13  1993/11/16  05:37:01  ahd
+ * Up 16 bit buffer size
+ *
  * Revision 1.12  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -108,6 +111,7 @@ typedef struct _COMMSUITE {
         ref_GetSpeed            GetSpeed;
         ref_CD                  CD;
         ref_WaitForNetConnect   WaitForNetConnect;
+        ref_GetComHandle        GetComHandle;
         boolean  network;
         boolean  buffered;
         char     *netDevice;           /* Network device name         */
@@ -153,6 +157,7 @@ ref_hangup hangupp;
 ref_GetSpeed GetSpeedp;
 ref_CD CDp;
 ref_WaitForNetConnect WaitForNetConnectp;
+ref_GetComHandle GetComHandlep;
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -167,6 +172,8 @@ static boolean network = FALSE;  /* Current communications suite is   */
                                  /* network oriented                  */
 
 currentfile();
+
+int dummyGetComHandle( void );
 
 /*--------------------------------------------------------------------*/
 /*       c h o o s e C o m m u n i c a t i o n s                      */
@@ -184,10 +191,13 @@ boolean chooseCommunications( const char *name )
           nGetSpeed,
           nCD,
           (ref_WaitForNetConnect) NULL,
-          FALSE,                       /* Not network based           */
 #if defined(BIT32ENV) || defined(FAMILYAPI)
+          nGetComHandle,
+          FALSE,                       /* Not network based           */
           TRUE,                        /* Buffered under OS/2 and Windows NT  */
 #else
+          dummyGetComHandle,
+          FALSE,                       /* Not network based           */
           TRUE,                        /* Unbuffered for DOS, Windows 3.x  */
 #endif
           NULL                         /* No network device name      */
@@ -199,6 +209,7 @@ boolean chooseCommunications( const char *name )
           fGetSpeed,
           fCD,
           (ref_WaitForNetConnect) NULL,
+          dummyGetComHandle,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
@@ -209,6 +220,7 @@ boolean chooseCommunications( const char *name )
           iGetSpeed,
           iCD,
           (ref_WaitForNetConnect) NULL,
+          dummyGetComHandle,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
@@ -222,6 +234,7 @@ boolean chooseCommunications( const char *name )
           tGetSpeed,
           tCD,
           tWaitForNetConnect,
+          dummyGetComHandle,
           TRUE,                        /* Network oriented            */
           TRUE,                        /* Uses internal buffer        */
           "tcptty",                    /* Network device name         */
@@ -235,6 +248,7 @@ boolean chooseCommunications( const char *name )
           pGetSpeed,
           pCD,
           pWaitForNetConnect,
+          dummyGetComHandle,
           TRUE,                        /* Network oriented            */
           TRUE,                        /* Uses internal buffer        */
           "pipe",                      /* Network device name         */
@@ -281,6 +295,7 @@ boolean chooseCommunications( const char *name )
    GetSpeedp          = suite[subscript].GetSpeed;
    CDp                = suite[subscript].CD;
    WaitForNetConnectp = suite[subscript].WaitForNetConnect;
+   GetComHandlep      = suite[subscript].GetComHandle;
    network            = suite[subscript].network;
 
 /*--------------------------------------------------------------------*/
@@ -434,4 +449,17 @@ void traceData( const char *data,
 boolean IsNetwork(void)
 {
    return network;         /* Preset when suite initialized           */
+}
+
+
+/*--------------------------------------------------------------------*/
+/*       d u m m y G e t C o m H a n d l e                            */
+/*                                                                    */
+/*       Return invalid communications handle for unsupported         */
+/*       environments                                                 */
+/*--------------------------------------------------------------------*/
+
+int dummyGetComHandle( void )
+{
+   return -1;
 }

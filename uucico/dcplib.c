@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.8 1993/10/12 01:33:59 ahd Exp $
+ *    $Id: dcplib.c 1.9 1993/10/28 12:19:01 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.9  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.8  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *
@@ -77,7 +80,6 @@
 #include <ctype.h>
 #include <direct.h>
 #include <dos.h>
-#include <process.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -102,6 +104,7 @@
 #include "dcplib.h"
 #include "dcpsys.h"
 #include "hlib.h"
+#include "execute.h"
 #include "hostable.h"
 #include "import.h"
 #include "modem.h"
@@ -192,7 +195,6 @@ boolean login(void)
 #endif
 
    wmsg(line,0);
-   ddelay(250);
 
 /*--------------------------------------------------------------------*/
 /*    Display a login prompt until we get a printable character or    */
@@ -353,17 +355,18 @@ boolean loginbypass(const char *user)
 static void LoginShell( const   struct UserTable *userp )
 {
 
+   char line[128];
+
 #if defined(_Windows)
-        char line[128];
 
 /*--------------------------------------------------------------------*/
 /*           No special shell support under Windows, sorry!           */
 /*--------------------------------------------------------------------*/
 
-        sprintf(line,
-           "login: special shell %s not supported. Goodbye.\r\n",
-                userp->sh);
-        wmsg(line, 0);
+   sprintf(line,
+          "LoginShell: special shell %s not supported. Goodbye.\r\n",
+           userp->sh);
+   wmsg(line, 0);
    printmsg(0, "Login with special shell %s, not supported.", userp->sh);
    return;
 
@@ -373,6 +376,8 @@ static void LoginShell( const   struct UserTable *userp )
    char *path;
    char *args;
    int   rc;
+   char argstring[255];
+   char *s = argstring;
 
 /*--------------------------------------------------------------------*/
 /*              Get the program to run and its arguments              */
@@ -380,23 +385,91 @@ static void LoginShell( const   struct UserTable *userp )
 
    shellstring = strdup(userp->sh);
                               /* Copy user shell for parsing   */
-   path = strtok(shellstring," \t");   /* Get program name  */
+   checkref(shellstring);
+   path = strtok(shellstring,WHITESPACE);   /* Get program name  */
+
    args = strtok(NULL,"");    /* Get rest of arg string     */
 
-   printmsg(1,"LoginShell: Invoking %s in directory %s",
-         userp->sh, userp->homedir);
+   if ( args == NULL )
+      *argstring = '\0';
+   else {
+      strncpy( argstring, args, sizeof argstring - 1 );
+      argstring[ sizeof argstring - 1 ] = '\0';
+   }
 
-   ddelay(250);            /* Wait for port to stablize     */
+   path = newstr(path);
+   free( shellstring );
+
+/*--------------------------------------------------------------------*/
+/*                 Perform command line substitution                  */
+/*--------------------------------------------------------------------*/
+
+   printmsg(4,"LoginShell: command %s, parameters %s",
+            path, argstring );
+
+   if ( args != NULL )
+   while( (s = strchr( s, '%')) != NULL ) /* Get next percent on line */
+   {
+      char *insert;
+      int len;
+
+      switch( s[1] )                /* Look at next character        */
+      {
+         case '%':
+            insert = "%";           /* Literal percent size          */
+            break;
+
+         case 'l':                  /* Com port handle               */
+            sprintf(line,"%d", GetComHandle());
+            insert = line;
+            break;
+
+         case 'u':                  /* User id                       */
+            insert = (char *) userp->uid;
+            break;
+
+         case 'p':
+            insert = M_device;      /* Port name                     */
+            break;
+
+         case 's':
+            sprintf( line,"%lu", (long unsigned) GetSpeed());
+            insert = line;
+            break;                  /* Current line speed            */
+
+         default:
+            printmsg(0,"LoginShell: Unknown substitution character %c",
+                     s[1] );
+            line[0] = s[1];
+            line[1] = '\0';
+            insert = line;
+            break;
+
+      } /* switch */
+
+      len = strlen( insert );
+      printmsg(4,"Inserting %s into %s",
+                 insert,
+                 argstring );
+      if ( len != 2 )               /* Make room for new string      */
+         memmove( s + len, s + 2, strlen(s + 2));
+
+      memcpy( s, insert, len );     /* Move in the string            */
+
+      s += len;                     /* Step past the string          */
+
+   } /* while */
 
 /*--------------------------------------------------------------------*/
 /*       Run the requested program in the user's home directory       */
 /*--------------------------------------------------------------------*/
 
-   PushDir(userp->homedir);/* Switch to user's home dir     */
-   if (args == NULL)
-      rc = spawnl(P_WAIT, path, path, NULL);
-   else
-      rc = spawnl(P_WAIT, path, path, args, NULL);
+   PushDir(userp->homedir);         /* Switch to user's home dir     */
+
+
+   printmsg(1,"LoginShell: Invoking %s %s in directory %s",
+         path, argstring, userp->homedir);
+   rc = execute( path, args ? argstring : NULL, NULL, NULL, TRUE, FALSE );
 
    PopDir();               /* Return to original directory  */
 
@@ -404,12 +477,7 @@ static void LoginShell( const   struct UserTable *userp )
 /*                     Report any errors we found                     */
 /*--------------------------------------------------------------------*/
 
-   if ( rc < 0 )           /* Error condition?              */
-   {                        /* Yes --> Report it to the user */
-      printmsg(0,"LoginShell: Unable to execute user shell");
-      printerr(path);
-   }
-   else                    /* No --> Report normal result   */
+   if ( rc > 0 )              /* Error condition?              */
       printmsg(rc == 0 ? 4 : 0,"LoginShell: %s return code is %d",
                path,
                rc);

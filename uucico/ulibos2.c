@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.30 1993/11/15 05:43:29 ahd Exp $
+ *       $Id: ulibos2.c 1.31 1993/11/16 05:37:01 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.31  1993/11/16  05:37:01  ahd
+ * Double buffer I/O to reduce overruns
+ *
  * Revision 1.30  1993/11/15  05:43:29  ahd
  * Save/restore port status for dain bramaged programs like TCP/IP
  * Normalize, shorten error messages
@@ -538,6 +541,18 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
 #endif
+
+/*--------------------------------------------------------------------*/
+/*                           Validate input                           */
+/*--------------------------------------------------------------------*/
+
+   if ( wanted > commBufferLength )
+   {
+      printmsg(0,"nsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -1456,3 +1471,16 @@ static void ShowError( const USHORT status )
       mannounce(FRAMING_ERROR,       status, "  Framing Error"));
 
 } /* ShowError */
+
+/*--------------------------------------------------------------------*/
+/*          n G e t C o m H a n d l e                                 */
+/*                                                                    */
+/*          Return handle to open port                                */
+/*--------------------------------------------------------------------*/
+
+int nGetComHandle( void )
+{
+
+   return (int) com_handle;
+
+}  /* nGetComHandle */

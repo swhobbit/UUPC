@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.12 1993/11/08 04:46:49 ahd Exp $
+ *       $Id: ulibnmp.c 1.13 1993/11/14 20:51:37 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.13  1993/11/14  20:51:37  ahd
+ * Normalize internal speed for network links to 115200 (a large number)
+ *
  * Revision 1.12  1993/11/08  04:46:49  ahd
  * Up buffer size for named pipes
  *
@@ -320,39 +323,17 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
    time_t stop_time ;
    time_t now ;
 
+   boolean firstPass = TRUE;
+
    reads++;
 
    if ( wanted > commBufferLength )
    {
-      printmsg(0,"psread: Overlength read!");
+      printmsg(0,"nsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
       panic();
    }
-
-/*--------------------------------------------------------------------*/
-/*      Perform a buffered read if our lookaside buffer is empty      */
-/*--------------------------------------------------------------------*/
-
-   if ( ! commBufferUsed )
-   {
-      rc = DosRead( pipeHandle,
-                    commBuffer,
-                    commBufferLength,
-                    &received );
-
-      if ( rc == ERROR_NO_DATA)
-         commBufferUsed = 0;
-      else if ( rc )
-      {
-         printmsg(0,"psread: Read from pipe for %d bytes failed.",
-                     commBufferLength );
-         printOS2error("DosRead", rc );
-      }
-      else {
-         commBufferUsed = received;
-         traceData( commBuffer, commBufferUsed , FALSE );
-      }
-
-   } /* if ( ! commBufferUsed ) */
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -387,7 +368,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
    do {
-      USHORT needed =  (USHORT) wanted - commBufferUsed;
 
 /*--------------------------------------------------------------------*/
 /*                     Handle an aborted program                      */
@@ -404,9 +384,13 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          return 0;
       }
 
-      readSpins++;
+      if ( firstPass )
+         firstPass = FALSE;
+      else {
+         readSpins++;
 
-      ddelay(readWait);
+         ddelay(readWait);
+      } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                 Read the data from the named pipe                  */
@@ -414,7 +398,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 
       rc = DosRead( pipeHandle,
                     commBuffer + commBufferUsed,
-                    needed,
+                    commBufferLength - commBufferUsed,
                     &received );
 
       if ( rc == ERROR_NO_DATA)
@@ -424,7 +408,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
       else if ( rc )
       {
          printmsg(0,"psread: Read from pipe for %d bytes failed.",
-                  needed);
+                     (int) (commBufferLength - commBufferUsed));
          printOS2error("DosRead", rc );
          commBufferUsed = 0;
          return 0;
@@ -448,12 +432,15 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       commBufferUsed += received;
-      if ( commBufferUsed == wanted )
-      {
-         memmove( output, commBuffer, commBufferUsed);
-         commBufferUsed = 0;
 
-         return wanted;
+      if (commBufferUsed >= wanted)
+      {
+         memcpy( output, commBuffer, wanted );
+         commBufferUsed -= wanted;
+         if ( commBufferUsed )   /* Any data left over?              */
+            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+                                 /* Yes --> Save it                  */
+         return wanted + commBufferUsed;
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -473,6 +460,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
               (int) wanted,
               (int) timeout,
               (int) commBufferUsed );
+
    return commBufferUsed;
 
 } /* psread */
