@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.13 1994/12/09 03:52:46 ahd v1-12k $
+ *       $Id: inews.c 1.14 1994/12/22 00:24:43 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.14  1994/12/22 00:24:43  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.13  1994/12/09 03:52:46  ahd
  * Generate 'U' line first in X.* files to operate with brain dead MKS
  *
@@ -78,7 +81,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.13 1994/12/09 03:52:46 ahd v1-12k $";
+      "$Id: inews.c 1.14 1994/12/22 00:24:43 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -267,10 +270,21 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
   rewind(input);
 
   while (fgets(buffer, size, input) != NULL)
-    if (strncmp(buffer, name, strlen(name)) == 0)
-      return 0;
+  {
+    if (strncmp(buffer, name, strlen(name)) == 0)  /* Find header?   */
+      return 0;                        /* Yes, return success        */
+
+    if ( equal( buffer, "\n" ))        /* Run out of header to scan? */
+       return -1;                      /* Yes -> Return failure      */
+  }
+
+/*--------------------------------------------------------------------*/
+/*       We read the entire header and never found the requested      */
+/*       header.  Return failure to the caller                        */
+/*--------------------------------------------------------------------*/
 
   return -1;
+
 } /* get_header */
 
 static int complete_header(FILE *input, FILE *output, char *origin)
