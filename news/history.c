@@ -4,6 +4,18 @@
 /*    News history file maintenance for UUPC/extended.                */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /* new version, rewritten for history-based news database
  *
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
@@ -13,9 +25,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.9 1995/01/07 16:21:23 ahd Exp $";
+      "$Id: history.c 1.10 1995/01/29 14:03:29 ahd v1-12n $";
 
 /* $Log: history.c $
+/* Revision 1.10  1995/01/29 14:03:29  ahd
+/* Clean up IBM C/Set compiler warnings
+/*
 /* Revision 1.9  1995/01/07 16:21:23  ahd
 /* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
 /*
@@ -329,13 +344,14 @@ char *purge_article(char *histentry, char **groups)
 /*    Cancel an article in the database                               */
 /*--------------------------------------------------------------------*/
 
-void cancel_article(void *hdbm_file, const char *messageID)
+KWBoolean
+cancel_article(void *hdbm_file, const char *messageID)
 {
   datum key, val;
   char *groups;
 
   if (hdbm_file == NULL)
-    return;
+    return KWFalse;
 
   key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
@@ -343,14 +359,17 @@ void cancel_article(void *hdbm_file, const char *messageID)
   val = dbm_fetch(hdbm_file, key);
 
   if (val.dptr == NULL)
-    printmsg(4,"Cannot find article to cancel in history");
-  else
   {
+    printmsg(4,"Cannot find article to cancel in history");
+    return KWFalse;
+  }
+
     groups = strchr(val.dptr, ' ') + 1;  /* date */
     groups = strchr(groups, ' ') + 1;    /* size */
     printmsg(0,"cancelling %s", groups);
     purge_article(val.dptr, NULL);
     delete_histentry(hdbm_file, messageID);
-  }
+
+  return KWTrue;
 
 } /* cancel_article */
