@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.9 1993/09/20 04:36:42 ahd Exp $
+#       $Id: lib.mak 1.10 1993/09/24 03:42:24 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#    Revision 1.10  1993/09/24  03:42:24  ahd
+#    Add OS/2 error module (pos2err.c)
+#
 #    Revision 1.9  1993/09/20  04:36:42  ahd
 #    TCP/IP support from Dave Watt
 #    't' protocol support
@@ -67,7 +70,7 @@ LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
          $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
 LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
          $(OBJ)\stater.obj $(OBJ)\usertabl.obj $(OBJ)\validcmd.obj\
-         $(OBJ)\strpool.obj $(OBJ)\trumpet.obj\
+         $(OBJ)\strpool.obj $(OBJ)\trumpet.obj $(OBJ)\usrcatch.obj \
          $(TIMESTMP)
 LIBDOS = $(OBJ)\scrsize.obj $(OBJ)\ndir.obj
 LIBOS2 = $(OBJ)\scrsize2.obj $(OBJ)\ndiros2.obj  $(OBJ)\pos2err.obj
@@ -109,7 +112,15 @@ $(TIMESTMP): $(LIB)\timestmp.c $(UUPCCFG) $(REGEN) \
 # *--------------------------------------------------------------------*
 
 $(UUPCLIB): $(LIBALL)
-        &TLIB /C /E $< -+$?
+#       &TLIB /C /E $< -+$?
+        - erase $(WORKFILE)
+!if $d(__OS2__)
+        &echo -+$? ^& >> $(WORKFILE)
+!else
+        &echo -+$? & >> $(WORKFILE)
+!endif
+        echo ,NUL >> $(WORKFILE)
+        TLIB /C /E $< @$(WORKFILE)
         - erase $(TEMP)\$&.BAK
 
 # *--------------------------------------------------------------------*
