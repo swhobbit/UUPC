@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.20 1999/01/08 02:21:01 ahd Exp $
+ *       $Id: smtprecv.c 1.21 1999/01/11 05:43:36 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.21  1999/01/11 05:43:36  ahd
+ *       Make binary 0 in data stream temp error
+ *
  *       Revision 1.20  1999/01/08 02:21:01  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -110,7 +113,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.20 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.21 1999/01/11 05:43:36 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -256,7 +259,7 @@ commandMAIL(SMTPClient *client,
    lenHost = strlen(client->connection.hostName);
    lenDomain  = strlen(E_localdomain);
 
-   if (equal(client->connection.hostName, "localhost") ||
+   if (client->connection.localhost ||
        ((lenDomain <= lenHost) &&
          equal(E_localdomain,
                client->connection.hostName + lenHost - lenDomain)))

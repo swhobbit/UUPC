@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.19 1999/01/08 02:21:05 ahd Exp $
+ *       $Id: smtpclnt.c 1.20 1999/01/17 17:19:16 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.20  1999/01/17 17:19:16  ahd
+ *       Give priority to accepting new connections
+ *       Make initialization of slave and master connections more consistent
+ *
  *       Revision 1.19  1999/01/08 02:21:05  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -95,6 +99,7 @@
 #include "smtpclnt.h"
 #include "smtpverb.h"
 #include "smtpnetw.h"
+#include "smtpnett.h"
 #include "smtpdns.h"
 #include "ssleep.h"
 #include "catcher.h"
@@ -108,7 +113,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpclnt.c 1.19 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.20 1999/01/17 17:19:16 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -170,10 +175,11 @@ initializeClient(SOCKET handle)
    memset(client->receive.buffer, 0, client->receive.allocated);
 #endif
 
-   printmsg(1, "%s: Client %d accepted from %s",
+   printmsg(1, "%s: Client %d accepted from %s %s",
                mName,
                getClientSequence(client),
-               client->connection.hostName);
+               client->connection.hostName,
+               client->connection.hostAddr);
 
    return client;
 
