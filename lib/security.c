@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.11 1993/10/30 02:29:46 ahd Exp $
+ *    $Id: security.c 1.12 1993/10/31 15:51:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.12  1993/10/31  15:51:11  ahd
+ *     Allow configuring permissions file name
+ *
  *     Revision 1.11  1993/10/30  02:29:46  ahd
  *     Trim trailing slash from root directories
  *
@@ -792,7 +795,10 @@ boolean ValidateFile( const char *input,  /* Full path name           */
 /*--------------------------------------------------------------------*/
 
    if ( securep == NULL )
+   {
+      printmsg(0,"Security not initialized for host");
       panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Handle local system                         */
