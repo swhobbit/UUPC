@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.25 1995/01/07 16:22:59 ahd Exp $
+ *    $Id: uupoll.c 1.26 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.26  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.25  1995/01/07 16:22:59  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -177,7 +180,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.25 1995/01/07 16:22:59 ahd Exp $";
+         "$Id: uupoll.c 1.26 1995/02/20 17:28:43 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -272,7 +275,7 @@ currentfile();
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
- void main( int argc , char *argv[] )
+ main( int argc , char *argv[] )
  {
 
    int option;
@@ -571,6 +574,7 @@ currentfile();
          if (nopassive)
             busywork(next < cleannext ? next : cleannext);
          else {
+
             time_t spin;
             returnCode = passive(next < cleannext ? next : cleannext ,
                                  debuglevel,
@@ -580,12 +584,15 @@ currentfile();
 
             if (returnCode == 69 )  /* Error in UUCICO?              */
             {                       /* Yes --> Allow time to fix it  */
+
                spin = now + wait;   /* Figure next wait              */
                wait *= 2 ;          /* Double wait for next time     */
                busywork( spin > next ? next : spin );
                                     /* But only wait till next poll  */
+
             } /* if (returnCode == 69 ) */
             else {
+
                wait = 10;
 
                if (returnCode == 0)
@@ -599,8 +606,7 @@ currentfile();
                   else
                      poll = KWFalse;
 
-                  if ( ! autoUUXQT )
-                     uuxqt( debuglevel, KWTrue );
+                  uuxqt( debuglevel, autoUUXQT );
 
                   if ( poll )
                   {
@@ -659,7 +665,7 @@ currentfile();
 /*                          End of main loop                          */
 /*--------------------------------------------------------------------*/
 
-   uuxqt( debuglevel, KWTrue  );  /* One last call to UUXQT            */
+   uuxqt( debuglevel, KWFalse );  /* One last call to UUXQT            */
 
 #ifndef NOCBREAK
    if (!cbrk)
@@ -668,7 +674,8 @@ currentfile();
 
    printmsg(2,"UUPOLL exiting with return code %d", returnCode );
 
-   exit(returnCode);
+   return returnCode;
+
  } /* main */
 
 /*--------------------------------------------------------------------*/
@@ -788,13 +795,14 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
 
       result = runCommand(buf, KWTrue);
 
-      if (( result == 0 ) && ! autoUUXQT )
-         uuxqt( debuglevel, KWTrue );
+      if (( result == 0 ) )
+         uuxqt( debuglevel, autoUUXQT );
 
       printmsg(2,"active: Return code = %d", result );
 
       return result;
    }
+
  } /* active */
 
 /*--------------------------------------------------------------------*/
@@ -839,23 +847,28 @@ static void busywork( time_t next)
  {
    int result;
 
-#ifdef DEBUG
+#ifdef UDEBUG
    FILE *stream = NULL;
 #endif
 
    setTitle("Executing %s", command );
 
    printf("Executing command: %s\n",command);
-#ifdef DEBUG                  /* ahd */
+
+#ifdef UDEBUG                  /* ahd */
+
    stream = fopen("UUPOLL.LOG","a");
+
    if (stream == NULL)
    {
       printerr("UUPOLL.LOG");
       panic();
    } /* if */
+
    fprintf(stream, "%s: %s\n",arpadate(), command);
    fclose(stream);
-#endif /* DEBUG */
+
+#endif /* UDEBUG */
 
    result = executeCommand( command, NULL, NULL, sync, KWFalse );
 
@@ -1017,23 +1030,23 @@ static hhmm firstpoll(hhmm interval)
 /*    Execute the UUXQT program to run files received by UUCICO       */
 /*--------------------------------------------------------------------*/
 
- static void uuxqt( const int debuglevel, const KWBoolean sync)
+ static void uuxqt( const int debuglevel, const KWBoolean local)
  {
    int result;
    char buf[128];             /* Buffer for runCommand() commands     */
 
    sprintf(buf,"uuxqt -x %d", debuglevel);
 
-   result = runCommand( buf, sync );
+   if ( local )
+      sprintf( buf + strlen ( buf ), " -s %s", E_nodename );
+
+   result = runCommand( buf, KWTrue );
 
    if ( result != 0 )
    {
       printf("UUXQT failed with a return code of %d\n",result);
       panic();
    } /* if ( result != 0 ) */
-
-   if ( ! sync )
-      ssleep(10);
 
  } /* uuxqt */
 
@@ -1044,9 +1057,11 @@ static hhmm firstpoll(hhmm interval)
 /*--------------------------------------------------------------------*/
 
 #ifdef __TURBOC__
+
 #pragma argsused
 #elif _MSC_VER >= 700
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
+
 #endif
 
  void
