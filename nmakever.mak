@@ -5,7 +5,7 @@
 # *--------------------------------------------------------------------*
 
 # *--------------------------------------------------------------------*
-# *      Changes Copyright (c) 1989-1999 by Kendra Electronic          *
+# *      Changes Copyright (c) 1989-2000 by Kendra Electronic          *
 # *      Wonderworks.                                                  *
 # *                                                                    *
 # *      All rights reserved except those explicitly granted by        *
@@ -16,9 +16,12 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#        $Id: nmakever.mak 1.6 1998/11/24 03:08:23 ahd v1-13f $
+#        $Id: nmakever.mak 1.7 1999/01/04 03:51:49 ahd Exp $
 #
 #        $Log: nmakever.mak $
+#        Revision 1.7  1999/01/04 03:51:49  ahd
+#        Annual copyright change
+#
 #        Revision 1.6  1998/11/24 03:08:23  ahd
 #        Up to version 1.12f
 #

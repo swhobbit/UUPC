@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u t i l . m a k                                                *
 # *                                                                    *
-# *   Changes Copyright (c) 1989-1999 by Kendra Electronic             *
+# *   Changes Copyright (c) 1989-2000 by Kendra Electronic             *
 # *   Wonderworks.                                                     *
 # *                                                                    *
 # *   All rights reserved except those explicitly granted by the       *
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.12 1998/03/01 01:36:19 ahd v1-13f ahd $
+#     $Id: util.mak 1.13 1999/01/04 03:51:49 ahd Exp $
 #
 #     Revision history:
 #     $Log: util.mak $
+#     Revision 1.13  1999/01/04 03:51:49  ahd
+#     Annual copyright change
+#
 #     Revision 1.12  1998/03/01 01:36:19  ahd
 #     Annual Copyright Update
 #

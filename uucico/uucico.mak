@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u u c i c o . m a k                                            *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1999 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-2000 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.24 1998/03/01 01:38:52 ahd v1-13f ahd $
+#     $Id: uucico.mak 1.25 1999/01/04 03:51:49 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+#     Revision 1.25  1999/01/04 03:51:49  ahd
+#     Annual copyright change
+#
 #     Revision 1.24  1998/03/01 01:38:52  ahd
 #     Annual Copyright Update
 #

@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.27 1998/11/04 01:59:13 ahd v1-13f $
+#       $Id: nmakos22.mak 1.28 1999/01/04 03:51:49 ahd Exp $
 #
-#       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.28  1999/01/04 03:51:49  ahd
+#       Annual copyright change
+#
 #       Revision 1.27  1998/11/04 01:59:13  ahd
 #       Support easily moving the zip archives to a different directory
 #       from the rest of the build.

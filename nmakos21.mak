@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.13 1998/04/27 01:54:27 ahd v1-13f $
+#       $Id: nmakos21.mak 1.14 1999/01/04 03:51:49 ahd Exp $
 #
-#       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.14  1999/01/04 03:51:49  ahd
+#       Annual copyright change
+#
 #       Revision 1.13  1998/04/27 01:54:27  ahd
 #       Revise icon source directory
 #
