@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.12 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: mail.c 1.13 1993/10/31 19:04:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.13  1993/10/31  19:04:03  ahd
+ * Change "DOS" to "system" in short command help text
+ *
  * Revision 1.12  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *
@@ -82,7 +85,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.12 1993/10/28 12:19:01 ahd Exp $";
+      "$Id: mail.c 1.13 1993/10/31 19:04:03 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -246,9 +249,9 @@ static struct CommandTable {
          "Resend item to others"},
  { "go",          M_GOTO,     LETTER_OP | AUTOPRINT ,
          "Go to item"},
- { "Headers",     M_HEADERS,  LETTER_OP | POSITION ,
+ { "Headers",     M_HEADERS,  LETTER_OP | POSITION | NOAUTOHEADER,
          "Print specified item summary"},
- { "headers",     M_HEADERS,  NO_OPERANDS,
+ { "headers",     M_HEADERS,  NO_OPERANDS | NOAUTOHEADER,
          "Print all item summaries"},
  { "help",        M_HELP,     NO_OPERANDS,
          "Print long help text"},
@@ -888,7 +891,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                   bflag[F_AUTOPRINT] &&
                   (letters[current].status != M_DELETED) )
                Pager( current , TRUE, noreceived, TRUE);
-            else
+            else if ( !(cmd_ptr->bits & NOAUTOHEADER ) )
                PrintSubject( current , letternum );
          } /* if */
       } /* if */
