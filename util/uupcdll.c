@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.5 1995/01/07 16:37:24 ahd v1-12n $
+ *       $Id: uupcdll.c 1.6 1995/03/11 22:28:22 ahd Exp $
  *       $Log: uupcdll.c $
+ *       Revision 1.6  1995/03/11 22:28:22  ahd
+ *       Use macro for file delete to allow special OS/2 processing
+ *
  *       Revision 1.5  1995/01/07 16:37:24  ahd
  *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -46,6 +49,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+#include "hlib.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -415,7 +419,7 @@ DllExport BOOL UUPCSendMail(char *message)
         NULL, NULL, &si, &pi);
 
     if (!result) {
-        _REMOVE(tempFileName);
+        _unlink(tempFileName);
         return KWFalse;
     }
 
@@ -423,7 +427,7 @@ DllExport BOOL UUPCSendMail(char *message)
     GetExitCodeProcess(pi.hProcess, &result);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-    _REMOVE(tempFileName);
+    _unlink(tempFileName);
 
     if (result != 0)
         return KWFalse;
