@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.59 1998/03/01 01:28:47 ahd v1-12v $
+ *    $Id: deliver.c 1.60 1998/03/08 23:10:20 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.60  1998/03/08 23:10:20  ahd
+ *    Better support for local vs. remote source of messages
+ *
  *    Revision 1.59  1998/03/01 01:28:47  ahd
  *    Annual Copyright Update
  *
@@ -144,6 +147,7 @@
 #include "timestmp.h"
 #include "trumpet.h"
 #include "usertabl.h"
+#include "stater.h"
 #include "deliverm.h"               /* Misc support functions        */
 
 #ifdef TCPIP
@@ -384,6 +388,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
    size_t delivered = 0;
    KWBoolean announce = KWFalse;
    KWBoolean isPostmaster = KWFalse;
+   time_t mboxTime = 0;             /* Assume no mailbox */
    FILE *mBoxStream;
 
 /*--------------------------------------------------------------------*/
@@ -431,8 +436,10 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                                        user );
          aliasp->recurse = KWFalse;
 
+         /* Announce, if requested, only if remote sender and valid
+            local user */
          if ( announce && ( userp != BADUSER ) && sender->remote )
-            trumpet( userp->beep);  /* Yes --> Inform the user     */
+            trumpet( userp->beep, sender->daemon, mboxTime );
 
          return delivered;
 
@@ -477,7 +484,8 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                                        user );
 
          if (announce && sender->remote)   /* Did we deliver mail locally? */
-            trumpet( userp->beep);     /* Yes --> Inform the user      */
+            trumpet( userp->beep, sender->daemon, mboxTime );
+                                    /* Yes --> Inform the user      */
          return delivered;
 
       } /* if */
@@ -495,8 +503,10 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
       uniqueMailBoxName( user, mboxname );
                                     /* Yes --> Create file mask      */
    else
-      mkmailbox(mboxname, user);
-                              /* No --> Build normal name             */
+      mkmailbox(mboxname, user);    /* No --> Build normal name      */
+
+   if ( access( mboxname, 0 ))
+      mboxTime = stater( mboxname, NULL );
 
 #ifdef UDEBUG
    printmsg( 4,"DeliverLocal: Sender is %s (%s at %s via %s)",
@@ -512,7 +522,8 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
               user );
 
    if ( announce && sender->remote )
-      trumpet( userp->beep);  /* Local delivery, inform the user      */
+      trumpet(userp->beep, sender->daemon, mboxTime);
+                           /* Local delivery, inform the user      */
 
    mBoxStream = FOPEN( mboxname , "a",TEXT_MODE );
    if (mBoxStream == NULL )
