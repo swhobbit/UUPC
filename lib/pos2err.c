@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pOS2Err.c 1.5 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: pos2err.c 1.1 1993/09/24 03:43:27 ahd Exp $
  *
  *    Revision history:
- *    $Log: pOS2Err.c $
+ *    $Log: pos2err.c $
+ * Revision 1.1  1993/09/24  03:43:27  ahd
+ * Initial revision
+ *
  *
  */
 
@@ -29,6 +32,7 @@
 /*--------------------------------------------------------------------*/
 
 #define INCL_DOSMISC
+#define INCL_ERRORS
 #include <os2.h>
 
 #include <stdio.h>
@@ -72,30 +76,47 @@ void pOS2Err(const size_t lineno,
    USHORT len, xrc;
 #endif
 
-   xrc = DosGetMessage( (PCHAR) NULL,
-                        0,
-                        (PCHAR) buf,
-                        sizeof buf,
-                        rc,
-                        (PSZ) sysMsgs,
-                        &len );
-
-   if ( xrc != 0 )
+   switch( rc )
    {
+      case ERROR_TS_WAKEUP:
+         strcpy( buf, "Interrupted System Call");
+         break;
 
-      if ( ! recursion )
-      {
-         recursion = TRUE;
-         printOS2error( "DosGetMessage", xrc );
-         recursion = FALSE;
-      } /* recursion */
+      case ERROR_GEN_FAILURE:
+         strcpy( buf, "Invalid parameter, Port IRQ conflict, or device failure");
+         break;
 
-      sprintf(buf, "OS/2 API error %d in %s at line %d, cannot find message",
-                   (int) rc,
-                   fname,
-                   lineno );
+      default:
+         xrc = DosGetMessage( (PCHAR) NULL,
+                              0,
+                              (PCHAR) buf,
+                              sizeof buf,
+                              rc,
+                              (PSZ) sysMsgs,
+                              &len );
 
-   } /* if ( xrc != 0 ) */
+         if ( xrc != 0 )
+         {
+
+            if ( ! recursion )
+            {
+               recursion = TRUE;
+               printOS2error( "DosGetMessage", xrc );
+               recursion = FALSE;
+            } /* recursion */
+
+            sprintf(buf, "OS/2 API error %d in %s at line %d,"
+                         " cannot find message",
+                         (int) rc,
+                         fname,
+                         lineno );
+
+         } /* if ( xrc != 0 ) */
+         else
+            buf[ len ] = '\0';
+         break;
+
+   } /* switch */
 
 /*--------------------------------------------------------------------*/
 /*    Drop extra new from error message if we have room in our        */
