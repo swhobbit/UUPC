@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: DCPSTATS.C 1.3 1992/12/30 13:17:12 ahd Exp $
  *
- *       $Log$
+ *       $Log: DCPSTATS.C $
+ * Revision 1.3  1992/12/30  13:17:12  ahd
+ * Windows/NT changes
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -32,6 +35,8 @@
 #include "hostatus.h"
 #include "security.h"
 #include "timestmp.h"
+#include "ssleep.h"
+#include "lock.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -121,9 +126,36 @@ void dcupdate( void )
    long size;
    unsigned short len1 = strlen(compilep );
    unsigned short len2 = strlen(compilev );
+   boolean gotlock;
+   short retries = 30;
+   LOCKSTACK savelock;
+
+   mkfilename( fname, E_confdir, DCSTATUS );
+
+/*--------------------------------------------------------------------*/
+/*            Save lock status, then lock host status file            */
+/*--------------------------------------------------------------------*/
+
+   PushLock( &savelock );
+
+   do {
+      gotlock = LockSystem( "*status", B_UUSTAT );
+      if ( ! gotlock )
+         ssleep(2);
+   } while ( ! gotlock && retries-- );
+
+   if ( ! gotlock )
+   {
+      printmsg(0,"Cannot obtain lock for %s", fname );
+      PopLock( &savelock );
+      return;
+   }
+
+/*--------------------------------------------------------------------*/
+/*                  Old previous status as required                   */
+/*--------------------------------------------------------------------*/
 
    HostStatus();              /* Get new data, if needed          */
-   mkfilename( fname, E_confdir, DCSTATUS );
 
    filebkup( fname );      /* Rename the file if desired       */
 
@@ -167,5 +199,12 @@ void dcupdate( void )
    fclose( stream );
 
    hstatus_age = stater( fname , &size );
+
+/*--------------------------------------------------------------------*/
+/*                      Restore locks and return                      */
+/*--------------------------------------------------------------------*/
+
+   UnlockSystem( );
+   PopLock( &savelock );
 
 } /* dcupdate */
