@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.1 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: usrcatch.c 1.2 1993/09/29 13:18:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ * Revision 1.2  1993/09/29  13:18:06  ahd
+ * Drop unneeded OS/2 ifdef
+ *
  * Revision 1.1  1993/09/29  04:49:20  ahd
  * Initial revision
  *
@@ -62,7 +65,10 @@ __cdecl
 #endif
 usrhandler( int sig )
 {
-   raised |= 1 << (sig-1);       // Set bit and in signal field mask
+   raised = sig;
+
+   if ( raised == 0 )
+      abort();
 
 /*--------------------------------------------------------------------*/
 /*    The handler pointer must be reset to our handler since by       */
