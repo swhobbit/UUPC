@@ -1,13 +1,28 @@
 /*--------------------------------------------------------------------*/
-/*    m k f i l e n a m e . c                                         */
+/*       m k f i l e n a m e . c                                      */
 /*                                                                    */
-/*    Support routines for UUPC/extended                              */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of hlib.c                         ahd    */
+/*       Make a qualified file name from path name and simple file    */
+/*       name.                                                        */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +47,6 @@ void mkfilename(char *pathname,
                 const char *name)
 {
    sprintf(pathname, "%s/%s", path, name);
-   strlwr(pathname);             /* Normalize the name for messages     */
+   strcpy( pathname, normalize( pathname ));
 
 } /*mkfilename*/
