@@ -1,7 +1,10 @@
-#     $Header: E:\SRC\UUPC\LIB\RCS\lib.mak 1.5 1993/03/06 22:47:34 ahd Exp $
+#     $Header: E:\SRC\UUPC\lib\RCS\lib.mak 1.6 1993/04/05 04:31:55 ahd Exp ahd $
 #
 #     Revision history:
 #     $Log: lib.mak $
+#    Revision 1.6  1993/04/05  04:31:55  ahd
+#    Add time stamp, size to data returned by directory searches
+#
 #    Revision 1.5  1993/03/06  22:47:34  ahd
 #    Move active into shared library
 #
@@ -27,26 +30,26 @@
 
 #       The names of various object files that we create.
 
-LIBLST1=+$(OBJ)\active.obj\
-        +$(OBJ)\arbmath.obj+$(OBJ)\arpadate.obj+$(OBJ)\bugout.obj\
-        +$(OBJ)\catcher.obj+$(OBJ)\chdir.obj+$(OBJ)\checkptr.obj\
-        +$(OBJ)\configur.obj+$(OBJ)\dater.obj+$(OBJ)\dos2unix.obj\
-        +$(OBJ)\expath.obj
-LIBLST2=+$(OBJ)\export.obj+$(OBJ)\filebkup.obj+$(OBJ)\fopen.obj\
-        +$(OBJ)\getargs.obj+$(OBJ)\getopt.obj+$(OBJ)\getseq.obj\
-        +$(OBJ)\hostable.obj+$(OBJ)\hostatus.obj
-LIBLST3=+$(OBJ)\hostrset.obj+$(OBJ)\import.obj+$(OBJ)\importng.obj\
-        +$(OBJ)\kanjicnv.obj+$(OBJ)\lock.obj+$(OBJ)\logger.obj\
-        +$(OBJ)\mkdir.obj+$(OBJ)\mkfilenm.obj+$(OBJ)\mkmbox.obj
-LIBLST4=+$(OBJ)\mktempnm.obj+$(OBJ)\ndir.obj+$(OBJ)\printerr.obj\
-        +$(OBJ)\printmsg.obj+$(OBJ)\pushpop.obj+$(OBJ)\readnext.obj\
-        +$(OBJ)\rename.obj+$(OBJ)\safeio.obj+$(OBJ)\normaliz.obj
-LIBLST5=+$(OBJ)\safeout.obj+$(OBJ)\security.obj+$(OBJ)\ssleep.obj\
-        +$(OBJ)\stater.obj+$(OBJ)\usertabl.obj+$(OBJ)\validcmd.obj\
-        +$(OBJ)\scrsize.obj+$(OBJ)\strpool.obj\
-        +$(TIMESTMP)
+LIBLST1= $(OBJ)\active.obj\
+         $(OBJ)\arbmath.obj $(OBJ)\arpadate.obj $(OBJ)\bugout.obj\
+         $(OBJ)\catcher.obj $(OBJ)\chdir.obj $(OBJ)\checkptr.obj\
+         $(OBJ)\configur.obj $(OBJ)\dater.obj $(OBJ)\dos2unix.obj\
+         $(OBJ)\expath.obj
+LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
+         $(OBJ)\getargs.obj $(OBJ)\getopt.obj $(OBJ)\getseq.obj\
+         $(OBJ)\hostable.obj $(OBJ)\hostatus.obj
+LIBLST3= $(OBJ)\hostrset.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
+         $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
+         $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
+LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\ndir.obj $(OBJ)\printerr.obj\
+         $(OBJ)\printmsg.obj $(OBJ)\pushpop.obj $(OBJ)\readnext.obj\
+         $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
+LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
+         $(OBJ)\stater.obj $(OBJ)\usertabl.obj $(OBJ)\validcmd.obj\
+         $(OBJ)\scrsize.obj $(OBJ)\strpool.obj\
+         $(TIMESTMP)
 
-LIBALL = $(LIBLST1:+= ) $(LIBLST2:+= ) $(LIBLST3:+= ) $(LIBLST4:+= ) $(LIBLST5:+= )
+LIBALL = $(LIBLST1) $(LIBLST2) $(LIBLST3) $(LIBLST4) $(LIBLST5)
 
 # *--------------------------------------------------------------------*
 # *     Force a regeneration of the time stamp/version module.         *
@@ -73,16 +76,12 @@ $(TIMESTMP): $(LIB)\timestmp.c $(UUPCCFG) $(REGEN) \
 # *     Common library build                                           *
 # *--------------------------------------------------------------------*
 
-$(UUPCLIB): $(LIBALL) $(LIB)\lib.mak
-        erase $<
-        TLIB /C /E $< @&&|
-$(LIBLST1) &
-$(LIBLST2) &
-$(LIBLST3) &
-$(LIBLST4) &
-$(LIBLST5)
-$&
-|
+$(UUPCLIB): $(LIBALL)
+        &TLIB /C /E $< -+$?
+        - erase $(TEMP)\$&.BAK
+
+$(UUPCLIBW): $(LIBALL)
+         &TLIB /C /E $< -+$?
         - erase $(TEMP)\$&.BAK
 
 # *--------------------------------------------------------------------*
