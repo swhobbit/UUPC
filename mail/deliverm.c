@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.5 1998/03/08 23:11:57 ahd Exp $
+ *    $Id: deliverm.c 1.6 1998/03/16 06:40:49 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ * Revision 1.6  1998/03/16  06:40:49  ahd
+ * Use actual size of buffer for imgets
+ *
  *    Revision 1.5  1998/03/08 23:11:57  ahd
  *    Better support for local vs. remote source of messages
  *
@@ -73,7 +76,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.5 1998/03/08 23:11:57 ahd Exp $");
+RCSID("$Id: deliverm.c 1.6 1998/03/16 06:40:49 ahd v1-13b $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
