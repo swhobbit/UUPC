@@ -31,10 +31,16 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.62 1994/05/04 02:00:57 ahd Exp $
+#     $Id: makefile 1.63 1994/05/06 03:54:32 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.63  1994/05/06  03:54:32  ahd
+#         Delete BC++ precompiled headers when done
+#
+#         Revision 1.63  1994/05/06  03:54:32  ahd
+#         Delete BC++ precompiled headers when done
+#
 #         Revision 1.62  1994/05/04  02:00:57  ahd
 #         Allow disabling TDSTRIP
 #
@@ -295,7 +301,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12j
+VERS = 1.12k
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
