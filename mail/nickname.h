@@ -1,14 +1,26 @@
+/*--------------------------------------------------------------------*/
+/*       a l i a s . h                                                */
+/*                                                                    */
+/*       Mail User Agent Address alias functions                      */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
-   router.h
-
-   routines included in router.c
-
-   Copyright (c) 1989, Andrew H. Derbyshire
-
-   Update History:
-
-   30Sep89     Convert selected functions to type boolean            ahd
-   18Mar90     Split out host name routines to hostable.h            ahd
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
  */
 
 static struct AliasTable {
@@ -18,7 +30,7 @@ static struct AliasTable {
       char *afull;
    };
 
-void ExtractName( char *result, char *column );
+void ExtractName( char *result, const char *input );
 
 void BuildAddress(char *result, const char *input );
 

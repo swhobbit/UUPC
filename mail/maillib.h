@@ -1,15 +1,27 @@
 /*--------------------------------------------------------------------*/
-/*    maillib.h                                                       */
+/*    m a i l l i b . h                                               */
 /*                                                                    */
 /*    descriptions of mail user agent subroutines                     */
-/*                                                                    */
-/*    Changes copyright 1990, Andrew H. Derbyshire                    */
-/*                                                                    */
-/*    Change History:                                                 */
-/*                                                                    */
-/*       3 May 90 Create from mail.c                                  */
-/*       8 Jul 90 Make LSIZE BUFSIZ                                   */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        Function prototypes                         */
@@ -24,7 +36,10 @@ void PageReset( void );
 
 boolean PageLine(char *line);
 
-boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent);
+boolean CopyMsg(const int msgnum,
+                FILE *f,
+                const copyopt headers,
+                const boolean indent);
 
  void Sub_Pager(const char *tmailbag,
                         boolean builtin );
@@ -33,9 +48,12 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent);
                                  /* return 1 if number all digits,
                                     else return 0                    */
 
- boolean RetrieveLine(long adr, char *line, const size_t len);
+ boolean RetrieveLine(const long adr,
+                      char *line,
+                      const size_t len);
 
- void    ReturnAddress(char *line, struct ldesc *ld);
+ void    ReturnAddress(char *line,
+                       const long adr);
 
 void sayoptions( FLAGTABLE *flags);
 

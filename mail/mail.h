@@ -2,14 +2,38 @@
 #define __MAIL
 
 /*--------------------------------------------------------------------*/
-/*    Common defines and data structures for UUPC/extended            */
+/*       m a i l . h                                                  */
 /*                                                                    */
-/*    Copyright (c) 1989, 1991 Andrew H. Derbyshire                   */
+/*       Common defines and data structures for UUPC/extended         */
+/*       Mail User Agent                                              */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 #define  MISSING  -1L      /* Line not found in this mail header   ahd */
 
+#ifdef BIT32ENV
+#define LSIZE  512
+#else
 #define LSIZE  256
+#endif
 
 #define MAXADDRS 300
 
@@ -99,6 +123,7 @@ typedef enum { noheader,         /* Don't copy RFC-822 header or sep lines */
                autoresent,       /* Prefix selected Resent- headers w/-X  */
                nocontinue,       /* Do not copy next line if contination  */
                noseperator,      /* Copy all but binary seperator lines   */
-               seperators } copyopt;   /* Copy everything!                */
+               seperators        /* Copy everything!                */
+             } copyopt;
 
 #endif
