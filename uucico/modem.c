@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.6 1992/11/28 19:51:16 ahd Exp $
+ *    $Id: MODEM.C 1.7 1992/12/18 12:05:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.7  1992/12/18  12:05:57  ahd
+ * Flag variable packet as obsolete
+ *
  * Revision 1.6  1992/11/28  19:51:16  ahd
  * Add program exit time to waiting for callin message
  * Make time parameter to callin() const
@@ -427,9 +430,10 @@ static boolean getmodem( const char *brand)
 
 /*--------------------------------------------------------------------*/
 /*                      Validate the modem name                       */
+/*   Added check for validity of modem ptr -- makes NT happier - dmw  */
 /*--------------------------------------------------------------------*/
 
-   if (equal(modem, brand))   /* Already initialized?                */
+   if ((modem != NULL) && equal(modem, brand)) /* Already initialized?*/
       return TRUE;            /* Yes --> Don't process it again      */
 
 /*--------------------------------------------------------------------*/
