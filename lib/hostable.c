@@ -17,6 +17,12 @@
                   of host name.                                      ahd
  */
 
+ /*
+  *      $Id$
+  *
+  *      $Log$
+  */
+
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
@@ -320,7 +326,7 @@ struct HostTable *inithost(char *name)
    if (hit == HostElements)
    {
       memset( &hosts[hit] , 0, sizeof hosts[hit] );
-      hosts[hit].hostname = strdup(name);
+      hosts[hit].hostname = newstr(name);
       checkref( hosts[hit].hostname );
       hosts[hit].anylogin = TRUE;   /* Allow generic login by default   */
       HostElements ++ ;
@@ -485,7 +491,7 @@ static size_t loadhost()
                if (*token == '\0')        /* Empty string?           */
                   freeit = TRUE;          /* Yes --> Flag for error  */
                else
-                  hostp->via = token = strdup(token);
+                  hostp->via = token = newstr(token);
             } /* else if */
 
             if ( freeit )
@@ -501,7 +507,7 @@ static size_t loadhost()
             token = strtok(NULL,WHITESPACE);
 
             if (( hostp->realname == NULL ) && (token != NULL))
-               hostp->realname = token = strdup( token );
+               hostp->realname = token = newstr( token );
             else {
                printmsg(0,"loadhost: Invalid/duplicate alias of \"%s\"",
                      hostp->hostname );
@@ -514,7 +520,7 @@ static size_t loadhost()
          else {
 
             if ( hostp->via == NULL )
-               hostp->via = token = strdup( token );
+               hostp->via = token = newstr( token );
             else {
                printmsg(0,"loadhost: Invalid/duplicate route for \"%s\"",
                      hostp->hostname );

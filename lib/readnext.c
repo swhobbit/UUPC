@@ -6,6 +6,12 @@
 /*    Copyright 1991 (C), Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -13,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -21,6 +28,10 @@
 #include "lib.h"
 #include "readnext.h"
 #include "ndir.h"
+#include "hostable.h"
+#include "security.h"
+
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*    r e a d n e x t                                                 */
@@ -34,7 +45,7 @@ char     *readnext(char *xname,
           char *pattern )
 {
    static DIR *dirp;
-   static char *saveremote = NULL;
+   static char *SaveRemote = NULL;
    static char remotedir[FILENAME_MAX];
 
    struct direct *dp;
@@ -43,13 +54,13 @@ char     *readnext(char *xname,
 /*          Determine if we must restart the directory scan           */
 /*--------------------------------------------------------------------*/
 
-   if ( (remote == NULL) || (saveremote == NULL ) ||
-        !equal(remote, saveremote) )
+   if ( (remote == NULL) || ( SaveRemote == NULL ) ||
+        !equal(remote, SaveRemote ) )
    {
-      if ( saveremote != NULL )  /* Clean up old directory? */
-      {                          /* Yes --> Do so           */
+      if ( SaveRemote != NULL )   /* Clean up old directory? */
+      {                           /* Yes --> Do so           */
          closedir(dirp);
-         saveremote = NULL;
+         SaveRemote = NULL;
       } /* if */
 
       if ( remote == NULL )      /* Clean up only, no new search? */
@@ -65,7 +76,7 @@ char     *readnext(char *xname,
          return NULL;
       } /* if */
 
-      saveremote = (char *) remote;
+      SaveRemote = newstr( remote );
                               /* Flag we have an active search    */
    } /* if */
 
@@ -86,7 +97,7 @@ char     *readnext(char *xname,
 
    printmsg(5, "readnext: \"%s\" not matched", remotedir);
    closedir(dirp);
-   saveremote = NULL;
+   SaveRemote = NULL;
    return NULL;
 
 } /*readnext*/
