@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.1 1994/02/20 19:16:21 ahd v1-12k $
+ *    $Id: uupcmoah.h 1.2 1994/12/22 00:14:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.2  1994/12/22 00:14:32  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.1  1994/02/20 19:16:21  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -47,6 +50,12 @@
 
 #ifdef __TURBOC__
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
+#else
+
+#if defined(WINDOWS)          /* Real MSC doesn't work for Windows     */
+#error This only compiles with the Borland C++ 3.1 compiler and EasyWin, sorry!
+#endif
+
 #endif
 
 #if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
