@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.3 1992/12/11 12:45:11 ahd Exp $
+ *    $Id: SCRSIZE.C 1.4 1992/12/18 12:05:57 ahd Exp $
  *
  *    $Log: SCRSIZE.C $
+ * Revision 1.4  1992/12/18  12:05:57  ahd
+ * Fix query for ANSI sys
+ *
  * Revision 1.3  1992/12/11  12:45:11  ahd
  * Use BIOS values if no ANSI driver
  *
@@ -48,10 +51,10 @@ short scrsize( void )
 {
 
 #ifdef __TURBOC__
-   static unsigned far char *bios_rows = MK_FP( 0x0040, 0x0084 );
-/* static unsigned far char *bios_cols = MK_FP( 0x40, 0x4a ); */
+   static unsigned char far *bios_rows = MK_FP( 0x0040, 0x0084 );
+/* static unsigned char far *bios_cols = MK_FP( 0x40, 0x4a ); */
 #else
-   static unsigned far char *bios_rows = 0x0484;
+   static unsigned char far *bios_rows = 0x0484;
 #endif
 
    static boolean error = FALSE;
