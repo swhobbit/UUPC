@@ -21,9 +21,13 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.22 1997/04/24 00:56:54 ahd v1-12u $
+ *    $Id: expire.c 1.23 1997/12/22 14:12:44 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.23  1997/12/22 14:12:44  ahd
+ *    Correct off-by-2 error in computing length of string to allocate
+ *    Add debugging information for failure to backup/rename files
+ *
  *    Revision 1.22  1997/04/24 00:56:54  ahd
  *    Delete MAKEBUF/FREEBUF support
  *
@@ -92,7 +96,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.22 1997/04/24 00:56:54 ahd v1-12u $");
+RCSID("$Id: expire.c 1.23 1997/12/22 14:12:44 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -164,7 +168,7 @@ backupNewsFile(  const char *nextGeneration, const char *previous )
 /*       Punt the old file, and return if there is no new file        */
 /*--------------------------------------------------------------------*/
 
-   if ((stater(file_previous, NULL) >= 0 ) && REMOVE(file_previous))
+   if (REMOVE(file_previous) && (debuglevel > 1))
    {
       printmsg(0,"%s: Unable to delete backup file %s",
                  mName,
