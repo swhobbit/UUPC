@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FOSSIL.C 1.1 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: fossil.c 1.2 1993/10/09 22:21:55 rhg Exp $
  *
  *    Revision history:
- *    $Log: FOSSIL.C $
+ *    $Log: fossil.c $
+ * Revision 1.2  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.1  1993/05/30  15:25:50  ahd
  * Initial revision
  *
@@ -49,7 +52,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-short portNum;        // Must be set by openline()
+short portNum;                      /* Must be set by openline()     */
 
 /*--------------------------------------------------------------------*/
 /*       F o s s i l C n t l                                          */
@@ -64,10 +67,10 @@ short portNum;        // Must be set by openline()
    regs.x.dx = portNum;
    regs.h.ah = function;
    regs.h.al = info;
-   regs.x.bx = 0x00;          // Insure start function doesn't
-                              // cause ES:CX to be twiddled
+   regs.x.bx = 0x00;          /* Insure start function doesn't        */
+                              /* cause ES:CX to be twiddled           */
    int86( FS_INTERRUPT, &regs, &regs );
 
-   return (short) regs.x.ax;  // Return AX to caller
+   return (short) regs.x.ax;  /* Return AX to caller                  */
 
  } /* FossilCntl */

@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.3 1993/09/21 01:42:13 ahd Exp $
+ *    $Id: dcptpkt.c 1.4 1993/09/24 03:43:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.4  1993/09/24  03:43:27  ahd
+ * Correct byte reordering functions
+ *
+ * Revision 1.4  1993/09/24  03:43:27  ahd
+ * Correct byte reordering functions
+ *
  * Revision 1.3  1993/09/21  01:42:13  ahd
  * Delete functions duplicated from dcpgpkt.c
  *
@@ -59,7 +65,7 @@
 #include <string.h>
 
 #if defined(WIN32) || defined(_Windows)
-#include "winsock.h"       // Needed for byte ordering
+#include "winsock.h"       /* Needed for byte ordering                 */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -145,7 +151,7 @@ static unsigned long ntohl( const unsigned long input )
 
 short topenpk(const boolean master)
 {
-   s_pktsize = r_pktsize = 1024;    // Fixed for 't' procotol
+   s_pktsize = r_pktsize = 1024;    /* Fixed for 't' procotol         */
 
    return DCP_OK;
 

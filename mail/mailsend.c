@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.5 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: mailsend.c 1.6 1993/10/04 03:57:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.6  1993/10/04  03:57:20  ahd
+ * Clarify error message
+ *
  * Revision 1.5  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -157,7 +160,7 @@ currentfile();                /* Define current file for panic()     */
             fullname = buffer;
          }
          else
-            fullname = (char *) alias; /* Use original information      */
+            fullname = (char *) alias; /* Use original information     */
       }
    }
    else {
@@ -171,13 +174,13 @@ currentfile();                /* Define current file for panic()     */
 
          do {
             current = strtok(current,",\t "); /* Get next alias to process */
-            next    = strtok(NULL,"");    /* Also save rest of list        */
+            next    = strtok(NULL,"");    /* Also save rest of list    */
             header  = ExplodeAlias( header , current, stream, resent);
                                           /* Get alias, including sub-list */
             current  = next;
-         } while ( next != NULL );        /* Until no more tokens exist    */
+         } while ( next != NULL );        /* Until no more tokens exist */
 
-         return header;                   /* Have written header, return   */
+         return header;                   /* Have written header, return  */
 
       } /* if */
    } /* else */
@@ -617,9 +620,11 @@ boolean Collect_Mail(FILE *stream,
             Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
 
 #if defined(_Windows)
-            //
-            // Prompt_Input() comes back with EOF on stdin!
-            //
+
+/*--------------------------------------------------------------------*/
+/*            Prompt_Input() comes back with EOF on stdin!            */
+/*--------------------------------------------------------------------*/
+
             rewind(stdin);
 #endif
             fclose(fmailbag);
@@ -744,7 +749,7 @@ static boolean Subcommand( char *buf,
 
          case '~':
             memmove( buf, buf + 1, strlen( buf + 1 ));
-            return FALSE;        // Treat as normal line
+            return FALSE;        /* Treat as normal line              */
 
 /*--------------------------------------------------------------------*/
 /*              Put signature file into current message               */

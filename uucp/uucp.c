@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.8 1993/10/02 19:07:49 ahd Exp $
+ *    $Id: uucp.c 1.9 1993/10/03 20:43:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.9  1993/10/03  20:43:08  ahd
+ * Normalize comments to C++ double slash
+ *
  * Revision 1.8  1993/10/02  19:07:49  ahd
  * Use 0644 permissions on files
  *
@@ -104,13 +107,13 @@
 /*--------------------------------------------------------------------*/
 
 static boolean       spool_flag = FALSE;
-static char          spool_file[FILENAME_MAX]; // alt spool file name
+static char          spool_file[FILENAME_MAX]; /* alt spool file name  */
 static boolean       dir_flag = TRUE;
-static boolean       xeqt_flag = TRUE;    // Triggered by -r option
-static char          grade = 'n';         // Default grade of service
-static boolean       mail_me = FALSE;     // changes with -m
-static boolean       mail_them = FALSE;   // changes with -n
-static char  remote_user[10];             // user to mail with -n
+static boolean       xeqt_flag = TRUE;    /* Triggered by -r option   */
+static char          grade = 'n';         /* Default grade of service  */
+static boolean       mail_me = FALSE;     /* changes with -m           */
+static boolean       mail_them = FALSE;   /* changes with -n           */
+static char  remote_user[10];             /* user to mail with -n     */
 static char  *destn_file;
 static char  flags[16];
 
@@ -138,15 +141,15 @@ static int cp(char *from, char *to)
 {
       int         fd_from, fd_to;
       int         nr, nw = -1;
-      char        buf[BUFSIZ*4]; // faster if we alloc a big buffer
+      char        buf[BUFSIZ*4]; /* faster if we alloc a big buffer   */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-         return(1);        // failed
+         return(1);        /* failed                                   */
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
       if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
          close(fd_from);
-         return(1);        // failed
+         return(1);        /* failed                                   */
          /* NOTE - this assumes all the required directories exist!  */
       }
       while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
@@ -155,7 +158,7 @@ static int cp(char *from, char *to)
       close(fd_to);
       close(fd_from);
       if (nr != 0 || nw == -1)
-         return(1);        // failed in copy
+         return(1);        /* failed in copy                          */
       return(0);
 } /* cp */
 
@@ -178,11 +181,11 @@ static         void    split_path(char *path,
 {
       char    *p_left, *p_right, *p;
 
-      *system = *inter = *file = '\0';    // init to nothing
+      *system = *inter = *file = '\0';    /* init to nothing           */
       for (p = path;; p = p_left + 1)  {
-         p_left = strchr(p, '!');         // look for the first bang
-         if (p_left == NULL)  {           // not a remote path
-            strcpy(file, p);              // so just return filename
+         p_left = strchr(p, '!');         /* look for the first bang  */
+         if (p_left == NULL)  {           /* not a remote path        */
+            strcpy(file, p);              /* so just return filename  */
             return;
          }
          /* now check if the system was in fact us.
@@ -191,16 +194,16 @@ static         void    split_path(char *path,
             (E_nodename[p_left - p] == '\0'))
             continue;
 
-         p_right = strrchr(p, '!');      // look for the last bang
-         strcpy(file, p_right + 1);      // and thats our filename
-         strncpy(system, p, p_left - p); // and we have a system thats not us
+         p_right = strrchr(p, '!');      /* look for the last bang     */
+         strcpy(file, p_right + 1);      /* and thats our filename     */
+         strncpy(system, p, p_left - p); /* and we have a system thats not us  */
          system[p_left - p] = '\0';
          /* now see if there is an intermediate path */
-         if (p_left != p_right)  {        // yup - there is
+         if (p_left != p_right)  {        /* yup - there is           */
             strncpy(inter, p_left + 1, p_right - p_left - 1);
             inter[p_right - p_left - 1] = '\0';
          }
-         return;                 // and we're done
+         return;                 /* and we're done                    */
       }        /* never get here :-)  */
 }
 
@@ -217,7 +220,7 @@ int   do_uux(char *remote,
              char *dest_inter,
              char *dest_file)
 {
-      char        xcmd[BUFSIZ];        // buffer for assembling the UUX command
+      char        xcmd[BUFSIZ];        /* buffer for assembling the UUX command  */
       char        *ex_flg;
 
 /*--------------------------------------------------------------------*/
@@ -226,7 +229,7 @@ int   do_uux(char *remote,
 
       ex_flg = xeqt_flag ? "" : "-r";
       sprintf(xcmd, "-C %s %s!uucp -C ", ex_flg, remote);
-                              // but what about mailing the guy?
+                              /* but what about mailing the guy?      */
 
 /*--------------------------------------------------------------------*/
 /*                  Now we sort out the source name                   */
@@ -282,13 +285,13 @@ int   do_copy(char *src_syst,
       char        *p;
       boolean wild_flag = FALSE;
       boolean write_flag;
-      char        tmfile[15];       // Unix style name for c file
-      char        idfile[15];       // Unix style name for data file copy
-      char        work[FILENAME_MAX];   // temp area for filename hacking
+      char        tmfile[15];       /* Unix style name for c file     */
+      char        idfile[15];       /* Unix style name for data file copy  */
+      char        work[FILENAME_MAX];   /* temp area for filename hacking  */
       char        search_file[FILENAME_MAX];
       char        source_path[FILENAME_MAX];
-      char        icfilename[FILENAME_MAX]; // our hacked c file path
-      char        idfilename[FILENAME_MAX]; // our hacked d file path
+      char        icfilename[FILENAME_MAX]; /* our hacked c file path  */
+      char        idfilename[FILENAME_MAX]; /* our hacked d file path  */
 
       struct  stat    statbuf;
       DIR *dirp = NULL;
@@ -296,7 +299,7 @@ int   do_copy(char *src_syst,
       char subseq = 'A';
 
       long    int     sequence;
-      char    *remote_syst;   // Non-local system in copy
+      char    *remote_syst;   /* Non-local system in copy              */
       char    *sequence_s;
       FILE        *cfile;
       static  char    *spool_fmt = SPOOLFMT;
@@ -412,7 +415,7 @@ int   do_copy(char *src_syst,
                /* Do we need a MKDIR here for the system? */
                if (cp(src_file, idfilename) != 0)  {
                   printmsg(0, "copy \"%s\" to \"%s\" failed",
-                     src_file, idfilename);           // copy data
+                     src_file, idfilename);           /* copy data     */
                   closedir( dirp );
                   exit(1);
                }
@@ -488,42 +491,42 @@ void  main(int argc, char *argv[])
 
       while ((option = getopt(argc, argv, "Ccdfg:jmn:rs:x:")) != EOF)  {
          switch(option)  {
-            case 'c':               // don't spool
+            case 'c':               /* don't spool                    */
                spool_flag = FALSE;
                break;
-            case 'C':               // force spool
+            case 'C':               /* force spool                    */
                spool_flag = TRUE;
                break;
-            case 'd':               // make directories
+            case 'd':               /* make directories               */
                dir_flag = TRUE;
                break;
-            case 'e':               // send uucp command to sys
+            case 'e':               /* send uucp command to sys        */
                /* This one is in Sams but nowhere else - I'm ignoring it */
                break;
-            case 'f':               // don't make directories
+            case 'f':               /* don't make directories         */
                dir_flag = FALSE;
                break;
-            case 'g':               // set grade of transfer
+            case 'g':               /* set grade of transfer           */
                grade = *optarg;
                break;
-            case 'j':               // output job id to stdout
+            case 'j':               /* output job id to stdout        */
                j_flag = TRUE;
                break;
-            case 'm':               // send mail when copy completed
+            case 'm':               /* send mail when copy completed  */
                mail_me = TRUE;
                break;
-            case 'n':               // notify remote user file was sent
+            case 'n':               /* notify remote user file was sent  */
                mail_them = TRUE;
                sprintf(remote_user, "%.8s", optarg);
                break;
-            case 'r':               // queue job only
+            case 'r':               /* queue job only                 */
                xeqt_flag = FALSE;
                break;
-            case 's':               // report status of transfer to file
+            case 's':               /* report status of transfer to file  */
                strcpy( spool_file, optarg);
                expand_path( spool_file, NULL, E_pubdir , NULL);
                break;
-            case 'x':               // set debug level
+            case 'x':               /* set debug level                 */
                debuglevel = atoi(optarg);
                break;
             default:
@@ -554,7 +557,7 @@ void  main(int argc, char *argv[])
 
 #if defined(_Windows)
    openlog( NULL );
-   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
 /*--------------------------------------------------------------------*/

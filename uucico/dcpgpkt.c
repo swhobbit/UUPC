@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.18 1993/10/04 03:57:20 ahd Exp $
+ *      $Id: dcpgpkt.c 1.20 1993/10/09 22:21:55 rhg Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.20  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.18  1993/10/04  03:57:20  ahd
  * Drop new lines from start up message
  *
@@ -243,7 +246,7 @@ static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
 
 #if !defined(BIT32ENV)
-static char *gspkt = NULL;       // Local buffer dir
+static char *gspkt = NULL;       /* Local buffer dir                  */
 #endif
 
 static boolean variablepacket;  /* "v" or in modem file              */
@@ -559,7 +562,7 @@ static short initialize(const boolean caller, const char protocol )
 
          case I_INITB_SEND:
             gspack(INITB, 0, 0, 0, r_pktsize, NULL);
-                                       /* Data segment (packet) size    */
+                                       /* Data segment (packet) size   */
             flags = (flags & (B_INITA | B_RECV_INITB)) | B_SENT_INITB;
             state = I_GRPACK;
             break;
@@ -940,7 +943,7 @@ short gsendpkt(char *data, short len)
 
 short geofpkt( void )
 {
-   if ((*sendpkt)("", 0))          /* Empty packet == EOF              */
+   if ((*sendpkt)("", 0))          /* Empty packet == EOF             */
       return DCP_FAILED;
    else
       return DCP_OK;
@@ -1108,7 +1111,7 @@ static short gmachine(const short timeout )
                {
                   donak = TRUE;  /* Only flag first out of sequence
                                     packet as error, since we know
-                                    following ones also bad             */
+                                    following ones also bad            */
                   outsequence++;
                   inseq = FALSE;
                }
@@ -1285,10 +1288,10 @@ static void gspack(short type,
    unsigned char header[HDRSIZE];
 
 #if !defined(BIT32ENV)
-   char *data;                   // Local data buffer address
+   char *data;                   /* Local data buffer address         */
    if ( input == NULL )
-      data = NULL;               // Make consistent with real buffer
-   else {                        // Only copy if non-NULL
+      data = NULL;               /* Make consistent with real buffer  */
+   else {                        /* Only copy if non-NULL              */
       data = gspkt;
       MEMCPY( data, input, xmit );
    }

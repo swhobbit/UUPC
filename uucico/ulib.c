@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.17 1993/09/29 13:18:06 ahd Exp $
+ *    $Id: ulib.c 1.18 1993/10/03 22:09:09 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.18  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.17  1993/09/29  13:18:06  ahd
  * Use new dummy setprty function
  *
@@ -189,8 +192,8 @@ int nopenline(char *name, BPS bps, const boolean direct)
    current_bps = bps;
    open_com(current_bps, current_direct, 'N', STOPBIT, 'D');
    dtr_on();
-   ssleep(2);                 /* Wait two seconds as required by V.24   */
-   carrierdetect = FALSE;     /* No modem connected yet                 */
+   ssleep(2);                 /* Wait two seconds as required by V.24  */
+   carrierdetect = FALSE;     /* No modem connected yet                */
 
    traceStart( name );
 
@@ -453,13 +456,13 @@ void nhangup( void )
          return;
 
       hangup_needed = FALSE;
-      dtr_off();              /* Hang the phone up                         */
-      ddelay(500);            /* Really only need 250 milliseconds         */
-      dtr_on();               /* Bring the modem back on-line              */
-      ddelay(2000);           /* Now wait for the poor thing to recover    */
-                              /* two seconds is required by V.24           */
+      dtr_off();              /* Hang the phone up                     */
+      ddelay(500);            /* Really only need 250 milliseconds     */
+      dtr_on();               /* Bring the modem back on-line          */
+      ddelay(2000);           /* Now wait for the poor thing to recover */
+                              /* two seconds is required by V.24       */
       printmsg(3,"nhangup: complete.");
-      carrierdetect = FALSE;  /* No modem connected yet                    */
+      carrierdetect = FALSE;  /* No modem connected yet                */
 
 } /* nhangup */
 

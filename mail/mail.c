@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.8 1993/09/23 03:26:51 ahd Exp $
+ *    $Id: mail.c 1.9 1993/10/09 20:16:12 rhg Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.9  1993/10/09  20:16:12  rhg
+ * ANSIfy the source
+ *
  * Revision 1.8  1993/09/23  03:26:51  ahd
  * Use current version variables for Visual C++ under Windows NT
  *
@@ -73,7 +76,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.8 1993/09/23 03:26:51 ahd Exp $";
+      "$Id: mail.c 1.9 1993/10/09 20:16:12 rhg Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -483,8 +486,8 @@ static void Interactive_Mail( const boolean PrintOnly,
                               const boolean postoffice )
 {
    char resp[LSIZE];
-   int current = 0;                                               /* ahd   */
-   boolean done      = FALSE;                                     /* ahd   */
+   int current = 0;                                               /* ahd  */
+   boolean done      = FALSE;                                     /* ahd  */
    boolean modified;
    FILE *rmailbox;
 

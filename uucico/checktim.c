@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: checktim.c 1.2 1993/09/20 04:46:34 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: checktim.c $
+ * Revision 1.2  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -121,9 +126,9 @@ static struct Table {
    { "Night",   SUN,      2305, 1655},
    { "NonPeak", WEEKDAY,  1805,  655}, /* Subject to change at TELENET's whim */
    { "NonPeak", WEEKEND,     0, 2400},
-   { "ROA",     WEEKDAY,  2205,  755}, /* Reach Out America (sm) (AT&T)       */
-   { "ROA",     SAT,         0, 2400}, /* Reach Out America (sm) (AT&T)       */
-   { "ROA",     SUN,      2205, 1655}, /* Reach Out America (sm) (AT&T)       */
+   { "ROA",     WEEKDAY,  2205,  755}, /* Reach Out America (sm) (AT&T) */
+   { "ROA",     SAT,         0, 2400}, /* Reach Out America (sm) (AT&T) */
+   { "ROA",     SUN,      2205, 1655}, /* Reach Out America (sm) (AT&T) */
    { "Never",   NEVER,       0, 2400},
    {  nil(char) }
 }; /* table */
@@ -149,10 +154,10 @@ char checktime(const char *xtime)
    strcpy(buf,xtime);         /* Copy time to local buffer we can alter */
    time(&secs_now);
    tm_now = localtime(&secs_now);
-                                       /* Create structure with time    */
+                                       /* Create structure with time   */
    weekday = SUN >> tm_now->tm_wday;   /* Get day of week as single bit */
    hhmm = tm_now->tm_hour*100 + tm_now->tm_min;
-   nexttoken = buf;           /* First pass, look at start of buffer    */
+   nexttoken = buf;           /* First pass, look at start of buffer   */
 
    while ((bestgrade < ALL_GRADES) &&
           ((token = strtok(nexttoken,",")) != NULL))
@@ -162,7 +167,7 @@ char checktime(const char *xtime)
       if ( bestgrade < grade )
             bestgrade = grade;
 
-      nexttoken = NULL;       /* Continue parsing same string           */
+      nexttoken = NULL;       /* Continue parsing same string          */
 
    } /* while (!(dial) && ((token = strtok(nexttoken,",")) != NULL) ) */
 
@@ -256,7 +261,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
               " with grade %c",
             input,tdays,tstart,tend,grade );
 
-   istart = atoi(tstart);  /* Convert start/end times to binary          */
+   istart = atoi(tstart);  /* Convert start/end times to binary       */
    iend  = atoi(tend);
 
 /*--------------------------------------------------------------------*/

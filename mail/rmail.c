@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.12 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: rmail.c 1.13 1993/09/20 04:39:51 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.13  1993/09/20  04:39:51  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.12  1993/07/31  16:22:16  ahd
  * Changes in support of Robert Denny's Windows 3.x support
  *
@@ -201,7 +204,7 @@ static boolean DaemonMail( const char *subject,
  char fromuser[MAXADDR] = ""; /* User id of originator               */
  char fromnode[MAXADDR] = ""; /* Node id of originator               */
  char *now;                   /* Time stamp for Received: banner     */
- char *myProgramName = NULL;  // Name for recursive invocation
+ char *myProgramName = NULL;  /* Name for recursive invocation        */
 
  static char received[] = "Received:";
  static char receivedlen = sizeof( received) - 1;
@@ -228,7 +231,7 @@ void main(int argc, char **argv)
    boolean daemon = FALSE;
 
    char *subject = NULL;
-   myProgramName = newstr( argv[0] );   // Copy before banner() mangles it
+   myProgramName = newstr( argv[0] );   /* Copy before banner() mangles it  */
 
 /*--------------------------------------------------------------------*/
 /*    Make a copy of the Borland copyright for debugging purposes     */
@@ -239,8 +242,8 @@ void main(int argc, char **argv)
    checkref(copywrong);
 #endif
 
-   logfile = stderr;             // Prevent redirection of error
-                                 // messages during configuration
+   logfile = stderr;             /* Prevent redirection of error      */
+                                 /* messages during configuration     */
 
    banner( argv);
 
@@ -320,7 +323,7 @@ void main(int argc, char **argv)
    }
 
 #if defined(_Windows)
-   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
    remoteMail = ! (ReadHeader || daemon);
@@ -673,7 +676,7 @@ static char **Parse822( boolean *header,
 /*--------------------------------------------------------------------*/
 
    if (equal(fromnode,HostAlias(E_fdomain))) /* Same as hidden site? */
-      strcpy(fromnode, E_nodename);/* Yes --> Declare as local system  */
+      strcpy(fromnode, E_nodename);/* Yes --> Declare as local system */
 
    hostp = checkname( fromnode );   /* Look up real system name      */
 

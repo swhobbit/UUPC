@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.13 1993/09/20 04:41:54 ahd Exp $
+ *    $Id: uupoll.c 1.14 1993/09/27 00:45:20 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.14  1993/09/27  00:45:20  ahd
+ * Make command syncs to get around bug in execute() under OS/2
+ *
  * Revision 1.13  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -133,7 +136,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.13 1993/09/20 04:41:54 ahd Exp $";
+         "$Id: uupoll.c 1.14 1993/09/27 00:45:20 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -447,7 +450,7 @@ currentfile();
    cbrk = getcbrk();                /* Get original Cntrl-Break setting */
 
    if (!cbrk)
-      setcbrk(1);                   /* Turn it on to allow abort        */
+      setcbrk(1);                   /* Turn it on to allow abort      */
 
 #else /*dmw*/
 
@@ -591,11 +594,11 @@ currentfile();
 /*                          End of main loop                          */
 /*--------------------------------------------------------------------*/
 
-   uuxqt( debuglevel, FALSE );   /* One last call to UUXQT                 */
+   uuxqt( debuglevel, FALSE );   /* One last call to UUXQT            */
 
 #ifndef NOCBREAK
    if (!cbrk)
-      setcbrk(0);                /* Restore original Cntrl-Break setting   */
+      setcbrk(0);                /* Restore original Cntrl-Break setting */
 #endif
 
    printmsg(2,"UUPOLL exiting with return code %d", returnCode );
@@ -694,8 +697,8 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
  {
    int result;
 
-   if (Rmtname == NULL)             /* Default?                         */
-   {                                /* Yes --> do -s all and -s any     */
+   if (Rmtname == NULL)             /* Default?                       */
+   {                                /* Yes --> do -s all and -s any   */
       if (active("all",debuglevel, logname ) < 100)
          return active("any",debuglevel, logname);
       else
@@ -823,7 +826,7 @@ static time_t nextpoll( hhmm first, hhmm interval )
 
    sfirst = today + hhmm2sec(first);
 
-   while (sfirst <= now)         // Insure we never return "now" for next
+   while (sfirst <= now)         /* Insure we never return "now" for next */
       sfirst += sinterval;
 
 /*--------------------------------------------------------------------*/
@@ -899,7 +902,7 @@ static hhmm firstpoll(hhmm interval)
                      const char *logname,
                      const char *modem )
  {
-   char buf[128];             /* Buffer for runCommand() commands       */
+   char buf[128];             /* Buffer for runCommand() commands     */
    time_t seconds = (next - now + 59);
    time_t minutes;
    int result;
@@ -935,14 +938,14 @@ static hhmm firstpoll(hhmm interval)
  static void uuxqt( const int debuglevel, boolean sync)
  {
    int result;
-   char buf[128];             /* Buffer for runCommand() commands       */
+   char buf[128];             /* Buffer for runCommand() commands     */
 
    sprintf(buf,"uuxqt -x %d", debuglevel);
 
 #ifdef _Windows
    sync = sync && bflag[F_WINDOWS];
 #else
-   sync = TRUE;               // Silly hack
+   sync = TRUE;               /* Silly hack                           */
 #endif
 
    result = runCommand( buf, sync );

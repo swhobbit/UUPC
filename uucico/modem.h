@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.9 1993/10/03 20:44:22 ahd Exp $
+ *    $Id: modem.h 1.10 1993/10/07 22:32:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ * Revision 1.10  1993/10/07  22:32:45  ahd
+ * Change transfer buffer to long
+ *
  * Revision 1.9  1993/10/03  20:44:22  ahd
  * Move slowWrite to script.c
  *
@@ -87,7 +90,7 @@ extern KEWSHORT M_fPacketTimeout;
 extern KEWSHORT M_gPacketTimeout;
 extern KEWSHORT M_MaxErr;
 extern KEWSHORT M_PortTimeout;
-extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
+extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges     */
 extern KEWSHORT M_tPacketTimeout;
 extern KEWLONG  M_xfer_bufsize;
 extern KEWSHORT M_charDelay;

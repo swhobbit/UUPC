@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.6 1993/09/20 04:41:54 ahd Exp $
+ *    $Id: maillib.c 1.7 1993/10/09 20:16:12 rhg Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.7  1993/10/09  20:16:12  rhg
+ * ANSIfy the source
+ *
  * Revision 1.6  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -258,7 +261,7 @@ boolean PageLine(char *line)
 
    fputs(line, stdout);
 
-   PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines  */
+   PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines */
 
    if (PageCount > pagesize)
    {
@@ -315,7 +318,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
 
    if (headers == seperators)
    {
-      if (fputs(MESSAGESEP,f) == EOF)     /* Write out separator line   */
+      if (fputs(MESSAGESEP,f) == EOF)     /* Write out separator line  */
       {
          printerr("CopyMsg");
          panic();
@@ -329,7 +332,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
    else if (headers == fromheader )
    {
       register char *sp = buf;
-      headers = noheader;                 /* Do not print full header       */
+      headers = noheader;                 /* Do not print full header */
       if (RetrieveLine(letters[msgnum].date, buf, LSIZE))
       {
          register char  *sp = buf;

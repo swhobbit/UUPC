@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.2 1993/09/29 04:52:03 ahd Exp $
+ *    $Id: prtyos2.c 1.3 1993/10/03 22:34:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ * Revision 1.3  1993/10/03  22:34:33  ahd
+ * Alter format of numbers printed
+ *
  * Revision 1.2  1993/09/29  04:52:03  ahd
  * Pass priority values as parameters
  *
@@ -53,7 +56,7 @@
 currentfile();
 
 #ifndef __OS2__
-typedef USHORT APIRET ;  // Define older API return type
+typedef USHORT APIRET ;  /* Define older API return type              */
 #endif
 
 #ifdef __OS2__

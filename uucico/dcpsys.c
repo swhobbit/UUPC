@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.26 1993/10/07 23:04:13 ahd Exp $
+ *     $Id: dcpsys.c 1.27 1993/10/09 22:11:49 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.27  1993/10/09  22:11:49  ahd
+ * ANSIfy per rhg
+ *
  * Revision 1.26  1993/10/07  23:04:13  ahd
  * Suppress unused variable
  *
@@ -200,7 +203,7 @@ Proto Protolst[] = {
        } ,
 #if defined(_Windows) || defined(BIT32ENV) || defined(FAMILYAPI)
        { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt, // Yup, same as 'g'
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt, /* Yup, same as 'g'  */
               TRUE,
        } ,
 #endif
@@ -409,7 +412,7 @@ void wmsg(const char *msg, const boolean synch)
 int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
 {
    int i;
-   char ch = '?';       /* Initialize to non-zero value  */    /* ahd   */
+   char ch = '?';       /* Initialize to non-zero value  */    /* ahd  */
 
 /*--------------------------------------------------------------------*/
 /*                        flush until next ^P                         */
@@ -500,7 +503,7 @@ CONN_STATE startup_server(const char recvgrade )
    char *s;
 
    hostp->hstatus = startup_failed;
-   hostp->via     = hostp->hostname;   // Save true hostname
+   hostp->via     = hostp->hostname;   /* Save true hostname           */
 
 /*--------------------------------------------------------------------*/
 /*    Handle the special case of '*' protocol, which is really our    */
@@ -685,7 +688,7 @@ CONN_STATE startup_client( char *sendgrade )
       else
          switch(flds[i][1])
          {
-            case 'Q' :             /* Ignore the remote sequence number   */
+            case 'Q' :             /* Ignore the remote sequence number  */
                break;
 
             case 'x' :
@@ -1033,7 +1036,7 @@ boolean CallWindow( const char callgrade )
                                              /* Clock okay?          */
       {                                      /* Yes--> Return        */
          hostp->hstatus = wrong_time;
-         time(&hostp->hstats->ltime);  /* Save time of last attempt to call   */
+         time(&hostp->hstats->ltime);  /* Save time of last attempt to call  */
          return FALSE;
       }
    } /* if */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.4 1993/09/20 04:41:54 ahd Exp $
+ *    $Id: mailblib.c 1.5 1993/10/09 20:16:12 rhg Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.5  1993/10/09  20:16:12  rhg
+ * ANSIy the source
+ *
  * Revision 1.4  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -159,7 +162,7 @@ void ShowAlias( const char *alias)
             char *save = strtok( NULL , "");
             level++;             /* Bump up a level for recursive calls */
             ShowAlias(fullname);
-            level--;             /* Restore indent level                */
+            level--;             /* Restore indent level               */
             fullname = strtok( save , " ," );
          } /* while */
       } /* else */
@@ -494,11 +497,13 @@ void subshell( char *command )
 {
 #if defined(_Windows)
    char buf[128];
-   //
-   // Here we simply use the Windows DOSPRMPT.PIF and fire off
-   // an ASYNCHRONOUS DOS box. Under 286 mode, this will be
-   // synchronous. But who in the hell cares!
-   //
+
+/*--------------------------------------------------------------------*/
+/*       Here we simply use the Windows DOSPRMPT.PIF and fire off     */
+/*       an ASYNCHRONOUS DOS box.  Under 286 mode, this will be       */
+/*       synchronous.  But who in the hell cares!                     */
+/*--------------------------------------------------------------------*/
+
    sprintf(buf, "dosprmpt.pif %s", command);
    WinExec(buf, SW_SHOWMAXIMIZED);
 #else

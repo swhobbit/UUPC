@@ -41,9 +41,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB14.C 1.2 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: ulib14.c 1.3 1993/10/03 22:09:09 ahd Exp $
  *
- *    $Log: ULIB14.C $
+ *    $Log: ulib14.c $
+ * Revision 1.3  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.2  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -75,12 +78,12 @@
 #include "lib.h"
 #include "hlib.h"
 #include "ulib.h"
-#include "comm.h"          // Modem status bits
+#include "comm.h"          /* Modem status bits                       */
 #include "ssleep.h"
 #include "catcher.h"
 
-#include "fossil.h"        // Various INT14 definitions
-#include "commlib.h"       // Trace functions, etc.
+#include "fossil.h"        /* Various INT14 definitions               */
+#include "commlib.h"       /* Trace functions, etc.                    */
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -147,8 +150,8 @@ int iopenline(char *name, BPS bps, const boolean direct)
       panic();
    }
 
-   norecovery = FALSE;     // Flag we need a graceful shutdown after
-                           // Cntl-BREAK
+   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+                           /* Cntl-BREAK                              */
 
 /*--------------------------------------------------------------------*/
 /*       With the INT14 setup, we don't worry about the lock file     */
@@ -167,7 +170,7 @@ int iopenline(char *name, BPS bps, const boolean direct)
 
    portActive = TRUE;     /* record status for error handler */
 
-   return 0;               // Return success to caller
+   return 0;               /* Return success to caller                 */
 
 } /* iopenline */
 
@@ -196,7 +199,7 @@ unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
 
    int count = 0;
 
-   ShowModem();                  // Report modem status
+   ShowModem();                  /* Report modem status               */
 
 /*--------------------------------------------------------------------*/
 /*             Now actually try to read a buffer of data              */
@@ -212,7 +215,7 @@ unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
    {
       unsigned short result = FossilCntl( FS_RECV1, 0);
 
-      if (result & 0x8000)          // Did read time out?
+      if (result & 0x8000)          /* Did read time out?              */
       {
          printmsg (20, "Timeout in sread().");
          traceData( buffer, count + 1, FALSE );
@@ -274,11 +277,11 @@ void issendbrk(unsigned int duration)
 /*       (Snuffles doubts this works properly)                        */
 /*--------------------------------------------------------------------*/
 
-   modemControl( 0x20, TRUE );   // Raise flag, which lowers DSR
+   modemControl( 0x20, TRUE );   /* Raise flag, which lowers DSR      */
 
-   ddelay (250);                 // Wait a quarter second
+   ddelay (250);                 /* Wait a quarter second              */
 
-   modemControl( 0x20, FALSE);   // Lower flag, which raises DSR
+   modemControl( 0x20, FALSE);   /* Lower flag, which raises DSR      */
 
 } /* issendbrk */
 
@@ -296,7 +299,7 @@ void icloseline(void)
 
    portActive = FALSE;     /* flag port closed for error handler  */
 
-   modemControl( 0x20, FALSE );  // Lower DSR
+   modemControl( 0x20, FALSE );  /* Lower DSR                          */
 
    ddelay (500);
 
@@ -317,11 +320,11 @@ void ihangup( void )
       return;
    hangupNeeded = FALSE;
 
-   modemControl( 0x20, FALSE );  // Lower DSR
+   modemControl( 0x20, FALSE );  /* Lower DSR                          */
 
    ddelay (500);                 /* Pause half a second */
 
-   modemControl( 0x20, TRUE );   // Restore DSR
+   modemControl( 0x20, TRUE );   /* Restore DSR                       */
 
    ddelay (2000);                /* Wait two seconds to recover */
 
@@ -373,7 +376,7 @@ void iflowcontrol( boolean flow )
                               (flow ? "en" : "dis"));
    regs.x.ax = 0x800A;
    regs.h.bl = (unsigned char) (flow ? 2 : 1);
-                                 // 2 is hardware, 1 is XON/XOFF
+                                 /* 2 is hardware, 1 is XON/XOFF      */
    regs.x.dx = portNum;
    int86 (FS_INTERRUPT, &regs, &regs);
 

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.6 1993/10/02 23:12:35 dmwatt Exp $
+ *    $Id: ulibip.c 1.7 1993/10/07 22:56:45 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.7  1993/10/07  22:56:45  ahd
+ * Use dynamically allocated buffer
+ *
  * Revision 1.6  1993/10/02  23:12:35  dmwatt
  * Winsock error message support
  *
@@ -63,15 +66,15 @@
 #include "lib.h"
 #include "hlib.h"
 #include "ulib.h"
-#include "comm.h"          // Modem status bits
+#include "comm.h"          /* Modem status bits                       */
 #include "ssleep.h"
 #include "catcher.h"
 
-#include "commlib.h"       // Trace functions, etc.
-#include "pwserr.h"        // Windows sockets error messages
+#include "commlib.h"       /* Trace functions, etc.                    */
+#include "pwserr.h"        /* Windows sockets error messages           */
 
 #ifdef _Windows
-#include "pwinsock.h"      // definitions for 16 bit Winsock functions
+#include "pwinsock.h"      /* definitions for 16 bit Winsock functions  */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -90,10 +93,10 @@ static boolean carrierDetect = FALSE;
 
 currentfile();
 static boolean hangupNeeded = TRUE;
-extern boolean winsockActive;                   // Initialized in catcher.c
-static SOCKET pollingSock = INVALID_SOCKET;     // The current polling socket
-static SOCKET connectedSock = INVALID_SOCKET;   // The currently connected socket
-static boolean connectionDied = FALSE;          // The current connection failed
+extern boolean winsockActive;                   /* Initialized in catcher.c  */
+static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
+static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
+static boolean connectionDied = FALSE;          /* The current connection failed  */
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -134,7 +137,7 @@ boolean InitWinsock(void)
       return FALSE;
 #endif
 
-// status = WSAStartup(MAKEWORD(1,1), &WSAData);
+/* status = WSAStartup(MAKEWORD(1,1), &WSAData); */
    status = WSAStartup(0x0101, &WSAData);
 
    if (status != 0)
@@ -183,16 +186,16 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    LPHOSTENT phe;
    LPSERVENT pse;
 
-   if (!InitWinsock())           // Initialize library?
-      return TRUE;               // No --> Report error
+   if (!InitWinsock())           /* Initialize library?               */
+      return TRUE;               /* No --> Report error               */
 
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
    printmsg(15, "tactiveopenline: %s", name);
 
-   norecovery = FALSE;     // Flag we need a graceful shutdown after
-                           // Ctrl-BREAK
+   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+                           /* Ctrl-BREAK                              */
 
    carrierDetect = FALSE;  /* No modem connected yet                */
 
@@ -269,9 +272,9 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    traceStart( name );
 
    portActive = TRUE;     /* record status for error handler */
-   carrierDetect = TRUE;   // Carrier detect = connection
+   carrierDetect = TRUE;   /* Carrier detect = connection              */
 
-   return FALSE;                       // Return success to caller
+   return FALSE;                       /* Return success to caller     */
 
 } /* tactiveopenline */
 
@@ -290,16 +293,16 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
    SOCKADDR_IN sin;
    LPSERVENT pse;
 
-   if (!InitWinsock())           // Initialize library?
-      return TRUE;               // No --> Report error
+   if (!InitWinsock())           /* Initialize library?               */
+      return TRUE;               /* No --> Report error               */
 
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
    printmsg(15, "tpassiveopenline: opening passive connection");
 
-   norecovery = FALSE;     // Flag we need a graceful shutdown after
-                           // Ctrl-BREAK
+   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+                           /* Ctrl-BREAK                              */
 
    carrierDetect = FALSE;  /* No network connection yet             */
 
@@ -361,7 +364,7 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
       printmsg(0, "tpassiveopen: bind(pollingSock) failed");
       printWSerror("bind", wsErr);
-      return TRUE;                      // report failure
+      return TRUE;                      /* report failure              */
    }
 
    printmsg(15, "tpassiveopen: doing listen()");
@@ -378,7 +381,7 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    portActive = TRUE;     /* record status for error handler */
 
-   return FALSE;          // Return success to caller
+   return FALSE;          /* Return success to caller                 */
 
 } /* tpassiveopen */
 
@@ -419,7 +422,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
    } /* if */
 
    if (connectionDied || connectedSock == INVALID_SOCKET)
-   {                             // Haven't accepted a connection yet?
+   {                             /* Haven't accepted a connection yet?  */
       return 0;
    }
 
@@ -493,7 +496,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 
          if (IsFatalSocketError(err))
          {
-            shutdown(connectedSock, 2);  // Fail both reads and writes
+            shutdown(connectedSock, 2);  /* Fail both reads and writes  */
             connectionDied = TRUE;
          }
          commBufferUsed = 0;
@@ -595,7 +598,7 @@ int tswrite(char *data, unsigned int len)
 
       if (IsFatalSocketError(err))
       {
-         shutdown(connectedSock, 2);  // Fail both reads and writes
+         shutdown(connectedSock, 2);  /* Fail both reads and writes   */
          connectionDied = TRUE;
       }
       return 0;
@@ -734,8 +737,8 @@ void tflowcontrol( boolean flow )
 
 BPS tGetSpeed( void )
 {
-   return 57600;           // Arbitary large number to avoid possible
-                           // divide by zero error in caller
+   return 57600;           /* Arbitary large number to avoid possible  */
+                           /* divide by zero error in caller           */
 } /* GetSpeed */
 
 /*--------------------------------------------------------------------*/

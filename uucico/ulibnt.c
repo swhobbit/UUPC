@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.6 1993/10/03 22:09:09 ahd Exp $
+ *       $Id: ulibnt.c 1.7 1993/10/07 22:56:45 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.7  1993/10/07  22:56:45  ahd
+ * Use dynamically allocated buffer
+ *
  * Revision 1.6  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -116,7 +119,7 @@
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 static boolean console = FALSE;
@@ -153,8 +156,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
    DWORD dwError;
    BOOL rc;
 
-   if (portActive)              /* Was the port already active?     ahd   */
-      closeline();               /* Yes --> Shutdown it before open  ahd   */
+   if (portActive)              /* Was the port already active?     ahd  */
+      closeline();               /* Yes --> Shutdown it before open  ahd  */
 
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu",
@@ -204,8 +207,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( equal(name,"CON"))
    {
-      portActive = TRUE;     /* record status for error handler        */
-      carrierdetect = FALSE;  /* Modem is not connected                 */
+      portActive = TRUE;     /* record status for error handler       */
+      carrierdetect = FALSE;  /* Modem is not connected                */
       console = TRUE;
       return 0;
    }
@@ -318,7 +321,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       panic();
    }
 
-   traceStart( name );     // Enable logging
+   traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;     /* record status for error handler        */
    carrierdetect = FALSE;  /* Modem is not connected                 */
@@ -664,7 +667,7 @@ void nhangup( void )
 
    printmsg(3,"hangup: Dropped DTR");
    carrierdetect = FALSE;  /* Modem is not connected                 */
-   ddelay(500);            /* Really only need 250 milliseconds         */
+   ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR back up                         */
@@ -676,7 +679,7 @@ void nhangup( void )
       panic();
    }
 
-   ddelay(2000);           /* Now wait for the poor thing to recover    */
+   ddelay(2000);           /* Now wait for the poor thing to recover   */
 
 } /* nhangup */
 

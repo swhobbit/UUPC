@@ -23,10 +23,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.3 1993/09/30 03:06:28 ahd Exp $
+ *    $Id: suspend2.c 1.4 1993/10/03 20:37:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.4  1993/10/03  20:37:34  ahd
+ * Further cleanup for 32 bit environment
+ *
+ * Revision 1.4  1993/10/03  20:37:34  ahd
+ * Further cleanup for 32 bit environment
+ *
  * Revision 1.3  1993/09/30  03:06:28  ahd
  * Move suspend signal handler into suspend2
  *
@@ -129,7 +135,7 @@ static ULONG semWait, semFree;
 static PFNSIGHANDLER old;
 static USHORT nAction;
 static int nBytes;
-typedef USHORT APIRET ;  // Define older API return type
+typedef USHORT APIRET ;  /* Define older API return type              */
 
 #endif
 
@@ -172,7 +178,7 @@ static VOID FAR SuspendThread(VOID)
     for (;;)
     {
       if ( DosRead(hPipe, &nChar, 1, &nBytes) )
-        break;                   // Quit if an error
+        break;                   /* Quit if an error                  */
 
       if ( nBytes == 0 )
         break; /* EOF */
@@ -323,7 +329,7 @@ void suspend_init(const char *port )
 /*--------------------------------------------------------------------*/
 
   strcpy(szPipe, SUSPEND_PIPE);
-  portName =  newstr( port );    // Save for later reference
+  portName =  newstr( port );    /* Save for later reference           */
   strcat(szPipe, port );
 
   printmsg(4,"Creating locking pipe %s", szPipe );
@@ -445,22 +451,22 @@ int suspend_other(const boolean suspend,
 
       if (rc)
       {
-        if ( debuglevel >= 4 )          // No error if no passive UUCICO
-           printOS2error( "DosOpen", rc); // So this is only for info
+        if ( debuglevel >= 4 )          /* No error if no passive UUCICO  */
+           printOS2error( "DosOpen", rc); /* So this is only for info  */
 
         if ((rc == ERROR_PIPE_BUSY) && firstPass )
         {
            firstPass = FALSE;
 
 #ifdef __OS2__
-           rc = DosWaitNPipe( szPipe, 5000 ); // Wait up to 5 sec for pipe
+           rc = DosWaitNPipe( szPipe, 5000 ); /* Wait up to 5 sec for pipe  */
            if (rc)
            {
              printOS2error( "DosWaitNPipe", rc);
              return 0;
            } /* if (rc) */
 #else
-           rc = DosWaitNmPipe( szPipe, 5000 ); // Wait up to 5 sec for pipe
+           rc = DosWaitNmPipe( szPipe, 5000 ); /* Wait up to 5 sec for pipe  */
            if (rc)
            {
              printOS2error( "DosWaitNmPipe", rc);
@@ -523,7 +529,7 @@ int suspend_other(const boolean suspend,
      result = -3;
    }
    else
-      result = 1;                   // Success!
+      result = 1;                   /* Success!                       */
 
 /*--------------------------------------------------------------------*/
 /*                     Close up and return to caller                  */

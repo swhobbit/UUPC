@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.6 1993/09/20 04:48:25 ahd Exp $
+ *    $Id: dcplib.c 1.7 1993/09/29 04:52:03 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.7  1993/09/29  04:52:03  ahd
+ * Make device name use standard modem file configuration prefix
+ *
  * Revision 1.6  1993/09/20  04:48:25  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -130,7 +133,7 @@ void motd( const char *fname, char *buf, const int bufsiz );
 
 boolean login(void)
 {
-   char line[BUFSIZ];                  /* Allow for long domain names!  */
+   char line[BUFSIZ];                  /* Allow for long domain names! */
    char user[50];
    char pswd[50];
    char attempts = 0;                  /* Allows login tries         */
@@ -157,7 +160,7 @@ boolean login(void)
           compilep,
           compilev,
          E_domain,
-         M_device);           // Print a hello message
+         M_device);           /* Print a hello message                 */
 
 #else /* not Windows */
 
@@ -233,22 +236,22 @@ boolean login(void)
 /*                 Validate the user id and passowrd                  */
 /*--------------------------------------------------------------------*/
 
-      userp = checkuser(user);         /* Locate user id in host table  */
+      userp = checkuser(user);         /* Locate user id in host table */
 
-      if (userp == BADUSER)            /* Does user id exist?           */
-      {                                /* No --> Notify the user        */
+      if (userp == BADUSER)            /* Does user id exist?          */
+      {                                /* No --> Notify the user       */
          wmsg("\r\nlogin failed",0);
 
          token = user;
          while (!isalnum( *token ) && (*token !=  '\0'))
-            token ++;                  /* Scan for first alpha-numeric  */
+            token ++;                  /* Scan for first alpha-numeric */
 
-         if (*token != '\0')           /* If at least one good char     */
+         if (*token != '\0')           /* If at least one good char    */
             printmsg(0,"login: login for user %s failed, bad user id",
-                  user);               /* Log the error for ourselves   */
+                  user);               /* Log the error for ourselves  */
       }
-      else if ( equal(pswd,userp->password))   /* Correct password?     */
-      {                                /* Yes --> Log the user "in"     */
+      else if ( equal(pswd,userp->password))   /* Correct password?    */
+      {                                /* Yes --> Log the user "in"    */
                    /*   . . ..+....1....  +....2....+....3....  + .   */
          sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
                   E_domain, arpadate());
@@ -295,7 +298,7 @@ boolean login(void)
 boolean loginbypass(const char *user)
 {
    struct UserTable *userp;
-   char line[BUFSIZ];                  /* Allow for long domain names!  */
+   char line[BUFSIZ];                  /* Allow for long domain names! */
 
    printmsg(14, "loginbypass: login=%s", user);
 
@@ -346,9 +349,11 @@ static void LoginShell( const   struct UserTable *userp )
 
 #if defined(_Windows)
         char line[128];
-        //
-        // No special shell support under Windows, sorry!
-        //
+
+/*--------------------------------------------------------------------*/
+/*           No special shell support under Windows, sorry!           */
+/*--------------------------------------------------------------------*/
+
         sprintf(line,
            "login: special shell %s not supported. Goodbye.\r\n",
                 userp->sh);

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.5 1993/07/19 02:52:11 ahd Exp $
+ *    $Id: alias.c 1.6 1993/07/21 01:19:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.6  1993/07/21  01:19:16  ahd
+ * Incr elements after filling info from passwd, not before!
+ *
  * Revision 1.5  1993/07/19  02:52:11  ahd
  * Don't load alias for empty names
  *
@@ -85,7 +88,7 @@ currentfile();
 
 boolean InitRouter()
 {
-   boolean success = TRUE;       /* Assume the input data is good       */
+   boolean success = TRUE;       /* Assume the input data is good      */
    struct HostTable *Hptr;
 
 /*--------------------------------------------------------------------*/
@@ -129,9 +132,9 @@ void ExtractName(char *result, char *column)
       printmsg((recursion > 2) ? 1:8,
             "ExtractName: Getting name from '%s'",column);
 
-      ExtractAddress(result, column, TRUE);  /* Get the full name    */
-      if (!strlen(result))       /* Did we get the name?             */
-      {                          /* No --> Get the e-mail address    */
+      ExtractAddress(result, column, TRUE);  /* Get the full name     */
+      if (!strlen(result))       /* Did we get the name?              */
+      {                          /* No --> Get the e-mail address     */
          char addr[MAXADDR];
          char path[MAXADDR];
          char node[MAXADDR];
@@ -179,11 +182,11 @@ void BuildAddress(char *result, const char *input)
 /*   then see if we know the person by address                        */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(addr,input,FALSE);   /* Get user e-mail addr    */
-      user_at_node(addr,path,node,user);  /* Break address down      */
+      ExtractAddress(addr,input,FALSE);   /* Get user e-mail addr     */
+      user_at_node(addr,path,node,user);  /* Break address down       */
 
-      fulladdr = AliasByAddr(node,user);  /* Alias for the address?  */
-      if (fulladdr != NULL)            /* Yes --> Use it             */
+      fulladdr = AliasByAddr(node,user);  /* Alias for the address?   */
+      if (fulladdr != NULL)            /* Yes --> Use it              */
       {
          strcpy(result,fulladdr);
          return;
@@ -194,29 +197,29 @@ void BuildAddress(char *result, const char *input)
 /*   and then normalize the address                                   */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(name,input,TRUE);    /* Also get their name     */
+      ExtractAddress(name,input,TRUE);    /* Also get their name      */
 
-      if (strlen(name))             /* Did we find a name for user?  */
-      {                             /* Yes --> Return it             */
+      if (strlen(name))             /* Did we find a name for user?   */
+      {                             /* Yes --> Return it              */
          char *s = strchr(node, '.');
          if ((s == NULL) || equalni( s, ".UUCP", 5))
-                                    /* Simple name or UUCP domain?   */
-         {                          /* Yes--> Use original address   */
-            size_t pathlen = strlen(path);/* Save len of orig path   */
+                                    /* Simple name or UUCP domain?    */
+         {                          /* Yes--> Use original address    */
+            size_t pathlen = strlen(path);/* Save len of orig path    */
             if ((pathlen > strlen(addr)) &&
-                (!equal(node,path)) && /* Target not a known host?   */
-                equaln(addr,path, strlen(path)) && /* & host starts  */
-                (addr[pathlen] == '!'))   /* ...the address?         */
-               fulladdr = &addr[pathlen + 1];   /* Yes --> Drop it   */
+                (!equal(node,path)) && /* Target not a known host?    */
+                equaln(addr,path, strlen(path)) && /* & host starts   */
+                (addr[pathlen] == '!'))   /* ...the address?          */
+               fulladdr = &addr[pathlen + 1];   /* Yes --> Drop it    */
             else
-               fulladdr = addr;  /* No --> Use full address          */
+               fulladdr = addr;  /* No --> Use full address           */
             sprintf(result,"(%s) %s", name, addr);
          } /* (strchr(node, '.') == NULL) */
-         else                    /* No --> Use RFC-822 format        */
+         else                    /* No --> Use RFC-822 format         */
             sprintf(result,"\"%s\" <%s@%s>", name, user, node);
       } /* if strlen(name) */
       else
-         strcpy(result,addr);    /* No name, just use the original   */
+         strcpy(result,addr);    /* No name, just use the original    */
 } /* BuildAddress */
 
 
@@ -303,11 +306,11 @@ size_t LoadAliases(void)
    size_t   elements = 0;
    size_t   max_elements = UserElements + 20;
    size_t   subscript;
-   struct AliasTable *hit;           /* temporary pointer for searching  */
+   struct AliasTable *hit;           /* temporary pointer for searching */
    struct AliasTable target;
 
 
-   checkuser( E_mailbox ); /* Force the table to be loaded           */
+   checkuser( E_mailbox ); /* Force the table to be loaded            */
    alias = calloc(max_elements, sizeof(*alias));
    checkref(alias);
 
@@ -315,7 +318,7 @@ size_t LoadAliases(void)
 /*                   Actually load the alias table                    */
 /*--------------------------------------------------------------------*/
 
-   if (E_aliases != NULL )    /* Did the user specify aliases file?  */
+   if (E_aliases != NULL )    /* Did the user specify aliases file?   */
    {
       char fname[FILENAME_MAX];
 
@@ -331,20 +334,20 @@ size_t LoadAliases(void)
 
       while (! feof(ff))
       {
-         if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line      */
-            break;                  /* Exit if end of file              */
+         if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line     */
+            break;                  /* Exit if end of file             */
          token = strtok(buf," \t\n");
-         if (token == NULL)         /* Any data?                        */
-            continue;               /* No --> read another line         */
+         if (token == NULL)         /* Any data?                       */
+            continue;               /* No --> read another line        */
          if (token[0] == '#')
             continue;                  /* Line is a comment; loop again */
 
          /* Add the alias to the table.  Note that we must add the nick */
-         /* to the table ourselves (rather than use lsearch) because    */
-         /* we must make a copy of the string; the *token we use for    */
-         /* the search is in the middle of our I/O buffer!              */
+         /* to the table ourselves (rather than use lsearch) because   */
+         /* we must make a copy of the string; the *token we use for   */
+         /* the search is in the middle of our I/O buffer!             */
          /*
-         /* I was burned, _you_ have been warned.                       */
+         /* I was burned, _you_ have been warned.                      */
 
          target.anick = token;
 
@@ -395,7 +398,7 @@ size_t LoadAliases(void)
 /*--------------------------------------------------------------------*/
 
    alias = realloc(alias, (elements + UserElements) * sizeof(*alias));
-                              /* Resize table to final known size    */
+                              /* Resize table to final known size     */
    checkref(alias);
 
    for ( subscript = 0; subscript < UserElements;  subscript++)
@@ -403,7 +406,7 @@ size_t LoadAliases(void)
       if ( equal(users[subscript].realname,EMPTY_GCOS) )
          continue;
 
-      alias[elements].anick = "";   /* No nickname, only good for addr  */
+      alias[elements].anick = "";   /* No nickname, only good for addr */
       if (bflag[F_BANG])
          sprintf(buf, "(%s) %s!%s",
                users[subscript].realname, E_fdomain,

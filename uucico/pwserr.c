@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.2 1993/10/02 23:45:16 ahd Exp $
+ *    $Id: pwserr.c 1.3 1993/10/03 20:37:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ * Revision 1.3  1993/10/03  20:37:34  ahd
+ * Correct FAR pointer references
+ *
  * Revision 1.2  1993/10/02  23:45:16  ahd
  * Delete unneeded function
  *
@@ -36,13 +39,13 @@
 #include <stdio.h>
 #include <io.h>
 
-#include "winsock.h"       // So we search local directories
+#include "winsock.h"       /* So we search local directories           */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"           // Cause we always include it!
+#include "lib.h"           /* Cause we always include it!              */
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

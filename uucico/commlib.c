@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.9 1993/10/02 23:13:29 ahd Exp $
+ *    $Id: commlib.c 1.10 1993/10/07 22:51:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.10  1993/10/07  22:51:00  ahd
+ * Allocate communications input buffer for selected suites
+ *
  * Revision 1.9  1993/10/02  23:13:29  ahd
  * Allow suppressing TCPIP support
  *
@@ -74,11 +77,11 @@
 #include "security.h"
 #include "modem.h"
 
-#include "ulib.h"             // Native communications interface
+#include "ulib.h"             /* Native communications interface      */
 
 #if !defined(BIT32ENV) && !defined(FAMILYAPI) && !defined(_Windows)
-#include "ulibfs.h"           // DOS FOSSIL interface
-#include "ulib14.h"           // DOS ARTISOFT INT14 interface
+#include "ulibfs.h"           /* DOS FOSSIL interface                 */
+#include "ulib14.h"           /* DOS ARTISOFT INT14 interface         */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -97,7 +100,7 @@ typedef struct _COMMSUITE {
         commrefb WaitForNetConnect;
         boolean  network;
         boolean  buffered;
-        char     *netDevice;           // Network device name
+        char     *netDevice;           /* Network device name         */
 } COMMSUITE;
 
 /*--------------------------------------------------------------------*/
@@ -107,13 +110,13 @@ typedef struct _COMMSUITE {
 
 #if defined(WIN32) || defined(_Windows)
 #ifndef NOTCPIP
-#include "ulibip.h"           // Windows sockets on TCP/IP interface
+#include "ulibip.h"           /* Windows sockets on TCP/IP interface  */
 #define TCPIP
 #endif
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
-#include "ulibnmp.h"          // OS/2 named pipes interface
+#include "ulibnmp.h"          /* OS/2 named pipes interface           */
 #endif
 
 #define NATIVE "internal"
@@ -123,7 +126,7 @@ typedef struct _COMMSUITE {
 /*--------------------------------------------------------------------*/
 
 boolean portActive;         /* Port active flag for error handler   */
-boolean traceEnabled;        // Trace active flag
+boolean traceEnabled;        /* Trace active flag                     */
 size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
 char *commBuffer = NULL;
@@ -139,13 +142,13 @@ commrefb CDp;
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-static FILE *traceStream;    // Stream used for trace file
+static FILE *traceStream;    /* Stream used for trace file            */
 
-static short   traceMode;    // Flag for last data (input/output)
-                             // written to trace log
+static short   traceMode;    /* Flag for last data (input/output)     */
+                             /* written to trace log                  */
 
-static boolean network = FALSE;  // Current communications suite is
-                                 // network oriented
+static boolean network = FALSE;  /* Current communications suite is   */
+                                 /* network oriented                  */
 
 currentfile();
 
@@ -159,69 +162,69 @@ boolean chooseCommunications( const char *name )
 {
    static COMMSUITE suite[] =
    {
-        { NATIVE,                      // Default for any opsys
+        { NATIVE,                      /* Default for any opsys        */
           nopenline, nopenline, nsread, nswrite,
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
           nCD,
           (commrefb) NULL,
-          FALSE,                       // Not network based
+          FALSE,                       /* Not network based           */
 #if defined(BIT32ENV) || defined(FAMILYAPI)
-          TRUE,                        // Buffered under OS/2 and Windows NT
+          TRUE,                        /* Buffered under OS/2 and Windows NT  */
 #else
-          TRUE,                        // Unbuffered for DOS, Windows 3.x
+          TRUE,                        /* Unbuffered for DOS, Windows 3.x  */
 #endif
-          NULL                         // No network device name
+          NULL                         /* No network device name      */
         },
 #if !defined(BIT32ENV) && !defined(_Windows) && !defined(FAMILYAPI)
-        { "fossil",                    // MS-DOS FOSSIL driver
+        { "fossil",                    /* MS-DOS FOSSIL driver        */
           fopenline, fopenline, fsread, fswrite,
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD,
           (commrefb) NULL,
-          FALSE,                       // Not network oriented
-          FALSE,                       // Not buffered
-          NULL                         // No network device name
+          FALSE,                       /* Not network oriented        */
+          FALSE,                       /* Not buffered                 */
+          NULL                         /* No network device name      */
         },
-        { "articomm",                  // MS-DOS ARTISOFT INT14 driver
+        { "articomm",                  /* MS-DOS ARTISOFT INT14 driver  */
           iopenline, iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD,
           (commrefb) NULL,
-          FALSE,                       // Not network oriented
-          FALSE,                       // Not buffered
-          NULL                         // No network device name
+          FALSE,                       /* Not network oriented        */
+          FALSE,                       /* Not buffered                 */
+          NULL                         /* No network device name      */
         },
 #endif
 
 #if defined(TCPIP)
-        { "tcp/ip",                    // Win32 TCP/IP Winsock interface
+        { "tcp/ip",                    /* Win32 TCP/IP Winsock interface  */
           tactiveopenline, tpassiveopenline, tsread, tswrite,
           tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
           tGetSpeed,
           tCD,
           tWaitForNetConnect,
-          TRUE,                        // Network oriented
-          TRUE,                        // Uses internal buffer
-          "tcptty",                    // Network device name
+          TRUE,                        /* Network oriented            */
+          TRUE,                        /* Uses internal buffer        */
+          "tcptty",                    /* Network device name         */
         },
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
-        { "namedpipes",                // OS/2 named pipes
+        { "namedpipes",                /* OS/2 named pipes            */
           pactiveopenline, ppassiveopenline, psread, pswrite,
           pssendbrk, pcloseline, pSIOSpeed, pflowcontrol, phangup,
           pGetSpeed,
           pCD,
           pWaitForNetConnect,
-          TRUE,                        // Network oriented
-          TRUE,                        // Uses internal buffer
-          "pipe",                      // Network device name
+          TRUE,                        /* Network oriented            */
+          TRUE,                        /* Uses internal buffer        */
+          "pipe",                      /* Network device name         */
         },
 #endif
-        { NULL }                       // End of list
+        { NULL }                       /* End of list                 */
    };
 
    int subscript = 0;
@@ -233,7 +236,7 @@ boolean chooseCommunications( const char *name )
    while (( name  != NULL ) && (suite[subscript].type != NULL ))
    {
       if ( equali(name,suite[subscript].type))
-         break;                           // Success!
+         break;                           /* Success!                 */
       else
          subscript++;
    } /* while */
@@ -275,9 +278,9 @@ boolean chooseCommunications( const char *name )
    {
 
 #ifdef BIT32ENV
-      commBufferLength = (MAXPACK * 4);      // Generous to reduce I/O's
+      commBufferLength = (MAXPACK * 4);      /* Generous to reduce I/O's  */
 #else
-      commBufferLength = (MAXPACK * 4) / 3;  // Packet plus header
+      commBufferLength = (MAXPACK * 4) / 3;  /* Packet plus header     */
 #endif
 
       commBuffer = malloc( commBufferLength );
@@ -340,10 +343,10 @@ boolean traceStart( const char *port )
    printmsg(4,"Tracing communications port %s in file %s",
             port, linelog );
 
-   traceMode  = 2;               // Make sure first trace includes
-                                 // prefix with direction
+   traceMode  = 2;               /* Make sure first trace includes     */
+                                 /* prefix with direction              */
 
-   return TRUE;                  // Success to caller
+   return TRUE;                  /* Success to caller                 */
 
 } /* traceStart */
 
@@ -400,7 +403,7 @@ void traceData( const char *data,
    } /* for */
 #else
 
-   fwrite(data, 1, len, traceStream ); // Write out raw data
+   fwrite(data, 1, len, traceStream ); /* Write out raw data           */
 
 #endif
 
@@ -414,5 +417,5 @@ void traceData( const char *data,
 
 boolean IsNetwork(void)
 {
-   return network;         // Preset when suite initialized
+   return network;         /* Preset when suite initialized           */
 }

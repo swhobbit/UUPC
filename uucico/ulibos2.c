@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.23 1993/10/03 22:09:09 ahd Exp $
+ *       $Id: ulibos2.c 1.24 1993/10/07 22:56:45 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.24  1993/10/07  22:56:45  ahd
+ * Use dynamically allocated buffer
+ *
  * Revision 1.23  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -113,7 +116,7 @@
 #include <limits.h>
 
 #ifndef __OS2__
-typedef USHORT APIRET ;  // Define older API return type
+typedef USHORT APIRET ;  /* Define older API return type              */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -135,7 +138,7 @@ typedef USHORT APIRET ;  // Define older API return type
 
 currentfile();
 
-static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 
@@ -276,7 +279,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                      &ParmLengthInOut,
                      (PVOID) &com_attrib,
                      sizeof(com_attrib),
-                     &DataLengthInOut); // Get old attributes from device
+                     &DataLengthInOut); /* Get old attributes from device  */
 
 #else
 
@@ -284,7 +287,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                      FAR_NULL,
                      ASYNC_GETLINECTRL,
                      IOCTL_ASYNC,
-                     com_handle);   // Get old attributes from device
+                     com_handle);   /* Get old attributes from device  */
 #endif
 
    if (rc)
@@ -353,7 +356,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                      &ParmLengthInOut,
                      (PVOID) &com_dcbinfo,
                      sizeof(com_dcbinfo),
-                     &DataLengthInOut);   // Get old attributes from device
+                     &DataLengthInOut);   /* Get old attributes from device  */
 
 #else
 
@@ -361,7 +364,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                      FAR_NULL,
                      ASYNC_GETDCBINFO,
                      IOCTL_ASYNC,
-                     com_handle);    // Get old attributes from device
+                     com_handle);    /* Get old attributes from device  */
 
 #endif
 
@@ -460,7 +463,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       panic();
    } /*if */
 
-   traceStart( name );     // Enable logging
+   traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;     /* record status for error handler        */
    carrierDetect = FALSE;  /* Modem is not connected                 */
@@ -995,7 +998,7 @@ void nhangup( void )
 
    printmsg(3,"hangup: Dropped DTR");
    carrierDetect = FALSE;  /* Modem is not connected                 */
-   ddelay(500);            /* Really only need 250 milliseconds         */
+   ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR back up                         */
@@ -1036,7 +1039,7 @@ void nhangup( void )
    else if ( com_error )
          ShowError( com_error );
 
-   ddelay(2000);           /* Now wait for the poor thing to recover    */
+   ddelay(2000);           /* Now wait for the poor thing to recover   */
 
 } /* nhangup */
 
@@ -1066,8 +1069,8 @@ void nSIOSpeed(BPS baud)
 
    struct
    {
-      ULONG baud;       // this structure is needed to set the extended
-      BYTE fraction;    // baud rate using function 41h DosDevIOCtl
+      ULONG baud;       /* this structure is needed to set the extended  */
+      BYTE fraction;    /* baud rate using function 41h DosDevIOCtl   */
    } com_baud;
 
 #else

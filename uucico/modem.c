@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.31 1993/10/03 22:34:33 ahd Exp $
+ *    $Id: modem.c 1.33 1993/10/09 22:21:55 rhg Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.33  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.31  1993/10/03  22:34:33  ahd
  * Insure priority values are reset when loading modem information
  *
@@ -351,7 +354,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           // Shutdown gracefully as needed
+   norecovery = FALSE;           /* Shutdown gracefully as needed     */
    if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
@@ -412,7 +415,7 @@ CONN_STATE callin( const time_t exit_time )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           // Shutdown gracefully as needed
+   norecovery = FALSE;           /* Shutdown gracefully as needed     */
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
@@ -469,7 +472,7 @@ CONN_STATE callin( const time_t exit_time )
       {
          interactive_processing = TRUE;
          shutDown();
-         if ( suspend_processing )        // Give up modem for another process?
+         if ( suspend_processing )        /* Give up modem for another process?  */
          {
            return CONN_WAIT;
          }
@@ -482,23 +485,23 @@ CONN_STATE callin( const time_t exit_time )
    }
    else {
       if (!sendlist( ring,modemTimeout, offset, noconnect))
-      {                          /* Did it ring?                        */
+      {                          /* Did it ring?                       */
          interactive_processing = TRUE;
          raised = 0;
          shutDown();
-         if ( suspend_processing )        // Give up modem for another process?
+         if ( suspend_processing )        /* Give up modem for another process?  */
             return CONN_WAIT;
          else
-            return CONN_INITIALIZE;     /* No --> Return to caller       */
+            return CONN_INITIALIZE;     /* No --> Return to caller    */
       }
 
       interactive_processing = TRUE;
 
       setPrty(M_priority, M_prioritydelta );
-                              // Into warp drive for actual transfers
+                              /* Into warp drive for actual transfers  */
 
       if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
-      {                           /* Pick up the telephone               */
+      {                           /* Pick up the telephone            */
          printmsg(1,"callin: Modem failed to connect to incoming call");
          shutDown();
          return CONN_INITIALIZE;
@@ -579,8 +582,8 @@ boolean getmodem( const char *brand)
    answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
-   M_suite = NULL;            // Use default suite for communications
-   M_startupTimeout = 40;     // 40 seconds per message to exchange protocols
+   M_suite = NULL;            /* Use default suite for communications  */
+   M_startupTimeout = 40;     /* 40 seconds per message to exchange protocols  */
 
    M_priority = 999;
    M_prioritydelta = 999;
@@ -629,8 +632,8 @@ boolean getmodem( const char *brand)
       } /* if */
    } /* for */
 
-   if ( ! success )           // Missing any required inputs?
-      return success;         // Yes --> Return failure to caller
+   if ( ! success )           /* Missing any required inputs?         */
+      return success;         /* Yes --> Return failure to caller     */
 
 /*--------------------------------------------------------------------*/
 /*       The strings are valid, try to initialize the pointers to     */
@@ -666,7 +669,7 @@ static boolean dial(char *number, const BPS speed)
 /*                        Open the serial port                        */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           // Shutdown gracefully as needed
+   norecovery = FALSE;           /* Shutdown gracefully as needed     */
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
@@ -713,7 +716,7 @@ static boolean dial(char *number, const BPS speed)
       if (dialSuffix != NULL)
          strcat(buf, dialSuffix);
 
-      sendstr( buf );         /* Send the command to the telephone      */
+      sendstr( buf );         /* Send the command to the telephone     */
 
       if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
       {
@@ -764,9 +767,9 @@ static void autobaud( const BPS speed )
    {
       size_t len = 0;
 
-      memset( buf, '\0', sizeof( buf ));  /* Zero buffer                */
+      memset( buf, '\0', sizeof( buf ));  /* Zero buffer               */
       while ((len < sizeof buf) && sread( &buf[len],1,0))
-         len = strlen( buf );             /* Get speed into buffer      */
+         len = strlen( buf );             /* Get speed into buffer     */
 
       if (len > 5)
       {
@@ -809,7 +812,7 @@ void shutDown( void )
       terminate_processing = FALSE;
       raised = 0;
       hangup();
-      resetPrty();               // Drop out of hyperspace
+      resetPrty();               /* Drop out of hyperspace            */
       sendlist( dropline, modemTimeout, modemTimeout, NULL);
       recurse = FALSE;
       terminate_processing |= aborted;

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.17 1993/10/03 20:43:08 ahd Exp $
+ *    $Id: uuxqt.c 1.18 1993/10/03 22:10:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.18  1993/10/03  22:10:24  ahd
+ * Use signed for length of parameters
+ *
  * Revision 1.17  1993/10/03  20:43:08  ahd
  * Normalize comments to C++ double slash
  *
@@ -276,7 +279,7 @@ void main( int argc, char **argv)
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
 
-   tzset();                      // Set up time zone information
+   tzset();                      /* Set up time zone information      */
 
    if (!configure( B_UUXQT ))
       exit(1);   /* system configuration failed */
@@ -294,8 +297,8 @@ void main( int argc, char **argv)
 
    openlog( NULL );
 
-   checkuser( E_mailbox  );   // Force User Table to initialize
-   checkreal( E_mailserv );   // Force Host Table to initialize
+   checkuser( E_mailbox  );   /* Force User Table to initialize        */
+   checkreal( E_mailserv );   /* Force Host Table to initialize        */
 
    if (!LoadSecurity())
    {
@@ -304,7 +307,7 @@ void main( int argc, char **argv)
    } /* if (!LoadSecurity()) */
 
 #if defined(_Windows)
-   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -383,13 +386,13 @@ static boolean do_uuxqt( const char *sysname )
 
    if (( E_xqtRootDir == NULL ) || equali( E_xqtRootDir, E_spooldir ))
       sprintf( executeDirectory, "%s/%%s/XQT", E_spooldir );
-                                 // Nice parallel construction
+                                 /* Nice parallel construction        */
    else
       sprintf( executeDirectory, "%s/XQT/%%s", E_xqtRootDir);
-                                 // Fewer directories than if we
-                                 // use the spool version
+                                 /* Fewer directories than if we      */
+                                 /* use the spool version              */
 
-   pattern = newstr( executeDirectory );  // Save pattern for posterity
+   pattern = newstr( executeDirectory );  /* Save pattern for posterity  */
 
 /*--------------------------------------------------------------------*/
 /*             Outer loop for processing different hosts              */
@@ -438,7 +441,7 @@ static boolean do_uuxqt( const char *sysname )
                locked = TRUE;
             }
             else
-               break;               // We didn't get the lock
+               break;               /* We didn't get the lock         */
 
          } /* while */
 
@@ -451,7 +454,7 @@ static boolean do_uuxqt( const char *sysname )
 /*                        Restore environment                         */
 /*--------------------------------------------------------------------*/
 
-      putenv( uu_machine );   // Reset to empty string
+      putenv( uu_machine );   /* Reset to empty string                 */
 
 /*--------------------------------------------------------------------*/
 /*    If processing all hosts, step to the next host in the queue     */
@@ -551,9 +554,9 @@ static void process( const char *fname,
              user = strdup(cp);
              checkref(user);
          };
-                                    // Get the system name
+                                    /* Get the system name            */
          if ( (cp = strtok(NULL,WHITESPACE)) == NULL)
-         {                          // Did we get a string?
+         {                          /* Did we get a string?           */
             printmsg(2,"No node on U line in file \"%s\"", fname );
             cp = (char *) remote;
          }
@@ -598,10 +601,10 @@ static void process( const char *fname,
          {
              outname = strdup(cp);
              checkref(outname);
-             xflag[X_OUTPUT] = TRUE;  // return output to "outnode"
+             xflag[X_OUTPUT] = TRUE;  /* return output to "outnode"   */
 
              if ( (cp = strtok(NULL,WHITESPACE)) != NULL)
-             {                // Did we get a string?
+             {                /* Did we get a string?                 */
                    outnode = strdup(cp);
                    checkref(outnode);
                    checkreal(outnode);
@@ -658,8 +661,8 @@ static void process( const char *fname,
          token = strtok(line + 1, WHITESPACE);
          importpath(hostfile, token, remote);
 
-         if ( access( hostfile, 0 ))   // Does the host file exist?
-         {                             // No --> Skip the file
+         if ( access( hostfile, 0 ))   /* Does the host file exist?   */
+         {                             /* No --> Skip the file        */
             printmsg(0,"Missing file %s (%s) for %s, command skipped",
                      token, hostfile, fname);
             skip = TRUE;
@@ -692,7 +695,7 @@ static void process( const char *fname,
          else {
             statfil = strdup(cp);
             checkref(statfil);
-            xflag[X_STATFIL] = TRUE;     // return status to remote file
+            xflag[X_STATFIL] = TRUE;     /* return status to remote file  */
          }
          break;
 
@@ -700,25 +703,25 @@ static void process( const char *fname,
 /*                            Flag fields                             */
 /*--------------------------------------------------------------------*/
 
-      case 'Z': xflag[X_FAILED] = TRUE;   // send status if command failed
+      case 'Z': xflag[X_FAILED] = TRUE;   /* send status if command failed  */
          break;
 
-      case 'N': xflag[X_FAILED] = FALSE;  // send NO status if command failed
+      case 'N': xflag[X_FAILED] = FALSE;  /* send NO status if command failed  */
          break;
 
-      case 'n': xflag[X_SUCCESS] = TRUE;  // send status if command succeeded
+      case 'n': xflag[X_SUCCESS] = TRUE;  /* send status if command succeeded  */
          break;
 
-      case 'z': xflag[X_SUCCESS] = FALSE; // NO status if command succeeded
+      case 'z': xflag[X_SUCCESS] = FALSE; /* NO status if command succeeded  */
          break;
 
-      case 'B': xflag[X_INPUT] = TRUE;    // return command input on error
+      case 'B': xflag[X_INPUT] = TRUE;    /* return command input on error  */
          break;
 
-      case 'e': xflag[X_USEEXEC] = FALSE; // process command using sh(1)
+      case 'e': xflag[X_USEEXEC] = FALSE; /* process command using sh(1)  */
          break;
 
-      case 'E': xflag[X_USEEXEC] = TRUE;  // process command using exec(2)
+      case 'E': xflag[X_USEEXEC] = TRUE;  /* process command using exec(2)  */
          break;
 
 /*--------------------------------------------------------------------*/
@@ -749,7 +752,7 @@ static void process( const char *fname,
    {
       if ( user == NULL )
       {
-         user = strdup("uucp");    // User if none given
+         user = strdup("uucp");    /* User if none given              */
          checkref(user);
       }
 
@@ -787,7 +790,7 @@ static void process( const char *fname,
 
       if ( status > -2 )
       {
-         unlink(fname);       // Already a local file name
+         unlink(fname);       /* Already a local file name            */
 
          if (equaln(input,"D.",2))
          {
@@ -805,7 +808,7 @@ static void process( const char *fname,
 
    }
    else if (reject && !skip)
-        unlink(fname);       // Already a local file name
+        unlink(fname);       /* Already a local file name              */
 
 /*--------------------------------------------------------------------*/
 /*              Free various temporary character strings              */
@@ -895,12 +898,12 @@ static int shell(char *command,
 
    if (equal(cmdname,RNEWS) &&
        bflag[F_WINDOWS] &&
-       ( inname != NULL ))       // rnews w/input?
+       ( inname != NULL ))       /* rnews w/input?                    */
    {
       strcpy( buf, "-f " );
       strcat( buf, inlocal );
-      parameters = buf;          // We explicitly ignore all parameters
-                                 // on the RNEWS command
+      parameters = buf;          /* We explicitly ignore all parameters  */
+                                 /* on the RNEWS command              */
 
       result = execute( RNEWS,
                         buf,
@@ -914,7 +917,7 @@ static int shell(char *command,
 /*        RMAIL is special, we need to break up the parameters        */
 /*--------------------------------------------------------------------*/
 
-   else if (equal(cmdname,RMAIL) && ( inname != NULL )) // rmail w/input?
+   else if (equal(cmdname,RMAIL) && ( inname != NULL )) /* rmail w/input?  */
    {
       parameters = strtok( parameters, WHITESPACE );
 
@@ -956,9 +959,9 @@ static int shell(char *command,
          {
             char *next = strtok( NULL, "");
 
-            if ( *parameters == '-')   // Option flag for mail?
+            if ( *parameters == '-')   /* Option flag for mail?        */
                printmsg(0,"Disallowed option %s ignored",parameters);
-            else {                     // Not option, add to param list
+            else {                     /* Not option, add to param list  */
                strcat( buf, " ");
                strcat( buf, parameters );
                rlen -= strlen( parameters ) + 1;
@@ -976,8 +979,8 @@ static int shell(char *command,
 
          } /* while ( parameters != NULL ) */
 
-         if (firstPass)       // Did we process at least one addr?
-         {                    // No --> Serious problem!
+         if (firstPass)       /* Did we process at least one addr?     */
+         {                    /* No --> Serious problem!              */
             printmsg(0,
                      "Address \"%s\" too long (%d chars)!  %d available, short fall would be %d",
                       parameters,
@@ -1001,7 +1004,7 @@ static int shell(char *command,
                         TRUE,
                         FALSE );
 
-      if ( result != 0 )    // Did command execution fail?
+      if ( result != 0 )    /* Did command execution fail?            */
       {
          printmsg(0,"shell: command \"%s %s\" returned error code %d",
                cmdname, buf, result);
@@ -1055,21 +1058,21 @@ static boolean copylocal(const char *from, const char *to)
       int  fd_from, fd_to;
       int  nr;
       int  nw = -1;
-      char buf[BUFSIZ];            // faster if we alloc a big buffer
+      char buf[BUFSIZ];            /* faster if we alloc a big buffer  */
 
       /* This would be even faster if we determined that both files
          were on the same device, dos >= 3.0, and used the dos move
          function */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-         return FALSE;        // failed
+         return FALSE;        /* failed                                */
 
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
 
       if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
          close(fd_from);
-         return FALSE;        // failed
+         return FALSE;        /* failed                                */
          /* NOTE - this assumes all the required directories exist!  */
       }
 
@@ -1081,7 +1084,7 @@ static boolean copylocal(const char *from, const char *to)
       close(fd_from);
 
       if (nr != 0 || nw == -1)
-         return FALSE;        // failed in copy
+         return FALSE;        /* failed in copy                       */
       return TRUE;
 } /* copylocal */
 
@@ -1122,7 +1125,7 @@ char **create_environment(const char *logname,
       checkref(envp[subscript++]);
    }
 
-   envp[subscript] =  NULL;   // Terminate the list
+   envp[subscript] =  NULL;   /* Terminate the list                    */
 
 /*--------------------------------------------------------------------*/
 /*               Now put the data into our environment                */
@@ -1156,7 +1159,7 @@ static void delete_environment( char **envp )
    while ( envp[subscript] != NULL )
    {
       char *equal = strchr(envp[subscript]  , '=' );
-      *++equal = '\0';        // Terminate the string
+      *++equal = '\0';        /* Terminate the string                 */
       if (putenv( envp[subscript] ))
       {
          printmsg(0,"Unable to reset environment \"%s\"",envp[subscript]);
@@ -1184,11 +1187,11 @@ static boolean do_copy(char *localfile,
       if (rmtsystem == NULL) {
           copylocal(localfile, remotefile);
       } else {
-          char    tmfile[FILENAME_MAX];  // Unix style name for c file
-          char    idfile[FILENAME_MAX];  // Unix style name for data file copy
-          char    work[FILENAME_MAX]; // temp area for filename hacking
-          char    icfilename[FILENAME_MAX];  // our hacked c file path
-          char    idfilename[FILENAME_MAX];  // our hacked d file path
+          char    tmfile[FILENAME_MAX];  /* Unix style name for c file  */
+          char    idfile[FILENAME_MAX];  /* Unix style name for data file copy  */
+          char    work[FILENAME_MAX]; /* temp area for filename hacking  */
+          char    icfilename[FILENAME_MAX];  /* our hacked c file path  */
+          char    idfilename[FILENAME_MAX];  /* our hacked d file path  */
 
           struct  stat    statbuf;
 
@@ -1292,7 +1295,7 @@ static void ReportResults(const int status,
 #endif
 
      if (xflag[E_NORMAL])
-     {                        // command succeded, process appropriate flags
+     {                        /* command succeded, process appropriate flags  */
 
        fprintf(mailtmp,"exited normally\n");
 
@@ -1397,7 +1400,7 @@ static boolean AppendData( const char *input, FILE* dataout)
 
    while (fgets(buf, BUFSIZ, datain) != 0)
    {
-      if (fputs(buf, dataout) == EOF)     // I/O error?
+      if (fputs(buf, dataout) == EOF)     /* I/O error?               */
       {
          printmsg(0,"AppendData: I/O error on output file");
          printerr("dataout");
@@ -1410,7 +1413,7 @@ static boolean AppendData( const char *input, FILE* dataout)
 /*                      Close up shop and return                      */
 /*--------------------------------------------------------------------*/
 
-   if (ferror(datain))        // Clean end of file on input?
+   if (ferror(datain))        /* Clean end of file on input?           */
    {
       printerr(input);
       clearerr(datain);

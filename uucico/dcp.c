@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.19 1993/09/30 03:06:28 ahd Exp $
+ *    $Id: dcp.c 1.20 1993/10/03 20:37:34 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.20  1993/10/03  20:37:34  ahd
+ * Don't attempt to suspend port if using network protocol suite
+ *
  * Revision 1.19  1993/09/30  03:06:28  ahd
  * Move suspend signal handler into suspend2
  *
@@ -173,7 +176,7 @@ size_t s_pktsize;             /* send packet size for protocol       */
 size_t r_pktsize;             /* receive packet size for protocol    */
 
 FILE *xfer_stream = NULL;        /* stream for file being handled    */
-boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS        */
+boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS     */
 FILE *fwork = NULL, *fsys= NULL ;
 FILE *syslog = NULL;
 char workfile[FILENAME_MAX];  /* name of current workfile         */
@@ -228,7 +231,7 @@ int dcpmain(int argc, char *argv[])
       case 'd':
          exit_time = atoi( optarg );
          exit_time = time(NULL) + hhmm2sec(exit_time);
-         poll_mode = 0;          // Implies passive polling
+         poll_mode = 0;          /* Implies passive polling           */
          break;
 
       case 'g':
@@ -333,7 +336,7 @@ int dcpmain(int argc, char *argv[])
       return 100;
 
 #if defined(_Windows)
-   atexit(CloseEasyWin);       // Auto-close EasyWin window on exit
+   atexit(CloseEasyWin);       /* Auto-close EasyWin window on exit   */
 #endif
 
    atexit( shutDown );        /* Insure port is closed by panic()    */
@@ -404,7 +407,7 @@ int dcpmain(int argc, char *argv[])
                {
                   dialed = TRUE;
                   time(&hostp->hstats->ltime);
-                                 /* Save time of last attempt to call   */
+                                 /* Save time of last attempt to call  */
                   hostp->hstatus = autodial;
                   m_state = CONN_MODEM;
                }
@@ -427,7 +430,7 @@ int dcpmain(int argc, char *argv[])
                if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
                {
                   hostp->hstatus =  nodevice;
-                  m_state = CONN_INITIALIZE;    // Try next system
+                  m_state = CONN_INITIALIZE;    /* Try next system     */
                }
                else
                   m_state = callup( );
@@ -483,8 +486,8 @@ int dcpmain(int argc, char *argv[])
       CONN_STATE s_state = CONN_INITIALIZE;
       CONN_STATE old_state = CONN_EXIT;
 
-      if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
-         panic();                /* Avoid loop if bad modem name        */
+      if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
+         panic();                /* Avoid loop if bad modem name       */
 
       if ( ! IsNetwork() )
          suspend_init(M_device);
@@ -518,7 +521,7 @@ int dcpmain(int argc, char *argv[])
 #if !defined(__TURBOC__) || defined(BIT32ENV)
               s_state = suspend_wait();
 #else
-              panic();                 // Why are we here?!
+              panic();                 /* Why are we here?!           */
 #endif
               break;
 

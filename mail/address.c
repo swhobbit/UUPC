@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.6 1993/06/21 04:04:04 ahd Exp $
+ *    $Id: address.c 1.7 1993/06/22 00:55:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.7  1993/06/22  00:55:45  ahd
+ * Trap routing entries when aliasing systems
+ *
  * Revision 1.6  1993/06/21  04:04:04  ahd
  * Don't fail routing loops from aliased systems with no route
  *
@@ -83,15 +86,15 @@ void user_at_node(const char *raddress,
    static char *savenode;
    static char *saveuser;
 
-   char *uptr;                      /* Pointer to his user id              */
-   char *nptr;                      /* Pointer to his node id              */
+   char *uptr;                      /* Pointer to his user id         */
+   char *nptr;                      /* Pointer to his node id         */
    char *pptr;                      /* Pointer to next node in path to him */
-   char *tptr;                      /* Temporary token pointer             */
+   char *tptr;                      /* Temporary token pointer        */
    char *wptr;                      /* Work pointer (not used between
-                                       steps                               */
+                                       steps                          */
    char *address;
 
-   struct HostTable *Hptr = NULL;   /* Pointer to host name table          */
+   struct HostTable *Hptr = NULL;   /* Pointer to host name table     */
 
 
    if ( strlen( raddress ) >= MAXADDR )
@@ -105,8 +108,8 @@ void user_at_node(const char *raddress,
 /*                     Determine if local address                     */
 /*--------------------------------------------------------------------*/
 
-   if (!strpbrk(raddress,"%!@"))    /* Any host delimiters?                */
-   {                                /* No --> report local data            */
+   if (!strpbrk(raddress,"%!@"))    /* Any host delimiters?           */
+   {                                /* No --> report local data       */
       strcpy(hisuser,raddress);
       strcpy(hisnode,E_nodename);
       strcpy(hispath,E_nodename);
@@ -134,36 +137,36 @@ void user_at_node(const char *raddress,
 /*   to parse it.                                                     */
 /*--------------------------------------------------------------------*/
 
-   address = strdup(raddress);   /* Copy address for parsing         */
-   checkref(address);            /* Verify allocation worked         */
+   address = strdup(raddress);   /* Copy address for parsing          */
+   checkref(address);            /* Verify allocation worked          */
 
-   if (saveaddr != NULL)         /* Was the data previously allocated?  */
-   {                             /* Yes --> Free it                     */
+   if (saveaddr != NULL)         /* Was the data previously allocated? */
+   {                             /* Yes --> Free it                   */
       free(saveaddr);
    }
 
-   saveaddr = strdup(address);   /* Remember address for next pass   */
+   saveaddr = strdup(address);   /* Remember address for next pass    */
 
 /*--------------------------------------------------------------------*/
 /*    If the address has no at sign (@), but does have a percent      */
 /*    sign (%), replace the last percent sign with an at sign.        */
 /*--------------------------------------------------------------------*/
 
-   if ( strchr(address,'@') == NULL )  // Any at signs?
-   {                                // No --> Look further for %
-      wptr = strrchr(address,'%');  // Locate any percent signs
+   if ( strchr(address,'@') == NULL )  /* Any at signs?               */
+   {                                /* No --> Look further for %      */
+      wptr = strrchr(address,'%');  /* Locate any percent signs       */
 
-      if ( wptr != NULL )           // Got one?
-         *wptr = '@';               // Yup --> Make it an at sign at
+      if ( wptr != NULL )           /* Got one?                       */
+         *wptr = '@';               /* Yup --> Make it an at sign at  */
    }
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize routing information                   */
 /*--------------------------------------------------------------------*/
 
-   nptr = nil(char);             /* No known node for user           */
-   pptr = E_mailserv;            /* Default routing via mail server  */
-   tptr = address;               /* Remember start of address        */
+   nptr = nil(char);             /* No known node for user            */
+   pptr = E_mailserv;            /* Default routing via mail server   */
+   tptr = address;               /* Remember start of address         */
 
 /*--------------------------------------------------------------------*/
 /*  The address may be RFC-822 syntax; attempt to parse that format   */
@@ -211,17 +214,17 @@ void user_at_node(const char *raddress,
 
    while ( tptr != NULL )
    {
-      nptr = uptr;                  /* First token is node           */
-      if (*tptr == '@')             /* Explicit RFC-822 route?       */
-      {                             /* Yes --> Examine in detail     */
+      nptr = uptr;                  /* First token is node            */
+      if (*tptr == '@')             /* Explicit RFC-822 route?        */
+      {                             /* Yes --> Examine in detail      */
          uptr = strtok( rfc_route( tptr, &nptr, &pptr ), "!");
                                     /* Second token, or what's
-                                       left of it, is user id        */
-         tptr = strtok(NULL,"");    /* Save rest of string           */
+                                       left of it, is user id         */
+         tptr = strtok(NULL,"");    /* Save rest of string            */
       } /* if (*tptr == '@') */
       else {
-         uptr = strtok(tptr,"!");   /* Second token is user id       */
-         tptr = strtok(NULL,"");    /* Save rest of string           */
+         uptr = strtok(tptr,"!");   /* Second token is user id        */
+         tptr = strtok(NULL,"");    /* Save rest of string            */
          pptr = HostPath( nptr, pptr);
       } /* else */
    } /* while */
@@ -231,12 +234,12 @@ void user_at_node(const char *raddress,
 /*   hack (user%node1@gatewayb)                                       */
 /*--------------------------------------------------------------------*/
 
-   while ((tptr = strrchr(uptr,'%')) != NULL)   /* Get last percent  */
+   while ((tptr = strrchr(uptr,'%')) != NULL)   /* Get last percent   */
    {
-      *tptr = '@';               /* Make it an RFC-822 address       */
-      uptr  = strtok(uptr,"@");  /* Get user part of userid @node    */
-      nptr  = strtok(NULL,"@");  /* Get node part of userid @node    */
-      pptr  = HostPath(nptr, pptr); /* Old node is new path          */
+      *tptr = '@';               /* Make it an RFC-822 address        */
+      uptr  = strtok(uptr,"@");  /* Get user part of userid @node     */
+      nptr  = strtok(NULL,"@");  /* Get node part of userid @node     */
+      pptr  = HostPath(nptr, pptr); /* Old node is new path           */
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -300,12 +303,12 @@ static char *rfc_route( char *tptr, char **nptr, char **pptr )
 /*          Loop as long as we have an explicit RFC-822 path          */
 /*--------------------------------------------------------------------*/
 
-   while (*tptr == '@')        /* Explicit RFC 822 path?             */
+   while (*tptr == '@')        /* Explicit RFC 822 path?              */
    {
-      *nptr = strtok(++tptr,",:");  /* First token is path/node      */
-      tptr = strtok(NULL,""); /* Second has rest, including user id  */
+      *nptr = strtok(++tptr,",:");  /* First token is path/node       */
+      tptr = strtok(NULL,""); /* Second has rest, including user id   */
       *pptr = HostPath( *nptr , *pptr );
-                              /* Determine actual path               */
+                              /* Determine actual path                */
       printmsg(9,"rfc_route: RFC-822 explicit path: "
                   "\"%s\" routed via \"%s\" is via \"%s\"",
          tptr, *nptr, *pptr);
@@ -361,7 +364,7 @@ char *HostAlias( char *input)
       return hostp->realname;
    } /* if */
 
-   hostp->aliased = TRUE;        /* Prevent limitless recursion      */
+   hostp->aliased = TRUE;        /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
@@ -430,7 +433,7 @@ char *HostPath( char *input, char *best)
 
    } /* if (hostp->routed) */
 
-   hostp->routed  = TRUE;        /* Prevent limitless recursion      */
+   hostp->routed  = TRUE;        /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
@@ -442,13 +445,13 @@ char *HostPath( char *input, char *best)
 
       if (equal(hostp->hostname,alias))
       {
-         if (hostp->hstatus == localhost) /* Ourself?                */
-            hostp->via = E_nodename;      /* Yes --> Deliver local   */
+         if (hostp->hstatus == localhost) /* Ourself?                 */
+            hostp->via = E_nodename;      /* Yes --> Deliver local    */
          else if ( checkreal( hostp->hostname ) == BADHOST )
-                                          /* Unknown system?         */
-            hostp->via = best;            /* Yes --> Use default     */
+                                          /* Unknown system?          */
+            hostp->via = best;            /* Yes --> Use default      */
          else
-            hostp->via = hostp->hostname; /* Known --> route to it   */
+            hostp->via = hostp->hostname; /* Known --> route to it    */
       } /* if ( hostp->via == NULL ) */
       else
          hostp->via = HostPath( alias, best);
@@ -503,7 +506,7 @@ char *ExtractAddress(char *result,
                break;               /* No --> keep looking    */
             nonblank = column;
             state = 'B';
-                                    /* ... and fall through          */
+                                    /* ... and fall through           */
          case 'B':
          case ')':
             newstate = *column;
@@ -531,7 +534,7 @@ char *ExtractAddress(char *result,
                   break;
 
                default:
-                  newstate = state; /* stay in this state            */
+                  newstate = state; /* stay in this state             */
                   if (!isspace(*column))
                      *(addrptr++) = *column;
             }  /* switch(*column) */

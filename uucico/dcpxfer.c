@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.24 1993/10/02 22:56:59 ahd Exp $
+ *       $Id: dcpxfer.c 1.26 1993/10/09 22:21:55 rhg Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.26  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.24  1993/10/02  22:56:59  ahd
  * Suppress compile warning
  *
@@ -151,7 +154,7 @@ static char *databuf = NULL;
 static unsigned int xferBufSize = 0;
 
 static char fName[FILENAME_MAX], tName[FILENAME_MAX], dName[FILENAME_MAX];
-static char *lName;           // Name to report in syslog
+static char *lName;           /* Name to report in syslog             */
 static char type, cmdopts[16];
 
 static long bytes;
@@ -464,7 +467,7 @@ XFER_STATE newrequest( void )
 /*    worked on in the file                                           */
 /*--------------------------------------------------------------------*/
 
-   if (fgets(databuf, xferBufSize, fwork) == nil(char)) /* More data?     */
+   if (fgets(databuf, xferBufSize, fwork) == nil(char)) /* More data? */
    {                          /* No --> clean up list of files       */
       printmsg(3, "newrequest: EOF for workfile %s",workfile);
       fclose(fwork);
@@ -544,7 +547,7 @@ XFER_STATE ssfile( void )
       importpath(hostFile, fileName, rmtname);  /* And map to local  */
    }
 
-   lName = fName;             // Always log the real name
+   lName = fName;             /* Always log the real name             */
 
 /*--------------------------------------------------------------------*/
 /*    Try to open the file; if we fail, we just continue, because we  */
@@ -565,7 +568,7 @@ XFER_STATE ssfile( void )
 /*              The file is open, now set its buffering               */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows                 // Leave file buffered under Windows
+#ifndef _Windows                 /* Leave file buffered under Windows */
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
@@ -636,7 +639,7 @@ XFER_STATE srfile( void )
 /*--------------------------------------------------------------------*/
 
    strcpy( spolName, normalize(tName));
-                                    // Assume the local user can type
+                                    /* Assume the local user can type */
 
 /*--------------------------------------------------------------------*/
 /*    If the destination is a directory, put the originating          */
@@ -704,7 +707,7 @@ appending file name \"%s\"", spolName, slash);
 /*--------------------------------------------------------------------*/
 
 
-#ifndef _Windows                 // Leave file buffered under Windows
+#ifndef _Windows                 /* Leave file buffered under Windows */
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
@@ -720,7 +723,7 @@ appending file name \"%s\"", spolName, slash);
 #endif
 
    spool = FALSE;             /* Do not rename file at completion */
-   lName = spolName;          // Use full name for local logging
+   lName = spolName;          /* Use full name for local logging      */
    return XFER_RECVDATA;      /* Now start receiving the data     */
 
 } /*srfile*/
@@ -757,11 +760,11 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
    XFER_STATE c;
 
    if ( hostp->hsecure->sendfiles || outbound )
-                                 /* Send our work to other host?        */
+                                 /* Send our work to other host?      */
    {
       c = scandir(rmtname,callgrade);
-                                 /* Determine if data for the host      */
-      scandir( NULL,callgrade ); /* Reset directory search pointers     */
+                                 /* Determine if data for the host    */
+      scandir( NULL,callgrade ); /* Reset directory search pointers   */
    }
    else {
       hostp->hstatus = called;/* Update host status flags            */
@@ -780,7 +783,7 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
          if (!pktgetstr((char *)databuf))
             return XFER_LOST; /* Didn't get response, die quietly    */
          else {
-            hostp->hstatus = called;/* Update host status flags            */
+            hostp->hstatus = called;/* Update host status flags       */
             return XFER_ENDP; /* Got response, we're out of here     */
          }
 
@@ -1033,7 +1036,7 @@ XFER_STATE rrfile( void )
 /*--------------------------------------------------------------------*/
 
 
-#ifndef _Windows                 // Leave file buffered under Windows
+#ifndef _Windows                 /* Leave file buffered under Windows */
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
@@ -1065,7 +1068,7 @@ XFER_STATE rrfile( void )
       return XFER_LOST;
    }
 
-   lName = spool ? tName : spolName;   // choose name to log
+   lName = spool ? tName : spolName;   /* choose name to log          */
 
    return XFER_RECVDATA;   /* Switch to data state                */
 
@@ -1093,9 +1096,9 @@ XFER_STATE rsfile( void )
 /*               Let host munge filename as appropriate               */
 /*--------------------------------------------------------------------*/
 
-   strcpy( spolName, fileName );    // Assume remote can type ...
-                                    // don't munge the file they want
-                                    // sent
+   strcpy( spolName, fileName );    /* Assume remote can type ...     */
+                                    /* don't munge the file they want */
+                                    /* sent                           */
 
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
@@ -1144,7 +1147,7 @@ XFER_STATE rsfile( void )
    } /* if */
 
 
-#ifndef _Windows                 // Leave file buffered under Windows
+#ifndef _Windows                 /* Leave file buffered under Windows */
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
@@ -1171,7 +1174,7 @@ XFER_STATE rsfile( void )
 
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fName, spolName, tName);
 
-   lName = spolName;       // Remember name of file to log
+   lName = spolName;       /* Remember name of file to log            */
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 
@@ -1220,7 +1223,7 @@ XFER_STATE rdata( void )
    if (len == 0)
       return XFER_RECVEOF;
    else
-      return XFER_RECVDATA;      /* Remain in data state                */
+      return XFER_RECVDATA;      /* Remain in data state              */
 
 } /*rdata*/
 
@@ -1239,7 +1242,7 @@ XFER_STATE reof( void )
    char *cn = "CN";
    char *response = cy;
    char *rName = spool ? tempName : spolName;
-                              // Name to delete if we have a problem
+                              /* Name to delete if we have a problem  */
 
 /*--------------------------------------------------------------------*/
 /*            Close out the file, checking for I/O errors             */
@@ -1362,7 +1365,7 @@ static boolean pktsendstr( char *s )
 /*--------------------------------------------------------------------*/
 
    if ( (! bflag[ F_MULTITASK ]) || (debuglevel > 2) )
-      fflush( logfile );         /* Known safe place  to flush log      */
+      fflush( logfile );         /* Known safe place  to flush log    */
 
    if((*wrmsg)(s) != DCP_OK )
       return FALSE;

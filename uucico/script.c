@@ -68,9 +68,9 @@ static void slowWrite( char *s, size_t len);
 
 currentfile();
 
-static char scriptBuffer[40];    // Can be shorter then longest send
-                                 // string, as longer strings are
-                                 // send without buffering
+static char scriptBuffer[40];    /* Can be shorter then longest send  */
+                                 /* string, as longer strings are     */
+                                 /* send without buffering            */
 
 static size_t scriptBufferLen = 0;
 
@@ -406,7 +406,7 @@ static void writestr(register char *s)
    if ( writeCR )
       slowWrite( "\r", 1 );
 
-   flushScriptBuffer();             // Handle any queued data on net
+   flushScriptBuffer();             /* Handle any queued data on net  */
 
 } /* writestr */
 

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.6 1993/10/01 02:36:45 dmwatt Exp $
+ *    $Id: ulibwin.c 1.7 1993/10/03 22:09:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.7  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.6  1993/10/01  02:36:45  dmwatt
  * Suppress odd debugging messages in normal compile
  * Reformat source
@@ -91,19 +94,19 @@
 // Operating System: WINDOWS
 //
 
-#define COMM_MSRSHADOW 35          // Offset in DEB of MSR shadow
-#define MSR_CTS              0x10  // absolute CTS state in MSR
-#define MSR_DSR              0x20  // absolute DSR state in MSR
-#define MSR_RI               0x40  // absolute RI state in MSR
-#define MSR_RLSD             0x80  // absolute RLSD state in MSR
+#define COMM_MSRSHADOW 35          /* Offset in DEB of MSR shadow     */
+#define MSR_CTS              0x10  /* absolute CTS state in MSR        */
+#define MSR_DSR              0x20  /* absolute DSR state in MSR        */
+#define MSR_RI               0x40  /* absolute RI state in MSR        */
+#define MSR_RLSD             0x80  /* absolute RLSD state in MSR      */
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 static UINT currentSpeed = 0;
-static LPBYTE lpbModemBits;       // --> Modem Status Register bits
+static LPBYTE lpbModemBits;       /* --> Modem Status Register bits   */
 
 #define FAR_NULL ((PVOID) 0L)
 
@@ -140,8 +143,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 {
    int rc;
 
-   if (portActive)               /* Was the port already active?     ahd   */
-      closeline();               /* Yes --> Shutdown it before open  ahd   */
+   if (portActive)               /* Was the port already active?     ahd  */
+      closeline();               /* Yes --> Shutdown it before open  ahd  */
 
 #ifdef UDEBUG
    printmsg(15, "openline: %s, %ul", name, (unsigned long) baud);
@@ -213,7 +216,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    dcb.fOutX = 0;
    dcb.fInX = 0;
-   if(!direct)                 // nodirect means RTS/CTS flow OK
+   if(!direct)                 /* nodirect means RTS/CTS flow OK      */
    {
 #ifdef UDEBUG
       printmsg(15, "openline: Enabling RTS/CTS flow control");
@@ -388,7 +391,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       //
 
       if (stat.cbInQue >= wanted)
-         break;               // We have enough, break out!
+         break;               /* We have enough, break out!           */
 
       //
       // Be friendly to Windows' cooperative multitasking...
@@ -710,8 +713,8 @@ static void ShowModem( void )
    if ( debuglevel < 4 )
       return;
 
-   if ( (debuglevel < 4) ||            // Silent at lower debuglevels
-      (modem_bits == old_bits))        // Show only changes in modem signals
+   if ( (debuglevel < 4) ||            /* Silent at lower debuglevels  */
+      (modem_bits == old_bits))        /* Show only changes in modem signals  */
       return;
 
    printmsg(0, "ShowModem: %#02x %s %s %s",

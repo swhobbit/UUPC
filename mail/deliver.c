@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.15 1993/09/20 04:41:54 ahd Exp $
+ *    $Id: deliver.c 1.16 1993/09/23 03:26:51 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.16  1993/09/23  03:26:51  ahd
+ * Alter bounce message for "no path to host" error
+ *
  * Revision 1.15  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -145,7 +148,7 @@ static int DeliverFile( const char *input,
                         const long end,
                         boolean *announce,
                         struct UserTable *userp,
-                        const boolean sysalias,  /* Already sys alias     */
+                        const boolean sysalias,  /* Already sys alias */
                         const boolean validate,
                         const char *user );
 
@@ -189,9 +192,9 @@ size_t Bounce( const char *input,
 /*    Deliver mail to one user                                        */
 /*--------------------------------------------------------------------*/
 
-size_t Deliver(       const char *input,    /* Input file name       */
-                            char *address,  /* Target address           */
-                      const boolean sysalias,  /* Already sys alias     */
+size_t Deliver(       const char *input,    /* Input file name        */
+                            char *address,  /* Target address          */
+                      const boolean sysalias,  /* Already sys alias    */
                           boolean validate)  /* Validate/forward
                                                 local mail            */
 {
@@ -214,12 +217,12 @@ size_t Deliver(       const char *input,    /* Input file name       */
 /*                       Handle local delivery                        */
 /*--------------------------------------------------------------------*/
 
-   if (equal(path, E_nodename)) /* Local node?                       */
+   if (equal(path, E_nodename)) /* Local node?                        */
    {
       struct HostTable *hostx = checkname( node );
-      if (hostx->hstatus == localhost)  /* Really the local node?    */
+      if (hostx->hstatus == localhost)  /* Really the local node?     */
          return DeliverLocal( input, user, sysalias, validate );
-                                 /* Yes!                             */
+                                 /* Yes!                              */
       else
          return Bounce( input,
                  "No known delivery path for host",
@@ -328,7 +331,7 @@ static size_t DeliverLocal( const char *input,
       validate = strcmp( E_postmaster , user);
                                  /* Don't loop delivering to postmast*/
 
-      userp = checkuser(user);   /* Locate user id in host table     */
+      userp = checkuser(user);   /* Locate user id in host table      */
 
 /*--------------------------------------------------------------------*/
 /*                     Process any system aliases                     */
@@ -351,7 +354,7 @@ static size_t DeliverLocal( const char *input,
                                       user );
 
             if ( announce && ( userp != BADUSER ) && remoteMail )
-               trumpet( userp->beep);  /* Yes --> Inform the user    */
+               trumpet( userp->beep);  /* Yes --> Inform the user     */
             return delivered;
 
          } /* if */
@@ -361,8 +364,8 @@ static size_t DeliverLocal( const char *input,
 /*             No system alias, verify the user is valid              */
 /*--------------------------------------------------------------------*/
 
-      if ( userp == BADUSER )    /* Invalid user id?                 */
-      {                          /* Yes --> Dump in trash bin        */
+      if ( userp == BADUSER )    /* Invalid user id?                  */
+      {                          /* Yes --> Dump in trash bin         */
          return Bounce( input,
                         "Invalid local address (not defined in PASSWD or ALIASES)",
                         user,
@@ -376,8 +379,8 @@ static size_t DeliverLocal( const char *input,
 
       mkfilename(mboxname, userp->homedir, DOTFORWARD);
 
-      if (access( mboxname, 0 )) /* The .forward file exists?        */
-         announce = TRUE;        /* No --> Fall through              */
+      if (access( mboxname, 0 )) /* The .forward file exists?         */
+         announce = TRUE;        /* No --> Fall through               */
       else {
          delivered += DeliverFile( input,
                                    mboxname,
@@ -389,8 +392,8 @@ static size_t DeliverLocal( const char *input,
                                    validate,
                                    user );
 
-         if (announce && remoteMail)   /* Did we deliver mail locally?        */
-            trumpet( userp->beep);     /* Yes --> Inform the user       */
+         if (announce && remoteMail)   /* Did we deliver mail locally? */
+            trumpet( userp->beep);     /* Yes --> Inform the user      */
          return delivered;
 
       } /* if */
@@ -416,7 +419,7 @@ static size_t DeliverLocal( const char *input,
                          user );
 
    if ( announce && remoteMail )
-      trumpet( userp->beep);  /* Local delivery, inform the user     */
+      trumpet( userp->beep);  /* Local delivery, inform the user      */
 
    mbox = FOPEN( mboxname , "a",TEXT_MODE );
    if (mbox == NULL )
@@ -446,7 +449,7 @@ static int DeliverFile( const char *input,
                         const long end,
                         boolean *announce,
                         struct UserTable *userp,
-                        const boolean sysalias,  /* Already sys alias     */
+                        const boolean sysalias,  /* Already sys alias */
                         const boolean validate,
                         const char *user )
 {
@@ -477,7 +480,7 @@ static int DeliverFile( const char *input,
       if ( buf[ strlen(buf) - 1 ]== '\n')
          buf[ strlen(buf) - 1 ] = '\0';
 
-      while( *s && ! isgraph( *s ))    /* Trim leading white space      */
+      while( *s && ! isgraph( *s ))    /* Trim leading white space     */
          s++;
 
       printmsg(8,"Forwarding to \"%s\"", s);
@@ -595,8 +598,8 @@ static size_t DeliverGateway(   const char *input,
 
    sprintf(command , "%s %s %s %s",
                      hostp->via,          /* Program to perform forward */
-                     hostp->hostname,     /* Nominal host routing via   */
-                     node ,               /* Final destination system   */
+                     hostp->hostname,     /* Nominal host routing via  */
+                     node ,               /* Final destination system  */
                      user );              /* user on "node" for delivery*/
 
    printmsg(3,"DeliverGateway: %s", command);
@@ -642,20 +645,20 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    static char *send_cmd  = "S %s %s %s - %s 0666\n";
    static long seqno = 0;
    static char *SavePath = NULL;
-   FILE *stream;              /* For writing out data                */
-   static char everyone[500]; /* 512, with room for "rmail "         */
+   FILE *stream;              /* For writing out data                 */
+   static char everyone[500]; /* 512, with room for "rmail "          */
 
-   char msfile[FILENAME_MAX]; /* MS-DOS format name of files         */
-   char msname[22];           /* MS-DOS format w/o path name         */
+   char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */
+   char msname[22];           /* MS-DOS format w/o path name          */
 
-   char tmfile[15];           /* Call file, UNIX format name         */
+   char tmfile[15];           /* Call file, UNIX format name          */
    static char ixfile[15];    /* eXecute file for remote system,
                                 UNIX format name for local system   */
-   static char idfile[15];    /* Data file, UNIX format name         */
+   static char idfile[15];    /* Data file, UNIX format name          */
    static char rdfile[15];    /* Data file name on remote system,
-                                 UNIX format                         */
+                                 UNIX format                          */
    static char rxfile[15];    /* Remote system UNIX name of eXecute
-                                 file                                */
+                                 file                                 */
 
    printmsg(1,"Spooling mail %sfrom %s%s%s to %s via %s",
                stats( input ),
@@ -763,8 +766,8 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    fprintf(stream, send_cmd, ixfile, rxfile, uuser, ixfile);
    fclose(stream);
 
-   if (bflag[F_MULTI])        /* Deliver to multiple users at once?  */
-      SavePath = strdup(path);   /* Yes --> Save routing info        */
+   if (bflag[F_MULTI])        /* Deliver to multiple users at once?   */
+      SavePath = strdup(path);   /* Yes --> Save routing info         */
 
    return 1;
 } /* DeliverRemote */
@@ -785,7 +788,7 @@ static int CopyData( const boolean remotedelivery,
    boolean success = TRUE;
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
-                              /* Assume no Kanji translation needed  */
+                              /* Assume no Kanji translation needed   */
 
 /*--------------------------------------------------------------------*/
 /*                      Verify the input opened                       */
@@ -823,13 +826,13 @@ static int CopyData( const boolean remotedelivery,
 
    switch( (int) remoteMail * 2 + (int) remotedelivery )
    {
-      case 3:                 /* Remote sender, remote delivery      */
+      case 3:                 /* Remote sender, remote delivery       */
          strcpy( buf, fromuser );
-         strtok( buf, "!");   /* Get first host in list              */
+         strtok( buf, "!");   /* Get first host in list               */
 
          if ( equal(HostAlias( buf ), fromnode ))
-                              /* Host already in list?               */
-         {                    /* Yes --> Don't do it twice           */
+                              /* Host already in list?                */
+         {                    /* Yes --> Don't do it twice            */
             fprintf(dataout, "From %s %s remote from %s\n",
                      fromuser, now, E_nodename);
             break;
@@ -845,34 +848,34 @@ static int CopyData( const boolean remotedelivery,
 /*    remoteDelivery flag since we do the fall through from above.    */
 /*--------------------------------------------------------------------*/
 
-      case 2:                 /* Remote sender, local delivery       */
+      case 2:                 /* Remote sender, local delivery        */
          if ( bflag[ F_KANJI ] )
-                              /* Kanji from remote node?             */
+                              /* Kanji from remote node?              */
             put_string = (int (*)(char *, FILE *)) fputs_shiftjis;
-                              /* Yes --> Translate it                */
+                              /* Yes --> Translate it                 */
 
          fprintf(dataout, "From %s %s remote from %s\n",
                   fromuser, now, fromnode);
          break;
 
-      case 1:                 /* Local sender, remote delivery       */
-         if ( bflag[F_KANJI]) /* Translation enabled?                */
+      case 1:                 /* Local sender, remote delivery        */
+         if ( bflag[F_KANJI]) /* Translation enabled?                 */
             put_string = (int (*)(char *, FILE *)) fputs_jis7bit;
-                              /* Translate into 7 bit Kanji          */
+                              /* Translate into 7 bit Kanji           */
 
          column = strlen(E_domain) - 5;
          if ((column > 0) && equali(&E_domain[column],".UUCP"))
-                              /* UUCP domain?                        */
+                              /* UUCP domain?                         */
             fprintf(dataout, "From %s %s remote from %s\n",
                              fromuser, now, E_nodename);
-                              /* Yes --> Use simple address          */
+                              /* Yes --> Use simple address           */
          else
             fprintf(dataout, "From %s!%s %s remote from %s\n",
                   E_domain, fromuser, now, E_nodename);
-                              /* No --> Use domain address           */
+                              /* No --> Use domain address            */
          break;
 
-      case 0:                 /* Local sender, local delivery        */
+      case 0:                 /* Local sender, local delivery         */
          fprintf(dataout, "From %s %s\n", fromuser, now);
          break;
 
@@ -897,7 +900,7 @@ static int CopyData( const boolean remotedelivery,
 /*                      Close up shop and return                      */
 /*--------------------------------------------------------------------*/
 
-   if (ferror(datain))        /* Clean end of file on input?         */
+   if (ferror(datain))        /* Clean end of file on input?          */
    {
       printerr(input);
       clearerr(datain);
@@ -960,7 +963,7 @@ size_t Bounce( const char *input,
    if ( ! bounce )
      return Deliver( input, E_postmaster, FALSE, validate );
 
-   mktempname( tname , "TMP");  // Generate a temp file name
+   mktempname( tname , "TMP");  /* Generate a temp file name           */
 
    if ((otherfile = FOPEN(input,"r", TEXT_MODE ))==NULL)
    {

@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.8 1993/09/27 00:50:57 ahd Exp $
+ *    $Id: dcp.h 1.9 1993/09/29 04:56:11 ahd Exp $
  *
  *    $Log: dcp.h $
+ * Revision 1.9  1993/09/29  04:56:11  ahd
+ * Suspend port by port name, not modem file name
+ *
  * Revision 1.8  1993/09/27  00:50:57  ahd
  * Control of serial port in passive mode by K. Rommel
  *
@@ -42,8 +45,8 @@
 #define SMALL_PACKET 64       /* Max packet size most UUCP's can
                                  handle                              */
 #ifndef RECV_BUF
-#define RECV_BUF (MAXPACK*8)  // 512 * 8 = 4096 = COMMFIFO buffer size
-                              // for DOS
+#define RECV_BUF (MAXPACK*8)  /* 512 * 8 = 4096 = COMMFIFO buffer size  */
+                              /* for DOS                              */
 #endif
 
 #define DCP_ERROR   10
@@ -116,14 +119,14 @@ typedef enum {
 
 typedef short   (*procref)();
 
-extern size_t s_pktsize;        /* send packet size for this protocol   */
+extern size_t s_pktsize;        /* send packet size for this protocol  */
 extern size_t r_pktsize;        /* receive packet size for this protocol*/
-extern FILE *syslog;            /* syslog file pointer                  */
+extern FILE *syslog;            /* syslog file pointer                 */
 extern char workfile[FILENAME_MAX];
-                                /* name of current workfile             */
+                                /* name of current workfile            */
 extern FILE *fwork;             /* current work file pointer    */
 extern FILE *xfer_stream;       /* current disk file stream for file
-                                   being transfered                     */
+                                   being transfered                    */
 extern FILE *fsys;
 
 extern char *Rmtname;           /* system we WANT to talk to    */

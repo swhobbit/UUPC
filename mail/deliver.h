@@ -20,9 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.4 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: deliver.h 1.5 1993/09/20 04:51:31 ahd Exp $
  *
  *    $Log: deliver.h $
+ * Revision 1.5  1993/09/20  04:51:31  ahd
+ * TCP Support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  * Revision 1.4  1993/06/13  14:12:29  ahd
  * Save invoked program name and use it for recursive calls
  *
@@ -37,9 +42,9 @@
 #define POSTMASTER "postmaster"
 
 size_t Deliver( const char *input, /* Input file name                */
-             char *address,           /* Target address                 */
+             char *address,           /* Target address               */
              const boolean sysalias,
-                   boolean validate); /* Validate/forward local mail    */
+                   boolean validate); /* Validate/forward local mail  */
 
 extern KEWSHORT hops;
 

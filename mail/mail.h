@@ -7,7 +7,7 @@
 /*    Copyright (c) 1989, 1991 Andrew H. Derbyshire                   */
 /*--------------------------------------------------------------------*/
 
-#define  MISSING  -1L      /* Line not found in this mail header   ahd     */
+#define  MISSING  -1L      /* Line not found in this mail header   ahd */
 
 #define LSIZE  256
 
@@ -93,10 +93,10 @@ typedef enum {  M_ALIAS,
 /*--------------------------------------------------------------------*/
 
 typedef enum { noheader,         /* Don't copy RFC-822 header or sep lines */
-               fromheader,       /* Generate one line "From" description   */
-               noreceived,       /* Copy header, but not ignorelist        */
-               nocontinue,       /* Do not copy next line if contination   */
-               noseperator,      /* Copy all but binary seperator lines    */
-               seperators } copyopt;   /* Copy everything!                 */
+               fromheader,       /* Generate one line "From" description  */
+               noreceived,       /* Copy header, but not ignorelist    */
+               nocontinue,       /* Do not copy next line if contination  */
+               noseperator,      /* Copy all but binary seperator lines */
+               seperators } copyopt;   /* Copy everything!             */
 
 #endif

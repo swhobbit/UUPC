@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.7 1993/10/02 23:51:15 ahd Exp $
+ *    $Id: commlib.h 1.8 1993/10/07 22:32:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.8  1993/10/07  22:32:45  ahd
+ * Add commBuffer information
+ *
  * Revision 1.7  1993/10/02  23:51:15  ahd
  * Reduce MAXPACK for 32 bit environments to 1024 bytes because
  * of NT aborts  with 4096
@@ -69,7 +72,7 @@ typedef BPS     (*commrefB)();
 
 boolean chooseCommunications( const char *suite );
 
-boolean IsNetwork(void);         // Report if suite is network oriented
+boolean IsNetwork(void);         /* Report if suite is network oriented  */
 
 /*--------------------------------------------------------------------*/
 /*       Trace functions for communications routines                  */
@@ -135,8 +138,8 @@ extern size_t commBufferLength;
 extern size_t commBufferUsed;
 extern char *commBuffer;
 
-extern boolean portActive;          // Port active flag for error handler
-extern boolean traceEnabled;        // Enable comm port trace
+extern boolean portActive;          /* Port active flag for error handler  */
+extern boolean traceEnabled;        /* Enable comm port trace         */
 
 boolean IsNetwork(void);
 

@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.17 1993/09/27 04:04:06 ahd Exp $
+ *       $Id: rnews.c 1.18 1993/10/09 13:15:43 rhg Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.18  1993/10/09  13:15:43  rhg
+ * Suppress compiler warnings
+ *
  * Revision 1.17  1993/09/27  04:04:06  ahd
  * Reduce buffer sizes to avoid 16 bit stack over flows
  *
@@ -88,7 +91,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.17 1993/09/27 04:04:06 ahd Exp $";
+         "$Id: rnews.c 1.18 1993/10/09 13:15:43 rhg Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -159,7 +162,7 @@ static struct grp *find_newsgroup(const char *grp);
 
 static void get_snum(const char *group, char *snum);
                                     /* Get (and format) the next article
-                                       number in group                     */
+                                       number in group                 */
 
 static void fixEOF( char *buf, int bytes );
 
@@ -206,8 +209,8 @@ void main( int argc, char **argv)
    checkref(copywrong);
 #endif
 
-   logfile = stderr;             // Prevent redirection of error
-                                 // messages during configuration
+   logfile = stderr;             /* Prevent redirection of error      */
+                                 /* messages during configuration     */
 
    banner( argv );
 
@@ -484,7 +487,7 @@ static int Compressed( char *filename , FILE *in_stream )
 /*        Copy the compressed file to the "holding" directory         */
 /*--------------------------------------------------------------------*/
 
-   fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning       */
+   fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning      */
 
 
    while( needtemp )
@@ -581,7 +584,7 @@ static int Compressed( char *filename , FILE *in_stream )
       while( sysname != NULL )
       {
          printmsg(1,"Compressed: Shadowing news to %s", sysname );
-         fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning       */
+         fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning */
          xmit_news( sysname, in_stream );
          sysname = strtok( NULL, WHITESPACE );
       }
@@ -632,7 +635,7 @@ static int Compressed( char *filename , FILE *in_stream )
 /*            Now process the file as normal batched news             */
 /*--------------------------------------------------------------------*/
 
-                              /* Create uncompressed output file name   */
+                              /* Create uncompressed output file name  */
 
    work_stream = FOPEN( unzfile, "r", BINARY_MODE);
    if ( work_stream == NULL )
@@ -688,8 +691,8 @@ static int Batched( char *filename, FILE *stream)
       FILE *tmpf;
 
  /*--------------------------------------------------------------------*/
- /*    Handle next article (articles are separated by the line         */
- /*    indicating their size when they are batched.)                   */
+ /*    Handle next article (articles are separated by the line        */
+ /*    indicating their size when they are batched.)                  */
  /*--------------------------------------------------------------------*/
 
       while ( ! gotsize )
@@ -743,7 +746,7 @@ static int Batched( char *filename, FILE *stream)
       }
 
  /*--------------------------------------------------------------------*/
- /*   Copy this article to the temp file (except for the last block)   */
+ /*   Copy this article to the temp file (except for the last block)  */
  /*--------------------------------------------------------------------*/
 
       if ( article_size )
@@ -777,7 +780,7 @@ static int Batched( char *filename, FILE *stream)
 
          } while (article_left > 0);
 
-         if ( article_left )     // Premature EOF?
+         if ( article_left )     /* Premature EOF?                    */
             printmsg(0,"Batched: Unexpected EOF for article %d, "
                      "read %ld bytes of expected %ld",
                       articles + 1,
@@ -828,7 +831,7 @@ static int Batched( char *filename, FILE *stream)
       } /* else */
 
  /*--------------------------------------------------------------------*/
- /*      Close the file, deliver its contents, and get rid of it       */
+ /*      Close the file, deliver its contents, and get rid of it      */
  /*--------------------------------------------------------------------*/
 
       fclose(tmpf);
@@ -1186,7 +1189,7 @@ static void copy_file(FILE *input,
    {
 
       if ( ! header )
-         ;                 // No operation after end of header
+         ;                 /* No operation after end of header        */
       else if ( *buf == '\n' )
          header = FALSE;
       else if (equalni(buf, "Path:", strlen("Path:")))
@@ -1331,7 +1334,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
 
    while ( (len = fread( buf, 1, sizeof buf, in_stream)) != 0)
    {
-      if (fwrite( buf, 1, len, out_stream ) != len)     /* I/O error?               */
+      if (fwrite( buf, 1, len, out_stream ) != len)     /* I/O error?  */
       {
          printerr(msfile);
          fclose(out_stream);

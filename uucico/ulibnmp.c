@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.7 1993/10/03 22:09:09 ahd Exp $
+ *       $Id: ulibnmp.c 1.8 1993/10/07 22:51:00 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.8  1993/10/07  22:51:00  ahd
+ * Use dynamically allocated buffer
+ *
  * Revision 1.7  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -63,7 +66,7 @@
 #include <limits.h>
 
 #ifndef __OS2__
-typedef USHORT APIRET ;  // Define older API return type
+typedef USHORT APIRET ;  /* Define older API return type              */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -84,7 +87,7 @@ typedef USHORT APIRET ;  // Define older API return type
 
 currentfile();
 
-static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 
@@ -120,7 +123,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 
    APIRET rc;
 
-   if (portActive)                  /* Was the port already active?    */
+   if (portActive)                  /* Was the port already active?   */
       closeline();                  /* Yes --> Shutdown it before open */
 
 #ifdef UDEBUG
@@ -165,9 +168,9 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*                           Set baud rate                            */
 /*--------------------------------------------------------------------*/
 
-   SIOSpeed(baud);         // Just any old large number.
+   SIOSpeed(baud);         /* Just any old large number.              */
 
-   traceStart( name );     // Enable logging
+   traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;      /* Record status for error handler        */
    passive    = TRUE;
@@ -200,7 +203,7 @@ boolean pWaitForNetConnect(int timeout)
 
       if ( rc == 0 )
       {
-         hangupNeeded = TRUE;      /* Flag that the pipe is now dirty  */
+         hangupNeeded = TRUE;      /* Flag that the pipe is now dirty */
          return TRUE;
       }
       else if ( rc == ERROR_PIPE_NOT_CONNECTED )
@@ -237,7 +240,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
    USHORT action;
 #endif
 
-   if (portActive)                  /* Was the port already active?     */
+   if (portActive)                  /* Was the port already active?    */
       closeline();                  /* Yes --> Shutdown it before open */
 
    printmsg(15, "pactiveopenline: %s", name);
@@ -271,7 +274,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 
    SIOSpeed(57600);
 
-   traceStart( name );     // Enable logging
+   traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;      /* Record status for error handler        */
    passive    = FALSE;
