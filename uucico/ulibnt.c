@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.5 1993/09/26 03:32:27 dmwatt Exp $
+ *       $Id: ulibnt.c 1.6 1993/10/03 22:09:09 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.6  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.5  1993/09/26  03:32:27  dmwatt
  * Use Standard Windows NT error message module
  *
@@ -352,8 +355,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    static LPVOID psave;
    DWORD dwError;
    BOOL rc;
-   static char save[MAXPACK];
-   static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
 
@@ -361,13 +362,14 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*           Determine if our internal buffer has the data            */
 /*--------------------------------------------------------------------*/
 
-   if (bufsize >= wanted)
+   if (commBufferUsed >= wanted)
    {
-      memmove( output, save, wanted );
-      bufsize -= wanted;
-      if ( bufsize )          /* Any data left over?                 */
-         memmove( save, &save[wanted], bufsize );  /* Yes --> Save it*/
-      return wanted + bufsize;
+      memcpy( output, commBuffer, wanted );
+      commBufferUsed -= wanted;
+      if ( commBufferUsed )   /* Any data left over?                 */
+         memmove( commBuffer, commBuffer + wanted, commBufferUsed );
+                              /* Yes --> Save it                     */
+      return wanted + commBufferUsed;
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -403,7 +405,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
    do {
       DWORD received;
-      DWORD needed = wanted - bufsize;
+      DWORD needed = wanted - commBufferUsed;
       DWORD port_timeout;
 
 /*--------------------------------------------------------------------*/
@@ -462,41 +464,47 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*                 Read the data from the serial port                 */
 /*--------------------------------------------------------------------*/
 
-      rc = ReadFile (hCom, &save[bufsize], needed, &received, NULL);
+      rc = ReadFile (hCom,
+                     commBuffer + commBufferUsed,
+                     needed,
+                     &received,
+                     NULL);
 
       if (!rc) {
          printmsg(0,
             "sread: Read from comm port for %d bytes failed, received = %d.",
             needed, received);
-         bufsize = 0;
+         commBufferUsed = 0;
          return 0;
       }
 
 #ifdef UDEBUG
       printmsg(15,"sread: Want %d characters, received %d, total %d in buffer",
-            (int) wanted, (int) received, (int) bufsize + received);
+                  (int) wanted,
+                  (int) received,
+                  (int) commBufferUsed + received);
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( &save[bufsize], received, FALSE );
+      traceData( commBuffer + commBufferUsed,
+                 received,
+                 FALSE );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
 /*--------------------------------------------------------------------*/
 
-      bufsize += received;
-      if ( bufsize == wanted )
+      commBufferUsed += received;
+      if ( commBufferUsed == wanted )
       {
-         memmove( output, save, bufsize);
-         bufsize = 0;
-
-         if (debuglevel > 14)
-            fwrite(output,1,bufsize,stdout);
+         memcpy( output, commBuffer, commBufferUsed);
+         commBufferUsed = 0;
 
          return wanted;
+
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -512,7 +520,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*         We don't have enough data; report what we do have          */
 /*--------------------------------------------------------------------*/
 
-   return bufsize;
+   return commBufferUsed;
 
 } /*nsread*/
 
