@@ -18,6 +18,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#include "win32ver.h"
+#endif
+
 #include "lib.h"
 #include "timestmp.h"
 
