@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.2 1993/09/21 01:42:13 ahd Exp $
+ *    $Id: ulibip.c 1.3 1993/09/23 03:26:51 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.3  1993/09/23  03:26:51  ahd
+ * Correct setting of carrier detect
+ *
  * Revision 1.2  1993/09/21  01:42:13  ahd
  * Use standard MAXPACK limit for save buffer size
  *
@@ -66,6 +69,8 @@
 /*--------------------------------------------------------------------*/
 
 void AtWinsockExit(void);
+boolean IsFatalSocketError(int err);
+void tcloseline(void);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -78,6 +83,7 @@ static boolean hangupNeeded = TRUE;
 extern boolean winsockActive;                   // Initialized in catcher.c
 static SOCKET pollingSock = INVALID_SOCKET;     // The current polling socket
 static SOCKET connectedSock = INVALID_SOCKET;   // The currently connected socket
+static boolean connectionDied = FALSE;          // The current connection failed
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -180,6 +186,8 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 
    carrierDetect = FALSE;  /* No modem connected yet                */
 
+   connectionDied = FALSE; /* The connection hasn't failed yet */
+
 /*--------------------------------------------------------------------*/
 /*                        Get remote host name                        */
 /*--------------------------------------------------------------------*/
@@ -278,6 +286,8 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
                            // Ctrl-BREAK
 
    carrierDetect = FALSE;  /* No network connection yet             */
+
+   connectionDied = FALSE; /* The connection hasn't failed yet */
 
 /*--------------------------------------------------------------------*/
 /*                    Fill in host and family info                    */
@@ -385,7 +395,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
       return wanted + bufsize;
    } /* if */
 
-   if (connectedSock == INVALID_SOCKET)
+   if (connectionDied || connectedSock == INVALID_SOCKET)
    {                             // Haven't accepted a connection yet?
       return 0;
    }
@@ -454,7 +464,13 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
       nReady = select(1, &readfds, NULL, NULL, &tm);
       if (nReady == SOCKET_ERROR)
       {
-         printmsg(0, "tsread: select error %d", WSAGetLastError());
+         int err = WSAGetLastError();
+         printmsg(0, "tsread: select error %d", err);
+         if (IsFatalSocketError(err))
+         {
+            shutdown(connectedSock, 2);  // Fail both reads and writes
+            connectionDied = TRUE;
+         }
          bufsize = 0;
          return 0;
       }
@@ -531,12 +547,24 @@ int tswrite(char *data, unsigned int len)
 {
    int status;
 
+/* Has connection died? */
+   if (connectionDied || connectedSock == INVALID_SOCKET)
+      return 0;
+
    status = send(connectedSock, data, len, 0);
 
    if (status == SOCKET_ERROR)
    {
+      int err;
+
+      err = WSAGetLastError();
       printmsg(0, "tswrite: Error sending data to socket: %d",
-         WSAGetLastError());
+         err);
+      if (IsFatalSocketError(err))
+      {
+         shutdown(connectedSock, 2);  // Fail both reads and writes
+         connectionDied = TRUE;
+      }
       return 0;
    }
 
@@ -734,3 +762,19 @@ boolean tWaitForNetConnect(int timeout)
    return TRUE;
 
 } /* tWaitForNetConnect */
+
+boolean IsFatalSocketError(int err)
+{
+   if (err == WSAENOTSOCK     ||
+       err == WSAENETDOWN     ||
+       err == WSAENETRESET    ||
+       err == WSAECONNABORTED ||
+       err == WSAECONNRESET   ||
+       err == WSAENOTCONN     ||
+       err == WSAECONNREFUSED ||
+       err == WSAEHOSTDOWN    ||
+       err == WSAEHOSTUNREACH)
+       return TRUE;
+    else
+       return FALSE;
+}
