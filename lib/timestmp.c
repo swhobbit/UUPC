@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.6 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: timestmp.c 1.7 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.7  1993/08/03  03:11:49  ahd
+ *     Drop _EasyWinInit
+ *
  *     Revision 1.6  1993/08/02  03:24:59  ahd
  *     Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -158,8 +161,10 @@ void banner (char **argv)
 /*                 Return if input is not the console                 */
 /*--------------------------------------------------------------------*/
 
+#ifndef _Windows
       if (!isatty(fileno(stdout))) /* Is the console I/O redirected?  */
          return;                 /* Yes --> Run quietly              */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                       Print the program name                       */
