@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.13 1993/10/31 15:53:26 ahd Exp $
+ *    $Id: confvars.h 1.14 1993/12/02 01:37:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.14  1993/12/02  01:37:33  ahd
+ *     Add maximum length of UUXQT command lines
+ *
  *     Revision 1.13  1993/10/31  15:53:26  ahd
  *     Allow configurating permissions file name
  *
@@ -93,12 +96,15 @@ extern char *E_organization, *E_replyto;
 extern char *E_passwd;
 extern char *E_permissions;         /* Name of permissions file   */
 extern char *E_postmaster;
-extern char *E_pubdir, *E_tempdir;
+extern char *E_pubdir;
+extern char *E_tempdir;
 extern char *E_systems;
 extern char *E_uncompress;
 extern char *E_uuxqtpath;
 extern char *E_version;
 extern char *E_xqtRootDir;
+extern char *E_vmsQueueDir;
+extern char *E_vmail;
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 
