@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
+ *       $Id: smtpverb.c 1.6 1997/11/28 23:11:38 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.6  1997/11/28 23:11:38  ahd
+ *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *       Revision 1.5  1997/11/26 03:34:11  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -50,7 +53,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpverb.c 1.6 1997/11/28 23:11:38 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */
@@ -153,7 +156,7 @@ SMTPInvokeCommand(SMTPClient *client)
       else if ((*currentVerb->name != '\0') &&
                 equalni(currentVerb->name,
                          client->receive.data,
-                         strlen(currentVerb->name)))
+                         max( 4, strlen(currentVerb->name))))
          break;
       else
          currentVerb++;
