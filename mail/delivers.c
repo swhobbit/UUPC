@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.20 2000/10/14 12:40:44 ahd Exp $
+ *       $Id: delivers.c 1.21 2001/03/12 13:56:08 ahd v1-13j $
  *
  *       $Log: delivers.c $
+ *       Revision 1.21  2001/03/12 13:56:08  ahd
+ *       Annual Copyright update
+ *
  *       Revision 1.20  2000/10/14 12:40:44  ahd
  *       Treat internal postmaster addresses as the SMTP bounce address
  *       on delivery.
@@ -122,7 +125,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.20 2000/10/14 12:40:44 ahd Exp $");
+RCSID("$Id: delivers.c 1.21 2001/03/12 13:56:08 ahd v1-13j $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */
@@ -556,7 +559,7 @@ GetSMTPReply(unsigned int timeout,     /* IN  SMTP read timeout      */
 
   /* To support multi-line responses, we check xxx- format responses */
   do {
-      int returned;
+      unsigned int returned;
       KWNetStatus status = GetsSMTP(SMTPRecvBuffer,
                                     sizeof(SMTPRecvBuffer),
                                     timeout,
@@ -812,28 +815,6 @@ SendSMTPAddressCmd(
 } /* SendSMTPAddressCmd */
 
 /*--------------------------------------------------------------------*/
-/*       i s A l l P e r i o d s                                      */
-/*                                                                    */
-/*       Determine if a character array of specified length is all    */
-/*       periods.                                                     */
-/*--------------------------------------------------------------------*/
-
-static KWBoolean
-isAllPeriods(char *s, int len)
-{
-   int column;
-
-   for (column = 0; column < len; column++)
-   {
-      if (s[column] != '.')
-         return KWFalse;
-   }
-
-   return KWTrue;
-
-} /* allPeriods */
-
-/*--------------------------------------------------------------------*/
 /*       S e n d S M T P D a t a                                      */
 /*                                                                    */
 /*       Send the contents of the SMTP message to the remote          */
@@ -846,9 +827,20 @@ SendSMTPData(
 {
 
 
-   char dataBuf[MAXPACK+CRLF_LEN];
-   int used = 0;
-   int len;
+   char InputBuf[MAXPACK];
+   char OutputBuf[MAXPACK];
+   char c;
+   int nBytesSeen = 0;
+   int nBytesQueued = 0;
+   int nBytesRead;
+
+   int nTotalSeen = 0;
+   int nTotalRead = 0;
+   int nTotalQueued = 0;
+
+   KWBoolean bAllPeriods = KWTrue;
+   KWBoolean bWriteNow   = KWFalse;
+   KWBoolean bDirtyLine  = KWFalse;
 
    imrewind(imf);
 
@@ -856,153 +848,122 @@ SendSMTPData(
 /*                      Outer loop handles input                      */
 /*--------------------------------------------------------------------*/
 
-   while((len = (int) imread(dataBuf + used,
-                             1,
-                             (sizeof dataBuf - CRLF_LEN - (size_t) used),
-                             imf)) != 0)
+   while((nBytesRead = (int) imread(InputBuf,
+                                    1,
+                                    sizeof InputBuf,
+                                    imf)) != 0)
    {
-     char *start = dataBuf;
-     char *eol;
-     KWBoolean firstPass = KWTrue;
 
-     len += used;                   /* Make total amount buffered    */
+     nTotalRead += nBytesRead;
+
+     nBytesSeen = 0;
 
 /*--------------------------------------------------------------------*/
 /*          Inner loop handles output from buffer to network          */
 /*--------------------------------------------------------------------*/
 
-     while(len &&
-            ((eol = memchr(start, '\n', (size_t) len)) != NULL))
+     while (nBytesRead > nBytesSeen)
      {
-         int lineLength = eol - start;
+        c = InputBuf[nBytesSeen++];
 
-         firstPass = KWFalse;
+        switch(c)
+        {
+            default:                    /* non-period, non end of line */
+                bAllPeriods = KWFalse;
+                /* FALL THROUGH */
 
-         /* Trace our write */
-         *eol = '\0';
-         printmsg(5, "--> %.75s", start);
+            case '.':                   /* Period, may need quoting */
+                bDirtyLine = KWTrue;
+                OutputBuf[nBytesQueued++] = c;
+                break;
 
-         /* Write data line if not empty; we tack CR/LF on by hand */
-         if (lineLength)
-         {
-            char saveByte1, saveByte2;
-            KWBoolean periodQuoted = isAllPeriods(start, lineLength);
+            case '\n':                  /* End of data line */
 
-            /* If data on line consists of periods, quote it. */
-            if (periodQuoted)
-            {
-               if (start > dataBuf) /* Room to insert quote period?  */
-               {                    /* Yes --> Include it into buff  */
-                  *--start = '.';
-                  lineLength++;
-               }
-               else if  (swrite(".", 1) < 1)
-               {
-                  printmsg(0, "SendSMTPData of leading period failed.");
-                  return KWNSNoNet;
-               }
-               else
-                  periodQuoted = KWFalse;
+                /* Quote output if only all periods in non-empty line */
+                if (bDirtyLine && bAllPeriods)
+                {
+                    OutputBuf[nBytesQueued++] = '.';
+                }
 
-            } /* if (periodQuoted) */
+                /* Print previous line if desired */
+                if (debuglevel >= 5)
+                {
+                    OutputBuf[nBytesQueued] = '\0';
+                    printmsg(5, "--> %.75s", OutputBuf);
+                    bWriteNow      = KWTrue;
+                }
 
-            /* Save bytes we need to overlay for cr/lf */
-            saveByte1 = start[lineLength];
-            start[lineLength++] = '\r';
+                memcpy(OutputBuf + nBytesQueued, CRLF, CRLF_LEN);
+                nBytesQueued += CRLF_LEN;
 
-            saveByte2 = start[lineLength];
-            start[lineLength++] = '\n';
+                /* Reset line specific conditions for following line */
+                bAllPeriods = KWTrue;
+                bDirtyLine  = KWFalse;
+                break;
 
-            if (swrite(start, (size_t) lineLength) < lineLength)
+        } /* END switch(c) */
+
+/*--------------------------------------------------------------------*/
+/*       Write the output buffer if explicitly requested or or it     */
+/*       is nearly full.                                              */
+/*--------------------------------------------------------------------*/
+
+        if (bWriteNow ||
+            (nBytesQueued >= (sizeof OutputBuf - (CRLF_LEN + 2))))
+        {
+
+            bWriteNow = KWFalse;
+
+            if (swrite(OutputBuf, (size_t) nBytesQueued) < nBytesQueued)
             {
                 printmsg(0, "SendSMTPData of %d bytes failed: %.80s",
-                           lineLength,
-                           start);
+                           OutputBuf,
+                           nBytesQueued);
                 return KWNSNoNet;
             }
 
-            /* Restore overlayed bytes */
-            start[--lineLength] = saveByte2;
-            start[--lineLength] = saveByte1;
+            nTotalQueued += nBytesQueued;
+            nBytesQueued = 0;
 
-            /* Also restore pointers from quoting */
-            if (periodQuoted)
-            {
-               start++;
-               lineLength--;
-            }
+        } /* if (bWriteNow || ...))) */
 
-         } /* if (lineLength) */
-         else if (swrite(CRLF, CRLF_LEN) < CRLF_LEN) /* Write empty line */
-         {
-             printmsg(0, "SendSMTPData of CR/LF failed.");
-             return KWNSNoNet;
-         }
+     } /* END while(nBytesRead < nBytesSeen) */
 
-         /* Update lengths and actual date buffer contents */
-         len -= lineLength + 1;  /* Add in LF not sent to remote     */
-         start = eol + 1;        /* Start next search at new line    */
+     nTotalSeen += nBytesSeen;
 
-         if ((len > sizeof dataBuf) || (len < 0))
-         {
-            printmsg(0,"Length has gone wild (%d), line was %d",
-                        len,
-                        lineLength);
-            panic();
-         }
-
-     } /* while((eol = memchr(start, '\n', len)) != NULL) */
+   } /* END while((nBytesRead = imread()) */
 
 /*--------------------------------------------------------------------*/
-/*       Handle the special case of an overlength line; we can        */
-/*       only send it if it's not all periods (we would fail to       */
-/*       quote the line properly if it were).                         */
+/*                    Write final data out, if any                    */
 /*--------------------------------------------------------------------*/
 
-     if (firstPass && !isAllPeriods(dataBuf, len))
-     {
-        printmsg(5, "--> %.75s", dataBuf);
-
-        if (swrite(dataBuf, len) < len)
-        {
-           printmsg(0, "SendSMTPData of CR/LF failed.");
+   if (nBytesQueued > 0)
+   {
+       if (swrite(OutputBuf, (size_t) nBytesQueued) < nBytesQueued)
+       {
+           printmsg(0, "SendSMTPData of %d bytes failed: %.80s",
+                      OutputBuf,
+                      nBytesQueued);
            return KWNSNoNet;
-        }
+       }
 
-        len = 0;
-        firstPass = KWFalse;
+       nTotalQueued += nBytesQueued;
 
-     } /* if (firstPass && !isAllPeriods(dataBuf, len)) */
+   } /* if (nBytesQueued > 0) */
 
-/*--------------------------------------------------------------------*/
-/*        Verify the input buffer had at least one valid line         */
-/*--------------------------------------------------------------------*/
-
-     if (firstPass)
-     {
-        printmsg(0,"SendSMTPData: Overlength input line "
-                   "(%d bytes, buffer %d) not trapped",
-                   used,
-                   sizeof dataBuf);
-        panic();
-     }
-
-     /* Burp remaining data to front of buffer */
-     used = len;
-
-     if (used)
-        memmove(dataBuf, start, (size_t) used);
-
-   } /* while((len = imread()) */
+   printmsg(2,"SendSMTPData: Read %d bytes, examined %d bytes, wrote %d bytes",
+               nTotalRead,
+               nTotalSeen,
+               nTotalQueued);
 
 /*--------------------------------------------------------------------*/
 /*     Verify that RMAIL previously terminated final line for us      */
 /*--------------------------------------------------------------------*/
 
-   if (used)
+   if (bDirtyLine)
    {
       printmsg(0,"SendSMTPData: Unterminated final line not trapped: %.80s",
-               dataBuf);
+               OutputBuf);
       panic();
    }
 
