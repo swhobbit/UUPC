@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.16 1994/01/01 19:21:42 ahd Exp $
+ *    $Id: ulibip.c 1.17 1994/02/19 05:11:47 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.17  1994/02/19  05:11:47  ahd
+ * Use standard first header
+ *
  * Revision 1.16  1994/01/01  19:21:42  ahd
  * Annual Copyright Update
  *
@@ -90,9 +93,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "ulib.h"
-#include "comm.h"          /* Modem status bits                       */
-#include "ssleep.h"
+#include "ulibip.h"
 #include "catcher.h"
 
 #include "commlib.h"       /* Trace functions, etc.                    */
@@ -112,7 +113,6 @@
 
 void AtWinsockExit(void);
 boolean IsFatalSocketError(int err);
-void tcloseline(void);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
