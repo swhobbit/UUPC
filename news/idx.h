@@ -6,9 +6,12 @@
  * Created: Sun Aug 15 1993
  */
  
-/* $Id$ */
+/* $Id: IDX.H 1.1 1993/09/05 10:56:49 rommel Exp rommel $ */
 
-/* $Log$ */
+/* $Log: IDX.H $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 #ifndef _IDX_H
 #define _IDX_H
@@ -20,6 +23,7 @@
 #define IDX_MAXITEM    (IDX_MINITEM * 2)
 #define IDX_MAXSTACK   20
 
+#pragma pack(1)
 typedef struct
 {
   char key[IDX_MAXKEY];
@@ -36,6 +40,7 @@ typedef struct
   long child_0;
 }
 PAGE;
+#pragma pack()
 
 typedef struct
 {
