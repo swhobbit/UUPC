@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.16 1995/09/11 00:24:49 ahd v1-12q $
+ *    $Id: deliver.h 1.17 1996/01/01 21:04:46 ahd v1-12r $
  *
  *    $Log: deliver.h $
+ *    Revision 1.17  1996/01/01 21:04:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1995/09/11 00:24:49  ahd
  *    Delete non-existent variable
  *
@@ -79,6 +82,12 @@ size_t Deliver( IMFILE *imf,           /* Input file name            */
 size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
                     const char *address,  /* Target address           */
                     const char *path);
+
+size_t Bounce( IMFILE *imf,
+               const char *text,
+               const char *data,
+               const char *address,
+               const KWBoolean validate );
 
 extern KEWSHORT hops;
 
