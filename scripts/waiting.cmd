@@ -27,6 +27,12 @@
 /*       Based on original DOS version by various people, and         */
 /*       MAILCHEK.CMD, by Evan Champion <evanc@uuisis.isis.org>       */
 /*--------------------------------------------------------------------*/
+
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
 '@echo off'
 signal on novalue
 parse upper arg who;
@@ -64,6 +70,25 @@ end i /* do */
 exit;
 
 /*--------------------------------------------------------------------*/
+/*    C o u n t I t e m s                                             */
+/*                                                                    */
+/*    Determine number of items in a mailbox                          */
+/*--------------------------------------------------------------------*/
+
+CountItems:procedure
+parse arg mailbox
+sep = copies('01'x,19)
+xrc = SysFileSearch( sep ,mailbox,'data.');
+if xrc <> 0 then
+do;
+   say 'Internal error' xrc || ':' ,
+         mailbox 'has no UUPC/extended message breaks'
+   return 0;
+end;
+else
+   return data.0;
+
+/*--------------------------------------------------------------------*/
 /*       g e t u u p c                                                */
 /*                                                                    */
 /*       Get UUPC/extended configuration variable                     */
@@ -94,19 +119,6 @@ do count = 1 to data.0
       answer = string;
 end;
 return translate(answer,'\','/');
-
-CountItems:procedure
-parse arg mailbox
-sep = copies('01'x,19)
-xrc = SysFileSearch( sep ,mailbox,'data.');
-if xrc <> 0 then
-do;
-   say 'Internal error' xrc || ':' ,
-         mailbox 'has no UUPC/extended message breaks'
-   return 0;
-end;
-else
-   return data.0;
 
 /*--------------------------------------------------------------------*/
 /*    n o v a l u e                                                   */
