@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.10 1995/01/09 12:34:31 ahd Exp $
+#       $Id: nmakewnt.mak 1.11 1995/01/13 12:23:44 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.11  1995/01/13 12:23:44  ahd
+#       Support for UUPCDLL.DLL for Windows NT
+#
 #       Revision 1.10  1995/01/09 12:34:31  ahd
 #       Rename NT object files directory to 'objnt' :-)
 #
@@ -65,5 +68,5 @@ LIBEXE   = lib
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
 
 EXTRAT=regsetup.exe uupcdll.dll
-EXTRA3=$(PROD)\regsetup.exe
-EXTRA4=$(PROD)\uupcdll.dll
+EXTRA2=$(PROD)\regsetup.exe
+EXTRA3=$(PROD)\uupcdll.dll

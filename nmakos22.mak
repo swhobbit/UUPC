@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.8 1994/06/13 00:08:33 ahd v1-12k $
+#       $Id: nmakos22.mak 1.9 1994/12/22 00:05:44 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.9  1994/12/22 00:05:44  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.8  1994/06/13 00:08:33  ahd
 #       Add UUHOUR command to build
 #
@@ -37,7 +40,7 @@
 #
 
 ERASE    = del /f
-EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
+EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
            $(PROD)\uucicon.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd

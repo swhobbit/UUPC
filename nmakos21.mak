@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.4 1994/06/13 00:08:33 ahd v1-12k $
+#       $Id: nmakos21.mak 1.5 1994/12/22 00:05:39 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.5  1994/12/22 00:05:39  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.4  1994/06/13 00:08:33  ahd
 #       Add UUHOUR command to build
 #
@@ -20,7 +23,7 @@
 #
 
 ERASE    = del /f
-EXTRA2   = $(PROD)\mail.ico $(PROD)\uucico.ico
+EXTRA1   = $(PROD)\mail.ico $(PROD)\uucico.ico
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd   \
             $(PROD)\uuhour.cmd
 LIBLIST  = $(MODEL)libcep+$(LIBCOMM)+os2
