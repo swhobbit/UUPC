@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.17 1993/10/12 01:30:23 ahd Exp $
+ *    $Id: deliver.c 1.18 1993/11/13 17:43:26 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.18  1993/11/13  17:43:26  ahd
+ * Add call grading support
+ * Add suppressfrom, shortfrom options
+ *
  * Revision 1.17  1993/10/12  01:30:23  ahd
  * Normalize comments to PL/I style
  *
@@ -644,13 +648,16 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
                     const char *address,  /* Target address           */
                     const char *path)
 {
+
+#define EVERY_PAD 10
+
    static char *spool_fmt = SPOOLFMT;              /* spool file name */
    static char *dataf_fmt = DATAFFMT;
    static char *send_cmd  = "S %s %s %s - %s 0666\n";
    static long seqno = 0;
    static char *SavePath = NULL;
    FILE *stream;              /* For writing out data                 */
-   static char everyone[500]; /* 512, with room for "rmail "          */
+   static char everyone[BUFSIZ];
 
    char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */
    char msname[22];           /* MS-DOS format w/o path name          */
@@ -672,6 +679,9 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
                address ,
                path);
 
+   if ( ! E_maxuuxqt )
+      E_maxuuxqt = sizeof everyone;
+
 /*--------------------------------------------------------------------*/
 /*          Create the UNIX format of the file names we need          */
 /*--------------------------------------------------------------------*/
@@ -679,30 +689,26 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    if ((seqno == 0) ||
        (SavePath == NULL) ||
        !equal(SavePath, path) ||
-       ((int) (strlen(everyone) + strlen(address) + 2) > (int) sizeof everyone))
+       ((strlen(everyone) + strlen(address) + 2) > E_maxuuxqt))
    {
       char *seq;
       seqno = getseq();
       seq = JobNumber( seqno );
 
       if  (SavePath != NULL )
-      {
-         free(SavePath);
          SavePath = NULL;
-      } /* if */
 
       sprintf(tmfile, spool_fmt, 'C', path,     grade , seq);
       sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
       sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
       sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
       sprintf(rxfile, dataf_fmt, 'X', E_nodename , seq, 'r');
-      strcpy(everyone,address);
+      strcpy( everyone,"rmail");
 
    } /* if */
-   else {
-      strcat(everyone," ");
-      strcat(everyone,address);
-   } /* else */
+
+   strcat(everyone, " ");
+   strcat(everyone, address);
 
 /*--------------------------------------------------------------------*/
 /*                     create remote X (xqt) file                     */
@@ -720,7 +726,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    } /* if */
 
 
-   fprintf(stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC rmail %s\n",
+   fprintf(stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC %s\n",
                ruser, rnode, uuser , E_nodename,
                rdfile, rdfile, everyone);
    fclose(stream);
@@ -771,9 +777,10 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    fclose(stream);
 
    if (bflag[F_MULTI])        /* Deliver to multiple users at once?   */
-      SavePath = strdup(path);   /* Yes --> Save routing info         */
+      SavePath = newstr(path);   /* Yes --> Save routing info         */
 
    return 1;
+
 } /* DeliverRemote */
 
 /*--------------------------------------------------------------------*/
