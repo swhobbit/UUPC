@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.8 1994/12/22 00:05:33 ahd Exp $
+#       $Id: nmakewnt.mak 1.9 1995/01/07 20:47:20 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.9  1995/01/07 20:47:20  ahd
+#       Add missing NT components
+#
 #       Revision 1.8  1994/12/22 00:05:33  ahd
 #       Annual Copyright Update
 #
@@ -41,7 +44,7 @@ CCOPT   = $(COMMOPT) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
 PROD    = \uupc\ntbin
 ZIPID   = n
 ERASE   = del
-MODEL   = N                          # Really NT version in this case
+MODEL   = t                          # Really NT version in this case
 
 LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
             $(OBJ)\pnterr.obj $(OBJ)\titlen.obj
@@ -60,4 +63,4 @@ OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULI
 
 EXTRAT=regsetup.exe uupcdll.dll
 EXTRA3=$(PROD)\regsetup.exe
-EXTRA4=$(PROD)\uupcdll.dll
+#EXTRA4=$(PROD)\uupcdll.dll
