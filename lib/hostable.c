@@ -18,9 +18,12 @@
  */
 
  /*
-  *      $Id$
+  *      $Id: HOSTABLE.C 1.2 1992/11/22 20:58:55 ahd Exp $
   *
-  *      $Log$
+  *      $Log: HOSTABLE.C $
+ * Revision 1.2  1992/11/22  20:58:55  ahd
+ * Use strpool to allocate const strings
+ *
   */
 
 #include <ctype.h>
@@ -433,10 +436,6 @@ static size_t loadhost()
          checkref( hostp->hstats );
          memset( hostp->hstats, 0, sizeof *(hostp->hstats) );
       }
-      else
-         printmsg(3,"loadhost: Duplicate entry in %s for \"%s\" ignored",
-               s_systems,
-               hostp->hostname);
    } /* while */
 
    fclose(ff);
