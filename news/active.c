@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.30 1996/01/02 02:51:53 ahd Exp $
+ *    $Id: active.c 1.31 1996/01/04 03:59:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.31  1996/01/04 03:59:30  ahd
+ *    Perform stronger news group lemgth checking
+ *    Delete extra cannot load news group message
+ *
  *    Revision 1.30  1996/01/02 02:51:53  ahd
  *    Correct conditional debugging code to be consistent
  *
@@ -85,50 +89,31 @@
 /*           Our active tree structure as a red/black tree            */
 /*--------------------------------------------------------------------*/
 
-#define F_COLOR_RED       0x01
-#define F_VALID_GROUP     0x02
-#define F_LONGGROUP       0x04
+#define F_COLOR_RED       0x80
+#define F_VALID_GROUP     0x40
 
-#define F_MODERATED       0x10
-#define F_UNMODERATED     0x20
-#define F_NOPOSTING       0x40
-
-#if defined( BIT32ENV ) || defined( FAMILYAPI )
-#define LEVEL_LENGTH     31
-#else
-#define LEVEL_LENGTH     19
-#endif
+#define F_MODERATED       0x20
+#define F_UNMODERATED     0x10
+#define F_NOPOSTING      (F_MODERATED | F_UNMODERATED)
 
 typedef struct _GROUP
 {
 
-   struct _GROUP UUFAR *left;       /* Binary tree at this level     */
-   struct _GROUP UUFAR *right;      /* Binary tree at this level     */
-   struct _GROUP UUFAR *parent;     /* Parent node in current level  */
-
-   struct _GROUP UUFAR *prevLevel;  /* Group at previous level       */
+   struct _GROUP UUFAR *left;
+   struct _GROUP UUFAR *right;
+   struct _GROUP UUFAR *parent;
 
    long   high;                     /* Next article number to store  */
    long   low;                      /* Lowest unexpired article num  */
 
-   union
-   {
-      char   UUFAR *namePtr;        /* Pointer to simple name        */
-      char   name[LEVEL_LENGTH];    /* Simple name                   */
-   } n;
-
    unsigned char flags;             /* Bit flags, see above          */
+   char name[3];                    /* First character of name       */
 
 } GROUP;
 
-#ifdef BIT32ENV
-#define GROUPS_PER_BLOCK      (0x10000 / sizeof (GROUP))
-#else
-#define GROUPS_PER_BLOCK      (0x1000 / sizeof (GROUP))
-#endif
+#define BLOCK_SIZE           0x2000
 
 static GROUP UUFAR *cachedGroup = NULL;   /* Last group walked       */
-static char *cachedGroupName = NULL;      /* Name of cachedGroup     */
 
 static GROUP UUFAR *topNode;        /* Top of group tree             */
 
@@ -140,7 +125,6 @@ static long walked = 0;             /* Nodes written during output   */
 
 #ifdef UDEBUG
 
-static long nodes = 0;              /* Nodes in tree created         */
 static long siblings = 0;           /* Nodes visited during load     */
 
 static long searches = 0;           /* Number of searches performed  */
@@ -149,9 +133,6 @@ static long searchNodes = 0;        /* Nodes walked during search    */
 
 static long pushed = 0;             /* Current uses of pushGroup     */
 static long maxPushed = 0;          /* MAx uses of pushGroup         */
-
-static long longNames = 0;          /* Names which didn't fit        */
-static long parents   = 0;          /* Parents we had to create      */
 
 #endif
 
@@ -175,21 +156,6 @@ static long parents   = 0;          /* Parents we had to create      */
 #define setBlack( _group ) bitOff( _group, F_COLOR_RED )
 #define setRed( _group )   bitOn( _group, F_COLOR_RED )
 #define isRed( _group )    ( _group->flags & F_COLOR_RED )
-
-#define SET_LONGGROUP( _group )   bitOn( _group, F_LONGGROUP )
-#define IS_LONGGROUP( _group )    ( _group->flags & F_LONGGROUP )
-
-#define containsFullName( _group )    (_group->prevLevel == NULL)
-
-/*--------------------------------------------------------------------*/
-/*       g e t S i m p l e N a m e                                    */
-/*                                                                    */
-/*       Get simple news group name                                   */
-/*--------------------------------------------------------------------*/
-
-#define getSimpleName( _group ) ((char UUFAR *)          \
-            ( IS_LONGGROUP( _group ) ?                   \
-               _group->n.namePtr : _group->n.name ))
 
 /*--------------------------------------------------------------------*/
 /*       e n c o d e M o d e r a t i o n                              */
@@ -247,177 +213,78 @@ translateModeration( const unsigned char flag )
 } /* translateModeration */
 
 /*--------------------------------------------------------------------*/
-/*       m a k e G r o u p N a m e                                    */
-/*                                                                    */
-/*       Given a leaf of the active group tree, make the name         */
-/*       by recursively appending the prefix of the group name.       */
-/*--------------------------------------------------------------------*/
-
-static char *
-makeGroupName( char *buf, GROUP UUFAR *group )
-{
-
-   if ( group->prevLevel != NULL )
-   {
-      buf = makeGroupName( buf, group->prevLevel );
-      *buf++ = '.';
-   }
-
-   STRCPY( buf, getSimpleName( group ) );
-   buf += strlen( buf );
-
-   return buf;                      /* first unused character        */
-
-} /* makeGroupName */
-
-/*--------------------------------------------------------------------*/
-/*       m a k e L e v e l                                            */
-/*                                                                    */
-/*       Make a simple level name                                     */
-/*--------------------------------------------------------------------*/
-
-static const char *
-makeLevelName( const char *name )
-{
-   static char level[MAXGRP];
-   char *p;
-   char *period = NULL;
-   size_t length = strlen( name );
-
-/*--------------------------------------------------------------------*/
-/*                       Create the level name                        */
-/*--------------------------------------------------------------------*/
-
-   if ( length < LEVEL_LENGTH )
-      return name;
-
-/*--------------------------------------------------------------------*/
-/*       As we search for a good breaking point, we never allow a     */
-/*       trailing period to be the only character left in the         */
-/*       buffer after the current level, as this could not be         */
-/*       reconstructed by makeGroupName().                            */
-/*--------------------------------------------------------------------*/
-
-
-   p = (char *) name + (LEVEL_LENGTH - 1);
-
-   do {
-
-      if ( *p == '.' )
-         period = p;
-
-   } while ((period == NULL ) && ( --p > name ));
-
-   if ( period == NULL )
-      period = strchr( name + LEVEL_LENGTH, '.' );
-
-/*--------------------------------------------------------------------*/
-/*       If there is no period (other than a possible trailing        */
-/*       period) return the full string for the current level.        */
-/*--------------------------------------------------------------------*/
-
-   if (( period == NULL ) || (period == (name + length - 1 )))
-      return name;
-
-/*--------------------------------------------------------------------*/
-/*     We have a valid termination point, copy the string as needed   */
-/*--------------------------------------------------------------------*/
-
-   length = (size_t) (period - name);
-   memcpy( level, name, length );
-   level[length] = '\0';
-
-   return level;
-
-} /* makeLevelName */
-
-/*--------------------------------------------------------------------*/
 /*       c r e a t e N o d e                                          */
 /*                                                                    */
-/*       Create current level as right node of "previous", or         */
-/*       under previous level node if no previous node is specified.  */
+/*       Insert new node into our tree                                */
 /*--------------------------------------------------------------------*/
 
 GROUP UUFAR *
-createNode( const char *level,
-            GROUP UUFAR *prevLevel,
+createNode( const char *groupName,
             GROUP UUFAR *parent )
 {
 
-   static GROUP UUFAR *blockAnchor = NULL;
-   static size_t blockGroups;          /* Entries used in block      */
+   static char UUFAR *anchor = NULL;
+   static size_t freeBytes = 0;      /* Bytes available in block   */
 
-   size_t length = strlen( level );
+#ifdef UDEBUG
+   static size_t bufferCount = 0;
+#endif
+
    GROUP UUFAR *newNode;
+   size_t length = strlen( groupName ) +
+                   1 +
+                   sizeof *newNode -
+                   sizeof newNode->name;
 
 /*--------------------------------------------------------------------*/
 /*                    We need to create a new node                    */
 /*--------------------------------------------------------------------*/
 
-   if ( blockAnchor == NULL )
+   if ( freeBytes < (sizeof (GROUP) + length ))
    {
-      blockAnchor = MALLOC( sizeof (*blockAnchor) * GROUPS_PER_BLOCK );
-      checkref( blockAnchor );
+      anchor = MALLOC( BLOCK_SIZE );
+      checkref( anchor );
+      freeBytes = BLOCK_SIZE;
 
 #ifdef UDEBUG
-      printmsg(4, "createNode: Allocated new block of %ld group names",
-               (long) GROUPS_PER_BLOCK );
+      printmsg(4, "createNode: Allocated block[%d] for %d bytes at "
+#ifdef BIT32ENV
+                   "%p"
+#else
+                   "%Fp"
+#endif
+                   " for group %ld",
+               ++bufferCount,
+               freeBytes,
+               anchor,
+               groups + 1 );
 #endif
 
-      blockGroups = 0;
    }
 
-   newNode = blockAnchor++;
-   blockGroups++;
+   length  += sizeof (GROUP UUFAR *) - (length % sizeof (GROUP UUFAR *));
+                                    /* Round to next boundary           */
+   newNode = (GROUP UUFAR *) anchor;
 
-   if ( blockGroups == GROUPS_PER_BLOCK ) /* Full block?             */
-      blockAnchor = NULL;                 /* Get new one next pass   */
+   if ( length <= freeBytes )       /* Don't allow unsigned number to
+                                       go negative because of rounding  */
+   {
+      anchor  += length;
+      freeBytes -= length;
+   }
+   else
+      freeBytes = 0;
 
    MEMSET( newNode, 0, sizeof *newNode );
 
-   newNode->prevLevel = prevLevel;
-   newNode->parent    = parent;
+   newNode->parent = parent;
 
    setRed( newNode );
-
-/*--------------------------------------------------------------------*/
-/*       We store the string into the actual structure if it fits,    */
-/*       otherwise (for longer strings) we grab a string off our      */
-/*       off far string memory.  This prevents a near heap shortage   */
-/*       in 16 bit environments but may limit the total number of     */
-/*       groups in a 640K (DOS) environment.                          */
-/*--------------------------------------------------------------------*/
-
-   if ( length >= sizeof newNode->n.name )
-   {
-#ifdef BIT32ENV
-      newNode->n.namePtr = newstr( level );
-#else
-      newNode->n.namePtr = MALLOC( length + 1 );
-      checkref( newNode->n.namePtr );
-      STRCPY( newNode->n.namePtr, level );
-#endif
-      SET_LONGGROUP( newNode );
-
-#ifdef UDEBUG
-      longNames++;
-      printmsg(2,"createNode: overlength name (%d bytes, %d allowed): %s",
-                  (size_t) length,
-                  (size_t) sizeof newNode->n.name - 1,
-                  level );
-#endif
-
-   }
-   else
-      STRCPY( newNode->n.name, level );
+   STRCPY( newNode->name, groupName );
 
 /*--------------------------------------------------------------------*/
 /*                     Return newly created node                      */
 /*--------------------------------------------------------------------*/
-
-#ifdef UDEBUG
-   nodes++;
-#endif
 
    return newNode;
 
@@ -502,27 +369,14 @@ RightRotate(GROUP UUFAR *root, GROUP UUFAR *current)
 /*--------------------------------------------------------------------*/
 
 static GROUP UUFAR *
-insertNode( GROUP UUFAR *prevLevel, const char *name )
+insertNode( const char *name )
 {
 
    GROUP UUFAR *x = topNode;
    GROUP UUFAR *y = NULL;
    GROUP UUFAR *addMe;
    GROUP UUFAR *newNode;
-   char fullName[MAXGRP];
    int hit = 0;
-
-/*--------------------------------------------------------------------*/
-/*                    Make name used for comparing                    */
-/*--------------------------------------------------------------------*/
-
-   if ( prevLevel == NULL )
-      strcpy( fullName, name );
-   else {
-      char *end = makeGroupName( fullName, prevLevel );
-      *end++ = '.';
-      strcpy( end, name );
-   }
 
 /*--------------------------------------------------------------------*/
 /*                   Locate the name if it exists                     */
@@ -530,18 +384,7 @@ insertNode( GROUP UUFAR *prevLevel, const char *name )
 
    while ( x != NULL )
    {
-      if ( containsFullName( x ))
-         hit = STRCMP( fullName, getSimpleName( x ));
-      else {
-         char buf[MAXGRP];
-         makeGroupName( buf, x );
-         hit = strcmp( fullName, buf );
-
-#ifdef UDEBUG
-         parents++;
-#endif
-
-      } /* else */
+      hit = STRCMP( name, x->name);
 
       y = x;
 
@@ -559,11 +402,11 @@ insertNode( GROUP UUFAR *prevLevel, const char *name )
    } /* while ( x != NULL ) */
 
    if ( y == NULL )
-      addMe = topNode  = createNode( name, prevLevel, NULL );
+      addMe = topNode  = createNode( name, NULL );
    else if ( hit > 0 )
-      addMe = y->right = createNode( name, prevLevel, y );
+      addMe = y->right = createNode( name, y );
    else
-      addMe = y->left  = createNode( name, prevLevel, y );
+      addMe = y->left  = createNode( name, y );
 
    newNode = addMe;                 /* Save for caller               */
 
@@ -667,8 +510,6 @@ addGroup( const char *group,
           const char moderation )
 {
    GROUP UUFAR *current = NULL;
-   GROUP UUFAR *prevLevel;
-   char  *rest = (char *) group;
 
    static size_t maxLength = 0;
 
@@ -697,23 +538,7 @@ addGroup( const char *group,
       return KWFalse;
    }
 
-/*--------------------------------------------------------------------*/
-/*        Loop to walk tree to node, adding branches as needed        */
-/*--------------------------------------------------------------------*/
-
-   while( *rest )
-   {
-      const char *level = makeLevelName( rest );
-
-      prevLevel = current;
-      rest += strlen( level );
-
-      if ( *rest == '.' )
-         rest += 1;
-
-      current = insertNode( prevLevel, level );
-
-   } /* while( *rest ) */
+   current = insertNode( group );
 
 /*--------------------------------------------------------------------*/
 /*     If the node is alway initialized, return failure to caller     */
@@ -721,12 +546,9 @@ addGroup( const char *group,
 
    if ( IS_GROUP( current ))
    {
-      char buf[MAXGRP];
-      makeGroupName( buf, current ),
-
-      printmsg(0, "Group %s already found as %s, moderation status is %c",
+      printmsg(0, "Group %s already found, moderation status is %c",
                   group,
-                  buf,
+                  group,
                   GET_MODERATION( current ) );
       return KWFalse;
    }
@@ -770,24 +592,6 @@ addGroup( const char *group,
 /*--------------------------------------------------------------------*/
 
    groups++;
-
-#ifdef UDEBUG
-
-   {
-      char buf[MAXGRP];
-
-      makeGroupName( buf, current );
-
-      if ( ! equal( buf, group))
-      {
-         printmsg(0, "addGroup: Group %s added in wrong place as %s",
-                     group,
-                     buf );
-         panic();
-      }
-   }
-
-#endif
 
    return KWTrue;
 
@@ -912,14 +716,9 @@ loadActive( const KWBoolean mustExist )
    }
 
 #ifdef UDEBUG
-   printmsg( 1, "loadActive: %ld groups in %ld nodes, "
-                "via %ld siblings (%ld parented).  "
-                "%ld overlength names.",
+   printmsg( 1, "loadActive: %ld groups loaded via %ld siblings.",
                 groups,
-                nodes,
-                siblings,
-                parents,
-                longNames );
+                siblings );
 
 #endif
 
@@ -954,14 +753,15 @@ findGroup( const char *group )
 /*               See if we previously found this group                */
 /*--------------------------------------------------------------------*/
 
-   if (( cachedGroupName != NULL ) &&  equal( cachedGroupName , group ))
+   if (( cachedGroup != NULL ) &&  !STRCMP( cachedGroup->name , group ))
    {
 #ifdef UDEBUG
       cacheHits++;
 #endif /* UDEBUG */
+
       return cachedGroup;
 
-   } /* if ( cachedGroupName != NULL ) */
+   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*              Inner loop to locate simple name in list              */
@@ -969,19 +769,7 @@ findGroup( const char *group )
 
    while( current != NULL )
    {
-      int hit;
-
-      if ( containsFullName( current ))
-         hit = STRCMP( group, getSimpleName( current ));
-      else {
-
-         char buf[MAXGRP];
-
-         makeGroupName( buf, current );
-
-         hit = strcmp( group, buf );
-
-      }  /* else */
+      int hit = STRCMP( group, current->name);
 
 #ifdef UDEBUG
       searchNodes++;
@@ -1186,7 +974,7 @@ nextActiveGroup(  GROUP UUFAR *node,
 
          char buf[MAXGRP];
 
-         makeGroupName( buf, node );
+         STRCPY( buf, node->name);
 
          if ( walkOneGroup == NULL )
          {
@@ -1201,7 +989,7 @@ nextActiveGroup(  GROUP UUFAR *node,
          else {
 
             cachedGroup = node;
-            cachedGroupName = buf;
+
             (*walkOneGroup)( buf, optional );
          }
 
@@ -1215,8 +1003,6 @@ nextActiveGroup(  GROUP UUFAR *node,
       node = node->right;
 
    } while ( node != NULL );
-
-   cachedGroupName = NULL;          /* reset now invalid pointer     */
 
 #ifdef UDEBUG
    pushed--;
