@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\UTIL\RCS\COMM34.C 1.1 1992/11/15 04:29:22 ahd Exp $
+ *    $Id: COMM34.C 1.2 1993/04/11 00:33:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: COMM34.C $
+ * Revision 1.2  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
@@ -25,7 +28,7 @@
  *
  */
 
-static char rcsid[] = "$Id: COMM34.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+static char rcsid[] = "$Id: COMM34.C 1.2 1993/04/11 00:33:54 ahd Exp $";
 
 /*
  * Compiler: Microsoft C 5.1
@@ -145,22 +148,26 @@ unsigned htoi(char *buf)
    char c;
 
    for (sum = 0; (c = *buf) != '\0'; buf++)
-   {
-      if ((c >= 'a') && (c <= 'f'))
-         c = c - 'a' + 'A';
-
-      if ((c >= 'A') && (c <= 'F'))
-         sum = (sum * 16) + (c - 'A' + 10);
-
-      else if ((c >= '0') && (c <= '9'))
-         sum = (sum * 16) + (c - '0');
-
-      else
+      switch(c)
       {
-         printf("Invalid port address %s, program exiting.\n",buf);
-         usage();
+         case '0': case '1': case '2': case '3': case '4':
+         case '5': case '6': case '7': case '8': case '9':
+            sum = (sum * 16) + (c - '0');
+            break;
+
+         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+            sum = (sum * 16) + (c - 'A' + 10);
+            break;
+
+         case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            sum = (sum * 16) + (c - 'a' + 10);
+            break;
+
+         default:
+            printf("Invalid port address %s, program exiting.\n",buf);
+            usage();
       }
-   }
+
    return(sum);
 
 } /* htoi */

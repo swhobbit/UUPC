@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\UTIL\RCS\FMT.C 1.1 1992/11/15 04:29:22 ahd Exp $
+ *    $Id: FMT.C 1.2 1993/04/11 00:33:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: FMT.C $
+ * Revision 1.2  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
@@ -24,7 +27,7 @@
  *
  */
 
-static char rcsid[] = "$Id: FMT.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+static char rcsid[] = "$Id: FMT.C 1.2 1993/04/11 00:33:54 ahd Exp $";
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -117,7 +120,7 @@ static char rcsid[] = "$Id: FMT.C 1.1 1992/11/15 04:29:22 ahd Exp $";
       }
       else while(token != NULL)
       {
-         register size_t toklen = strlen(token);
+         register int toklen = (int) strlen(token);
          width = toklen + width + 1 + punct;
          if (width > max(maxwidth, toklen + 1))
          {

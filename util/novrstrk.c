@@ -13,6 +13,9 @@
 
 /*
    $Log: NOVRSTRK.C $
+ * Revision 1.2  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
@@ -22,7 +25,7 @@
  */
 
 static char rcsid[] =
-         "$Id: NOVRSTRK.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+         "$Id: NOVRSTRK.C 1.2 1993/04/11 00:33:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */
@@ -104,11 +107,13 @@ static char rcsid[] =
 
     while (!done)
     {
-      char c = fgetc( input );
-      if ( feof(input) || ferror(input) )
-         done = 1;
-      else switch (c)
+      int c = fgetc( input );
+      switch (c)
       {
+         case EOF:            /* Error or EOF */
+            done = 1;
+            break;
+
          case '\b':           /* Simple overstrike?                  */
             ignore = 1;       /* Yes --> Ignore it                   */
             break;
@@ -123,7 +128,7 @@ static char rcsid[] =
          case '\n':           /* New line?                           */
             if ( column > linesize )
                linesize = column;
-            buf[linesize++] = c;  /* Yes --> Add the end of line     */
+            buf[linesize++] = (char)c;/* Yes --> Add the end of line */
             buf[linesize] = '\0'; /*   ... terminate the buffer      */
             fputs(buf, output);   /*   ... write it out              */
             done = ferror(output);/*   ... check the result          */
@@ -136,7 +141,7 @@ static char rcsid[] =
             else if (( linesize > column ) && (c == ' '))
                column += 1;
             else
-               buf[ column++ ] = c; /* Add the character to the buf */
+               buf[ column++ ] = (char) c; /* Add the character to the buf */
        break;
        } /* switch */
     } /* while */
