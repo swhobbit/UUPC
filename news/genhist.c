@@ -19,10 +19,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-static char *rcsid = "$Id: genhist.c 1.2 1993/10/30 22:27:57 rommel Exp $";
-static char *rcsrev = "$Revision: 1.2 $";
+static char *rcsid = "$Id: genhist.c 1.3 1993/11/06 13:04:13 ahd Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
 /* $Log: genhist.c $
+ * Revision 1.3  1993/11/06  13:04:13  ahd
+ * Update usage message
+ *
  * Revision 1.2  1993/10/30  22:27:57  rommel
  * Lower debug level to 1
  *
@@ -137,10 +140,17 @@ void main( int argc, char **argv)
    if (!configure( B_NEWS ))
       exit(1);   /* system configuration failed */
 
+   openlog( NULL );
+
+   if ( ! bflag[F_HISTORY] )
+   {
+      printmsg(0,"options=history not set; running %s makes no sense!",
+                 argv[0] );
+      panic();
+   }
+
    PushDir( E_newsdir );
    atexit( PopDir );
-
-   openlog( NULL );
 
    get_active();
 
