@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.25 1997/05/03 17:10:18 ahd v1-12s $
+ *    $Id: imfile.c 1.26 1997/06/03 03:25:31 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.26  1997/06/03 03:25:31  ahd
+ *    First compiling SMTPD
+ *
  *    Revision 1.25  1997/05/03 17:10:18  ahd
  *    Always generate execute input file as text
  *
@@ -974,11 +977,11 @@ int executeIMFCommand( const char *command,
 
       if ( imf->flag & IM_FLAG_TEXT )
          imf->stream = FOPEN( imf->filename,
-                              "w+",
+                              "a+",
                               TEXT_MODE );
       else
          imf->stream = FOPEN( imf->filename,
-                              "w+",
+                              "a+",
                               IMAGE_MODE );
 
       if ( imf->stream == NULL )
