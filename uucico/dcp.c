@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.39 1994/12/31 03:39:56 ahd Exp $
+ *    $Id: dcp.c 1.40 1995/01/07 16:37:55 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.40  1995/01/07 16:37:55  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.39  1994/12/31 03:39:56  ahd
  *    Correct processing for systems with grade restrictions in the
  *    systems file when calling system "any"
@@ -629,7 +632,7 @@ static KWBoolean master( const char recvGrade,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-               execute( "uuxqt", buf, NULL, NULL, KWFalse, FALSE );
+               execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
             }
             needUUXQT = KWFalse;
             m_state = CONN_INITIALIZE;
@@ -804,7 +807,7 @@ static KWBoolean client( const time_t exitTime,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-               execute( "uuxqt", buf, NULL, NULL, KWFalse, FALSE );
+               execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
             }
             needUUXQT = KWFalse;
             s_state = CONN_EXIT;
