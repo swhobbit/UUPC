@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.13 1994/02/20 19:05:02 ahd v1-12k $
+ *    $Id: ndiros2.c 1.14 1994/12/22 00:09:52 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *    Revision 1.14  1994/12/22 00:09:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1994/02/20 19:05:02  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -91,8 +94,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#define FAMILY_API
-
 #include "uundir.h"
 #include "dos2unix.h"
 
@@ -108,6 +109,8 @@ static char *pathname = NULL;
 static FILEFINDBUF3 findbuf;
 
 #else
+
+typedef USHORT APIRET ;  /* Define older API return type              */
 
 #define FINDFIRST_LEVEL (0L)
 static FILEFINDBUF findbuf;
@@ -128,12 +131,12 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    DIR *dirp;
 
 #ifdef __OS2__
-   APIRET rc;
    ULONG count = 1L;
 #else
-   USHORT rc;
    USHORT count = 1;
 #endif
+
+   APIRET rc;
 
    pathname = malloc( strlen( dirname ) + strlen( pattern ) + 2 );
    strcpy(pathname, dirname);
@@ -147,7 +150,8 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 /*                Read the first file in the directory                */
 /*--------------------------------------------------------------------*/
 
-   dir_handle = HDIR_CREATE;
+   dir_handle = (HDIR) HDIR_CREATE;
+
    rc = DosFindFirst( pathname,
             &dir_handle,
             FILE_NORMAL,
@@ -189,11 +193,11 @@ struct direct *readdir(DIR *dirp)
 
 #if defined(__OS2__)
    ULONG count = 1L;
-   APIRET rc = 0;
 #else
-   USHORT count = 1;
-   USHORT rc = 0;
+   APIRET count = 1;
 #endif
+
+   APIRET rc = 0;
 
    if ( ! equal(dirp->dirid, "DIR" ))
    {
@@ -217,11 +221,11 @@ struct direct *readdir(DIR *dirp)
       dirp->dirent.d_ino = -1;   /* no inode information */
       strlwr(strcpy(dirp->dirent.d_name, findbuf.achName ));
       dirp->dirent.d_namlen = findbuf.cchName;
-      dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
-         ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
+      dirp->dirent.d_reclen = (short) (sizeof(struct direct) - (MAXNAMLEN + 1) +
+         ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4));
       dirp->dirent.d_modified = dos2unix( findbuf.fdateLastWrite,
                                          findbuf.ftimeLastWrite );
-      dirp->dirent.d_size     = findbuf.cbFile;
+      dirp->dirent.d_size     = (long) findbuf.cbFile;
 
       return &(dirp->dirent);
    }
@@ -242,7 +246,7 @@ struct direct *readdir(DIR *dirp)
 
 void closedir(DIR *dirp)
 {
-   USHORT rc;
+   APIRET rc;
 
    if ( ! equal(dirp->dirid, "DIR" ))
    {
@@ -252,9 +256,11 @@ void closedir(DIR *dirp)
 
    printmsg(5,"closedir: Closing directory %s", pathname );
    rc = DosFindClose( dir_handle );
+
    if ( rc != 0 )
      printmsg(0,"closedir: Error %d on directory %s",
               (int) rc, pathname );
+
    free( dirp );
    dirp = NULL;
    free( pathname );

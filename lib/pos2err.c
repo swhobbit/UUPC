@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.10 1995/01/07 16:13:42 ahd Exp $
+ *    $Id: pos2err.c 1.11 1995/01/29 16:43:03 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.11  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.10  1995/01/07 16:13:42  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -67,6 +70,10 @@
 #include <errno.h>
 #include <io.h>
 #include <ctype.h>
+
+#ifndef ERROR_TIMEOUT
+#define ERROR_TIMEOUT   640     /* MSG%none */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -124,6 +131,11 @@ void pOS2Err(const size_t lineno,
          strcpy( buf, "Invalid parameter, Port IRQ conflict, or device failure");
          break;
 
+      case ERROR_TIMEOUT:
+         strcpy( buf, "Error timeout");   /* DosWaitEventSem reports
+                                             this                    */
+         break;
+
       default:
          xrc = DosGetMessage( NULL,
                               0,
@@ -151,7 +163,7 @@ void pOS2Err(const size_t lineno,
 
          } /* if ( xrc != 0 ) */
          else {
-            int column = 0;
+            size_t column = 0;
 
             for ( column = 0; column < len; column++ )
             {

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.23 1995/02/25 18:21:44 ahd v1-12n $
+  *      $Id: hostable.c 1.24 1995/03/24 04:17:22 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.24  1995/03/24 04:17:22  ahd
+  *      Compiler warning message cleanup, optimize for low memory processing
+  *
   *      Revision 1.23  1995/02/25 18:21:44  ahd
   *      Correct selected flags for config variables
   *
@@ -171,6 +174,7 @@ struct HostTable *checkName(const char *name,
 
    if (equali(name, savename))
       return hostz;
+
    strcpy( savename, name);   /* Save for next pass                   */
 
 /*--------------------------------------------------------------------*/
@@ -235,22 +239,16 @@ struct HostTable *checkName(const char *name,
 /*--------------------------------------------------------------------*/
 
    period = (char *) name;          /* Begin at front of name        */
-   strcpy( hostname, "." );         /* We add the missing period for
-                                       the first pass through the
-                                       loop                           */
 
-   while( period != NULL )
+   while( (period = strchr( ++period, '.' )) != NULL )
    {
 
-      strcat( hostname, period );
+      hostname[0] = '*';               /* Do wildcard search time    */
+      strcpy( hostname + 1, period );
 
       if ((hostz = searchname(hostname, MAXADDR)) != BADHOST)
          return hostz;
 
-      period = strchr(++period,'.');   /* Not found, search for next
-                                          higher domain               */
-      *hostname = '\0';                /* Clear leading period (and
-                                          rest) for next pass        */
    }
 
 /*--------------------------------------------------------------------*/

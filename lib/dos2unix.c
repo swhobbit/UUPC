@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.10 1994/02/20 19:07:38 ahd v1-12k $
+ *    $Id: dos2unix.c 1.11 1994/12/22 00:08:01 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.11  1994/12/22 00:08:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/02/20 19:07:38  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -69,7 +72,7 @@
 /*                         OS/2 include files                         */
 /*--------------------------------------------------------------------*/
 
-#ifdef FAMILY_API
+#if defined(FAMILYAPI) || defined(__OS2__)
 #define INCL_BASE
 
 #include <os2.h>
