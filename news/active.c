@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.31 1996/01/04 03:59:30 ahd Exp $
+ *    $Id: active.c 1.32 1996/01/07 14:14:40 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.32  1996/01/07 14:14:40  ahd
+ *    Dynamically allocate space for news group name trailing rest of
+ *    active tree node, eliminating multiple level names entirely.
+ *
  *    Revision 1.31  1996/01/04 03:59:30  ahd
  *    Perform stronger news group lemgth checking
  *    Delete extra cannot load news group message
@@ -547,7 +551,6 @@ addGroup( const char *group,
    if ( IS_GROUP( current ))
    {
       printmsg(0, "Group %s already found, moderation status is %c",
-                  group,
                   group,
                   GET_MODERATION( current ) );
       return KWFalse;
