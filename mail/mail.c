@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
 /*       m a i l . c                                                  */
 /*                                                                    */
-/*       UUPC/extended Mailer User-Agent (NUA)                        */
+/*       UUPC/extended Mailer User-Agent (MUA)                        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.24 1994/03/09 01:55:39 ahd Exp $
+ *    $Id: mail.c 1.25 1994/03/11 01:49:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.25  1994/03/11  01:49:45  ahd
+ * Make mailbox description array a UUFAR array
+ *
  * Revision 1.24  1994/03/09  01:55:39  ahd
  * Sanity check setvbuf() calls, and don't use setvbuf() if creating
  * memory files
@@ -122,7 +125,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.24 1994/03/09 01:55:39 ahd Exp $";
+      "$Id: mail.c 1.25 1994/03/11 01:49:45 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

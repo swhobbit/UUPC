@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.12 1994/02/19 04:45:32 ahd Exp $
+ *    $Id: pushpop.c 1.13 1994/02/20 19:07:38 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.13  1994/02/20  19:07:38  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.12  1994/02/19  04:45:32  ahd
  *     Use standard first header
  *
@@ -167,7 +170,7 @@ void PopDir( void )
 
 /*--------------------------------------------------------------------*/
 /*       We retrieve the current directory by drive letter because    */
-/*       the IBM OS/2 C compiler 2.01 returns @ for the driver        */
+/*       the IBM OS/2 C compiler 2.01 returns @ for the drive         */
 /*       letter of the 0 (current) drive.                             */
 /*--------------------------------------------------------------------*/
 
