@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.61 1995/03/11 01:59:57 ahd Exp $
+ *       $Id: rnews.c 1.62 1995/03/11 22:30:11 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.62  1995/03/11 22:30:11  ahd
+ *       Use macro for file delete to allow special OS/2 processing
+ *
  *       Revision 1.61  1995/03/11 01:59:57  ahd
  *       Delete redundant copy message
  *
@@ -52,7 +55,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.61 1995/03/11 01:59:57 ahd Exp $";
+         "$Id: rnews.c 1.62 1995/03/11 22:30:11 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -288,7 +291,11 @@ static char *Compressed( FILE *in_stream ,
    fclose(workStream);
 
 /*--------------------------------------------------------------------*/
-/*             If the file is empty, delete it gracefully             */
+/*       Due to a "feature" in the compressed batch, there may be     */
+/*       _no_ articles batched (an article destined for               */
+/*       transmittal is cancelled before being sent).                 */
+/*                                                                    */
+/*       If the file is empty, delete it gracefully                   */
 /*--------------------------------------------------------------------*/
 
    if (cfile_size == 3)
@@ -493,10 +500,6 @@ main( int argc, char **argv)
 /*    means that the next nnn characters are an article and that      */
 /*    more might follow.                                              */
 /*                                                                    */
-/*    Due to a "feature" in the compressed batch, there may be        */
-/*    _no_ articles batched (an article destined for transmittal      */
-/*    is cancelled before being sent).                                */
-/*                                                                    */
 /*    Since this is a bit spread out, the various clauses of the      */
 /*    if statement will be marked with boxed 1, 2, or 3 (and a        */
 /*    brief explanation.                                              */
@@ -505,7 +508,7 @@ main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 /*    Compressed files need to be read in BINARY mode so that         */
 /*    "magic" characters (like ^Z) don't upset it.  Batched files     */
-/*    need to be read in TEXT mode so that the character count is     */
+/*    need to be read in BINARY mode so that the character count is   */
 /*    correct.  The other case doesn't matter.                        */
 /*--------------------------------------------------------------------*/
 
@@ -519,6 +522,8 @@ main( int argc, char **argv)
       /* 1  single (unbatched, uncompressed) article */
       /***********************************************/
 
+      fseek(input, 0L, SEEK_SET);
+
       if ( bflag[F_NNS] )
          saveNews( input, "NNS" );
 
@@ -530,6 +535,8 @@ main( int argc, char **argv)
                               /*           ....+....1..   */
       unsigned char buf[12];  /* Length of #! ?unbatch\n  */
       char *unpacker = NULL, *suffix = NULL;
+
+      ungetc(c, input);
 
       size_t bytes = fread((char *) buf, 1, sizeof buf, input);
 
