@@ -15,9 +15,12 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#     $Id: mail.mak 1.4 1993/09/20 04:36:42 ahd v1-12r $
+#     $Id: mail.mak 1.5 1996/01/20 12:56:35 ahd v1-12u $
 #
 #     $Log: mail.mak $
+#     Revision 1.5  1996/01/20 12:56:35  ahd
+#     Correct name of nickname alias processing module to 'nickname.c'
+#
 #     Revision 1.4  1993/09/20 04:36:42  ahd
 #     TCP/IP support from Dave Watt
 #     't' protocol support
@@ -49,7 +52,10 @@ MAILOBJ = $(OBJ)\nickname.obj $(OBJ)\mail.obj $(OBJ)\mailblib.obj\
           $(OBJ)\maillib.obj $(OBJ)\mailsend.obj $(OBJ)\mlib.obj\
           $(OBJ)\address.obj
 
-RMAILOBJ = $(OBJ)\deliver.obj $(OBJ)\rmail.obj $(OBJ)\address.obj \
+RMAILOBJ = $(OBJ)\rmail.obj \
+           $(OBJ)\deliver.obj \
+           $(OBJ)\deliverm.obj \
+           $(OBJ)\address.obj \
            $(OBJ)\sysalias.obj
 
 mail$(PSUFFIX).exe: $(UUPCCFG)     $(MAILOBJ) $(LIBRARIES)
@@ -61,9 +67,7 @@ $(MAP)
 $(LIBRARY)
 $(DEFFILE)
 |
-!if !$d(__OS2__)
         tdstrip -s $<
-!endif
 
 rmail$(PSUFFIX).exe: $(UUPCCFG)     $(RMAILOBJ) $(LIBRARIES)
         - erase rmail.com
@@ -75,6 +79,4 @@ $(MAP)
 $(LIBRARY)
 $(DEFFILE)
 |
-!if !$d(__OS2__)
         tdstrip -s $<
-!endif
