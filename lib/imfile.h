@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.26 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: imfile.h 1.1 1995/01/07 15:48:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: imfile.h $
+ *    Revision 1.1  1995/01/07 15:48:31  ahd
+ *    Initial revision
+ *
  */
 
 #define IM_FLAG_READ   0x01
@@ -49,17 +52,39 @@ typedef struct _IMFILE
 /*--------------------------------------------------------------------*/
 
    IMFILE *imopen( const long length );
+
    int     imprintf( IMFILE *, const char *, ... );
+
    int     imclose( IMFILE * );
+
    int     imeof( IMFILE * );
+
    int     imerror( IMFILE * );
+
    char   *imgets( char *, int, IMFILE * );
+
    int     imputs( const char *, IMFILE * );
+
    size_t  imread( void *, size_t, size_t, IMFILE * );
+
    int     imseek( IMFILE *, long int, int );
+
    long    imtell( IMFILE * );
+
    size_t  imwrite( const void *, size_t, size_t, IMFILE * );
+
    void    imrewind( IMFILE * );
+
    long    imlength( IMFILE *imf );
+
+   int     imputc( int, IMFILE * );
+
+   int     imunload( FILE *output, IMFILE *input );
+
+   int     executeIMFCommand( const char *command,
+                              IMFILE *imf,
+                              const char *output,
+                              const KWBoolean synchronous,
+                              const KWBoolean foreground );
 
 #endif /* _IMIMFILE_H */

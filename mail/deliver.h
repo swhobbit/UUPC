@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.12 1994/12/22 00:20:10 ahd Exp $
+ *    $Id: deliver.h 1.13 1995/01/07 16:19:37 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.13  1995/01/07 16:19:37  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.12  1994/12/22 00:20:10  ahd
  *    Annual Copyright Update
  *
@@ -62,9 +65,9 @@
 
 #define POSTMASTER "postmaster"
 
-size_t Deliver( const char *input, /* Input file name                */
-                char *address,     /* Target address               */
-                KWBoolean validate); /* Validate/forward local mail  */
+size_t Deliver( IMFILE *imf,           /* Input file name            */
+                char *address,         /* Target address             */
+                KWBoolean validate);   /* Validate/forward local mail*/
 
 extern KEWSHORT hops;
 
