@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.9 1993/10/02 19:07:49 ahd Exp $
+ *    $Id: execute.c 1.10 1993/10/02 22:56:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.10  1993/10/02  22:56:59  ahd
+ * Suppress compile warning
+ *
  * Revision 1.9  1993/10/02  19:07:49  ahd
  * Suppress compiler warning
  *
@@ -127,10 +130,6 @@ int execute( const char *command,
    char path[FILENAME_MAX];         /* String for executable file   */
    char batchFile[FILENAME_MAX];    /* String for batch driver file */
    char perfect[FILENAME_MAX];      /* String for results test file */
-
-   printmsg(2, "execute: command %s %s",
-               command,
-               parameters == NULL ? "" : parameters );
 
 /*--------------------------------------------------------------------*/
 /*                          Locate the command                        */
@@ -433,10 +432,6 @@ int execute( const char *command,
    int result;
    char path[BUFSIZ];
 
-   printmsg(2, "execute: command %s %s",
-               command,
-               parameters == NULL ? "" : parameters );
-
 /*--------------------------------------------------------------------*/
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
@@ -489,11 +484,12 @@ int execute( const char *command,
 
       if ( *path )
       {
-         printmsg(4," spawnlp(%d, %s, %s, %s)",
+         printmsg(4,"execute: spawnlp(%d, %s, %s%s%s)",
                               synchronous ? P_WAIT : P_NOWAIT,
                               path,
                               command,
-                              parameters == NULL ? "(null)" : parameters );
+                              parameters == NULL ? "" : ", ",
+                              parameters == NULL ? "" : parameters );
 
          result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
                            (char *) path,
