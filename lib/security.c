@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.9 1993/10/03 20:37:34 ahd Exp $
+ *    $Id: security.c 1.10 1993/10/12 00:46:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.10  1993/10/12  00:46:16  ahd
+ *     Normalize comments
+ *
  *     Revision 1.9  1993/10/03  20:37:34  ahd
  *     Lower case all strings loaded into directory array
  *
@@ -603,8 +606,19 @@ static size_t InitDir( char *directories,
          return 0;
       } /* else */
 
-      printmsg(5,"InitDir: Normalizing path %s", path );
-      field = newstr( normalize( path ));
+      field = normalize( path );
+
+/*--------------------------------------------------------------------*/
+/*       Normalize leaves a slash on root directories, which we       */
+/*       don't want in our table, so delete if it exists.             */
+/*--------------------------------------------------------------------*/
+
+      if (( strlen( field ) == 3 ) &&
+          isalpha( *field ) && equal( field + 1 , ":/"))
+         field[2] = '\0';
+
+      strlwr( field );           /* Lower case for compares           */
+      field = newstr( field );   /* Save the path for insert in table */
 
 /*--------------------------------------------------------------------*/
 /*               Verify it really is a valid directory                */
@@ -619,11 +633,12 @@ static size_t InitDir( char *directories,
             printerr(field);
          }
          else if ((statbuf.st_mode & S_IFDIR) == 0)
+         {
             printmsg(0,"InitDir: \"%s\" is a file, not a directory",
                         field);
+            return 0;
+         }
       } /* if ( strlen( field ) > 2 ) */
-
-      strlwr( field);            /* Lower case for compares           */
 
 /*--------------------------------------------------------------------*/
 /*           Verify this directory not already in the list            */
