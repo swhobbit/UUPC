@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.11 1993/05/30 00:08:03 ahd Exp $
+ *    $Id: ULIB.C 1.12 1993/05/30 15:25:50 ahd Exp $
  *
  *    $Log: ULIB.C $
+ * Revision 1.12  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  * Revision 1.11  1993/05/30  00:08:03  ahd
  * Multiple communications drivers support
  * Don't lock port if not in multi-task mode
@@ -308,7 +311,7 @@ int nswrite(const char *input, unsigned int len)
 
       if ( (int) len > queue_size )
       {
-         printmsg(0,"swrite: Transmit buffer overflow; buffer size %d, "
+         printmsg(0,"nswrite: Transmit buffer overflow; buffer size %d, "
                     "needed %d",
                queue_size,len);
          panic();
@@ -328,7 +331,7 @@ int nswrite(const char *input, unsigned int len)
                               /* Compute time in milliseconds
                                  assuming 10 bits per byte           */
 
-         printmsg(4,"swrite: Waiting %d ms for %d bytes in queue"
+         printmsg(4,"nswrite: Waiting %d ms for %d bytes in queue"
                      ", pass %d",
                      wait, needed, spin);
 
@@ -346,8 +349,9 @@ int nswrite(const char *input, unsigned int len)
 
       if ( queue_free < (int) len )
       {
-         printmsg(0,"swrite: Buffer overflow, needed %d bytes",
-                     len);
+         printmsg(0,"nswrite: Buffer overflow, needed %d bytes"
+                     " from queue of %d",
+                     len, queue_size);
       } /* if ( queue_free < len ) */
       return 0;
 
