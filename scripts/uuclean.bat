@@ -5,14 +5,15 @@ REM *    (ICBJ100@INDYVAX.IUPUI.EDU).  Support for by Snuffles P.      *
 REM *    Bear (Snuffles@kew.com).  Comments by Drew Derbyshire         *
 REM *    (help@kew.com); delete the comments to make this run faster.  *
 REM *------------------------------------------------------------------*
-rem     $Id$
+rem     $Id: UUCLEAN.BAT 1.2 1992/12/01 04:39:48 ahd Exp $
 rem
-rem     $log$
+rem     $Log$
+rem
 REM *------------------------------------------------------------------*
 REM *   Define your spool and temp directories on following lines      *
 REM *------------------------------------------------------------------*
-if "%1" == "" %0 \uupc\spool %temp%
-if "%2" == "" %0 %1 %temp%
+if "%1" == "" %0 \uupc\spool %temp% %tmp% \uupc\tmp
+if "%2" == "" %0 %1 %temp% %tmp% \uupc\tmp
 if "%1" == "cleanit" goto cleanit:
 echo Cleaning UUPC/extended directories %1 and %2
 REM *------------------------------------------------------------------*
