@@ -13,9 +13,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.8 1995/01/03 05:32:26 ahd Exp $";
+      "$Id: history.c 1.9 1995/01/07 16:21:23 ahd Exp $";
 
 /* $Log: history.c $
+/* Revision 1.9  1995/01/07 16:21:23  ahd
+/* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+/*
 /* Revision 1.8  1995/01/03 05:32:26  ahd
 /* Further SYS file support cleanup
 /*
@@ -215,7 +218,6 @@ int count_postings(char *histentry)
 {
   char value[BUFSIZ], *ptr, *num;
   int count;
-  long article;
 
   strcpy(value, histentry);
   strtok(value, " ");   /* strip off date */
@@ -226,33 +228,31 @@ int count_postings(char *histentry)
   {
     num = strchr(ptr, ':') + 1;
 
-    if ((article = atol(num)) != 0)
+    if (atol(num))
       count++;
   }
 
   return count;
 }
 
-/*--------------------------------------------------------------------*/
-/*    p u r g e _ a r t i c l e                                       */
-/*                                                                    */
-/*    Actually delete an article's file(s) and return remaining ones. */
-/*--------------------------------------------------------------------*/
-
 static int matches(const char *group, char **grouplist)
 {
-  int len1 = strlen(group), len2, subgroups;
+  size_t len1 = strlen(group);
+  KWBoolean subgroups;
 
   if (grouplist == NULL)
     return KWTrue;
 
   for (; *grouplist != NULL; grouplist++)
   {
-    len2 = strlen(*grouplist);
+    size_t len2 = strlen(*grouplist);
     subgroups = KWFalse;
 
-    if ((*grouplist)[len2 - 1] == '*')
-      len2--, subgroups = KWTrue;
+    if (len2 && ((*grouplist)[len2 - 1] == '*'))
+    {
+       len2--;
+       subgroups = KWTrue;
+    }
 
     if (strnicmp(group, *grouplist, min(len1, len2)) == 0)
     {
@@ -271,7 +271,14 @@ static int matches(const char *group, char **grouplist)
   }
 
   return KWFalse;
-}
+
+} /* matches */
+
+/*--------------------------------------------------------------------*/
+/*    p u r g e _ a r t i c l e                                       */
+/*                                                                    */
+/*    Actually delete an article's file(s) and return remaining ones. */
+/*--------------------------------------------------------------------*/
 
 char *purge_article(char *histentry, char **groups)
 {

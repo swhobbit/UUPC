@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.4 1995/01/15 19:48:35 ahd Exp $
+ *    $Id: sendbats.c 1.5 1995/01/22 04:16:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.5  1995/01/22 04:16:52  ahd
+ *    Batching cleanup
+ *
  *    Revision 1.4  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -42,7 +45,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.4 1995/01/15 19:48:35 ahd Exp $";
+            "$Id: sendbats.c 1.5 1995/01/22 04:16:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -69,6 +72,7 @@ static const char rcsid[] =
 #include "title.h"
 #include "batch.h"
 #include "sys.h"
+#include "getopt.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -83,20 +87,12 @@ currentfile();
 /*                                                                    */
 /*    Exit conditions                                                 */
 /*                                                                    */
-/*    0 - Success                                                     */
-/*    1 - System configuration failed                                 */
-/*    2 - Unable to open working file                                 */
-/*    4 - out of memory                                               */
-/*    5 - Unable to create history dbm file                           */
-/*    6 - Problem decompressing news batch                            */
-/*    7 - Unable to create cmprssed directory                         */
+/*    0  - Success                                                    */
+/*    69 - We paniced, usually because of error in system call        */
 /*--------------------------------------------------------------------*/
 
-#ifdef __TURBOC__
-#pragma argsused
-#endif
-
-int main( int argc, char **argv)
+void
+main( int argc, char **argv)
 {
 
    struct sys *node;
@@ -112,6 +108,38 @@ int main( int argc, char **argv)
       exit(1);    /* system configuration failed */
 
    openlog( NULL );                 /* Begin logging to disk         */
+
+   if (argc > 1)
+   {
+      int option;
+
+       while ((option = getopt(argc, argv, "x:")) != EOF)
+       {
+           switch (option)
+           {
+               case 'x':
+                  debuglevel = atoi(optarg);
+                  break;
+
+               case '?':
+                  fprintf(stderr, "\nUsage:\t%s [-x debug]", argv[0] );
+                  exit(99);
+
+           } /* break */
+
+       } /* while */
+
+/*--------------------------------------------------------------------*/
+/*                Abort if any options were left over                 */
+/*--------------------------------------------------------------------*/
+
+       if (optind != argc)
+       {
+          puts("Extra parameter(s) at end.");
+          exit(98);
+       }
+
+    } /* if (argc > 1) */
 
 
    if ( ! init_sys() )
@@ -164,6 +192,6 @@ int main( int argc, char **argv)
 
    exit_sys();
 
-   return 0;
+   exit(0);
 
-} /*main*/
+} /* main */

@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.11 1995/01/15 19:48:35 ahd Exp $
+ *    $Id: sys.c 1.12 1995/01/22 04:16:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.12  1995/01/22 04:16:52  ahd
+ *    Batching cleanup
+ *
  *    Revision 1.11  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -179,6 +182,27 @@ static char *trim( char *buf )
   return buf;
 
 } /* trim */
+
+/*--------------------------------------------------------------------*/
+/*       s e t B o o l e a n O p t i o n                              */
+/*                                                                    */
+/*       Scan the character flags field to determine if an option     */
+/*       is set, and clear the character if found.                    */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+setBooleanOption( char *s, const char flag)
+{
+   char *t = strchr(s, flag);       /* Locate flag, if it exists     */
+
+   if ( t == NULL )                 /* No flag?                      */
+      return KWFalse;               /* Correct --> Just return       */
+
+   *t = ' ';                        /* Blank out flag for error check*/
+
+   return KWTrue;                   /* Report flag exists            */
+
+} /* setBooleanOption */
 
 /*--------------------------------------------------------------------*/
 /*       p r o c e s s _ s y s                                        */
@@ -313,48 +337,26 @@ process_sys( char *buf)
 /*                    UUPC/extended specific options.                 */
 /*--------------------------------------------------------------------*/
 
-    t = strchr(f3, 'c');            /* Do _not_ compress batches     */
 
-    node->flag.c = (t == NULL) ? KWFalse : KWTrue;
+    node->flag.c = setBooleanOption(f3, 'c' );
+                                    /* Do _not_ compress batches     */
 
-    if (t != NULL)
-      *t = ' ';
+    node->flag.B = setBooleanOption(f3, 'B' );
+                                    /* Do not send undersized batches   */
 
-    t = strchr(f3, 'B');            /* Do not send undersized batches   */
-
-    node->flag.B = (t == NULL) ? KWFalse : KWTrue;
-
-    if (t != NULL)
-      *t = ' ';
-
-    t = strchr(f3, 'J');            /* NNS mode - gen local batches     */
-
-    node->flag.J = (t == NULL) ? KWFalse : KWTrue;
-
-    if (t != NULL)
-      *t = ' ';
+    node->flag.J = setBooleanOption(f3, 'J' );
+                                    /* NNS mode - gen local batches     */
 
 /*--------------------------------------------------------------------*/
 /*                     Normal UNIX (C news) options                   */
 /*--------------------------------------------------------------------*/
 
-    t = strchr(f3, 'f');
-
-    node->flag.f = (t == NULL) ? KWFalse : KWTrue;
-
-    if (t != NULL)
-      *t = ' ';
-
-    t = strchr(f3, 'F');
-    node->flag.F = (t == NULL) ? KWFalse : KWTrue;
-
-    if (t != NULL)
-      *t = ' ';
-
-    t = strchr(f3, 'I');
-    node->flag.I = (t == NULL) ? KWFalse : KWTrue;
-    if (t != NULL)
-      *t = ' ';
+    node->flag.f = setBooleanOption(f3, 'f' );
+    node->flag.F = setBooleanOption(f3, 'F' );
+    node->flag.I = setBooleanOption(f3, 'I' );
+    node->flag.m = setBooleanOption(f3, 'm' );
+    node->flag.n = setBooleanOption(f3, 'n' );
+    node->flag.u = setBooleanOption(f3, 'u' );
 
 /*--------------------------------------------------------------------*/
 /*       Determine the maximum number of hops this news can           */
@@ -376,21 +378,6 @@ process_sys( char *buf)
       }
 
     }
-
-    t = strchr(f3, 'm');
-    node->flag.m = (t == NULL) ? KWFalse : KWTrue;
-    if (t != NULL)
-      *t = ' ';
-
-    t = strchr(f3, 'n');
-    node->flag.n = (t == NULL) ? KWFalse : KWTrue;
-    if (t != NULL)
-      *t = ' ';
-
-    t = strchr(f3, 'u');
-    node->flag.u = (t == NULL) ? KWFalse : KWTrue;
-    if (t != NULL)
-      *t = ' ';
 
     t = f3;
     while (isspace(*t))
@@ -690,7 +677,7 @@ init_sys( void )
       {                             /* No --> Add it to our buffer   */
 
          strcat(buf, t);
-         wantMore = (*t == '\\') ? KWTrue : KWFalse;
+         wantMore = (KWBoolean) ((*t == '\\') ? KWTrue : KWFalse);
                                     /* End of entry if not explicitly
                                        continued                     */
 
@@ -822,7 +809,8 @@ KWBoolean distributions(char *list, const char *distrib)
     char  *distribPtr = tempDistrib;
     char  *nextDistrib = tempDistrib;
 
-    const KWBoolean bNot = (*listPtr == '!') ? KWTrue : KWFalse;
+    const KWBoolean bNot = (KWBoolean) ((*listPtr == '!') ?
+                                          KWTrue : KWFalse);
 
     strcpy( tempDistrib, distrib );
 
@@ -863,10 +851,10 @@ KWBoolean distributions(char *list, const char *distrib)
                  "bAll = %s, bFail = %s, bRet = %s, bDef = %s",
                  listPtr,
                  distrib,
-                 bAll  ? "KWTrue" : "KWFalse",
-                 bFail ? "KWTrue" : "KWFalse",
-                 bRet  ? "KWTrue" : "KWFalse",
-                 bDef  ? "KWTrue" : "KWFalse" );
+                 bAll  ? "True" : "False",
+                 bFail ? "True" : "False",
+                 bRet  ? "True" : "False",
+                 bDef  ? "True" : "False" );
 #endif
 
     } /* while ((distribPtr = strtok(nextDistrib, ", ")) != NULL ) */
@@ -887,9 +875,13 @@ KWBoolean distributions(char *list, const char *distrib)
 /*       including all/world.                                         */
 /*--------------------------------------------------------------------*/
 
-  bRet = bFail ? bRet : (bRet || bAll || bDef);
+  if ( ! bFail )
+  {
+     if ( bAll || bDef )
+        bRet = KWTrue;
+  }
 
-  printmsg(5, "distributions: results %s", bRet ? "KWTrue" : "KWFalse");
+  printmsg(5, "distributions: results %s", bRet ? "True" : "False");
 
   return bRet;
 
@@ -952,19 +944,26 @@ KWBoolean match(char *group, char *pattern, int *iSize)
                  ((t1 != NULL) && (t3 == NULL))
                 )
      )
-    bMatch = (t3 == NULL);
+    bMatch = (KWBoolean) ((t3 == NULL) ? KWTrue : KWFalse );
 
   printmsg(5, "match: matching %s to %s resulting in %s with size %i",
-              group, pattern, bMatch ? "KWTrue" : "KWFalse", *iSize);
+              group, pattern, bMatch ? "True" : "False", *iSize);
 
   return bMatch;
 
 } /* match */
 
+/*--------------------------------------------------------------------*/
+/*       n e w s g r o u p s                                          */
+/*                                                                    */
+/*       Determine if we want to send the news groups are listed      */
+/*       in the supplied allowed groups.                              */
+/*--------------------------------------------------------------------*/
+
 KWBoolean newsgroups(char *list, char *groups)
 {
   char    *t1, *t2, *t3, *t4;
-  KWBoolean bMatch, bNoMatch, bNot;
+  KWBoolean bMatch, bNoMatch, bNot, success;
   int     iMatch, iNoMatch, iSize;
 
   printmsg(5, "newsgroups: checking %s against %s", list, groups);
@@ -1022,13 +1021,16 @@ KWBoolean newsgroups(char *list, char *groups)
   if (bNoMatch)
     printmsg(7, "newsgroups: mismatch found, size is %d", iNoMatch);
 
-  printmsg(5, "newsgroups: results in %s",
-              bMatch && (!bNoMatch || (iMatch > iNoMatch)) ? "KWTrue" : "KWFalse");
+  if ( bMatch && (!bNoMatch || (iMatch > iNoMatch)) )
+     success = KWTrue;
+  else
+     success = KWFalse;
 
-  return (bMatch &&
-          (!bNoMatch ||
-           (iMatch > iNoMatch)));  /* see SYS.DOC for explanation */
-}
+  printmsg(5, "newsgroups: results in %s", success ? "True" : "False");
+
+  return success;
+
+} /* newsgroups */
 
 /*--------------------------------------------------------------------*/
 /*       c h e c k _ s y s                                            */
@@ -1052,12 +1054,14 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 /*       passing them to the routines which want to tokenize them.    */
 /*--------------------------------------------------------------------*/
 
-  bRet = !excluded(strcpy( cache, entry->sysname ), path);
+  if (excluded(strcpy( cache, entry->sysname ), path))
+    return KWFalse;
 
   if (bRet && (entry->exclude ))
   {
     printmsg(3, "check_sys: checking exclusions");
-    bRet = !excluded(strcpy( cache, entry->exclude ), path);
+    if (excluded(strcpy( cache, entry->exclude ), path))
+       return KWFalse;
   }
 
   if (bRet && (entry->distribution))
@@ -1071,8 +1075,6 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
     printmsg(3, "check_sys: checking groups");
     bRet = newsgroups(strcpy( cache, entry->groups ), groups);
   }
-
-  printmsg(3, "check_sys: returning %s", bRet ? "KWTrue" : "KWFalse");
 
   return bRet;
 

@@ -17,13 +17,16 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.7 1994/12/22 00:24:36 ahd Exp $";
+      "$Id: hdbm.c 1.8 1995/01/03 05:32:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+/* Revision 1.8  1995/01/03 05:32:26  ahd
+/* Further SYS file support cleanup
+/*
 /* Revision 1.7  1994/12/22 00:24:36  ahd
 /* Annual Copyright Update
 /*
@@ -127,7 +130,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 {
   char buffer[BUFSIZ];
   long offset;
-  int size;
+  size_t size;
 
   if (db == NULL || db -> magic != DBM_MAGIC)
     return -1;
@@ -162,7 +165,7 @@ int dbm_delete(DBM *db, const datum key)
 {
   char buffer[BUFSIZ];
   long offset;
-  int size;
+  size_t size;
 
   if (db == NULL || db -> magic != DBM_MAGIC)
     return -1;
@@ -186,7 +189,7 @@ datum dbm_fetch(DBM *db, const datum key)
 {
   datum val = nullitem;
   long offset;
-  int size;
+  size_t size;
 
   if (db == NULL || db -> magic != DBM_MAGIC)
     return nullitem;

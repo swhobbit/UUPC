@@ -22,9 +22,14 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.11 1995/01/07 16:21:14 ahd Exp $";
+         "$Id: genhist.c 1.12 1995/01/15 19:48:35 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.12  1995/01/15 19:48:35  ahd
+/* Allow active file to be optional
+/* Delete fullbatch global option
+/* Add "local" and "batch" flags to SYS structure for news
+/*
 /* Revision 1.11  1995/01/07 16:21:14  ahd
 /* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
 /*
@@ -112,8 +117,6 @@ void *history;
 void main( int argc, char **argv)
 {
    extern char *optarg;
-   extern int   optind;
-   char *group = NULL;
    char file_old[FILENAME_MAX], file_new[FILENAME_MAX];
    int c;
 
@@ -134,7 +137,8 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    while ((c = getopt(argc, argv, "x:")) !=  EOF)
-      switch(c) {
+      switch(c)
+      {
 
       case 'x':
          debuglevel = atoi( optarg );
@@ -240,7 +244,8 @@ static void GetHistoryData(char *group, struct direct *dp,
 {
   FILE *article;
   char line[BUFSIZ], *ptr, *item;
-  int line_len, first, b_xref = 0, b_msgid = 0;
+  int first, b_xref = 0, b_msgid = 0;
+  size_t line_len;
 
   article = FOPEN(dp->d_name, "r", TEXT_MODE);
   if ( article == NULL )
@@ -269,14 +274,17 @@ static void GetHistoryData(char *group, struct direct *dp,
     if (equalni(line, ptr, strlen(ptr)))
     {
       ptr = line + strlen(ptr) + 1;
+
       while (isspace(*ptr))
         ptr++;
+
       strcpy(messageID, ptr);
       b_msgid++;
       continue;
     }
 
     ptr = "Xref:";
+
     if (equalni(line, ptr, strlen(ptr)))
     {
       ptr = line + strlen(ptr) + 1;
@@ -313,9 +321,6 @@ static void GetHistoryData(char *group, struct direct *dp,
 static void IndexDirectory( struct grp *cur_grp,
                             const char *directory )
 {
-   KWBoolean not_built = KWTrue;  /* Did not insure archive directory
-                                 exists                           */
-
    long number;
 
    long articles = 0;

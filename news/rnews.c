@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.50 1995/01/15 19:48:35 ahd Exp $
+ *       $Id: rnews.c 1.51 1995/01/22 04:16:52 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.51  1995/01/22 04:16:52  ahd
+ *       Batching cleanup
+ *
  *       Revision 1.50  1995/01/15 19:48:35  ahd
  *       Allow active file to be optional
  *       Delete fullbatch global option
@@ -181,7 +184,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.50 1995/01/15 19:48:35 ahd Exp $";
+         "$Id: rnews.c 1.51 1995/01/22 04:16:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -400,11 +403,23 @@ void main( int argc, char **argv)
                   break;
 
                case '?':
-                  puts("\nUsage:\trnews [-f newsfile] [-x debug]");
-                  return;
+                  fprintf(stderr,
+                          "\nUsage:\t%s [-f newsfile] [-x debug]",
+                          argv[0]);
+                  exit(99);
            } /* break */
 
        } /* while */
+
+/*--------------------------------------------------------------------*/
+/*                Abort if any options were left over                 */
+/*--------------------------------------------------------------------*/
+
+       if (optind != argc)
+       {
+          puts("Extra parameter(s) at end.");
+          exit(98);
+       }
 
     } /* if (argc > 1) */
 
@@ -736,11 +751,15 @@ static int Compressed( FILE *in_stream ,
       {
          fclose( work_stream );
          printerr( zfile );
-         unlink( zfile );     /* Kill the compressed input file       */
+
+         if ( unlink( zfile ) )  /* Kill the compressed input file   */
+            printerr( zfile );
+
          panic();
       }
 
       cfile_size += (long)chars_read;
+
    } /* while */
 
    fclose(work_stream);
@@ -751,7 +770,8 @@ static int Compressed( FILE *in_stream ,
 
    if (cfile_size == 3)
    {
-      unlink(zfile); /* Get rid of null file */
+      if ( unlink(zfile) )
+         printerr( zfile );
       printmsg(1, "Compressed: %s empty, deleted",
                    zfile);
       return status;
@@ -772,7 +792,8 @@ static int Compressed( FILE *in_stream ,
    printmsg(4, "Executing command: %s", buf );
    status = executeCommand( buf, NULL, NULL, KWTrue, KWFalse);
 
-   unlink( zfile );           /* Kill the compressed input file       */
+   if ( unlink( zfile ) )
+      printerr( zfile );
 
    if (status != 0)
    {
@@ -783,8 +804,11 @@ static int Compressed( FILE *in_stream ,
       }
       else
           printmsg(0, "%s command failed (exit code %d)",
-                        unpacker, status);
+                        unpacker,
+                        status);
+
       panic();
+
    } /* if status != 0 */
 
 /*--------------------------------------------------------------------*/
@@ -807,7 +831,9 @@ static int Compressed( FILE *in_stream ,
 /*--------------------------------------------------------------------*/
 
    fclose( work_stream );
-   unlink( unzfile );
+
+   if ( unlink( unzfile ) )
+      printerr( unzfile );
 
    return status;
 
@@ -866,6 +892,7 @@ static int Batched( FILE *streamIn)
    fseek(streamIn, 0L, SEEK_SET);     /* Back to the beginning       */
 
    handle = dup(fileno( streamIn ));
+
    if ( handle == -1 )
    {
       printerr( "Batched: dup:" );
@@ -873,6 +900,7 @@ static int Batched( FILE *streamIn)
    }
 
    stream = fdopen( handle, "r" );
+
    if ( stream == NULL)
    {
       printerr( "Batched: fdopen:" );
@@ -1047,7 +1075,7 @@ static int Batched( FILE *streamIn)
 
    } /* while */
 
-   fclose( streamIn );
+   fclose( stream );
 
    return status;
 
@@ -2135,6 +2163,7 @@ static KWBoolean deliver_remote(const struct sys *node,
                     msgID,
                     hops,
                     node->sysname );
+         return KWFalse;
       }
    }
 
@@ -2142,7 +2171,7 @@ static KWBoolean deliver_remote(const struct sys *node,
 /*         Are we batching data or processing it immediately?         */
 /*--------------------------------------------------------------------*/
 
-  else if ( node->flag.batch )
+  if ( node->flag.batch )
      return batch_remote( node, imf, msgID );
   else {
 
@@ -2159,7 +2188,8 @@ static KWBoolean deliver_remote(const struct sys *node,
       copy_rmt_article(fname, imf, KWFalse );
 
       result = xmit_remote( node->sysname, node->command, fname );
-      unlink( fname );
+      if ( unlink( fname ) )
+         printerr( fname );
       return result;
 
    }  /* else */

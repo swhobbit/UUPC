@@ -13,9 +13,14 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.9 1995/01/07 16:21:07 ahd Exp $
+ *    $Id: expire.c 1.10 1995/01/15 19:48:35 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.10  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.9  1995/01/07 16:21:07  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -43,7 +48,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.9 1995/01/07 16:21:07 ahd Exp $";
+      "$Id: expire.c 1.10 1995/01/15 19:48:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -80,18 +85,11 @@ extern struct grp *group_list;   /* List of all groups */
 
 #define ONE_DAY (60L*60L*24L)
 
-currentfile();
-
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
 static void HistoryExpireAll( char **groups, const time_t expire_date );
-
-static void ExpireAll( const time_t expire_date );
-
-static void  ExpireGroup( const char *group,
-                      const time_t expire_date );
 
 static void usage( void );
 
@@ -111,7 +109,8 @@ void *new_history;
 /*    Main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char **argv)
+void
+main( int argc, char **argv)
 {
    int c;
    extern char *optarg;

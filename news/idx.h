@@ -6,9 +6,12 @@
  * Created: Sun Aug 15 1993
  */
 
-/* $Id: idx.h 1.2 1994/03/20 23:37:12 rommel v1-12k $ */
+/* $Id: idx.h 1.3 1995/01/03 05:33:54 ahd Exp $ */
 
 /* $Log: idx.h $
+/* Revision 1.3  1995/01/03 05:33:54  ahd
+/* Make as many parameters CONST as possible
+/*
 /* Revision 1.2  1994/03/20 23:37:12  rommel
 /* Correct 16/32 bit compiler differences
 /*
@@ -31,7 +34,7 @@ typedef struct
 {
   char key[IDX_MAXKEY];
   long offset;
-  short size;
+  unsigned short size;
   long child;
 }
 ITEM;
@@ -49,12 +52,12 @@ typedef struct
 {
   int magic;
   int file;
-  long size;
+  unsigned long size;
   PAGE page;
   long page_number;
   int page_dirty;
   long page_stack[IDX_MAXSTACK];
-  int page_stacksize;
+  size_t page_stacksize;
 }
 IDX;
 
@@ -63,9 +66,15 @@ extern void idx_exit(IDX *idx);
 extern int idx_addkey(IDX *idx,
                       const char *key,
                       const long offset,
-                      const int size);
-extern int idx_getkey(IDX *idx, const char *key, long *offset, int *size);
-extern int idx_delkey(IDX *idx, const char *key, long *offset, int *size);
+                      const size_t size);
+extern int idx_getkey(IDX *idx,
+                      const char *key,
+                      long *offset,
+                      size_t *size);
+extern int idx_delkey(IDX *idx,
+                      const char *key,
+                      long *offset,
+                      size_t *size);
 
 #endif /* _IDX_H */
 

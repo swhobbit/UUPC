@@ -6,12 +6,23 @@
  * Created: Sun Aug 15 1993
  */
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: idx.c 1.7 1994/05/04 02:40:52 ahd v1-12k $";
-static char *rcsrev = "$Revision: 1.7 $";
+static const char *rcsid =
+      "$Id: idx.c 1.8 1995/01/03 05:32:26 ahd Exp $";
 
 /* $Log: idx.c $
+/* Revision 1.8  1995/01/03 05:32:26  ahd
+/* Further SYS file support cleanup
+/*
 /* Revision 1.7  1994/05/04 02:40:52  ahd
 /* Delete unreferenced variable
 /*
@@ -124,12 +135,15 @@ static int idx_pop_page(IDX *idx)
 
 static int idx_search(IDX *idx, const char *key)
 {
+
   int n, cmp;
 
   for (;;)
   {
+
     for (n = idx -> page.items - 1; n >= 0 ; n--)
     {
+
       cmp = strcmp(key, idx -> page.item[n].key);
 
       if (cmp == 0)
@@ -144,15 +158,18 @@ static int idx_search(IDX *idx, const char *key)
         else
           return -1;
       }
-    }
+
+    } /* for (n = idx -> page.items - 1; n >= 0 ; n--) */
 
     if (n < 0)
       if (idx -> page.child_0)
         idx_push_page(idx, idx -> page.child_0);
       else
         return -1;
-  }
-}
+
+  } /* for (;;) */
+
+} /* idx_search */
 
 static int idx_add(IDX *idx, ITEM new)
 {
@@ -160,9 +177,14 @@ static int idx_add(IDX *idx, ITEM new)
 
   for (;;)
   {
+
     for (n = idx -> page.items; n > 0; n--)
+    {
+
       if ( strcmp(new.key, idx -> page.item[n - 1].key) > 0 )
         break;
+
+    } /* for (n = idx -> page.items; n > 0; n--) */
 
     if (idx -> page.items < IDX_MAXITEM)
     {
@@ -182,8 +204,7 @@ static int idx_add(IDX *idx, ITEM new)
 
       return 0;
     }
-    else
-    {
+    else {
       /* split page */
 
       ITEM up;
@@ -206,8 +227,7 @@ static int idx_add(IDX *idx, ITEM new)
         for (i = 0; i < IDX_MINITEM; i++)
           newpage.item[i] = idx -> page.item[IDX_MINITEM + i];
       }
-      else
-      {
+      else {
         up = idx -> page.item[IDX_MINITEM];
         n -= IDX_MINITEM;
 
@@ -220,7 +240,8 @@ static int idx_add(IDX *idx, ITEM new)
           newpage.item[i] = idx -> page.item[IDX_MINITEM + i];
 
         new = up;
-      }
+
+      } /* else */
 
       newpage.child_0 = new.child;
       idx -> page.items = newpage.items = IDX_MINITEM;
@@ -254,8 +275,7 @@ static int idx_add(IDX *idx, ITEM new)
 
         return 0;
       }
-      else
-      {
+      else {
         /* write lower half onto old page */
 
         idx -> page_dirty = 1;
@@ -272,10 +292,14 @@ static int idx_add(IDX *idx, ITEM new)
         /* and insert middle key into parent page */
 
         idx_pop_page(idx);
-      }
-    }
-  }
-}
+
+      } /* else */
+
+    } /* else */
+
+  } /* for (;;) */
+
+} /* idx_add */
 
 /* interface functions */
 
@@ -299,9 +323,12 @@ IDX *idx_init(const int file)
   }
 
   if (size % sizeof(PAGE) != 0)
-    return free(idx), (IDX *) NULL; /* consistency check */
+  {
+    free(idx);
+    return (IDX *) NULL; /* consistency check */
+  }
 
-  idx -> size = size / sizeof(PAGE);
+  idx -> size = (unsigned long) size / sizeof(PAGE);
 
   if (idx -> size == 0) /* new (empty) index file needs initialization */
   {
@@ -311,6 +338,7 @@ IDX *idx_init(const int file)
       free(idx);
       return (IDX *) NULL;
     }
+
     if (idx_new_page(idx) != 0)
     {
        free(idx);
@@ -345,7 +373,7 @@ void idx_exit(IDX *idx)
 int idx_addkey(IDX *idx,
                const char *key,
                const long offset,
-               const int size)
+               const size_t size)
 {
   ITEM new;
 
@@ -371,7 +399,7 @@ int idx_addkey(IDX *idx,
 
 } /* idx_addkey */
 
-int idx_getkey(IDX *idx, const char *key, long *offset, int *size)
+int idx_getkey(IDX *idx, const char *key, long *offset, size_t *size)
 {
   int pos;
 
@@ -393,7 +421,7 @@ int idx_getkey(IDX *idx, const char *key, long *offset, int *size)
   return 0;
 }
 
-int idx_delkey(IDX *idx, const char *key, long *offset, int *size)
+int idx_delkey(IDX *idx, const char *key, long *offset, size_t *size)
 {
   int pos;
 

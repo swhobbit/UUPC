@@ -1,3 +1,6 @@
+#ifndef _HDBM_H
+#define _HDBM_H
+
 /* hdbm.h
  *
  * simple history database manager for UUPC news
@@ -14,9 +17,12 @@
 /*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
-/* $Id: hdbm.h 1.4 1995/01/03 05:33:54 ahd Exp $ */
+/* $Id: hdbm.h 1.5 1995/01/09 12:35:33 ahd Exp $ */
 
 /* $Log: hdbm.h $
+/* Revision 1.5  1995/01/09 12:35:33  ahd
+/* Correct VC++ compiler warnings
+/*
 /* Revision 1.4  1995/01/03 05:33:54  ahd
 /* Make as many parameters CONST as possible
 /*
@@ -32,9 +38,6 @@
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
-
-#ifndef _HDBM_H
-#define _HDBM_H
 
 #define DBM_MAGIC       4711
 
@@ -59,7 +62,7 @@ DBM;
 typedef struct
 {
   char *dptr;
-  int dsize;
+  unsigned int dsize;
 }
 datum;
 
@@ -77,5 +80,3 @@ extern datum dbm_firstkey(DBM *db);
 extern datum dbm_nextkey(DBM *db);
 
 #endif /* _HDBM_H */
-
-/* end of hdbm.h */
