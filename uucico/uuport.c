@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.6 1993/12/02 02:25:12 ahd Exp rommel $
+ *    $Id: uuport.c 1.7 1993/12/23 03:17:55 rommel Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.7  1993/12/23  03:17:55  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.6  1993/12/02  02:25:12  ahd
  * Correct auto-close of window under Windows 3.1
  *
@@ -107,7 +110,7 @@ int main(int argc, char **argv)
 
   int file;
   char name[64], pipe[FILENAME_MAX];
-  char *ptr, cmd = 'Q';
+  char *ptr, cmd = SUSPEND_QUERY;
 
   banner( argv );
 
@@ -124,11 +127,16 @@ int main(int argc, char **argv)
     switch ( tolower(argv[1][1]) )
     {
        case 's':
-         cmd = 'S';
+         cmd = SUSPEND_SLEEP;
          break;
+
        case 'r':
-         cmd = 'R';
+         cmd = SUSPEND_RESUME;
          break;
+
+       case 'e':
+         cmd = SUSPEND_EXIT;     /* UUCICO should exit            */
+
        default:
          usage(argv[0]);
     }
@@ -155,18 +163,21 @@ int main(int argc, char **argv)
   }
   else
   {
-    strcpy(pipe, SUSPEND_PIPE );
+    strcpy(pipe, SUSPEND_LOCAL );   /* For compatbability with NT */
+    strcat(pipe, SUSPEND_PIPE );
     strcat(pipe, name);
   }
 
 #if defined(_Windows)
 
 /*--------------------------------------------------------------------*/
-/*    If we get this far, automatically close the Window when done    */
+/*       Under Windows 3.1, if we get this far, automatically         */
+/*       close the Window when done                                   */
 /*--------------------------------------------------------------------*/
 
    openlog( NULL );
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
+
 #endif
 
   if ( (file = open(pipe, O_RDWR, 0)) == -1 )
@@ -175,10 +186,10 @@ int main(int argc, char **argv)
     return 2;
   }
 
-  if ( cmd != 'Q' )
+  if ( cmd != SUSPEND_QUERY )
   {
     printf("Waiting for uucico on port '%s' to %s ... ",
-           name, cmd == 'S' ? "suspend" : "resume");
+           name, cmd == SUSPEND_SLEEP ? "suspend" : "resume");
     fflush(stdout);
   }
 
@@ -197,17 +208,29 @@ int main(int argc, char **argv)
 
   switch ( cmd )
   {
-     case 'O':
+     case SUSPEND_OKAY:
        printf("OK\n");
        break;
-     case 'S':
+
+     case SUSPEND_WAITING:
        printf("uucico on port '%s' is suspended.\n", name);
        break;
-     case 'R':
+
+     case SUSPEND_ACTIVE:
        printf("uucico on port '%s' is active.\n", name);
        break;
+
+     case SUSPEND_BUSY:
+       printf("\nuucico on port '%s' is busy and rejected request.\n", name);
+       break;
+
+     case SUSPEND_ERROR:
+       printf("\nuucico on port '%s' had a system error processing request.\n",
+               name);
+       break;
+
      default:
-       printf("FAILED\n");
+       printf("\nUUCICO returned error code '%c'\n", cmd);
        return 4;
   }
 
