@@ -1,9 +1,9 @@
 /*--------------------------------------------------------------------*/
 /*    Program:    regsetup.c             27 March 1994                */
 /*    Author:     David M. Watt                                       */
-/*    Internet:   dmwatt@smersh.cambridge.ma.us                       */
+/*    Internet:   dmwatt@smersh.watt.com                              */
 /*    Function:   Copies UUPC's configuration info into the registry. */
-/*    Language:   Visual C++ 1.0/Win32                                */
+/*    Language:   Visual C++ 2.2/Win32                                */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.5 1995/03/09 00:31:26 dmwatt v1-12q $
+ *    $Id: regsetup.c 1.6 1996/01/01 21:18:06 ahd Exp $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.6  1996/01/01 21:18:06  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/03/09 00:31:26  dmwatt
  *    Don't reference NULL ptrs in configuration table
  *
@@ -57,27 +60,24 @@
  *    Revision 1.1  1994/04/24 20:24:43  dmwatt
  *    Initial revision
  *
- *
- * Revision 1.1  1994/03/27  19:11:18  dmwatt
- * Initial revision
- *
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.5 1995/03/09 00:31:26 dmwatt v1-12q $";
+         "$Id: regsetup.c 1.6 1996/01/01 21:18:06 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
 /*--------------------------------------------------------------------*/
+
 #include <windows.h>
 #include <io.h>
-
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
+
 #include "getopt.h"
 #include "pushpop.h"
 #include "timestmp.h"
@@ -86,6 +86,7 @@ static const char rcsid[] =
 /*--------------------------------------------------------------------*/
 /*                        Typedefs and macros                         */
 /*--------------------------------------------------------------------*/
+
 #define BASEHIVE "Software\\Kendra Electronic Wonderworks\\UUPC/extended"
 
 /*--------------------------------------------------------------------*/
@@ -93,17 +94,113 @@ static const char rcsid[] =
 /*--------------------------------------------------------------------*/
 
 currentfile();
+
 HKEY CreateHive(HKEY topLevel);
+
 void PutRegistry(HKEY hBaseHive, char *subKeyName, char *keyName, char *keyValue);
-void CopyTable(HKEY hSystemHive, char *subkey, CONFIGTABLE *table);
+
 void ClearRegistry(void);
+
 void DeleteTree(HKEY hTreeBase);
+
 KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive);
-KWBoolean getrcnames(char **sysp,char **usrp);
+
 void Usage(void);
 
-static char *E_tz;
-extern CONFIGTABLE envtable[];
+/*--------------------------------------------------------------------*/
+/*       C o p y T a b l e                                            */
+/*                                                                    */
+/*       Copy the system settings into the system hive                */
+/*--------------------------------------------------------------------*/
+
+void CopyTable(HKEY hSystemHive,
+               char *subKey,
+               CONFIGTABLE *table,
+               const size_t tableSize )
+{
+   size_t subscript;
+
+   for (subscript = 0; subscript < tableSize; subscript ++ )
+   {
+      if (table[subscript].flag & B_OBSOLETE)
+      {
+         /* Skip obsolete stuff */
+         continue;
+      }
+      else if (table[subscript].loc &&
+               *((char **)(table[subscript].loc)) == NULL)
+      {
+         /* Skip uninitialized */
+         continue;
+      }
+      else if (table[subscript].flag & B_BOOLEAN)
+      {
+         /* For now, take it easy:  leave out KWBooleans */
+         continue;
+      }
+      else if (table[subscript].flag & B_CHAR)
+      {
+         /* characters */
+             char buf[2];
+             buf[1] = '\0';
+             buf[0] = *((char *)table[subscript].loc);
+             PutRegistry(hSystemHive, subKey, table[subscript].sym, buf);
+      }
+      else if (table[subscript].flag & (B_SHORT|B_LONG))
+      {
+         char buf[BUFSIZ];
+
+         if (table[subscript].flag & B_LONG)
+            sprintf(buf, "%ld", *((long *) table[subscript].loc));
+         else
+            sprintf(buf, "%hu", *((KEWSHORT *) table[subscript].loc));
+         PutRegistry(hSystemHive, subKey, table[subscript].sym, buf);
+      }
+      else if (table[subscript].flag & (B_LIST | B_CLIST))
+      {
+
+/*--------------------------------------------------------------------*/
+/*       Set delimiter to either space or colon (B_CLIST -> colon)    */
+/*--------------------------------------------------------------------*/
+
+         char delimiter[2];
+         char buf[BUFSIZ];
+         char **el = (char **)(*((char **)(table[subscript].loc)));
+         int i;
+
+         delimiter[1] = '\0';
+
+         if (table[subscript].flag & B_CLIST)
+            delimiter[0] = ':';
+         else
+            delimiter[0] = ' ';
+
+         i = 0;
+         *buf = '\0';
+
+         while (el[i] != NULL)
+         {
+            strcat(buf, el[i]);
+            i++;
+            if (el[i] != NULL)
+                           strcat(buf, delimiter);
+                        else
+                           break;
+
+         }
+         PutRegistry(hSystemHive, subKey, table[subscript].sym, buf);
+      } else
+      {
+         /* All that's left is strings */
+               if (table[subscript].loc)
+                  PutRegistry(hSystemHive,
+                              subKey,
+                              table[subscript].sym,
+                              *((char **)(table[subscript].loc)));
+      }
+   }
+
+} /* CopyTable */
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -126,6 +223,7 @@ extern CONFIGTABLE envtable[];
    while((option = getopt(argc, argv, "suc")) != EOF)
    switch(option)
    {
+
 /*--------------------------------------------------------------------*/
 /*   Copy the contents of UUPC.RC into HKEY_LOCAL_MACHINE             */
 /*--------------------------------------------------------------------*/
@@ -136,6 +234,7 @@ extern CONFIGTABLE envtable[];
 /*--------------------------------------------------------------------*/
 /*   Copy the contents of [userid].RC into HKEY_CURRENT_USER          */
 /*--------------------------------------------------------------------*/
+
       case 'u':
          doUser = KWTrue;
          break;
@@ -173,13 +272,11 @@ extern CONFIGTABLE envtable[];
    exit(0);
 }
 
-
 HKEY CreateHive(HKEY topLevel)
 {
    LONG result;
    HKEY hResultKey = INVALID_HANDLE_VALUE;
    DWORD disposition;
-
 
    result = RegCreateKeyEx(topLevel, BASEHIVE, 0, "", REG_OPTION_NON_VOLATILE,
       KEY_ALL_ACCESS, NULL, &hResultKey, &disposition);
@@ -191,7 +288,8 @@ HKEY CreateHive(HKEY topLevel)
    }
 
    return hResultKey;
-}
+
+} /* CreateHive */
 
 KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 {
@@ -199,9 +297,8 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    FILE *fp;
    KWBoolean success;
    char buf[BUFSIZ];
-   int subscript = 0;
+   size_t subscript;
    char *s, *ptr;
-   CONFIGTABLE *tptr;
 
    static char *envlist[] = { "EDITOR",   "EDITOR",
                               "HOME",     "HOME",
@@ -220,7 +317,6 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    } DEFAULTS;
 
    static DEFAULTS deflist[] = {
-        {&E_archivedir,   "archive" , KWTrue },
         {&E_maildir,      "mail"    , KWTrue },
         {&E_newsdir,      "news"    , KWTrue },
         {&E_pubdir,       "public"  , KWTrue },
@@ -249,6 +345,8 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*          Extract selected variables from our environment           */
 /*--------------------------------------------------------------------*/
 
+   subscript = 0;
+
    while( envlist[subscript] != NULL )
    {
       s = getenv( envlist[subscript++] );
@@ -256,11 +354,14 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
       if (s != NULL )
       {
          sprintf(buf,"%s=%s",envlist[subscript], s );
+
          if ( !processconfig( buf,
                               SYSTEM_CONFIG,
                               program,
-                              envtable,
-                              configFlags))
+                              rcTable,
+                              rcTableSize,
+                              configFlags,
+                              configFlagsSize ))
          {
             printmsg(0,"Internal error: Invalid keyword %s",
                        envlist[subscript]  );
@@ -291,6 +392,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    E_confdir = normalize( sysrc );     /* Make 'em all slashes        */
 
    s = strrchr( E_confdir, '/' );      /* Get end of path component   */
+
    if ( s == NULL )                    /* There WAS one, right?       */
    {                                   /* Er, no, sorry.              */
       printmsg(0,"No path name in UUPCSYSRC: %s", sysrc);
@@ -305,6 +407,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 /*      Put the UUPCSYSRC environment variable into the registry      */
 /*--------------------------------------------------------------------*/
+
    for (ptr = sysrc; *ptr != '\0'; ptr++)       /* Convert to slashes */
       if (*ptr == '\\')
          *ptr = '/';
@@ -324,7 +427,13 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 
    PushDir( E_confdir );
 
-   success = getconfig(fp, SYSTEM_CONFIG, program, envtable, configFlags);
+   success = getconfig(fp,
+                       SYSTEM_CONFIG,
+                       program,
+                       rcTable,
+                       rcTableSize,
+                       configFlags,
+                       configFlagsSize );
 
    fclose(fp);
    if (!success)
@@ -338,6 +447,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 
    subscript = 0;
+
    while( deflist[subscript].value != NULL )
    {
       if ( *(deflist[subscript].value) == NULL )
@@ -350,7 +460,8 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 /*      Copy the system settings into the system hive                 */
 /*--------------------------------------------------------------------*/
-   CopyTable(hSystemHive, sysrc, envtable);
+
+   CopyTable(hSystemHive, sysrc, rcTable, rcTableSize);
 
 /*--------------------------------------------------------------------*/
 /*                Process the user configuration value                */
@@ -365,9 +476,13 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 /*      Put the UUPCUSRRC environment variable into the registry      */
 /*--------------------------------------------------------------------*/
+
       PutRegistry(hUserHive, NULL, USRRCSYM, usrrc);
 
-/* Put UUPCUSRRC into both:  the LOCAL_MACHINE one will be used by services. */
+/*--------------------------------------------------------------------*/
+/*       Put UUPCUSRRC into both:  the LOCAL_MACHINE one will be      */
+/*       used by services.                                            */
+/*--------------------------------------------------------------------*/
 
       PutRegistry(hSystemHive, NULL, USRRCSYM, usrrc);
 
@@ -381,35 +496,54 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 /*  NULL out the table (ignore memory leaks for now)                  */
 /*--------------------------------------------------------------------*/
-   for (tptr = envtable; tptr->sym != nil(char); tptr++)
+
+   for ( subscript = 0; subscript < rcTableSize; subscript++ )
    {
-      if (!tptr->loc)
+      if (!rcTable[subscript].loc)
            continue;     /* Skip variables we don't save */
-      if (tptr->flag & B_OBSOLETE)
+      if (rcTable[subscript].flag & B_OBSOLETE)
          continue;      /* Skip obsolete stuff */
-      if (tptr->loc && *((char **)(tptr->loc)) == NULL)
+      if (rcTable[subscript].loc &&
+          *((char **)(rcTable[subscript].loc)) == NULL)
          continue;  /* Skip uninitialized */
 
-/* For now, take it easy:  leave out KWBooleans, shorts, longs, and lists */
+/*--------------------------------------------------------------------*/
+/*       For now, take it easy:  leave out KWBooleans, shorts,        */
+/*       longs, and lists                                             */
+/*--------------------------------------------------------------------*/
 
-     if (tptr->flag & B_BOOLEAN)
+     if (rcTable[subscript].flag & B_BOOLEAN)
          continue;
-      if (tptr->flag & (B_SHORT|B_LONG))
-         *((char **)(tptr->loc)) = NULL;
-      if (tptr->flag & (B_LIST | B_CLIST))
-         *((char **)(tptr->loc)) = NULL;
 
-/* All that's left is strings */
-      *((char **)(tptr->loc)) = NULL;
-   }
+      if (rcTable[subscript].flag & (B_SHORT|B_LONG))
+         *((char **)(rcTable[subscript].loc)) = NULL;
 
-      success = getconfig(fp, USER_CONFIG, program, envtable, configFlags);
-      fclose(fp);
+      if (rcTable[subscript].flag & (B_LIST | B_CLIST))
+         *((char **)(rcTable[subscript].loc)) = NULL;
+
+      /* All that's left is strings */
+
+      *((char **)(rcTable[subscript].loc)) = NULL;
+
+   } /* for ( subscript = 0; subscript < rcTableSize; subscript++ ) */
+
+   success = getconfig(fp,
+                        USER_CONFIG,
+                        program,
+                        rcTable,
+                        rcTableSize,
+                        configFlags,
+                        configFlagsSize );
+   fclose(fp);
+
 /*--------------------------------------------------------------------*/
 /*      Copy the user settings into the user hive                     */
 /*--------------------------------------------------------------------*/
-      CopyTable(hUserHive, usrrc, envtable);
-      CopyTable(hSystemHive, usrrc, envtable);  /* Put a copy into the system archive for services */
+
+      CopyTable(hUserHive, usrrc, rcTable, rcTableSize );
+
+      CopyTable(hSystemHive, usrrc, rcTable, rcTableSize);
+                  /* Put a copy into the system archive for services */
 
       if (!success)
       {
@@ -438,7 +572,10 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 
 } /*configure*/
 
-void PutRegistry(HKEY hBaseHive, char *subKeyName, char *keyName, char *keyValue)
+void PutRegistry(HKEY hBaseHive,
+                 char *subKeyName,
+                 char *keyName,
+                 char *keyValue)
 {
    HKEY hDestKey;
    LONG result;
@@ -480,89 +617,8 @@ void PutRegistry(HKEY hBaseHive, char *subKeyName, char *keyName, char *keyValue
       RegCloseKey(hDestKey);
 
    return;
-}
 
-/*--------------------------------------------------------------------*/
-/*      Copy the system settings into the system hive                 */
-/*--------------------------------------------------------------------*/
-void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
-{
-   CONFIGTABLE *tptr;
-
-   for (tptr = table; tptr->sym != nil(char); tptr++)
-   {
-      if (tptr->flag & B_OBSOLETE)
-      {
-         /* Skip obsolete stuff */
-         continue;
-      }
-      else if (tptr->loc && *((char **)(tptr->loc)) == NULL)
-      {
-         /* Skip uninitialized */
-         continue;
-      }
-      else if (tptr->flag & B_BOOLEAN)
-      {
-         /* For now, take it easy:  leave out KWBooleans */
-         continue;
-      }
-      else if (tptr->flag & B_CHAR)
-      {
-         /* characters */
-             char buf[2];
-             buf[1] = '\0';
-             buf[0] = *((char *)tptr->loc);
-             PutRegistry(hSystemHive, subKey, tptr->sym, buf);
-      }
-      else if (tptr->flag & (B_SHORT|B_LONG))
-      {
-         char buf[BUFSIZ];
-
-         if (tptr->flag & B_LONG)
-            sprintf(buf, "%ld", *((long *) tptr->loc));
-         else
-            sprintf(buf, "%hu", *((KEWSHORT *) tptr->loc));
-         PutRegistry(hSystemHive, subKey, tptr->sym, buf);
-      }
-      else if (tptr->flag & (B_LIST | B_CLIST))
-      {
-
-/* Set delimiter to either space or colon (B_CLIST -> colon) */
-
-         char delimiter[2];
-         char buf[BUFSIZ];
-         char **el = (char **)(*((char **)(tptr->loc)));
-         int i;
-
-         delimiter[1] = '\0';
-
-         if (tptr->flag & B_CLIST)
-            delimiter[0] = ':';
-         else
-            delimiter[0] = ' ';
-
-         i = 0;
-         *buf = '\0';
-
-         while (el[i] != NULL)
-         {
-            strcat(buf, el[i]);
-            i++;
-            if (el[i] != NULL)
-                           strcat(buf, delimiter);
-                        else
-                           break;
-
-         }
-         PutRegistry(hSystemHive, subKey, tptr->sym, buf);
-      } else
-      {
-         /* All that's left is strings */
-               if (tptr->loc)
-               PutRegistry(hSystemHive, subKey, tptr->sym, *((char **)(tptr->loc)));
-      }
-   }
-}
+} /* PutRegistry */
 
 void ClearRegistry(void)
 {
@@ -592,7 +648,7 @@ void ClearRegistry(void)
       RegCloseKey(hUserKey);
    }
 
-}
+} /* ClearRegistry */
 
 void DeleteTree(HKEY hTreeBase)
 {
@@ -624,7 +680,8 @@ void DeleteTree(HKEY hTreeBase)
       else
          index++;
    }
-}
+
+} /* DeleteTree */
 
 void Usage(void)
 {
