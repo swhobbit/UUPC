@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.35 1995/02/20 17:38:19 ahd Exp $
+ *    $Id: mail.c 1.36 1995/02/21 02:47:44 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.36  1995/02/21 02:47:44  ahd
+ *    The compiler warnings war never ends!
+ *
  *    Revision 1.35  1995/02/20 17:38:19  ahd
  *    Determine OS/2 16 bit at compile time
  *
@@ -157,7 +160,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.35 1995/02/20 17:38:19 ahd Exp $";
+      "$Id: mail.c 1.36 1995/02/21 02:47:44 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -362,7 +365,7 @@ static struct CommandTable {
   {"save",        M_SAVE,     LETTER_OP | FILE_OP | POSITION | AUTOPRINT,
          "Copy item, delete"},
   {"set",         M_SET,      STRING_OP,
-         "Print/set KWBoolean options"},
+         "Print/set boolean options"},
   {"status",     M_STATUS,  NO_OPERANDS,
          "Report version/status info"},
   {"type",        M_EXTTYPE,  LETTER_OP | POSITION,
@@ -1029,7 +1032,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
 
 #ifdef UDEBUG
          printmsg( 2, "success %s, integer %d",
-                     success ? "KWTrue" : "KWFalse",
+                     success ? "True" : "False",
                      integer );
 #endif
 
