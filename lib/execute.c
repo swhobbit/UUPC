@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.23 1994/01/01 19:01:27 ahd Exp $
+ *    $Id: execute.c 1.24 1994/02/13 13:52:33 rommel Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.24  1994/02/13  13:52:33  rommel
+ * Cosmetic changes to lower case file name extensions
+ *
  * Revision 1.23  1994/01/01  19:01:27  ahd
  * Annual Copyright Update
  *
@@ -488,7 +491,7 @@ int executeCommand( const char *command,
 {
    char *cmdname;
    char *parameters;
-   char buffer[FILENAME_MAX];
+   char buffer[BUFSIZ];
    int result;
 
    strcpy( buffer, command );
