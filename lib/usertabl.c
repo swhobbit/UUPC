@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.7 1993/10/02 19:07:49 ahd Exp $
+ *    $Id: usertabl.c 1.8 1993/10/12 00:49:39 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *     Revision 1.8  1993/10/12  00:49:39  ahd
+ *     Normalize comments
+ *
  *     Revision 1.7  1993/10/02  19:07:49  ahd
  *     Drop unneeded checkref()
  *
@@ -237,7 +240,11 @@ static size_t loaduser( void )
       }
 
       token = NextField(NULL);   /* Get the user password             */
-      if (!equal(token,"*"))     /* User can login?                   */
+
+      if ( token == NULL )       /* No password needed for login?     */
+         printmsg(2,"loaduser: WARNING: No password assigned for user %s",
+                     users[hit].uid );
+      else if (!equal(token,"*")) /* User can login with passwd?      */
          userp->password = newstr(token); /* Yes --> Set password     */
 
       token = NextField(NULL);   /* Use  UNIX user number as tone     */
