@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.22 1993/12/29 02:46:47 ahd Exp $
+ *    $Id: execute.c 1.23 1994/01/01 19:01:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.23  1994/01/01  19:01:27  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.22  1993/12/29  02:46:47  ahd
  * Trap errors from dup2() calls
  *
@@ -220,8 +223,8 @@ int execute( const char *command,
    {
       FILE *stream ;
 
-      mktempname( batchFile, "BAT");
-      mktempname( perfect, "TMP");
+      mktempname( batchFile, "bat");
+      mktempname( perfect, "tmp");
       stream = FOPEN( batchFile, "w", TEXT_MODE );
 
       if ( stream == NULL )
