@@ -1,8 +1,14 @@
 	TITLE	COMM
 	PAGE	83,132
-;	$Id: comm.asm 1.9 1993/10/12 00:04:16 ahd Exp $
+;	$Id: comm.asm 1.10 1993/11/20 14:51:47 ahd Exp $
 ;
 ;	$Log: comm.asm $
+;; Revision 1.10  1993/11/20  14:51:47	ahd
+;; Up UUPC/extended buffer size to 16K from 8K
+;;
+;; Revision 1.10  1993/11/20  14:51:47	ahd
+;; Up UUPC/extended buffer size to 16K from 8K
+;;
 ;; Revision 1.9  1993/10/12  00:04:16  ahd
 ;; rhg changes for 8250 and RTS flow control
 ;;
@@ -712,10 +718,10 @@ _restore_com PROC FAR
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	CLI
 	MOV	INSTALLED[SI],0 	; PORT IS NO LONGER INSTALLED
-	PUSH	DS			; SAVE DS
-	LDS	DX,OLD_COM[SI]		; OLD INTERRUPT HANDLER IN DS:BX
-	MOV	AH,25H			; SET INTERRUPT VECTOR FUNCTION
 	MOV	AL,IRQVEC[SI]		; INTERRUPT NUMBER
+	PUSH	DS			; SAVE DS
+	LDS	DX,OLD_COM[SI]		; OLD INTERRUPT HANDLER IN DS:DX
+	MOV	AH,25H			; SET INTERRUPT VECTOR FUNCTION
 	INT	DOS			; DOS FUNCTION
 	POP	DS			; Recover our data segment
 
