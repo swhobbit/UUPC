@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.10 1993/09/25 03:07:09 ahd Exp $
+#     $Id: uucico.mak 1.11 1993/09/27 00:44:27 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.11  1993/09/27  00:44:27  ahd
+# Add uuport build for OS/2.
+#
 # Revision 1.10  1993/09/25  03:07:09  ahd
 # Add OS/2 priority function
 #
@@ -30,6 +33,8 @@
 # Windows 3.x support
 #
 
+.nosilent
+
 !include $(UUPCDEFS)
 
 !if $(NDEBUG)
@@ -43,6 +48,10 @@ LINKOPT=$(LINKOPTD)
 
 .asm.obj:
         $(TASM) $(TASMOPT) $<,$(OBJ)\$&;
+
+.c.com:
+        $(CC) -I$: -c- -mt -lt -v- $(CCX) -n$(SRC) $< $(UUPCLIB)
+        del $(@:.com=.obj)
 
 # *--------------------------------------------------------------------*
 # *             *Implicit Rules*                                       *
