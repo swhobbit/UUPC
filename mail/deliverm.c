@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.4 1998/03/01 01:32:55 ahd v1-12v $
+ *    $Id: deliverm.c 1.5 1998/03/08 23:11:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.5  1998/03/08 23:11:57  ahd
+ *    Better support for local vs. remote source of messages
+ *
  *    Revision 1.4  1998/03/01 01:32:55  ahd
  *    Annual Copyright Update
  *
@@ -70,7 +73,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.4 1998/03/01 01:32:55 ahd v1-12v $");
+RCSID("$Id: deliverm.c 1.5 1998/03/08 23:11:57 ahd Exp $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -434,7 +437,7 @@ CopyData( IMFILE *imf,              /* Input temporary file          */
 /*                       Loop to copy the data                        */
 /*--------------------------------------------------------------------*/
 
-   while (imgets(buf, BUFSIZ, imf) != NULL)
+   while (imgets(buf, sizeof buf, imf) != NULL)
    {
 
       if ((*put_string)(buf, dataOut) == EOF)     /* I/O error? */
