@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.23 1993/10/30 17:19:50 rhg Exp $
+ *    $Id: uuxqt.c 1.24 1993/10/30 17:23:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.24  1993/10/30  17:23:37  ahd
+ * Drop extra tzset() call
+ *
  * Revision 1.23  1993/10/30  17:19:50  rhg
  * Additional clean up for UUX support
  *
@@ -764,24 +767,7 @@ static void process( const char *fname,
          cp = strtok(NULL, WHITESPACE);
          if (cp != NULL)
          {
-#if 1
             if (!ValidDOSName(cp, FALSE))
-#else
-            size_t len, before_dot;
-            const char *dot;
-
-            len = strlen(cp);
-            before_dot = ((dot = strchr(cp, '.')) == NULL)
-                          ? len
-                          : dot - cp;
-
-            if (before_dot == 0                         /* 0 chars in name */
-                || before_dot > 8                       /* >8 chars in name */
-                || len > before_dot + 1 + 3             /* >3 chars in ext */
-                || strspn(cp, DOSCHARS ".") != len      /* illegal chars. */
-                || (dot && strchr(dot + 1, '.'))        /* more than one dot */
-               )
-#endif
             {  /* Illegal filename --> reject the whole request */
                printmsg(0,"Illegal filename \"%s\" in file \"%s\", command rejected",
                           cp, fname);
@@ -898,7 +884,13 @@ static void process( const char *fname,
          }
 
          if (input == NULL)
+         {
+#ifdef WIN32
+            input = strdup("NUL:");
+#else
             input = strdup("/dev/nul"); /* NOTE: DOS uses only one L in NUL */
+#endif
+         }
 
          output = mktempname(NULL, "OUT");
 
