@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.1 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: execute.c 1.2 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.2  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.1  1993/07/31  16:22:16  ahd
  * Initial revision
  *
@@ -109,24 +112,28 @@ int execute( const char *command,
    {
       char *last;
 
-      if ( !GetModuleFileName( hOurTask, batch, sizeof batch ))
+      *batch = '\0';
+
+      if ( GetModuleFileName( _hInstance, batch, sizeof batch ))
       {
-         printmsg(0,"GetModuleFileName failed!");
+         myDirectory = normalize( batch );   // Make slashes
+         last = strrchr(myDirectory, '/');   // Locate file name start
+
+         if ( last == NULL )
+         {
+            printmsg(0,"No path in module name: %s", myDirectory );
+            panic();
+         }
+
+         *last = '\0';                          // Drop module name
+         myDirectory = newstr( myDirectory );   // Save for posterity
+         printmsg(4,"execute: Load directory is %s", myDirectory );
+      }
+      else {
+         printmsg(0,"GetModuleFileName failed! (Buffer = \"%s\")",
+                  batch);
          panic();
       }
-
-      myDirectory = normalize( batch );   // Make slashes
-      last = strrchr(myDirectory, '/');   // Locate file name start
-
-      if ( last == NULL )
-      {
-         printmsg(0,"No path in module name: %s", myDirectory );
-         panic();
-      }
-
-      *last = '\0';                          // Drop module name
-      myDirectory = newstr( myDirectory );   // Save for posterity
-      printmsg(4,"execute: Load directory is %s", myDirectory );
 
    } /* if ( myDirectory == NULL ) */
 
@@ -185,6 +192,9 @@ int execute( const char *command,
       if ( result <= 32 )
       {
          printmsg(0,"execute: FindExecutable returned error code %d", result);
+         printmsg(2,"Command to execute for %s is %s",
+                     command,
+                     lpszResult );
          return -1;
       }
    }  /* else */

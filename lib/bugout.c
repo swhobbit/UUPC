@@ -14,12 +14,21 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef _Windows
+#include <windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "catcher.h"
+#include "timestmp.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */
@@ -29,8 +38,23 @@
 
 void bugout( const size_t lineno, const char *fname )
 {
-   printmsg(0,"Program aborting at line %d in file %s",
-              lineno, fname );
+
+#ifdef _Windows
+   char buf[BUFSIZ];
+#endif
+
+  printmsg(0,"%s aborting at line %d in file %s",
+              compilen, lineno, fname );
+
+#ifdef _Windows
+   sprintf(buf,"%s aborting at line %d in file %s",
+              compilen, lineno, fname );
+
+   MessageBox( hOurWindow, buf, compilen, MB_ICONEXCLAMATION );
+
+#else
    fputc('\a',stderr);
+#endif
+
    exit(panic_rc);
 } /*bugout */

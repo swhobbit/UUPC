@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: mlib.c 1.3 1993/07/31 16:26:01 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mlib.c $
+ * Revision 1.3  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  *
  * 13 May 89      Use PC format path names for editor
  * 01 Oct 89      Make Console_fgets use far pointers
@@ -52,6 +55,10 @@
 #include <conio.h>
 #include <io.h>
 #include <dos.h>
+
+#if defined(WIN32)
+#include <windows.h>
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.2 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: winutil.c 1.3 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.3  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.2  1993/07/31  16:22:16  ahd
  * Changes in support of Robert Denny's Windows 3.x support
  *
@@ -39,8 +42,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <windows.h>
-#include <shellapi.h>
 #include <toolhelp.h>
 
 /*--------------------------------------------------------------------*/
@@ -131,7 +134,7 @@ void CloseEasyWin(void)
 //
 //------------------------------------------------------------------------
 
-int SpawnWait( const char *cmdLine,
+int SpawnWait( const char *command,
                const char *parameters,
                const boolean synchronous,
                const UINT fuCmdShow)
@@ -170,12 +173,15 @@ int SpawnWait( const char *cmdLine,
    //
    // (To insure we do yield, banner() has a call to ddelay().)
 
-   hChildInst = ShellExecute( hOurWindow,
-                              NULL,       // Execute program
-                              cmdLine,
-                              parameters,
-                              ".",
-                              fuCmdShow);
+   if ( parameters == NULL )
+      hChildInst = WinExec( command , fuCmdShow);
+   else {
+      char buf[BUFSIZ];
+      strcpy( buf, command );
+      strcat( buf, " " );
+      strcat( buf, parameters );
+      hChildInst = WinExec( buf , fuCmdShow);
+   }
 
    if ( hChildInst < 32 )
    {
