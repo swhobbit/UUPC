@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.72 1995/01/08 21:00:31 ahd Exp $
+#     $Id: makefile 1.73 1995/01/14 14:07:57 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.73  1995/01/14 14:07:57  ahd
+#     Add sentbats.exe to prod build list
+#
 #     Revision 1.72  1995/01/08 21:00:31  ahd
 #     Make RNEWS use medium model -- it doesn't fit in small model any more
 #
@@ -314,7 +317,7 @@ TDSTRIP=tdstrip
 SRCSLASH=
 !else
 !if !$d(SRC)
-SRC      =
+SRC      = ./
 !endif
 SRCSLASH = $(SRC:/=\)
 !endif
@@ -347,7 +350,7 @@ MAIL    = $(SRCSLASH)MAIL
 OBJ     = $(SRCSLASH)OBJBC$(SUFFIX)
 HDRCACHE= $(SRCSLASH)TCDEF$(SUFFIX).SYM
 RN      = $(SRCSLASH)RN
-RNEWS   = $(SRCSLASH)RNEWS
+NEWS    = $(SRCSLASH)NEWS
 SCRIPT  = $(SRCSLASH)SCRIPTS
 TEST    = $(SRCSLASH)TEST
 UTIL    = $(SRCSLASH)UTIL
@@ -468,11 +471,12 @@ WNEWS     = #   No modules for news
 #         $(WINPROD)\rnews.exe $(WINPROD)\rn.exe $(WINPROD)\newsetup.exe
 !endif
 
-NEWS    = $(PROD)\EXPIRE.EXE $(PROD)\GENHIST.EXE $(PROD)\INEWS.EXE \
-          $(PROD)\RNEWS.EXE $(PROD)\SENDBATS.EXE $(PROD)\UUTRAF.EXE
+NEWSPGM = $(PROD)\EXPIRE.EXE $(PROD)\GENHIST.EXE $(PROD)\INEWS.COM \
+          $(PROD)\NEWSRUN.EXE \
+          $(PROD)\RNEWS.COM $(PROD)\SENDBATS.EXE $(PROD)\UUTRAF.EXE
 #         $(PROD)\rn.exe $(PROD)\newsetup.exe
 
-INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWS) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
+INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWSPGM) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 
 SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\personal.rc $(DOCS)\uupc.rc \
@@ -589,7 +593,7 @@ test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
          genhist$(PSUFFIX).exe   \
          gensig$(PSUFFIX).exe inews$(PSUFFIX).exe mail$(PSUFFIX).exe    \
          novrstr$(PSUFFIX).exe rmail$(PSUFFIX).exe rnews$(PSUFFIX).exe  \
-         sendbats$(PSUFFIX).exe                                         \
+         newsrun$(PSUFFIX).exe sendbats$(PSUFFIX).exe                   \
          uucico$(PSUFFIX).exe uucp$(PSUFFIX).exe uuname$(PSUFFIX).exe   \
          uupoll$(PSUFFIX).exe uuport$(PSUFFIX).exe uustat$(PSUFFIX).exe \
          uusub$(PSUFFIX).exe uutraf$(PSUFFIX).exe uux$(PSUFFIX).exe     \
@@ -599,7 +603,7 @@ test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
 
 test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
          gensig.com inews.exe mail.exe novrstrk.com rmail.exe rnews.exe \
-         sendbats.exe                                                   \
+         newsrun.exe sendbats.exe                                       \
          uucico.exe uucp.exe uuname.exe uupoll.exe uuport.exe           \
          uustat.exe uusub.exe uutraf.exe uux.exe uuxqt.exe
 
@@ -609,7 +613,7 @@ test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
 # *      modules definitions, are really for furture expandsion.       *
 # *--------------------------------------------------------------------*
 
-windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe                    \
+windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe  newsrun.exe       \
          sendbatw.exe uucicow.exe                                       \
          uucpw.exe uupollw.exe uuportw.exe uustatw.exe uusubw.exe       \
          uutrafw.exe uuxqtw.exe uuxw.exe
@@ -621,7 +625,7 @@ windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe                    \
 # *--------------------------------------------------------------------*
 
 !if $d(__OS2__)
-prod:   $(REQUIRED:.com=.exe) $(OPTIONAL:.com=.exe) $(NEWS:.com=.exe)
+prod:   $(REQUIRED:.com=.exe) $(OPTIONAL:.com=.exe) $(NEWSPGM:.com=.exe)
         - $(ERASE) $(TIMESTMP)
         - $(ERASE) $(UUPCLIB)
         - $(ERASE) *.sym
@@ -721,6 +725,13 @@ $(PROD)\inews.exe: inews$(PSUFFIX).exe
 !endif
 
 $(PROD)\mail.exe: mail$(PSUFFIX).exe
+        - $(ERASE) $<
+        move $? $<
+!if !$d(__OS2__)
+        - $(ERASE) $(?B: =.tds)
+!endif
+
+$(PROD)\newsrun.exe: newsrun$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
 !if !$d(__OS2__)
@@ -889,12 +900,27 @@ $(PROD)\fmt.com: fmt.com
         move $? $<
         - $(ERASE) $(?B: =.tds)
 
+$(PROD)\fromwho.com: fromwho.com
+        - $(ERASE) $<
+        move $? $<
+        - $(ERASE) $(?B: =.tds)
+
 $(PROD)\gensig.com: gensig.com
         - $(ERASE) $<
         move $? $<
         - $(ERASE) $(?B: =.tds)
 
+$(PROD)\inews.com: inews.com
+        - $(ERASE) $<
+        move $? $<
+        - $(ERASE) $(?B: =.tds)
+
 $(PROD)\novrstrk.com: novrstrk.com
+        - $(ERASE) $<
+        move $? $<
+        - $(ERASE) $(?B: =.tds)
+
+$(PROD)\rnews.com: rnews.com
         - $(ERASE) $<
         move $? $<
         - $(ERASE) $(?B: =.tds)
@@ -937,6 +963,11 @@ $(WINPROD)\expire.exe: expirew.exe
         - $(ERASE) $(?B: =.tds)
 
 $(WINPROD)\mail.exe: mailw.exe
+        - $(ERASE) $<
+        move $? $<
+        - $(ERASE) $(?B: =.tds)
+
+$(WINPROD)\newsrun.exe: rnewsrunw.exe
         - $(ERASE) $<
         move $? $<
         - $(ERASE) $(?B: =.tds)
@@ -1093,9 +1124,9 @@ $(SRCZIPV4): $(MAKEFILE) \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT1) < &&%
-RNEWS\*.C
-RNEWS\*.H
-RNEWS\*.MAK
+NEWS\*.C
+NEWS\*.H
+NEWS\*.MAK
 TEST\*.C
 TEST\*.H
 TEST\*.MAK
@@ -1255,7 +1286,7 @@ commonw:
 # *--------------------------------------------------------------------*
 
 expire$(PSUFFIX).exe: common
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 fmt$(PSUFFIX).exe: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
@@ -1264,16 +1295,19 @@ fromwho$(PSUFFIX).exe: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 genhist$(PSUFFIX).exe: commonm
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFM) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 gensig$(PSUFFIX).exe: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 inews$(PSUFFIX).exe: common
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 mail$(PSUFFIX).exe: commonm
         $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFM) $<
+
+newsrun$(PSUFFIX).exe: commonm
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 newsetup$(PSUFFIX).exe: commonm
         $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
@@ -1287,11 +1321,11 @@ rmail$(PSUFFIX).exe: common
 rn$(PSUFFIX).exe: commonm
         $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
-rnews$(PSUFFIX).exe: commonm
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFM) $<
+rnews$(PSUFFIX).exe: common
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 sendbats$(PSUFFIX).exe: common
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uucp$(PSUFFIX).exe: common
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
@@ -1337,8 +1371,14 @@ fromwho.com: common
 gensig.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
+inews.com: common
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
 novrstrk.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+rnews.com: common
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uuname.com: common
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
@@ -1361,7 +1401,7 @@ uux.com: common
 
 !if "$(PSUFFIX)" != "w"
 expirew.exe: commonw
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 mailw.exe: commonw
         $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFW) $<
@@ -1370,10 +1410,10 @@ rmailw.exe: commonw
         $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 rnewsw.exe: commonw
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 sendbatw.exe: commonw
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+        $(MAKER) -f$(NEWS)\news.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 uucicow.exe: commonw
         $(MAKER) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFW) $<
@@ -1586,25 +1626,26 @@ BINC       = $(BINC)
 BLIB       = $(BLIB)
 BORLANDC   = $(BORLANDC)
 CC         = $(CC)
-DOCS       = $(DOCS)
 DEFFILE    = $(DEFFILE)
+DOCS       = $(DOCS)
 ERASE      = $(ERASE)
 LIB        = $(LIB)
 LIBRARIES  = $(LIBRARIES)
 LIBRARY    = $(LIBRARY)
 LINKER     = $(LINKER)
-LINKOPTN   = $(LINKOPTN)
 LINKOPTD   = $(LINKOPTD)
+LINKOPTN   = $(LINKOPTN)
 LINKOPTT   = $(LINKOPTT)
 MAIL       = $(MAIL)
 MAKEFILE   = $(MAKEFILE)
 MAP        = $(MAP)
 MODEL      = $(MODEL)
 NEWS       = $(NEWS)
+NEWSPGM    = $(NEWSPGM)
 OBJ        = $(OBJ)
 PSUFFIX    = $(PSUFFIX)
 RN         = $(RN)
-RNEWS      = $(RNEWS)
+SRC        = $(SRC)
 STARTUP    = $(STARTUP)
 STARTUPT   = $(STARTUPT)
 SUFFIX     = $(SUFFIX)

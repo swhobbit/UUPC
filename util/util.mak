@@ -8,10 +8,13 @@
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.7 1994/12/22 00:31:47 ahd Exp $
+#     $Id: util.mak 1.8 1994/12/27 20:47:27 ahd Exp $
 #
 #     Revision history:
 #     $Log: util.mak $
+#     Revision 1.8  1994/12/27 20:47:27  ahd
+#     Smoother call grading'
+#
 #     Revision 1.7  1994/12/22 00:31:47  ahd
 #     Annual Copyright Update
 #
@@ -46,9 +49,8 @@ LINKOPT=$(LINKOPTD)
 .c.obj:
   $(CC) $(CCX) -I$:{ $<}
 
-.c.com:
-        $(CC) -c- -mt -lt -v- $(CCX) -n$(SRC) $< $(UUPCLIB)
-        del $(@:.com=.obj)
+.obj.com:
+        $(CC) -c- -mt -lt -v- $(CCX) -n$(@D) -e$@ $< $(UUPCLIB)
 
 fmt$(PSUFFIX).exe:  $(UUPCCFG) $(OBJ)\fmt.obj $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|

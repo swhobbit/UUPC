@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucp.mak 1.5 1994/01/01 19:28:13 ahd v1-12k $
+#     $Id: uucp.mak 1.6 1994/12/22 00:45:39 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucp.mak $
+#     Revision 1.6  1994/12/22 00:45:39  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.5  1994/01/01 19:28:13  ahd
 #     Annual Copyright Update
 #
@@ -46,6 +49,9 @@ LINKOPT=$(LINKOPTD)
 .asm.obj:
         $(TASM) $(TASMOPT) $<,$(OBJ)\$&;
 
+.obj.com:
+        $(CC) -c- -mt -lt -v- $(CCX) -n$(@D) -e$@ $< $(UUPCLIB)
+
 .path.c = $(UUCP)
 
 UUCPOBJ = $(OBJ)\uucp.obj
@@ -60,17 +66,6 @@ UUXOBJ = $(OBJ)\uux.obj
 
 UUNAMEOBJ = $(OBJ)\uuname.obj
 
-uucp.com: $(UUPCCFG)  $(UUCPOBJ) $(LIBRARIES)
-        - erase uucp.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(UUCPOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-$(DEFFILE)
-|
-
 uucp$(PSUFFIX).exe: $(UUPCCFG)     $(UUCPOBJ) $(LIBRARIES)
         - erase uucp.com
         $(LINKER) $(LINKOPT) @&&|
@@ -84,16 +79,6 @@ $(DEFFILE)
 !if !$d(__OS2__)
         tdstrip -s $<
 !endif
-
-uusub.com: $(UUPCCFG)  $(UUSUBOBJ) $(LIBRARIES)
-        - erase uusub.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(UUSUBOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
 
 uusub$(PSUFFIX).exe: $(UUPCCFG)   $(UUSUBOBJ) $(LIBRARIES)
         - erase uusub.com
@@ -122,16 +107,6 @@ $(DEFFILE)
         tdstrip -s $<
 !endif
 
-uustat.com: $(UUPCCFG)  $(UUSTATOBJ) $(LIBRARIES)
-        - erase uustat.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(UUSTATOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
-
 uustat$(PSUFFIX).exe: $(UUPCCFG)     $(UUSTATOBJ) $(LIBRARIES)
         - erase uustat.com
         $(LINKER) $(LINKOPT) @&&|
@@ -146,16 +121,6 @@ $(DEFFILE)
         tdstrip -s $<
 !endif
 
-uux.com: $(UUPCCFG)  $(UUXOBJ) $(LIBRARIES)
-        - erase uux.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(UUXOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
-
 uux$(PSUFFIX).exe: $(UUPCCFG)     $(UUXOBJ) $(LIBRARIES)
         - erase uux.com
         $(LINKER) $(LINKOPT) @&&|
@@ -168,16 +133,6 @@ $(LIBRARY)
 !if !$d(__OS2__)
         tdstrip -s $<
 !endif
-
-uuname.com: $(UUPCCFG)  $(UUNAMEOBJ) $(LIBRARIES)
-        - erase uuname.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(UUNAMEOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
 
 uuname$(PSUFFIX).exe: $(UUPCCFG)     $(UUNAMEOBJ) $(LIBRARIES)
         - erase uuname.com

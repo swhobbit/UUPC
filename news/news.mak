@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: rnews.mak 1.8 1994/12/31 03:34:53 ahd Exp $
+#     $Id: news.mak 1.9 1995/01/08 21:01:03 ahd Exp ahd $
 #
 #     Revision history:
-#     $Log: rnews.mak $
+#     $Log: news.mak $
+#     Revision 1.9  1995/01/08 21:01:03  ahd
+#     Drop batch.obj from objects for rnews
+#
 #     Revision 1.8  1994/12/31 03:34:53  ahd
 #     First pass of integrating Mike McLagan's news SYS file suuport
 #
@@ -41,12 +44,17 @@ LINKOPT=$(LINKOPTD)
 .c.obj:
   $(CC) $(CCX) -I$:{ $<}
 
+.obj.com:
+        $(CC) -c- -mt -lt -v- $(CCX) -n$(@D) -e$@ $< $(UUPCLIB)
+
 .asm.obj:
         $(TASM) $(TASMOPT) $<,$(OBJ)\$&;
 
-.path.c = $(RNEWS)
+.path.c = $(NEWS)
 
-RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\idx.obj \
+.path.obj = $(OBJ)
+
+NEWSRUNOBJ = $(OBJ)\newsrun.obj $(OBJ)\history.obj $(OBJ)\idx.obj \
            $(OBJ)\hdbm.obj $(OBJ)\sys.obj
 
 SENDBATSOBJ = $(OBJ)\sendbats.obj $(OBJ)\batch.obj $(OBJ)\sys.obj
@@ -58,11 +66,11 @@ GENHISTOBJ = $(OBJ)\genhist.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.ob
 
 INEWSOBJ = $(OBJ)\inews.obj
 
-rnews$(PSUFFIX).exe: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
-        - erase rnews.com
+newsrun$(PSUFFIX).exe: $(UUPCCFG)     $(NEWSRUNOBJ) $(LIBRARIES)
+        - erase newsrun.com
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
-$(RNEWSOBJ)
+$(NEWSRUNOBJ)
 $<
 $(MAP)
 $(LIBRARY)
@@ -70,16 +78,6 @@ $(LIBRARY)
 !if !$d(__OS2__)
         tdstrip -s $<
 !endif
-
-expire.com: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
-        - erase expire.exe
-        $(LINKER) $(LINKOPTT) @&&|
-$(STARTUPT)+
-$(EXPIREOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
 
 expire$(PSUFFIX).exe: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
         - erase expire.com
@@ -112,6 +110,19 @@ inews$(PSUFFIX).exe: $(UUPCCFG)     $(INEWSOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(INEWSOBJ)
+$<
+$(MAP)
+$(LIBRARY)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+rnews$(PSUFFIX).exe: $(UUPCCFG) $(OBJ)\rnews.obj $(LIBRARIES)
+        - erase rnews.com
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(OBJ)\rnews.obj
 $<
 $(MAP)
 $(LIBRARY)

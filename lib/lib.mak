@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.15 1994/12/22 00:14:53 ahd Exp $
+#       $Id: lib.mak 1.16 1995/01/08 21:01:03 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.16  1995/01/08 21:01:03  ahd
+#       Add in-memory file support
+#
 #       Revision 1.15  1994/12/22 00:14:53  ahd
 #       Annual Copyright Update
 #
@@ -70,13 +73,14 @@
 
 #       The names of various object files that we create.
 
-LIBLST1= $(OBJ)\active.obj\
+LIBLST1= $(OBJ)\abspath.obj $(OBJ)\active.obj \
          $(OBJ)\arbmath.obj $(OBJ)\arpadate.obj $(OBJ)\bugout.obj\
          $(OBJ)\catcher.obj $(OBJ)\chdir.obj $(OBJ)\checkptr.obj\
          $(OBJ)\configur.obj $(OBJ)\dater.obj $(OBJ)\dos2unix.obj\
          $(OBJ)\expath.obj $(OBJ)\execute.obj
 LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
-         $(OBJ)\getargs.obj $(OBJ)\getopt.obj $(OBJ)\getseq.obj\
+         $(OBJ)\getargs.obj $(OBJ)\getdrive.obj\
+         $(OBJ)\getopt.obj $(OBJ)\getseq.obj\
          $(OBJ)\hostable.obj $(OBJ)\hostatus.obj $(OBJ)\hostrset.obj
 LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
@@ -138,7 +142,7 @@ $(UUPCLIB): $(LIBALL)
 !endif
         echo ,NUL >> $(WORKFILE)
         TLIB /C /E $< @$(WORKFILE)
-        - erase $(TEMP)\$&.BAK
+        - erase $(<:.lib=.bak)
 
 # *--------------------------------------------------------------------*
 # *               We don't optimize the sleep routine!                 *
