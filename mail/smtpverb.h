@@ -2,7 +2,7 @@
 #define _SMTPVERB_H
 
 /*--------------------------------------------------------------------*/
-/*       s m t p v e r b . c                                          */
+/*       s m t p v e r b . h                                          */
 /*                                                                    */
 /*       SMTP verb parser for UUPC/extended                           */
 /*--------------------------------------------------------------------*/
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.9 1998/03/06 06:53:00 ahd Exp $
+ *       $Id: SMTPVERB.H 1.10 1998/03/08 23:12:28 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtpverb.h $
+ *       $Log: SMTPVERB.H $
+ *       Revision 1.10  1998/03/08 23:12:28  ahd
+ *       Support for sending raw text to POP clients
+ *
  *       Revision 1.9  1998/03/06 06:53:00  ahd
  *       Add dummy commands to make Netscape happy
  *
@@ -109,16 +112,26 @@ typedef KWBoolean(*ref_verbproc)(SMTPClient *client,
                                  struct _SMTPVerb* verb,
                                  char **operands );
 
+#define VF_EMPTY_FLAGS     0x0000   /* Dummy place holder            */
+
+#define VF_DATA_REDRIVE    0x0001   /* Run next cms if data avail    */
+#define VF_NO_TOKENIZE     0x0002   /* Do not tokenize next command  */
+#define VF_TRIVIAL_CMD     0x0004   /* Command is trivial            */
+
+#define VF_NO_READ         0x0010   /* Immediately run next command  */
+#define VF_NO_READ_SUCCESS 0x0020   /* Immediately run next command
+                                       if previous cmd succeeds      */
+
 /*--------------------------------------------------------------------*/
 /*                    Layout of master verb table                     */
 /*--------------------------------------------------------------------*/
 
 typedef struct _SMTPVerb
 {
+   const unsigned long flag;        /* Flag bits                     */
    ref_verbproc processor;          /* Command processor             */
    ref_verbproc rejecter;           /* Processor for bad modes       */
    const char *name;                /* VERB issued by client         */
-   KWBoolean trivial;               /* trivial command used in DoS?  */
    unsigned long validModes;        /* Modes we invoke comm proc for */
    SMTPMode newMode;                /* New mode if comm proc success */
    SR_VERB  successResponse;        /* Std resp if comm proc success */

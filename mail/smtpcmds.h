@@ -2,7 +2,7 @@
 #define _SMTPCMDS_H
 
 /*--------------------------------------------------------------------*/
-/*       s m t p r e c v . h                                          */
+/*       s m t p c m d s . h                                          */
 /*                                                                    */
 /*       SMTP commands which actually handle mail                     */
 /*--------------------------------------------------------------------*/
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.h 1.1 1998/03/01 19:43:52 ahd Exp $
+ *       $Id: SMTPCMDS.H 1.2 1998/03/03 03:55:05 ahd v1-12v $
  *
  *       Revision History:
- *       $Log: smtpcmds.h $
+ *       $Log: SMTPCMDS.H $
+ *       Revision 1.2  1998/03/03 03:55:05  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.1  1998/03/01 19:43:52  ahd
  *       Initial revision
  *

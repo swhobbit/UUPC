@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.h 1.3 1997/11/29 13:06:52 ahd v1-12u $
+ *    $Id: SMTPNETW.H 1.4 1998/03/01 01:28:19 ahd v1-12v $
  *
- *    $Log: smtpnetw.h $
+ *    $Log: SMTPNETW.H $
+ *    Revision 1.4  1998/03/01 01:28:19  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1997/11/29 13:06:52  ahd
  *    Allow explicit invocation of network initialization
  *
@@ -58,5 +61,7 @@ void closeSocket( SOCKET handle );
 
 KWBoolean
 selectReadySockets( SMTPClient *master );
+
+#define XMIT_LENGTH  512
 
 #endif /* _SMTPNETW_H */

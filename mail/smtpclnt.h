@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SMTPCLNT.H 1.12 1998/03/08 23:12:28 ahd Exp $
+ *    $Id: smtpclnt.h 1.13 1998/04/08 11:36:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: SMTPCLNT.H $
+ *    $Log: smtpclnt.h $
+ *    Revision 1.13  1998/04/08 11:36:31  ahd
+ *    Alter socket error processing
+ *
  *    Revision 1.12  1998/03/08 23:12:28  ahd
  *    Better supportfor UUXQT
  *
@@ -100,13 +103,24 @@ typedef unsigned long SMTPMode;
 
 typedef struct _SMTPBuffer
 {
-   char    *data;
+   char    *buffer;                 /* Pointer to allocated memory   */
+   char    *line;                   /* Pointer to current line       */
+   char    *next;                   /* Pointer to next line or NULL  */
    size_t  used;                    /* Valid data bytes in data      */
-   size_t  parsed;                  /* Valid data bytes processed    */
-   size_t  length;                  /* Total buffer length of data   */
+   size_t  lineLength;              /* Length of current data line   */
+   size_t  allocated;               /* Total buffer length of data   */
    size_t  bytesTransferred;        /* Bytes via network conn        */
    size_t  linesTransferred;        /* CR/LF delimited lines via net */
 } SMTPBuffer;
+
+/*--------------------------------------------------------------------*/
+/*                          Client flag bits                          */
+/*--------------------------------------------------------------------*/
+
+#define  SF_ALL_FLAG       0xffff   /* Used for clearing flags       */
+
+#define  SF_NO_READ        0x0001   /* Do not read before proc       */
+#define  SF_NO_TOKENIZE    0x0008   /* Do not tokenize next line     */
 
 /*--------------------------------------------------------------------*/
 /*       S M T P C l i e n t                                          */
@@ -117,10 +131,11 @@ typedef struct _SMTPBuffer
 typedef struct _SMTPClient
 {
    SMTPConnection connection;       /* Internal network information  */
-   SMTPBuffer receive;
    SMTPBuffer transmit;
+   SMTPBuffer receive;
    SMTPTransaction *transaction;    /* Actual transaction client owns*/
    SMTPMode mode;
+   unsigned long flag;
 
    char *clientName;                /* Name client *claims* to be    */
 
@@ -236,4 +251,10 @@ size_t getClientLinesRead(SMTPClient *client);
 void incrementClientBytesRead(SMTPClient *client, size_t count);
 size_t getClientBytesRead(SMTPClient *client);
 
+/* Query, set, and clear flag */
+#define isClientFlag(_client, _flag)         \
+      ((KWBoolean) (((_client)->flag & (_flag)) ? KWTrue : KWFalse))
+#define setClientFlag(_client, _flag)   (_client)->flag |= (_flag)
+#define clearClientFlag(_client, _flag)      \
+      (_client)->flag &= (SF_ALL_FLAG - (_flag))
 #endif  /* _SMTPCLIENT_H */
