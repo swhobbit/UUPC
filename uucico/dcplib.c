@@ -78,6 +78,8 @@ currentfile();
 
 static void LoginShell( const   struct UserTable *userp );
 
+void motd( const char *fname, char *buf, const int bufsiz );
+
 /*--------------------------------------------------------------------*/
 /*    l o g i n                                                       */
 /*                                                                    */
@@ -93,22 +95,26 @@ boolean login(void)
    char *token;                        /* Pointer to returned token  */
    struct UserTable *userp;
 
+   if ( E_banner != NULL )
+      motd( E_banner, line, sizeof line );
 
 /*--------------------------------------------------------------------*/
 /*    Our modem is now connected.  Begin actual login processing      */
 /*    by displaying a banner.                                         */
 /*--------------------------------------------------------------------*/
 
-   ssleep(1);
-   sprintf(line,"\r\n\n%s(R) %d.%02d with %s %s (%s) (%s)\r\n",
-#ifdef __TURBOC__
-            "MS-DOS",
-            _osmajor, _osminor,
+   sprintf(line,"\r\n\n%s %d.%02d with %s %s (%s) (%s)\r\n",
+#ifdef WIN32
+            "Windows/NT(TM)",
+            _osmajor,
+#elif defined( __TURBOC__ )
+            "MS-DOS(R)",
+            _osmajor,
 #else
-            (_osmode == DOS_MODE) ? "MS-DOS" : "OS/2" ,
+            (_osmode == DOS_MODE) ? "MS-DOS(R)" : "OS/2(R)" ,
             (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
-            _osminor,
 #endif
+       _osminor,
        compilep,
        compilev,
        E_domain, device); /* Print a hello message            */
@@ -190,6 +196,9 @@ boolean login(void)
             return TRUE;            /* Yes --> Startup the machine   */
          }
          else {                     /* No --> run special shell      */
+
+            if ( E_motd != NULL )
+               motd( E_motd, line, sizeof line );
             LoginShell( userp );
             return FALSE;   /* Hang up phone and exit        */
          }
@@ -311,3 +320,30 @@ static void LoginShell( const   struct UserTable *userp )
       printmsg(rc == 0 ? 4 : 0,"LoginShell: %s return code is %d", path, rc);
 
 } /* LoginShell */
+
+/*--------------------------------------------------------------------*/
+/*    m o t d                                                         */
+/*                                                                    */
+/*    Display a message of the day to the remote login                */
+/*--------------------------------------------------------------------*/
+
+void motd( const char *fname, char *buf, const int bufsiz )
+{
+   FILE *stream = FOPEN( fname, "r", BINARY_MODE );  /* Leave CRLF in data */
+
+   if ( stream == NULL )
+   {
+      perror( fname );
+      wmsg( fname,0 );
+      wmsg( ": ", 0);
+      wmsg( strerror( errno ),0);
+      wmsg( "\n\r",0);
+      return;
+   } /* if ( stream == NULL ) */
+
+   while( fgets( buf, bufsiz, stream ) != NULL )
+      wmsg( buf, 0 );
+
+   fclose( stream );
+
+} /* motd */
