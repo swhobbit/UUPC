@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.10 1994/02/20 19:11:18 ahd Exp $
+ *       $Id: dcpstats.c 1.11 1994/02/26 17:22:04 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ * Revision 1.11  1994/02/26  17:22:04  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.10  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -183,8 +186,6 @@ void dcupdate( void )
 /*--------------------------------------------------------------------*/
 
    HostStatus();              /* Get new data, if needed          */
-
-   filebkup( fname );      /* Rename the file if desired       */
 
    if ((stream  = FOPEN(fname, "w", IMAGE_MODE)) == NULL)
    {
