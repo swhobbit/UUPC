@@ -3,7 +3,9 @@
 #define _DELIVERS_H
 
 /*--------------------------------------------------------------------*/
-/*       d e v l i v e r . h                                          */
+/*       d e l i v e r s . h                                          */
+/*                                                                    */
+/*       Outbound SMTP delivery support for UUPC/extended             */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,17 +21,25 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.40 1997/06/03 03:26:38 ahd v1-12t $
+ *    $Id: delivers.h 1.2 1997/11/29 13:06:52 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: delivers.h $
+ *    Revision 1.2  1997/11/29 13:06:52  ahd
+ *    Correct compiler warnings under OS/2, copyright notice
+ *
  */
+
+size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
+                    const MAIL_ADDR *sender,  /* Originating address  */
+                    const char *address,  /* Target address           */
+                    const char *path);
 
 size_t
 ConnectSMTP(
    IMFILE *imf,                     /* Temporary input file          */
-   const char *relay,               /* SMTP host to connect to       */
-   const char *fromAddress,         /* Originating (error) address   */
+   const MAIL_ADDR *sender,         /* Originating address           */
+   const char *targetHost,          /* SMTP host to connect to       */
    const char **toAddress,          /* List of target addressess     */
    int   count,                     /* Number of addresses           */
    const KWBoolean validate         /* Perform bounce on failure     */

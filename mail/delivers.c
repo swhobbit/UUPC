@@ -50,9 +50,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.5 1997/11/29 12:59:50 ahd Exp $
+ *       $Id: delivers.c 1.6 1997/11/30 04:21:39 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.6  1997/11/30 04:21:39  ahd
+ *       Delete older RCS log comments, force full address for SMTP delivery,
+ *       recongize difference between local and remote delivery
+ *
  *       Revision 1.5  1997/11/29 12:59:50  ahd
  *       Correct SMTP outbound to correctly quote lines of all periods
  *       Enhance SMTP outbound to transmit CR/LF with rest of line when possible
@@ -65,8 +69,9 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
-#include "imfile.h"
 #include "deliver.h"
+#include "deliverm.h"
+#include "delivers.h"
 #include "timestmp.h"
 #include "address.h"
 #include "../uucico/commlib.h"
@@ -77,7 +82,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.5 1997/11/29 12:59:50 ahd Exp $");
+RCSID("$Id: delivers.c 1.6 1997/11/30 04:21:39 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -85,6 +90,98 @@ char SMTPRecvBuffer[BUFSIZ]; /* Public to allow printing      */
 
 KWBoolean suspend_processing = KWFalse;
                              /* Dummy to replace copy in suspend.c   */
+
+/*--------------------------------------------------------------------*/
+/*    D e l i v e r S M T P                                           */
+/*                                                                    */
+/*    Perform control processing for delivery to another UUCP node    */
+/*--------------------------------------------------------------------*/
+
+size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
+                    const MAIL_ADDR *sender,
+                    const char *targetAddress,
+                    const char *path)
+{
+
+   static char *savePath = NULL;    /* System we previously queued for*/
+   static char *addrList[50];
+   static int subscript = 0;
+   static int addressMax = sizeof addrList / sizeof addrList[0];
+
+/*--------------------------------------------------------------------*/
+/*            Flush previously queued addresses, if needed            */
+/*--------------------------------------------------------------------*/
+
+   if (subscript)
+   {
+      KWBoolean queueNow = KWFalse;
+
+      if ( path == NULL )
+         queueNow = KWTrue;
+      else if ( ! equal(savePath, path))
+         queueNow = KWTrue;
+      else if ( subscript >= addressMax )
+         queueNow = KWTrue;
+
+/*--------------------------------------------------------------------*/
+/*                We need to actually perform delivery                */
+/*--------------------------------------------------------------------*/
+
+      if ( queueNow )
+      {
+         KWBoolean noConnect = KWFalse;
+
+         if ( ! ConnectSMTP( imf,
+                             sender,
+                             savePath,
+                             addrList,
+                             subscript,
+                             KWTrue ) )
+               noConnect = KWTrue;
+
+         while( subscript-- > 0 )
+         {
+            /* Queue failed SMTP mail for local node for retry */
+            if ( noConnect )
+               DeliverRemote( imf,
+                              sender,
+                              addrList[subscript],
+                              E_nodename );
+
+            free( addrList[subscript] );
+         }
+
+         subscript = 0;
+
+      } /* if ( queueNow && subscript ) */
+
+   } /* if (savePath != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                Return if we only flushing the cache                */
+/*--------------------------------------------------------------------*/
+
+   if ( path == NULL )
+      return 0;
+
+/*--------------------------------------------------------------------*/
+/*               Report and queue the current delivery                */
+/*--------------------------------------------------------------------*/
+
+   printmsg(1,"Queuing SMTP mail %sfrom %s to %s via %s",
+               formatFileSize( imf ),
+               sender->address,
+               targetAddress,
+               path);
+
+   savePath = newstr( path );
+   addrList[subscript] = strdup( targetAddress );
+   checkref( addrList[subscript] );
+   subscript++;
+
+   return 1;
+
+} /* DeliverSMTP */
 
 /*--------------------------------------------------------------------*/
 /* ROLE Send a command to sendmail.                                  $*/
@@ -193,6 +290,7 @@ GetSMTPReply(void)
 static KWBoolean
 SendSMTPAddressCmd(
    IMFILE *imf,
+   const MAIL_ADDR *sender,
    const char *address,
    KWBoolean validate
 )
@@ -250,10 +348,11 @@ SendSMTPAddressCmd(
    sprintf(buf, "%s error with code %d", errorType, rep);
 
    Bounce(imf,
-           "Remote server error during SMTP delivery",
-           buf,
-           address,
-           validate);
+          sender,
+          "Remote server error during SMTP delivery",
+          buf,
+          address,
+          validate);
 
    return KWFalse;
 
@@ -356,7 +455,7 @@ SendSMTPData(
 /*--------------------------------------------------------------------*/
 
      while(len &&
-            ((eol = memchr(start, '\n' , (size_t) len)) != NULL))
+            ((eol = memchr(start, '\n', (size_t) len)) != NULL))
      {
          int lineLength = eol - start;
 
@@ -433,7 +532,7 @@ SendSMTPData(
             panic();
          }
 
-     } /* while((eol = memchr(start, '\n' , len)) != NULL) */
+     } /* while((eol = memchr(start, '\n', len)) != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*        Verify the input buffer had at least one valid line         */
@@ -501,17 +600,18 @@ shutdownSMTP(void)
 size_t
 ConnectSMTP(
    IMFILE *imf,                     /* Temporary input file          */
+   const MAIL_ADDR *sender,         /* Originating (error) address   */
    const char *relay,               /* SMTP host to connect to       */
-   const char *fromAddress,         /* Originating (error) address   */
    const char **toAddress,          /* List of target addressess     */
    int count,                       /* Number of addresses to send   */
    const KWBoolean validate         /* Perform bounce on failure     */
 )
 {
-  char    buf[BUFSIZ];
-  int      rep;
-  int      subscript = 0;
-  size_t   successes = 0;
+   static const char mName[] = "ConnectSMTP";
+   char    buf[BUFSIZ];
+   int     rep;
+   int     subscript = 0;
+   size_t  successes = 0;
 
   if (! chooseCommunications(SUITE_TCPIP, KWTrue, NULL))
       return 0;
@@ -552,7 +652,7 @@ ConnectSMTP(
 
   /* PSEUDO Send MAIL From: $*/
 
-  sprintf(buf, "MAIL From: <%s>", fromAddress );
+  sprintf(buf, "MAIL From: <%s>", sender->address );
 
   if (! SendSMTPCmdCheckReply(buf, 250))
   {
@@ -564,12 +664,33 @@ ConnectSMTP(
 
   for (subscript = 0; subscript < count; subscript++)
   {
-     if (SendSMTPAddressCmd(imf, toAddress[subscript], validate))
+     if (SendSMTPAddressCmd(imf,
+                            sender,
+                            toAddress[subscript],
+                            validate))
         successes ++;
   }
 
   if (successes)                    /* At least one receiver?        */
-      SendSMTPData(imf);            /* yes --> Transmit the message  */
+  {
+      if (SendSMTPData(imf))         /* yes --> Transmit the message  */
+      {
+          printmsg(0, "%s: Delivered %ld byte message "
+                      "to %d addresses via relay %s",
+                      mName,
+                      imlength( imf ),
+                      successes,
+                      relay );
+      }
+      else {
+          Bounce(imf,
+                 sender,
+                 "Data transmission error during SMTP delivery",
+                 relay,
+                 "*unknown*",
+                 validate);
+      }
+  }
   else {
       SendSMTPCmdCheckReply("RSET", 250);    /* no --> Abort send    */
       successes = 1;                /* Avoid retries                 */
