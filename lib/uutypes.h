@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.19 1994/02/28 04:10:56 ahd Exp $
+ *    $Id: uutypes.h 1.20 1994/05/07 21:47:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.20  1994/05/07  21:47:55  ahd
+ *     Support suppressing prompts for empty passwords
+ *
  *     Revision 1.19  1994/02/28  04:10:56  ahd
  *     Correct spelling of longname flag
  *
@@ -141,6 +144,7 @@ typedef enum {
                F_SAVERESENT,  /* TRUE = Save forwarded mail a second time */
                F_SUPPRESSCOPYRIGHT,
                               /* Skip copyright message                */
+               F_SUPPRESSBEEP,/* Never beep at the user                */
                F_SPEEDOVERMEMORY,
                               /* TRUE = Be lazy in strpool()           */
                F_VERBOSE,     /* TRUE = Verbose RMAIL output           */
