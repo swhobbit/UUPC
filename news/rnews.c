@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.18 1993/10/09 13:15:43 rhg Exp $
+ *       $Id: rnews.c 1.19 1993/10/12 01:31:06 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.19  1993/10/12  01:31:06  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.18  1993/10/09  13:15:43  rhg
  * Suppress compiler warnings
  *
@@ -91,7 +94,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.18 1993/10/09 13:15:43 rhg Exp $";
+         "$Id: rnews.c 1.19 1993/10/12 01:31:06 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1297,7 +1300,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
       panic();
    } /* if */
 
-   fprintf(out_stream, "R %s %s\nU %s %s\nF %s\nI %s\nC rnews\n",
+   fprintf(out_stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC rnews\n",
                "uucp", E_domain,
                "uucp", E_nodename,
                rdfile, rdfile);
