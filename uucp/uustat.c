@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.20 1994/03/13 17:23:33 ahd Exp $
+ *    $Id: uustat.c 1.21 1994/03/15 03:02:26 ahd Exp $
  *
  *    $Log: uustat.c $
+ * Revision 1.21  1994/03/15  03:02:26  ahd
+ * Further shorten summary buffer
+ *
  * Revision 1.20  1994/03/13  17:23:33  ahd
  * Lower memory usage under DOS
  *
@@ -32,7 +35,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.20 1994/03/13 17:23:33 ahd Exp $";
+         "$Id: uustat.c 1.21 1994/03/15 03:02:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -322,7 +325,7 @@ void main(int  argc, char  **argv)
 
       if (hostp  ==  BADHOST)
       {
-         printf("Unknown host \"%s\", program terminating.\n",
+         printmsg(0,"Unknown host \"%s\", program terminating.",
                system );
          panic();
       }
@@ -445,7 +448,7 @@ void all( const char *system, const char *userid)
                if ( display )
                {
                   hit = TRUE;
-                  printf( "%-12s %s %s\n",
+                  printmsg(0,"%-12s %s %s",
                           canon+2,
                           dater(ltime, NULL),
                         "(POLL)");
@@ -493,7 +496,7 @@ void all( const char *system, const char *userid)
    } /* while */
 
    if ( !hit )
-      printf("uustat: No jobs queued for system %s by user %s\n",
+      printmsg(0,"uustat: No jobs queued for system %s by user %s",
                system , userid );
 
 } /* all */
@@ -692,11 +695,11 @@ static void long_stats( const char *system )
       if ( work )
       {
          if ( equal(hostp->hostname, E_nodename ))
-            printf("%-10.10s %s\n",
+            printmsg(0,"%-10.10s %s",
                     hostp->hostname,
                     summary );
          else
-            printf("%-10.10s %s%s %s\n",
+            printmsg(0,"%-10.10s %s%s %s",
                     hostp->hostname,
                     summary,
                     dater( hostp->status.lconnect , NULL ),
@@ -725,7 +728,7 @@ static void long_stats( const char *system )
 /*--------------------------------------------------------------------*/
 
    if ( !hit )
-      printf("uustat: No jobs queued for system %s\n", system );
+      printmsg(0,"uustat: No jobs queued for system %s", system );
 
 } /* long_stats */
 
@@ -756,7 +759,7 @@ static void short_stats( const char *system )
 
    while(hostp != BADHOST )
    {
-      printf("%-10.10s  %s  %s\n", hostp->hostname,
+      printmsg(0,"%-10.10s  %s  %s", hostp->hostname,
             dater( hostp->status.lconnect , NULL ),
             hostp->status.hstatus < last_status ?
                   host_status[ hostp->status.hstatus ] :
@@ -791,10 +794,16 @@ static void kill_job(const char *jobid)
    importpath( host, canon, system );
                               /* Get the local name of the file        */
    open_call(host, system, NULL, user, sys, JOB_KILL);
-   unlink( host );
-   printf("Deleted file %s (%s)\n", canon, host);
-   printf("Killed job %s (%s) queued for host %s by %s\n",
+   if ( unlink( host ) )
+   {
+      printmsg(0,"Unable to delete file %s (%s)", canon, host );
+      printerr(host);
+   }
+   else {
+      printmsg(0,"Deleted file %s (%s)", canon, host);
+      printmsg(0,"Killed job %s (%s) queued for host %s by %s",
             jobid, host, system, user);
+   }
 
 } /* kill_job */
 
@@ -820,7 +829,7 @@ static void refresh_job(const char *jobid)
                               /* Get the local name of the file        */
    open_call(host, system, NULL, user, sys, JOB_REFRESH);
    touch( host );
-   printf("Rejuvenated job %s (%s) queued for host %s by %s\n",
+   printmsg(0,"Rejuvenated job %s (%s) queued for host %s by %s",
             jobid, host, system, user);
 
 } /* refresh_job */
@@ -942,8 +951,16 @@ static CALLTYPE open_call( const char *callname,
                   case JOB_KILL:
                      if ((created != -1) && !equal(dname, "D.0"))
                      {
-                        unlink( host );
-                        printf("Deleted file %s (%s)\n", dname, host);
+                        if ( unlink( host ) )
+                        {
+                           printmsg(0,"Unable to delete %s (%s) -- %s",
+                                      dname,
+                                      host,
+                                      "may to have to be deleted by hand" );
+                           printerr( host );
+                        }
+                        else
+                           printmsg(0,"Deleted file %s (%s)", dname, host);
                      }
                      break;
 
@@ -1093,7 +1110,7 @@ static void print_all(       char *job,
       struct data_queue *save_data = current->next_link;
 
       if ( current->execute)
-         printf("%-12s %s %c %-8.8s %-8.8s %s\n",
+         printmsg(0,"%-12s %s %c %-8.8s %-8.8s %s",
                      job,
                      dater( current->created, NULL ),
                      current->type,
@@ -1101,7 +1118,7 @@ static void print_all(       char *job,
                      user,
                      current->name );
       else
-         printf("%-12s %s %c %-8.8s %-8.8s %ld %s\n",
+         printmsg(0,"%-12s %s %c %-8.8s %-8.8s %ld %s",
                      job,
                      dater( current->created, NULL ),
                      current->type,
@@ -1169,9 +1186,9 @@ static char *is_job(const char *callfile)
 /*--------------------------------------------------------------------*/
 
    if ( hit )
-      printf("Unable to locate call file %s -- run uustat -a\n", callfile );
+      printmsg(0,"Unable to locate call file %s -- run uustat -a", callfile );
    else
-      printf("Unable to locate call file %s -- hostname may be incorrect\n",
+      printmsg(0,"Unable to locate call file %s -- hostname may be incorrect",
                callfile);
    exit(1);
    return NULL;                  /* Make C compiler happy              */
@@ -1186,7 +1203,7 @@ static char *is_job(const char *callfile)
 
 static void touch( const char *fname)
 {
-   printf("touch: function not available.  Parameter was \"%s\"\n",
+   printmsg(0,"touch: function not available.  Parameter was \"%s\"",
             fname);
 } /* touch */
 
