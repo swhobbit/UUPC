@@ -31,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.6 1993/04/05 04:35:40 ahd Exp $
+ *    $Id: DCPFPKT.C 1.7 1993/04/05 12:26:01 ahd Exp $
  *
  *    $Log: DCPFPKT.C $
+ * Revision 1.7  1993/04/05  12:26:01  ahd
+ * Correct prototypes to match gpkt
+ *
  * Revision 1.6  1993/04/05  04:35:40  ahd
  * Allow unique send/receive packet sizes
  *
@@ -69,7 +72,7 @@
 #include "security.h"
 #include "ssleep.h"
 #include "modem.h"
-#include "ulib.h"
+#include "commlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                              Defines                               */
