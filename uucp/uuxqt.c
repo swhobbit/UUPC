@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.2 1992/11/19 03:03:09 ahd Exp $
+ *    $Header: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.3 1992/11/19 03:03:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUXQT.C $
+ * Revision 1.3  1992/11/19  03:03:33  ahd
+ * drop rcsid
+ *
  * Revision 1.2  1992/11/19  03:03:09  ahd
  * Revision 1.1  1992/11/15  20:16:50  ahd
  * Initial revision
@@ -68,8 +71,6 @@
 #include "security.h"
 #include "timestmp.h"
 #include "usertabl.h"
-
-#define BETA_TEST
 
 currentfile();
 
@@ -194,7 +195,7 @@ void main( int argc, char **argv)
       switch(c) {
 
       case 's':
-         sysname = strdup(optarg);
+         sysname = optarg;
          break;
 
       case 'x':
@@ -475,8 +476,7 @@ static void process( const char *fname, const char *remote )
                      fname );
             cp = (char * ) remote;
          };
-         machine = strdup(cp);
-         checkref(machine);
+         machine = newstr(cp);
          break;
 
 /*--------------------------------------------------------------------*/
@@ -712,7 +712,6 @@ static void process( const char *fname, const char *remote )
    if (command    != NULL) free(command);
    if (input      != NULL) free(input);
    if (job_id     != NULL) free(job_id);
-   if (machine    != NULL) free(machine);
    if (outnode    != NULL) free(outnode);
    if (output     != NULL) free(output);
    if (requestor  != NULL) free(requestor);
@@ -738,11 +737,12 @@ static int shell(char *command,
    int    result = 0;
    char   inlocal[FILENAME_MAX];
    char   outlocal[FILENAME_MAX];
-   char   *savecmd = strdup(command );
+   char   savecmd[BUFSIZ];
 
    if (xflag[X_USEEXEC])
       printmsg(2, "exec(2) not supported, executing using spawn");
 
+   strcpy( savecmd, command );
    argc = getargs(command, argv);
 
    printmsg(2,"uux: command arg count = %d", argc);
@@ -760,7 +760,6 @@ static int shell(char *command,
    if ( (!equal(remotename, E_nodename)) && (!ValidateCommand( argv[0] )) )
    {
       printmsg(0,"Command \"%s\" not allowed at this site", argv[0]);
-      free( savecmd );
       xflag[E_NOEXE] = TRUE;
       return 99;
    }
@@ -773,17 +772,18 @@ static int shell(char *command,
    {
       importpath(inlocal, inname, remotename);
       printmsg(2, "shell: opening %s for input", inlocal);
-      if (freopen(inlocal, "rb", stdin) == NULL) {
+      if (freopen(inlocal, "rb", stdin) == NULL)
+      {
          printmsg(0, "shell: couldn't open %s (%s), errno=%d.",
             inname, inlocal, errno);
-         free( savecmd );
          printerr(inlocal);
          xflag[S_CORRUPT] = TRUE;
          return -2;
       }
    }
 
-   if (outname != NULL) {
+   if (outname != NULL)
+   {
       importpath(outlocal, outname, remotename);
       printmsg(2, "shell: opening %s for output", outlocal);
       if (freopen(outlocal, "wt", stdout) == NULL) {
@@ -793,7 +793,6 @@ static int shell(char *command,
          if ( inname != NULL)
             freopen("con", "rt", stdin);
          xflag[S_NOWRITE] = TRUE;
-         free( savecmd );
          return -2;
       }
    }
@@ -808,7 +807,6 @@ static int shell(char *command,
    if (equal(argv[0],RMAIL) && ( inname != NULL )) /* Rmail w/input? */
    {
       int addr = 1;
-      free( savecmd );        /* We don't need this for external cmd */
 
       while (( addr < argc )  && (result != -1 ))
       {
@@ -878,11 +876,8 @@ static int shell(char *command,
    {
       result = system( savecmd );
                               /* Use COMMAND.COM to run command   */
-      free( savecmd );        /* Then toss the string             */
    } /* else  if (internal(argv[0])) */
    else  {                    /* No --> Invoke normally           */
-      free( savecmd );        /* Won't need this after all        */
-
       result = spawnvp( P_WAIT, argv[0], argv );
 
    } /* else */
@@ -1183,10 +1178,10 @@ static void ReportResults(const int status,
 #ifdef BETA_TEST
      strcpy(address,"postmaster");
 #else
-     if (equal(remotename, E_nodename))
-         sprintf(address,"%s", requestor);
+     if (equal(machine, E_nodename))
+        strcpy(address, requestor);
      else
-         sprintf(address,"%s!%s", machine, requestor);
+        sprintf(address,"%s!%s", machine, requestor);
 #endif
 
      if (xflag[E_NORMAL])
