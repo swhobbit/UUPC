@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.9 1994/02/19 05:07:45 ahd Exp $
+ *    $Id: dcptpkt.c 1.10 1994/02/20 19:11:18 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.10  1994/02/20 19:11:18  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.9  1994/02/19  05:07:45  ahd
  * Use standard first header
  *
@@ -101,6 +104,9 @@
 #include "pwinsock.h"
 #endif
 
+#define TPACKETSIZE  512
+#define TBUFSIZE     1024
+
 #ifndef _WINSOCKAPI_
 
 /*--------------------------------------------------------------------*/
@@ -166,7 +172,14 @@ static unsigned long ntohl( const unsigned long input )
 
 short topenpk(const boolean master)
 {
-   s_pktsize = r_pktsize = 1024;    /* Fixed for 't' procotol         */
+   s_pktsize = r_pktsize = TBUFSIZE;
+                                    /* Fixed for 't' procotol         */
+
+   printmsg(4, "topenpk: Timeout = %d sec, buffer size = %d bytes, "
+               "packet size = %d bytes",
+               M_tPacketTimeout,
+               TBUFSIZE,
+               TPACKETSIZE );
 
    return DCP_OK;
 
@@ -250,3 +263,90 @@ short tclosepk()
 {
    return DCP_OK;
 } /* tclosepk */
+
+/*--------------------------------------------------------------------*/
+/*    t w r m s g                                                     */
+/*                                                                    */
+/*    Send a message to remote system                                 */
+/*--------------------------------------------------------------------*/
+
+short twrmsg( char *s )
+{
+
+   int len = strlen(s) + 1;
+
+/*--------------------------------------------------------------------*/
+/*                    Write the actual message out                    */
+/*--------------------------------------------------------------------*/
+
+   if (swrite( s,  len ) < len )
+   {
+      printmsg(0, "twrmsg: message write of %d bytes failed", len);
+      return -1;
+   }
+
+/*--------------------------------------------------------------------*/
+/*       Write out as bytes as needed to pad the total data length    */
+/*       to TPACKETSIZE                                               */
+/*--------------------------------------------------------------------*/
+
+   len = TPACKETSIZE - ( len % TPACKETSIZE );
+                                    /* Determine bytes needed to
+                                       round out a full packet    */
+
+   if ( len )
+   {
+      char buf[TPACKETSIZE];
+
+      memset( buf, '\0', len );     /* Helps data compression     */
+
+      if (swrite( buf,  len ) < len )
+      {
+         printmsg(0, "twrmsg: write of %d padding bytes failed", len);
+         return -1;
+      }
+
+   } /* if ( len ) */
+
+   remote_stats.packets++;
+   return(0);
+
+} /* ewrmsg */
+
+/*--------------------------------------------------------------------*/
+/*    t r d m s g                                                     */
+/*                                                                    */
+/*    Read a message from the remote system                           */
+/*--------------------------------------------------------------------*/
+
+short trdmsg( char *s)
+{
+
+   size_t bytes = 0;
+
+   while (sread( s + bytes,
+                 TPACKETSIZE,
+                 M_tPacketTimeout) == TPACKETSIZE )
+   {
+      int column;
+
+      remote_stats.packets++;
+
+      for ( column = 0; column < TPACKETSIZE; column ++ )
+      {
+         if ( s[ bytes + column ] == '\0' )  /* End of the string?   */
+            return 0;                        /* Yes --> Report success */
+      }
+
+      bytes += TPACKETSIZE;
+
+   } /* while */
+
+/*--------------------------------------------------------------------*/
+/*    We didn't get the end of the string in time, report an error    */
+/*--------------------------------------------------------------------*/
+
+
+   return -1;
+
+} /* trdmsg */

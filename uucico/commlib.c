@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.25 1994/05/07 21:45:33 ahd v1-12k $
+ *    $Id: commlib.c 1.26 1994/12/22 00:32:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.26  1994/12/22 00:32:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1994/05/07 21:45:33  ahd
  *    Correct CD() processing to be sticky -- once it fails, it
  *    keeps failing until reset by close or hangup.
@@ -515,7 +518,7 @@ void traceData( const char UUFAR *data,
                "%Fp",
 #endif
                len,
-               output ? "written to" : "read from",
+               output ? "written from" : "read into",
                data);
 
    if ( traceMode != (short) output )

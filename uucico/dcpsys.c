@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.38 1994/02/20 19:11:18 ahd v1-12k $
+ *     $Id: dcpsys.c 1.39 1994/12/22 00:35:12 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.39  1994/12/22 00:35:12  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.38  1994/02/20 19:11:18  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -240,7 +243,8 @@ Proto Protolst[] = {
               TRUE,
        } ,
        { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt, /* Yup, same as 'g'  */
+              trdmsg,  twrmsg,
+              geofpkt, gfilepkt, /* Yup, same as 'g'  */
               TRUE,
        } ,
 #endif
