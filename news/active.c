@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.12 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: active.c 1.13 1995/01/02 05:03:27 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.13  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.12  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -295,55 +298,6 @@ void put_active()
 } /* put_active */
 
 /*--------------------------------------------------------------------*/
-/*    v a l i d a t e _ n e w s g r o u p s                           */
-/*                                                                    */
-/*    Verify all the directories for news groups exist                */
-/*--------------------------------------------------------------------*/
-
-void validate_newsgroups( void )
-{
-   char full_dirname[FILENAME_MAX];
-
-   struct stat buff;
-
-   struct grp *cur_grp;
-   int i;
-
-   cur_grp = group_list;
-   while (cur_grp != NULL) {
-      ImportNewsGroup( full_dirname , cur_grp->grp_name, 0 );
-
-      i = stat(full_dirname, &buff);
-      if (i != 0) {
-         /* Directory does not exist, create it */
-         printmsg(4,"Directory %s does not exist for group %s",
-                     full_dirname, cur_grp->grp_name );
-
-#ifdef WASTE_SPACE
-         i = MKDIR(full_dirname);
-         if (i != 0) {
-            printf("Unable to create %s\n", full_dirname);
-            panic();
-         }
-#endif
-
-      } else {
-         /* It exists.  Ensure that it is a directory */
-         if (!(buff.st_mode & S_IFDIR)) {
-            /* Yukk! */
-            printmsg(0,"validate_newsgroups: %s is a file not a directory",
-                   full_dirname);
-            panic();
-         }
-       }
-      cur_grp = cur_grp->grp_next;
-   }
-
-   return;
-
-} /* validate_newsgroups */
-
-/*--------------------------------------------------------------------*/
 /*    f i n d _ n e w s g r o u p                                     */
 /*                                                                    */
 /*    Locate a news group in our list                                 */
@@ -387,18 +341,30 @@ boolean add_newsgroup(const char *grp, const boolean moderated)
 
          cur = cur->grp_next;
       }
-      else {
-         cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
-         cur = cur->grp_next;
-         checkref(cur);
-         cur->grp_next = NULL;
-         cur->grp_name = newstr(grp);
-         cur->grp_high = 1;
-         cur->grp_low  = 0;
-         cur->grp_can_post = (char) (moderated ? 'm' : 'y');
+      else                          /* Add group at end              */
          break;
-      }
-   }
+
+   } /* while ((strcmp(grp, cur->grp_name) != 0)) */
+
+/*--------------------------------------------------------------------*/
+/*       We're at the end of the chain with no group found, add it    */
+/*       at the end                                                   */
+/*--------------------------------------------------------------------*/
+
+   cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
+   cur = cur->grp_next;
+   checkref(cur);
+   cur->grp_next = NULL;
+   cur->grp_name = newstr(grp);
+   cur->grp_high = 1;
+   cur->grp_low  = 0;
+   cur->grp_can_post = (char) (moderated ? 'm' : 'y');
+
+/*--------------------------------------------------------------------*/
+/*                We added the group, return success.                 */
+/*--------------------------------------------------------------------*/
+
+   return TRUE;
 
 } /* add_newsgroup */
 
