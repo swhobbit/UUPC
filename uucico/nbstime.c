@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.38 1997/05/18 17:36:16 ahd v1-12u $
+ *    $Id: nbstime.c 1.39 1998/03/01 01:39:58 ahd v1-12d $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.39  1998/03/01 01:39:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.38  1997/05/18 17:36:16  ahd
  *    Windows 95 support
  *
@@ -277,7 +280,6 @@ setClock( struct tm *txp )
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
    DWORD dwError;
-   OSVERSIONINFO osvi;
    int rc;
 
    GetSystemTime( &dateTime );
@@ -310,11 +312,8 @@ setClock( struct tm *txp )
    /* Open the process token to get permission to adjust the time
       on Windows NT;  on Windows 95, just party on...              */
 
-   osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-   GetVersionEx(&osvi);
-
-   if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+   if (isWinNT())
    {
       if (!OpenProcessToken(GetCurrentProcess(),
          TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
@@ -351,7 +350,7 @@ setClock( struct tm *txp )
       printNTerror("SetSystemTime", dwError);
    }
 
-   if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+   if (isWinNT())
    {
       tkp.Privileges[0].Attributes = 0;
 
