@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.5 1993/09/03 12:18:55 dmwatt Exp $
+ *    $Id: import.c 1.6 1993/09/03 12:54:55 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.6  1993/09/03  12:54:55  ahd
+ *     Add missing endif
+ *
  *     Revision 1.5  1993/09/03  12:18:55  dmwatt
  *     Windows NT support for long names on file systems
  *
@@ -186,7 +189,6 @@ static boolean advancedFS( const char *path );
 /*   format for the user.                                            */
 /*-------------------------------------------------------------------*/
 
-
 void importpath(char *local, char const *canon, char const *remote)
 {
    char *s, *out;
@@ -201,6 +203,7 @@ void importpath(char *local, char const *canon, char const *remote)
 
    if ( local == NULL )
       panic();
+
    if ( canon == NULL )
       panic();
 
@@ -241,7 +244,11 @@ void importpath(char *local, char const *canon, char const *remote)
                               /* Arbitary length number, for base
                                  conversions                        */
 
-      boolean longname = advancedFS( E_spooldir ) && bflag[F_LONGNAME];
+      boolean longname;
+
+      printmsg(4,"importpath: Checking File system for spool directory %s",
+                  E_spooldir );
+      longname = advancedFS( E_spooldir ) && bflag[B_LONGNAME];
 
 /*--------------------------------------------------------------------*/
 /*                    Verify we have a remote name                    */
@@ -344,7 +351,11 @@ void importpath(char *local, char const *canon, char const *remote)
    else {         /* Not file for spooling directory, convert it  */
 
       char *in = (char *) canon;
-      boolean longname = advancedFS( canon );
+      boolean longname ;
+
+      printmsg(4,"importpath: Checking file system for file %s",
+                  canon );
+      longname = advancedFS( canon );
 
       if ( ValidDOSName( canon, longname ))
       {
@@ -414,7 +425,6 @@ static void ImportName( char *local,
    size_t len = strlen( canon );
    size_t column;
    char *best_period = NULL;     /* Assume no prince charming         */
-
 
    if ( strchr(canon,'/') != NULL )
    {
@@ -577,15 +587,24 @@ boolean ValidDOSName( const char *s,
 
       if ((strchr( s, '*') == NULL ) && (strchr( s, '?') == NULL))
       {
+
+#ifdef __OS2__
+         APIRET result = DosQPathInfo( (PSZ) s,
+                                       FIL_QUERYFULLNAME,
+                                       (PVOID) tempname,
+                                       sizeof tempname );
+#else
          USHORT result = DosQPathInfo( (PSZ) s,
                                        FIL_NAMEISVALID,
                                        (PBYTE) tempname,
                                        sizeof tempname,
                                        0 );
+
+#endif
          if ( result == 0 )
             return TRUE;
 
-         printmsg(0,
+         printmsg(2,
                   "ValidDOSName: Invalid name %s, syntax error code %d",
                    s,
                    (int) result);
@@ -671,70 +690,118 @@ boolean ValidDOSName( const char *s,
 
 } /* ValidateDOSName */
 
+#if defined(FAMILYAPI) || defined( __OS2__ )
+
 /*--------------------------------------------------------------------*/
-/*       a d v a n c e d F S                                          */
+/*       a d v a n c e d F S                       (OS/2 version)     */
 /*                                                                    */
 /*       Determine if a file system is advanced (supports better than */
 /*       8.3 file names)                                              */
 /*--------------------------------------------------------------------*/
 
-#if defined(FAMILYAPI) || defined( __OS2__ )
-
 static boolean advancedFS( const char *path )
 {
    char buf[BUFSIZ];             // One generic large buffer
+
+#ifdef __OS2__
+   ULONG bufSize = sizeof buf;
+   FSQBUFFER2 *dataBuffer = (FSQBUFFER2 *) buf;
+   ULONG  result;
+#else
    SHORT bufSize = sizeof buf;
-   char driveInfo[3];
+   FSQBUFFER *dataBuffer = (FSQBUFFER *) buf;
    USHORT result;
-   char *p;
-   FSQBUFFER *FSQBuffer = (FSQBUFFER *) buf;
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                  Get the drive letter to process                   */
+/*--------------------------------------------------------------------*/
+
+   char driveInfo[3];
+   char *fileSystem;
 
    if ( isalpha( *path ) && (path[1] == ':') )
       strncpy( driveInfo, path, 2 );
    else
       strncpy( driveInfo, E_cwd, 2 );
 
-   driveInfo[2] = '\0';          // Terminate drive string data
+   driveInfo[ sizeof(driveInfo) - 1 ] = '\0';   // Terminate string data
 
+/*--------------------------------------------------------------------*/
+/*      Query the drive (both 1.x and 2.x calls are supported).       */
+/*--------------------------------------------------------------------*/
+
+#ifdef __OS2__
+   result = DosQueryFSAttach( (PSZ) driveInfo,
+                          1,
+                          FSAIL_QUERYNAME,
+                          dataBuffer,
+                          &bufSize );
+#else
    result = DosQFSAttach( driveInfo,
                           0,
                           FSAIL_QUERYNAME,
                           (PBYTE) buf,
                           &bufSize,
                           0L );
+#endif
+
    if ( result != 0 )
    {
       printmsg(0, "advancedFS: Unable to query file system for %s, error = %d",
-                  (int) result );
-      panic();
+                  driveInfo,
+                  (int)  result );
+      return FALSE;
    }
 
-   p = FSQBuffer->szFSDName + FSQBuffer->cbName - 1;
+   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName);
 
    printmsg(4,"advancedFS: File system %d, name \"%s\", FS name \"%s\"",
-               FSQBuffer->iType,
-               FSQBuffer->szName,
-               p );
+               (int) dataBuffer->iType,
+               dataBuffer->szName,
+               fileSystem );
 
-   return strcmp( FSQBuffer->szName , "FAT");
+   if (equal( fileSystem, "FAT"))
+      return FALSE;
+   else
+      return TRUE;
 
 } /* advancedFS */
 
 #elif WIN32
+
+/*--------------------------------------------------------------------*/
+/*       a d v a n c e d F S                    (Window NT version)   */
+/*                                                                    */
+/*       Determine if a file system is advanced (supports better than */
+/*       8.3 file names)                                              */
+/*--------------------------------------------------------------------*/
 
 static boolean advancedFS( const char *path )
 {
    char driveInfo[4];
    char fsType[5];
    BOOL result;
+   char *shareNameEnd;
 
+   if ( !path || *path == '\0' ) {       // use CWD
+      strncpy( driveInfo, E_cwd, 3);
+      driveInfo[3] = '\0';
+   }
+   else if ( isalpha( *path ) && (path[1] == ':') )
+   {                                   // It's a local drive
 
-   if ( isalpha( *path ) && (path[1] == ':') )
+      printmsg(5, "advancedFS: it's a drive letter");
       strncpy( driveInfo, path, 3 );
-   else
-      strncpy( driveInfo, E_cwd, 3 );
+      driveInfo[3] = '\0';          // Terminate drive string data
 
-   driveInfo[3] = '\0';          // Terminate drive string data
+   }
+   else
+      return FALSE;
+
+/*--------------------------------------------------------------------*/
+/*            We've got the drive letter, query its status            */
+/*--------------------------------------------------------------------*/
 
    result = GetVolumeInformation(driveInfo, NULL, 0, NULL, NULL,
          NULL, fsType, 5);
@@ -755,6 +822,17 @@ static boolean advancedFS( const char *path )
 } /* advancedFS for WIN32 */
 
 #else
+
+/*--------------------------------------------------------------------*/
+/*       a d v a n c e d F S                          (DOS version)   */
+/*                                                                    */
+/*       Determine if a file system is advanced (supports better than */
+/*       8.3 file names)                                              */
+/*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#pragma argsused
+#endif
 
 static boolean advancedFS( const char *path )
 {

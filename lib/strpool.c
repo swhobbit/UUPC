@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: STRPOOL.C 1.2 1992/12/01 04:37:03 ahd Exp $
+ *    $Id: STRPOOL.C 1.3 1992/12/04 01:00:27 ahd Exp $
  *
  *    $Log: STRPOOL.C $
+ * Revision 1.3  1992/12/04  01:00:27  ahd
+ * Delete allocating pool message; now handled by pools allocated summary
+ *
  * Revision 1.2  1992/12/01  04:37:03  ahd
  * Add SpeedOverMemory
  *
@@ -53,7 +56,6 @@ static STR_QUEUE *anchor = NULL;
 static const size_t pool_size = BUFSIZ;
 static int pools      = 0;
 
-#define _UDEBUG
 #ifdef _UDEBUG
 
 static int strings    = 0;

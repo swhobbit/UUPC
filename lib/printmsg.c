@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PRINTMSG.C 1.2 1992/11/20 12:39:37 ahd Exp $
+ *    $Id: PRINTMSG.C 1.3 1993/04/10 21:26:04 ahd Exp $
  *
  *    $Log: PRINTMSG.C $
+ *     Revision 1.3  1993/04/10  21:26:04  ahd
+ *     Use unique buffer for printmsg() time stamp
+ *
  * Revision 1.2  1992/11/20  12:39:37  ahd
  * Move heapcheck to check heap *EVERY* call
  *
@@ -130,11 +133,11 @@ void printmsg(int level, char *fmt, ...)
    if (level <= debuglevel)
    {
 
-      FILE *stream = (logfile == NULL) ? stdout : logfile;
+      FILE *stream = (logfile == NULL) ? stderr : logfile;
 
       va_start(arg_ptr,fmt);
 
-      if (stream != stdout)
+      if ((stream != stdout) && (stream != stderr))
       {
          char now[DATEBUF];
          vfprintf(stderr, fmt, arg_ptr);

@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SECURITY.C 1.6 1993/05/06 03:41:48 ahd Exp $
+ *    $Id: security.c 1.7 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: SECURITY.C $
+ *    $Log: security.c $
+ *     Revision 1.7  1993/08/03  03:11:49  ahd
+ *     Make missing directories non-fatal
+ *
  *     Revision 1.6  1993/05/06  03:41:48  ahd
  *     Use NULL to denote current directory, not "."
  *
@@ -592,6 +595,7 @@ static size_t InitDir( char *directories,
          return 0;
       } /* else */
 
+      printmsg(5,"InitDir: Normalizing path %s", path );
       field = newstr( normalize( path ));
 
 /*--------------------------------------------------------------------*/

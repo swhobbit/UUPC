@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PRINTERR.C 1.3 1993/04/11 00:32:05 ahd Exp $
+ *    $Id: printerr.c 1.4 1993/07/22 23:19:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: PRINTERR.C $
+ *    $Log: printerr.c $
+ *     Revision 1.4  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
  *     Revision 1.3  1993/04/11  00:32:05  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -83,7 +86,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    if ( redirect )
       fprintf(stdout,"%s: %s\n", prefix, s);
 
-#if defined(__TURBOC__) && !defined(_Windows)
+#if defined(__TURBOC__) && !defined(_Windows) && !defined(__OS2__)
    if (_osmajor >= 3 )
    {
       union REGS regs;

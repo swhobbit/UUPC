@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.6 1993/07/06 10:55:20 ahd Exp $
+ *    $Id: normaliz.c 1.7 1993/08/08 17:39:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.7  1993/08/08  17:39:09  ahd
+ *     Denormalize path for opening on selected networks
+ *
  *     Revision 1.6  1993/07/06  10:55:20  ahd
  *     Drop doubled path delimiters before calling _fullpath
  *     Abort, not return NULL, if _fullpath fails
@@ -106,6 +109,14 @@ char *normalize( const char *pathx )
 
    while ((p = strstr(p,"\\\\")) != NULL)  // Drop all double slashes
       memmove(p, p+1, strlen(p));          // Includes trailing NULL
+
+/*--------------------------------------------------------------------*/
+/*           Drop trailing slashes, OS/2 doesn't like them            */
+/*--------------------------------------------------------------------*/
+
+   column = strlen( path ) - 1;
+   if ( (column > 2) && (path[column] == '\\') )
+      path[column] = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                    Now actually expand the path                    */

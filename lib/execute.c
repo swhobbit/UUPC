@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.3 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: execute.c 1.4 1993/08/08 17:39:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.4  1993/08/08  17:39:09  ahd
+ * Denormalize path for opening on selected networks
+ *
  * Revision 1.3  1993/08/03  03:11:49  ahd
  * Further Windows 3.x fixes
  *
@@ -36,23 +39,23 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
 #include <time.h>
 #include <process.h>
 
 #ifdef WIN32
 #include <windows.h>
 #include <signal.h>
-#endif
-
-#ifdef _Windows
+#elif defined(_Windows)
 #include <windows.h>
 #include <shellapi.h>
 #endif
+
+#include <direct.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -64,7 +67,6 @@
 
 #ifdef _Windows
 #include "winutil.h"
-#include "dir.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -78,6 +80,8 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static boolean internal( const char *command );
+
+static boolean batch( const char *input, char *output);
 
 #ifdef _Windows
 
@@ -328,8 +332,8 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(command))        /* Internal command?                */
-   {
+   if (internal(command))
+   {                             /* Internal command?                */
 
       if ( parameters == NULL )
          result = system( command );
@@ -424,15 +428,11 @@ int execute( const char *command,
 /*                  Re-open our standard i/o streams                  */
 /*--------------------------------------------------------------------*/
 
-   errno = 0;
-
    if ( output != NULL )
    {
       freopen("con", "wt", stdout);
       setvbuf( stdout, NULL, _IONBF, 0);
    }
-
-   errno = 0;
 
    if ( input != NULL )
    {
@@ -481,6 +481,7 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
+   char path[FILENAME_MAX];
 
    printmsg(2, "execute: command %s %s",
                command,
@@ -519,15 +520,15 @@ int execute( const char *command,
 /*                  Execute the command in question                   */
 /*--------------------------------------------------------------------*/
 
-   if (internal(command))        /* Internal command?                */
+   if (internal(command) || batch(command,path))  /* Internal command?*/
    {
 
       if ( parameters == NULL )
-         result = system( command );
+         result = system( path );
       else {
          char buf[BUFSIZ];
 
-         strcpy( buf, command );
+         strcpy( buf, path );
          strcat( buf, " ");
          strcat( buf, parameters );
 
@@ -537,14 +538,19 @@ int execute( const char *command,
    } /* if (internal(command)) */
    else  {                       /* No --> Invoke normally           */
 
-      result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
-                        (char *) command,
-                        (char *) command,
-                        (char *) parameters,
-                        NULL);
+      if ( *path )
+      {
+         result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
+                           (char *) path,
+                           (char *) command,
+                           (char *) parameters,
+                           NULL);
 
-      if (result == -1)       /* Did spawn fail?                     */
-         printerr(command);   /* Yes --> Report error                */
+         if (result == -1)       /* Did spawn fail?                  */
+            printerr(command);   /* Yes --> Report error             */
+      } /* else */
+      else
+         result = -3;            // Flag we never ran command
 
    } /* else */
 
@@ -552,15 +558,11 @@ int execute( const char *command,
 /*                  Re-open our standard i/o streams                  */
 /*--------------------------------------------------------------------*/
 
-   errno = 0;
-
    if ( output != NULL )
    {
       freopen("con", "wt", stdout);
       setvbuf( stdout, NULL, _IONBF, 0);
    }
-
-   errno = 0;
 
    if ( input != NULL )
    {
@@ -682,3 +684,56 @@ static boolean internal( const char *command )
    return FALSE;
 
 } /* internal */
+
+/*--------------------------------------------------------------------*/
+/*    b a t c h                                                       */
+/*                                                                    */
+/*    Determine if a command is batch file                            */
+/*--------------------------------------------------------------------*/
+
+static boolean batch( const char *input, char *output)
+{
+   const static char *extensions[] = { ".exe",
+                                       ".com",
+#if !defined(_DOS) && !defined(_Windows)
+                                       ".cmd",
+#endif
+                                       ".bat",
+                                       NULL };
+
+   int subscript = 0;
+
+   while( extensions[subscript] != NULL )
+   {
+      char buf[FILENAME_MAX];
+      char *result;
+
+      strcpy( buf, input );
+      strcat( buf, extensions[subscript] );
+
+      result = searchpath(buf);
+      if ( result != NULL )
+      {
+         if ( output != NULL )
+            strcpy( output, result );
+
+         printmsg(8,"batch: found %s", result);
+
+#if defined(_DOS) || defined(_Windows)
+         return equal( extensions[subscript] , ".bat" );
+#else
+         return equal( extensions[subscript] , ".cmd" ) ||
+                equal( extensions[subscript] , ".bat" );
+#endif
+      }
+
+      subscript++;
+
+   }  /* while */
+
+   printmsg(0,"batch: Unable to locate %s in search path",input);
+
+   *output = '\0';                  // Flag no file found!
+   return FALSE;
+
+} /* batch */
