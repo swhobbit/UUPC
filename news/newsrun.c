@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.13 1996/01/20 13:09:56 ahd Exp $
+ *       $Id: newsrun.c 1.14 1996/01/27 16:49:22 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.14  1996/01/27 16:49:22  ahd
+ *       Correct junking of news groups (delete extra semicolon)
+ *
  *       Revision 1.13  1996/01/20 13:09:56  ahd
  *       Allow specifying text/binary mode when processing an in-memory file
  *
@@ -232,7 +235,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.13 1996/01/20 13:09:56 ahd Exp $";
+         "$Id: newsrun.c 1.14 1996/01/27 16:49:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1599,9 +1602,10 @@ static KWBoolean deliver_local(IMFILE *imf,
      b_xref = KWFalse;
 
      snum = getArticleNewest( "junk" );
+
      printmsg(1, "No group to deliver to (%s): %s (%.50s)",
                   messageID,
-                  snum ? "discarded" : "junked",
+                  snum ?  "junked": "discarded",
                   newsgroups_in );
 
      if (snum == 0 )                   /* Do we maintain junk group? */
