@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.15 1995/03/11 22:29:13 ahd Exp $
+ *    $Id: expire.c 1.16 1995/08/27 23:33:15 ahd v1-12o $
  *
  *    $Log: expire.c $
+ *    Revision 1.16  1995/08/27 23:33:15  ahd
+ *    Load and use ACTIVE file as tree structure
+ *
  *    Revision 1.15  1995/03/11 22:29:13  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -63,7 +66,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.15 1995/03/11 22:29:13 ahd Exp $";
+      "$Id: expire.c 1.16 1995/08/27 23:33:15 ahd v1-12o $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -291,7 +294,7 @@ SetGroupLower(char *histentry)
   while ((group = strtok(NULL, "," WHITESPACE )) != NULL)
   {
 
-    int lowest;
+    long lowest;
 
     num = strchr(group, ':');
     *num++ = 0;

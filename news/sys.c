@@ -72,10 +72,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.19 1995/03/12 16:42:24 ahd Exp $
+ *    $Id: sys.c 1.20 1995/07/21 13:25:31 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.20  1995/07/21 13:25:31  ahd
+ *    Check for lengths in additional to strings being non-null BEFORE
+ *    copying them or otherwise processing them.
+ *
  *    Revision 1.19  1995/03/12 16:42:24  ahd
  *    Comment match(), redo variable names to allow debugging
  *
@@ -1112,7 +1116,7 @@ static unsigned short
 hops( const char *path )
 {
    char *p = strchr( path , '!' );
-   int count = 0;
+   unsigned short count = 0;
 
    while( p != NULL )
    {
