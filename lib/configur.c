@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\LIB\RCS\CONFIGUR.C 1.8 1993/04/05 04:32:19 ahd Exp $
+ *    $Id: CONFIGUR.C 1.9 1993/04/11 00:31:31 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.9  1993/04/11  00:31:31  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.8  1993/04/05  04:32:19  ahd
  *     Set timezone, windows input mode in common routine
  *
@@ -227,6 +230,7 @@ FLAGTABLE configFlags[] = {
  { "undelete",    F_UNDELETE,    B_LOCAL},
 
  { "bang",        F_BANG,        B_GLOBAL},
+ { "bounce",      F_BOUNCE,      B_GLOBAL},
  { "collect",     F_COLLECTSTATS,B_GLOBAL},
  { "directory",   F_DIRECT,      B_GLOBAL},
  { "escape",      F_ESCAPE,      B_GLOBAL},
