@@ -17,10 +17,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.71 1995/08/27 23:30:21 ahd v1-12q $
+ *    $Id: configur.c 1.72 1996/01/02 00:00:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.72  1996/01/02 00:00:24  ahd
+ *    Break out search loop for configuration file keywords from
+ *    processing of them.
+ *    Use proper binary search for configuration file keywords rather
+ *    than lineaer search.  Also includes pre-computing size of configuration
+ *    tables.
+ *
  *    Revision 1.71  1995/08/27 23:30:21  ahd
  *    Change variable case
  *
@@ -451,30 +458,20 @@ FLAGTABLE configFlags[] = {
  { "autoprint",               F_AUTOPRINT,             B_LOCAL},
  { "autosign",                F_AUTOSIGN,              B_LOCAL},
  { "backup",                  F_BACKUP,                B_LOCAL},
- { "doskey",                  F_DOSKEY,                B_LOCAL},
- { "dot",                     F_DOT,                   B_LOCAL},
- { "expert",                  F_EXPERT,                B_LOCAL},
- { "forwardsave",             F_SAVERESENT,            B_LOCAL},
- { "fromsep",                 F_FROMSEP,               B_LOCAL},
- { "imfile",                  F_IMFILE,                B_LOCAL},
- { "pager",                   F_PAGER,                 B_LOCAL},
- { "purge",                   F_PURGE,                 B_LOCAL},
- { "save",                    F_SAVE,                  B_LOCAL},
- { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
- { "suppresscopyright",       F_SUPPRESSCOPYRIGHT,     B_LOCAL},
- { "suppressbeep",            F_SUPPRESSBEEP,          B_LOCAL},
- { "undelete",                F_UNDELETE,              B_LOCAL},
- { "verbose",                 F_VERBOSE,               B_LOCAL},
- { "windows",                 F_WINDOWS,               B_LOCAL},
-
  { "bang",                    F_BANG,                  B_GLOBAL},
  { "bounce",                  F_BOUNCE,                B_GLOBAL},
  { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
+ { "doskey",                  F_DOSKEY,                B_LOCAL},
+ { "dot",                     F_DOT,                   B_LOCAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
+ { "expert",                  F_EXPERT,                B_LOCAL},
  { "fastnews",                F_NEWSRUN,               B_GLOBAL},
+ { "forwardsave",             F_SAVERESENT,            B_LOCAL},
+ { "fromsep",                 F_FROMSEP,               B_LOCAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
+ { "imfile",                  F_IMFILE,                B_LOCAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},
  { "longname",                F_LONGNAME,              B_GLOBAL},
  { "monocase",                F_ONECASE,               B_GLOBAL},
@@ -482,17 +479,28 @@ FLAGTABLE configFlags[] = {
  { "multitask",               F_MULTITASK,             B_GLOBAL},
  { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "nns",                     F_NNS,                   B_GLOBAL},
+ { "pager",                   F_PAGER,                 B_LOCAL},
+ { "purge",                   F_PURGE,                 B_LOCAL},
+ { "save",                    F_SAVE,                  B_LOCAL},
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
  { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
  { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
  { "snews",                   F_SNEWS,                 B_GLOBAL},
+ { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
+ { "suppressbeep",            F_SUPPRESSBEEP,          B_LOCAL},
+ { "suppresscopyright",       F_SUPPRESSCOPYRIGHT,     B_LOCAL},
  { "suppressemptypassword",   F_SUPPRESSEMPTYPASSWORD, B_GLOBAL},
  { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
  { "suppresslogininfo",       F_SUPPRESSLOGININFO,     B_GLOBAL},
  { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
  { "syslog",                  F_SYSLOG,                B_GLOBAL},
- { nil(char) }
-}           ;
+ { "undelete",                F_UNDELETE,              B_LOCAL},
+ { "verbose",                 F_VERBOSE,               B_LOCAL},
+ { "windows",                 F_WINDOWS,               B_LOCAL}
+};
+
+
+size_t configFlagsSize = (sizeof configFlags / sizeof (FLAGTABLE));
 
 /*--------------------------------------------------------------------*/
 /*             Operating environment configuration table              */
@@ -561,7 +569,6 @@ typedef struct _DEFAULTS
 
 static DEFAULTS directoryList[] =
 {
-   {&E_archivedir,   "archive" , KWTrue },
    {&E_maildir,      "mail"    , KWTrue },
    {&E_newsdir,      "news"    , KWTrue },
    {&E_pubdir,       "public"  , KWTrue },
@@ -783,7 +790,8 @@ processconfig( char *buff,
                CONFIGBITS program,
                CONFIGTABLE *table,
                const size_t tableSize,
-               FLAGTABLE *btable)
+               FLAGTABLE *bTable,
+               const size_t bTableSize)
 {
    CONFIGTABLE *tptr = NULL;
    char *cp;
@@ -913,7 +921,11 @@ processconfig( char *buff,
 /*--------------------------------------------------------------------*/
 
    if (tptr->flag & B_BOOLEAN )
-      options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
+      options(cp,
+              sysmode,
+              bTable,
+              (KWBoolean *) tptr->loc,
+              bTableSize);
 
 /*--------------------------------------------------------------------*/
 /*                        Process the keyword                         */
@@ -937,7 +949,8 @@ KWBoolean getconfig(FILE *fp,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
                   const size_t tableSize,
-                  FLAGTABLE *btable)
+                  FLAGTABLE *bTable,
+                  const size_t bTableSize)
 {
 
    char buff[BUFSIZ];
@@ -980,7 +993,8 @@ KWBoolean getconfig(FILE *fp,
                               program,
                               table,
                               tableSize,
-                              btable) )
+                              bTable,
+                              bTableSize ) )
             printmsg(0,
                "Unknown keyword \"%s\" in %s configuration file ignored",
                buff, sysmode ? "system" : "user");
@@ -995,11 +1009,15 @@ KWBoolean getconfig(FILE *fp,
 /*--------------------------------------------------------------------*/
 /*    o p t i o n s                                                   */
 /*                                                                    */
-/*    Process a line of KWBoolean option flags.                        */
+/*    Process a line of KWBoolean option flags.                       */
 /*--------------------------------------------------------------------*/
 
 void
-options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
+options(char *s,
+        SYSMODE sysmode,
+        FLAGTABLE *flags,
+        KWBoolean *barray,
+        const size_t flagSize )
 {
    char *token;
 
@@ -1008,40 +1026,59 @@ options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
 
    while (token != NULL)
    {
-      size_t subscript;
-      KWBoolean hit = KWFalse;
-      KWBoolean negate;
+      KWBoolean newValue;
+      char *compare;
+      int upper, lower;
 
       if ( equaln(token,"no",2) && (strlen(token) > 2) )
-         negate = KWTrue;
-      else
-         negate = KWFalse;
-
-      for ( subscript=0; (flags[subscript].sym != NULL ) && !hit; subscript++)
       {
-         if ((flags[subscript].bits & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
-            continue;
+         newValue = KWFalse;
+         compare = token + 2;
+      }
+      else {
+         newValue = KWTrue;
+         compare = token;
+      }
 
-         if (negate)
-         {
-            if (equal(&token[2],flags[subscript].sym))
-            {
-               barray[ flags[subscript].position ] = KWFalse;
-               hit = KWTrue;
-            }
-         } /* if negate */
+      upper = (int) flagSize - 1;
+      lower = 0;
+
+/*--------------------------------------------------------------------*/
+/*            Binary search to locate keyword in the table            */
+/*--------------------------------------------------------------------*/
+
+      while( lower <= upper)
+      {
+         int midpoint = ( lower + upper ) / 2;
+         int hit = strcmp( compare, flags[midpoint].sym );
+
+         if (hit > 0)
+            lower = midpoint + 1;
+         else if (hit < 0)
+            upper = midpoint - 1;
          else {
-            if (equal(token,flags[subscript].sym))
+            if ((flags[midpoint].bits & B_GLOBAL) &&
+                (sysmode != SYSTEM_CONFIG))
             {
-               barray[ flags[subscript].position ] = KWTrue;
-               hit = KWTrue;
+               printmsg(0,"options: System boolean option %s "
+                          "only be specified in system configuration file.",
+                          token );
             }
+            else {
+               barray[ flags[midpoint].position ] = newValue;
+            }
+
+            break;
+
          } /* else */
 
-      } /* for */
+      } /* while( lower <= upper) */
 
-      if (!hit)
-         printf("Invalid or system option '%s' specified\n",token);
+      if ( lower > upper )
+      {
+         strupr( token );
+         printf("options: Invalid boolean option %s specified\n", token);
+      }
 
       token = strtok(NULL,WHITESPACE);  /* Step to next token on line */
 
@@ -1061,7 +1098,7 @@ KWBoolean configure( CONFIGBITS program)
    FILE *fp;
    KWBoolean success;
    char buf[BUFSIZ];
-   int subscript = 0;
+   size_t subscript = 0;
    char *s;
 
 /*--------------------------------------------------------------------*/
@@ -1102,7 +1139,8 @@ KWBoolean configure( CONFIGBITS program)
                               program,
                               rcTable,
                               rcTableSize,
-                              configFlags))
+                              configFlags,
+                              configFlagsSize ))
          {
             printmsg(0,"Internal error: Invalid keyword %s",
                        envVarList[subscript].confName  );
@@ -1162,9 +1200,11 @@ KWBoolean configure( CONFIGBITS program)
                        program,
                        rcTable,
                        rcTableSize,
-                       configFlags);
+                       configFlags,
+                       configFlagsSize );
 
    fclose(fp);
+
    if (!success)
    {
       PopDir();
@@ -1178,6 +1218,7 @@ KWBoolean configure( CONFIGBITS program)
    if (usrrc != nil(char))
    {
       usrrc = normalize( usrrc );
+
       if ((fp = FOPEN(usrrc, "r",TEXT_MODE)) == nil(FILE))
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
@@ -1190,7 +1231,9 @@ KWBoolean configure( CONFIGBITS program)
                            program,
                            rcTable,
                            rcTableSize,
-                           configFlags);
+                           configFlags,
+                           configFlagsSize );
+
       fclose(fp);
 
       if (!success)
@@ -1199,7 +1242,7 @@ KWBoolean configure( CONFIGBITS program)
          return KWFalse;
       }
 
-   }
+   } /* if (usrrc != nil(char)) */
 
 /*--------------------------------------------------------------------*/
 /*                       Display our copyright                        */

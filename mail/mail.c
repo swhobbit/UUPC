@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.39 1996/01/01 21:02:35 ahd Exp $
+ *    $Id: mail.c 1.40 1996/01/01 23:50:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.40  1996/01/01 23:50:26  ahd
+ *    Don't scan nickname table for duplicate nicknames in linear fashion,
+ *    merely check entire table for duplicates after sorting.
+ *    Rename user functions previously known as 'user alias' to 'nickname',
+ *    consistent with newer documentation.
+ *
  *    Revision 1.39  1996/01/01 21:02:35  ahd
  *    Annual Copyright Update
  *
@@ -169,7 +175,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.39 1996/01/01 21:02:35 ahd Exp $";
+      "$Id: mail.c 1.40 1996/01/01 23:50:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1005,9 +1011,13 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
 
             case M_SET:
                if (operand == NULL)
-                  sayoptions( configFlags);
+                  sayOptions( configFlags, configFlagsSize );
                else
-                  options(operand, USER_CONFIG, configFlags, bflag);
+                  options(operand,
+                          USER_CONFIG,
+                          configFlags,
+                          bflag,
+                          configFlagsSize );
                break;
 
             case M_SYSTEM:

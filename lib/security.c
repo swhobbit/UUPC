@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.27 1996/01/02 00:00:24 ahd Exp $
+ *    $Id: security.c 1.28 1996/01/02 02:51:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.28  1996/01/02 02:51:53  ahd
+ *    Sort security, modem confifuration tables
+ *
  *    Revision 1.27  1996/01/02 00:00:24  ahd
  *    Break out search loop for configuration file keywords from
  *    processing of them.
@@ -379,7 +382,8 @@ static KWBoolean InitEntry( char *buf, const char *fname)
                          0,
                          secureTable,
                          secureTableSize,
-                         NULL))
+                         NULL,
+                         0 ))
       {
          printmsg(0, "Unknown keyword \"%s\" in %s ignored",
                     parameter,
@@ -627,12 +631,15 @@ static KWBoolean InitEntry( char *buf, const char *fname)
    max_elements = InitDir( read,    ALLOW_READ,  KWTrue,  anchor,
             max_elements );
    free( read );
+
    max_elements = InitDir( noread,  ALLOW_READ,  KWFalse, anchor,
             max_elements );
    free( noread );
+
    max_elements = InitDir( write,   ALLOW_WRITE, KWTrue,  anchor,
             max_elements );
    free( write );
+
    max_elements = InitDir( nowrite, ALLOW_WRITE, KWFalse, anchor,
                            max_elements );
    free( nowrite );
@@ -763,10 +770,13 @@ static size_t InitDir( char *directories,
 
          if (stat(field , &statbuf) != 0)
          {
-            printmsg(2,"Warning ... invalid PERMISSIONS file entry %s:",
+            printmsg(2,"Warning ... invalid (non-existent) "
+                       "PERMISSIONS file entry %s:",
                        token );
+
             if ( debuglevel > 1 )
                printerr(field);
+
          }
          else if ((statbuf.st_mode & S_IFDIR) == 0)
          {

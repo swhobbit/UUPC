@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.62 1996/01/02 00:00:24 ahd Exp $
+ *    $Id: modem.c 1.63 1996/01/02 02:51:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.63  1996/01/02 02:51:53  ahd
+ *    Sort security, modem configuration tables
+ *
  *    Revision 1.62  1996/01/02 00:00:24  ahd
  *    Break out search loop for configuration file keywords from
  *    processing of them.
@@ -297,10 +300,10 @@ static FLAGTABLE modemFlags[] = {
    { "carrierdetect",  MODEM_CARRIERDETECT,          B_LOCAL },
    { "direct",         MODEM_DIRECT,      B_LOCAL },
    { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
-   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL },
-   { "largepacket",    MODEM_LARGEPACKET, B_LOCAL | B_OBSOLETE },
-   { nil(char) }
-}           ;
+   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL }
+};
+
+static size_t modemFlagsSize = sizeof modemFlags / (sizeof (FLAGTABLE));
 
 static CONFIGTABLE modemTable[] = {
    { "answer",         &answer,           0, B_LIST   },
@@ -721,7 +724,6 @@ KWBoolean getmodem( const char *brand)
    char filename[FILENAME_MAX];
    static char *modem = NULL;
    FILE *fp;
-   CONFIGTABLE *tptr;
    size_t subscript;
    KWBoolean success;
 
@@ -802,7 +804,8 @@ KWBoolean getmodem( const char *brand)
                        0,
                        modemTable,
                        modemTableSize,
-                       modemFlags);
+                       modemFlags,
+                       modemFlagsSize);
    fclose(fp);
 
    if (!success)

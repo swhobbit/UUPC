@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.23 1996/01/01 21:03:50 ahd Exp $
+ *    $Id: maillib.c 1.24 1996/01/01 23:50:26 ahd Exp $
  *
  *    $Log: maillib.c $
+ *    Revision 1.24  1996/01/01 23:50:26  ahd
+ *    Don't scan nickname table for duplicate nicknames in linear fashion,
+ *    merely check entire table for duplicates after sorting.
+ *    Rename user functions previously known as 'user alias' to 'nickname',
+ *    consistent with newer documentation.
+ *
  *    Revision 1.23  1996/01/01 21:03:50  ahd
  *    Annual Copyright Update
  *
@@ -688,12 +694,12 @@ void ReturnAddress(char *result, const long adr )
 } /* ReturnAddress */
 
 /*--------------------------------------------------------------------*/
-/*    s a y o p t i o n s                                             */
+/*    s a y O p t i o n s                                             */
 /*                                                                    */
 /*    Announce user options in effect                                 */
 /*--------------------------------------------------------------------*/
 
-void sayoptions( FLAGTABLE *flags)
+void sayOptions( FLAGTABLE *flags, const size_t flagsSize )
 {
 
    size_t subscript;
@@ -701,7 +707,7 @@ void sayoptions( FLAGTABLE *flags)
 
    printf("\nThe following options are set:\n");
 
-   for (subscript = 0; flags[subscript].sym != NULL; subscript++)
+   for (subscript = 0; subscript < flagsSize ; subscript++)
    {
          size_t width;
 
@@ -711,19 +717,23 @@ void sayoptions( FLAGTABLE *flags)
          width = 1 + strlen( flags[subscript].sym ) +
                  ( bflag[ flags[subscript].position ] ? 0 : 2 );
 
-         used += width;
-         if ( subscript > 0 )
+
+         if ( used )
          {
-            if ( used > 79 )
+            if ( (used + width ) > 79 )
             {
 
                fputc( '\n', stdout);
-               used = width;
+               used = 0;
 
             } /* if ( used > 79 ) */
             else
                fputc( ' ', stdout);
+
+
          } /* if ( subscript > 0 ) */
+
+         used += width;
 
          printf("%s%s",
                bflag[ flags[subscript].position ] ? "" : "no",
@@ -733,4 +743,4 @@ void sayoptions( FLAGTABLE *flags)
 
    fputc( '\n', stdout);
 
-} /* sayoptions */
+} /* sayOptions */
