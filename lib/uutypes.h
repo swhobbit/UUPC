@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.18 1994/02/13 22:32:16 ahd Exp $
+ *    $Id: uutypes.h 1.19 1994/02/28 04:10:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.19  1994/02/28  04:10:56  ahd
+ *     Correct spelling of longname flag
+ *
  *     Revision 1.18  1994/02/13  22:32:16  ahd
  *     Add mixed memory mode MEMCHR macro
  *
@@ -181,6 +184,8 @@ typedef enum {
                               /* GMM - Batched ouytbound news support  */
                F_UUPCNEWSSERV,
                               /* TRUE = Our news server runs UUPC too    */
+               F_SUPPRESSEMPTYPASSWORD,
+                              /* Don't prompt if user password is empty */
                F_LAST }       /* Dummy - Must be last - defines array size */
                B_FLAG;        /* Boolean flag array - ahd              */
 
