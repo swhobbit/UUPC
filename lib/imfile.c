@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.16 1995/03/11 22:26:08 ahd Exp $
+ *    $Id: imfile.c 1.17 1995/09/04 02:13:41 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.17  1995/09/04 02:13:41  ahd
+ *    Suppress selected debugging messages
+ *
  *    Revision 1.16  1995/03/11 22:26:08  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -896,13 +899,46 @@ int executeIMFCommand( const char *command,
    FILE *stream;
    int status;
 
-   if ( imf->buffer == NULL )
-      return executeCommand( command,
-                             imf->filename,
-                             output,
-                             synchronous,
-                             foreground );
+/*--------------------------------------------------------------------*/
+/*       If we are using a disk based work file, we close the file    */
+/*       (to prevent sharing errors) and then pass the file name      */
+/*       directly into executeCommand.                                */
+/*                                                                    */
+/*       Note that we reopen the file, we open for append to avoid    */
+/*       clobbering the contents.  Since the open should _never_      */
+/*       fail, we halt if it does.                                    */
+/*--------------------------------------------------------------------*/
 
+   if ( imf->buffer == NULL )
+   {
+      int result;
+
+      fclose( imf->stream );
+
+      result = executeCommand( command,
+                               imf->filename,
+                               output,
+                               synchronous,
+                               foreground );
+
+      imf->stream = FOPEN( imf->filename,
+                           "a+",
+                           IMAGE_MODE );
+
+      if ( imf->stream == NULL )
+      {
+         perror( imf->filename );
+         panic();
+      }
+
+      return result;
+
+   } /* if ( imf->buffer == NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*       The data is in memory, we need to write it out an            */
+/*       external program to see it.                                  */
+/*--------------------------------------------------------------------*/
 
    mktempname( tempName, "TMP" );
 
