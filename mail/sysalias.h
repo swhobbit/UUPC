@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.h 1.3 1994/01/01 19:13:45 ahd Exp $
+ *    $Id: sysalias.h 1.4 1994/01/24 03:18:12 ahd Exp $
  *
  *    $Log: sysalias.h $
+ * Revision 1.4  1994/01/24  03:18:12  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1994/01/01  19:13:45  ahd
  * Annual Copyright Update
  *
@@ -36,10 +39,12 @@
 /*    end position of alias data in the system alias file             */
 /*--------------------------------------------------------------------*/
 
-typedef struct _ALIASTABLE {
-      char *alias;
-      long start;
-      long end;
+typedef struct _ALIASTABLE
+      {
+         char *alias;
+         long start;
+         long end;
+         boolean recurse;
       } ALIASTABLE;
 
 extern char *SysAliases;      /* Name of system alias file           */

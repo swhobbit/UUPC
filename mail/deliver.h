@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.9 1994/01/01 19:13:31 ahd Exp $
+ *    $Id: deliver.h 1.10 1994/01/24 03:17:50 ahd Exp $
  *
  *    $Log: deliver.h $
+ * Revision 1.10  1994/01/24  03:17:50  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.9  1994/01/01  19:13:31  ahd
  * Annual Copyright Update
  *
@@ -54,9 +57,8 @@
 #define POSTMASTER "postmaster"
 
 size_t Deliver( const char *input, /* Input file name                */
-             char *address,           /* Target address               */
-             const boolean sysalias,
-                   boolean validate); /* Validate/forward local mail  */
+                char *address,     /* Target address               */
+                boolean validate); /* Validate/forward local mail  */
 
 extern KEWSHORT hops;
 
