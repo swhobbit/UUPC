@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.15 1993/12/02 03:59:37 dmwatt Exp $
+ *    $Id: dcpfpkt.c 1.16 1993/12/02 13:49:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.16  1993/12/02  13:49:58  ahd
+ * 'e' protocol support
+ *
  * Revision 1.15  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
  *
@@ -468,6 +471,10 @@ short fsendpkt(char *ip, short len)
 /*                                                                    */
 /*    Prepare for processing an "f" procotol file transfer            */
 /*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#pragma argsused
+#endif
 
 short ffilepkt( const boolean transmit, const unsigned long bytes )
 {
