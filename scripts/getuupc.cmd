@@ -11,9 +11,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: GETUUPC.CMD 1.2 1993/05/04 00:25:58 ahd Exp $
+ *       $Id: GETUUPC.CMD 1.3 1993/05/09 14:10:26 ahd Exp $
  *
  *       $Log: GETUUPC.CMD $
+ *      Revision 1.3  1993/05/09  14:10:26  ahd
+ *      Don't perform user level lookup unless asked
+ *
  *      Revision 1.2  1993/05/04  00:25:58  ahd
  *      Support personal.rc to allow su.cmd
  *
@@ -77,7 +80,6 @@ do count = 1 to data.0
       answer = string
 end
 
-parse arg keyword,answer,confdir
 /*--------------------------------------------------------------------*/
 /*    Return the value if found, return directories if we can         */
 /*    generate the directory name, otherwise return default input.    */
