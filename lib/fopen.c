@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.19 1998/03/01 01:23:38 ahd Exp $
+ *    $Id: fopen.c 1.20 1998/03/03 03:49:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.20  1998/03/03 03:49:55  ahd
+ *    Don't retry open for read with update
+ *
  *    Revision 1.19  1998/03/01 01:23:38  ahd
  *    Annual Copyright Update
  *
@@ -71,7 +74,7 @@
 #include "ssleep.h"
 #include "stater.h"
 
-RCSID("$Id: fopen.c 1.19 1998/03/01 01:23:38 ahd Exp $");
+RCSID("$Id: fopen.c 1.20 1998/03/03 03:49:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */
@@ -121,7 +124,7 @@ FILE *FSOPEN(const char *name, const char *mode)
       {
 #ifdef UDEBUG
          if ( debuglevel > 1 )
-            printerr( fname );
+            perror( fname );
 #endif
          return results;
       }
