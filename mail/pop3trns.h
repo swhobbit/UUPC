@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: POP3TRNS.H 1.3 1998/03/03 07:37:36 ahd v1-12v $
+ *       $Id: pop3trns.h 1.4 1998/04/19 15:33:53 ahd v1-13b $
  *
  *       Revision history:
- *       $Log: POP3TRNS.H $
+ *       $Log: pop3trns.h $
+ * Revision 1.4  1998/04/19  15:33:53  ahd
+ * *** empty log message ***
+ *
  *       Revision 1.3  1998/03/03 07:37:36  ahd
  *       Add flags for requiring mbox update
  *
@@ -40,6 +43,7 @@
 
 typedef struct _MailMessage
 {
+   long magic;                      /* Flag for valid item           */
    long sequence;                   /* Message num, counting from 1  */
    long octets;                     /* Size in bytes                 */
    long startPosition;
@@ -55,7 +59,7 @@ typedef struct _MailMessage
 
 typedef struct _POP3Transaction
 {
-
+   long magic;                      /* Flag for valid item           */
    long messageCount;               /* Mailbox message count         */
    long octets;                     /* Mailbox size in bytes         */
    char mailboxName[FILENAME_MAX];  /* Box we move data into         */
@@ -66,6 +70,12 @@ typedef struct _POP3Transaction
    KWBoolean rewrite;               /* At least one message updated  */
 
 } POP3Transaction;
+
+#define POP3T_MAGIC     (0xdeadbeef + __LINE__ + (__LINE__ << 4))
+#define POP3M_MAGIC     (0xdeadbeef + __LINE__ + (__LINE__ << 4))
+
+#define assertPOP3Transaction(pointer) kwassert((pointer)->magic == POP3T_MAGIC)
+#define assertPOP3Message(pointer)     kwassert((pointer)->magic == POP3M_MAGIC)
 
 /* Silly hack so pointer type is correct for our purposes */
 #define SMTPTransaction POP3Transaction

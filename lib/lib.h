@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.43 1998/04/20 02:48:54 ahd Exp $
+ *       $Id: lib.h 1.44 1998/04/27 01:57:29 ahd v1-13b $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *     Revision 1.44  1998/04/27  01:57:29  ahd
+ *     Support for setting selected boolean options to enabled
+ *
  *       Revision 1.43  1998/04/20 02:48:54  ahd
  *       Windows 32 bit GUI environment/TAPI support
  *
@@ -140,6 +143,14 @@
 /*--------------------------------------------------------------------*/
 
 #define panic()  bugout( cfnptr, __LINE__)
+
+
+#ifdef UDEBUG
+#define kwassert(condition) if (condition) \
+   { printmsg(0,"Assertion failed:" #condition); panic(); }
+#else
+#define kwassert(condition)
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                 Macro for generic error messages from DOS          */

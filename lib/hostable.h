@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.17 1997/11/24 02:59:06 ahd v1-12u $
+  *   $Id: hostable.h 1.18 1998/03/01 01:26:40 ahd v1-13b $
   *
   *   $Log: hostable.h $
+ *     Revision 1.18  1998/03/01  01:26:40  ahd
+ *     Annual Copyright Update
+ *
   *   Revision 1.17  1997/11/24 02:59:06  ahd
   *   Add macro to allow program to look up local host name without checkname
   *

@@ -18,10 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.13 1998/04/08 11:36:31 ahd Exp $
+ *    $Id: smtpclnt.h 1.14 1998/04/24 03:34:25 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ * Revision 1.14  1998/04/24  03:34:25  ahd
+ * Use local buffers for output
+ * Add flag bits to verb table
+ * Add flag bytes to client structure
+ *
  *    Revision 1.13  1998/04/08 11:36:31  ahd
  *    Alter socket error processing
  *
@@ -130,6 +135,7 @@ typedef struct _SMTPBuffer
 
 typedef struct _SMTPClient
 {
+   long magic;                      /* Internal consistent check     */
    SMTPConnection connection;       /* Internal network information  */
    SMTPBuffer transmit;
    SMTPBuffer receive;
@@ -163,6 +169,10 @@ typedef struct _SMTPClient
    struct _SMTPClient *previous;
 
 } SMTPClient;
+
+#define SMTPC_MAGIC     (0xdeadbeef + __LINE__ + (__LINE__ << 4))
+
+#define assertSMTP(pointer) kwassert((pointer)->magic == SMTPC_MAGIC)
 
 /* Initialize */
 SMTPClient *initializeClient(SOCKET socket, KWBoolean needAccept);
