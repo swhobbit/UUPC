@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmmn.c 1.1 1998/03/01 19:42:17 ahd Exp $
+ *       $Id: smtpcmmn.c 1.2 1998/03/03 03:53:54 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: smtpcmmn.c $
+ *       Revision 1.2  1998/03/03 03:53:54  ahd
+ *       Remove RSET and QUIT commands, which really have to be unique to SMTP and POP3
+ *
  *       Revision 1.1  1998/03/01 19:42:17  ahd
  *       Initial revision
  *
@@ -39,7 +42,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmmn.c 1.1 1998/03/01 19:42:17 ahd Exp $");
+RCSID("$Id: smtpcmmn.c 1.2 1998/03/03 03:53:54 ahd v1-12v $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */
@@ -91,9 +94,10 @@ commandExiting(SMTPClient *client,
                struct _SMTPVerb* verb,
                char **operands)
 {
-   SMTPResponse(client,
-                 verb->successResponse,
-                 "Server shutdown in progress, please try later");
+   if ( ! client->listening )
+      SMTPResponse(client,
+                   verb->successResponse,
+                  "Server shutdown in progress, please try later");
    return KWTrue;
 
 } /* commandExiting */
@@ -109,9 +113,11 @@ commandTimeout(SMTPClient *client,
                struct _SMTPVerb* verb,
                char **operands)
 {
-   SMTPResponse(client,
-                 verb->successResponse,
-                 "Idle timeout, closing connection");
+   if ( ! client->listening )
+      SMTPResponse(client,
+                    verb->successResponse,
+                    "Idle timeout, closing connection");
+
    return KWTrue;
 
 } /* commandTimeout */
