@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -16,16 +16,19 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.21 1999/01/04 03:53:30 ahd Exp $");
+RCSID("$Id: hdbm.c 1.22 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.21 1999/01/04 03:53:30 ahd Exp $
+ * $Id: hdbm.c 1.22 1999/01/08 02:20:52 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.22  1999/01/08 02:20:52  ahd
+ * Convert currentfile() to RCSID()
+ *
  * Revision 1.21  1999/01/04 03:53:30  ahd
  * Annual copyright change
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.26 1998/04/20 02:48:54 ahd v1-13f ahd $
+ *    $Id: commlib.h 1.27 1999/01/04 03:55:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.27  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.26  1998/04/20 02:48:54  ahd
  *    Windows 32 bit GUI environment/TAPI support
  *

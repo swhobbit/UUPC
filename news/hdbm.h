@@ -10,7 +10,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.h 1.12 1998/03/01 01:31:23 ahd v1-13f ahd $
+ * $Id: hdbm.h 1.13 1999/01/04 03:55:33 ahd Exp $
  *
  * $Log: hdbm.h $
+ * Revision 1.13  1999/01/04 03:55:33  ahd
+ * Annual copyright change
+ *
  * Revision 1.12  1998/03/01 01:31:23  ahd
  * Annual Copyright Update
  *

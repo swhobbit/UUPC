@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.35 1999/01/04 03:53:30 ahd Exp $
+ *       $Id: ulibnt.c 1.36 1999/01/08 02:20:56 ahd Exp $
  *       $Log: ulibnt.c $
+ *       Revision 1.36  1999/01/08 02:20:56  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.35  1999/01/04 03:53:30  ahd
  *       Annual copyright change
  *
@@ -123,7 +126,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: ulibnt.c 1.36 1999/01/08 02:20:56 ahd Exp $");
 
 static KWBoolean hangupNeeded = KWFalse;
 

@@ -11,9 +11,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: getuupc.cmd 1.7 1998/05/11 01:27:03 ahd v1-13b $
+ *       $Id: getuupc.cmd 1.8 1998/05/18 12:25:09 ahd v1-13f $
  *
  *       $Log: getuupc.cmd $
+ *       Revision 1.8  1998/05/18 12:25:09  ahd
+ *       Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.7  1998/05/11  01:27:03  ahd
  *      Add distinct log directory
  *

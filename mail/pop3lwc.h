@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.h 1.2 1998/03/06 06:53:00 ahd v1-13f ahd $
+ *       $Id: pop3lwc.h 1.3 1999/01/04 03:56:09 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3lwc.h $
+ *       Revision 1.3  1999/01/04 03:56:09  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.2  1998/03/06 06:53:00  ahd
  *       Add dummy commands to make Netscape happy
  *

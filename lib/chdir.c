@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.15 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: chdir.c 1.16 1999/01/08 02:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.16  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.15  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -71,7 +74,7 @@
 
 static int changedir( const char *path, const int drive );
 
-RCSID("$Id$");
+RCSID("$Id: chdir.c 1.16 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       C H D I R                                                    */

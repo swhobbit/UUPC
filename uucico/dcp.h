@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.22 1998/04/20 02:48:54 ahd v1-13f ahd $
+ *    $Id: dcp.h 1.23 1999/01/04 03:55:33 ahd Exp $
  *
  *    $Log: dcp.h $
+ *    Revision 1.23  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.22  1998/04/20 02:48:54  ahd
  *    Windows 32 bit GUI environment/TAPI support
  *

@@ -1,7 +1,10 @@
 /*
- *       $Id: uuio.cmd 1.7 1998/03/01 01:32:44 ahd v1-13b $
+ *       $Id: uuio.cmd 1.8 1998/05/18 12:25:09 ahd v1-13f $
  *
  *       $Log: uuio.cmd $
+ *       Revision 1.8  1998/05/18 12:25:09  ahd
+ *       Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.7  1998/03/01  01:32:44  ahd
  *      Annual Copyright Update
  *

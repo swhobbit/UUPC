@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.20 1998/03/01 01:42:40 ahd v1-13f ahd $
+ *    $Id: modem.h 1.21 1999/01/04 03:55:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ *    Revision 1.21  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/03/01 01:42:40  ahd
  *    Annual Copyright Update
  *

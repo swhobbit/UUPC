@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.h 1.3 1998/04/24 03:34:25 ahd v1-13f ahd $
+ *       $Id: smtpcmds.h 1.4 1999/01/04 03:56:09 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpcmds.h $
+ *       Revision 1.4  1999/01/04 03:56:09  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.3  1998/04/24 03:34:25  ahd
  *       Use local buffers for output
  *       Add flag bits to verb table

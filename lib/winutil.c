@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.20 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: winutil.c 1.21 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ *    Revision 1.21  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.20  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -103,7 +106,7 @@
 
 #include "winutil.h"
 
-RCSID("$Id$");
+RCSID("$Id: winutil.c 1.21 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.29 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: nickname.c 1.30 1999/02/21 04:09:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.30  1999/02/21 04:09:32  ahd
+ *    Correct reference to NULL pointer if mailserv= defines
+ *    a bogus system.
+ *
  *    Revision 1.29  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -148,7 +152,7 @@ static NICKNAME *nickname = NULL;
 
 static size_t loadAliases( void ) ;
 
-RCSID("$Id: nickname.c 1.29 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: nickname.c 1.30 1999/02/21 04:09:32 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*   n i c k C o m p a r e                                            */

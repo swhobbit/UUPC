@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: memstr.h 1.1 1998/04/24 03:34:25 ahd v1-13f ahd $
+ *       $Id: memstr.h 1.2 1999/01/04 03:56:09 ahd Exp $
  *
  *       Revision history:
  *       $Log: memstr.h $
+ *       Revision 1.2  1999/01/04 03:56:09  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.1  1998/04/24 03:34:25  ahd
  *       Initial revision
  *

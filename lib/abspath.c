@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: abspath.c 1.5 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: abspath.c 1.6 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: abspath.c $
+ *    Revision 1.6  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.5  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -41,7 +44,7 @@
 #include <uupcmoah.h>
 #include <ctype.h>
 
-RCSID("$Id$");
+RCSID("$Id: abspath.c 1.6 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       i s A b s o l u t e P a t h                                  */

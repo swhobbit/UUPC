@@ -60,7 +60,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.29 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: sys.c 1.30 1999/01/08 02:20:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.30  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.29  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -196,7 +199,7 @@
 #include "stater.h"
 #include "arpadate.h"
 
-RCSID("$Id$");
+RCSID("$Id: sys.c 1.30 1999/01/08 02:20:52 ahd Exp $");
 
 struct sys *sys_list = NULL;
 

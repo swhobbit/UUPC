@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.74 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: rmail.c 1.75 1999/01/11 05:43:36 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.75  1999/01/11 05:43:36  ahd
+ *    Remove special case SMTP code (most of it)
+ *
  *    Revision 1.74  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -287,7 +290,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rmail.c 1.74 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: rmail.c 1.75 1999/01/11 05:43:36 ahd Exp $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.20 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: normaliz.c 1.21 1999/01/08 02:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.21  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.20  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -102,7 +105,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: normaliz.c 1.21 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    n o r m a l i z e                                               */

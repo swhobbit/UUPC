@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.31 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: dcplib.c 1.32 1999/01/08 02:20:56 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.32  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.31  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -189,7 +192,7 @@
 /*--------------------------------------------------------------------*/
 
 #if !defined(_Windows)
-RCSID("$Id$");
+RCSID("$Id: dcplib.c 1.32 1999/01/08 02:20:56 ahd Exp $");
 #endif
 
 /*--------------------------------------------------------------------*/

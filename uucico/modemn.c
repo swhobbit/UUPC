@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modemn.c 1.2 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: modemn.c 1.3 1999/01/08 02:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: modemn.c $
+ *    Revision 1.3  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.2  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -55,4 +58,4 @@
 
 #include "modem.c"
 
-RCSID("$Id$");
+RCSID("$Id: modemn.c 1.3 1999/01/08 02:21:01 ahd Exp $");

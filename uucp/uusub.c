@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1999 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-2000 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.20 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: uusub.c 1.21 1999/01/08 02:21:01 ahd Exp $
  *
  *    $Log: uusub.c $
+ *    Revision 1.21  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.20  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -115,7 +118,7 @@ static char *format( unsigned long l);
 static char output[10 * 12];
 static size_t column ;
 
-RCSID("$Id$");
+RCSID("$Id: uusub.c 1.21 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */

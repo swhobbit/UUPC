@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.19 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: script.c 1.20 1999/01/08 02:20:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.20  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.19  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -133,7 +136,7 @@ static KWBoolean slowWrite( char *s, size_t len, char **failure);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: script.c 1.20 1999/01/08 02:20:56 ahd Exp $");
 
 static char scriptBuffer[MAXMATCH]; /* Shared between input & output  */
                                  /* Can be shorter then longest send  */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.22 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: getseq.c 1.23 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.23  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.22  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -106,7 +109,7 @@
 
 #include "getseq.h"
 
-RCSID("$Id$");
+RCSID("$Id: getseq.c 1.23 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    g e t S e q                                                     */

@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.33 1999/01/04 03:52:55 ahd Exp $
+ *       $Id: inews.c 1.34 1999/01/08 02:20:52 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.34  1999/01/08 02:20:52  ahd
+ * Convert currentfile() to RCSID()
+ *
  * Revision 1.33  1999/01/04 03:52:55  ahd
  * Annual copyright change
  *
@@ -140,7 +143,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: inews.c 1.33 1999/01/04 03:52:55 ahd Exp $");
+RCSID("$Id: inews.c 1.34 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.7 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: smtputil.c 1.8 1999/01/08 02:21:01 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.8  1999/01/08 02:21:01  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.7  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -61,7 +64,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.7 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtputil.c 1.8 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          s t r i p A d d r e s s                                   */

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,6 +21,9 @@
 
 /*
    $Log: novrstrk.c $
+   Revision 1.10  1999/01/08 02:20:52  ahd
+   Convert currentfile() to RCSID()
+
    Revision 1.9  1999/01/04 03:53:30  ahd
    Annual copyright change
 
@@ -56,7 +59,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-         "$Id: novrstrk.c 1.9 1999/01/04 03:53:30 ahd Exp $";
+         "$Id: novrstrk.c 1.10 1999/01/08 02:20:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */
@@ -65,7 +68,7 @@ static char rcsid[] =
 
 #include "timestmp.h"
 
-RCSID("$Id$");
+RCSID("$Id: novrstrk.c 1.10 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

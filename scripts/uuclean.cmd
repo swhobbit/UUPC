@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.15 1998/05/11 01:27:03 ahd v1-13b $
+ *       $Id: uuclean.cmd 1.16 1998/05/18 12:25:09 ahd v1-13f $
  *
  *       $Log: uuclean.cmd $
+ *       Revision 1.16  1998/05/18 12:25:09  ahd
+ *       Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.15  1998/05/11  01:27:03  ahd
  *      Add distinct log directory
  *

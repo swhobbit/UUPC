@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.h 1.7 1999/01/17 17:21:32 ahd Exp $
+ *    $Id: smtpnetw.h 1.8 1999/02/21 04:11:15 ahd Exp $
  *
  *    $Log: smtpnetw.h $
+ *    Revision 1.8  1999/02/21 04:11:15  ahd
+ *    Break SMTP Network support into two files
+ *
  *    Revision 1.7  1999/01/17 17:21:32  ahd
  *    Add test for one socket being ready
  *

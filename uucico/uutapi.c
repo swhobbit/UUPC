@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutapi.c 1.4 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: uutapi.c 1.5 1999/01/08 02:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutapi.c $
+ *    Revision 1.5  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.4  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -70,7 +73,7 @@
 #include "pnterr.h"
 #include "uutapi.h"
 
-RCSID("$Id: uutapi.c 1.4 1999/01/04 03:53:57 ahd Exp $");
+RCSID("$Id: uutapi.c 1.5 1999/01/08 02:21:01 ahd Exp $");
 
 extern HWND     hFrame;             /* handle of main window */
 extern HANDLE   hInst;              /* our instance */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmmn.c 1.5 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: smtpcmmn.c 1.6 1999/01/17 17:19:16 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpcmmn.c $
+ *       Revision 1.6  1999/01/17 17:19:16  ahd
+ *       Give priority to accepting new connections
+ *       Make initialization of slave and master connections more consistent
+ *
  *       Revision 1.5  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -57,7 +61,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmmn.c 1.5 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpcmmn.c 1.6 1999/01/17 17:19:16 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */

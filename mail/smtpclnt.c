@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.20 1999/01/17 17:19:16 ahd Exp $
+ *       $Id: smtpclnt.c 1.21 1999/02/21 04:09:32 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.21  1999/02/21 04:09:32  ahd
+ *       Support for BSMTP support, with routines for batch file I/O
+ *       and breakout of TCP/IP routines into their own file.
+ *
  *       Revision 1.20  1999/01/17 17:19:16  ahd
  *       Give priority to accepting new connections
  *       Make initialization of slave and master connections more consistent
@@ -113,7 +117,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpclnt.c 1.20 1999/01/17 17:19:16 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.21 1999/02/21 04:09:32 ahd Exp $");
 
 static size_t clientSequence = 0;
 

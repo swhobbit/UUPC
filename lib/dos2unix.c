@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.18 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: dos2unix.c 1.19 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.19  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.18  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -103,7 +106,7 @@
 
 #include "dos2unix.h"
 
-RCSID("$Id$");
+RCSID("$Id: dos2unix.c 1.19 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       d o s 2 u n i x                                              */

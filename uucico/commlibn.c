@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.7 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: commlibn.c 1.8 1999/01/08 02:20:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlibn.c $
+ *    Revision 1.8  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.7  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -55,4 +58,4 @@
 
 #include "commlib.c"
 
-RCSID("$Id$");
+RCSID("$Id: commlibn.c 1.8 1999/01/08 02:20:56 ahd Exp $");

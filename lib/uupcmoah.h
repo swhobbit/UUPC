@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.13 1998/11/05 03:30:26 ahd v1-13f ahd $
+ *    $Id: uupcmoah.h 1.14 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.14  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.13  1998/11/05 03:30:26  ahd
  *    Allow determining NT vs. 95 on the fly
  *

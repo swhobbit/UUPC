@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.60 1999/01/04 03:53:57 ahd Exp $
+ *       $Id: dcpxfer.c 1.61 1999/01/07 02:28:51 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.61  1999/01/07 02:28:51  ahd
+ *       Convert to RCSID format
+ *
  *       Revision 1.60  1999/01/04 03:53:57  ahd
  *       Annual copyright change
  *
@@ -146,7 +149,7 @@ static int seq = 0;           /* Number of files transfered this
 static int pid;
 static size_t vbufsize;       /* Amount to buffer in std library     */
 
-RCSID("$Id$");
+RCSID("$Id: dcpxfer.c 1.61 1999/01/07 02:28:51 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */

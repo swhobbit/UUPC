@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.35 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: uupoll.c 1.36 1999/01/08 02:20:52 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.36  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.35  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -209,7 +212,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.35 1999/01/04 03:53:30 ahd Exp $";
+         "$Id: uupoll.c 1.36 1999/01/08 02:20:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -296,7 +299,7 @@ static time_t now;            /* Current time, updated at start of
                                  program and by busywork() and
                                  runCommand()                        */
 
-RCSID("$Id$");
+RCSID("$Id: uupoll.c 1.36 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.39 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: commlib.c 1.40 1999/01/08 02:20:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.40  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.39  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -205,7 +208,7 @@ static KWBoolean network = KWFalse;  /* Current communications suite is  */
 static KWBoolean tapi = KWFalse; /* Current communications suite is  */
                                  /* based on MS Windows TAPI         */
 
-RCSID("$Id$");
+RCSID("$Id: commlib.c 1.40 1999/01/08 02:20:56 ahd Exp $");
 
 int dummyGetComHandle( void );
 

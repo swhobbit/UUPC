@@ -1,8 +1,11 @@
 	TITLE	COMM
 	PAGE	83,132
-;	$Id: comm.asm 1.10 1993/11/20 14:51:47 ahd Exp $
+;	$Id: comm.asm 1.11 1994/05/04 01:55:09 ahd v1-13f $
 ;
 ;	$Log: comm.asm $
+;	Revision 1.11  1994/05/04 01:55:09  ahd
+;	Don't access port information in restore_com when DS is bogus
+;
 ;; Revision 1.10  1993/11/20  14:51:47	ahd
 ;; Up UUPC/extended buffer size to 16K from 8K
 ;;

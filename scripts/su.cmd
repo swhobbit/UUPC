@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.12 1998/03/01 01:32:31 ahd v1-13b $
+ *       $Id: su.cmd 1.13 1998/05/18 12:25:09 ahd v1-13f $
  *
  *       $Log: su.cmd $
+ *       Revision 1.13  1998/05/18 12:25:09  ahd
+ *       Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.12  1998/03/01  01:32:31  ahd
  *      Annual Copyright Update
  *

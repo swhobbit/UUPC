@@ -13,7 +13,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,9 +24,12 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: history.h 1.8 1998/03/01 01:31:26 ahd v1-13f ahd $
+/* $Id: history.h 1.9 1999/01/04 03:55:33 ahd Exp $
  *
  * $Log: history.h $
+ * Revision 1.9  1999/01/04 03:55:33  ahd
+ * Annual copyright change
+ *
  * Revision 1.8  1998/03/01 01:31:26  ahd
  * Annual Copyright Update
  *

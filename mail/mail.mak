@@ -15,9 +15,13 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#     $Id: mail.mak 1.5 1996/01/20 12:56:35 ahd v1-12u $
+#     $Id: mail.mak 1.6 1997/12/22 16:46:45 ahd v1-13f $
 #
 #     $Log: mail.mak $
+#     Revision 1.6  1997/12/22 16:46:45  ahd
+#     Delete OS/2 support
+#     Add new deliverm.obj to RMAIL
+#
 #     Revision 1.5  1996/01/20 12:56:35  ahd
 #     Correct name of nickname alias processing module to 'nickname.c'
 #

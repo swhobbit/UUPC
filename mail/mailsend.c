@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.32 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: mailsend.c 1.33 1999/01/08 02:21:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.33  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.32  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -176,7 +179,7 @@
 
  static char *GetString( char *input);
 
-RCSID("$Id$");                /* Define current file for panic()     */
+RCSID("$Id: mailsend.c 1.33 1999/01/08 02:21:05 ahd Exp $");                /* Define current file for panic()     */
 
 /*--------------------------------------------------------------------*/
 /*    E x p l o d e A l i a s                                         */

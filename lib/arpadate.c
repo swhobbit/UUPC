@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.18 1998/03/01 01:26:00 ahd v1-13f ahd $
+ *    $Id: arpadate.c 1.19 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *    Revision 1.19  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:26:00  ahd
  *    Annual Copyright Update
  *
@@ -43,7 +46,7 @@
 #include "uupcmoah.h"
 #include "arpadate.h"
 
-RCSID("$Id: arpadate.c 1.18 1998/03/01 01:26:00 ahd v1-13f ahd $");
+RCSID("$Id: arpadate.c 1.19 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       a r p a d a t e                                              */

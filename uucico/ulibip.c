@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.38 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: ulibip.c 1.39 1999/01/08 02:20:56 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.39  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.38  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -173,7 +176,7 @@ KWBoolean IsFatalSocketError(int err);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: ulibip.c 1.39 1999/01/08 02:20:56 ahd Exp $");
 static KWBoolean hangupNeeded = KWTrue;
 
 #if defined(__OS2__)

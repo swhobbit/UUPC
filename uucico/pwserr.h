@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.h 1.8 1999/01/08 02:21:16 ahd Exp $
+ *    $Id: pwserr.h 1.9 1999/02/21 04:11:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.h $
+ *    Revision 1.9  1999/02/21 04:11:15  ahd
+ *    Add flag for determination localhost is connecting socket
+ *
  *    Revision 1.8  1999/01/08 02:21:16  ahd
  *    Convert currentfile() to RCSID()
  *

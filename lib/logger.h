@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: logger.h 1.2 1998/05/11 01:25:40 ahd v1-13f ahd $
+ *       $Id: logger.h 1.3 1999/01/04 03:55:03 ahd Exp $
  *
  *       Revision history:
  *       $Log: logger.h $
+ *       Revision 1.3  1999/01/04 03:55:03  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.2  1998/05/11 01:25:40  ahd
  *       Make copylog public
  *

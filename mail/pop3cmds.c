@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3cmds.c 1.5 1998/04/24 03:30:13 ahd v1-13f ahd $
+ *       $Id: pop3cmds.c 1.6 1999/01/04 03:53:57 ahd Exp $
  *
  *       $Log: pop3cmds.c $
+ *       Revision 1.6  1999/01/04 03:53:57  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.5  1998/04/24 03:30:13  ahd
  *       Use local buffers, not client->transmit.buffer, for output
  *       Rename receive buffer, use pointer into buffer rather than
@@ -67,7 +70,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3cmds.c 1.5 1998/04/24 03:30:13 ahd v1-13f ahd $");
+RCSID("$Id: pop3cmds.c 1.6 1999/01/04 03:53:57 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */

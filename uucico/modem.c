@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.75 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: modem.c 1.76 1999/01/08 02:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.76  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.75  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -293,7 +296,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*              Define current file name for references               */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: modem.c 1.75 1999/01/04 03:53:30 ahd Exp $");
+RCSID("$Id: modem.c 1.76 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */

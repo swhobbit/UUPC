@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.17 1999/01/11 05:43:36 ahd Exp $
+ *       $Id: delivers.c 1.18 1999/01/22 01:25:46 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.18  1999/01/22 01:25:46  ahd
+ *       Improve tracing of SMTP info
+ *
  *       Revision 1.17  1999/01/11 05:43:36  ahd
  *       Revamp error processing to be more robust
  *
@@ -112,7 +115,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.17 1999/01/11 05:43:36 ahd Exp $");
+RCSID("$Id: delivers.c 1.18 1999/01/22 01:25:46 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */

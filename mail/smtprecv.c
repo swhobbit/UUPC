@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.21 1999/01/11 05:43:36 ahd Exp $
+ *       $Id: smtprecv.c 1.22 1999/02/21 04:09:32 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.22  1999/02/21 04:09:32  ahd
+ *       Support for BSMTP support, with routines for batch file I/O
+ *       and breakout of TCP/IP routines into their own file.
+ *
  *       Revision 1.21  1999/01/11 05:43:36  ahd
  *       Make binary 0 in data stream temp error
  *
@@ -113,7 +117,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.21 1999/01/11 05:43:36 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.22 1999/02/21 04:09:32 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */

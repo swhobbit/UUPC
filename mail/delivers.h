@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivers.h 1.5 1999/01/04 03:56:09 ahd Exp $
+ *    $Id: delivers.h 1.6 1999/01/11 05:44:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: delivers.h $
+ *    Revision 1.6  1999/01/11 05:44:47  ahd
+ *    Hide internal SMTP routines
+ *
  *    Revision 1.5  1999/01/04 03:56:09  ahd
  *    Annual copyright change
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.17 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: pwinsock.c 1.18 1999/01/08 02:20:48 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.18  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.17  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -172,7 +175,7 @@ int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 
 static HINSTANCE hWinsock = NULL;
 
-RCSID("$Id$");
+RCSID("$Id: pwinsock.c 1.18 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       p W i n S o c k I n i t                                      */

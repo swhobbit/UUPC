@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.11 1999/01/04 03:53:30 ahd Exp $
+ *       $Id: uupcdll.c 1.12 1999/01/08 02:20:52 ahd Exp $
  *       $Log: uupcdll.c $
+ *       Revision 1.12  1999/01/08 02:20:52  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.11  1999/01/04 03:53:30  ahd
  *       Annual copyright change
  *
@@ -77,7 +80,7 @@
 
 #include <windows.h>
 
-RCSID("$Id$");
+RCSID("$Id: uupcdll.c 1.12 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                      Global #defines                               */
@@ -194,16 +197,12 @@ DllExport BOOL UUPCInit()
     }
 
     /* Convert forward to back slashes */
+    denormalize(tempDir);
 
     buflen = strlen(tempDir);
 
-    for (ptr = tempDir; *ptr != '\0'; ptr++) {
-        if (*ptr == '/')
-            *ptr == '\\';
-    }
-
     if (tempDir[buflen - 1] == '\\')        /* Strip off trailing slashes, if any */
-        tempDir[buflen - 1] == '\0';
+        tempDir[buflen - 1] = '\0';
 
     strcat(tempDir, "\\");                  /* Then add one of my own */
 
@@ -301,12 +300,9 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
     if (!UUPCGetParm("SpoolDir", spoolDirBuf, BUFSIZ))
         return KWFalse;
 
-/*  Convert to backslashes  */
+    /*  Convert to backslashes  */
 
-    for (str = spoolDirBuf; *str != '\0'; str++) {
-        if (*str == '/')
-            *str = '\\';
-    }
+    denormalize(spoolDirBuf);
 
     sprintf(nameBuf, "%s\\%.8s\\D\\*.*", spoolDirBuf, system);
 

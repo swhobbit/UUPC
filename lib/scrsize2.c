@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.10 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: scrsize2.c 1.11 1999/01/08 02:20:48 ahd Exp $
  *
  *    $Log: scrsize2.c $
+ *    Revision 1.11  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.10  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -75,7 +78,7 @@
 
 #include "scrsize.h"
 
-RCSID("$Id$");
+RCSID("$Id: scrsize2.c 1.11 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    s c r s i z e                                                   */

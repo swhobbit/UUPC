@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.12 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: sendbats.c 1.13 1999/01/08 02:20:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.13  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.12  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -67,7 +70,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: sendbats.c 1.12 1999/01/04 03:52:55 ahd Exp $");
+RCSID("$Id: sendbats.c 1.13 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.h 1.9 1998/03/01 01:42:58 ahd v1-13f ahd $
+ *    $Id: ulib14.h 1.10 1999/01/04 03:55:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulib14.h $
+ *    Revision 1.10  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.9  1998/03/01 01:42:58  ahd
  *    Annual Copyright Update
  *

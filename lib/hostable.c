@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.33 1999/01/04 03:52:28 ahd Exp $
+  *      $Id: hostable.c 1.34 1999/01/08 02:20:43 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.34  1999/01/08 02:20:43  ahd
+  *      Convert currentfile() to RCSID()
+  *
   *      Revision 1.33  1999/01/04 03:52:28  ahd
   *      Annual copyright change
   *
@@ -129,7 +132,7 @@
 #include "hostable.h"
 #include "security.h"
 
-RCSID("$Id$");
+RCSID("$Id: hostable.c 1.34 1999/01/08 02:20:43 ahd Exp $");
 
 static struct HostTable *hosts = NULL;
 

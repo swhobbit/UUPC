@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.16 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: suspend.c 1.17 1999/01/08 02:20:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *    Revision 1.17  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.16  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -96,7 +99,7 @@
 #include "security.h"
 #include "suspend.h"
 
-RCSID("$Id$");
+RCSID("$Id: suspend.c 1.17 1999/01/08 02:20:56 ahd Exp $");
 
 KWBoolean suspend_processing = KWFalse;
 

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.26 1999/01/22 01:25:46 ahd Exp $
+ *    $Id: smtpnett.c 1.1 1999/02/21 04:09:32 ahd Exp $
  *
- *    $Log$
+ *    $Log: smtpnett.c $
+ *    Revision 1.1  1999/02/21 04:09:32  ahd
+ *    Initial revision
+ *
  */
 
 
@@ -60,7 +63,7 @@ void AtWinsockExit(void);
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.26 1999/01/22 01:25:46 ahd Exp $");
+RCSID("$Id: smtpnett.c 1.1 1999/02/21 04:09:32 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t M o d e T i m e o u t                                  */

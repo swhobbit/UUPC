@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.h 1.8 1999/01/04 03:55:03 ahd Exp $
+ *    $Id: pnterr.h 1.9 1999/01/08 02:21:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.h $
+ *    Revision 1.9  1999/01/08 02:21:16  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.8  1999/01/04 03:55:03  ahd
  *    Annual copyright change
  *

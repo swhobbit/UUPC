@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.55 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: dcp.c 1.56 1999/01/08 02:21:01 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.56  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.55  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -299,7 +302,7 @@ struct HostStats remote_stats; /* host status, as defined by hostatus */
 
 static KWBoolean dialed = KWFalse;/* True = We attempted a phone call */
 
-RCSID("$Id$");
+RCSID("$Id: dcp.c 1.56 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

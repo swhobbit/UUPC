@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.16 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: pos2err.c 1.17 1999/01/08 02:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.17  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.16  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -96,7 +99,7 @@
 
 #include "pos2err.h"
 
-RCSID("$Id$");
+RCSID("$Id: pos2err.c 1.17 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    p O S 2 e r r                                                   */

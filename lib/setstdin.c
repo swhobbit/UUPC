@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: setstdin.c 1.13 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: setstdin.c 1.14 1999/01/08 02:20:48 ahd Exp $
  *
  *    $Log: setstdin.c $
+ *    Revision 1.14  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.13  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -81,7 +84,7 @@
 
 #include "setstdin.h"
 
-RCSID("$Id$");
+RCSID("$Id: setstdin.c 1.14 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    s e t s t d i n m o d e                                         */

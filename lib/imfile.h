@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.12 1998/04/19 15:33:53 ahd v1-13f ahd $
+ *    $Id: imfile.h 1.13 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.13  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.12  1998/04/19 15:33:53  ahd
  *    Add flag to denote when file size message was issued
  *

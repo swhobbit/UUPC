@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.19 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: gensig.c 1.20 1999/01/08 02:20:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.20  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.19  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -66,7 +69,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.19 1999/01/04 03:53:30 ahd Exp $";
+      "$Id: gensig.c 1.20 1999/01/08 02:20:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -118,7 +121,7 @@ static void CopyFixed( const char *fname, FILE *stream );
 
 static long chooseavailable( const char *quotesUsed, long quotes );
 
-RCSID("$Id$");
+RCSID("$Id: gensig.c 1.20 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.26 1999/01/22 01:25:46 ahd Exp $
+ *    $Id: smtpnetw.c 1.27 1999/02/21 04:09:32 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.27  1999/02/21 04:09:32  ahd
+ *    Support for BSMTP support, with routines for batch file I/O
+ *    and breakout of TCP/IP routines into their own file.
+ *
  *    Revision 1.26  1999/01/22 01:25:46  ahd
  *    Correct SMTP logic error message to include client
  *
@@ -115,7 +119,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.26 1999/01/22 01:25:46 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.27 1999/02/21 04:09:32 ahd Exp $");
 
 static const char crlf[] = "\r\n";
 

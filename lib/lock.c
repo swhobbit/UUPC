@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.18 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: lock.c 1.19 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.19  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.18  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -56,7 +59,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: lock.c 1.18 1999/01/04 03:52:28 ahd Exp $");
+RCSID("$Id: lock.c 1.19 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */

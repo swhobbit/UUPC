@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.10 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: cache.c 1.11 1999/01/08 02:20:52 ahd Exp $
  *
  * $Log: cache.c $
+ * Revision 1.11  1999/01/08 02:20:52  ahd
+ * Convert currentfile() to RCSID()
+ *
  * Revision 1.10  1999/01/04 03:53:30  ahd
  * Annual copyright change
  *
@@ -63,7 +66,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.10 1999/01/04 03:53:30 ahd Exp $");
+RCSID("$Id: cache.c 1.11 1999/01/08 02:20:52 ahd Exp $");
 
 #include <io.h>
 #include <memory.h>

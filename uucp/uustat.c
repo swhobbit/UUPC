@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: uustat.c 1.37 1999/03/17 04:21:18 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.37  1999/03/17 04:21:18  ahd
+ *    Use stdout for uustat.c
+ *
  *    Revision 1.36  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -84,7 +87,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $";
+         "$Id: uustat.c 1.37 1999/03/17 04:21:18 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -180,7 +183,7 @@ typedef enum {
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: uustat.c 1.37 1999/03/17 04:21:18 ahd Exp $");
 
 static const char *host_status[] = {
       "(invalid - entry not properly initialized)",

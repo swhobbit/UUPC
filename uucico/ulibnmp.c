@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.27 1999/01/04 03:53:57 ahd Exp $
+ *       $Id: ulibnmp.c 1.28 1999/01/08 02:20:56 ahd Exp $
  *       $Log: ulibnmp.c $
+ *       Revision 1.28  1999/01/08 02:20:56  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.27  1999/01/04 03:53:57  ahd
  *       Annual copyright change
  *
@@ -144,7 +147,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: ulibnmp.c 1.28 1999/01/08 02:20:56 ahd Exp $");
 
 static KWBoolean hangupNeeded = KWFalse;
 

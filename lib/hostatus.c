@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.22 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: hostatus.c 1.23 1999/01/22 01:25:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.23  1999/01/22 01:25:46  ahd
+ *    Add error checks for corrupt file
+ *
  *    Revision 1.22  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -104,7 +107,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: hostatus.c 1.22 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: hostatus.c 1.23 1999/01/22 01:25:46 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

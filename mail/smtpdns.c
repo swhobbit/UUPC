@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpdns.c 1.4 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: smtpdns.c 1.5 1999/02/21 04:07:20 ahd Exp $
  *
  *    $Log: smtpdns.c $
+ *    Revision 1.5  1999/02/21 04:07:20  ahd
+ *    Optimize processing to avoid DNS lookups on localhost,
+ *    possible when disconnected from the net
+ *
  *    Revision 1.4  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -45,7 +49,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpdns.c 1.4 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: smtpdns.c 1.5 1999/02/21 04:07:20 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t H o s t N a m e F r o m S o c k e t                    */

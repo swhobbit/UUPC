@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.19 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: ulibfs.c 1.20 1999/01/08 02:20:56 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.20  1999/01/08 02:20:56  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.19  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -124,7 +127,7 @@ static BPS currentBPS;
 static KWBoolean currentDirect;
 static KWBoolean hangupNeeded;
 
-RCSID("$Id$");
+RCSID("$Id: ulibfs.c 1.20 1999/01/08 02:20:56 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    f o p e n L i n e                                               */

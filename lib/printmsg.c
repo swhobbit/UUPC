@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.25 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: printmsg.c 1.26 1999/02/21 04:05:55 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.26  1999/02/21 04:05:55  ahd
+ *    Don't spit out timestamps to console, they confuse the GUI version scroller
+ *
  *    Revision 1.25  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -130,7 +133,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(__HEAPCHECK__)
-RCSID("$Id: printmsg.c 1.25 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: printmsg.c 1.26 1999/02/21 04:05:55 ahd Exp $");
 #endif
 
 int debuglevel = 1;

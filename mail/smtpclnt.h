@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.16 1999/01/04 03:56:09 ahd Exp $
+ *    $Id: smtpclnt.h 1.17 1999/01/17 17:21:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.17  1999/01/17 17:21:32  ahd
+ *    Add test for one socket being ready
+ *
  *    Revision 1.16  1999/01/04 03:56:09  ahd
  *    Annual copyright change
  *

@@ -8,7 +8,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,6 +21,9 @@
 
 /*
  *       $Log: genhist.c $
+ *       Revision 1.27  1999/01/08 02:20:52  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.26  1999/01/04 03:52:55  ahd
  *       Annual copyright change
  *
@@ -112,7 +115,7 @@
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.26 1999/01/04 03:52:55 ahd Exp $");
+RCSID("$Id: genhist.c 1.27 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibntn.c 1.2 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: ulibntn.c 1.3 1999/01/08 02:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibntn.c $
+ *    Revision 1.3  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.2  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -52,4 +55,4 @@
 
 #include "ulibnt.c"
 
-RCSID("$Id$");
+RCSID("$Id: ulibntn.c 1.3 1999/01/08 02:21:01 ahd Exp $");

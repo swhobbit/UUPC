@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.34 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: logger.c 1.35 1999/02/21 04:05:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.35  1999/02/21 04:05:55  ahd
+ *    Revamp to not issue version stamp twice to console
+ *
  *    Revision 1.34  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -90,7 +93,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: logger.c 1.34 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: logger.c 1.35 1999/02/21 04:05:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */

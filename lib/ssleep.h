@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.h 1.9 1998/03/01 01:27:42 ahd v1-13f ahd $
+ *    $Id: ssleep.h 1.10 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.h $
+ *    Revision 1.10  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.9  1998/03/01 01:27:42  ahd
  *    Annual Copyright Update
  *

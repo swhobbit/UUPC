@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.27 1999/01/08 02:20:52 ahd Exp $
+ *    $Id: expire.c 1.28 1999/02/21 04:09:32 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.28  1999/02/21 04:09:32  ahd
+ *    Tighter checking for backup file errors
+ *
  *    Revision 1.27  1999/01/08 02:20:52  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -108,7 +111,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.27 1999/01/08 02:20:52 ahd Exp $");
+RCSID("$Id: expire.c 1.28 1999/02/21 04:09:32 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

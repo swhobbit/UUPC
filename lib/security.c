@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.33 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: security.c 1.34 1999/01/08 02:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.34  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.33  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -180,7 +183,7 @@ static struct HostSecurity localSecurity = { 0, 0, 0, 0 };
                               /* We always need it, so statically
                                  allocate it                         */
 
-RCSID("$Id$");
+RCSID("$Id: security.c 1.34 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    L o a d S e c u r i t y                                         */

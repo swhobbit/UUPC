@@ -18,7 +18,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -30,10 +30,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: winstdio.c 1.3 1999/01/04 03:52:28 ahd Exp $
+ *       $Id: winstdio.c 1.4 1999/01/08 02:20:43 ahd Exp $
  *
  *       Revision history:
  *       $Log: winstdio.c $
+ *       Revision 1.4  1999/01/08 02:20:43  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.3  1999/01/04 03:52:28  ahd
  *       Annual copyright change
  *
@@ -58,7 +61,7 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_LINES 1000
 
-RCSID("$Id: winstdio.c 1.3 1999/01/04 03:52:28 ahd Exp $");
+RCSID("$Id: winstdio.c 1.4 1999/01/08 02:20:43 ahd Exp $");
 
 HWND hFrame;                        /* handle of main window */
 HANDLE hInst;                       /* our instance */

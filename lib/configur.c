@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.89 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: configur.c 1.90 1999/01/08 04:31:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.90  1999/01/08 04:31:09  ahd
+ *    Increase SMTP timeout
+ *
  *    Revision 1.89  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -167,7 +170,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.89 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: configur.c 1.90 1999/01/08 04:31:09 ahd Exp $");
 
 #define HOMEDIRLIT "*HOME*"
 

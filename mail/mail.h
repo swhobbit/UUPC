@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.13 1998/03/03 03:55:05 ahd v1-13f ahd $
+ *    $Id: mail.h 1.14 1999/01/04 03:56:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.14  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.13  1998/03/03 03:55:05  ahd
  *    Routines to handle messages within a POP3 mailbox
  *

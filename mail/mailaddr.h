@@ -2,7 +2,7 @@
 #define _MAILADDR_H
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailaddr.h 1.6 1999/01/04 03:56:09 ahd Exp $
+ *    $Id: mailaddr.h 1.7 1999/01/11 05:44:47 ahd Exp $
  *
  *    $Log: mailaddr.h $
+ *    Revision 1.7  1999/01/11 05:44:47  ahd
+ *    Delete unneeded flag from address structure
+ *
  *    Revision 1.6  1999/01/04 03:56:09  ahd
  *    Annual copyright change
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.16 1999/01/04 03:52:55 ahd Exp $
+ *    $Id: stater.c 1.17 1999/01/08 02:20:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.17  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.16  1999/01/04 03:52:55  ahd
  *    Annual copyright change
  *
@@ -54,7 +57,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: stater.c 1.16 1999/01/04 03:52:55 ahd Exp $");
+RCSID("$Id: stater.c 1.17 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    s t a t e r                                                     */
