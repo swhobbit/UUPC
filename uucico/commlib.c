@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMMLIB.C 1.2 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: commlib.c 1.3 1993/07/11 14:38:32 ahd Exp $
  *
  *    Revision history:
- *    $Log: COMMLIB.C $
+ *    $Log: commlib.c $
+ * Revision 1.3  1993/07/11  14:38:32  ahd
+ * Display chosen suite
+ *
  * Revision 1.2  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -150,7 +153,7 @@ boolean chooseCommunications( const char *name )
 
    printmsg(equal(suite[subscript].type, NATIVE) ? 5 : 4,
             "chooseCommunications: Chose suite %s",
-            name );
+            suite[subscript].type );
 
    return TRUE;
 
