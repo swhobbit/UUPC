@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.20 1996/01/01 20:50:00 ahd v1-12r $
+ *    $Id: catcher.c 1.21 1997/03/31 06:58:14 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.21  1997/03/31 06:58:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1996/01/01 20:50:00  ahd
  *    Annual Copyright Update
  *
@@ -86,8 +89,7 @@
 
 #include "uupcmoah.h"
 
- static const char rcsid[] =
-         "$Id: catcher.c 1.20 1996/01/01 20:50:00 ahd v1-12r $";
+RCSID("$Id");
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
