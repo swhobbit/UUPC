@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.10 1993/10/24 12:48:56 ahd Exp $
+ *       $Id: ulibnmp.c 1.11 1993/11/06 17:57:09 rhg Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.11  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.10  1993/10/24  12:48:56  ahd
  * Additional bug fixes
  *
@@ -103,6 +106,8 @@ static boolean passive;
 
 #define FAR_NULL ((PVOID) 0L)
 
+#define PIPE_BUFFER (63*1024)
+
 /*--------------------------------------------------------------------*/
 /*           Definitions of control structures for DOS API            */
 /*--------------------------------------------------------------------*/
@@ -128,7 +133,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 {
 
    APIRET rc;
-   static PSZ pipeName = "\\pipe\\uucp";
+   static char *pipeName = "\\pipe\\uucp";
 
    if (portActive)                  /* Was the port already active?   */
       closeline();                  /* Yes --> Shutdown it before open */
@@ -142,20 +147,20 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef __OS2__
-   rc =  DosCreateNPipe( pipeName,
+   rc =  DosCreateNPipe( (PSZ) pipeName,
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         commBufferLength * 2,
-                         commBufferLength * 2,
+                         PIPE_BUFFER,
+                         PIPE_BUFFER,
                          30000 );
 #else
-   rc =  DosMakeNmPipe(  pipeName,
+   rc =  DosMakeNmPipe(  (PSZ) pipeName,
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         commBufferLength * 2,
-                         commBufferLength * 2,
+                         PIPE_BUFFER,
+                         PIPE_BUFFER,
                          30000 );
 #endif
 
