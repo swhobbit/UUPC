@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.7 1996/01/20 13:11:22 ahd Exp $
+ *    $Id: imfile.h 1.8 1997/03/31 07:00:01 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.8  1997/03/31 07:00:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1996/01/20 13:11:22  ahd
  *    Allow specifying text/binary mode when processing an in-memory file
  *
@@ -97,7 +100,6 @@ typedef struct _IMFILE
    void    imrewind( IMFILE * );
 
    long    imlength( IMFILE *imf );
-
 
    int     imputc( int, IMFILE * );
 
