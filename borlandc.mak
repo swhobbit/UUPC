@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.53 1994/01/06 12:45:03 ahd Exp $
+#     $Id: makefile 1.54 1994/01/18 13:27:08 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.54  1994/01/18  13:27:08  ahd
+#         Go to version 1.12i
+#
 #         Revision 1.53  1994/01/06  12:45:03  ahd
 #         Version 1.12h
 #
@@ -371,7 +374,7 @@ REQCOMM = $(PROD)\mail.exe $(PROD)\rmail.exe $(PROD)\uucico.exe\
           $(PROD)\uuxqt.exe
 SCRIPTS=  $(PROD)\su.bat $(PROD)\uuclean.bat $(PROD)\uuio.bat \
           $(PROD)\waiting.bat
-OPTCOMM = $(PROD)\uucp.com $(PROD)\uuname.com $(PROD)\uupoll.exe\
+OPTCOMM = $(PROD)\uucp.exe $(PROD)\uuname.com $(PROD)\uupoll.exe\
           $(PROD)\uustat.com $(PROD)\uusub.com $(PROD)\uuport.com \
           $(PROD)\uux.com $(PROD)\fmt.com $(PROD)\gensig.com \
           $(PROD)\novrstrk.com
@@ -571,7 +574,8 @@ required: $(REQUIRED)
 
 !if $d(__OS2__)
 install:
-        $(MAKER) -DNDEBUG=1 installx
+        $(MAKER) -DNDEBUG=1 installx \
+        $(SRCZIPV1) $(SRCZIPV2) $(SRCZIPV3) $(SRCZIPV4)
 !else
 install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
 !endif
@@ -579,14 +583,11 @@ install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
 doczip:  $(DOCZIPV)
 
 installx: $(INSTALL) $(REQZIPV) $(OPTZIPV) $(NEWZIPV) \
-          $(SRCZIPV1) $(SRCZIPV2) $(SRCZIPV3) $(SRCZIPV4) \
            regen
         - $(ERASE) $(WORKFILE)
         @echo Installed UUPC and created ZIP files $(REQZIPV),
         @echo $(WREQZIPV), $(WOPTZIPV), $(WNEWZIPV),
-        @echo $(OPTZIPV), $(NEWZIPV),
-        @echo $(SRCZIPV1), $(SRCZIPV2)
-        @echo $(SRCZIPV3), $(SRCZIPV4)
+        @echo $(OPTZIPV), $(NEWZIPV)
         - $(ERASE) $(TIMESTMP)
         - $(ERASE) $(UUPCLIB)
 
@@ -777,11 +778,6 @@ $(PROD)\waiting.cmd: $(SCRIPT)\waiting.cmd
         copy $? $<
 
 !if !$d(__OS2__)
-
-$(PROD)\uucp.com: uucp.com
-        - $(ERASE) $<
-        move $? $<
-        - $(ERASE) $(?B: =.tds)
 
 $(PROD)\uusub.com: uusub.com
         - $(ERASE) $<
@@ -1254,9 +1250,6 @@ gensig.com: common
 
 novrstrk.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uucp.com: common
-        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uuname.com: common
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
