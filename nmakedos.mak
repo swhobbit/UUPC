@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.8 1995/03/23 01:28:55 ahd Exp $
+#       $Id: nmakedos.mak 1.9 1995/03/24 04:09:32 ahd v1-12o $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.9  1995/03/24 04:09:32  ahd
+#       Allow generating debug versions of MS VC COM files.
+#
 #       Revision 1.8  1995/03/23 01:28:55  ahd
 #       Clean up DOS build -- modules were not always regenerated
 #       Clean up OS/2 build -- those messages should be tacked on the DLL,
@@ -65,7 +68,9 @@ UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
 STACKSIZE=3000                  # In hex, because /F below is brain dead
 
 EXTRAT  = comm34.com            # Include in test build ...
-EXTRA1  = comm34.com            # ... and ship it off to users as well
+EXTRA1  = $(PROD)\rmail.pif $(PROD)\uuxqt.pif\
+          $(PROD)\comm34.com    # ... and ship it off to users as well
+EXTRA2  = $(PROD)\uuclean.pif
 LINKER  = link
 
 LINKOPT = /batch /map:nul /far /noig /stack:0x$(STACKSIZE)
