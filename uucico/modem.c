@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.5 1992/11/22 21:20:45 ahd Exp $
+ *    $Id: MODEM.C 1.6 1992/11/28 19:51:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.6  1992/11/28  19:51:16  ahd
+ * Add program exit time to waiting for callin message
+ * Make time parameter to callin() const
+ *
  * Revision 1.5  1992/11/22  21:20:45  ahd
  * Use strpool for const string allocation
  *
@@ -100,7 +104,7 @@ static FLAGTABLE modemFlags[] = {
    { "carrierdetect",  MODEM_CD,          B_LOCAL },
    { "direct",         MODEM_DIRECT,      B_LOCAL },
    { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
-   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL },
+   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL | B_OBSOLETE },
    { "largepacket",    MODEM_LARGEPACKET, B_LOCAL | B_OBSOLETE },
    { nil(char) }
 }           ;
