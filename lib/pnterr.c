@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.5 1994/02/19 03:55:45 ahd Exp $
+ *    $Id: pnterr.c 1.6 1994/02/19 04:10:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ * Revision 1.6  1994/02/19  04:10:06  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/02/19  03:55:45  ahd
  * Use standard first header
  *
@@ -47,6 +50,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <windows.h>
 
 #include <io.h>

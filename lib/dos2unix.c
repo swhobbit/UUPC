@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.7 1994/02/18 23:08:41 ahd Exp $
+ *    $Id: dos2unix.c 1.8 1994/02/19 03:49:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *     Revision 1.8  1994/02/19  03:49:16  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.8  1994/02/19  03:49:16  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/18  23:08:41  ahd
  *     Use standard first header
  *
@@ -59,6 +65,7 @@
 #define INCL_BASE
 
 #include "uupcmoah.h"
+
 #include <os2.h>
 #endif
 

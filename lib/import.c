@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.20 1994/02/19 03:52:18 ahd Exp $
+ *    $Id: import.c 1.21 1994/02/19 04:07:40 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.21  1994/02/19  04:07:40  ahd
+ *     Use standard first header
+ *
  *     Revision 1.20  1994/02/19  03:52:18  ahd
  *     Use standard first header
  *
@@ -84,6 +87,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 #if defined(FAMILYAPI) || defined(__OS2__)

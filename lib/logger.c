@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.15 1994/02/19 03:53:17 ahd Exp $
+ *    $Id: logger.c 1.16 1994/02/19 04:08:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.16  1994/02/19  04:08:27  ahd
+ *     Use standard first header
+ *
  *     Revision 1.15  1994/02/19  03:53:17  ahd
  *     Use standard first header
  *
@@ -70,6 +73,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <sys/stat.h>
 
 #include <share.h>

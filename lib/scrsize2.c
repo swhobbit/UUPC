@@ -9,9 +9,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.2 1994/02/18 23:14:45 ahd Exp $
+ *    $Id: scrsize2.c 1.3 1994/02/19 03:57:54 ahd Exp $
  *
  *    $Log: scrsize2.c $
+ *     Revision 1.3  1994/02/19  03:57:54  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.3  1994/02/19  03:57:54  ahd
+ *     Use standard first header
+ *
  *     Revision 1.2  1994/02/18  23:14:45  ahd
  *     Use standard first header
  *
@@ -31,6 +37,7 @@
 #define INCL_NOPM
 
 #include "uupcmoah.h"
+
 #include <os2.h>
 
 /*--------------------------------------------------------------------*/

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.17 1994/02/18 23:17:09 ahd Exp $
+ *    $Id: security.c 1.18 1994/02/19 04:01:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.18  1994/02/19  04:01:36  ahd
+ *     Use standard first header
+ *
  *     Revision 1.17  1994/02/18  23:17:09  ahd
  *     Use standard first header
  *
@@ -84,9 +87,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
 
-#include "uupcmoah.h"
 #include <sys/stat.h>
 #include <direct.h>
 

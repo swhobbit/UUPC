@@ -1,5 +1,5 @@
-
 #include "uupcmoah.h"
+
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r . c                                             */
 /*                                                                    */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.5 1994/02/19 03:48:10 ahd Exp $
+ *    $Id: checkptr.c 1.6 1994/02/19 04:04:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *     Revision 1.6  1994/02/19  04:04:36  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/02/19  03:48:10  ahd
  *     Use standard first header
  *

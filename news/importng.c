@@ -10,9 +10,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: importng.c 1.4 1994/02/18 23:10:40 ahd Exp $
+ *    $Id: importng.c 1.5 1994/02/19 03:52:34 ahd Exp $
  *
  *    $Log: importng.c $
+ *     Revision 1.5  1994/02/19  03:52:34  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.5  1994/02/19  03:52:34  ahd
+ *     Use standard first header
+ *
  *     Revision 1.4  1994/02/18  23:10:40  ahd
  *     Use standard first header
  *
@@ -33,6 +39,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include "import.h"
 #include "importng.h"
 

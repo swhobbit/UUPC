@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.18 1994/02/19 03:58:42 ahd Exp $
+ *    $Id: ssleep.c 1.19 1994/02/19 04:12:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.19  1994/02/19  04:12:02  ahd
+ *     Use standard first header
+ *
  *     Revision 1.18  1994/02/19  03:58:42  ahd
  *     Use standard first header
  *
@@ -86,6 +89,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <limits.h>
 
 #include <signal.h>

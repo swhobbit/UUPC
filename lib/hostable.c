@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.12 1994/02/19 03:51:20 ahd Exp $
+  *      $Id: hostable.c 1.13 1994/02/19 04:07:01 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.13  1994/02/19  04:07:01  ahd
+ *     Use standard first header
+ *
  *     Revision 1.12  1994/02/19  03:51:20  ahd
  *     Use standard first header
  *
@@ -66,6 +69,7 @@
   */
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 #include <limits.h>

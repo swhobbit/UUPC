@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.10 1994/02/18 23:13:26 ahd Exp $
+ *    $Id: pushpop.c 1.11 1994/02/19 03:56:19 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.11  1994/02/19  03:56:19  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.11  1994/02/19  03:56:19  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/18  23:13:26  ahd
  *     Use standard first header
  *
@@ -54,6 +60,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <direct.h>
 #include <ctype.h>
 

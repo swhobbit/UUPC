@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.6 1994/02/19 03:59:45 ahd Exp $
+ *    $Id: trumpet.c 1.7 1994/02/19 04:12:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.7  1994/02/19  04:12:35  ahd
+ * Use standard first header
+ *
  * Revision 1.6  1994/02/19  03:59:45  ahd
  * Use standard first header
  *
@@ -60,6 +63,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <io.h>
 
 #include <ctype.h>

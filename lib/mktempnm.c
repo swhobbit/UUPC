@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.9 1994/02/19 03:54:08 ahd Exp $
+ *    $Id: mktempnm.c 1.10 1994/02/19 04:09:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *     Revision 1.10  1994/02/19  04:09:02  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/19  03:54:08  ahd
  *     Use standard first header
  *
@@ -56,6 +59,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <limits.h>
 
 #include <io.h>

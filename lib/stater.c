@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.7 1994/02/19 03:58:56 ahd Exp $
+ *    $Id: stater.c 1.8 1994/02/19 04:12:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *     Revision 1.8  1994/02/19  04:12:13  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/19  03:58:56  ahd
  *     Use standard first header
  *
@@ -49,6 +52,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <fcntl.h>
 
 #include <sys/stat.h>

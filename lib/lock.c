@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.12 1994/02/19 03:53:01 ahd Exp $
+ *    $Id: lock.c 1.13 1994/02/19 04:08:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *     Revision 1.13  1994/02/19  04:08:14  ahd
+ *     Use standard first header
+ *
  *     Revision 1.12  1994/02/19  03:53:01  ahd
  *     Use standard first header
  *
@@ -61,6 +64,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <process.h>
 
 #include <io.h>

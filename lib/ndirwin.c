@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.5 1994/02/19 03:55:17 ahd Exp $
+ *    $Id: ndirwin.c 1.6 1994/02/19 04:09:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ * Revision 1.6  1994/02/19  04:09:47  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/02/19  03:55:17  ahd
  * Use standard first header
  *
@@ -47,6 +50,7 @@
  */
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 #include <dir.h>

@@ -1,7 +1,13 @@
 /*
- *    $Id: scrsiznt.c 1.7 1994/02/18 23:14:56 ahd Exp $
+ *    $Id: scrsiznt.c 1.8 1994/02/19 03:58:07 ahd Exp $
  *
  *    $Log: scrsiznt.c $
+ *     Revision 1.8  1994/02/19  03:58:07  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.8  1994/02/19  03:58:07  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/18  23:14:56  ahd
  *     Use standard first header
  *
@@ -39,6 +45,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <windows.h>
 
 /*--------------------------------------------------------------------*/

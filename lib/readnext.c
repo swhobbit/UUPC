@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.8 1994/02/18 23:13:48 ahd Exp $
+ *    $Id: readnext.c 1.9 1994/02/19 03:56:48 ahd Exp $
  *
  *    $Log: readnext.c $
+ *     Revision 1.9  1994/02/19  03:56:48  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.9  1994/02/19  03:56:48  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/02/18  23:13:48  ahd
  *     Use standard first header
  *
@@ -52,6 +58,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include "readnext.h"
 #include "uundir.h"
 #include "hostable.h"

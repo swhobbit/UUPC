@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.10 1994/02/19 03:57:15 ahd Exp $
+ *    $Id: safeio.c 1.11 1994/02/19 04:11:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.11  1994/02/19  04:11:06  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/19  03:57:15  ahd
  *     Use standard first header
  *
@@ -59,6 +62,7 @@
 #if defined( WIN32 )
 
 #include "uupcmoah.h"
+
     #include <windows.h>
 #elif defined( FAMILYAPI ) || defined(__OS2__)
     #define INCL_NOCOMMON

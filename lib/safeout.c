@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.9 1994/02/19 03:57:28 ahd Exp $
+ *    $Id: safeout.c 1.10 1994/02/19 04:11:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.10  1994/02/19  04:11:15  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/19  03:57:28  ahd
  *     Use standard first header
  *
@@ -56,6 +59,7 @@
 #ifdef WIN32
 
 #include "uupcmoah.h"
+
     #include <windows.h>
 
 #elif defined( FAMILYAPI ) || defined(__OS2__)

@@ -19,10 +19,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.8 1994/02/18 23:11:20 ahd Exp $
+ *    $Id: mkdir.c 1.9 1994/02/19 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *     Revision 1.9  1994/02/19  03:53:30  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.9  1994/02/19  03:53:30  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/02/18  23:11:20  ahd
  *     Use standard first header
  *
@@ -46,6 +52,7 @@
 #ifdef __GNUC__
 
 #include "uupcmoah.h"
+
 #include <os2.h>
 #else
 #include <direct.h>

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.9 1994/02/19 03:54:48 ahd Exp $
+ *       $Id: ndirnt.c 1.10 1994/02/19 04:09:26 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *     Revision 1.10  1994/02/19  04:09:26  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/19  03:54:48  ahd
  *     Use standard first header
  *
@@ -58,6 +61,7 @@
  */
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 #include <assert.h>

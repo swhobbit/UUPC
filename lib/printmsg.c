@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.10 1994/02/19 03:56:05 ahd Exp $
+ *    $Id: printmsg.c 1.11 1994/02/19 04:10:21 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.11  1994/02/19  04:10:21  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/19  03:56:05  ahd
  *     Use standard first header
  *
@@ -56,6 +59,7 @@
  */
 
 #include "uupcmoah.h"
+
 #include <stdarg.h>
 
 #ifdef __CORE__

@@ -19,10 +19,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.11 1994/02/18 23:10:07 ahd Exp $
+ *    $Id: hostatus.c 1.12 1994/02/19 03:51:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.12  1994/02/19  03:51:38  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.12  1994/02/19  03:51:38  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/18  23:10:07  ahd
  *     Use standard first header
  *
@@ -51,6 +57,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <io.h>
 
 /*--------------------------------------------------------------------*/

@@ -1,5 +1,5 @@
-
 #include "uupcmoah.h"
+
 /*--------------------------------------------------------------------*/
 /*       m k f i l e n a m e . c                                      */
 /*                                                                    */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.7 1994/02/19 03:53:42 ahd Exp $
+ *    $Id: mkfilenm.c 1.8 1994/02/19 04:08:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *     Revision 1.8  1994/02/19  04:08:44  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/02/19  03:53:42  ahd
  *     Use standard first header
  *

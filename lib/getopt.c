@@ -28,6 +28,7 @@
 #ifdef BSD
 
 #include "uupcmoah.h"
+
 #include <strings.h>
 #else
 #define  index strchr

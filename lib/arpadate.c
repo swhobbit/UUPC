@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.11 1994/02/18 23:16:55 ahd Exp $
+ *    $Id: arpadate.c 1.12 1994/02/19 04:01:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.12  1994/02/19  04:01:16  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/18  23:16:55  ahd
  *     Use standard first header
  *
@@ -60,6 +63,7 @@
  */
 
 #include "uupcmoah.h"
+
 #include "arpadate.h"
 
 /*--------------------------------------------------------------------*/

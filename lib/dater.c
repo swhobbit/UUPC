@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dater.c 1.4 1994/02/18 23:08:33 ahd Exp $
+ *    $Id: dater.c 1.5 1994/02/19 03:49:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: dater.c $
+ *     Revision 1.5  1994/02/19  03:49:03  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.5  1994/02/19  03:49:03  ahd
+ *     Use standard first header
+ *
  *     Revision 1.4  1994/02/18  23:08:33  ahd
  *     Use standard first header
  *
@@ -44,6 +50,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include "dater.h"
 
 /*--------------------------------------------------------------------*/

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.10 1994/02/18 23:16:44 ahd Exp $
+ *    $Id: catcher.c 1.11 1994/02/19 04:01:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.11  1994/02/19  04:01:06  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/18  23:16:44  ahd
  *     Use standard first header
  *
@@ -63,9 +66,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <signal.h>
 
-#include "uupcmoah.h"
 #include <process.h>
 
 #if defined(WIN32) || defined(_Windows)

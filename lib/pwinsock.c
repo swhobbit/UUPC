@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.7 1994/02/19 03:56:34 ahd Exp $
+ *    $Id: pwinsock.c 1.8 1994/02/19 04:10:40 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ * Revision 1.8  1994/02/19  04:10:40  ahd
+ * Use standard first header
+ *
  * Revision 1.7  1994/02/19  03:56:34  ahd
  * Use standard first header
  *
@@ -52,6 +55,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <windows.h>
 
 #include "winsock.h"

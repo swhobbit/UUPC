@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.12 1994/02/19 03:49:31 ahd Exp $
+ *    $Id: expath.c 1.13 1994/02/19 04:05:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.13  1994/02/19  04:05:26  ahd
+ *     Use standard first header
+ *
  *     Revision 1.12  1994/02/19  03:49:31  ahd
  *     Use standard first header
  *
@@ -49,6 +52,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 #include <direct.h>

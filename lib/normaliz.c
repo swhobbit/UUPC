@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.11 1994/02/18 23:12:51 ahd Exp $
+ *    $Id: normaliz.c 1.12 1994/02/19 03:55:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.12  1994/02/19  03:55:32  ahd
+ *     Use standard first header
+ *
+ *     Revision 1.12  1994/02/19  03:55:32  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/18  23:12:51  ahd
  *     Use standard first header
  *
@@ -68,6 +74,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
