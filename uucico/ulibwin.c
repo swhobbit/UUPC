@@ -6,6 +6,7 @@
 
 /*--------------------------------------------------------------------*/
 /*       Changes copyright (c) 1993, by Robert Denny                  */
+/*       Changes copyright (c) 1994-1995, by Miles Zarathustra        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -20,23 +21,24 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-
-
-//      21nov94 getMSR() added to avoid GP fault
-//      it's probably only necessary if the port is invalid.
-//      CHATPRJ is #defined for chat, not for UUCICO.
-
-//      #ifdef USEPRINTMSG -> #ifndef CHATPRJ
-//      because printmsg() uses va_list it's unkosher in a DLL.
-
-//      mlz -- nopenline de-clawed : nCid is assumed to be valid
-//      showmodem de-clawed.  ... will fail in a DLL.
-
 /*
- *    $Id: ulibwin.c 1.14 1994/05/08 22:46:32 ahd Exp $
+ *    $Id: ulibwin.c 1.17 1995/02/25 13:17:09 miles Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.17  1995/02/25 13:17:09  miles
+ *    Make module more robust
+ *
+ *      21nov94 getMSR() added to avoid GP fault
+ *      it's probably only necessary if the port is invalid.
+ *      CHATPRJ is#defined for chat, not for UUCICO.
+ *
+ *      #ifdef USEPRINTMSG ->#ifndef CHATPRJ
+ *      because printmsg() uses va_list it's unkosher in a DLL.
+ *
+ *      mlz -- nopenline de-clawed : nCid is assumed to be valid
+ *      showmodem de-clawed.  ... will fail in a DLL.
+ *
  *        Revision 1.14  1994/05/08  22:46:32  ahd
  *        Correct compile error
  *
@@ -108,21 +110,18 @@
 
 #include <windows.h>
 
-  //  asymmetrical preprocessor - sorry! // mlz
-  //
 #ifdef CHATPRJ
-  #include "chat.h"
+#include "chat.h"
 #else
-  checkForBreak();
+  static void checkForBreak( void )
+  {
+     /* Source not supplied by Miles.  (Grrrrr).   */
+  };
 #endif
 
-extern long windowsBuffer; // lets the user set it with the -b option
-
-
-#include "u.h"
-
-#include "debug.h"//erase
-
+unsigned int windowsBuffer = 2048;
+                                 /* Hardcoded, since rest of Mile's
+                                    package is not available. Grrrr. */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -134,58 +133,51 @@ extern long windowsBuffer; // lets the user set it with the -b option
 
 currentfile();
 
-int portNum=NULL;
-static boolean hangupNeeded = FALSE;
+static int portNum = 0;
+static KWBoolean hangupNeeded = KWFalse;
 static UINT currentSpeed = 0;
 
-/*
-      The q101417 algorithm referenced below, while it may be ugly,
-      gives a GP fault if the port is invalid.
+static unsigned int inQueueSize, outQueueSize;
 
-      getMSR has been substituted instead.   // mlz
- */
-//
-// Finally, Microsoft has documented a way to see the Modem Status
-// Register bits for modem control lines. This was a real bizarre
-// mess with SetCommEventMask() and GetCommEventMask(). The document
-// is in the Developer's Knowledge Base:
-//
-// Title: INF: Accessing the Modem Status Register (MSR) in Windows
-// Document Number: Q101417           Publ Date: 15-JUL-1993
-// Product Name: Microsoft Windows Software Development Kit
-// Product Version:  3.10
-// Operating System: WINDOWS
-//
+/*--------------------------------------------------------------------*/
+/*                                                                    */
+/*    The q101417 algorithm referenced below, while it may be ugly,   */
+/*    gives a GP fault if the port is invalid.                        */
+/*                                                                    */
+/*    getMSR has been substituted instead.                            */
+/*                                                                    */
+/* Finally, Microsoft has documented a way to see the Modem Status    */
+/* Register bits for modem control lines. This was a real bizarre     */
+/* mess with SetCommEventMask() and GetCommEventMask(). The document  */
+/* is in the Developer's Knowledge Base:                              */
+/*                                                                    */
+/* Title: INF: Accessing the Modem Status Register (MSR) in Windows   */
+/* Document Number: Q101417           Publ Date: 15-JUL-1993          */
+/* Product Name: Microsoft Windows Software Development Kit           */
+/* Product Version:  3.10                                             */
+/* Operating System: WINDOWS                                          */
+/*                                                                    */
+/*--------------------------------------------------------------------*/
 
-//#define COMM_MSRSHADOW 35          /* Offset in DEB of MSR shadow     */
-#define MSR_CTS              0x10  /* absolute CTS state in MSR        */
-#define MSR_DSR              0x20  /* absolute DSR state in MSR        */
+#define MSR_CTS              0x10  /* absolute CTS state in MSR       */
+#define MSR_DSR              0x20  /* absolute DSR state in MSR       */
 #define MSR_RI               0x40  /* absolute RI state in MSR        */
 #define MSR_RLSD             0x80  /* absolute RLSD state in MSR      */
 
+#ifdef SUICIDE
 
 #ifdef _MSC_VER
-  #define inportb _inp
+#define inportb _inp
 #endif
 
+#else
 
-//  modem status register.  The above MSR flags apply.
-//
-getMSR(int port) { // port is 1 thru 4
-  uint far *bios=(uint far *)0x400000;  // == 40:0
-  uint baseAddr=bios[port-1];
-  if (baseAddr) return inportb(baseAddr + 6); // offset of 6=msr
-  return 0; // invalid port!
-}
+#define COMM_MSRSHADOW 35          /* Offset in DEB of MSR shadow     */
+
+#endif
 
 #define FAR_NULL ((PVOID) 0L)
 
-//#define IN_QUEUE_SIZE   32768 // was 2048  // mlz
-//#define OUT_QUEUE_SIZE  32768 // was 2048
-//#include "dcp.h" // dcpsys needs it
-//#include "dcpsys.h" // for flds[]   // won't work in passive mode
-                      // see flds comment below
-UINT IN_QUEUE_SIZE,OUT_QUEUE_SIZE;
 #define IN_XOFF_LIM     256
 #define IN_XON_LIM      256
 
@@ -193,7 +185,7 @@ UINT IN_QUEUE_SIZE,OUT_QUEUE_SIZE;
 /*         Definitions of control structures for Win 3.1 API          */
 /*--------------------------------------------------------------------*/
 
-int nCid; // mlz -- will be assigned in chat
+int nCid;                           /* will be assigned in chat      */
 static DCB dcb;
 
 /*--------------------------------------------------------------------*/
@@ -207,70 +199,54 @@ static void ShowError( int status );
 /*    n o p e n l i n e                                               */
 /*                                                                    */
 /*    Open the serial port for I/O                                    */
-//      return: 0=ok, "TRUE"=fail
+/*    return: KWFalse = ok, KWTrue = fail                                 */
 /*--------------------------------------------------------------------*/
 
-
-#ifdef __TURBOC__
-#pragma argsused
-#endif
-
-int nopenline(char *name, BPS baud, const boolean direct ) {
+int nopenline(char *name, BPS baud, const KWBoolean direct )
+{
 
 #ifndef CHATPRJ
+
    int rc;
 
-   if (portActive)               /* Was the port already active?     ahd  */
-      closeline();               /* Yes --> Shutdown it before open  ahd  */
+   if (portActive)               /* Was the port already active?     */
+      closeline();               /* Yes --> Shutdown it before open  */
 
-   #ifdef UDEBUG
+#ifdef UDEBUG
    printmsg(15, "openline: %s, %ul", name, (unsigned long) baud);
-   #endif
+#endif
 
-   if (!equaln(name, "COM", 3 ) || name[3]<'1' || name[3]>'4') {
+   if (!equaln(name, "COM", 3 ) || name[3]<'1' || name[3]>'4')
+   {
       printmsg(0,
-     "openline: \"Device=\" must be in format COMx, "
-     " 1<=x<=4; was %s", name);
-      return TRUE;
+               "openline: \"Device = \" must be in format COMx, "
+               " 1 <= x <= 4; was %s", name);
+      return KWTrue;
    }
 
-   // The above test guarantees the format of "name"
-   // ifdef CHATPRJ, it's set in dialChat() -- mlz
-   //
-   portNum=name[3]-'0';
+   portNum = name[3] - '0';
 
-   //strlwr(flds[FLD_PROTO]);
-   //   flds will not yet be set in passive polling mode:
-   //   it needs to see what system it is before it sets the protocol
-   //
-   //if (strchr(flds[FLD_PROTO],'v')) {
-   /*
-   if (1) {
-      IN_QUEUE_SIZE=32768;
-      OUT_QUEUE_SIZE=32768;
-   }
-   else {
-     IN_QUEUE_SIZE=2048;
-     OUT_QUEUE_SIZE=2048;
-   }
-   */
-   windowsBuffer=max(windowsBuffer,2048);
-   IN_QUEUE_SIZE=(OUT_QUEUE_SIZE=windowsBuffer);
-   if ((nCid = OpenComm(name, IN_QUEUE_SIZE, OUT_QUEUE_SIZE)) < 0)
+   windowsBuffer = max(windowsBuffer,2048);
+
+   inQueueSize = windowsBuffer;
+   outQueueSize = min(windowsBuffer, 8192);
+
+   if ((nCid = OpenComm(name, inQueueSize, outQueueSize)) < 0)
    {
       printmsg(0, "openline: Failed to open port %s.", name);
       printmsg(0, "nopenline: %s: OpenComm returned %#04X (%d)",
            name,
            nCid,
            nCid);
-      return TRUE;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
 /*            Reset any errors on the communications port             */
 /*--------------------------------------------------------------------*/
 
-   if ((rc = GetCommError (nCid, NULL)) != 0) {
+   if ((rc = GetCommError (nCid, NULL)) != 0)
+   {
       printmsg(0, "openline: Error condition reset on port %s.", name);
       ShowError(rc);
    }
@@ -285,7 +261,10 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 /*                        Set line attributes                         */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
    printmsg(15,"openline: Getting attributes");
+#endif
+
    if ((rc = GetCommState(nCid, &dcb)) != 0)
    {
       printmsg(0,"nopenline: %s: GetCommState was %#04x (%d)",
@@ -303,24 +282,31 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 /*                      Set up for Flow Control                       */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
    printmsg(15,"openline: Disabling XON/XOFF flow control");
+#endif
 
    dcb.fOutX = 0;
    dcb.fInX = 0;
-   if(!direct)                 /* nodirect means RTS/CTS flow OK      */
+
+   if (!direct)                 /* nodirect means RTS/CTS flow OK      */
    {
-      #ifdef UDEBUG
+
+#ifdef UDEBUG
       printmsg(15, "openline: Enabling RTS/CTS flow control");
-      #endif
+#endif
+
       dcb.fOutxCtsFlow = 1;
       dcb.fRtsflow = 1;
       dcb.XoffLim = IN_XOFF_LIM;
       dcb.XonLim = IN_XON_LIM;
    }
    else {
-      #ifdef UDEBUG
+
+#ifdef UDEBUG
       printmsg(4, "openline: Disabling RTS/CTS flow control");
-      #endif
+#endif
+
       dcb.fOutxCtsFlow = 0;
       dcb.fRtsflow = 0;
    }
@@ -336,16 +322,16 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 /*              Modify the DCB with the new attributes                */
 /*--------------------------------------------------------------------*/
 
-   #ifdef UDEBUG
+#ifdef UDEBUG
    printmsg(15,"openline: Setting attributes");
-   #endif
+#endif
 
    if ((rc = SetCommState(&dcb)) != 0)
    {
-      printmsg(0,"nopenline: %s: return code from SetCommState was %#04X (%d)",
-         name,
-         rc,
-         rc);
+      printmsg(0,"nopenline: %s: SetCommState status is %#04X (%d)",
+                  name,
+                  rc,
+                  rc);
       panic();
    }
 
@@ -353,9 +339,9 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 /*                 Assure RTS and DTR are asserted                    */
 /*--------------------------------------------------------------------*/
 
-   #ifdef UDEBUG
+#ifdef UDEBUG
    printmsg(15,"openline: Raising RTS/DTR");
-   #endif
+#endif
 
    if (EscapeCommFunction(nCid, SETRTS) != 0)
    {
@@ -376,7 +362,7 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -384,9 +370,10 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 
    ssleep(2);              /* Allow port to stabilize per V.24  */
 
-#endif//CHATPRJ
+#endif  /* CHATPRJ */
 
    return 0;
+
 } /* nopenline */
 
 /*--------------------------------------------------------------------*/
@@ -398,8 +385,8 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 /*   "description" in dcpgpkt.c is:                                   */
 /*                                                                    */
 /*   sread(buf, n, timeout)                                           */
-/*      while(TRUE)                                                   */
-/*         if # of chars available >= n (w/o dec internal counter)    */
+/*      while (KWTrue)                                                */
+/*         if# of chars available >= n (w/o dec internal counter)     */
 /*            read n chars into buf (dec internal counter)            */
 /*            break                                                   */
 /*         else                                                       */
@@ -420,22 +407,28 @@ int nopenline(char *name, BPS baud, const boolean direct ) {
 
 unsigned int nsread(char UUFAR *output,
             unsigned int wanted,
-            unsigned int timeout) {
+            unsigned int timeout)
+{
 
-   int rc, received; time_t stop_time, now; COMSTAT stat;
+   int received;
+   time_t stop_time, now;
+   COMSTAT stat;
 
-   // This catches a fencepost condition later...
-   //
-   if (wanted == 0) { ddelay(0); return(0);
+/*--------------------------------------------------------------------*/
+/*            This catches a fencepost condition later...             */
+/*--------------------------------------------------------------------*/
+
+   if (wanted == 0)
+   {
+      ddelay(0);
+      return(0);
    }
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
 /*--------------------------------------------------------------------*/
 
-  #ifndef CHATPRJ
   ShowModem();
-  #endif
 
 /*--------------------------------------------------------------------*/
 /*                 Determine when to stop processing                  */
@@ -455,79 +448,85 @@ unsigned int nsread(char UUFAR *output,
 /*       Watch RX Queue till wanted bytes available or timeout        */
 /*--------------------------------------------------------------------*/
 
-   while(TRUE) {
-      #ifdef CHATPRJ
-      if (beenPressed()) return 0;
-      #else
-      checkForBreak(); // uucico
-      #endif
+   for( ;; )
+   {
 
-      // Check & clear the comm port. This gets the #chars in the
-      // receive queue as well, in the COMSTAT structure.
-      //
-      if ((rc = GetCommError(nCid, &stat)) != 0) {
-    /*
-        Just plow right on through.
-        Thing is, some modems give a single framing error
-        every time they connect.  Hardly a reason to quit.
+#ifdef CHATPRJ
+      if (beenPressed())
+         return 0;
+#else
+      checkForBreak();              /* uucico                        */
+#endif
 
-        It needs to do a GetCommEventMask first, anyway.
+/*--------------------------------------------------------------------*/
+/*       Check & clear the comm port.  This gets the number chars in  */
+/*       the receive queue as well, in the COMSTAT structure.         */
+/*--------------------------------------------------------------------*/
 
-     #ifndef CHATPRJ
-     printmsg(0,"sread: Read of %d bytes failed.", wanted);
-     printmsg(0,"       return code from GetCommError was %#04x (%d)",
-                        rc , rc);
-     #endif
-     ShowError(rc);
-     return 0;
+      GetCommError(nCid, &stat );
 
-     */
+/*--------------------------------------------------------------------*/
+/*       If wanted number of bytes are available, break out and       */
+/*       read 'em.                                                    */
+/*--------------------------------------------------------------------*/
+
+      if (stat.cbInQue >= wanted)
+         break;
+
+      ddelay(0);                    /* Be friendly to Windows'
+                                       cooperative multitasking...   */
+
+      if (stop_time == 0)           /* Immediate timeout?            */
+      {                             /* We're out of here             */
+         return(stat.cbInQue);
       }
 
-      //
-      // If wanted # bytes are available, break out and read 'em.
-      //
-      if (stat.cbInQue >= wanted) break;
-
-      // Be friendly to Windows' cooperative multitasking...
-      //
-      ddelay(0);
-
-      // If timeout is zero, return immediately.
-      //
-      if (stop_time == 0) { return(stat.cbInQue);
-      }
-
-      // Check for timeout. If timed out, return.
-      //
       time( &now );
-      if(stop_time <= now) {
-     #ifndef CHATPRJ
-     printmsg(15, "sread: timeout(%d) - %d chars avail",
+
+      if (stop_time <= now)         /* Timeout on request*/
+      {
+#ifdef UDEBUG
+         printmsg(15, "nsread: timeout(%d) - %d chars avail",
              timeout, stat.cbInQue);
-     #endif
-     return(stat.cbInQue);
+#endif
+         return(stat.cbInQue);
       }
 
-   } // end of while(TRUE)
+   } /* for( ;; ) */
 
-   //
-   // We have enough in the RX queue. Grab 'em right into the
-   // caller's buffer.
-   //
+/*--------------------------------------------------------------------*/
+/*       We have enough in the RX queue.  Grab 'em right into the     */
+/*       caller's buffer.                                             */
+/*--------------------------------------------------------------------*/
+
    received = ReadComm(nCid, output, wanted);
 
-   printmsg(15, "sread: Got %d characters, %d still in RX queue.",
+   printmsg(15, "nsread: Got %d characters, %d still in RX queue.",
           (int)received, (int)(stat.cbInQue - received));
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-   traceData( output, wanted, FALSE );
+   traceData( output, wanted, KWFalse );
    return(received);
 
 } /* nsread */
+
+/*--------------------------------------------------------------------*/
+/*       o u t Q u e u e F r e e                                      */
+/*                                                                    */
+/*       Determine count of characters free in output queue           */
+/*--------------------------------------------------------------------*/
+
+static unsigned int outQueueFree( void )
+{
+   COMSTAT stat;
+
+   GetCommError(nCid, &stat );
+
+   return outQueueSize - stat.cbOutQue;
+}
 
 /*--------------------------------------------------------------------*/
 /*    n s w r i t e                                                   */
@@ -540,15 +539,82 @@ int nswrite(const char UUFAR *data, unsigned int len)
    int bytes;
    int rc;
 
-   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
+   hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
+
+#ifdef UDEBUG
+   printmsg(15,"nswrite: Writing %u bytes to port", len );
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
 /*--------------------------------------------------------------------*/
 
-   #ifndef CHATPRJ
    ShowModem();
-   #endif
+
+/*--------------------------------------------------------------------*/
+/*       Introduce a little flow control - Actual line pacing is      */
+/*       handled at a lower level.  This should actually be           */
+/*       interrupt driven under Windows, but this quick hack from     */
+/*       the DOS ULIB.C doesn't bother.  So sue me.                   */
+/*--------------------------------------------------------------------*/
+
+   if ( outQueueFree() < len )
+   {
+      int spin = 0;
+      static int const max_spin = 20;  /* Should be configured, is not  */
+
+      int currentQueueFree = outQueueFree();
+
+      if ( len > outQueueSize )
+      {
+         printmsg(0,"nswrite: Transmit buffer overflow; buffer size %d, "
+                    "needed %d",
+                     outQueueSize,
+                     len);
+         panic();
+      }
+
+      while( (len > currentQueueFree) && (spin < max_spin) )
+      {
+         int wait;
+         int needed;
+         unsigned int newQueueFree;
+
+         needed = max(outQueueSize / 4, len - currentQueueFree);
+                              /* Minimize thrashing by requiring
+                                 big chunks */
+
+         wait = (int) ((long) needed * 10000L / (long) currentSpeed);
+                              /* Compute time in milliseconds
+                                 assuming 10 bits per byte           */
+
+         printmsg(4,"nswrite: Waiting %d ms for %d bytes in queue"
+                     ", pass %d",
+                     wait, needed, spin);
+
+         ddelay( (KEWSHORT) wait ); /* Actually perform the wait     */
+
+         newQueueFree = outQueueFree();
+
+         if ( newQueueFree == currentQueueFree )
+            spin++;           /* No progress, consider timing out    */
+         else
+            currentQueueFree = newQueueFree;
+                              /* Update our progress                 */
+
+      } /* while( (len > currentQueueFree) && spin ) */
+
+      if ( currentQueueFree < len )
+      {
+         printmsg(0,"nswrite: Buffer overflow, needed %d bytes"
+                     " from queue of %d",
+                     len, outQueueSize);
+
+         return 0;
+
+      } /* if ( currentQueueFree < len ) */
+
+   } /* if ( outQueueFree() < len ) */
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
@@ -557,11 +623,14 @@ int nswrite(const char UUFAR *data, unsigned int len)
    bytes = WriteComm(nCid, data, len);
 
    rc = GetCommError(nCid, NULL);
+
    if (rc)
    {
       printmsg(0,"nswrite: WriteComm failed, "
-         "return code from GetCommError was %#04x (%d)",
-            rc , rc);
+                 "return code from GetCommError was %#04x (%d)",
+                  rc ,
+                  rc);
+
       ShowError(rc);
       return bytes;
    }
@@ -570,7 +639,7 @@ int nswrite(const char UUFAR *data, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE );
+   traceData( data, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the port to the caller          */
@@ -590,7 +659,7 @@ void nssendbrk(unsigned int duration)
 {
 
 #ifdef UDEBUG
-   printmsg(12, "ssendbrk: %d", duration);
+   printmsg(12, "nssendbrk: %d", duration);
 #endif
 
    SetCommBreak(nCid);
@@ -598,6 +667,62 @@ void nssendbrk(unsigned int duration)
    ClearCommBreak(nCid);
 
 } /*ssendbrk*/
+
+#ifdef SUICIDE                      /* Crashes on kendra, alas       */
+
+/*--------------------------------------------------------------------*/
+/*    g e t M S R                                                     */
+/*                                                                    */
+/*    Get modem statrus register bits via by asking hardware          */
+/*    directly.                                                       */
+/*--------------------------------------------------------------------*/
+
+static getMSR(const int port)
+{                                   /* port is 1 thru 4              */
+  static unsigned short far *bios = (unsigned short far *) 0x400000;
+                                    /* == 0040:0000                  */
+  unsigned short baseAddr = bios[port-1];
+
+  if ( ! port )                     /* Reset lookaside info?         */
+    return 0;                       /* Yes --> No op in this version */
+
+  if (baseAddr)
+     return inportb(baseAddr + 6);  /* offset of 6 = msr             */
+
+  return 0;                         /* invalid port!                 */
+
+} /* getMSR */
+
+#else
+
+/*--------------------------------------------------------------------*/
+/*    g e t M S R                                                     */
+/*                                                                    */
+/*    Get modem statrus register bits via by Windows                  */
+/*    directly.                                                       */
+/*--------------------------------------------------------------------*/
+
+static int getMSR(const int port)
+{
+   static LPBYTE lpbModemBits = 0;  /* --> Modem Status Register bits */
+
+
+   if ( ! port )                    /* Reset lookaside info?         */
+   {
+      lpbModemBits = 0;             /* yes --> reset it              */
+      return 0;                     /* return gracefully             */
+   }
+   else if ( ! lpbModemBits )
+      lpbModemBits = (LPBYTE)SetCommEventMask(nCid, 0) + COMM_MSRSHADOW;
+
+   if ( lpbModemBits )
+      return (int) *lpbModemBits;
+   else
+      return 0;
+
+} /* getMSR */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    n c l o s e l i n e                                             */
@@ -607,15 +732,11 @@ void nssendbrk(unsigned int duration)
 
 void ncloseline(void)
 {
-showSpot;
+   if ( ! portActive )
+      return;
 
-   if ( ! portActive ) return;
-      // panic();
-      // since ncloseline gets called when exit()-ing,
-      // it's a really bad idea to call exit again inside it
-
-   portActive = FALSE;     /* flag port closed for error handler  */
-   hangupNeeded = FALSE;  /* Don't fiddle with port any more     */
+   portActive = KWFalse;    /* flag port closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with port any more    */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -628,7 +749,7 @@ showSpot;
 /*                      Actually close the port                       */
 /*--------------------------------------------------------------------*/
 
-   if(CloseComm(nCid) != 0)
+   if (CloseComm(nCid) != 0)
       printmsg(0, "closeline: close of serial port failed");
 
 /*--------------------------------------------------------------------*/
@@ -637,8 +758,11 @@ showSpot;
 
    traceStop();
 
+#ifdef UDEBUG
    printmsg(3,"Serial port closed");
-showSpot;
+#endif
+
+   getMSR( 0 );                     /* reset MSR lookaside buffer    */
 
 } /* ncloseline */
 
@@ -651,8 +775,8 @@ showSpot;
 
 void nhangup( void )
 {
-   hangupNeeded = FALSE;
-   carrierDetect = FALSE;
+   hangupNeeded = KWFalse;
+   carrierDetect = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -661,7 +785,6 @@ void nhangup( void )
    if (EscapeCommFunction(nCid, CLRDTR) != 0)
    {
       printmsg(0, "hangup: Unable to lower DTR for comm port");
-      //panic();  // really! no need to cop out here.
    }
 
 /*--------------------------------------------------------------------*/
@@ -678,7 +801,6 @@ void nhangup( void )
    if (EscapeCommFunction(nCid, SETDTR) != 0)
    {
       printmsg(0, "hangup: Unable to raise DTR for comm port");
-      //panic();
    }
 
    ddelay(2000);         /* Now wait for the poor thing to recover    */
@@ -696,12 +818,13 @@ void nSIOSpeed(BPS baud)
    WORD rc;
 
    currentSpeed = (UINT) baud;
-   printmsg(15,"SIOSpeed: Setting baud rate to %lu",
+   printmsg(15,"nSIOSpeed: Setting baud rate to %lu",
            (unsigned long) currentSpeed);
 
-   #ifndef CHATPRJ
+#ifdef UDEBUG
    ShowModem();
-   #endif
+#endif
+
    GetCommState (nCid, &dcb);
 
    dcb.BaudRate = currentSpeed;
@@ -709,7 +832,7 @@ void nSIOSpeed(BPS baud)
 
    if (rc)
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %lu",
+      printmsg(0,"nSIOSPeed: Unable to set baud rate for port to %lu",
          (unsigned long) currentSpeed);
       panic();
    }
@@ -722,7 +845,7 @@ void nSIOSpeed(BPS baud)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void nflowcontrol( boolean flow )
+void nflowcontrol( KWBoolean flow )
 {
    int rc;
    DCB dcb;
@@ -731,16 +854,16 @@ void nflowcontrol( boolean flow )
 
    if (flow)
    {
-      dcb.fOutX = TRUE;
-      dcb.fInX = TRUE;
-      dcb.fRtsflow = FALSE;
-      dcb.fOutxCtsFlow = FALSE;
+      dcb.fOutX = KWTrue;
+      dcb.fInX = KWTrue;
+      dcb.fRtsflow = KWFalse;
+      dcb.fOutxCtsFlow = KWFalse;
    }
    else {
-      dcb.fOutX = FALSE;
-      dcb.fInX = FALSE;
-      dcb.fRtsflow = TRUE;
-      dcb.fOutxCtsFlow = TRUE;
+      dcb.fOutX = KWFalse;
+      dcb.fInX = KWFalse;
+      dcb.fRtsflow = KWTrue;
+      dcb.fOutxCtsFlow = KWTrue;
    }
 
    if ((rc = SetCommState(&dcb)) != 0)
@@ -777,14 +900,34 @@ BPS nGetSpeed( void )
 /*    is either no modem at all(!) or it's not turned on.             */
 /*--------------------------------------------------------------------*/
 
+KWBoolean nCD( void )
+{
+   KWBoolean newCarrierDetect;
 
-boolean nCD( void ) {
-   boolean newCarrierDetect = ((getMSR(portNum) & MSR_RLSD) != 0);
-   if ( newCarrierDetect ) carrierDetect = newCarrierDetect;
-   if ( carrierDetect ) return newCarrierDetect;
-   else return ((getMSR(portNum) & MSR_DSR) != 0) ? TRUE : FALSE;
+   if ((getMSR(portNum) & MSR_RLSD) != 0)
+      newCarrierDetect = KWTrue;
+   else
+      newCarrierDetect = KWFalse;
+
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
+
+   if ( carrierDetect )
+      return newCarrierDetect;
+   else if ((getMSR(portNum) & MSR_DSR) != 0)
+      return KWTrue;
+   else
+      return KWFalse;
 
 } /* nCD */
+
+#ifdef CHATPRJ                   /*  don't call printmsg from the DLL. */
+
+static void ShowModem( void )
+{
+}
+
+#else
 
 /*--------------------------------------------------------------------*/
 /*    S h o w M o d e m                                               */
@@ -794,16 +937,17 @@ boolean nCD( void ) {
 
 #define mannounce(flag, bits, text ) (((flag & bits) != 0) ? text : "" )
 
-static void ShowModem( void ) {
-   #ifndef CHATPRJ   //  don't call printmsg from the DLL.
+static void ShowModem( void )
+{
+
    BYTE modem_bits = getMSR(portNum);
    static BYTE old_bits = 0xFF;
 
    if ( debuglevel < 4 )
       return;
 
-   if ( (debuglevel < 4) ||            /* Silent at lower debuglevels  */
-      (modem_bits == old_bits))        /* Show only changes in modem signals  */
+   if ( (debuglevel < 4) ||            /* Silent at lower debuglevels */
+      (modem_bits == old_bits))        /* Show only changes in modem signals */
       return;
 
    printmsg(0, "ShowModem: %#02x %s %s %s",
@@ -812,8 +956,10 @@ static void ShowModem( void ) {
         mannounce(MSR_DSR,   modem_bits, "DSR"),
         mannounce(MSR_CTS,   modem_bits, "CTS"));
    old_bits = modem_bits;
-   #endif//mlz
+
 } /* ShowModem */
+
+#endif /* CHATPRJ */
 
 /*--------------------------------------------------------------------*/
 /*    S h o w E r r o r                                               */
