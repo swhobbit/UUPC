@@ -32,8 +32,6 @@
  *
  *    Revision history:
  *    $Log: uundir.h $
- *    Revision 1.12  1997/04/24 00:58:49  ahd
- *    *** empty log message ***
  *
  *    Revision 1.10  1996/01/01 20:56:03  ahd
  *    Annual Copyright Update
