@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.2 1992/12/04 01:00:27 ahd Exp $
+ *    $Id: DELIVER.C 1.3 1992/12/05 23:38:43 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.3  1992/12/05  23:38:43  ahd
+ * Skip blanks as well as unprintable characters
+ *
  * Revision 1.2  1992/12/04  01:00:27  ahd
  * Add system alias support
  *
@@ -733,7 +736,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    } /* if */
 
 
-   fprintf(stream, "R %s %s\nU %s %s\nF %s\nI %s\nC rmail %s\n",
+   fprintf(stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC rmail %s\n",
                ruser, rnode, uuser , E_nodename,
                rdfile, rdfile, everyone);
    fclose(stream);
