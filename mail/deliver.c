@@ -1,15 +1,15 @@
 /*--------------------------------------------------------------------*/
-/*    d e l i v e r  . c                                              */
+/*       d e l i v e r  . c                                           */
 /*                                                                    */
-/*    UUPC/extended mail delivery subroutines                         */
+/*       UUPC/extended mail delivery subroutines                      */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.54 1997/11/24 02:52:26 ahd Exp $
+ *    $Id: deliver.c 1.55 1997/11/25 05:05:06 ahd v1-12t $
  *
  *    $Log: deliver.c $
+ *    Revision 1.55  1997/11/25 05:05:06  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.54  1997/11/24 02:52:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -96,112 +99,6 @@
  *
  *    Revision 1.34  1995/01/07 16:18:37  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.33  1994/12/22 00:19:04  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.32  1994/12/09 03:42:09  ahd
- *    Modify alias support to recurse in system aliases file
- *    Put 'U' line first to work with brain dead MKS systems
- *
- * Revision 1.31  1994/04/26  23:56:16  ahd
- * Correct gateway parameters
- *
- * Revision 1.30  1994/02/26  17:18:57  ahd
- * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
- *
- * Revision 1.29  1994/02/25  03:45:46  ahd
- * Don't attempt to de-reference user pointer if NULL in deliverfile.
- *
- * Revision 1.28  1994/02/20  19:07:38  ahd
- * IBM C/Set 2 Conversion, memory leak cleanup
- *
- * Revision 1.27  1994/02/19  04:19:16  ahd
- * Use standard first header
- *
- * Revision 1.27  1994/02/19  04:19:16  ahd
- * Use standard first header
- *
- * Revision 1.26  1994/02/14  01:03:56  ahd
- * Trim trailing spaces off forward file lines
- *
- * Revision 1.25  1994/01/01  19:12:17  ahd
- * Annual Copyright Update
- *
- * Revision 1.24  1993/12/29  02:46:47  ahd
- * Add Vmail queuing support
- *
- * Revision 1.23  1993/12/23  03:11:17  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.22  1993/12/09  13:24:25  ahd
- * Correct timestamp in UUCP From line
- *
- * Revision 1.21  1993/12/09  04:51:21  ahd
- * Delete bogus case from CopyData()
- *
- * Revision 1.20  1993/12/07  04:57:53  ahd
- * rename from fromUser and fromNode
- *
- * Revision 1.19  1993/12/02  02:25:12  ahd
- * Add max generated UUXQT command line length
- *
- * Revision 1.18  1993/11/13  17:43:26  ahd
- * Add call grading support
- * Add suppressfrom, shortfrom options
- *
- * Revision 1.17  1993/10/12  01:30:23  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.16  1993/09/23  03:26:51  ahd
- * Alter bounce message for "no path to host" error
- *
- * Revision 1.15  1993/09/20  04:41:54  ahd
- * OS/2 2.x support
- *
- * Revision 1.14  1993/08/02  03:24:59  ahd
- * Further changes in support of Robert Denny's Windows 3.x support
- *
- * Revision 1.13  1993/07/31  16:26:01  ahd
- * Changes in support of Robert Denny's Windows support
- *
- * Revision 1.12  1993/06/21  02:17:31  ahd
- * Correct errors in mail routing via HOSTPATH
- *
- * Revision 1.11  1993/06/13  14:06:00  ahd
- * Save invoked program name and use it for recursive calls
- * Loosen up bounced mail copy loop to avoid NT crashes
- *
- * Revision 1.10  1993/05/30  00:01:47  ahd
- * Expand path of system alias files to allow userid references
- *
- * Revision 1.9  1993/05/06  03:41:48  ahd
- * Don't rebounce mail to the postmaster
- * Change directories as needed to provide reasonable default drives
- * Do not use possibly invalid home directory to push directory on
- * system aliases
- *
- * Revision 1.8  1993/05/03  02:41:57  ahd
- * Make deliver not rebounce mail to the postmonstor
- *
- * Revision 1.7  1993/04/16  12:55:36  dmwatt
- * Windows/NT sound support
- *
- * Revision 1.6  1993/04/15  03:17:21  ahd
- * Basic bounce support
- *
- * Revision 1.5  1993/04/11  00:33:05  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.4  1992/12/18  13:05:18  ahd
- * Use one token on request line for UUCP
- *
- * Revision 1.3  1992/12/05  23:38:43  ahd
- * Skip blanks as well as unprintable characters
- *
- * Revision 1.2  1992/12/04  01:00:27  ahd
- * Add system alias support
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -860,10 +757,19 @@ size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
          KWBoolean noConnect = KWFalse;
          char fromAddr[MAXADDR];
 
-         sprintf( fromAddr, "%s@%s",
-                            fromUser,
-                            equal( fromNode , E_nodename ) ?
-                                 E_domain : E_nodename );
+         if ( equal( fromNode , E_nodename ))   /* Local address */
+            sprintf( fromAddr, "%s@%s",
+                     fromUser,
+                     E_fdomain);
+         else if ( strchr( fromNode, '.' ) == NULL )  /* remote UUCP */
+            sprintf( fromAddr, "%s!%s@%s",
+                     fromNode,
+                     fromUser,
+                     E_fdomain);
+         else
+            sprintf( fromAddr, "%s@%s",      /* Remote domain address */
+                     fromUser,
+                     fromNode);
 
          if ( ! ConnectSMTP( imf,
                              savePath,
@@ -1236,9 +1142,9 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 } /* queueRemote */
 
 /*--------------------------------------------------------------------*/
-/* C o p y D a t a                                                    */
+/*       C o p y D a t a                                              */
 /*                                                                    */
-/* Copy data into its final resting spot                              */
+/*       Copy data into its final resting spot                        */
 /*--------------------------------------------------------------------*/
 
 static KWBoolean CopyData( const KWBoolean remotedelivery,
@@ -1544,10 +1450,19 @@ retrySMTPdelivery( IMFILE *imf, const char **address, int addressees )
 #ifdef TCPIP
       char fromAddr[MAXADDR];
 
-      sprintf( fromAddr, "%s@%s",
-                         fromUser,
-                         equal( fromNode , E_nodename ) ?
-                              E_domain : E_nodename );
+      if ( equal( fromNode , E_nodename ))   /* Local address */
+         sprintf( fromAddr, "%s@%s",
+                  fromUser,
+                  E_fdomain);
+      else if ( strchr( fromNode, '.' ) == NULL )  /* remote UUCP */
+         sprintf( fromAddr, "%s!%s@%s",
+                  fromNode,
+                  fromUser,
+                  E_fdomain);
+      else
+         sprintf( fromAddr, "%s@%s",      /* Remote domain address */
+                  fromUser,
+                  fromNode);
 
       if ( ConnectSMTP( imf,
                         hostp->via,
@@ -1567,7 +1482,7 @@ retrySMTPdelivery( IMFILE *imf, const char **address, int addressees )
    } /* if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP)) */
 
 /*--------------------------------------------------------------------*/
-/*       The routinng tables have been changed, and the first         */
+/*       The routing tables have been changed, and the first          */
 /*       address is no longer routed via SMTP; process all the        */
 /*       mail through the standard routing/delivery routines.         */
 /*--------------------------------------------------------------------*/

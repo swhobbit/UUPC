@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.60 1997/11/25 05:05:06 ahd v1-12t $
+ *    $Id: rmail.c 1.61 1997/11/29 12:59:50 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.61  1997/11/29 12:59:50  ahd
+ *    Suppress compiler warnings
+ *
  *    Revision 1.60  1997/11/25 05:05:06  ahd
  *    More robust SMTP daemon
  *
@@ -113,105 +116,6 @@
  *
  *    Revision 1.35  1995/01/07 16:36:02  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.34  1995/01/07 16:19:21  ahd
- *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.33  1994/12/31 03:41:08  ahd
- *    First pass of integrating Mike McLagan's news SYS file suuport
- *
- *    Revision 1.32  1994/12/22 00:19:47  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.31  1994/12/09 03:42:09  ahd
- *    Modify alias support to recurse in system aliases file
- *    Put 'U' line first to work with brain dead MKS systems
- *
- * Revision 1.30  1994/10/23  23:29:44  ahd
- * Start logging BEFORE we process the options
- *
- * Revision 1.29  1994/08/07  21:28:54  ahd
- * Make To: line optional for processing such items as news
- * via mail.
- *
- * Revision 1.28  1994/03/15  03:02:26  ahd
- * Delete obsolete comments about format restrictions in RFC-822 mode
- *
- * Revision 1.27  1994/02/28  01:02:06  ahd
- * Don't close input file, redirect it to nul, in order to insure the
- * 0 file handle is not reused by other processing
- *
- * Revision 1.26  1994/02/25  03:17:43  ahd
- * Perform more precise check for headers when in Resent- mode of
- * Parse822
- *
- * Revision 1.25  1994/02/23  04:20:27  ahd
- * Don't eat first line in the body of the message
- * Don't emit the Date: field in RFC-822 mode when one exists!
- *
- * Revision 1.24  1994/02/21  16:38:58  ahd
- * Add routine name to failed to parse address message
- *
- * Revision 1.23  1994/02/20  19:07:38  ahd
- * IBM C/Set 2 Conversion, memory leak cleanup
- *
- * Revision 1.22  1994/01/01  19:13:14  ahd
- * Annual Copyright Update
- *
- * Revision 1.21  1993/12/23  03:16:03  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.20  1993/12/13  03:09:13  ahd
- * Print error before panic() when cannot open temp file
- *
- * Revision 1.19  1993/12/07  04:57:53  ahd
- * Make ParseFrom perform heroics to pick up from FromUser whenever
- * possible
- *
- * Revision 1.18  1993/11/13  17:43:26  ahd
- * Use additional sources for From information
- *
- * Revision 1.17  1993/11/06  17:54:55  rhg
- * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- * Revision 1.16  1993/11/06  13:04:13  ahd
- * Add For to Received: lines ... but is it backwards?
- *
- * Revision 1.15  1993/10/28  00:18:10  ahd
- * Correct initialize of arpadate to after implied tzset()
- *
- * Revision 1.14  1993/10/12  01:30:23  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.13  1993/09/20  04:39:51  ahd
- * OS/2 2.x support
- *
- * Revision 1.12  1993/07/31  16:22:16  ahd
- * Changes in support of Robert Denny's Windows 3.x support
- *
- * Revision 1.11  1993/07/24  03:40:55  ahd
- * Make usage() return code unique
- *
- * Revision 1.10  1993/06/13  14:06:00  ahd
- * Save invoked program name and use it for recursive calls
- *
- * Revision 1.9  1993/05/09  03:41:47  ahd
- * Don't use debuglevel -1, it suppresses important configuration errors
- *
- * Revision 1.8  1993/04/15  03:17:21  ahd
- * Correct conditions under which name in userp structure used
- *
- * Revision 1.7  1993/04/13  02:26:30  ahd
- * Make return codes more unique
- *
- * Revision 1.6  1993/04/11  00:33:05  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.5  1992/12/05  23:38:43  ahd
- * Let logger close the log, not rmail
- *
- * Revision 1.4  1992/12/04  01:00:27  ahd
- * Add copyright messages
  *
  */
 
@@ -505,12 +409,11 @@ int main(int argc, char **argv)
 
    if (ReadHeader)
       remoteMail = KWFalse;
-   if (daemonMode)
+   else if (daemonMode)
       bflag[F_FASTSMTP] = remoteMail = KWFalse;
    else
-      remoteMail = KWTrue;
-                              /* If not reading headers, must be in
-                                 normal rmail mode ...               */
+      remoteMail = KWTrue;          /* If not reading headers, must
+                                       be in normal UUXQT driven mode */
 
 /*--------------------------------------------------------------------*/
 /*    If in local mode and the user doesn't want output, suppress     */
@@ -620,7 +523,6 @@ int main(int argc, char **argv)
    }
 
    close(tempHandle);               /* Don't need original handle    */
-
 
 /*--------------------------------------------------------------------*/
 /*                  Handle special SMTP delivery mode                 */
@@ -1179,6 +1081,7 @@ static char **Parse822( KWBoolean *header,
 /*--------------------------------------------------------------------*/
 /*                Fill in the sender field, if needed                 */
 /*--------------------------------------------------------------------*/
+
    if ( !tokenizeAddress( headerTable[senderID].found ? sender : from,
                  path,
                  fromNode,
@@ -1190,7 +1093,6 @@ static char **Parse822( KWBoolean *header,
       strcpy( fromNode, E_domain );
       strcpy( fromUser, "##invalid##" );
    }
-
 
    hostp = checkname( fromNode );   /* Look up real system name      */
 

@@ -50,9 +50,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.4 1997/11/24 02:52:26 ahd v1-12t $
+ *       $Id: delivers.c 1.5 1997/11/29 12:59:50 ahd Exp $
  *
- *       $Log$
+ *       $Log: delivers.c $
+ *       Revision 1.5  1997/11/29 12:59:50  ahd
+ *       Correct SMTP outbound to correctly quote lines of all periods
+ *       Enhance SMTP outbound to transmit CR/LF with rest of line when possible
+ *       Suppress compiler warnings
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -72,7 +77,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.4 1997/11/24 02:52:26 ahd v1-12t $");
+RCSID("$Id: delivers.c 1.5 1997/11/29 12:59:50 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -504,8 +509,6 @@ ConnectSMTP(
 )
 {
   char    buf[BUFSIZ];
-  char node[MAXADDR];
-  char user[MAXADDR];
   int      rep;
   int      subscript = 0;
   size_t   successes = 0;
@@ -521,7 +524,7 @@ ConnectSMTP(
      return 0;                      /* Deliver via alt method        */
 
 /*--------------------------------------------------------------------*/
-/*                Get hose greeting and respond to it                 */
+/*                Get host greeting and respond to it                 */
 /*--------------------------------------------------------------------*/
 
   if((rep = GetSMTPReply()) != 220)
@@ -549,19 +552,7 @@ ConnectSMTP(
 
   /* PSEUDO Send MAIL From: $*/
 
-  if (! tokenizeAddress(fromAddress, buf, node, user))
-  {
-     return Bounce(imf,
-                    buf,
-                    fromAddress,
-                    fromAddress,
-                    validate);
-  }
-
-  sprintf(buf, "MAIL From: <%s@%s>",
-               user,
-               equal(node, E_nodename) ?
-                        E_domain : node);
+  sprintf(buf, "MAIL From: <%s>", fromAddress );
 
   if (! SendSMTPCmdCheckReply(buf, 250))
   {
