@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.73 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: rmail.c 1.74 1999/01/08 02:21:05 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.74  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.73  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -284,7 +287,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rmail.c 1.73 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: rmail.c 1.74 1999/01/08 02:21:05 ahd Exp $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;
@@ -384,6 +387,7 @@ int main(int argc, char **argv)
 
       case 'q':
          queueMode = KWTrue;
+         break;
 
       case 'l':
          openlog(optarg);
@@ -445,6 +449,10 @@ int main(int argc, char **argv)
    if (daemonMode)
       bflag[F_FASTSMTP] = KWFalse;
 
+   /* Exception ... always deliver immediatelt if queue mode */
+   if (queueMode)
+      bflag[F_FASTSMTP] = KWTrue;
+
 /*--------------------------------------------------------------------*/
 /*    If in local mode and the user doesn't want output, suppress     */
 /*    routine delivery messages                                       */
@@ -452,7 +460,7 @@ int main(int argc, char **argv)
 
    if ((user_debug == -1) && (debuglevel == 0))
    {
-      if (daemonMode || ! readHeader )
+      if (daemonMode || ! readHeader)
          debuglevel = 1;
       else
          debuglevel = (int) bflag[F_VERBOSE];
@@ -580,19 +588,6 @@ int main(int argc, char **argv)
    }
 
    close(tempHandle);               /* Don't need original handle      */
-
-/*--------------------------------------------------------------------*/
-/*                  Handle special SMTP delivery mode                 */
-/*--------------------------------------------------------------------*/
-
-   if (queueMode && !(readHeader || daemonMode))
-   {
-      if (retrySMTPdelivery(imf, &sender, address, (int) addressees))
-         Terminate(0, imf, datain);
-      else
-         Terminate(EX_TEMPFAIL, imf, datain);
-
-   } /* if (queueMode && !(readHeader || daemonMode)) */
 
 /*--------------------------------------------------------------------*/
 /*                    Perform delivery of the mail                    */
