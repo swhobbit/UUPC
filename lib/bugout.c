@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.18 1998/04/24 03:30:13 ahd v1-13a $
+ *    $Id: bugout.c 1.19 1998/05/11 01:20:48 ahd v1-13e $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.19  1998/05/11 01:20:48  ahd
+ *    Spin off log file before aborting
+ *
  *    Revision 1.18  1998/04/24 03:30:13  ahd
  *    Don't abort via memory error if running GUI
  *
@@ -77,7 +80,7 @@
 
 #include "uupcmoah.h"
 
-#ifdef _Windows
+#if defined(_Windows) || defined(WIN32)
 #include <windows.h>
 #endif
 
@@ -100,7 +103,7 @@
 int panic_rc = 69;                  /* Actually defined in catcher.h,
                                        but not all routines need the
                                        catcher.                      */
-RCSID("$Id$");
+RCSID("$Id: bugout.c 1.19 1998/05/11 01:20:48 ahd v1-13e $");
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */
@@ -139,7 +142,7 @@ void bugout(  const char *fname, const size_t lineno )
 /*                   Crash the program if debugging                   */
 /*--------------------------------------------------------------------*/
 
-   *((char *)(NULL)) = 'X';
+   BREAKPOINT
 #endif
 
    exit(panic_rc);
