@@ -34,9 +34,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.33 1994/05/08 21:43:33 ahd Exp $
+ *       $Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.34  1994/05/09  02:19:31  ahd
+ * Report command executed to unpack
+ * Use final formatted command to execute
+ *
+ * Revision 1.34  1994/05/09  02:19:31  ahd
+ * Report command executed to unpack
+ * Use final formatted command to execute
+ *
  * Revision 1.33  1994/05/08  21:43:33  ahd
  * Use value of E_uncompress over default determination
  *
@@ -144,7 +152,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.33 1994/05/08 21:43:33 ahd Exp $";
+         "$Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1223,7 +1231,7 @@ static void add_newsgroup(const char *grp, boolean moderated)
          cur->grp_name = newstr(grp);
          cur->grp_high = 1;
          cur->grp_low  = 0;
-         cur->grp_can_post = (char) (moderated ? 'n' : 'y');
+         cur->grp_can_post = (char) (moderated ? 'm' : 'y');
          break;
       }
    }
