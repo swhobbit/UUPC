@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMMLIB.C 1.14 1993/11/20 14:48:53 ahd Exp $
+ *    $Id: commlib.c 1.15 1993/12/24 05:12:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: COMMLIB.C $
+ *    $Log: commlib.c $
+ * Revision 1.15  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.14  1993/11/20  14:48:53  ahd
  * Add support for passing port name/port handle/port speed/user id to child
  *
@@ -200,7 +203,7 @@ boolean chooseCommunications( const char *name )
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
           nCD,
-          (ref_WaitForNetConnect) NULL,
+          (ref_WaitForNetConnect) 0,
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
           FALSE,                       /* Not network based           */
@@ -218,23 +221,39 @@ boolean chooseCommunications( const char *name )
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD,
-          (ref_WaitForNetConnect) NULL,
+          (ref_WaitForNetConnect) 0,
           dummyGetComHandle,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
         },
+#ifdef ARTICOMM
         { "articomm",                  /* MS-DOS ARTISOFT INT14 driver  */
           iopenline, iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD,
-          (ref_WaitForNetConnect) NULL,
+          (ref_WaitForNetConnect) 0,
           dummyGetComHandle,
           FALSE,                       /* Not network oriented        */
-          FALSE,                       /* Not buffered                 */
+          TRUE,                        /* Buffered                    */
           NULL                         /* No network device name      */
         },
+#else
+        { "int14",                     /* MS-DOS Generic INT14 driver  */
+          iopenline, iopenline, isread, iswrite,
+          issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
+          iGetSpeed,
+          iCD,
+          (ref_WaitForNetConnect) 0,
+          dummyGetComHandle,
+          FALSE,                       /* Not network oriented        */
+          TRUE,                        /* Buffered                    */
+          NULL                         /* No network device name      */
+        },
+
+#endif /* ARTICOMM */
+
 #endif
 
 #if defined(TCPIP)
