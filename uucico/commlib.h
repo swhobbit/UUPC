@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.21 1997/04/24 01:36:36 ahd Exp $
+ *    $Id: commlib.h 1.22 1997/05/11 04:28:53 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.22  1997/05/11 04:28:53  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.21  1997/04/24 01:36:36  ahd
  *    Annual Copyright Update
  *
@@ -120,6 +123,8 @@ typedef void (*ref_flowcontrol)(KWBoolean);
 
 typedef void (*ref_hangup)( void );
 
+typedef void (*ref_terminateCommunications)( void );
+
 typedef BPS (*ref_GetSpeed)( void );
 
 typedef KWBoolean (*ref_CD)( void );
@@ -131,6 +136,45 @@ typedef int (*ref_GetComHandle)( void );
 typedef void (*ref_SetComHandle)( const int );
 
 /*--------------------------------------------------------------------*/
+/*                    Multiple connection support                     */
+/*--------------------------------------------------------------------*/
+
+#ifdef TCPIP
+typedef struct _RemoteConnection
+{
+   int handle;
+   size_t commBufferLength;
+   size_t commBufferUsed;
+   char UUFAR *commBuffer;
+
+   KWBoolean portActive;
+   KWBoolean traceEnabled;
+   KWBoolean carrierDetect;
+   KWBoolean direct;
+   KWBoolean network;
+   KWBoolean reportModemCarrierDirect;
+   union {
+      struct {
+         int masterSocket;
+         KWBoolean connectionDied;
+      } ip;
+      struct {
+         BPS speed;
+      } serial;
+   };
+} RemoteConnection ;
+
+void
+saveConnection( RemoteConnection *connection );
+
+void
+restoreConnection( RemoteConnection *connection );
+
+void
+freeConnection( RemoteConnection *connection );
+#endif
+
+/*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
 /*       returns KWTrue on success.                                   */
 /*--------------------------------------------------------------------*/
@@ -140,8 +184,6 @@ KWBoolean chooseCommunications( const char *suite,
                                 char **deviceNamePtr );
 
 KWBoolean IsNetwork(void);   /* Report if suite is network oriented  */
-
-
 
 /*--------------------------------------------------------------------*/
 /*       Trace functions for communications routines                  */
@@ -173,6 +215,7 @@ extern ref_CD CDp;
 extern ref_WaitForNetConnect WaitForNetConnectp;
 extern ref_GetComHandle GetComHandlep;
 extern ref_SetComHandle SetComHandlep;
+extern ref_terminateCommunications terminateCommunicationsp;
 
 /*--------------------------------------------------------------------*/
 /*       Declare macros which define the prev-generic driver names    */
@@ -192,6 +235,7 @@ extern ref_SetComHandle SetComHandlep;
 #define WaitForNetConnect(timeout)     (*WaitForNetConnectp)(timeout)
 #define GetComHandle()                 (*GetComHandlep)()
 #define SetComHandle(newHandle)        (*SetComHandlep)(newHandle)
+#define terminateCommunications()      (*terminateCommunicationsp)()
 
 extern size_t commBufferLength;
 extern size_t commBufferUsed;

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.9 1996/01/01 21:24:48 ahd v1-12r $
+ *    $Id: ulibip.h 1.10 1997/04/24 01:38:19 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ *    Revision 1.10  1997/04/24 01:38:19  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1996/01/01 21:24:48  ahd
  *    Annual Copyright Update
  *
@@ -76,6 +79,8 @@ void tSIOSpeed(BPS baud);
 void tflowcontrol( KWBoolean );
 
 void thangup( void );
+
+void tTerminateCommunications( void );
 
 BPS tGetSpeed( void );
 

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.38 1997/03/31 07:00:15 ahd Exp $
+ *    $Id: lib.h 1.39 1997/05/11 04:28:53 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.39  1997/05/11 04:28:53  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.38  1997/03/31 07:00:15  ahd
  *    Annual Copyright Update
  *
@@ -208,7 +211,7 @@
 #define B_GENHIST  B_EXPIRE
 #define B_INEWS    0x00000004L
 #define B_INSTALL  0x00000008L /* Used by install program only        */
-#define B_MTA      0x00000010L /* Used by Mail Delivery (RMAIL)       */
+#define B_RMAIL    0x00000010L /* Used by Mail Delivery (RMAIL)       */
 #define B_MUA      0x00000020L /* Used by Mail User Agent (MAIL)      */
 #define B_MUSH     0x00000040L /* Used by MUSH - Not used by UUPC     */
 #define B_NEWSRUN  0x00000080L
@@ -221,7 +224,9 @@
 #define B_UUNAME   B_UUSTAT
 #define B_UUSUB    B_UUSTAT
 #define B_UUXQT    0x00004000L /* Used by queue processor UUXQT       */
+#define B_UUSMTPD  0x00008000L /* SMTP mail processor                 */
 
+#define B_MTA      (B_UUSMTPD | B_RMAIL )
 #define B_NEWS     (B_RNEWS | B_SENDBATS | B_NEWSRUN | B_EXPIRE | B_INEWS )
 #define B_MAIL     (B_MUA | B_MTA | B_MUSH)
 #define B_SPOOL    (B_MTA | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
