@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.13 1995/07/21 13:28:20 ahd v1-12q $
+  *   $Id: hostable.h 1.14 1996/01/01 20:55:56 ahd v1-12r $
   *
   *   $Log: hostable.h $
+  *   Revision 1.14  1996/01/01 20:55:56  ahd
+  *   Annual Copyright Update
+  *
   *   Revision 1.13  1995/07/21 13:28:20  ahd
   *   Correct compiler warnings
   *
@@ -82,32 +85,32 @@
 /*--------------------------------------------------------------------*/
 
 typedef enum
-                { phantom = 0,      /* Entry not fully initialized     */
-                  localhost,        /* This entry is for ourselves     */
-                  gatewayed,        /* This entry is delivered to via  */
-                                    /* an external program on local sys */
-                  nocall,           /* real host, never called         */
-                  autodial,         /* Dialing the phone now           */
-                  invalid_device,   /* Invalid systems file            */
-                  nodevice,         /* Could not open device           */
-                  startup_failed,   /* Determined system, start failed */
-                  inprogress,       /* Call now active                 */
-                  callback_req,     /* System must call us back        */
-                  dial_script_failed,
-                                    /* Modem initialize failed         */
-                  dial_failed,      /* Hardcoded auto-dial failed      */
-                  script_failed,    /* script in L.SYS failed          */
-                  max_retry,        /* Have given up calling this sys  */
-                  too_soon,         /* In retry mode, too soon to call */
-                  succeeded,        /* self-explanatory                */
-                  wrong_host,       /* Call out failed, wrong system   */
-                  unknown_host,     /* Call in failed, unknown system  */
-                  call_failed,      /* Connection aborted for various
-                                       reasons                         */
-                  wrong_time,       /* Unable to call because of time  */
-                  called,           /* success this run of UUCICO      */
-                  last_status }
-                        HOSTSTATUS;
+{
+   HS_PHANTOM = 0,                /* Not fully initialized           */
+   HS_LOCALHOST,                  /* Local system                    */
+   HS_GATEWAYED,                  /* Mail delivered via ext program  */
+   HS_SMTP,                       /* SMTP relay host name            */
+   HS_NOCALL,                     /* Real host, never (yet) called   */
+   HS_AUTODIAL,                   /* Dialing the phone now           */
+   HS_INVALID_DEVICE,             /* Invalid device in systems file  */
+   HS_NODEVICE,                   /* Could not open device           */
+   HS_STARTUP_FAILED,             /* Determined system, start failed */
+   HS_INPROGRESS,                 /* Call now active                 */
+   HS_CALLBACK_REQ,               /* System must call us back        */
+   HS_DIAL_SCRIPT_FAILED,
+                                  /* Modem initialize failed         */
+   HS_DIAL_FAILED,                /* Hardcoded auto-dial failed      */
+   HS_SCRIPT_FAILED,              /* script in L.SYS failed          */
+   HS_MAX_RETRY,                  /* Have given up calling this sys  */
+   HS_TOO_SOON,                   /* In retry mode, too soon to call */
+   HS_SUCCEEDED,                  /* self-explanatory                */
+   HS_WRONG_HOST,                 /* Call out failed, wrong system   */
+   HS_UNKNOWN_HOST,               /* Call in failed, unknown system  */
+   HS_CALL_FAILED,                /* Abort after conversation startup*/
+   HS_WRONG_TIME,                 /* Unable to call because of time  */
+   HS_CALLED,                     /* Call during this exec success   */
+   HS_ZZ_LAST
+} HOSTSTATUS;
 
 /*--------------------------------------------------------------------*/
 /*                          Status information                        */
