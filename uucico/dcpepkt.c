@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.12 1995/02/23 04:27:54 ahd v1-12n $
+ *    $Id: dcpepkt.c 1.13 1995/03/24 04:17:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.13  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.12  1995/02/23 04:27:54  ahd
  *    Explicitly report timeouts, compiler warning cleanup
  *
@@ -137,7 +140,7 @@ short egetpkt(char *packet, short *bytes)
    else
       recv = (unsigned short) min(efilelength - ebytesdone, r_pktsize);
 
-   if ( sread( packet, (int) recv, M_ePacketTimeout) < (int) recv )
+   if ( sread( packet, recv, M_ePacketTimeout) < (int) recv )
    {
       printmsg(0,"egetpkt: Data read failed for %d bytes", (int) recv);
       return -1;

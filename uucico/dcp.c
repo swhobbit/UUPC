@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.46 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: dcp.c 1.47 1995/04/02 00:01:39 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.47  1995/04/02 00:01:39  ahd
+ *    Correct processing to not send files below requested call grade
+ *
  *    Revision 1.46  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -598,7 +601,8 @@ static KWBoolean master( const char recvGrade,
                if (suspend_other(KWTrue, M_device ) < 0 )
                {
                   hostp->status.hstatus =  nodevice;
-                  m_state = CONN_INITIALIZE;    /* Try next system     */
+                  suspend_other(KWFalse, M_device );  /* Resume modem   */
+                  m_state = CONN_INITIALIZE;    /* Try next system      */
                   break;
                }
             } /* if */

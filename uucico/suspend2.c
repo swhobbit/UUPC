@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.17 1994/12/22 00:36:14 ahd Exp $
+ *    $Id: suspend2.c 1.18 1995/01/07 16:39:55 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.18  1995/01/07 16:39:55  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.17  1994/12/22 00:36:14  ahd
  *    Annual Copyright Update
  *
@@ -680,8 +683,9 @@ int suspend_other(const KWBoolean suspend,
    }
    else if ( nChar != SUSPEND_OKAY )
    {
-     printmsg(0, "Cannot %s background uucico.  Result code was %c",
+     printmsg(0, "Cannot %s background uucico on port %s.  Result code was %c",
                  suspend ? "suspend" : "resume",
+                 port,
                  nChar );
      result = -3;
    }

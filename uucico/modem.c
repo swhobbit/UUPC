@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.59 1995/02/25 18:21:44 ahd Exp $
+ *    $Id: modem.c 1.60 1995/02/26 02:51:34 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.60  1995/02/26 02:51:34  ahd
+ *    Reduce default packet size to 512 bytes - 1024 is 3 mile freight train
+ *
  *    Revision 1.59  1995/02/25 18:21:44  ahd
  *    Prevent UUCICO from looping without time limit
  *
@@ -405,7 +408,12 @@ CONN_STATE callup( void )
 /*--------------------------------------------------------------------*/
 
    if (! dial(flds[FLD_PHONE], speed))
+   {
+      if ( ! portActive )           /* Will shutdown() close line?   */
+         suspend_other(KWFalse, M_device );  /* No--> Resume modem   */
+
       return CONN_DROPLINE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*             The modem is connected; now login the host             */
