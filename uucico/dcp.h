@@ -1,5 +1,5 @@
-#ifndef __DCP
-#define __DCP
+#ifndef DCP_H
+#define DCP_H
 
 /*--------------------------------------------------------------------*/
 /*    d c p . h                                                       */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.7 1993/09/21 01:43:46 ahd Exp $
+ *    $Id: dcp.h 1.8 1993/09/27 00:50:57 ahd Exp $
  *
  *    $Log: dcp.h $
+ * Revision 1.8  1993/09/27  00:50:57  ahd
+ * Control of serial port in passive mode by K. Rommel
+ *
  * Revision 1.7  1993/09/21  01:43:46  ahd
  * Move MAXPACK to commlib.h to allow use as standard comm buffer size
  *
@@ -55,8 +58,9 @@
 typedef enum {
       CONN_INITSTAT   = 'A',  /* Load host status file               */
       CONN_INITIALIZE,        /* Select system to call, if any       */
-      CONN_CALLUP1,           /* Dial out to another system          */
-      CONN_CALLUP2,           /* Dial out to another system          */
+      CONN_CHECKTIME,         /* Check time to dial another          */
+      CONN_MODEM,             /* Load modem to process a system      */
+      CONN_DIALOUT,           /* Actually dial modem to system       */
       CONN_HOTMODEM,          /* Initialize for a modem already
                                  off-hook                            */
       CONN_ANSWER,            /* Wait for phone to ring and user to

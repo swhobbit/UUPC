@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.15 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: dcp.c 1.16 1993/09/27 00:48:43 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.16  1993/09/27  00:48:43  ahd
+ * Control UUCICO in passive mode by K. Rommel
+ *
  * Revision 1.15  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -102,6 +105,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <limits.h>
 #include <time.h>
@@ -135,6 +139,7 @@
 #include "ssleep.h"
 #include "suspend.h"
 #include "commlib.h"
+#include "usrcatch.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -379,7 +384,7 @@ int dcpmain(int argc, char *argv[])
                   remote_stats.save_hstatus = hostp->hstatus;
                break;
 
-            case CONN_CALLUP1:
+            case CONN_CHECKTIME:
                sendgrade = checktime(flds[FLD_CCTIME]);
 
                if ( (override_grade && sendgrade) || callnow )
@@ -393,23 +398,30 @@ int dcpmain(int argc, char *argv[])
                   time(&hostp->hstats->ltime);
                                  /* Save time of last attempt to call   */
                   hostp->hstatus = autodial;
-                  m_state = CONN_CALLUP2;
+                  m_state = CONN_MODEM;
                }
                else
                   m_state = CONN_INITIALIZE;
 
                break;
 
-            case CONN_CALLUP2:
+            case CONN_MODEM:
+               if (getmodem(flds[FLD_TYPE]))
+                  m_state = CONN_DIALOUT;
+               else {
+                  hostp->hstatus = invalid_device;
+                  m_state = CONN_INITIALIZE;
+               }
+               break;
 
-               if ( suspend_other(TRUE) < 0 )
+            case CONN_DIALOUT:
+               if ( suspend_other(TRUE, M_device ) < 0 )
                {
                   hostp->hstatus =  nodevice;
                   m_state = CONN_INITIALIZE;    // Try next system
                }
                else
                   m_state = callup( );
-
                break;
 
             case CONN_PROTOCOL:
@@ -436,7 +448,7 @@ int dcpmain(int argc, char *argv[])
             case CONN_DROPLINE:
                shutDown();
                UnlockSystem();
-               suspend_other(FALSE);
+               suspend_other(FALSE, M_device);
                m_state = CONN_INITIALIZE;
                break;
 
@@ -462,7 +474,18 @@ int dcpmain(int argc, char *argv[])
       CONN_STATE s_state = CONN_INITIALIZE;
       CONN_STATE old_state = CONN_EXIT;
 
-      suspend_init();
+      if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
+         panic();                /* Avoid loop if bad modem name        */
+
+      if ( ! IsNetwork() )
+      {
+         if( signal( SIGUSR2, usrhandler ) == SIG_ERR )
+         {
+             printmsg( 0, "Couldn't set SIGUSR2\n" );
+             panic();
+         }
+         suspend_init(M_device);
+      }
 
       while (s_state != CONN_EXIT )
       {
@@ -492,7 +515,6 @@ int dcpmain(int argc, char *argv[])
             case CONN_WAIT:
               s_state = suspend_wait();
               break;
-
 
             case CONN_ANSWER:
                s_state = callin( exit_time );

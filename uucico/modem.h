@@ -1,5 +1,5 @@
-#ifndef _MODEM_H
-#define _MODEM_H
+#ifndef MODEM_H
+#define MODEM_H
 
 /*--------------------------------------------------------------------*/
 /*    m o d e m . h                                                   */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.6 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: modem.h 1.7 1993/09/28 01:40:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ * Revision 1.7  1993/09/28  01:40:29  ahd
+ * Configurable timeout for conversation start up
+ *
  * Revision 1.6  1993/09/20  04:53:57  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -67,12 +70,14 @@ KEWSHORT GetGPacket( KEWSHORT maxvalue, const char protocol );
 
 KEWSHORT GetGWindow( KEWSHORT maxvalue, const char protocol );
 
+boolean getmodem( const char *brand);
+
 /*--------------------------------------------------------------------*/
 /*                       Environment variables                        */
 /*--------------------------------------------------------------------*/
 
 extern boolean  bmodemflag[MODEM_LAST];
-extern char     *device;
+extern char     *M_device;
 extern KEWSHORT M_fPacketSize;
 extern KEWSHORT M_fPacketTimeout;
 extern KEWSHORT M_gPacketTimeout;
@@ -81,4 +86,5 @@ extern KEWSHORT M_PortTimeout;
 extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 extern KEWSHORT M_tPacketTimeout;
 extern KEWSHORT M_xfer_bufsize;
+
 #endif

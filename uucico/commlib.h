@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.4 1993/09/21 01:43:46 ahd Exp $
+ *    $Id: commlib.h 1.5 1993/09/25 03:13:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.5  1993/09/25  03:13:04  ahd
+ * Add priority altering prototypes
+ *
  * Revision 1.4  1993/09/21  01:43:46  ahd
  * Move MAXPACK to commlib.h to allow use as standard comm buffer size
  *
@@ -146,7 +149,7 @@ boolean IsNetwork(void);
 /*                     Priority setting functions                     */
 /*--------------------------------------------------------------------*/
 
-void setPrty( void );
+void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn );
 
 void resetPrty( void );
 
