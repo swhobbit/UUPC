@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.7 1994/12/22 00:29:29 ahd Exp $
+ *       $Id: su.cmd 1.8 1994/12/27 23:37:01 ahd Exp $
  *
  *       $Log: su.cmd $
+ *       Revision 1.8  1994/12/27 23:37:01  ahd
+ *       Add contributed fix to allow running rexx scripts within SU.CMD
+ *
  *       Revision 1.7  1994/12/22 00:29:29  ahd
  *       Annual Copyright Update
  *
@@ -82,6 +85,7 @@ if  right( confDir , 1 ) == '\' then
 
 uupcusrc = confDir || '\' || who || '.RC'
 who      = getuupc("MAILBOX",who,uupcusrc)
+
 if \ exist( uupcusrc ) then
 do;
    say uupcusrc 'does not exist!  Please verify' who 'is a valid user'

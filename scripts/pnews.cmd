@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.2 1994/02/13 04:56:14 ahd v1-12k $
+ *    $Id: pnews.cmd 1.3 1994/12/22 00:29:24 ahd Exp $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.3  1994/12/22 00:29:24  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.2  1994/02/13 04:56:14  ahd
  *    Add RCS log field
  *
@@ -50,6 +53,9 @@ signal on novalue
 /*--------------------------------------------------------------------*/
 
 uupcusrrc    = value( 'UUPCUSRRC',,'OS2ENVIRONMENT');
+
+if uupcusrrc = '' then
+   uupcusrrc    = value( 'LOGNAME',,'OS2ENVIRONMENT') || '.rc'
 
 domain       = getuupc("fromDomain", getuupc("domain"));
 editor       = getuupc("editor",,uupcusrrc);
