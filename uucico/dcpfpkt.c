@@ -31,17 +31,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.3 1992/11/19 02:36:29 ahd Exp $
+ *    $Id: DCPFPKT.C 1.4 1992/11/19 03:01:13 ahd Exp $
  *
  *    $Log: DCPFPKT.C $
+ * Revision 1.4  1992/11/19  03:01:13  ahd
+ * drop rcsid
+ *
  * Revision 1.3  1992/11/19  02:36:29  ahd
  * Revision 1.2  1992/11/15  20:10:47  ahd
  * Clean up modem file support for different protocols
  *
  */
-
-static const char rcsid[] =
-         "$Id: DCPFPKT.C 1.3 1992/11/19 02:36:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
