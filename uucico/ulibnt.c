@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.33 1998/04/19 23:55:58 ahd Exp $
+ *       $Id: ulibnt.c 1.34 1998/04/20 02:47:57 ahd v1-13f ahd $
  *       $Log: ulibnt.c $
+ *       Revision 1.34  1998/04/20 02:47:57  ahd
+ *       TAPI/Windows 32 BIT GUI display support
+ *
  *       Revision 1.33  1998/04/19 23:55:58  ahd
  *       *** empty log message ***
  *

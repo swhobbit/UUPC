@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.32 1998/08/02 01:00:47 ahd v1-13e $
+#       $Id: nmakewnt.mak 1.33 1998/11/24 03:08:23 ahd v1-13f $
 #
-#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.33  1998/11/24 03:08:23  ahd
+#       Up to version 1.12f
+#
 #       Revision 1.32  1998/08/02 01:00:47  ahd
 #       Put GUI modules into their own directory
 #

@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.29 1998/03/01 01:39:30 ahd Exp $
+ *    $Id: dcplib.c 1.30 1998/03/01 19:40:21 ahd v1-13f ahd $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.30  1998/03/01 19:40:21  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.29  1998/03/01 01:39:30  ahd
  *    Annual Copyright Update
  *

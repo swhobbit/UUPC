@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.h 1.9 1997/05/13 04:16:00 dmwatt v1-12u $
+ *    $Id: pwinsock.h 1.10 1998/03/01 01:27:18 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: pwinsock.h $
+ *    Revision 1.10  1998/03/01 01:27:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1997/05/13 04:16:00  dmwatt
  *    Support setsockopt
  *

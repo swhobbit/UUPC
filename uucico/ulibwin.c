@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.19 1995/02/26 02:51:34 ahd v1-12n $
+ *    $Id: ulibwin.c 1.20 1995/05/07 14:42:15 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.20  1995/05/07 14:42:15  ahd
+ *    Use real check for break contained in ssleep.c
+ *
  *    Revision 1.19  1995/02/26 02:51:34  ahd
  *    Use buffering version of nsread() based on OS/2 code
  *

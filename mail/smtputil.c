@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.5 1998/05/11 13:55:28 ahd v1-13b $
+ *       $Id: smtputil.c 1.6 1998/11/01 20:36:52 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.6  1998/11/01 20:36:52  ahd
+ *       *** empty log message ***
+ *
  * Revision 1.5  1998/05/11  13:55:28  ahd
  * Correct setting of local address flag
  *
@@ -55,7 +58,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.5 1998/05/11 13:55:28 ahd v1-13b $");
+RCSID("$Id: smtputil.c 1.6 1998/11/01 20:36:52 ahd v1-13f ahd $");
 
 currentfile();
 

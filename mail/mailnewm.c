@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: mailnewm.c 1.3 1998/03/16 07:47:40 ahd v1-13b $
+ *       $Id: mailnewm.c 1.4 1998/11/04 01:59:55 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: mailnewm.c $
+ *       Revision 1.4  1998/11/04 01:59:55  ahd
+ *       Prevent buffer overflows when processing UIDL lines
+ *       in POP3 mail.
+ *       Add internal sanity checks for various client structures
+ *       Convert various files to CR/LF from LF terminated lines
+ *
  * Revision 1.3  1998/03/16  07:47:40  ahd
  * Delete generation UIDL, that's the POP3 server's problem
  *
@@ -45,7 +51,7 @@
 /*                          Local constants                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: mailnewm.c 1.3 1998/03/16 07:47:40 ahd v1-13b $");
+RCSID("$Id: mailnewm.c 1.4 1998/11/04 01:59:55 ahd v1-13f ahd $");
 
 currentfile();
 

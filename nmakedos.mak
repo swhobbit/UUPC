@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.19 1998/05/17 21:11:20 ahd v1-12d $
+#       $Id: nmakedos.mak 1.20 1998/11/05 03:28:45 ahd v1-13f $
 #
-#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.20  1998/11/05 03:28:45  ahd
+#       Correct directory used for ZIP archives
+#
 #       Revision 1.19  1998/05/17 21:11:20  ahd
 #       Allow building line-length limited DOS modules in
 #       different directory

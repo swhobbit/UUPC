@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.h 1.9 1998/03/01 01:28:01 ahd Exp $
+ *    $Id: usertabl.h 1.10 1998/03/01 19:43:52 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: usertabl.h $
+ *    Revision 1.10  1998/03/01 19:43:52  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.9  1998/03/01 01:28:01  ahd
  *    Annual Copyright Update
  *

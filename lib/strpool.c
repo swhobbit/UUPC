@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.17 1998/03/01 01:25:36 ahd v1-13e $
+ *    $Id: strpool.c 1.18 1998/11/24 03:08:50 ahd v1-13f ahd $
  *
  *    $Log: strpool.c $
+ *    Revision 1.18  1998/11/24 03:08:50  ahd
+ *    Use KW_BUFSIZ for strpool size
+ *
  *    Revision 1.17  1998/03/01 01:25:36  ahd
  *    Annual Copyright Update
  *

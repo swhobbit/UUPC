@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.27 1998/03/01 01:46:22 ahd v1-13b ahd $
+ *    $Id: uux.c 1.28 1998/08/02 01:01:27 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.28  1998/08/02 01:01:27  ahd
+ *    Support automatic dial-out after UUX, UUCP
+ *
  *    Revision 1.27  1998/03/01 01:46:22  ahd
  *    Annual Copyright Update
  *

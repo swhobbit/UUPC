@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.47 1998/07/27 01:03:54 ahd Exp $
+ *    $Id: execute.c 1.48 1998/09/08 23:21:22 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.48  1998/09/08 23:21:22  ahd
+ *    Prevent buffer overruns
+ *
  *    Revision 1.47  1998/07/27 01:03:54  ahd
  *    Correct error message for dup()
  *

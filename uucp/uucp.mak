@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u u c p . m a k                                                *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1998 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1999 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucp.mak 1.9 1997/04/24 01:41:44 ahd v1-12u $
+#     $Id: uucp.mak 1.10 1998/03/01 01:46:06 ahd v1-13f ahd $
 #
 #     Revision history:
 #     $Log: uucp.mak $
+#     Revision 1.10  1998/03/01 01:46:06  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.9  1997/04/24 01:41:44  ahd
 #     Annual Copyright Update
 #

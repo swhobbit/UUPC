@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3trns.h 1.4 1998/04/19 15:33:53 ahd v1-13b $
+ *       $Id: pop3trns.h 1.5 1998/11/04 02:01:17 ahd v1-13f ahd $
  *
  *       Revision history:
  *       $Log: pop3trns.h $
+ *       Revision 1.5  1998/11/04 02:01:17  ahd
+ *       Add sanity check field to linked lists
+ *       Add assertion macros
+ *
  * Revision 1.4  1998/04/19  15:33:53  ahd
  * *** empty log message ***
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.9 1998/03/01 01:36:39 ahd v1-12v $
+ *    $Id: regsetup.c 1.10 1998/04/27 01:55:28 ahd v1-13f ahd $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.10  1998/04/27 01:55:28  ahd
+ *    Make copyright unconditional, and match configur.c version
+ *
  *    Revision 1.9  1998/03/01 01:36:39  ahd
  *    Annual Copyright Update
  *
@@ -74,7 +77,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.9 1998/03/01 01:36:39 ahd v1-12v $";
+         "$Id: regsetup.c 1.10 1998/04/27 01:55:28 ahd v1-13f ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -569,7 +572,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 
       fprintf(stderr,
-"Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1999 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");

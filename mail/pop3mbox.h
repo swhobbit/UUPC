@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.h 1.2 1998/03/03 07:37:36 ahd v1-12v $
+ *       $Id: pop3mbox.h 1.3 1998/03/09 01:20:41 ahd v1-13f ahd $
  *
  *       Revision history:
  *       $Log: pop3mbox.h $
+ *       Revision 1.3  1998/03/09 01:20:41  ahd
+ *       Normalize function names
+ *
  *       Revision 1.2  1998/03/03 07:37:36  ahd
  *       Add flags for requiring mbox update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.h 1.8 1997/04/24 01:38:13 ahd v1-12u $
+ *    $Id: ulibfs.h 1.9 1998/03/01 01:43:01 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: ulibfs.h $
+ *    Revision 1.9  1998/03/01 01:43:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1997/04/24 01:38:13  ahd
  *    Annual Copyright Update
  *

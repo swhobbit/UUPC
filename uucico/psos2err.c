@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,7 +28,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: psos2err.c 1.7 1997/12/15 02:33:58 ahd Exp $");
+RCSID("$Id: psos2err.c 1.8 1998/03/01 01:40:07 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

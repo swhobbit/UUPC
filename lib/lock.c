@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.16 1995/03/11 22:26:18 ahd v1-12v $
+ *    $Id: lock.c 1.17 1998/03/09 01:18:19 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.17  1998/03/09 01:18:19  ahd
+ *    Update copyright
+ *
  *    Revision 1.16  1995/03/11 22:26:18  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -50,7 +53,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: lock.c 1.17 1998/03/09 01:18:19 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.9 1997/04/24 01:31:27 ahd v1-12u $
+ *       $Id: uupcdll.c 1.10 1998/03/01 01:36:42 ahd v1-13f ahd $
  *       $Log: uupcdll.c $
+ *       Revision 1.10  1998/03/01 01:36:42  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.9  1997/04/24 01:31:27  ahd
  *       Annual Copyright Update
  *

@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.12 1998/07/27 01:03:54 ahd Exp $
+ *       $Id: delivers.c 1.13 1998/08/29 14:17:11 ahd v1-13f ahd $
  *
  *       $Log: delivers.c $
+ *       Revision 1.13  1998/08/29 14:17:11  ahd
+ *       Add setTitle() commands to report delivery progress
+ *
  *       Revision 1.12  1998/07/27 01:03:54  ahd
  *       Add work around for sending overlength lines (now that
  *       rmail doesn't puke on such lines on input)
@@ -103,7 +106,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.12 1998/07/27 01:03:54 ahd Exp $");
+RCSID("$Id: delivers.c 1.13 1998/08/29 14:17:11 ahd v1-13f ahd $");
 
 #define SMTP_PORT_NUMBER 25
 

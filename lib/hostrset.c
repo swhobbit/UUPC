@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.16 1997/03/31 06:59:51 ahd v1-12u $
+ *    $Id: hostrset.c 1.17 1998/03/01 01:23:59 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *    Revision 1.17  1998/03/01 01:23:59  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1997/03/31 06:59:51  ahd
  *    Annual Copyright Update
  *

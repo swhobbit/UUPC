@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.39 1998/04/19 15:30:08 ahd v1-13a $
+ *    $Id: imfile.c 1.40 1998/05/08 02:42:15 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.40  1998/05/08 02:42:15  ahd
+ *    Clear data structure before free to prevent accident reuse
+ *
  *    Revision 1.39  1998/04/19 15:30:08  ahd
  *    Don't repeat message as to size of file in imstatus()
  *

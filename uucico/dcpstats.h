@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.h 1.6 1997/04/24 01:37:11 ahd v1-12u $
+ *       $Id: dcpstats.h 1.7 1998/03/01 01:42:27 ahd v1-13f ahd $
  *
  *       $Log: dcpstats.h $
+ *       Revision 1.7  1998/03/01 01:42:27  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.6  1997/04/24 01:37:11  ahd
  *       Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPCMDS.C 1.6 1998/03/03 03:51:53 ahd v1-12v $
+ *       $Id: smtpcmds.c 1.7 1998/04/24 03:30:13 ahd v1-13f ahd $
  *
- *       $Log: SMTPCMDS.C $
+ *       $Log: smtpcmds.c $
+ *       Revision 1.7  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.6  1998/03/03 03:51:53  ahd
  *       Routines to handle messages within a POP3 mailbox
  *
@@ -53,7 +62,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: SMTPCMDS.C 1.6 1998/03/03 03:51:53 ahd v1-12v $");
+RCSID("$Id: smtpcmds.c 1.7 1998/04/24 03:30:13 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */

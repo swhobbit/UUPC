@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.18 1997/03/31 07:05:12 ahd v1-12u $
+ *    $Id: ndiros2.c 1.19 1998/03/01 01:24:33 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *    Revision 1.19  1998/03/01 01:24:33  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1997/03/31 07:05:12  ahd
  *    Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.8 1997/03/31 07:06:25 ahd v1-12u $
+ *    $Id: scrsize2.c 1.9 1998/03/01 01:25:15 ahd v1-13f ahd $
  *
  *    $Log: scrsize2.c $
+ *    Revision 1.9  1998/03/01 01:25:15  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1997/03/31 07:06:25  ahd
  *    Annual Copyright Update
  *

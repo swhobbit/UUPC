@@ -11,16 +11,19 @@ REM *    Written by Michael Morrett (ICBJ100@INDYVAX.IUPUI.EDU).       *
 REM *------------------------------------------------------------------*
 
 REM *------------------------------------------------------------------*
-REM *    Changes Copyright (c) 1989-1998 by Kendra Electronic          *
+REM *    Changes Copyright (c) 1989-1999 by Kendra Electronic          *
 REM *    Wonderworks.                                                  *
 REM *                                                                  *
 REM *    All rights reserved except those explicitly granted by        *
 REM *    the UUPC/extended license agreement.                          *
 REM *------------------------------------------------------------------*
 
-rem     $Id: uuclean.bat 1.5 1998/03/06 06:53:18 ahd v1-13a $
+rem     $Id: uuclean.bat 1.6 1998/05/11 01:27:30 ahd v1-13f $
 rem
 rem     $Log: uuclean.bat $
+rem     Revision 1.6  1998/05/11 01:27:30  ahd
+rem     Add distrinct log directory
+rem
 rem     Revision 1.5  1998/03/06 06:53:18  ahd
 rem     Add new daemons to cleanup list
 rem

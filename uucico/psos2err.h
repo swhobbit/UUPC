@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: psos2err.h 1.5 1997/04/24 01:37:40 ahd v1-12u $
+ *    $Id: psos2err.h 1.6 1998/03/01 01:42:44 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: psos2err.h $
+ *    Revision 1.6  1998/03/01 01:42:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1997/04/24 01:37:40  ahd
  *    Annual Copyright Update
  *

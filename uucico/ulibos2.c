@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.47 1997/04/24 01:36:14 ahd v1-12u $
+ *       $Id: ulibos2.c 1.48 1998/03/01 01:40:55 ahd v1-13f ahd $
  *       $Log: ulibos2.c $
+ *       Revision 1.48  1998/03/01 01:40:55  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.47  1997/04/24 01:36:14  ahd
  *       Annual Copyright Update
  *

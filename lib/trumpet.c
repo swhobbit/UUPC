@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.16 1998/03/08 23:07:12 ahd Exp $
+ *    $Id: trumpet.c 1.17 1998/03/16 06:14:04 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.17  1998/03/16 06:14:04  ahd
+ *    Control reporting of multiple announcements
+ *
  *    Revision 1.16  1998/03/08 23:07:12  ahd
  *    Add support for WAV files under Windows 32 bit
  *

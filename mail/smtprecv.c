@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.17 1998/08/02 01:01:27 ahd Exp $
+ *       $Id: smtprecv.c 1.18 1998/11/01 20:38:15 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.18  1998/11/01 20:38:15  ahd
+ *       Gracefully handle @@name.com (mangled by remotes from <>)
+ *
  *       Revision 1.17  1998/08/02 01:01:27  ahd
  *       Don't bounce inbound bounce messages from mis-configured mailers
  *
@@ -101,7 +104,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.17 1998/08/02 01:01:27 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.18 1998/11/01 20:38:15 ahd v1-13f ahd $");
 
 currentfile();
 

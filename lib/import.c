@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.38 1998/03/01 01:23:16 ahd v1-13b $
+ *    $Id: import.c 1.39 1998/07/27 01:03:54 ahd v1-13f ahd $
  *
  *    $Log: import.c $
+ *    Revision 1.39  1998/07/27 01:03:54  ahd
+ *    Revise file name to prevent silly questions
+ *
  *    Revision 1.38  1998/03/01  01:23:16  ahd
  *    Annual Copyright Update
  *
@@ -106,7 +109,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id: import.c 1.38 1998/03/01 01:23:16 ahd v1-13b $");
+RCSID("$Id: import.c 1.39 1998/07/27 01:03:54 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.11 1997/06/03 03:26:38 ahd v1-12u $
+ *    $Id: ulibip.h 1.12 1998/03/01 01:43:04 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ *    Revision 1.12  1998/03/01 01:43:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1997/06/03 03:26:38  ahd
  *    First compiling SMTP daemon
  *

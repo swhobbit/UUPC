@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.11 1998/04/24 03:30:13 ahd v1-13b $
+ *       $Id: smtplwc.c 1.12 1998/11/01 20:38:15 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.12  1998/11/01 20:38:15  ahd
+ *       Correct "Not using HELO protocol" warning message to not crash system
+ *
  * Revision 1.11  1998/04/24  03:30:13  ahd
  * Use local buffers, not client->transmit.buffer, for output
  * Rename receive buffer, use pointer into buffer rather than
@@ -79,7 +82,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.11 1998/04/24 03:30:13 ahd v1-13b $");
+RCSID("$Id: smtplwc.c 1.12 1998/11/01 20:38:15 ahd v1-13f ahd $");
 
 currentfile();
 

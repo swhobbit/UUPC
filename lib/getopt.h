@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getopt.h 1.3 1997/03/31 06:59:25 ahd v1-12u $
+ *    $Id: getopt.h 1.4 1998/03/01 01:26:31 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: getopt.h $
+ *    Revision 1.4  1998/03/01 01:26:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1997/03/31 06:59:25  ahd
  *    Annual Copyright Update
  *

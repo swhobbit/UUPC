@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibt.c 1.1 1997/05/11 18:15:50 ahd v1-12u $
+ *    $Id: commlibt.c 1.2 1998/03/01 01:39:10 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: commlibt.c $
+ *    Revision 1.2  1998/03/01 01:39:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.1  1997/05/11 18:15:50  ahd
  *    Initial revision
  *

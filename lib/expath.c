@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.23 1997/03/31 06:58:55 ahd v1-12u $
+ *    $Id: expath.c 1.24 1998/03/01 01:23:30 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.24  1998/03/01 01:23:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1997/03/31 06:58:55  ahd
  *    Annual Copyright Update
  *

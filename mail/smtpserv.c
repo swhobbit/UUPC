@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.19 1998/09/08 23:21:22 ahd v1-13e $
+ *    $Id: smtpserv.c 1.20 1998/11/24 14:10:23 ahd v1-13f ahd $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.20  1998/11/24 14:10:23  ahd
+ *    Add missing header for title.h
+ *
  *    Revision 1.19  1998/09/08 23:21:22  ahd
  *    Add setting of title for major operations
  *
@@ -94,7 +97,7 @@
 #include "title.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.19 1998/09/08 23:21:22 ahd v1-13e $");
+RCSID("$Id: smtpserv.c 1.20 1998/11/24 14:10:23 ahd v1-13f ahd $");
 
 currentfile();
 

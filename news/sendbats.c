@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.10 1997/04/24 01:39:41 ahd v1-12u $
+ *    $Id: sendbats.c 1.11 1998/03/01 01:30:36 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.11  1998/03/01 01:30:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1997/04/24 01:39:41  ahd
  *    Annual Copyright Update
  *
@@ -61,7 +64,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: sendbats.c 1.10 1997/04/24 01:39:41 ahd v1-12u $");
+RCSID("$Id: sendbats.c 1.11 1998/03/01 01:30:36 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.31 1997/11/28 23:11:38 ahd v1-12u $
+  *      $Id: hostable.c 1.32 1998/03/01 01:23:53 ahd v1-13f ahd $
   *
   *      $Log: hostable.c $
+  *      Revision 1.32  1998/03/01 01:23:53  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.31  1997/11/28 23:11:38  ahd
   *      Initial host table is initialized before domain name paranoia check
   *

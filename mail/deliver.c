@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.63 1998/08/29 14:17:11 ahd Exp $
+ *    $Id: deliver.c 1.64 1998/09/08 23:21:22 ahd v1-13f ahd $
  *
  *    $Log: deliver.c $
+ *    Revision 1.64  1998/09/08 23:21:22  ahd
+ *    Add setting of title for major operations
+ *
  *    Revision 1.63  1998/08/29 14:17:11  ahd
  *    Add setTitle() commands to report delivery progress
  *

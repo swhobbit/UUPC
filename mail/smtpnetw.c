@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.21 1998/05/11 13:55:28 ahd v1-13b $
+ *    $Id: smtpnetw.c 1.22 1998/11/04 01:59:55 ahd v1-13f ahd $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.22  1998/11/04 01:59:55  ahd
+ *    Prevent buffer overflows when processing UIDL lines
+ *    in POP3 mail.
+ *    Add internal sanity checks for various client structures
+ *    Convert various files to CR/LF from LF terminated lines
+ *
  * Revision 1.21  1998/05/11  13:55:28  ahd
  * Reduce buffer size to handle OS/2 builds
  *
@@ -121,7 +127,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.21 1998/05/11 13:55:28 ahd v1-13b $");
+RCSID("$Id: smtpnetw.c 1.22 1998/11/04 01:59:55 ahd v1-13f ahd $");
 
 currentfile();
 

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.h 1.4 1998/03/01 19:43:52 ahd Exp $
+ *       $Id: smtplwc.h 1.5 1998/03/03 03:55:05 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtplwc.h $
+ *       Revision 1.5  1998/03/03 03:55:05  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.4  1998/03/01 19:43:52  ahd
  *       First compiling POP3 server which accepts user id/password
  *

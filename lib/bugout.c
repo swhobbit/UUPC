@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.19 1998/05/11 01:20:48 ahd v1-13e $
+ *    $Id: bugout.c 1.20 1998/11/24 03:08:50 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.20  1998/11/24 03:08:50  ahd
+ *    Use BREAKPOINT, not divide by 0, to enter debugger
+ *
  *    Revision 1.19  1998/05/11 01:20:48  ahd
  *    Spin off log file before aborting
  *
@@ -103,7 +106,7 @@
 int panic_rc = 69;                  /* Actually defined in catcher.h,
                                        but not all routines need the
                                        catcher.                      */
-RCSID("$Id: bugout.c 1.19 1998/05/11 01:20:48 ahd v1-13e $");
+RCSID("$Id: bugout.c 1.20 1998/11/24 03:08:50 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */

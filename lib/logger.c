@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.31 1998/07/27 01:03:54 ahd Exp $
+ *    $Id: logger.c 1.32 1998/08/02 01:01:27 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.32  1998/08/02 01:01:27  ahd
+ *    Don't print spin off message unless building for debug
+ *
  *    Revision 1.31  1998/07/27 01:03:54  ahd
  *    Report exact problem with failure to remove file
  *
@@ -82,7 +85,7 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id: logger.c 1.31 1998/07/27 01:03:54 ahd Exp $");
+RCSID("$Id: logger.c 1.32 1998/08/02 01:01:27 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.17 1998/04/19 23:55:58 ahd v1-13a $
+ *    $Id: uucico.c 1.18 1998/05/11 01:20:48 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.18  1998/05/11 01:20:48  ahd
+ *    Correct compile warning
+ *
  *    Revision 1.17  1998/04/19 23:55:58  ahd
  *    *** empty log message ***
  *
@@ -64,7 +67,7 @@
 #include "catcher.h"
 
 currentfile();
-RCSID("$Id: uucico.c 1.17 1998/04/19 23:55:58 ahd v1-13a $");
+RCSID("$Id: uucico.c 1.18 1998/05/11 01:20:48 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

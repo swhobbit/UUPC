@@ -2,7 +2,7 @@
 #define _MAILADDR_H
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailaddr.h 1.4 1998/03/16 06:43:00 ahd v1-13b $
+ *    $Id: mailaddr.h 1.5 1998/10/28 03:20:00 ahd v1-13f ahd $
  *
  *    $Log: mailaddr.h $
+ *    Revision 1.5  1998/10/28 03:20:00  ahd
+ *    Add flag for received line already in message
+ *
  * Revision 1.4  1998/03/16  06:43:00  ahd
  * Better trumpet support in rmail
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.13 1997/03/31 06:58:20 ahd v1-12u $
+ *    $Id: chdir.c 1.14 1998/03/01 01:23:11 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.14  1998/03/01 01:23:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1997/03/31 06:58:20  ahd
  *    Annual Copyright Update
  *

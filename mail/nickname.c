@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.26 1997/05/11 04:27:40 ahd v1-12u $
+ *    $Id: nickname.c 1.27 1998/03/01 01:33:12 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.27  1998/03/01 01:33:12  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1997/05/11 04:27:40  ahd
  *    SMTP client support for RMAIL/UUXQT
  *

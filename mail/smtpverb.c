@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPVERB.C 1.10 1998/03/03 03:54:42 ahd v1-12v $
+ *       $Id: smtpverb.c 1.11 1998/04/24 03:30:13 ahd v1-13f ahd $
  *
  *       Revision History:
- *       $Log: SMTPVERB.C $
+ *       $Log: smtpverb.c $
+ *       Revision 1.11  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.10  1998/03/03 03:54:42  ahd
  *       Revamp tokenizer to handle multiple tokens
  *
@@ -67,7 +76,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: SMTPVERB.C 1.10 1998/03/03 03:54:42 ahd v1-12v $");
+RCSID("$Id: smtpverb.c 1.11 1998/04/24 03:30:13 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

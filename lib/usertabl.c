@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.17 1998/01/03 05:27:58 ahd Exp $
+ *    $Id: usertabl.c 1.18 1998/03/01 19:40:21 ahd v1-13f ahd $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.18  1998/03/01 19:40:21  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.17  1998/01/03 05:27:58  ahd
  *    Password file overrides environment variable
  *

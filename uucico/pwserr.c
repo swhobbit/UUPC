@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.13 1998/03/01 01:40:10 ahd v1-12v $
+ *    $Id: pwserr.c 1.14 1998/03/16 06:39:32 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.14  1998/03/16 06:39:32  ahd
+ *    Allow build under MS VC++ 5.0
+ *
  *    Revision 1.13  1998/03/01 01:40:10  ahd
  *    Annual Copyright Update
  *

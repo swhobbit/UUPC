@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: TITLEN.C 1.8 1998/03/01 01:25:47 ahd v1-12v $
+ *    $Id: titlen.c 1.10 1998/04/20 02:47:57 ahd v1-13f ahd $
  *
  *    Revision history:
- *    $Log: TITLEN.C $
+ *    $Log: titlen.c $
+ *    Revision 1.10  1998/04/20 02:47:57  ahd
+ *    TAPI/Windows 32 BIT GUI display support
+ *
  *    Revision 1.8  1998/03/01 01:25:47  ahd
  *    Annual Copyright Update
  *

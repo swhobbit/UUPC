@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.14 1997/03/31 07:05:58 ahd v1-12u $
+ *    $Id: readnext.c 1.15 1998/03/01 01:24:58 ahd v1-13f ahd $
  *
  *    $Log: readnext.c $
+ *    Revision 1.15  1998/03/01 01:24:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1997/03/31 07:05:58  ahd
  *    Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutapi.c 1.2 1998/04/20 02:47:57 ahd v1-13a $
+ *    $Id: uutapi.c 1.3 1998/05/11 01:20:48 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uutapi.c $
+ *    Revision 1.3  1998/05/11 01:20:48  ahd
+ *    Allow building UUCICO w/o TAPI support under NT
+ *
  *    Revision 1.2  1998/04/20 02:47:57  ahd
  *    TAPI/Windows 32 BIT GUI display support
  *
@@ -64,7 +67,7 @@
 #include "pnterr.h"
 #include "uutapi.h"
 
-RCSID("$Id: uutapi.c 1.2 1998/04/20 02:47:57 ahd v1-13a $");
+RCSID("$Id: uutapi.c 1.3 1998/05/11 01:20:48 ahd v1-13f ahd $");
 
 extern HWND     hFrame;             /* handle of main window */
 extern HANDLE   hInst;              /* our instance */

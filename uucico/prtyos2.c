@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.10 1997/04/24 01:34:38 ahd v1-12u $
+ *    $Id: prtyos2.c 1.11 1998/03/01 01:40:04 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ *    Revision 1.11  1998/03/01 01:40:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1997/04/24 01:34:38  ahd
  *    Annual Copyright Update
  *

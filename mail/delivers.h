@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivers.h 1.3 1997/12/13 18:11:33 ahd v1-12u $
+ *    $Id: delivers.h 1.4 1998/03/01 01:31:10 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: delivers.h $
+ *    Revision 1.4  1998/03/01 01:31:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1997/12/13 18:11:33  ahd
  *    Change parsing and passing of sender address information
  *

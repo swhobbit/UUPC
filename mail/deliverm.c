@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.6 1998/03/16 06:40:49 ahd v1-13b $
+ *    $Id: deliverm.c 1.7 1998/11/01 20:38:15 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.7  1998/11/01 20:38:15  ahd
+ *    Tweek LF to CR/LF
+ *
  * Revision 1.6  1998/03/16  06:40:49  ahd
  * Use actual size of buffer for imgets
  *
@@ -76,7 +79,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.6 1998/03/16 06:40:49 ahd v1-13b $");
+RCSID("$Id: deliverm.c 1.7 1998/11/01 20:38:15 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

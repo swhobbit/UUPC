@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.33 1998/03/01 01:36:45 ahd v1-13a $
+ *    $Id: uupoll.c 1.34 1998/05/11 01:20:48 ahd v1-13f ahd $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.34  1998/05/11 01:20:48  ahd
+ *    Always log to correct directory if enabled at all
+ *
  *    Revision 1.33  1998/03/01 01:36:45  ahd
  *    Annual Copyright Update
  *
@@ -203,7 +206,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.33 1998/03/01 01:36:45 ahd v1-13a $";
+         "$Id: uupoll.c 1.34 1998/05/11 01:20:48 ahd v1-13f ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

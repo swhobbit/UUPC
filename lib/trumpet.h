@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.h 1.6 1998/03/01 01:27:55 ahd v1-12v $
+ *    $Id: trumpet.h 1.7 1998/03/16 06:15:28 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: trumpet.h $
+ *    Revision 1.7  1998/03/16 06:15:28  ahd
+ *    Control reporting of multiple announcements
+ *
  *    Revision 1.6  1998/03/01 01:27:55  ahd
  *    Annual Copyright Update
  *

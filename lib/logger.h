@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.44 1998/04/27 01:57:29 ahd v1-13a $
+ *       $Id: logger.h 1.2 1998/05/11 01:25:40 ahd v1-13f ahd $
  *
  *       Revision history:
- *       $Log: lib.h $
+ *       $Log: logger.h $
+ *       Revision 1.2  1998/05/11 01:25:40  ahd
+ *       Make copylog public
+ *
  */
 
 void openlog( const char *log );

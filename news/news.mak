@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     n e w s . m a k                                                *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1998 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1999 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: news.mak 1.14 1997/04/24 01:40:33 ahd v1-12u $
+#     $Id: news.mak 1.15 1998/03/01 01:29:50 ahd v1-13f ahd $
 #
 #     Revision history:
 #     $Log: news.mak $
+#     Revision 1.15  1998/03/01 01:29:50  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.14  1997/04/24 01:40:33  ahd
 #     Annual Copyright Update
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.18 1998/03/01 01:26:40 ahd v1-13b $
+  *   $Id: hostable.h 1.19 1998/11/04 02:01:17 ahd v1-13f ahd $
   *
   *   $Log: hostable.h $
+  *   Revision 1.19  1998/11/04 02:01:17  ahd
+  *   Add sanity check field to linked lists
+  *   Add assertion macros
+  *
  *     Revision 1.18  1998/03/01  01:26:40  ahd
  *     Annual Copyright Update
  *

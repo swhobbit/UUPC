@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.16 1998/03/01 01:31:49 ahd v1-13b $
+ *    $Id: sysalias.c 1.17 1998/11/01 20:38:15 ahd v1-13f ahd $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.17  1998/11/01 20:38:15  ahd
+ *    Add additional traps for memory allocation failing
+ *
  * Revision 1.16  1998/03/01  01:31:49  ahd
  * Annual Copyright Update
  *

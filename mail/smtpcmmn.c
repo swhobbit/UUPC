@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPCMMN.C 1.3 1998/03/08 23:10:20 ahd Exp $
+ *       $Id: smtpcmmn.c 1.4 1998/04/24 03:30:13 ahd v1-13f ahd $
  *
  *       Revision History:
- *       $Log: SMTPCMMN.C $
+ *       $Log: smtpcmmn.c $
+ *       Revision 1.4  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.3  1998/03/08 23:10:20  ahd
  *       Don't try to write to master (listening) socket
  *
@@ -45,7 +54,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: SMTPCMMN.C 1.3 1998/03/08 23:10:20 ahd Exp $");
+RCSID("$Id: smtpcmmn.c 1.4 1998/04/24 03:30:13 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */

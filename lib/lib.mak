@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     l i b . m a k                                                  *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1998 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1999 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.22 1997/06/03 03:25:01 ahd v1-12u $
+#       $Id: lib.mak 1.23 1998/03/01 01:22:52 ahd v1-13f ahd $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.23  1998/03/01 01:22:52  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.22  1997/06/03 03:25:01  ahd
 #       First compiling UUSMTPD
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.22 1998/04/28 02:20:22 ahd Exp $
+ *    $Id: printmsg.c 1.23 1998/04/29 03:49:49 ahd v1-13f ahd $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.23  1998/04/29 03:49:49  ahd
+ *    Correct formatting of date at debug 1
+ *
  *    Revision 1.22  1998/04/28 02:20:22  ahd
  *    Correct output of timestamp buffer in non-GUI mode
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.h 1.1 1997/11/24 02:53:26 ahd v1-12u $
+ *       $Id: smtputil.h 1.2 1998/03/01 01:27:58 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtputil.h $
+ *       Revision 1.2  1998/03/01 01:27:58  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.1  1997/11/24 02:53:26  ahd
  *       First working SMTP daemon which delivers mail
  *

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.21 1997/04/24 01:35:08 ahd v1-12u $
+ *    $Id: suspend2.c 1.22 1998/03/01 01:40:21 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.22  1998/03/01 01:40:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1997/04/24 01:35:08  ahd
  *    Annual Copyright Update
  *

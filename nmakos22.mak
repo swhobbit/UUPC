@@ -1,10 +1,14 @@
-#       $Id: nmakos22.mak 1.26 1998/10/28 03:18:17 ahd Exp $
+#       $Id: nmakos22.mak 1.27 1998/11/04 01:59:13 ahd v1-13f $
 #
-#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.27  1998/11/04 01:59:13  ahd
+#       Support easily moving the zip archives to a different directory
+#       from the rest of the build.
+#
 #       Revision 1.26  1998/10/28 03:18:17  ahd
 #       Allow program other than LIB to handle library archives for OS/2
 #       Correct OS/2 compile options for Visual C++ 3.0

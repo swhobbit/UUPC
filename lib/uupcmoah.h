@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.12 1998/09/08 23:23:18 ahd v1-12d $
+ *    $Id: uupcmoah.h 1.13 1998/11/05 03:30:26 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.13  1998/11/05 03:30:26  ahd
+ *    Allow determining NT vs. 95 on the fly
+ *
  *    Revision 1.12  1998/09/08 23:23:18  ahd
  *    Define COMMAND_TEXT_MAX and KW_BUFSIZ
  *

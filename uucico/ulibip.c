@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.36 1998/03/01 01:40:43 ahd v1-12v $
+ *    $Id: ulibip.c 1.37 1998/03/16 06:39:32 ahd v1-13f ahd $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.37  1998/03/16 06:39:32  ahd
+ *    Correct debugging message
+ *
  *    Revision 1.36  1998/03/01 01:40:43  ahd
  *    Annual Copyright Update
  *

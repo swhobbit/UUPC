@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.19 1998/01/03 05:27:58 ahd Exp $
+ *       $Id: ndirnt.c 1.20 1998/03/01 01:24:05 ahd v1-13f ahd $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.20  1998/03/01 01:24:05  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.19  1998/01/03 05:27:58  ahd
  *       Up debuglevel of directory open failure message
  *
@@ -114,7 +117,7 @@ static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
 
-RCSID("$Id: ndirnt.c 1.19 1998/01/03 05:27:58 ahd Exp $");
+RCSID("$Id: ndirnt.c 1.20 1998/03/01 01:24:05 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

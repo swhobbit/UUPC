@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.17 1998/07/27 01:03:54 ahd Exp ahd $
+ *    $Id: dcptpkt.c 1.18 1998/10/28 03:19:14 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.18  1998/10/28 03:19:14  ahd
+ *    Don't attempt to compile uneeded routines under OS/2 VAC++ 3.0
+ *
  *    Revision 1.17  1998/07/27 01:03:54  ahd
  *    Correct compile error under MS VC++ 5.0
  *

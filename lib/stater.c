@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.14 1997/12/14 21:13:45 ahd v1-12u $
+ *    $Id: stater.c 1.15 1998/03/01 01:25:31 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.15  1998/03/01 01:25:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1997/12/14 21:13:45  ahd
  *    If called to determine size of directory, return an error
  *
@@ -48,7 +51,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: stater.c 1.14 1997/12/14 21:13:45 ahd v1-12u $");
+RCSID("$Id: stater.c 1.15 1998/03/01 01:25:31 ahd v1-13f ahd $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

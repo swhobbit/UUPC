@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.60 1998/03/01 01:46:25 ahd v1-13b $
+ *    $Id: uuxqt.c 1.61 1998/09/08 23:21:22 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.61  1998/09/08 23:21:22  ahd
+ *    Prevent buffer overruns
+ *
  * Revision 1.60  1998/03/01  01:46:25  ahd
  * Annual Copyright Update
  *

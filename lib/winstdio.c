@@ -18,7 +18,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -30,10 +30,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: winstdio.c 1.1 1998/04/19 23:55:58 ahd Exp $
+ *       $Id: winstdio.c 1.2 1998/04/20 02:47:57 ahd v1-13f ahd $
  *
  *       Revision history:
  *       $Log: winstdio.c $
+ *       Revision 1.2  1998/04/20 02:47:57  ahd
+ *       TAPI/Windows 32 BIT GUI display support
+ *
  *       Revision 1.1  1998/04/19 23:55:58  ahd
  *       Initial revision
  *
@@ -53,7 +56,7 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_LINES 1000
 
-RCSID("$Id$");
+RCSID("$Id: winstdio.c 1.2 1998/04/20 02:47:57 ahd v1-13f ahd $");
 
 HWND hFrame;                        /* handle of main window */
 HANDLE hInst;                       /* our instance */

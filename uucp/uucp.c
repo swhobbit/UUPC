@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.27 1998/04/20 03:15:06 ahd v1-13b $
+ *    $Id: uucp.c 1.28 1998/08/02 01:01:27 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.28  1998/08/02 01:01:27  ahd
+ *    Support automatic dial-out after UUX, UUCP
+ *
  * Revision 1.27  1998/04/20  03:15:06  ahd
  * Correct normalizing of path names for transmission
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.73 1998/04/27 01:55:28 ahd v1-13e $
+ *    $Id: modem.c 1.74 1998/11/24 13:49:41 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.74  1998/11/24 13:49:41  ahd
+ *    Disable optimization under VC++ 5.0 for modem packet size computation;
+ *    panic if code loops excessively anyway.
+ *
  *    Revision 1.73  1998/04/27 01:55:28  ahd
  *    Allow defaulting selected options to enabled
  *
@@ -289,7 +293,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id: modem.c 1.73 1998/04/27 01:55:28 ahd v1-13e $");
+RCSID("$Id: modem.c 1.74 1998/11/24 13:49:41 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */

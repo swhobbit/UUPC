@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.42 1998/03/01 01:26:54 ahd Exp $
+ *    $Id: mailnewm.h 1.1 1998/03/03 03:55:26 ahd v1-13f ahd $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mailnewm.h $
+ *    Revision 1.1  1998/03/03 03:55:26  ahd
+ *    Initial revision
+ *
  */
 
 KWBoolean IncludeNew( const char *target, const char *user);

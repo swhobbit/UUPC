@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.46 1998/11/05 03:30:26 ahd v1-13e $
+ *       $Id: lib.h 1.47 1998/11/24 13:50:22 ahd v1-13f ahd $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *       Revision 1.47  1998/11/24 13:50:22  ahd
+ *       Use BREAKPOINT values for IBM C++, VC++ 5.0
+ *
  *       Revision 1.46  1998/11/05 03:30:26  ahd
  *       Allow determining NT vs. 95 on the fly
  *

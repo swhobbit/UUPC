@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.h 1.5 1997/03/31 06:58:07 ahd v1-12u $
+ *    $Id: arpadate.h 1.6 1998/03/01 01:26:08 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: arpadate.h $
+ *    Revision 1.6  1998/03/01 01:26:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1997/03/31 06:58:07  ahd
  *    Annual Copyright Update
  *

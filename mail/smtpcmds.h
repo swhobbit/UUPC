@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPCMDS.H 1.2 1998/03/03 03:55:05 ahd v1-12v $
+ *       $Id: smtpcmds.h 1.3 1998/04/24 03:34:25 ahd v1-13f ahd $
  *
  *       Revision History:
- *       $Log: SMTPCMDS.H $
+ *       $Log: smtpcmds.h $
+ *       Revision 1.3  1998/04/24 03:34:25  ahd
+ *       Use local buffers for output
+ *       Add flag bits to verb table
+ *       Add flag bytes to client structure
+ *
  *       Revision 1.2  1998/03/03 03:55:05  ahd
  *       Routines to handle messages within a POP3 mailbox
  *

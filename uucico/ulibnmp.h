@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnmp.h 1.9 1997/04/24 01:38:24 ahd v1-12u $
+ *    $Id: ulibnmp.h 1.10 1998/03/01 01:43:07 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: ulibnmp.h $
+ *    Revision 1.10  1998/03/01 01:43:07  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1997/04/24 01:38:24  ahd
  *    Annual Copyright Update
  *

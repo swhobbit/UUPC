@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.h 1.8 1997/12/13 18:11:33 ahd v1-12u $
+ *    $Id: address.h 1.9 1998/03/01 01:31:27 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: address.h $
+ *    Revision 1.9  1998/03/01 01:31:27  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1997/12/13 18:11:33  ahd
  *    Add debuging information for HostAlias, macro to determine
  *    if address is only local part

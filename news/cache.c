@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.8 1997/12/14 21:17:03 ahd v1-12u $
+ *    $Id: cache.c 1.9 1998/03/01 01:30:06 ahd v1-13f ahd $
  *
  * $Log: cache.c $
+ * Revision 1.9  1998/03/01 01:30:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1997/12/14 21:17:03  ahd
  * Consistently use UUFAR for cache pointers
  *
@@ -57,7 +60,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.8 1997/12/14 21:17:03 ahd v1-12u $");
+RCSID("$Id: cache.c 1.9 1998/03/01 01:30:06 ahd v1-13f ahd $");
 
 #include <io.h>
 #include <memory.h>

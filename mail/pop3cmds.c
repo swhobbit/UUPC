@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: POP3CMDS.C 1.4 1998/03/06 06:51:28 ahd Exp $
+ *       $Id: pop3cmds.c 1.5 1998/04/24 03:30:13 ahd v1-13f ahd $
  *
- *       $Log: POP3CMDS.C $
+ *       $Log: pop3cmds.c $
+ *       Revision 1.5  1998/04/24 03:30:13  ahd
+ *       Use local buffers, not client->transmit.buffer, for output
+ *       Rename receive buffer, use pointer into buffer rather than
+ *            moving buffered data to front of buffer every line
+ *       Restructure main processing loop to give more priority
+ *            to client processing data already buffered
+ *       Add flag bits to client structure
+ *       Add flag bits to verb tables
+ *
  *       Revision 1.4  1998/03/06 06:51:28  ahd
  *       Improved POP3 support, including transaction counting
  *
@@ -58,7 +67,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: POP3CMDS.C 1.4 1998/03/06 06:51:28 ahd Exp $");
+RCSID("$Id: pop3cmds.c 1.5 1998/04/24 03:30:13 ahd v1-13f ahd $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */

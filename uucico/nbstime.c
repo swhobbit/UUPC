@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.39 1998/03/01 01:39:58 ahd v1-12d $
+ *    $Id: nbstime.c 1.40 1998/11/05 03:29:03 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.40  1998/11/05 03:29:03  ahd
+ *    Move code to determine NT vs. 95 to configur.c
+ *    ./
+ *
  *    Revision 1.39  1998/03/01 01:39:58  ahd
  *    Annual Copyright Update
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.30 1998/03/01 01:26:14 ahd v1-13a $
+ *    $Id: confvars.h 1.31 1998/05/11 01:25:40 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.31  1998/05/11 01:25:40  ahd
+ *    Add log directory
+ *
  *    Revision 1.30  1998/03/01 01:26:14  ahd
  *    Annual Copyright Update
  *

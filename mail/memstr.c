@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.43 1998/04/20 02:48:54 ahd Exp $
+ *       $Id: memstr.c 1.1 1998/04/24 03:30:13 ahd v1-13f ahd $
  *
  *       Revision history:
- *       $Log: lib.h $
+ *       $Log: memstr.c $
+ *       Revision 1.1  1998/04/24 03:30:13  ahd
+ *       Initial revision
+ *
  */
 
 #include "uupcmoah.h"

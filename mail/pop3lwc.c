@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.6 1998/11/01 20:38:15 ahd Exp $
+ *       $Id: pop3lwc.c 1.7 1998/11/04 01:59:55 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.7  1998/11/04 01:59:55  ahd
+ *       Prevent buffer overflows when processing UIDL lines
+ *       in POP3 mail.
+ *       Add internal sanity checks for various client structures
+ *       Convert various files to CR/LF from LF terminated lines
+ *
  *       Revision 1.6  1998/11/01 20:38:15  ahd
  *       Trap overlength operands on USER command
  *
@@ -65,7 +71,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.6 1998/11/01 20:38:15 ahd Exp $");
+RCSID("$Id: pop3lwc.c 1.7 1998/11/04 01:59:55 ahd v1-13f ahd $");
 
 currentfile();
 

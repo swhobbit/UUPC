@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SMTPNETW.H 1.4 1998/03/01 01:28:19 ahd v1-12v $
+ *    $Id: smtpnetw.h 1.5 1998/04/24 03:34:25 ahd v1-13f ahd $
  *
- *    $Log: SMTPNETW.H $
+ *    $Log: smtpnetw.h $
+ *    Revision 1.5  1998/04/24 03:34:25  ahd
+ *    Use local buffers for output
+ *    Add flag bits to verb table
+ *    Add flag bytes to client structure
+ *
  *    Revision 1.4  1998/03/01 01:28:19  ahd
  *    Annual Copyright Update
  *

@@ -8,16 +8,19 @@ REM *                   with UUPC/extended                             *
 REM *------------------------------------------------------------------*
 
 REM *------------------------------------------------------------------*
-REM *    Changes Copyright (c) 1989-1998 by Kendra Electronic         **
+REM *    Changes Copyright (c) 1989-1999 by Kendra Electronic         **
 REM *    Wonderworks.                                                 **
 REM *                                                                 **
 REM *    All rights reserved except those explicitly granted by       **
 REM *    the UUPC/extended license agreement.                         **
 REM *------------------------------------------------------------------*
 
-REM *   $Id: su.bat 1.6 1997/04/24 01:29:56 ahd v1-12u $
+REM *   $Id: su.bat 1.7 1998/03/01 01:33:07 ahd v1-13f $
 REM *
 REM *   $Log: su.bat $
+REM *   Revision 1.7  1998/03/01 01:33:07  ahd
+REM *   Annual Copyright Update
+REM *
 REM *   Revision 1.6  1997/04/24 01:29:56  ahd
 REM *   Annual Copyright Update
 REM *

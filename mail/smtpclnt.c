@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.16 1998/04/24 03:30:13 ahd v1-13b $
+ *       $Id: smtpclnt.c 1.17 1998/11/04 01:59:55 ahd v1-13f ahd $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.17  1998/11/04 01:59:55  ahd
+ *       Prevent buffer overflows when processing UIDL lines
+ *       in POP3 mail.
+ *       Add internal sanity checks for various client structures
+ *       Convert various files to CR/LF from LF terminated lines
+ *
  * Revision 1.16  1998/04/24  03:30:13  ahd
  * Use local buffers, not client->transmit.buffer, for output
  * Rename receive buffer, use pointer into buffer rather than
@@ -98,7 +104,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.16 1998/04/24 03:30:13 ahd v1-13b $");
+RCSID("$Id: smtpclnt.c 1.17 1998/11/04 01:59:55 ahd v1-13f ahd $");
 
 static size_t clientSequence = 0;
 

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPVERB.H 1.10 1998/03/08 23:12:28 ahd Exp $
+ *       $Id: smtpverb.h 1.11 1998/04/24 03:34:25 ahd v1-13f ahd $
  *
  *       Revision History:
- *       $Log: SMTPVERB.H $
+ *       $Log: smtpverb.h $
+ *       Revision 1.11  1998/04/24 03:34:25  ahd
+ *       Use local buffers for output
+ *       Add flag bits to verb table
+ *       Add flag bytes to client structure
+ *
  *       Revision 1.10  1998/03/08 23:12:28  ahd
  *       Support for sending raw text to POP clients
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.53 1998/07/27 01:03:54 ahd v1-12d $
+ *    $Id: dcp.c 1.54 1998/11/05 03:29:03 ahd v1-13f ahd $
  *
  *    $Log: dcp.c $
+ *    Revision 1.54  1998/11/05 03:29:03  ahd
+ *    Don't abort if Win9X can't suspend (Windows 98 is missing files)
+ *
  *    Revision 1.53  1998/07/27 01:03:54  ahd
  *    Disable logging during execute invocation
  *

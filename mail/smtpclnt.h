@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.14 1998/04/24 03:34:25 ahd v1-13b $
+ *    $Id: smtpclnt.h 1.15 1998/11/04 02:01:17 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.15  1998/11/04 02:01:17  ahd
+ *    Add sanity check field to linked lists
+ *    Add assertion macros
+ *
  * Revision 1.14  1998/04/24  03:34:25  ahd
  * Use local buffers for output
  * Add flag bits to verb table

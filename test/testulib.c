@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: testulib.c 1.2 1992/12/30 12:26:32 plummer v1-12k $
+ *    $Id: testulib.c 1.3 1995/01/07 16:22:23 ahd v1-13f ahd $
  *
  *    $Log: testulib.c $
+ *    Revision 1.3  1995/01/07 16:22:23  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.2  1992/12/30 12:26:32  plummer
  *    Report errors
  *

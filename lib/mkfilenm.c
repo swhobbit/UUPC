@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.13 1997/03/31 07:04:56 ahd v1-12u $
+ *    $Id: mkfilenm.c 1.14 1998/03/01 01:24:19 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *    Revision 1.14  1998/03/01 01:24:19  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1997/03/31 07:04:56  ahd
  *    Annual Copyright Update
  *

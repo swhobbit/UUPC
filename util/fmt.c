@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.11 1998/05/17 21:12:13 ahd v1-12d $
+ *    $Id: fmt.c 1.12 1998/11/07 03:42:26 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.12  1998/11/07 03:42:26  ahd
+ *    Remove bad line terminations
+ *
  *    Revision 1.11  1998/05/17 21:12:13  ahd
  *    Support -c, -s options
  *    Correct paragraph break processing
@@ -64,7 +67,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: fmt.c 1.11 1998/05/17 21:12:13 ahd v1-12d $");
+RCSID("$Id: fmt.c 1.12 1998/11/07 03:42:26 ahd v1-13f ahd $");
 
 #include <ctype.h>
 

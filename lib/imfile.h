@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: IMFILE.H 1.11 1998/03/09 01:20:41 ahd Exp $
+ *    $Id: imfile.h 1.12 1998/04/19 15:33:53 ahd v1-13f ahd $
  *
  *    Revision history:
- *    $Log: IMFILE.H $
+ *    $Log: imfile.h $
+ *    Revision 1.12  1998/04/19 15:33:53  ahd
+ *    Add flag to denote when file size message was issued
+ *
  *    Revision 1.11  1998/03/09 01:20:41  ahd
  *    Add flag for imtell() being called
  *

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.58 1997/04/24 01:34:08 ahd v1-12u $
+ *       $Id: dcpxfer.c 1.59 1998/03/01 01:39:46 ahd v1-13f ahd $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.59  1998/03/01 01:39:46  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.58  1997/04/24 01:34:08  ahd
  *       Annual Copyright Update
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtptrns.h 1.3 1998/03/01 01:28:04 ahd v1-13a $
+ *       $Id: smtptrns.h 1.4 1998/05/11 01:25:40 ahd v1-13f ahd $
  *
  *       Revision history:
  *       $Log: smtptrns.h $
+ *       Revision 1.4  1998/05/11 01:25:40  ahd
+ *       Support disallowing third-party SMTP relays
+ *
  *       Revision 1.3  1998/03/01 01:28:04  ahd
  *       Annual Copyright Update
  *

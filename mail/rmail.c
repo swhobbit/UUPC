@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.71 1998/08/29 14:17:11 ahd Exp $
+ *    $Id: rmail.c 1.72 1998/11/01 20:38:15 ahd v1-13f ahd $
  *
  *    $Log: rmail.c $
+ *    Revision 1.72  1998/11/01 20:38:15  ahd
+ *    Don't generate duplicate Message-IDs in -t order
+ *
  *    Revision 1.71  1998/08/29 14:17:11  ahd
  *    Add setTitle() commands to report delivery progress
  *
@@ -279,7 +282,7 @@ static KWBoolean DaemonMail(
 
  currentfile();                     /* file name for checkref()        */
 
- RCSID("$Id$");
+ RCSID("$Id: rmail.c 1.72 1998/11/01 20:38:15 ahd v1-13f ahd $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;

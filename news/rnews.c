@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.67 1997/04/24 01:39:33 ahd v1-12u $
+ *       $Id: rnews.c 1.68 1998/03/01 01:30:32 ahd v1-13f ahd $
  *
  *       $Log: rnews.c $
+ *       Revision 1.68  1998/03/01 01:30:32  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.67  1997/04/24 01:39:33  ahd
  *       Annual Copyright Update
  *
@@ -71,7 +74,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.67 1997/04/24 01:39:33 ahd v1-12u $";
+         "$Id: rnews.c 1.68 1998/03/01 01:30:32 ahd v1-13f ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

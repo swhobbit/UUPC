@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1999 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.43 1998/05/11 01:25:40 ahd v1-13b $
+ *    $Id: uutypes.h 1.44 1998/08/02 01:02:46 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.44  1998/08/02 01:02:46  ahd
+ *    Add autocall option to support automatic dial-out after UUX, UUCP
+ *
  *     Revision 1.43  1998/05/11  01:25:40  ahd
  *     Change name of SMTP relay boolean
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.16 1997/03/31 07:05:36 ahd v1-12u $
+ *    $Id: printerr.c 1.17 1998/03/01 01:24:47 ahd v1-13f ahd $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.17  1998/03/01 01:24:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1997/03/31 07:05:36  ahd
  *    Annual Copyright Update
  *
