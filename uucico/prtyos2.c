@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.4 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: prtyos2.c 1.1 1993/09/25 03:07:56 ahd Exp $
  *
  *    Revision history:
- *    $Log: ulib.h $
+ *    $Log: prtyos2.c $
+ * Revision 1.1  1993/09/25  03:07:56  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -37,6 +40,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#include "lib.h"
 #include "lib.h"
 #include "pos2err.h"
 
@@ -64,12 +68,12 @@ static boolean restore = FALSE;
 /*       Set priority to configuration defined value                  */
 /*--------------------------------------------------------------------*/
 
-void setPrty( void )
+void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 {
-   USHORT priority = (E_priority == 999) ?
-                           PRTYC_FOREGROUNDSERVER : (USHORT) E_priority;
-   USHORT prioritydelta = (E_prioritydelta == 999) ?
-                           0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
+   USHORT priority = (priorityIn == 999) ?
+                           PRTYC_FOREGROUNDSERVER : (USHORT) priorityIn;
+   USHORT prioritydelta = (prioritydeltaIn == 999) ?
+                           0 : (USHORT) (prioritydeltaIn + PRTYD_MINIMUM);
 
    APIRET rc;
 
