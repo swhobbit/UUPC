@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.12 1993/10/30 22:29:23 rommel Exp $
+ *    $Id: uutypes.h 1.13 1993/11/13 17:38:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.13  1993/11/13  17:38:09  ahd
+ *     Add new options for windowing under OS/2, UUCP from options
+ *
  *     Revision 1.12  1993/10/30  22:29:23  rommel
  *     inews support
  *
@@ -132,6 +135,7 @@ typedef enum {
                F_ONECASE,     /* TRUE = Remote host is case insensitive */
                F_SENDDEBUG,   /* True = Send -x flag to remote systems  */
                F_SHORTFROM,   /* TRUE = Use short From remote header    */
+               F_SHOWSPOOL,   /* TRUE = Print files xferred from spool  */
                F_SNEWS,       /* TRUE = Use Simple news delivery        */
                F_SUPPRESSFROM,
                               /* Suppress writing From lines in Mail   */
