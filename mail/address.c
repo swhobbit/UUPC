@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.25 1997/05/11 04:27:40 ahd Exp $
+ *    $Id: address.c 1.26 1997/05/14 05:02:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.26  1997/05/14 05:02:55  ahd
+ *    Improve error trapping in RFC-822 source route addresses
+ *
  *    Revision 1.25  1997/05/11 04:27:40  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -113,7 +116,7 @@
 
 currentfile();
 
-RCSID("$Id$");
+RCSID("$Id: address.c 1.26 1997/05/14 05:02:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -208,7 +211,7 @@ tokenizeAddress(const char *raddress,
 /*       because @domain:user@domain2 is a valid construct.           */
 /*--------------------------------------------------------------------*/
 
-   tPtr = (const char *) (raddress + strlen(raddress) - 1);
+   tPtr = (char *) (raddress + strlen(raddress) - 1);
 
    if (( *raddress == '!' ) || ( *tPtr == '!' ) ||
        ( *raddress == '%' ) || ( *tPtr == '%' ) ||
