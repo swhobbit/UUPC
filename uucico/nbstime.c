@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.23 1994/03/05 21:12:05 ahd Exp $
+ *    $Id: nbstime.c 1.24 1994/04/27 00:02:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *        Revision 1.24  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.23  1994/03/05  21:12:05  ahd
  * Correct display of (null) string in status messages
  *
@@ -293,6 +297,8 @@ boolean nbstime( void )
          *buf = '\0';            /* Discard our invalid buffer       */
 
       } /* if ( error ) */
+      else
+         buf[ sizeof model - 1 ] = '\0';  /* Terminate string        */
 
    } /* while */
 
@@ -332,7 +338,7 @@ boolean nbstime( void )
 
    if ( debuglevel > 2 )
    {
-      printmsg(3,"%2d/%2d/%2d %2d:%2d:%2d %2d %c translates to %ld or %.24s",
+      printmsg(3,"%02d/%02d/%02d %02d:%02d:%02d %02d %c translates to %ld or %.24s",
          tx.tm_year, tx.tm_mon + 1 , tx.tm_mday ,
          tx.tm_hour, tx.tm_min, tx.tm_sec, dst, sync ,
          today, ctime( &today ));
@@ -365,12 +371,18 @@ boolean nbstime( void )
       panic();
    }
 
-   printmsg(3,"OS/2 time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
+   printmsg(3,"OS/2 time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d DST %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
-      (int) DateTime.timezone, (int) DateTime.weekday );
+      (int) DateTime.timezone, (int) DateTime.weekday, daylight );
 
    today -= timezone();
+
+#ifdef __OS2__
+   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+      today += 3600;          /* This is valid for the USA only      */
+#endif
+
    tp = localtime(&today);    /* Get local time as a record          */
 
    DateTime.year    = (USHORT) tp->tm_year + 1900;
@@ -380,10 +392,11 @@ boolean nbstime( void )
    DateTime.minutes = (UCHAR) tp->tm_min;
    DateTime.seconds = (UCHAR) tp->tm_sec;
 
-   printmsg(3,"NIST time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
+   printmsg(3,"NIST time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d DST %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
-      (int) DateTime.timezone, (int) DateTime.weekday );
+      (int) DateTime.timezone, (int) DateTime.weekday,
+      ( dst > 1 ) && ( dst < 52 ) ? 1 : 0 );
 
    rc = DosSetDateTime( &DateTime );
    if ( rc != 0 )
@@ -396,7 +409,7 @@ boolean nbstime( void )
 
    GetSystemTime( &DateTime );
 
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
       (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
       (int) DateTime.wDayOfWeek );
@@ -408,7 +421,7 @@ boolean nbstime( void )
    DateTime.wMinute  = (WORD) tx.tm_min;
    DateTime.wSecond  = (WORD) tx.tm_sec;
 
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
       (int) DateTime.wHour, (int) DateTime.wMinute, (int) DateTime.wSecond ,
       (int) DateTime.wDayOfWeek );
@@ -494,7 +507,7 @@ boolean nbstime( void )
    dtime.second  = (unsigned char) tp->tm_sec;
    dtime.hsecond = (unsigned char) 0;
 
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d",
       (int) ddate.year, (int) ddate.month, (int) ddate.day ,
       (int) dtime.hour, (int) dtime.minute,(int) dtime.second ,
       (int) timezone, (int) ddate.dayofweek );
@@ -523,7 +536,7 @@ boolean nbstime( void )
 /*                Announce new time, return to caller                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(3,"nbstime: \"%s\"", buf);
+   printmsg(3,"nbstime: \"%s\"", buf + 2);
 
    printmsg(0,"nbstime: Time is %s, delta was %d seconds.%s",
                arpadate(),
