@@ -28,6 +28,7 @@
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"
+#include "pushpop.h"
 
 /*--------------------------------------------------------------------*/
 /*   e x p a n d _ p a t  h                                           */
@@ -63,7 +64,8 @@ char *expand_path(char *path,          /* Input/output path name     */
       if ( p == NULL )        /* No slash?                           */
          p = path;            /* Okay, look at entire name           */
 
-      if ( strchr( p , '.') == NULL )  /* Does name have a period?   */
+      if (( strchr( p , '.') == NULL ) && (*p != '~'))
+                              /* Does name have a period?            */
          strcat( strcat(p, ".") ,ftype );
                               /* No --> Add extension                */
    } /* if ( ftype != NULL ) */
@@ -72,29 +74,22 @@ char *expand_path(char *path,          /* Input/output path name     */
 /*               If a fully qualified path name, return               */
 /*--------------------------------------------------------------------*/
 
-#ifdef __GNUC__
-   if (*path == '/')
-      return path;            /* nothing to do */
-#endif
-
    if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
-#ifdef __GNUC__
-      if (path[2] == '/')     /* Absolute path on drive?             */
-         return path;         /* Yes --> Leave it alone              */
-
-      printf(0,"Relative path \"%s\" not supported in GNU C",
-               path);
-      return NULL;
-#else
       strcpy( save, path );
+
+      if ((cur_dir != NULL ) && ( path[1] != ':' ))
+         PushDir( cur_dir );
+
       p = _fullpath( path, save, sizeof save );
+
+      if ((cur_dir != NULL ) && ( path[1] != ':' ))
+         PopDir();
 
       while ((p = strchr(p,'\\')) != NULL)
          *p++ = '/';
 
       return path;
-#endif
 
    } /* if */
 
@@ -104,32 +99,41 @@ char *expand_path(char *path,          /* Input/output path name     */
 
    p = path;                  /* Copy entire path                    */
    strcpy(save, p);
-   if (save[0] == '~')  {
-      if (save[1] == '/')  {
+   if (save[0] == '~')
+   {
+      if (save[1] == '/')
+      {
          strcpy(path, home);  /* Use home dir for this user          */
          fname = save + 2;    /* Step past directory for simple name */
       }
-      else  {
+      else if ( save[1] == '\0')
+      {
+         strcpy(path, home);  /* Use home dir for this user          */
+         fname = save + 1;    /* Step past directory for simple name */
+      }
+      else {
+
          if ((fname = strchr(save + 1, '/')) == NULL)
-         {
-            printmsg(0,"expand_path: path \"%s\" illegal",p);
-            return NULL;
-         }
+            fname = save + strlen(save);  // That's all, folks!
+         else
+            *fname++ = '\0';           /* End string, step past it */
 
 /*--------------------------------------------------------------------*/
 /*                Look in /etc/passwd for the user id                 */
 /*--------------------------------------------------------------------*/
 
-         *fname++ = '\0';           /* End string, step past it */
          userp = checkuser(save + 1);  /* Locate user id in table  */
+
          if ( userp == BADUSER )    /* Invalid user id?         */
          {                          /* Yes --> Dump in trash    */
             printmsg(0,"expand_path: User \"%s\" is invalid", save + 1);
             return NULL;
          } /* if */
+
          strcpy(path, userp->homedir);
+
       } /* else */
-   } /* if (save[0] == '~')  */
+   } /* if (save[0] == '~') */
 
 /*--------------------------------------------------------------------*/
 /*    No user id appears in the path; just append the input data      */
@@ -138,14 +142,10 @@ char *expand_path(char *path,          /* Input/output path name     */
 /*--------------------------------------------------------------------*/
 
    else {
-         fname = save;              /* Give it the file name - 6/23/91  */
+         fname = save;              // Save entire file name
+
          if ( cur_dir == NULL )
             getcwd( path, FILENAME_MAX);
-         else if ( equal(cur_dir,"."))
-         {
-            strcpy( path, save );
-            return path;
-         }
          else
             strcpy( path, cur_dir );
    } /* else */
@@ -156,8 +156,10 @@ char *expand_path(char *path,          /* Input/output path name     */
 
    while ((p = strchr(p,'\\')) != NULL)
       *p++ = '/';
+
    if ( path[ strlen( path ) - 1 ] != '/' )
       strcat( path, "/");
+
    strlwr( path );            /* Can lower case path, but not the
                                  name because name may be UNIX!      */
    strcat( path, fname );
@@ -167,4 +169,5 @@ char *expand_path(char *path,          /* Input/output path name     */
 /*--------------------------------------------------------------------*/
 
    return path;
+
 } /* expand_path */
