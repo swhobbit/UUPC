@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.16 1993/09/23 03:26:51 ahd Exp $
+ *    $Id: deliver.c 1.17 1993/10/12 01:30:23 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.17  1993/10/12  01:30:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.16  1993/09/23  03:26:51  ahd
  * Alter bounce message for "no path to host" error
  *
@@ -102,6 +105,7 @@
 #include <string.h>
 #include <process.h>
 #include <limits.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -687,7 +691,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
          SavePath = NULL;
       } /* if */
 
-      sprintf(tmfile, spool_fmt, 'C', path,     'C' , seq);
+      sprintf(tmfile, spool_fmt, 'C', path,     grade , seq);
       sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
       sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
       sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
@@ -784,11 +788,21 @@ static int CopyData( const boolean remotedelivery,
 {
    FILE *datain = FOPEN(input, "r",TEXT_MODE);
    char buf[BUFSIZ];
+   char trailer[BUFSIZ];
    int column = 0;
    boolean success = TRUE;
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
                               /* Assume no Kanji translation needed   */
+
+   if ( bflag[F_SHORTFROM] )
+      *trailer = '\0';
+   else {
+      time_t now;
+
+      time( &now );
+      sprintf(trailer, " %.24s remote from %s", ctime( &now ), E_nodename);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                      Verify the input opened                       */
@@ -830,23 +844,23 @@ static int CopyData( const boolean remotedelivery,
          strcpy( buf, fromuser );
          strtok( buf, "!");   /* Get first host in list               */
 
-         if ( equal(HostAlias( buf ), fromnode ))
+
+         if ( bflag[ F_SUPPRESSFROM ] )
+            ;                 /* No operation                        */
+         else if ( equal(HostAlias( buf ), fromnode ))
                               /* Host already in list?                */
          {                    /* Yes --> Don't do it twice            */
-            fprintf(dataout, "From %s %s remote from %s\n",
-                     fromuser, now, E_nodename);
-            break;
+            fprintf(dataout, "From %s%s\n",
+                    fromuser,
+                    trailer );
          }
          else {                /* No --> Insert it                    */
-            fprintf(dataout, "From %s!%s %s remote from %s\n",
-                     fromnode, fromuser, now, E_nodename);
-            break;
+            fprintf(dataout, "From %s!%s%s\n",
+                    fromnode,
+                    fromuser,
+                    trailer );
          }
-
-/*--------------------------------------------------------------------*/
-/*    Note:  For the Kanji translation we re-check the                */
-/*    remoteDelivery flag since we do the fall through from above.    */
-/*--------------------------------------------------------------------*/
+         break;
 
       case 2:                 /* Remote sender, local delivery        */
          if ( bflag[ F_KANJI ] )
@@ -854,8 +868,11 @@ static int CopyData( const boolean remotedelivery,
             put_string = (int (*)(char *, FILE *)) fputs_shiftjis;
                               /* Yes --> Translate it                 */
 
-         fprintf(dataout, "From %s %s remote from %s\n",
-                  fromuser, now, fromnode);
+         if ( ! bflag[ F_SUPPRESSFROM ] )
+            fprintf(dataout, "From %s%s\n",
+                    fromuser,
+                    trailer );
+
          break;
 
       case 1:                 /* Local sender, remote delivery        */
@@ -863,20 +880,53 @@ static int CopyData( const boolean remotedelivery,
             put_string = (int (*)(char *, FILE *)) fputs_jis7bit;
                               /* Translate into 7 bit Kanji           */
 
-         column = strlen(E_domain) - 5;
-         if ((column > 0) && equali(&E_domain[column],".UUCP"))
+
+         if ( ! bflag[ F_SUPPRESSFROM ] )
+         {
+            column = strlen(E_domain) - 5;
+            if ((column > 0) && equali(&E_domain[column],".UUCP"))
                               /* UUCP domain?                         */
-            fprintf(dataout, "From %s %s remote from %s\n",
-                             fromuser, now, E_nodename);
+               fprintf(dataout, "From %s%s\n",
+                                fromuser,
+                                trailer );
+
                               /* Yes --> Use simple address           */
-         else
-            fprintf(dataout, "From %s!%s %s remote from %s\n",
-                  E_domain, fromuser, now, E_nodename);
+            else
+               fprintf(dataout, "From %s!%s%s\n",
+                       E_domain,
+                       fromuser,
+                       trailer );
                               /* No --> Use domain address            */
+         }
+         break;
+
+      case 9:                 /* Local sender, remote delivery        */
+         if ( bflag[F_KANJI]) /* Translation enabled?                 */
+            put_string = (int (*)(char *, FILE *)) fputs_jis7bit;
+                              /* Translate into 7 bit Kanji           */
+
+         if ( ! bflag[ F_SUPPRESSFROM ] )
+         {
+            column = strlen(E_domain) - 5;
+            if ((column > 0) && equali(&E_domain[column],".UUCP"))
+                              /* UUCP domain?                         */
+               fprintf(dataout,
+                       "From %s%s\n",
+                       fromuser,
+                       trailer );
+                              /* Yes --> Use simple address           */
+            else
+               fprintf(dataout, "From %s!%s%s\n",
+                      E_domain,
+                      fromuser,
+                      trailer );
+                              /* No --> Use domain address            */
+         }
          break;
 
       case 0:                 /* Local sender, local delivery         */
-         fprintf(dataout, "From %s %s\n", fromuser, now);
+         if ( ! bflag[ F_SUPPRESSFROM ] )
+            fprintf(dataout, "From %s%.25s\n", fromuser, trailer );
          break;
 
    } /* switch */
