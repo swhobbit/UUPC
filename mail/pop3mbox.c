@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.1 1998/03/03 03:51:53 ahd Exp $
+ *       $Id: pop3mbox.c 1.2 1998/03/03 07:36:28 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.2  1998/03/03 07:36:28  ahd
+ *       Add deletion support
+ *
  *       Revision 1.1  1998/03/03 03:51:53  ahd
  *       Initial revision
  *
@@ -49,7 +52,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.1 1998/03/03 03:51:53 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.2 1998/03/03 07:36:28 ahd v1-12v $");
 
 currentfile();
 
@@ -350,7 +353,7 @@ popBoxUnload( SMTPClient *client )
       client->transaction->mailboxStream = NULL;
       REMOVE(client->transaction->mailboxName);
 
-      printmsg(1,"Empty mail box %s has been deleted.\n",
+      printmsg(1,"Empty mail box %s has been deleted.",
                client->transaction->mailboxName);
 
       return KWTrue;
