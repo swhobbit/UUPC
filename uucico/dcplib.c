@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.17 1994/02/26 17:20:13 ahd Exp $
+ *    $Id: dcplib.c 1.18 1994/05/04 23:36:34 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *        Revision 1.18  1994/05/04  23:36:34  ahd
+ *        Trap NULL Passwords
+ *
  * Revision 1.17  1994/02/26  17:20:13  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -362,15 +365,8 @@ boolean loginbypass(const char *user)
       printmsg(0,"loginbypass: login user %s (%s) at %s",
                   userp->uid, userp->realname, arpadate());
 
-      if equal(userp->sh,UUCPSHELL) /* Standard uucp shell?       */
-      {
-         securep = userp->hsecure;
-         return TRUE;            /* Yes --> Startup the machine   */
-      } /* if equal(userp->sh,UUCPSHELL) */
-      else {                     /* No --> run special shell      */
-         LoginShell( userp );
-         return FALSE;           /* Hang up phone and exit        */
-      } /* else */
+      securep = userp->hsecure;
+      return TRUE;            /* Yes --> Startup the machine   */
    } /* else */
 
 } /*loginbypass*/
@@ -469,6 +465,11 @@ static void LoginShell( const   struct UserTable *userp )
          case 'w':                  /* Alias for user id             */
          case 'u':                  /* User id                       */
             insert = (char *) userp->uid;
+            break;
+
+         case 'x':                  /* Debug level */
+            sprintf( line,"%ld", (long) debuglevel );
+            insert = line;
             break;
 
          default:
