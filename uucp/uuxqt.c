@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.22 1993/10/24 21:51:14 ahd Exp $
+ *    $Id: uuxqt.c 1.23 1993/10/30 17:19:50 rhg Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.23  1993/10/30  17:19:50  rhg
+ * Additional clean up for UUX support
+ *
  * Revision 1.22  1993/10/24  21:51:14  ahd
  * Drop unmigrated changes
  *
@@ -296,8 +299,6 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
-
-   tzset();                      /* Set up time zone information      */
 
    if (!configure( B_UUXQT ))
       exit(1);   /* system configuration failed */

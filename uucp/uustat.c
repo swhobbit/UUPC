@@ -197,7 +197,6 @@ void main(int  argc, char  **argv)
 /*                   Switch to the spool directory                    */
 /*--------------------------------------------------------------------*/
 
-   tzset();                      /* Set up time zone information      */
    PushDir( E_spooldir );
    atexit( PopDir );
 
