@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.17 1999/01/17 17:21:32 ahd Exp $
+ *    $Id: smtpclnt.h 1.18 2000/05/12 12:44:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.18  2000/05/12 12:44:47  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.17  1999/01/17 17:21:32  ahd
  *    Add test for one socket being ready
  *
@@ -118,12 +121,15 @@ typedef unsigned long SMTPMode;
 
 typedef struct _SMTPBuffer
 {
-   char    *buffer;                 /* Pointer to allocated memory   */
-   char    *line;                   /* Pointer to current line       */
-   char    *next;                   /* Pointer to next line or NULL  */
-   size_t  used;                    /* Valid data bytes in data      */
-   size_t  lineLength;              /* Length of current data line   */
-   size_t  allocated;               /* Total buffer length of data   */
+   char    *NetworkBuffer;          /* Memory used by network I/O    */
+   char    *DataBuffer;             /* Contents of one line          */
+
+   size_t  NetworkUsed;             /* Valid data bytes in data      */
+   size_t  DataUsed;                /* Length of current data line   */
+
+   size_t  NetworkAllocated;        /* Total buffer length of data   */
+   size_t  DataAllocated;           /* Total buffer length of data   */
+
    size_t  bytesTransferred;        /* Bytes via network conn        */
    size_t  linesTransferred;        /* CR/LF delimited lines via net */
 } SMTPBuffer;
