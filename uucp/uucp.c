@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.26 1998/03/01 01:46:11 ahd v1-12v $
+ *    $Id: uucp.c 1.27 1998/04/20 03:15:06 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.27  1998/04/20  03:15:06  ahd
+ * Correct normalizing of path names for transmission
+ *
  *    Revision 1.26  1998/03/01 01:46:11  ahd
  *    Annual Copyright Update
  *
@@ -160,14 +163,16 @@
 /*--------------------------------------------------------------------*/
 
 static KWBoolean      spool_flag = KWFalse;
-static char          spool_file[FILENAME_MAX] = ""; /* alt spool file name */
+static char           spool_file[FILENAME_MAX]; /* alt spool file name  */
 static KWBoolean      dir_flag = KWTrue;
 static KWBoolean      xeqt_flag = KWTrue;   /* Triggered by -r option   */
-static KWBoolean      j_flag = KWFalse;     /* set by -j option */
-static char          grade = 'n';         /* Default grade of service  */
-static KWBoolean      mail_me = KWFalse;    /* changes with -m           */
-static KWBoolean      mail_them = KWFalse;  /* changes with -n           */
-static char  remote_user[10];             /* user to mail with -n     */
+static KWBoolean      j_flag = KWFalse;     /* set by -j option         */
+static char           grade = 'n';          /* Default grade of service */
+static KWBoolean      mail_me = KWFalse;    /* changes with -m          */
+static KWBoolean      mail_them = KWFalse;  /* changes with -n          */
+static char           remote_user[10];      /* user to mail with -n     */
+static char           *callSystem;          /* System to we need to
+                                               have UUCICO talk to      */
 
 static char  flags[16];
 
@@ -188,7 +193,7 @@ static void appendSlash( char *s );
 static void usage(void)
 {
    fprintf(stderr, "Usage: uucp\t[-c|-C] [-d|-f] [-gGRADE] [-j]"
-                   "[-m] [-nUSER] [-r] [-sFILE]\\\n"
+                   "[-m] [-nUSER] [-r | -R] [-sFILE]\\\n"
                    "\t\t[-xDEBUG_LEVEL] source-files destination-file\n");
 } /* usage */
 
@@ -477,7 +482,8 @@ int   do_copy(char *src_syst,
       {
          printmsg(1,"uucp - spool %s - mkdir %s - execute %s",
                 spool_flag ? "on" : "off",
-                  dir_flag ? "on" : "off", xeqt_flag ? "do" : "don't");
+                  dir_flag ? "on" : "off",
+                  xeqt_flag ? "do" : "don't");
 
          printmsg(1,"     - dest m/c = %s  sequence = %ld  control = %s",
                   dest_syst, sequence, tmfile);
@@ -672,11 +678,13 @@ main(int argc, char *argv[])
       if (!configure(B_UUCP))
          exit(1);
 
+      xeqt_flag = bflag[F_AUTOCALL];
+
 /*--------------------------------------------------------------------*/
 /*                        Process option flags                        */
 /*--------------------------------------------------------------------*/
 
-      while ((option = getopt(argc, argv, "Ccdfg:jmn:rs:x:")) != EOF)
+      while ((option = getopt(argc, argv, "Ccdfg:jmn:Rrs:x:")) != EOF)
       {
          switch(option)
          {
@@ -715,6 +723,10 @@ main(int argc, char *argv[])
 
             case 'r':               /* queue job only                 */
                xeqt_flag = KWFalse;
+               break;
+
+            case 'R':               /* run UUCICO even if noautocall  */
+               xeqt_flag = KWTrue;
                break;
 
             case 's':               /* report status of transfer to file  */
@@ -886,13 +898,36 @@ main(int argc, char *argv[])
 
          do_copy(src_system, src_file, dest_system, dest_file);
 
-      }  /* for (i = optind; i < (argc - 1); i++) */
+         if (equal(src_system,E_nodename))
+            callSystem = newstr(dest_system);
+         else
+            callSystem = newstr(src_system);
 
-      if (xeqt_flag)
-         printmsg(1, "Call uucico");
+      }  /* for (i = optind; i < (argc - 1); i++) */
 
       if (j_flag)
          printmsg(1,"j_flag");
+
+      if ((xeqt_flag) && (callSystem != NULL))
+      {
+         char buffer[100];
+         int rc;
+
+         printmsg(0,"UUCP: Calling %s at user request",
+                     callSystem );
+
+         sprintf(buffer, "-s %.20s", callSystem);
+
+         rc = execute("uucico",buffer,NULL, NULL, KWFalse, KWFalse);
+
+         if (rc != 0)
+         {
+            printmsg(0,"UUCICO invocation failed, error code = %d",
+                       rc);
+         }
+         callSystem = NULL;
+
+      }
 
       return 0;
 

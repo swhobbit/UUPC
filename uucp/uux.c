@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.26 1997/04/24 01:41:25 ahd v1-12u $
+ *    $Id: uux.c 1.27 1998/03/01 01:46:22 ahd v1-13b ahd $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.27  1998/03/01 01:46:22  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1997/04/24 01:41:25  ahd
  *    Annual Copyright Update
  *
@@ -134,8 +137,8 @@
                command-string.
 
      -r        Do not start the file transfer, just queue the job.
-               (Currently uux does not attempt to start the transfer
-                regardless of the presense of this option).
+
+     -R        Run UUCICO even if noautocall is set
 
      -sfile    Report status of the transfer in file.
 
@@ -179,6 +182,7 @@
 #include  "hostable.h"
 #include  "security.h"
 #include  "timestmp.h"
+#include  "execute.h"
 
 #ifdef _Windows
 #include "winutil.h"
@@ -199,7 +203,7 @@ typedef enum {
           FLG_USE_USERID,
           FLG_OUTPUT_JOBID,
           FLG_READ_STDIN,
-          FLG_QUEUE_ONLY,
+          FLG_RUN_UUCICO,
           FLG_NOTIFY_SUCCESS,
           FLG_NONOTIFY_FAIL,
           FLG_COPY_SPOOL,
@@ -230,6 +234,7 @@ static KWBoolean flags[FLG_MAXIMUM] = {
 static char* st_out = NULL;
 static char* user_id = NULL;
 static char  grade = 'Z';          /* Default grade of service        */
+static char* callSystem;           /* Remote system to process work   */
 
 static char  job_id[15];
 
@@ -275,7 +280,7 @@ static char subseq( void );
 static void usage()
 {
    fprintf(stderr, "Usage: uux\t[-c|-C] [-e|-E] [-b] [-gGRADE] "
-                   "[-p] [-j] [-n] [-r] [-sFILE]\\\n"
+                   "[-p] [-j] [-n] [-r | -R] [-sFILE]\\\n"
                    "\t\t[-aNAME] [-z] [-] [-xDEBUG_LEVEL] "
                    "command-string\n");
 }
@@ -649,6 +654,7 @@ static KWBoolean do_copy(char *src_syst,
                         flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
          fclose(cfile);
+         callSystem = newstr( src_syst );
          return KWTrue;
       }
 
@@ -661,7 +667,7 @@ static KWBoolean do_copy(char *src_syst,
 
          printmsg(1,"uux - spool %s - execute %s",
                   flags[FLG_COPY_SPOOL] ? "on" : "off",
-                  flags[FLG_QUEUE_ONLY] ? "do" : "don't");
+                  flags[FLG_RUN_UUCICO] ? "do" : "don't");
          printmsg(1,"     - dest m/c = %s  sequence = %s  control = %s",
                   dest_syst,
                   sequence_s,
@@ -722,7 +728,7 @@ static KWBoolean do_copy(char *src_syst,
                         flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
          fclose(cfile);
-
+         callSystem = newstr(dest_syst);
          return KWTrue;
       }
 
@@ -869,6 +875,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
       return KWFalse;
    }
 
+   callSystem = dest_system;
    printmsg(9,"xsys -> %s", dest_system);
    printmsg(9, "system \"%s\", rest \"%s\"", dest_system, command);
 
@@ -1216,6 +1223,7 @@ main(int  argc, char  **argv)
       exit(1);   /* system configuration failed */
 
    user_id = E_mailbox;
+   flags[FLG_RUN_UUCICO] = bflag[F_AUTOCALL];
 
 /*--------------------------------------------------------------------*/
 /*        Process our arguments                                       */
@@ -1234,13 +1242,14 @@ main(int  argc, char  **argv)
  *   -n        Do not notify the user if the command fails.
  *   -p        Same as -:  The standard input to uux is made the standard
  *   -r        Do not start the file transfer, just queue the job.
+ *   -R        Start the file transfer, even if noautocall set
  *   -sfile    Report status of the transfer in file.
  *   -xdebug_level
  *   -z        Send success notification to the user.
  *
 /*--------------------------------------------------------------------*/
 
-   while ((c = getopt(argc, argv, "-a:bcCEejg:nprs:x:z")) !=  EOF)
+   while ((c = getopt(argc, argv, "-a:bcCEejg:nprRs:x:z")) !=  EOF)
       switch(c)
       {
       case '-':
@@ -1285,7 +1294,11 @@ main(int  argc, char  **argv)
          break;
 
       case 'r':               /* queue job only                       */
-         flags[FLG_QUEUE_ONLY] = KWTrue;
+         flags[FLG_RUN_UUCICO] = KWFalse;
+         break;
+
+      case 'R':               /* Invoke UUCICO                        */
+         flags[FLG_RUN_UUCICO] = KWTrue;
          break;
 
       case 'z':
@@ -1334,6 +1347,35 @@ main(int  argc, char  **argv)
       printmsg(0, "uux command failed");
       exit(1);
    };
+
+/*--------------------------------------------------------------------*/
+/*            Run UUCICO to process the command as needed             */
+/*--------------------------------------------------------------------*/
+
+   if (flags[FLG_RUN_UUCICO])
+   {
+      if (callSystem == NULL)
+      {
+         printmsg(0,"UUX: Failed to determine system name to call");
+         panic();
+      }
+      else {
+         char buffer[50];
+         int rc;
+
+         sprintf( buffer, "-x %d -s %.20s", debuglevel, callSystem);
+         rc = execute("uucico",buffer,NULL, NULL, KWFalse, KWFalse);
+
+         if (rc != 0)
+         {
+            printmsg(0,"UUCICO invocation failed, error code = %d",
+                       rc);
+            exit(rc < 0 ? 2 : rc);
+         }
+
+      }
+
+   } /* if (flags[FLG_RUN_UUCICO]) */
 
    if (flags[FLG_OUTPUT_JOBID])
        printf("%s\n", job_id);
