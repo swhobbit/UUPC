@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.5 1994/01/01 19:04:03 ahd Exp $
+ *    $Id: pos2err.c 1.6 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.6  1994/02/20  19:05:02  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.5  1994/01/01  19:04:03  ahd
  * Annual Copyright Update
  *
@@ -121,8 +124,17 @@ void pOS2Err(const size_t lineno,
                          lineno );
 
          } /* if ( xrc != 0 ) */
-         else
+         else {
+            int column = 0;
+
+            for ( column = 0; column < len; column++ )
+            {
+               if (iscntrl( buf[ column ] ))
+                  buf[column] = ' ';      /* Zap control chars    */
+            }
+
             buf[ len ] = '\0';
+         }
          break;
 
    } /* switch */
