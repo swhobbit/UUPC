@@ -20,15 +20,21 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.h 1.1 1997/11/21 18:16:32 ahd Exp $
+ *    $Id: smtpnetw.h 1.2 1997/11/24 02:53:26 ahd v1-12t $
  *
  *    $Log: smtpnetw.h $
+ *    Revision 1.2  1997/11/24 02:53:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.1  1997/11/21 18:16:32  ahd
  *    Command processing stub SMTP daemon
  *
  */
 
 #include "smtpclnt.h"
+
+KWBoolean
+InitWinsock(void);
 
 KWBoolean
 SMTPGetLine( SMTPClient *client );
