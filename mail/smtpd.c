@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.18 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: smtpd.c 1.19 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.19  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.18  1999/02/21 04:09:32  ahd
  *    Support BSMTP
  *
@@ -107,12 +110,194 @@
 #include "logger.h"
 #include "smtpcmds.h"
 #include "smtpnett.h"
+#include "hostable.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.18 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtpd.c 1.19 2000/05/12 12:35:45 ahd v1-13g $");
+
+int daemonMode(char *port, time_t exitTime, KWBoolean runUUXQT);
+int clientMode(int hotHandle, KWBoolean runUUXQT);
+void usage(const char *myName);
+
+/*--------------------------------------------------------------------*/
+/*       m a i n                                                      */
+/*                                                                    */
+/*       Invocation of daemon for SMTP receipt                        */
+/*--------------------------------------------------------------------*/
+
+main(int argc, char ** argv)
+{
+   int exitStatus;
+   char *logfile_name = NULL;
+   char *port = defaultPortName;
+
+   int option;
+   time_t exitTime = LONG_MAX;
+   KWBoolean runUUXQT = KWFalse;
+   int  hotHandle = getDefaultHandle();
+
+   logfile = stderr;
+
+/*--------------------------------------------------------------------*/
+/*          Report our version number and date/time compiled          */
+/*--------------------------------------------------------------------*/
+
+   banner(argv);
+
+#if defined(__CORE__)
+   copywrong = strdup(copyright);
+   checkref(copywrong);
+#endif
+
+   if (!configure(B_UUSMTPD))
+      panic();
+
+   setDeliveryGrade(E_mailGrade);
+
+/*--------------------------------------------------------------------*/
+/*       Parse our options, which will dictate how we process user    */
+/*       connections.                                                 */
+/*--------------------------------------------------------------------*/
+
+   while((option = getopt(argc, argv, "d:g:h:l:p:Ux:")) != EOF)
+   {
+      switch(option)
+      {
+         case 'd':
+            exitTime = atoi(optarg);
+            exitTime = time(NULL) + hhmm2sec(exitTime);
+            break;
+
+         case 'h':
+            hotHandle = atoi(optarg);     /* Handle opened for us       */
+            break;
+
+         case 'g':
+            if (isalnum(*optarg) && (strlen(optarg) == 1))
+               setDeliveryGrade(*optarg);
+            else {
+               printmsg(0,"Invalid grade for mail: %s", optarg);
+               usage(argv[0]);
+            }
+            break;
+
+         case 'l':                     /* Log file name              */
+            logfile_name = optarg;
+            break;
+
+         case 'p':
+            port = optarg;
+            break;
+
+         case 'U':
+            runUUXQT = KWTrue;
+            break;
+
+         case 'x':
+            debuglevel = atoi(optarg);
+            break;
+
+         default:
+            fprintf(stdout, "Invalid option '%c'.\n", option);
+            /* FALL THROUGH */
+
+         case '?':
+            usage(argv[0]);
+            break;
+
+      } /* switch(option) */
+   }
+
+/*--------------------------------------------------------------------*/
+/*                Abort if any options were left over                 */
+/*--------------------------------------------------------------------*/
+
+   if (optind != argc)
+   {
+      puts("Extra parameter(s) at end.");
+      return 4;
+   }
+
+
+/*--------------------------------------------------------------------*/
+/*            Force initialization of domain, routing info            */
+/*--------------------------------------------------------------------*/
+
+   checkname(E_nodename);
+
+/*--------------------------------------------------------------------*/
+/*        Initialize logging and the name of the systems file         */
+/*--------------------------------------------------------------------*/
+
+   openlog(logfile_name);
+
+/*--------------------------------------------------------------------*/
+/*         Only run if UUPC/extended multi-tasking is enabled         */
+/*--------------------------------------------------------------------*/
+
+   if (!bflag[ F_MULTITASK ])
+   {
+      printmsg(0, "%s: options=multitask must be specified in "
+                  "configuration file to use this program",
+                  argv[0]);
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*                        Trap control C exits                        */
+/*--------------------------------------------------------------------*/
+
+    if(signal(SIGINT, ctrlchandler) == SIG_ERR)
+    {
+        printerr("signal");
+        printmsg(0, "Couldn't set SIGINT\n");
+        panic();
+    }
+
+#if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
+
+    if(signal(SIGTERM, ctrlchandler) == SIG_ERR)
+    {
+        printerr("signal");
+        printmsg(0, "Couldn't set SIGTERM\n");
+        panic();
+    }
+
+#endif
+
+#if defined(__OS2__)
+
+    if(signal(SIGBREAK , ctrlchandler) == SIG_ERR)
+    {
+        printerr("signal");
+        printmsg(0, "Couldn't set SIGBREAK\n");
+        panic();
+    }
+
+#endif
+
+   interactive_processing = KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*                If loaded for single client, handle it              */
+/*--------------------------------------------------------------------*/
+
+   if (!InitializeNetwork())        /* Initialize library?           */
+      panic();                      /* No --> Report error           */
+
+   if (hotHandle == -1)
+      exitStatus = daemonMode(port, exitTime, runUUXQT);
+   else {
+      exitStatus = clientMode(hotHandle, runUUXQT);
+   }
+
+   exit(exitStatus);
+   return exitStatus;               /* Suppress compiler warning */
+
+} /* main */
 
 /*--------------------------------------------------------------------*/
 /*       c l i e n t M o d e                                          */
@@ -217,173 +402,3 @@ usage(const char *myName)
             myName);
    exit(4);
 }
-
-/*--------------------------------------------------------------------*/
-/*       m a i n                                                      */
-/*                                                                    */
-/*       Invocation of daemon for SMTP receipt                        */
-/*--------------------------------------------------------------------*/
-
-main(int argc, char ** argv)
-{
-   int exitStatus;
-   char *logfile_name = NULL;
-   char *port = defaultPortName;
-
-   int option;
-   time_t exitTime = LONG_MAX;
-   KWBoolean runUUXQT = KWFalse;
-   int  hotHandle = getDefaultHandle();
-
-   logfile = stderr;
-
-/*--------------------------------------------------------------------*/
-/*          Report our version number and date/time compiled          */
-/*--------------------------------------------------------------------*/
-
-   banner(argv);
-
-#if defined(__CORE__)
-   copywrong = strdup(copyright);
-   checkref(copywrong);
-#endif
-
-   if (!configure(B_UUSMTPD))
-      panic();
-
-   setDeliveryGrade(E_mailGrade);
-
-/*--------------------------------------------------------------------*/
-/*       Parse our options, which will dictate how we process user    */
-/*       connections.                                                 */
-/*--------------------------------------------------------------------*/
-
-   while((option = getopt(argc, argv, "d:g:h:l:p:Ux:")) != EOF)
-   {
-      switch(option)
-      {
-         case 'd':
-            exitTime = atoi(optarg);
-            exitTime = time(NULL) + hhmm2sec(exitTime);
-            break;
-
-         case 'h':
-            hotHandle = atoi(optarg);     /* Handle opened for us       */
-            break;
-
-         case 'g':
-            if (isalnum(*optarg) && (strlen(optarg) == 1))
-               setDeliveryGrade(*optarg);
-            else {
-               printmsg(0,"Invalid grade for mail: %s", optarg);
-               usage(argv[0]);
-            }
-            break;
-
-         case 'l':                     /* Log file name              */
-            logfile_name = optarg;
-            break;
-
-         case 'p':
-            port = optarg;
-            break;
-
-         case 'U':
-            runUUXQT = KWTrue;
-            break;
-
-         case 'x':
-            debuglevel = atoi(optarg);
-            break;
-
-         default:
-            fprintf(stdout, "Invalid option '%c'.\n", option);
-            /* FALL THROUGH */
-
-         case '?':
-            usage(argv[0]);
-            break;
-
-      } /* switch(option) */
-   }
-
-/*--------------------------------------------------------------------*/
-/*                Abort if any options were left over                 */
-/*--------------------------------------------------------------------*/
-
-   if (optind != argc)
-   {
-      puts("Extra parameter(s) at end.");
-      return 4;
-   }
-
-/*--------------------------------------------------------------------*/
-/*        Initialize logging and the name of the systems file         */
-/*--------------------------------------------------------------------*/
-
-   openlog(logfile_name);
-
-/*--------------------------------------------------------------------*/
-/*         Only run if UUPC/extended multi-tasking is enabled         */
-/*--------------------------------------------------------------------*/
-
-   if (!bflag[ F_MULTITASK ])
-   {
-      printmsg(0, "%s: options=multitask must be specified in "
-                  "configuration file to use this program",
-                  argv[0]);
-      panic();
-   }
-
-/*--------------------------------------------------------------------*/
-/*                        Trap control C exits                        */
-/*--------------------------------------------------------------------*/
-
-    if(signal(SIGINT, ctrlchandler) == SIG_ERR)
-    {
-        printerr("signal");
-        printmsg(0, "Couldn't set SIGINT\n");
-        panic();
-    }
-
-#if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
-
-    if(signal(SIGTERM, ctrlchandler) == SIG_ERR)
-    {
-        printerr("signal");
-        printmsg(0, "Couldn't set SIGTERM\n");
-        panic();
-    }
-
-#endif
-
-#if defined(__OS2__)
-
-    if(signal(SIGBREAK , ctrlchandler) == SIG_ERR)
-    {
-        printerr("signal");
-        printmsg(0, "Couldn't set SIGBREAK\n");
-        panic();
-    }
-
-#endif
-
-   interactive_processing = KWFalse;
-
-/*--------------------------------------------------------------------*/
-/*                If loaded for single client, handle it              */
-/*--------------------------------------------------------------------*/
-
-   if (!InitializeNetwork())        /* Initialize library?           */
-      panic();                      /* No --> Report error           */
-
-   if (hotHandle == -1)
-      exitStatus = daemonMode(port, exitTime, runUUXQT);
-   else {
-      exitStatus = clientMode(hotHandle, runUUXQT);
-   }
-
-   exit(exitStatus);
-   return exitStatus;               /* Suppress compiler warning */
-
-} /* main */
