@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.17 1996/01/01 20:52:35 ahd v1-12r $
+ *    $Id: timestmp.c 1.18 1997/03/31 07:07:06 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.18  1997/03/31 07:07:06  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1996/01/01 20:52:35  ahd
  *    Annual Copyright Update
  *
@@ -218,7 +221,7 @@ void banner (char **argv)
                   compilev,
 
 #ifdef WIN32
-                  "Windows 32 bit",
+                  "Win32",
 #elif defined(_Windows)
                   /* "Windows 16 bit", */ compilew,
 #elif defined(__OS2__)
