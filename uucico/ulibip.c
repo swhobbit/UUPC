@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.7 1993/10/07 22:56:45 ahd Exp $
+ *    $Id: ulibip.c 1.8 1993/10/12 01:33:23 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.8  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/10/07  22:56:45  ahd
  * Use dynamically allocated buffer
  *
@@ -185,6 +188,8 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    SOCKADDR_IN sin;
    LPHOSTENT phe;
    LPSERVENT pse;
+   u_short remotePort;
+   char *portStr;
 
    if (!InitWinsock())           /* Initialize library?               */
       return TRUE;               /* No --> Report error               */
@@ -200,6 +205,19 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    carrierDetect = FALSE;  /* No modem connected yet                */
 
    connectionDied = FALSE; /* The connection hasn't failed yet */
+
+/*--------------------------------------------------------------------*/
+/*                        Parse out port address                      */
+/*--------------------------------------------------------------------*/
+   portStr = strchr(name, ':');
+   if (portStr)
+   {
+         *portStr = '\0';
+         portStr++;
+         remotePort = (u_short)atoi(portStr);
+         printmsg(4, "tactiveopenline: connecting to remote port %d",
+            (int)remotePort);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Get remote host name                        */
@@ -238,17 +256,22 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 /*                     Get the TCP/IP port number                     */
 /*--------------------------------------------------------------------*/
 
-   pse = getservbyname("uucp", "tcp");
-   if (pse == NULL)
+   if (remotePort == 0)
    {
-      int wsErr = WSAGetLastError();
+      pse = getservbyname("uucp", "tcp");
+      if (pse == NULL)
+      {
+         int wsErr = WSAGetLastError();
 
-      sin.sin_port = 540;
-      printWSerror("getservbyname", wsErr);
-      printmsg(0, "tactiveopenline: using port %d", (int)sin.sin_port);
+         sin.sin_port = 540;
+         printWSerror("getservbyname", wsErr);
+         printmsg(0, "tactiveopenline: using port %d", (int)sin.sin_port);
+      }
+      else
+         sin.sin_port = pse->s_port;
    }
    else
-      sin.sin_port = pse->s_port;
+      sin.sin_port = remotePort;
 
    connectedSock = socket( AF_INET, SOCK_STREAM, 0);
    if (connectedSock == INVALID_SOCKET)
@@ -604,7 +627,7 @@ int tswrite(char *data, unsigned int len)
       return 0;
    }
 
-   if (status < len)
+   if (status < (int)len)     /* Breaks if len > 32K, which is unlikely */
    {
       printmsg(0,"tswrite: Write to network failed.");
       return status;
@@ -803,6 +826,12 @@ boolean tWaitForNetConnect(int timeout)
 
 } /* tWaitForNetConnect */
 
+/*--------------------------------------------------------------------*/
+/*      I s F a t a l S o c k e t E r r o r                           */
+/*                                                                    */
+/*      Determine if an error is a show stopped                       */
+/*--------------------------------------------------------------------*/
+
 boolean IsFatalSocketError(int err)
 {
    if (err == WSAENOTSOCK     ||
@@ -817,4 +846,5 @@ boolean IsFatalSocketError(int err)
        return TRUE;
     else
        return FALSE;
-}
+
+} /* IsFatalSocketError */
