@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.18 1998/07/27 01:03:54 ahd Exp $
+ *    $Id: smtpserv.c 1.19 1998/09/08 23:21:22 ahd v1-13e $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.19  1998/09/08 23:21:22  ahd
+ *    Add setting of title for major operations
+ *
  *    Revision 1.18  1998/07/27 01:03:54  ahd
  *    Spin log off BEFORE invoking UUXQT to prevent problems
  *    with delete while child program is running
@@ -88,9 +91,10 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 #include "execute.h"
+#include "title.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.18 1998/07/27 01:03:54 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.19 1998/09/08 23:21:22 ahd v1-13e $");
 
 currentfile();
 
