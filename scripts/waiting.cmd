@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: WAITING.CMD 1.3 1993/01/01 16:44:04 ahd Exp $
+ *       $Id: WAITING.CMD 1.4 1993/01/01 16:47:07 ahd Exp $
  *
  *       $Log: WAITING.CMD $
+*     Revision 1.4  1993/01/01  16:47:07  ahd
+*     Ignore totally blank arguments
+*
 *     Revision 1.3  1993/01/01  16:44:04  ahd
 *     Correct seven digit date bug
 *
@@ -42,6 +45,8 @@
 
 '@echo off'
 signal on novalue
+Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
+Call 'SysLoadFuncs'
 parse upper arg who;
 if words(who) = 0 then
    who = '*';

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.3 1992/11/30 03:44:49 ahd Exp ahd $
+ *       $Id: UUCLEAN.CMD 1.4 1992/12/01 04:35:12 ahd Exp $
  *
- *       $Log: uuclean.cmd $
+ *       $Log: UUCLEAN.CMD $
+*     Revision 1.4  1992/12/01  04:35:12  ahd
+*     Add new messages for processing status
+*
 *     Revision 1.3  1992/11/30  03:44:49  ahd
 *     Correct reset of deldir
 *
@@ -38,6 +41,8 @@
 
 signal on novalue
 '@echo off'                   /* Do not echo command input           */
+Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
+Call 'SysLoadFuncs'
 
 /*--------------------------------------------------------------------*/
 /*    To do anything, we need the name of the UUPC/extended spool     */

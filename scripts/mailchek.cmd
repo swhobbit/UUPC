@@ -17,6 +17,8 @@
 /*                   mailbox extension                                */
 /*--------------------------------------------------------------------*/
 
+Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
+Call 'SysLoadFuncs'
 /* setup VREXX */
 signal on novalue
 call RxFuncAdd 'VInit', 'VREXX', 'VINIT'
