@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.14 1993/07/22 23:22:27 ahd Exp $
+ *      $Id: dcpgpkt.c 1.15 1993/09/20 04:41:54 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.15  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.14  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
  *
@@ -102,13 +105,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifndef _Windows
 #ifdef __TURBOC__
 #include <mem.h>
 #include <alloc.h>
 #else
 #include <malloc.h>
-#endif
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -200,7 +201,7 @@ typedef enum {
 /*                 Handle 16 bit vs. 32 bit compilers                 */
 /*--------------------------------------------------------------------*/
 
-#if defined(BIT32ENV) || defined(_Windows)
+#if defined(BIT32ENV)
 #define MEMSET(p,c,l)  memset(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
@@ -231,7 +232,7 @@ static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
 
-#if !defined(BIT32ENV) && !defined(_Windows)
+#if !defined(BIT32ENV)
 static char *gspkt = NULL;       // Local buffer dir
 #endif
 
@@ -624,7 +625,7 @@ static short initialize(const boolean caller, const char protocol )
    grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
    checkref( grpkt );
 
-#if !defined(BIT32ENV) && !defined(_Windows)
+#if !defined(BIT32ENV)
    gspkt = malloc( s_pktsize );
    checkref( gspkt );
 #endif
@@ -633,7 +634,7 @@ static short initialize(const boolean caller, const char protocol )
    lazynak = 0;
 
 
-#if defined(BIT32ENV)|| defined(_Windows)
+#if defined(BIT32ENV) || defined(_Windows)
    printmsg(2,"%s packets, "
               "Window size %d, "
               "Receive packet %d\n, "
@@ -696,7 +697,7 @@ short gclosepk()
    free( grpkt );
    grpkt = NULL;
 
-#if !defined(BIT32ENV) && !defined(_Windows)
+#if !defined(BIT32ENV)
    free( gspkt );
    gspkt = NULL;
 #endif
@@ -1259,7 +1260,7 @@ static void gspack(short type,
                    short xxx,
                    short len,
                    unsigned short xmit,
-#if defined(BIT32ENV)|| defined(_Windows)
+    #if defined(BIT32ENV)
                    char *data)
 #else
                    char UUFAR *input)
@@ -1268,7 +1269,7 @@ static void gspack(short type,
    unsigned short check, i;
    unsigned char header[HDRSIZE];
 
-#if !defined(WIN32) && !defined(_Windows) &&!defined(__OS2__)
+#if !defined(BITENV32)
    char *data;                   // Local data buffer address
    if ( input == NULL )
       data = NULL;               // Make consistent with real buffer
