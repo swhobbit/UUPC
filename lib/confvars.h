@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.12 1993/10/25 01:23:25 ahd Exp $
+ *    $Id: confvars.h 1.13 1993/10/31 15:53:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.13  1993/10/31  15:53:26  ahd
+ *     Allow configurating permissions file name
+ *
  *     Revision 1.12  1993/10/25  01:23:25  ahd
  *     Rename E_aliases to E_nickname
  *
@@ -97,5 +100,6 @@ extern char *E_uuxqtpath;
 extern char *E_version;
 extern char *E_xqtRootDir;
 extern KEWSHORT E_maxhops;
+extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 
 #endif
