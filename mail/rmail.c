@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.28 1994/03/15 03:02:26 ahd Exp $
+ *    $Id: rmail.c 1.29 1994/08/07 21:28:54 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.29  1994/08/07  21:28:54  ahd
+ * Make To: line optional for processing such items as news
+ * via mail.
+ *
  * Revision 1.28  1994/03/15  03:02:26  ahd
  * Delete obsolete comments about format restrictions in RFC-822 mode
  *
@@ -286,6 +290,12 @@ void main(int argc, char **argv)
    datain = stdin;
 
 /*--------------------------------------------------------------------*/
+/*                       Begin logging messages                       */
+/*--------------------------------------------------------------------*/
+
+   openlog( logname );
+
+/*--------------------------------------------------------------------*/
 /*                      Parse our operand flags                       */
 /*--------------------------------------------------------------------*/
 
@@ -313,7 +323,7 @@ void main(int argc, char **argv)
          break;
 
       case 'l':
-         logname = optarg;
+         openlog( optarg );
          break;
 
       case 's':
@@ -340,11 +350,6 @@ void main(int argc, char **argv)
       } /* switch */
    } /* while */
 
-/*--------------------------------------------------------------------*/
-/*                       Begin logging messages                       */
-/*--------------------------------------------------------------------*/
-
-   openlog( logname );
 
 /*--------------------------------------------------------------------*/
 /*                    Handle control-C interrupts                     */
@@ -364,7 +369,7 @@ void main(int argc, char **argv)
 
    if ((optind == argc) != ReadHeader)
    {
-      puts("Missing/extra parameter(s) at end.");
+      printmsg(0,"Missing/extra parameter(s) at end.");
       usage();
    }
 
