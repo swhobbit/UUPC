@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.14 1994/12/22 00:39:17 ahd Exp $
+ *    $Id: dcp.h 1.15 1994/12/27 20:46:08 ahd Exp $
  *
  *    $Log: dcp.h $
+ *    Revision 1.15  1994/12/27 20:46:08  ahd
+ *    Smoother call grading'
+ *
  *    Revision 1.14  1994/12/22 00:39:17  ahd
  *    Annual Copyright Update
  *
@@ -80,6 +83,8 @@ typedef enum {
       CONN_INITSTAT   = 'A',  /* Load host status file               */
       CONN_INITIALIZE,        /* Select system to call, if any       */
       CONN_CHECKTIME,         /* Check time to dial another          */
+      CONN_NOGRADE,           /* Grade prevents call, just flag
+                                 as bad time                         */
       CONN_MODEM,             /* Load modem to process a system      */
       CONN_DIALOUT,           /* Actually dial modem to system       */
       CONN_HOTMODEM,          /* Initialize for a modem already
