@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.11 1994/12/22 00:08:01 ahd v1-12n $
+ *    $Id: dos2unix.c 1.12 1995/07/21 13:23:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.12  1995/07/21 13:23:19  ahd
+ *    Clean up OS/2 compiler warnings
+ *
  *    Revision 1.11  1994/12/22 00:08:01  ahd
  *    Annual Copyright Update
  *
@@ -129,13 +132,22 @@ time_t dos2unix( const FDATE ddmmyy,
 time_t nt2unix( FILETIME *nsec )
 {
    SYSTEMTIME sysTime;
+   FILETIME localtime;
    struct tm  time_record;
 
-   FileTimeToSystemTime(nsec, &sysTime);
+   FileTimeToLocalFileTime(nsec, &localtime);
+   FileTimeToSystemTime(&localtime, &sysTime);
 
    time_record.tm_sec = sysTime.wSecond;
    time_record.tm_min = sysTime.wMinute;
    time_record.tm_hour= sysTime.wHour;
+
+#ifdef UDEBUG
+   printmsg(5,"nt2unix: Time stamp is %02d:%02d:02d",
+               (int) sysTime.wSecond,
+               (int) sysTime.wMinute,
+               (int) sysTime.wHour );
+#endif
 
    time_record.tm_mday = sysTime.wDay;
    time_record.tm_mon  = sysTime.wMonth - 1;
