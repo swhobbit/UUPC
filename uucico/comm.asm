@@ -1,18 +1,18 @@
 	TITLE	COMM
 	PAGE	83,132
-;	$Id: commfifo.asm 1.3 1992/12/30 05:27:50 plummer Exp $
+;	$Id: commfifo.asm 1.4 1993/05/30 00:20:02 ahd Exp $
 ;
 ;	$Log: commfifo.asm $
-;; Revision 1.3  1992/12/30  05:27:50  plummer
-;; *** empty log message ***
+;; Revision 1.4  1993/05/30  00:20:02  ahd
+;; Insert minor delay to allow slow modems to catch up
 ;;
-
-;  29-Dec-92 plummer	Make receive_com() return FAIL if carrier lost
-;			Make TBuff case consistent
 ;; Revision 1.2  1992/12/18  12:08:25  ahd
 ;; Add Plummer's fix for bad TASM assemble of com_errors
 ;;
 ;
+; 18-May-93 plummer	Define IO$DELAY and use in UART type determination
+; 16-May-93 plummer	Debug code to printout UART type
+; 22-Apr-93 plummer	Make case consistent in "TBuff" so it links properly
 ;  2-Dec-92 plummer	Fix com_errors() again.  Change got lost.
 ; Fix com_errors() to avoid problems with tasm.  Plummer, 11/16/92
 ; 8259 EOI issued after interrupts serviced.  Plummer, 3/25/92
@@ -131,7 +131,8 @@ DOS	EQU	21H		; DOS FUNCTION CALLS
 RBDA	SEGMENT AT 40H
 RS232_BASE DW	4 DUP(?)	; ADDRESSES OF RS232 ADAPTERS
 RBDA	ENDS
-	PAGE;
+
+PAGE;
 ;
 ; TABLE FOR EACH SERIAL PORT
 ;
@@ -236,6 +237,13 @@ AREA1	SP_TAB	<1,INT_COM1,IRQ4,NIRQ4,EOI4>	; COM1 DATA AREA
 AREA2	SP_TAB	<2,INT_COM2,IRQ3,NIRQ3,EOI3>	; COM2 DATA AREA
 AREA3	SP_TAB	<3,INT_COM3,IRQ4,NIRQ4,EOI4>	; COM3 DATA AREA
 AREA4	SP_TAB	<4,INT_COM4,IRQ3,NIRQ3,EOI3>	; COM4 DATA AREA
+
+IFDEF DEBUG
+ ST8250:	DB "8250$"
+ ST16550:	DB "16550$"
+ STUART:	DB " UART detected", 0DH, 0AH, '$'
+ENDIF
+
 _DATA	ENDS
 
 
@@ -597,6 +605,7 @@ INST3:	MOV	WORD PTR [SI][BX],AX	; SET PORT ADDRESS
 	MOV DX,FCR[SI]			; Get FIFO Control Register
 	MOV AL,FIFO_INIT
 	OUT DX,AL			; Try to initialize the FIFO
+	CALL SPINLOOP			; Permit I/O bus to settle
 	MOV DX,IIR[SI]			; Get interrupt ID register
 	IN AL,DX			; See how the UART responded
 	AND AL,FIFO_ENABLED		; Keep only these bits
@@ -627,6 +636,16 @@ INST666:MOV AX,0
 
 ; Common exit
 INSTX:	MOV INSTALLED[SI],AL		; Indicate whether installed or not
+IFDEF DEBUG
+	MOV DX,ST8250
+	CMP UART_SILO_LEN[SI],1
+	 JE INSTXX
+	MOV DX,ST16550
+INSTXX: MOV AH,9
+	INT DOS 			; Announce UART type
+	MOV DX,STUART
+	INT DOS
+ENDIF
 	POP ES
 	POP DI
 	POP SI
@@ -1068,21 +1087,14 @@ _receive_com PROC FAR
 	PUSH SI
 	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
-	CLI				; Freeze status of buffer
-	MOV AX,-1			; -1 if bad call
-	TEST INSTALLED[SI],1		; Port installed?
-	 JZ RECVX			; Return -1 if not
-	MOV DX,MSR[SI]			; Modem status register
-	IN AL,DX			; Read it.
-	MOV BL,AL			; Move so AX can be used
-	MOV AX,-1			; -1 if bad call
-	AND BL,80H+20H			; Leave CD and DSR
-	CMP BL,80H+20H			; Both on?
-	 JNE RECVX			; No.  Return the -1 in AX.
-	CMP SIZE_RDATA[SI],0		; Any characters?
+	mov	ax,-1			; -1 if bad call
+	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
+	 JZ	RECVX			; ABORT IF NOT
+	CLI
+	CMP	SIZE_RDATA[SI],0	; ANY CHARACTERS?
 	 JE RECVX			; Return -1 in AX
 
-	MOV AH,0			; Good call
+	mov ah,0			; good call
 	LES	BX,RBuff[SI]		; Location of receive buffer
 	ADD	BX,START_RDATA[SI]	; GET POINTER TO OLDEST CHAR
 	MOV AL,ES:[BX]			; Get character from buffer
@@ -1250,7 +1262,20 @@ SENDIIX:POP ES
 	RET
 SENDII	ENDP
 
+;*---------------------------------------------------------------------*
+;*	s p i n l o o p 					       *
+;*								       *
+;*	Waste time to allow slow UART chips to catch up 	       *
+;*---------------------------------------------------------------------*
 
+spinloop proc near
+	 PUSH CX
+	 MOV CX,400
+wasters:
+	 NOP
+	 LOOP WASTERS
+	 POP  CX
+spinloop endp
 
 ; CHROUT()	Process level routine to remove a chr from the buffer,
 ;		give it to the UART and adjust the pointer and count.
