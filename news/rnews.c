@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.22 1993/10/30 22:27:57 rommel Exp $
+ *       $Id: rnews.c 1.24 1993/11/06 17:56:09 rhg Exp rommel $
  *
  *       $Log: rnews.c $
+ * Revision 1.24  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.22  1993/10/30  22:27:57  rommel
  * News history support
  *
@@ -103,7 +106,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.22 1993/10/30 22:27:57 rommel Exp $";
+         "$Id: rnews.c 1.24 1993/11/06 17:56:09 rhg Exp rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1023,8 +1026,16 @@ static boolean deliver_article(char *art_fname, long art_size)
       if (get_histentry(history, messageID) != NULL)
       {
          printmsg(2, "rnews: Duplicate article %s", messageID);
-         fclose(tfile);
-         return FALSE;
+         if (get_snum("duplicates",snum))
+         {
+            memcpy(newsgroups, "duplicates\0\0", 12);
+            b_xref = FALSE;
+         }
+         else
+         {
+            fclose(tfile);
+            return FALSE;
+         }
       }
 
       /* Start building the history record for this article */
@@ -1057,7 +1068,8 @@ static boolean deliver_article(char *art_fname, long art_size)
 
       if (groups_found == 0) {
         printmsg(2, "rnews: no group to deliver to: %s", messageID);
-        strcpy(newsgroups, "junk");
+        memcpy(newsgroups, "junk\0\0",6);
+        b_xref = FALSE;
         /* try "junk" group if none of the target groups is known here */
         if (get_snum("junk",snum))
           sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
