@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.3 1995/03/06 18:27:23 rommel Exp $
+ *       $Id: newsrun.c 1.4 1995/03/07 23:33:38 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.4  1995/03/07 23:33:38  ahd
+ *       Drop control messages into junk if no control group and junk exists
+ *
  *       Revision 1.3  1995/03/06 18:27:23  rommel
  *       Correct count messages
  *       Correct handling of duplicate articles
@@ -201,7 +204,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.3 1995/03/06 18:27:23 rommel Exp $";
+         "$Id: newsrun.c 1.4 1995/03/07 23:33:38 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1807,28 +1810,6 @@ static KWBoolean deliver_remote(const struct sys *node,
                               const char *msgID,
                               const char *path)
 {
-
-/*--------------------------------------------------------------------*/
-/*          Verify we make the maximum number of hops limit           */
-/*--------------------------------------------------------------------*/
-
-   if ( strlen( path ) > (node->maximumHops/2) ) /* Near limit?      */
-   {
-      size_t hops = 0;
-      char *p = (char *) path;
-
-      while( (p = strchr( p++, '!' )) != NULL )
-         hops++;
-
-      if ( hops > node->maximumHops )
-      {
-         printmsg(4,"Article %s has too many hops (%ud) to deliver to %s",
-                    msgID,
-                    hops,
-                    node->sysname );
-         return KWFalse;
-      }
-   }
 
 /*--------------------------------------------------------------------*/
 /*         Are we batching data or processing it immediately?         */
