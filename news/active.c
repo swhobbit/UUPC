@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: ACTIVE.C 1.2 1992/11/23 03:56:06 ahd Exp $
  *
- *    $Log$
+ *    $Log: ACTIVE.C $
+ * Revision 1.2  1992/11/23  03:56:06  ahd
+ * Use strpool for news group names
+ *
  */
 
 /*
@@ -66,17 +69,11 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/types.h>
-#include <sys\stat.h>
-#include <errno.h>
-
-#ifdef __TURBOC__
-#include <dir.h>
-#endif
+#include <sys/stat.h>
 
 #include "lib.h"
 #include "hlib.h"
 #include "timestmp.h"
-#include "rnews.h"
 #include "active.h"
 #include "importng.h"
 
