@@ -35,6 +35,7 @@
 /*               that no outside articles are passed on to this       */
 /*               system.  n specifies hops from this site.            */
 /*                                                                    */
+/*          B  - Never send underlength batches                       */
 /*                                                                    */
 /*         f, F - Data field contains a directory name to store       */
 /*               articles for batching.  If this field is empty       */
@@ -48,8 +49,6 @@
 /*           m - transmit only moderated groups                       */
 /*                                                                    */
 /*           u - transmit only unmoderated groups                     */
-/*                                                                    */
-/*           J - Batch news for NNS                                   */
 /*                                                                    */
 /*    command: this field contains either a command thru which to     */
 /*             pipe articles destined for this system, or is used     */
@@ -73,14 +72,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.16 1995/02/15 02:03:39 ahd Exp $
+ *    $Id: sys.c 1.17 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.17  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.16  1995/02/15 02:03:39  ahd
  *    Treat mail server as default news server when generating a
  *    default SYS file.
- *    ./
  *
  *    Revision 1.15  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
@@ -384,7 +385,7 @@ process_sys( char *buf)
       while (isdigit(*++t)) /* strip off hops value) */
       {
         node->maximumHops *= 10;
-        node->maximumHops += (size_t) (t - '0' );
+        node->maximumHops += (size_t) (*t - '0');
         *t = ' ';
       }
 
@@ -543,8 +544,9 @@ static void bootStrap( const char *fileName )
 /*--------------------------------------------------------------------*/
 
    fprintf( stream, "# Our news feed, not batched to speed our posts\n");
-   fprintf( stream, "%s:all/!local::\n\n",
-                    E_newsserv ? E_newsserv : E_mailserv );
+   fprintf( stream, "%s:all/!local:%s:\n\n",
+                    E_newsserv ? E_newsserv : E_mailserv,
+                    ( sysname == NULL ) ? "L" :"" );
                            /* Uncompressed feed for speedy posts     */
 
    if ( sysname != NULL )
@@ -810,12 +812,12 @@ KWBoolean distributions(char *list, const char *distrib)
 
     strcpy( tempDistrib, distrib );
 
-    list = strtok( NULL, "" );  /* Save rest of list                */
+    list = strtok( NULL, "" );      /* Save rest of list             */
 
     if ( bNot )
-      listPtr++;                 /* Step to beginning of word        */
+      listPtr++;                    /* Step to beginning of word     */
     else
-      bDef  = KWFalse;            /* We had a inclusive distribution  */
+      bDef  = KWFalse;              /* Have inclusive distribution   */
 
     if ( ! bAll && ! bNot )
     {
@@ -1041,6 +1043,28 @@ KWBoolean newsgroups(char *list, char *groups)
 } /* newsgroups */
 
 /*--------------------------------------------------------------------*/
+/*       h o p s                                                      */
+/*                                                                    */
+/*       Return number of entries in supplied path                    */
+/*--------------------------------------------------------------------*/
+
+static unsigned short
+hops( const char *path )
+{
+   char *p = strchr( path , '!' );
+   int count = 0;
+
+   while( p != NULL )
+   {
+      count++;
+      p = strchr( p + 1, '!' );
+   }
+
+   return count;
+
+} /* hops */
+
+/*--------------------------------------------------------------------*/
 /*       c h e c k _ s y s                                            */
 /*                                                                    */
 /*       Process posting criteria for a given article                 */
@@ -1060,8 +1084,18 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 /*       passing them to the routines which want to tokenize them.    */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Never send a post from where it came                         */
+/*--------------------------------------------------------------------*/
+
   if (excluded(strcpy( cache, entry->sysname ), path))
     return KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*       Never send to a post to a system which explicitly listed     */
+/*       in the system exclusion list (normally because it's an       */
+/*       alias of the system name we know the system by.              */
+/*--------------------------------------------------------------------*/
 
   if (entry->exclude )
   {
@@ -1070,6 +1104,21 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
        return KWFalse;
   }
 
+/*--------------------------------------------------------------------*/
+/*       Determine if the message has gone too hops to be forwarded   */
+/*--------------------------------------------------------------------*/
+
+  if ( (entry->maximumHops < USHRT_MAX) &&
+       (hops( path ) > entry->maximumHops ))
+  {
+     printmsg(3, "check_sys: Too many hops to be accepted" );
+     return KWFalse;
+  }
+
+/*--------------------------------------------------------------------*/
+/*        Determine if we accept the distribution for this system     */
+/*--------------------------------------------------------------------*/
+
   if (entry->distribution)
   {
     printmsg(3, "check_sys: checking distributions");
@@ -1077,12 +1126,20 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
        return KWFalse;
   }
 
+/*--------------------------------------------------------------------*/
+/*            Determine if the remote system wants this group         */
+/*--------------------------------------------------------------------*/
+
   if (entry->groups)
   {
     printmsg(3, "check_sys: checking groups");
     if (!newsgroups(strcpy( cache, entry->groups ), groups))
        return KWFalse;
   }
+
+/*--------------------------------------------------------------------*/
+/*       The article passed our filters, report acceptance to caller  */
+/*--------------------------------------------------------------------*/
 
   return KWTrue;
 
