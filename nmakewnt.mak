@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.26 1998/04/08 11:30:10 ahd Exp $
+#       $Id: nmakewnt.mak 1.27 1998/04/19 23:55:04 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.27  1998/04/19 23:55:04  ahd
+#       *** empty log message ***
+#
 #       Revision 1.26  1998/04/08 11:30:10  ahd
 #       Build with shared libraries
 #
@@ -97,19 +100,8 @@ UDEBUGFLAG=
 UDEBUGFLAG=-DUDEBUG
 !endif
 
-WIN32ENV=1
-COMMOPT = -nologo  -MT $(cdebug)
-CCOPT   = $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
-!ifndef PROD
-PROD    = $(PRODDRIVE)\uupc\ntbin
-!endif
-ZIPID   = n
-ERASE   = del
-SMTP    = 1
-
-
 !ifdef GUI
-CCOPT   = -DUUGUI $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
+GUIOPT  = -DUUGUI
 
 WINSTDIO = $(OBJ)\winstdio.obj
 TAPIOBJ  = $(OBJ)\uutapi.obj
@@ -120,6 +112,16 @@ MODEL    = g                         # Model = GUI
 !else
 MODEL    = c                         # Model = Console
 !endif
+
+WIN32ENV=1
+COMMOPT = -nologo  -MT $(cdebug)
+CCOPT   = $(COMMOPT) $(GUIOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
+!ifndef PROD
+PROD    = $(PRODDRIVE)\uupc\ntbin
+!endif
+ZIPID   = n
+ERASE   = del
+SMTP    = 1
 
 LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
             $(OBJ)\pnterr.obj $(OBJ)\titlen.obj $(WINSTDIO)
