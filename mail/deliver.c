@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.51 1997/04/24 01:08:14 ahd Exp $
+ *    $Id: deliver.c 1.52 1997/05/11 04:27:40 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.52  1997/05/11 04:27:40  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.51  1997/04/24 01:08:14  ahd
  *    Annual Copyright Update
  *
@@ -313,7 +316,7 @@ static char *stats( IMFILE *imf );
 /*--------------------------------------------------------------------*/
 
 size_t Deliver( IMFILE *imf,        /* Input file                    */
-                char *address,      /* Target address                */
+                const char *address,/* Target address                */
                 KWBoolean validate) /* Validate/forward local mail   */
 {
    char node[MAXADDR];
@@ -362,7 +365,7 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
    {
 #ifdef TCPIP
-      if ( validate && remoteMail)
+      if ( validate && (remoteMail || bflag[F_FASTSMTP] ))
          return DeliverSMTP( imf, address, hostp->via );
 #else
       printmsg(1,"SMTP not available, queuing mail for %s@%s locally",
@@ -402,34 +405,36 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
 /*       next hop on the route                                        */
 /*--------------------------------------------------------------------*/
 
-   strcpy(node,address);
+   strcpy(user,address);      /* Buffer used for deliver addr  */
+
+   strcpy(node,address);      /* Work buffer                   */
    token = strtok(node,"!");  /* Get first host in path        */
 
    if (equal( HostAlias(token), E_nodename)) /* Local system?  */
    {
       token =  strtok(NULL,"");  /* Yes --> Get rest of addr   */
-      strcpy(address, token);    /* Use it for address         */
+      strcpy(user, token);       /* Use it for address         */
       token = strtok(token,"!"); /* Get next host in path      */
    } /* if */
 
    if (equal( HostAlias(token), path ))  /* Next system?       */
    {
       token =  strtok(NULL,"");  /* Yes --> Get rest of addr   */
-      strcpy(address, token);    /* Use it for address         */
+      strcpy(user, token);       /* Use it for address         */
    } /* if */
 
-   if (!strpbrk(address,"!@"))   /* Any host delimiters?       */
+   if (!strpbrk(user,"!@"))      /* Any host delimiters?       */
    {                             /* No --> Check for % routing */
-      token = strrchr(address,'%'); /* Get last percent sign   */
+      token = strrchr(user,'%');    /* Get last percent sign   */
       if (token != NULL)
          *token = '@';           /* Make it an RFC-822 address */
       else
          printmsg(0,"Deliver: Cannot find node in \"%s\"",
-               address);         /* That's odd, it should not  */
+               user);            /* That's odd, it should not  */
                                  /* be a local address!        */
    } /* if */
 
-   return DeliverRemote( imf, address, path );
+   return DeliverRemote( imf, user, path );
 
 } /* Deliver */
 
@@ -1492,3 +1497,92 @@ static char *stats( IMFILE *imf )
       return "";              /* Pretend we were never here       */
 
 } /* stats */
+
+/*--------------------------------------------------------------------*/
+/*       r e t r y S M T P d e l i v e r y                            */
+/*                                                                    */
+/*       Perform a pure SMTP delivery queue run to the routing        */
+/*       host for the first specified addressee                       */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+retrySMTPdelivery( IMFILE *imf, const char **address, int addressees )
+{
+
+   char path[MAXADDR];
+   char dummy[MAXADDR];
+   struct HostTable *hostp;
+   int subscript;
+
+   if ( ! tokenizeAddress(address[0], path, dummy, dummy) )
+   {
+      Bounce( imf,
+              path,
+              address[0],
+              address[0],
+              KWTrue );
+      return KWTrue;
+   }
+
+   hostp = checkname( path );
+
+   if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
+   {
+#ifdef TCPIP
+      char fromAddr[MAXADDR];
+
+      sprintf( fromAddr, "%s@%s",
+                         fromUser,
+                         equal( fromNode , E_nodename ) ?
+                              E_domain : E_nodename );
+
+      if ( ConnectSMTP( imf,
+                        hostp->via,
+                        fromAddr,
+                        address,
+                        addressees,
+                        KWTrue ))
+         return KWTrue;
+
+#else
+      printmsg(0, "retrySMTPdelivery: SMTP support not available, "
+                  "leaving mail queued for %s",
+                  hostp->via );
+#endif
+      return KWFalse;               /* Report we did not deliver     */
+
+   } /* if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP)) */
+
+/*--------------------------------------------------------------------*/
+/*       The routinng tables have been changed, and the first         */
+/*       address is no longer routed via SMTP; process all the        */
+/*       mail through the standard routing/delivery routines.         */
+/*--------------------------------------------------------------------*/
+
+   printmsg(0, "retrySMTPdelivery: Routing tables changed, rerouting mail");
+
+   for ( subscript = 0; subscript < addressees; subscript++ )
+      Deliver( imf, address[subscript], KWTrue );
+
+   return KWTrue;
+
+} /* retrySMTPdelivery */
+
+/*--------------------------------------------------------------------*/
+/*       f l u s h Q u e u e s                                        */
+/*                                                                    */
+/*       Commit mail for queued addresses batched together            */
+/*--------------------------------------------------------------------*/
+
+void
+flushQueues( IMFILE *imf )
+{
+#ifdef TCPIP
+   DeliverSMTP( imf, NULL, NULL );   /* Flush any lingering remote
+                                        addresses                    */
+#endif
+
+   DeliverRemote( imf, NULL, NULL );   /* Flush any lingering remote
+                                          addresses                  */
+
+} /* flushQueues */

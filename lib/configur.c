@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.76 1997/03/31 06:58:28 ahd Exp $
+ *    $Id: configur.c 1.77 1997/05/11 04:27:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.77  1997/05/11 04:27:40  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.76  1997/03/31 06:58:28  ahd
  *    Annual Copyright Update
  *
@@ -482,6 +485,7 @@ FLAGTABLE configFlags[] = {
  { "escape",                  F_ESCAPE,                B_GLOBAL},
  { "expert",                  F_EXPERT,                B_LOCAL},
  { "fastnews",                F_NEWSRUN,               B_GLOBAL},
+ { "fastsmtp",                F_FASTSMTP,              B_LOCAL},
  { "forwardsave",             F_SAVERESENT,            B_LOCAL},
  { "fromsep",                 F_FROMSEP,               B_LOCAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.32 1997/04/24 01:32:59 ahd Exp $
+ *    $Id: commlib.c 1.33 1997/05/11 04:28:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.33  1997/05/11 04:28:26  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.32  1997/04/24 01:32:59  ahd
  *    Annual Copyright Update
  *
@@ -182,19 +185,12 @@ typedef struct _COMMSUITE {
         char     *netDevice;           /* Network device name         */
 } COMMSUITE;
 
-/*--------------------------------------------------------------------*/
-/*       Use the NOTCPIP to suppress the TCP/IP when you don't        */
-/*       have WINSOCK.H                                               */
-/*--------------------------------------------------------------------*/
-
-#if defined(WIN32) || defined(_Windows) || defined(__OS2__)
-#ifndef NOTCPIP
-#define TCPIP
-#endif
-#endif
-
 #ifdef TCPIP
 #include "ulibip.h"           /* Windows sockets on TCP/IP interface  */
+#else
+#ifdef TCPIP_ONLY
+#error   TCPIP_ONLY defined, but TCPIP not defined.
+#endif
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
@@ -260,7 +256,9 @@ KWBoolean chooseCommunications( const char *name,
 {
    static COMMSUITE suite[] =
    {
-        { SUITE_NATIVE,                /* Default for any opsys        */
+#ifndef TCPIP_ONLY
+
+        { SUITE_NATIVE,                /* Default for any opsys       */
           nopenline, nopenline, nsread, nswrite,
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
@@ -269,13 +267,13 @@ KWBoolean chooseCommunications( const char *name,
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
           nSetComHandle,
-          KWFalse,                  /* Not network based                */
-          KWTrue,                   /* Buffered under OS/2 and NT       */
+          KWFalse,                  /* Not network based              */
+          KWTrue,                   /* Buffered under OS/2 and NT     */
 #elif defined(_Windows)
           dummyGetComHandle,
           dummySetComHandle,
-          KWFalse,                  /* Not network based                */
-          KWTrue,                   /* Buffered under Windows 3.1 too   */
+          KWFalse,                  /* Not network based              */
+          KWTrue,                   /* Buffered under Windows 3.1 too */
 #else
           dummyGetComHandle,
           dummySetComHandle,
@@ -301,7 +299,7 @@ KWBoolean chooseCommunications( const char *name,
         },
 
 #if defined(ARTICOMM)
-        { "articomm",                  /* MS-DOS ARTISOFT INT14 driver  */
+        { "articomm",                  /* MS-DOS ARTISOFT INT14 driver*/
           iopenline, iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
@@ -309,8 +307,8 @@ KWBoolean chooseCommunications( const char *name,
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          KWFalse,                      /* Not network oriented        */
-          KWTrue,                       /* Buffered                    */
+          KWFalse,                     /* Not network oriented        */
+          KWTrue,                      /* Buffered                    */
           NULL                         /* No network device name      */
         },
 #else
@@ -322,28 +320,13 @@ KWBoolean chooseCommunications( const char *name,
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          KWFalse,                      /* Not network oriented        */
-          KWTrue,                       /* Buffered                    */
+          KWFalse,                     /* Not network oriented        */
+          KWTrue,                      /* Buffered                    */
           NULL                         /* No network device name      */
         },
 
 #endif /* ARTICOMM */
 
-#endif
-
-#if defined(TCPIP)
-        { SUITE_TCPIP,                 /* Win32 TCP/IP Winsock interface  */
-          tactiveopenline, tpassiveopenline, tsread, tswrite,
-          tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
-          tGetSpeed,
-          tCD,
-          tWaitForNetConnect,
-          tGetComHandle,
-          tSetComHandle,
-          KWTrue,                       /* Network oriented            */
-          KWTrue,                       /* Uses internal buffer        */
-          "tcptty",                    /* Network device name         */
-        },
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
@@ -355,9 +338,25 @@ KWBoolean chooseCommunications( const char *name,
           pWaitForNetConnect,
           pGetComHandle,
           pSetComHandle,
-          KWTrue,                       /* Network oriented            */
-          KWTrue,                       /* Uses internal buffer        */
+          KWTrue,                      /* Network oriented            */
+          KWTrue,                      /* Uses internal buffer        */
           "pipe",                      /* Network device name         */
+        },
+#endif
+#endif /* not defined TCPIP_ONLY */
+
+#if defined(TCPIP)
+        { SUITE_TCPIP,                 /* Win32 TCP/IP Winsock interface  */
+          tactiveopenline, tpassiveopenline, tsread, tswrite,
+          tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
+          tGetSpeed,
+          tCD,
+          tWaitForNetConnect,
+          tGetComHandle,
+          tSetComHandle,
+          KWTrue,                      /* Network oriented            */
+          KWTrue,                      /* Uses internal buffer        */
+          "tcptty",                    /* Network device name         */
         },
 #endif
         { NULL }                       /* End of list                 */

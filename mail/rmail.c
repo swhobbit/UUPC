@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.55 1997/05/03 17:10:18 ahd Exp $
+ *    $Id: rmail.c 1.56 1997/05/11 04:27:40 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.56  1997/05/11 04:27:40  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.55  1997/05/03 17:10:18  ahd
  *    Delete erronous check for null fromNode buffer
  *
@@ -491,8 +494,10 @@ int main(int argc, char **argv)
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
-   if (ReadHeader || daemonMode)
+   if (ReadHeader)
       remoteMail = KWFalse;
+   if (daemonMode)
+      bflag[F_FASTSMTP] = remoteMail = KWFalse;
    else
       remoteMail = KWTrue;
                               /* If not reading headers, must be in
@@ -614,49 +619,10 @@ int main(int argc, char **argv)
 
    if ( queueMode && remoteMail )
    {
-
-#ifdef TCPIP
-      char fromAddr[MAXADDR];
-      char path[MAXADDR];
-      char dummy[MAXADDR];
-      struct HostTable *hostp;
-
-      if ( ! tokenizeAddress(address[0], path, dummy, dummy) )
-      {
-         Bounce( imf,
-                 path,
-                 address[0],
-                 address[0],
-                 KWTrue );
-         Terminate( 0 , imf, datain );
-      }
-
-      hostp = checkname( path );
-
-      if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
-      {
-         sprintf( fromAddr, "%s@%s",
-                            fromUser,
-                            equal( fromNode , E_nodename ) ?
-                                 E_domain : E_nodename );
-
-         if ( ConnectSMTP( imf,
-                           hostp->via,
-                           fromAddr,
-                           address,
-                           (const char **) addressees,
-                           KWTrue ))
-            Terminate( 0 , imf, datain );
-
-         printmsg(1, "rmail: Cannot connect to remote SMTP server %s, exiting",
-                     hostp->via );
-
+      if ( retrySMTPdelivery( imf, address, addressees ))
+         Terminate( 0, imf, datain );
+      else
          Terminate( EX_TEMPFAIL, imf, datain );
-      }
-
-#else
-      Terminate( EX_TEMPFAIL, imf, datain );
-#endif
 
    } /* if ( queueMode && remoteMail ) */
 
@@ -672,13 +638,7 @@ int main(int argc, char **argv)
             delivered += Deliver(imf, address[count], KWTrue);
    }
 
-#ifdef TCPIP
-   DeliverSMTP( imf, NULL, NULL );   /* Flush any lingering remote
-                                          addresses                  */
-#endif
-
-   DeliverRemote( imf, NULL, NULL );   /* Flush any lingering remote
-                                          addresses                  */
+   flushQueues( imf );
 
 /*--------------------------------------------------------------------*/
 /*                       Terminate the program                        */
