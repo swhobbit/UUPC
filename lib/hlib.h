@@ -1,3 +1,5 @@
+#ifndef _HLIB_H
+
 /*--------------------------------------------------------------------*/
 /*       h l i b . h                                                  */
 /*--------------------------------------------------------------------*/
@@ -15,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.7 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: hlib.h 1.8 1995/01/09 01:43:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.8  1995/01/09 01:43:38  ahd
+ *    Rename sequence file to have extension of .DAT; this keeps it
+ *    from mixing in with most directory names when sorting by extension
+ *
  *    Revision 1.7  1994/12/31 03:51:25  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -48,6 +54,12 @@
 #else
 #define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
 #endif
+
+#define isAbsolutePath( path )                                       \
+         (( *path == '/' ) ||                                        \
+          ( *path == '\\' ) ||                                       \
+          ( (isalpha(path[0]) && ( path[1] == ':' )) &&              \
+            ((path[2] == '\\') || (path[2] == '/')) ))
 
 #ifdef __IBMC__
 #define TEXT_MODE    ""
@@ -84,3 +96,5 @@ int filebkup( const char *input );
 #ifdef __IBMC__
 #define _fsopen(n, m, s) fopen(n, m)
 #endif
+
+#endif /* _HLIB_H */
