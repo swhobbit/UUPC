@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.53 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: rmail.c 1.54 1997/04/24 01:10:21 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.54  1997/04/24 01:10:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.53  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -818,8 +821,6 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
          }
       } /* if */
    }
-
-   if ( fromNode == NULL )
 
 /*--------------------------------------------------------------------*/
 /*                    Provide defaults if no input                    */
