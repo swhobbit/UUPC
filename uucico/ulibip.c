@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.35 1997/12/22 18:29:06 ahd Exp $
+ *    $Id: ulibip.c 1.36 1998/03/01 01:40:43 ahd v1-12v $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.36  1998/03/01 01:40:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.35  1997/12/22 18:29:06  ahd
  *    Close polling socket as soon as original socket is available
  *
@@ -503,6 +506,7 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
    }
 
    printmsg(NETDEBUG, "tpassiveopen: doing bind() on socket %d port %d",
+                      pollingSock,
                       (int)ntohs(sin.sin_port));
 
    if (bind(pollingSock,
