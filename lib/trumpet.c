@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.15 1998/03/01 01:25:50 ahd v1-12v $
+ *    $Id: trumpet.c 1.16 1998/03/08 23:07:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.16  1998/03/08 23:07:12  ahd
+ *    Add support for WAV files under Windows 32 bit
+ *
  *    Revision 1.15  1998/03/01 01:25:50  ahd
  *    Annual Copyright Update
  *
@@ -90,10 +93,9 @@
 /*    Trumpet the arrival of remote mail to a local user              */
 /*--------------------------------------------------------------------*/
 
-void trumpet( const char *tune)
+void trumpet( const char *tune, KWBoolean daemon, time_t last)
 {
-   static char *previousTune = NULL;
-   static time_t previousTime = 0;
+   static time_t now = 0;
 
 #ifdef SMARTBEEP
    char buf[BUFSIZ];
@@ -107,12 +109,19 @@ void trumpet( const char *tune)
       return;                 /* No --> Return quietly (literally)    */
 
 /*--------------------------------------------------------------------*/
-/*       Don't play same noise more than one in ten seconds Since     */
-/*       we only use address, not pointer, we can compare or perform  */
-/*       shallow copy of tune safely.                                 */
+/*       We make a distinct check to suppress the announcement;       */
+/*       the first is if the system mailbox exists (no pop3 client    */
+/*       has asked about it) and we updated the mailbox within 30     */
+/*       seconds, we don't beep.                                      */
+/*                                                                    */
+/*       This could result in a string of mailbox updates 29          */
+/*       seconds apart keeping the announcement quiet for a long      */
+/*       time, but that's a feature.                                  */
 /*--------------------------------------------------------------------*/
 
-   if ((tune == previousTune) && ((previousTime + 10) > time(NULL)))
+   time(&now);
+
+   if ((last + 30) > now)
       return;
 
 /*--------------------------------------------------------------------*/
@@ -137,7 +146,8 @@ void trumpet( const char *tune)
 #ifdef UDEBUG
          printmsg(4,"trumpet: Announcing mail with %s", token );
 #endif
-         PlaySound(token, NULL, (SND_ASYNC |
+         /* Daemons exist long enough we don't have to wait for sound */
+         PlaySound(token, NULL, ( (daemon ? SND_ASYNC : 0) |
                                 SND_FILENAME |
                                 0 /* SND_NODEFAULT */ ));
          break;
@@ -192,12 +202,5 @@ void trumpet( const char *tune)
    fputc('\a', stdout);
 
 #endif /* SMARTBEEP */
-
-/*--------------------------------------------------------------------*/
-/*                     Remember status for next time                  */
-/*--------------------------------------------------------------------*/
-
-   previousTune = tune;
-   time( &previousTime );
 
 } /* trumpet */

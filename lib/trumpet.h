@@ -17,28 +17,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.h 1.5 1997/03/31 07:07:28 ahd v1-12u $
+ *    $Id: trumpet.h 1.6 1998/03/01 01:27:55 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: trumpet.h $
+ *    Revision 1.6  1998/03/01 01:27:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1997/03/31 07:07:28  ahd
  *    Annual Copyright Update
  *
  *    Revision 1.4  1996/01/01 20:58:22  ahd
  *    Annual Copyright Update
  *
- *    Revision 1.3  1994/12/22 00:14:09  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.2  1994/01/01 19:10:03  ahd
- *    Annual Copyright Update
- *
- * Revision 1.1  1993/07/31  16:28:59  ahd
- * Initial revision
- *
  */
 
 #ifndef _TRUMPET_H
 #define _TRUMPET_H
-void trumpet( const char *tune);
+void trumpet( const char *tune, KWBoolean daemon, time_t last );
 #endif
