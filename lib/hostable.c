@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.16 1994/05/08 21:43:33 ahd v1-12k $
+  *      $Id: hostable.c 1.17 1994/12/22 00:08:50 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.17  1994/12/22 00:08:50  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.16  1994/05/08 21:43:33  ahd
   *      Report caller of checkname(), checkreal() on panics
   *
@@ -675,7 +678,11 @@ static size_t loadhost()
                               /* Impossible, use both parts of name   */
       } /* else */
 
-      printmsg(3,"loadhost: local domain defined as \"%s\"",
+      printmsg(3,"loadhost: domain name is %s, "
+                 "domain in RFC-822 mail is %s, "
+                 "other systems assumed in %s domain",
+                 E_domain,
+                 E_fdomain,
                  E_localdomain);
 
    } /* if */
