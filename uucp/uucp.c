@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.22 1995/09/26 00:37:40 ahd v1-12q $
+ *    $Id: uucp.c 1.23 1996/01/01 21:34:46 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.23  1996/01/01 21:34:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1995/09/26 00:37:40  ahd
  *    Use unsigned sequence number for jobs to prevent mapping errors
  *
@@ -188,7 +191,7 @@ static void usage(void)
 static int cp(char *from, char *to)
 {
       int         fd_from, fd_to;
-      int         nr, nw = -1;
+      int         nr = -1;
       char        buf[BUFSIZ]; /* faster if we alloc a big buffer   */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
@@ -196,8 +199,10 @@ static int cp(char *from, char *to)
          printerr(from);
          return(1);        /* failed                                   */
       }
-      /* what if the to is a directory? */
+
+      /* what if the target is a directory? */
       /* possible with local source & dest uucp */
+
       if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1)
       {
          printerr(to);
@@ -205,13 +210,31 @@ static int cp(char *from, char *to)
          return(1);        /* failed                                   */
          /* NOTE - this assumes all the required directories exist!  */
       }
-      while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
-         (nw = write(fd_to, buf, nr)) == nr)
-         ;
+
+      while  ((nr = read(fd_from, buf, sizeof buf)) > 0)
+      {
+         if (write(fd_to, buf, (unsigned) nr) != nr)
+         {
+            printerr( to );
+            close(fd_to);
+            close(fd_from);
+            return 1;
+         }
+      }
+
+/*--------------------------------------------------------------------*/
+/*      Close up after our copy and check for errors on the read      */
+/*--------------------------------------------------------------------*/
+
       close(fd_to);
       close(fd_from);
-      if (nr != 0 || nw == -1)
+
+      if (nr != 0)
+      {
+         printerr( from );
          return(1);        /* failed in copy                          */
+      }
+
       return(0);
 
 } /* cp */
@@ -250,20 +273,21 @@ static         void    split_path(char *path,
          /* now check if the system was in fact us.
             If so strip it and restart */
 
-         if (equaln(E_nodename, p, p_left - p) &&
+         if (equaln(E_nodename, p, (size_t) (p_left - p)) &&
             (E_nodename[p_left - p] == '\0'))
             continue;
 
          p_right = strrchr(p, '!');      /* look for the last bang     */
          strcpy(file, p_right + 1);      /* and thats our filename     */
-         strncpy(system, p, p_left - p); /* and we have a system thats not us  */
+         strncpy(system, p, (size_t) (p_left - p));
+                                         /* and we have a remote system*/
          system[p_left - p] = '\0';
 
          /* now see if there is an intermediate path */
 
          if (p_left != p_right)
          {                          /* yup - there is           */
-            strncpy(inter, p_left + 1, p_right - p_left - 1);
+            strncpy(inter, p_left + 1, (size_t) (p_right - p_left - 1));
             inter[p_right - p_left - 1] = '\0';
          }
 
@@ -367,7 +391,7 @@ static char subseq( void )
          break;
 
       default:
-         next += 1;
+         next++;
    } /* switch */
 
    printmsg(4,"subseq: Next subsequence is %c", next);
