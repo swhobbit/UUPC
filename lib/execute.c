@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.35 1994/10/23 23:29:44 ahd v1-12k $
+ *    $Id: execute.c 1.36 1994/12/22 00:08:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.36  1994/12/22 00:08:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.35  1994/10/23 23:29:44  ahd
  *    Under OS/2 and Windows NT, always use current window when processing
  *    synchronous commands.
@@ -264,6 +267,8 @@ int execute( const char *command,
 
       if ( stream == NULL )
       {
+         printmsg(0,"execute: Cannot generate batch file %s",
+                     batchFile );
          printerr( batchFile );
          panic();
       }
@@ -288,6 +293,7 @@ int execute( const char *command,
       stream = FOPEN( perfect, "w", TEXT_MODE );
       if ( stream == NULL )
       {
+         printmsg(0,"Cannot generate test batch file %s", perfect );
          printerr( perfect );
          panic();
       }
@@ -321,7 +327,11 @@ int execute( const char *command,
          result = 255;
 
       if (unlink( batchFile ))
+      {
+
+         printmsg(0,"Cannot delete batch file %s", batchFile );
          printerr( batchFile );
+      }
 
    } /* if ( useBat ) */
 
@@ -360,6 +370,16 @@ int execute( const char *command,
    char path[BUFSIZ];
    boolean redirected;
 
+   printmsg(3,"Command = %s, parameters = \"%s\"%s%s%s%s, %s, %s.",
+               command,
+               parameters,
+               input == NULL ? "" : ", input = ",
+               input == NULL ? "" : input,
+               output == NULL ? "" : ", output = ",
+               output == NULL ? "" : output,
+               synchronous ? "synchronous" : "asynchronous",
+               foreground  ? "foreground"  : "background" );
+
 /*--------------------------------------------------------------------*/
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
@@ -384,12 +404,16 @@ int execute( const char *command,
    {
      if ((tempHandle = open(input, O_RDONLY|O_BINARY)) == -1)
      {
+        printmsg(0,"execute: Cannot redirect input from %s",
+                    input );
        printerr(input);
        return -2;
      }
 
      if (dup2(tempHandle, 0))
      {
+        printmsg(0,"execute: Cannot dup handle for %s",
+                    input );
          printerr( input );
          panic();
      }
@@ -400,13 +424,17 @@ int execute( const char *command,
    {
      if ((tempHandle = open(output, O_RDWR|O_BINARY|O_CREAT|O_TRUNC, 0666)) == -1)
      {
+        printmsg(0,"execute: Cannot redirect output to %s",
+                    output );
        printerr( output );
+
        if ( input != NULL )
        {
          FILE *tempStream = freopen(CONSOLE, "r", stdin);
 
          if ( (tempStream == NULL) && (errno != 0) )
          {
+            printmsg(0,"execute: Cannot reopen original standard in" );
             printerr("stdin");
             panic();
          }
@@ -420,6 +448,7 @@ int execute( const char *command,
 
      if (dup2(tempHandle, 1))
      {
+         printmsg(0,"execute: Cannot original standard in" );
          printerr( input );
          panic();
      }
@@ -477,9 +506,9 @@ int execute( const char *command,
    {
       FILE *tempStream = freopen(CONSOLE, "r", stdin);
 
-      if ( (tempStream == NULL) && (errno != 0) )
+      if (tempStream == NULL)
       {
-         printerr("stdin");
+         printerr("execute:" CONSOLE);
          panic();
       }
 
@@ -489,7 +518,13 @@ int execute( const char *command,
 
    if ( output != NULL )
    {
-      freopen(CONSOLE, "w", stdout);
+      FILE *tempStream = freopen(CONSOLE, "w", stdout);
+
+      if (tempStream == NULL)
+      {
+         printerr( "execute: " CONSOLE);
+         panic();
+      }
       setvbuf( stdout, NULL, _IONBF, 0);
    }
 
