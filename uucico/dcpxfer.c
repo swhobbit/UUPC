@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.36 1993/12/02 13:49:58 ahd Exp rommel $
+ *       $Id: dcpxfer.c 1.37 1993/12/23 03:16:03 rommel Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.37  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.36  1993/12/02  13:49:58  ahd
  * 'e' protocol support
  *
@@ -171,6 +174,7 @@
 #include "import.h"
 #include "security.h"
 #include "modem.h"
+#include "commlib.h"          /* For MAXPACK                         */
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -1466,16 +1470,19 @@ static boolean pktgetstr( char *s)
 
 static void buf_init( void )
 {
-   xferBufSize = max( s_pktsize, r_pktsize ) * 4;
-   if ( xferBufSize < BUFSIZ )
-      xferBufSize = BUFSIZ;
-   if ( xferBufSize < (unsigned) M_xfer_bufsize )
-      xferBufSize = M_xfer_bufsize;
+   unsigned int newXferBufSize =
+               (unsigned int) ((MAXPACK >= M_xfer_bufsize) ?
+                                       (unsigned int) MAXPACK :
+                                       (unsigned int) M_xfer_bufsize);
 
    if (databuf == NULL)
-      databuf = malloc( xferBufSize );
-   else
-      databuf = realloc( databuf, xferBufSize );
+      databuf = malloc( newXferBufSize );
+   else if ( newXferBufSize != xferBufSize )
+      databuf = realloc( databuf, newXferBufSize );
+
+   checkref( databuf );
+
+   newXferBufSize = xferBufSize;
 
 #ifdef _Windows
    vbufsize = BUFSIZ;            /* Use normal buffering under Windows  */
@@ -1484,7 +1491,5 @@ static void buf_init( void )
 #else
    vbufsize = 0;
 #endif
-
-   checkref( databuf );
 
 } /* buf_init */
