@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.26 1997/04/24 01:09:35 ahd v1-12u $
+ *    $Id: maillib.c 1.27 1998/03/01 01:29:26 ahd v1-12v $
  *
  *    $Log: maillib.c $
+ *    Revision 1.27  1998/03/01 01:29:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1997/04/24 01:09:35  ahd
  *    Annual Copyright Update
  *
@@ -153,6 +156,7 @@ static char *noResentList[] =
          "Precedence: ",
          "Path: ",
          "References: ",
+         UIDL_HEADER,
          NULL
        };
 
