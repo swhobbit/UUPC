@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.75 1999/01/11 05:43:36 ahd Exp $
+ *    $Id: rmail.c 1.76 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    $Log: rmail.c $
+ *    Revision 1.76  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.75  1999/01/11 05:43:36  ahd
  *    Remove special case SMTP code (most of it)
  *
@@ -221,6 +224,8 @@
 #include <windows.h>
 #endif
 
+#include <windows.h>
+
 /*--------------------------------------------------------------------*/
 /*                     Application include files                      */
 /*--------------------------------------------------------------------*/
@@ -290,7 +295,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rmail.c 1.75 1999/01/11 05:43:36 ahd Exp $");
+RCSID("$Id: rmail.c 1.76 2000/05/12 12:35:45 ahd v1-13g $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;
@@ -667,11 +672,15 @@ static void ParseFrom(
    static const size_t remoteLen = sizeof remote - 1;
    static const size_t fromLen = sizeof from - 1;
 
+
    char *token;
    char buf[LOCAL_BUFSIZ];
    KWBoolean hit;
+   KWBoolean bWriteReceived = KWTrue;
 
    sender->remote = KWTrue;
+
+   BREAKPOINT;
 
 /*--------------------------------------------------------------------*/
 /*           Use UUXQT Information for nodename, if available         */
@@ -681,7 +690,10 @@ static void ParseFrom(
 
    if ((sender->relay != NULL) &&
        equal(sender->relay, E_nodename)) /* Our local queue?           */
+   {
       sender->relay = NULL;         /* Yes --> We don't count          */
+      bWriteReceived = KWFalse;     /* Don't write a Received: line    */
+   }
 
 /*--------------------------------------------------------------------*/
 /*            Now look at the UUCP From line, if it exists            */
@@ -794,16 +806,19 @@ static void ParseFrom(
 /*             Generate required "Received" header lines              */
 /*--------------------------------------------------------------------*/
 
-   imprintf(imf,"%-10s from %s by %s (%s %s) with %s\n%-10s for %s; %s\n",
-            "Received:",
-            sender->relay ? sender->relay : "localhost",
-            E_domain,
-            compilep,
-            compilev,
-            sender->relay ? "UUCP" : "unknown protocol",
-            " ",
-            forwho,
-            arpadate());
+   if (bWriteReceived)
+   {
+      imprintf(imf,"%-10s from %s by %s (%s %s) with %s\n%-10s for %s; %s\n",
+               "Received:",
+               sender->relay ? sender->relay : "localhost",
+               E_domain,
+               compilep,
+               compilev,
+               sender->relay ? "UUCP" : "unknown protocol",
+               " ",
+               forwho,
+               arpadate());
+    }
 
 /*--------------------------------------------------------------------*/
 /*       If what we read wasn't a From line, write it into the new    */
