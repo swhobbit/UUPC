@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.23 1995/09/26 00:37:40 ahd v1-12q $
+ *    $Id: uux.c 1.24 1996/01/01 21:34:11 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.24  1996/01/01 21:34:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1995/09/26 00:37:40  ahd
  *    Use unsigned sequence number for jobs to prevent mapping errors
  *
@@ -358,13 +361,13 @@ static KWBoolean CopyData( const char *input, const char *output)
    }
 
 /*--------------------------------------------------------------------*/
-/*                      Verify the input opened                       */
+/*                           Open our input                           */
 /*--------------------------------------------------------------------*/
 
    if (input == NULL)
    {
-      datain = stdin;
-      setmode(fileno(datain), O_BINARY);   /* Don't die on control-Z, etc  */
+      setmode(fileno(stdin), O_BINARY);
+      datain = fdopen(fileno(stdin),"rb"); /* Don't die on control-Z, etc  */
    }
    else
       datain = FOPEN(input, "r", IMAGE_MODE);
@@ -408,10 +411,9 @@ static KWBoolean CopyData( const char *input, const char *output)
       status = KWFalse;
    }
 
-   if (input != NULL)
-       fclose(datain);
-
+   fclose(datain);
    fclose(dataout);
+
    return status;
 
 } /* CopyData */
