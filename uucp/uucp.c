@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.9 1993/10/03 20:43:08 ahd Exp $
+ *    $Id: uucp.c 1.10 1993/10/12 01:34:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.10  1993/10/12  01:34:47  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.9  1993/10/03  20:43:08  ahd
  * Normalize comments to C++ double slash
  *
@@ -114,10 +117,16 @@ static char          grade = 'n';         /* Default grade of service  */
 static boolean       mail_me = FALSE;     /* changes with -m           */
 static boolean       mail_them = FALSE;   /* changes with -n           */
 static char  remote_user[10];             /* user to mail with -n     */
-static char  *destn_file;
+
 static char  flags[16];
 
 currentfile();
+
+/*--------------------------------------------------------------------*/
+/*                          Local prototypes                          */
+/*--------------------------------------------------------------------*/
+
+static void appendSlash( char *s );
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */
@@ -125,11 +134,12 @@ currentfile();
 /*    Report flags used by program                                    */
 /*--------------------------------------------------------------------*/
 
-static         void    usage(void)
+static void usage(void)
 {
-      fprintf(stderr, "Usage: uucp\t[-c|-C] [-d|-f] [-gGRADE] [-j] [-m] [-nUSER] [-r] [-sFILE]\\\n\
-\t\t[-xDEBUG_LEVEL] source-files destination-file\n");
-}
+   fprintf(stderr, "Usage: uucp\t[-c|-C] [-d|-f] [-gGRADE] [-j]"
+                   "[-m] [-nUSER] [-r] [-sFILE]\\\n"
+                   "\t\t[-xDEBUG_LEVEL] source-files destination-file\n");
+} /* usage */
 
 /*--------------------------------------------------------------------*/
 /*    c p                                                             */
@@ -160,6 +170,7 @@ static int cp(char *from, char *to)
       if (nr != 0 || nw == -1)
          return(1);        /* failed in copy                          */
       return(0);
+
 } /* cp */
 
 /*--------------------------------------------------------------------*/
@@ -205,7 +216,8 @@ static         void    split_path(char *path,
          }
          return;                 /* and we're done                    */
       }        /* never get here :-)  */
-}
+
+} /* split_path */
 
 /*--------------------------------------------------------------------*/
 /*    d o _ u u x                                                     */
@@ -375,6 +387,9 @@ int   do_copy(char *src_syst,
          } /* if (strcspn(src_file, "*?") == strlen(src_file))  */
          else  {
             wild_flag = TRUE;
+
+            appendSlash(dest_file); /* Target must be directory   */
+
             strcpy(source_path, src_file);
             p = strrchr(source_path, '/');
             strcpy(search_file, p+1);
@@ -458,7 +473,8 @@ int   do_copy(char *src_syst,
          cp(src_file, dest_file);
          return(1);
       }
-}
+
+} /* do_copy */
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -594,8 +610,8 @@ void  main(int argc, char *argv[])
 /*--------------------------------------------------------------------*/
 
       if (argc - optind > 2)
-         strcat(dest_file, "/");
-      destn_file = argv[argc - 1];
+         appendSlash(dest_file);
+
       for (i = optind; i < (argc - 1); i++)  {
          split_path(argv[i], src_system, src_inter, src_file);
 
@@ -667,5 +683,30 @@ void  main(int argc, char *argv[])
          printmsg(1, "Call uucico");
       if (j_flag)
          printmsg(1,"j_flag");
+
       exit(0);
-}
+
+} /* main */
+
+/*--------------------------------------------------------------------*/
+/*       a p p p e n d  S l a s h                                     */
+/*                                                                    */
+/*       Insure a path name ends in a slash                           */
+/*--------------------------------------------------------------------*/
+
+static void appendSlash( char *s )
+{
+   size_t last = strlen( s );
+
+   if ( last )
+   {
+      last--;                    /* Step back to last character */
+      if ( s[last] != '/' )
+         strcat( s + last, "/");
+   }
+   else {
+      printmsg(0,"Empty string for file destination");
+      panic();
+   } /* else */
+
+}  /* appendSlash */
