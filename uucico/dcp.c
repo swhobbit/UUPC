@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.37 1994/12/22 00:34:31 ahd Exp $
+ *    $Id: dcp.c 1.38 1994/12/27 20:45:50 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.38  1994/12/27 20:45:50  ahd
+ *    Smoother call grading'
+ *
  *    Revision 1.37  1994/12/22 00:34:31  ahd
  *    Annual Copyright Update
  *
@@ -543,6 +546,11 @@ static boolean master( const char recvGrade,
             else
                m_state = CONN_INITIALIZE;
 
+            break;
+
+         case CONN_NOGRADE:
+            CallWindow( 0 );        /* Simply to update last time called */
+            m_state = CONN_INITIALIZE;
             break;
 
          case CONN_MODEM:

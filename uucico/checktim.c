@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.5 1994/02/19 05:04:24 ahd v1-12k $
+ *    $Id: checktim.c 1.6 1994/12/22 00:32:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.6  1994/12/22 00:32:41  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/02/19 05:04:24  ahd
  *    Use standard first header
  *
@@ -182,6 +185,10 @@ char checktime(const char *xtime)
 /*--------------------------------------------------------------------*/
 /*            Report our results and return to the caller             */
 /*--------------------------------------------------------------------*/
+
+   printmsg(5,"checktime: %s time resolves to best grade %c",
+                  xtime,
+                  bestgrade ? bestgrade : '?' );
 
    return (bestgrade);
 

@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.40 1994/12/22 04:13:38 ahd Exp $
+ *     $Id: dcpsys.c 1.41 1994/12/27 20:45:50 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.41  1994/12/27 20:45:50  ahd
+ *     Smoother call grading'
+ *
  *     Revision 1.40  1994/12/22 04:13:38  ahd
  *     Correct 't' protocol processing to use 512 messages with no header
  *
@@ -286,10 +289,14 @@ static char HostGrade( const char *fname, const char *remote );
 CONN_STATE getsystem( const char sendgrade )
 {
 
+   CONN_STATE nextState = CONN_CHECKTIME;
+
    do {
+
       char *p;
 
       /* flush to next non-comment line */
+
       if (fgets(S_sysline, BUFSIZ, fsys) == nil(char))
          return CONN_EXIT;
 
@@ -375,36 +382,54 @@ CONN_STATE getsystem( const char sendgrade )
 /*       then call this host                                          */
 /*--------------------------------------------------------------------*/
 
-   fwork = nil(FILE);
-   if ((hostp->status.hstatus != called) &&
-       (equal(Rmtname, "all") || equal(Rmtname, rmtname) ||
-        (equal(Rmtname, "any") &&
-        (scandir(rmtname,sendgrade) == XFER_REQUEST))))
-    {
+   if (hostp->status.hstatus == called)
+      nextState = CONN_INITIALIZE;
+   else if (equal(Rmtname, "all") || equal(Rmtname, rmtname))
+      nextState = CONN_CHECKTIME;
+   else if ( equal(Rmtname, "any"))
+   {
+      char sysGrade = checktime( flds[FLD_CCTIME] );
+                                 /* Initialize with lowest grade for
+                                    this time of day                 */
 
-      if (fwork != nil(FILE)) /* in case matched with scandir     */
-         fclose(fwork);
+      scandir( NULL, sendgrade); /* Reset directory search if active */
 
-      scandir( NULL, sendgrade); /* Reset directory search as well   */
+      if (scandir(rmtname, min(sysGrade, sendgrade )) == XFER_REQUEST)
+         nextState = CONN_CHECKTIME;
+      else
+         nextState = CONN_NOGRADE;
+
+   } /* if ( equal(Rmtname, "any")) */
+   else
+      nextState = CONN_INITIALIZE;
+
+   scandir( NULL, sendgrade); /* Reset directory search again     */
 
 /*--------------------------------------------------------------------*/
 /*   We want to call the host; is it defined in our security table?   */
 /*--------------------------------------------------------------------*/
 
+   if ( nextState == CONN_CHECKTIME )
+   {
       securep = GetSecurity( hostp );
+
       if ( securep == NULL )
       {
          printmsg(0,"getsystem: system \"%s\" not defined in "
                     "PERMISSIONS file", hostp->hostname);
-         return CONN_INITIALIZE;
-      }
 
-      memset( &remote_stats, 0, sizeof remote_stats);
-      return CONN_CHECKTIME;  /* startup this system */
+         nextState = CONN_INITIALIZE;
+      }
+      else
+         memset( &remote_stats, 0, sizeof remote_stats);
 
    } /* if */
-   else
-      return CONN_INITIALIZE;    /* Look for next system to process   */
+
+/*--------------------------------------------------------------------*/
+/*           Return our next requested state to the caller            */
+/*--------------------------------------------------------------------*/
+
+   return nextState;
 
 } /* getsystem */
 
@@ -424,6 +449,7 @@ CONN_STATE sysend()
    ssleep(2);                 /* Wait for it to be transmitted       */
 
    return CONN_DROPLINE;
+
 } /* sysend */
 
 /*--------------------------------------------------------------------*/
