@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.15 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: imfile.c 1.16 1995/03/11 22:26:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.16  1995/03/11 22:26:08  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.15  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -453,7 +456,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
    if ( stringLength > (size_t) (userLength - 1 ))
       stringLength = (size_t) userLength;
 
-#ifdef UDEBUG
+#ifdef UDEBUG2
    printmsg(6,"imgets: Requested up to %ld bytes, "
               "actually searching %ld bytes",
                (long) userLength,
@@ -480,7 +483,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
    userBuffer[ subscript ] = '\0';
    imf->position += subscript;
 
-#ifdef UDEBUG
+#ifdef UDEBUG2
    printmsg(5,"imgets: Returning %d bytes = \"%s\"",
               subscript,
               userBuffer );
