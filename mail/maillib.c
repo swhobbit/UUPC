@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.11 1994/01/01 19:12:47 ahd Exp $
+ *    $Id: maillib.c 1.12 1994/02/19 04:18:12 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.12  1994/02/19  04:18:12  ahd
+ * Use standard first header
+ *
+ * Revision 1.12  1994/02/19  04:18:12  ahd
+ * Use standard first header
+ *
  * Revision 1.11  1994/01/01  19:12:47  ahd
  * Annual Copyright Update
  *
@@ -87,16 +93,17 @@
 
 static int PageCount = 0;
 
-static char *ignorelist[] =  { "Message-ID:",
-                        "Received:",
-                        "Status: ",
-                        "X-Mailer: ",
-                        "From " ,
-                        "Precedence: " ,
-                        "Path: ",
-                        "Lines: ",
-                        "References: ",
-                        "" };
+
+static char *noResentList[] =
+       {
+         "Message-ID:",
+         "Received:",
+         "From " ,
+         "Precedence: " ,
+         "Path: ",
+         "References: ",
+         NULL
+       };
 
 currentfile();                /* Define current file for panic()     */
 
@@ -173,14 +180,17 @@ boolean Pager(const int msgnum,
                   break;
                }
                else
-                  received = noreceived;
-            case noreceived:
+                  received = ignoresome;
+               /* Fall through */
+
+            case ignoresome:
             {
                char entry = 0;
-               while ( strlen(ignorelist[entry]) && print )
+               while ( E_ignoreList[entry] && print )
                {
-                  if (equalni(ignorelist[entry],
-                        buf,strlen(ignorelist[entry])))
+                  if (equalni(E_ignoreList[entry],
+                        buf,
+                        strlen(E_ignoreList[entry])))
                   {
                      print = FALSE;
                      received = nocontinue;
@@ -188,7 +198,7 @@ boolean Pager(const int msgnum,
                   else
                      entry++;
                } /* while */
-            } /* case noreceived */
+            } /* case ignoresome */
          } /* switch */
          if (received != seperators)
             if (equal(buf,"\n"))
@@ -315,11 +325,15 @@ boolean PageLine(char *line)
 /*    specified in the copyopt data type.                             */
 /*--------------------------------------------------------------------*/
 
-boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
+boolean CopyMsg(int msgnum, FILE *f, copyopt headerFlag, boolean indent)
 {
    long nextloc;
-   boolean print;
+   boolean print;                   /* Header line should be printed */
+   boolean printX;                  /* Header line gets X- prefix    */
    char buf[BUFSIZ];
+   copyopt headers = headerFlag;
+   char **ignoreList = (headerFlag == ignoresome) ?
+                        E_ignoreList : noResentList;
 
 /*--------------------------------------------------------------------*/
 /*                 Write a separator line, if needed                  */
@@ -347,8 +361,10 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
          register char  *sp = buf;
          while (!isspace(*sp))
             sp++;
+
          while (isspace(*sp))
             sp++;
+
          fprintf(f,"On %s,", sp );
       } /* if */
 
@@ -362,6 +378,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
          strcpy(buf,"you");   /* Wimp out without admitting it       */
 
       fprintf(f, " %s wrote:\n", buf) ;
+
    } /* if (headers == fromheader ) */
 
 /*--------------------------------------------------------------------*/
@@ -379,6 +396,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
 /*--------------------------------------------------------------------*/
 
       print = TRUE;
+      printX = FALSE;
 
       switch (headers)
       {
@@ -392,23 +410,34 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
                break;
             }
             else
-               headers = noreceived;
+               headers = headerFlag;
                /* Fall through ... */
-         case noreceived:
-         {
-            char entry = 0;
-            while ( strlen(ignorelist[entry]) && print )
+
+         case autoresent:
+            if (( headerFlag == autoresent) &&  /* Allow Fall Through   */
+                ( equalni(buf, "Resent-", 7)))
+                     printX = TRUE;
+
+            /* Fall through again ... */
+
+         case ignoresome:
             {
-               if (equalni(ignorelist[entry],buf,strlen(ignorelist[entry])))
+               char entry = 0;
+               while ( ignoreList[entry] && print )
                {
-                  print = FALSE;
-                  headers = nocontinue;
+                  if (equalni(ignoreList[entry],
+                              buf,
+                              strlen(ignoreList[entry])))
+                  {
+                     print = FALSE;
+                     headers = nocontinue;
+                  }
+                  else
+                     entry++;
                }
-               else
-                  entry++;
-            }
-         } /* case noreceived */
-               /* Fall through */
+            } /* case ignoresome */
+            break;
+
          case noseperator:
          case seperators:
             break;
@@ -424,7 +453,17 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
 
       if (print)
       {
-         if (indent)
+
+         if ( printX )
+         {
+            if ( fputs("X-Previous-" , f ) == EOF )
+            {
+               printerr( "CopyMsg" );
+               panic();
+            } /* if ( fputs(INDENT , f ) == EOF ) */
+
+         } /* if ( printX ) */
+         else if (indent)
          {
             if ( fputs(INDENT , f ) == EOF )
             {
