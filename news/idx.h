@@ -6,15 +6,30 @@
  * Created: Sun Aug 15 1993
  */
 
-/* $Id: idx.h 1.3 1995/01/03 05:33:54 ahd Exp $ */
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/* $Id: idx.h 1.4 1995/01/29 14:04:21 ahd Exp $ */
 
 /* $Log: idx.h $
-/* Revision 1.3  1995/01/03 05:33:54  ahd
-/* Make as many parameters CONST as possible
-/*
-/* Revision 1.2  1994/03/20 23:37:12  rommel
-/* Correct 16/32 bit compiler differences
-/*
+ * Revision 1.4  1995/01/29 14:04:21  ahd
+ * Clean up IBM C/Set compiler warnings
+ *
+ * Revision 1.3  1995/01/03 05:33:54  ahd
+ * Make as many parameters CONST as possible
+ *
+ * Revision 1.2  1994/03/20 23:37:12  rommel
+ * Correct 16/32 bit compiler differences
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -53,6 +68,7 @@ typedef struct
   int magic;
   int file;
   unsigned long size;
+  void *cache;
   PAGE page;
   long page_number;
   int page_dirty;
@@ -62,15 +78,19 @@ typedef struct
 IDX;
 
 extern IDX *idx_init(const int file);
+
 extern void idx_exit(IDX *idx);
+
 extern int idx_addkey(IDX *idx,
                       const char *key,
                       const long offset,
                       const size_t size);
+
 extern int idx_getkey(IDX *idx,
                       const char *key,
                       long *offset,
                       size_t *size);
+
 extern int idx_delkey(IDX *idx,
                       const char *key,
                       long *offset,

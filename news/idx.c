@@ -17,15 +17,18 @@
 #include "uupcmoah.h"
 
 static const char *rcsid =
-      "$Id: idx.c 1.8 1995/01/03 05:32:26 ahd Exp $";
+      "$Id: idx.c 1.9 1995/01/29 14:03:29 ahd Exp $";
 
 /* $Log: idx.c $
-/* Revision 1.8  1995/01/03 05:32:26  ahd
-/* Further SYS file support cleanup
-/*
-/* Revision 1.7  1994/05/04 02:40:52  ahd
-/* Delete unreferenced variable
-/*
+ * Revision 1.9  1995/01/29 14:03:29  ahd
+ * Clean up IBM C/Set compiler warnings
+ *
+ * Revision 1.8  1995/01/03 05:32:26  ahd
+ * Further SYS file support cleanup
+ *
+ * Revision 1.7  1994/05/04 02:40:52  ahd
+ * Delete unreferenced variable
+ *
  * Revision 1.6  1994/03/20  23:35:57  rommel
  * Handle 16/32 bit compiler differences
  *
@@ -48,6 +51,7 @@ static const char *rcsid =
 #include <io.h>
 
 #include "idx.h"
+#include "cache.h"
 
 currentfile();
 
@@ -56,58 +60,31 @@ currentfile();
 static long idx_new_page(IDX *idx)
 {
   idx -> page_dirty = 0;
-  idx -> page_number = idx -> size++;
+  idx -> page_number = (long) idx -> size++;
 
   return idx -> page_number;
 }
 
 static int idx_get_page(IDX *idx, const long number)
 {
-  long offset;
-
   idx -> page_dirty = 0;
   idx -> page_number = number;
-  offset = idx -> page_number * sizeof(PAGE);
 
-  if (lseek(idx -> file, offset, SEEK_SET) == -1)
-  {
-    printerr("lseek");
-    return -1;
-  }
-
-  if (read(idx -> file, &idx -> page, sizeof(PAGE)) != sizeof(PAGE))
-  {
-    printerr("read");
-    return -1;
-  }
-
-  return 0;
+  return cache_get(idx -> cache, idx -> page_number, &idx -> page);
 }
 
 static int idx_flush_page(IDX *idx)
 {
-  long offset;
-
   if (idx -> page_dirty)
   {
     idx -> page_dirty = 0;
-    offset = idx -> page_number * sizeof(PAGE);
-
-    if (lseek(idx -> file, offset, SEEK_SET) == -1)
-    {
-      printerr("lseek");
-      return -1;
-    }
-
-    if (write(idx -> file, &idx -> page, sizeof(PAGE)) != sizeof(PAGE))
-    {
-      printerr("write");
-      return -1;
-    }
+    return cache_put(idx -> cache, idx -> page_number, &idx -> page);
   }
 
   return 0;
 }
+
+/* page stack */
 
 static int idx_push_page(IDX *idx, const long number)
 {
@@ -162,12 +139,16 @@ static int idx_search(IDX *idx, const char *key)
     } /* for (n = idx -> page.items - 1; n >= 0 ; n--) */
 
     if (n < 0)
+    {
       if (idx -> page.child_0)
         idx_push_page(idx, idx -> page.child_0);
       else
-        return -1;
+        break;
+    }
 
   } /* for (;;) */
+
+  return -1;
 
 } /* idx_search */
 
@@ -202,7 +183,7 @@ static int idx_add(IDX *idx, ITEM new)
 
       idx_flush_page(idx);
 
-      return 0;
+      break;
     }
     else {
       /* split page */
@@ -273,7 +254,7 @@ static int idx_add(IDX *idx, ITEM new)
         idx -> page_dirty = 1;
         idx_flush_page(idx);
 
-        return 0;
+        break;
       }
       else {
         /* write lower half onto old page */
@@ -299,6 +280,8 @@ static int idx_add(IDX *idx, ITEM new)
 
   } /* for (;;) */
 
+ return 0;
+
 } /* idx_add */
 
 /* interface functions */
@@ -308,7 +291,6 @@ IDX *idx_init(const int file)
   IDX *idx;
   long size;
 
-  if ((idx = (IDX *) malloc(sizeof(IDX))) == NULL)
   idx = (IDX *) malloc(sizeof(IDX));
   checkref( idx );
 
@@ -353,6 +335,15 @@ IDX *idx_init(const int file)
     return (IDX *) NULL;
   }
 
+  if ((idx -> cache = cache_init(idx -> file,
+                                 E_newsCache,
+                                 sizeof(PAGE))) == NULL)
+  {
+    printerr( "cache_init" );
+    free(idx);
+    return (IDX *) NULL;
+  }
+
   memset(&idx -> page, 0, sizeof(PAGE));
   idx -> page_number = -1;
   idx -> page_stacksize = 0;
@@ -366,6 +357,8 @@ void idx_exit(IDX *idx)
     return;
 
   idx_flush_page(idx);
+
+  cache_exit(idx -> cache);
 
   free(idx);
 }
@@ -389,7 +382,7 @@ int idx_addkey(IDX *idx,
   strncpy(new.key, key, IDX_MAXKEY - 1);
   new.key[IDX_MAXKEY - 1] = 0;
   new.offset = offset;
-  new.size   = (short) size;
+  new.size   = size;
   new.child  = 0;
 
   if (idx_add(idx, new) == -1)
