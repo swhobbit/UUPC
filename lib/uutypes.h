@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.26 1995/01/07 16:10:01 ahd Exp $
+ *    $Id: uutypes.h 1.27 1995/01/07 20:48:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.27  1995/01/07 20:48:48  ahd
+ *    Correct 16 bit compiler warnings
+ *
  *    Revision 1.26  1995/01/07 16:10:01  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -180,8 +183,6 @@ typedef enum {
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
                F_ESCAPE,      /* KWTrue = ESCAPE acts as Ctrl-Break     */
-               F_FULLBATCH,   /* KWTrue = Batch only sends batches that
-                                 are full size.                        */
                F_KANJI,       /* KWTrue = enable Kanji (Japanese) support*/
                F_LONGNAME,    /* KWTrue = Exploit OS/2 and NT long names */
                F_MULTI,       /* KWTrue = Deliver to multiple addresses

@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.7 1995/01/08 19:54:01 ahd Exp $
+ *    $Id: sys.h 1.8 1995/01/13 14:03:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.8  1995/01/13 14:03:25  ahd
+ *    Add canonical_news_name() macro
+ *
  *    Revision 1.7  1995/01/08 19:54:01  ahd
  *    NNS support
  *
@@ -60,8 +63,15 @@ typedef struct sys
    char        *sysname;
    char        *command;
 
+/*--------------------------------------------------------------------*/
+/*       Flag bits, most of which are set from the third (flag)       */
+/*       field in the SYS file by letters of the same name.           */
+/*--------------------------------------------------------------------*/
+
    struct
    {
+      KWBoolean local;         /* sysname is local system name        */
+      KWBoolean batch;         /* F, f, I, or I flags specified       */
       KWBoolean c;             /* Do not compress batch
                                   (supported by UUPC/extended only)   */
       KWBoolean B;             /* Do not send underlength batch
@@ -78,15 +88,18 @@ typedef struct sys
 
 } NEWS_SYS;
 
-void    init_sys( void );
+KWBoolean init_sys( void );
 
-KWBoolean check_sys(struct sys *entry,char *group,char *distrib,char *path);
+KWBoolean check_sys(struct sys *entry, char *group, char *distrib, char *path);
+
+struct sys *get_sys( const char *name );
 
 void    exit_sys(void);
 
 extern struct sys *sys_list;
 
-#define OUTGOING_NEWS "going.out"   /* It would be out.going on UNIX or HPFS  */
+#define OUTGOING_NEWS "going.out"   /* It could be out.going on UNIX or HPFS,
+                                       but isn't for DOS compatibility        */
 
 #define canonical_news_name()    E_nodename
 
