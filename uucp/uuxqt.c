@@ -18,10 +18,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\UUCP\RCS/UUXQT.C 1.1 1992/11/15 20:16:50 ahd Exp $
+ *    $Header: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.2 1992/11/19 03:03:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUXQT.C $
+ * Revision 1.2  1992/11/19  03:03:09  ahd
  * Revision 1.1  1992/11/15  20:16:50  ahd
  * Initial revision
  *

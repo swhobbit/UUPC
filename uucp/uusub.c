@@ -6,6 +6,13 @@
 /*    Copyright (C) 1991-1992, Andrew H. Derbyshire                   */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,7 +132,11 @@ void main( int argc , char **argv)
    if ( (name != NULL) && (checkreal( name ) == BADHOST) )
        printf("Unknown host \"%s\"\n", name );
    else if (clear_stats)
+   {
        HostReset((const char *)name);
+       if ( name == NULL )
+         time( &start_stats );
+   }
    else
        showstats((const char *)name);
 
