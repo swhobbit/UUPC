@@ -12,8 +12,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.8 1993/04/05 04:35:40 ahd Exp $
+ *    $Id: ULIB.C 1.9 1993/04/11 00:33:54 ahd Exp $
  *    $Log: ULIB.C $
+ * Revision 1.9  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.8  1993/04/05  04:35:40  ahd
  * Set/clear abort processing flags in modem.c
  *
@@ -291,9 +294,10 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int swrite(char *data, unsigned int len)
+int swrite(const char *input, unsigned int len)
 {
    unsigned int i;
+   char *data = (char *) input;
 
    hangup_needed = TRUE;
 

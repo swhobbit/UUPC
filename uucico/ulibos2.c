@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.10 1993/04/10 21:25:16 dmwatt Exp $
+ *       $Id: ULIBOS2.C 1.11 1993/04/11 00:34:11 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.11  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.10  1993/04/10  21:25:16  dmwatt
  * Add Windows/NT support
  *
@@ -841,8 +844,11 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int swrite(char *data, unsigned int len)
+int swrite(const char *input, unsigned int len)
 {
+
+   char *data = (char *) input;
+
 #ifdef WIN32
    DWORD bytes;
    BOOL rc;
