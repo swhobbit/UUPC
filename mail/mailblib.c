@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.16 1994/05/23 22:48:48 ahd Exp $
+ *    $Id: mailblib.c 1.17 1994/08/07 21:28:54 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.17  1994/08/07 21:28:54  ahd
+ *    Clean up OS/2 processing to not use new sessions, but rather simply
+ *    use command processor to allow firing off PM programs such as E and
+ *    EPM.
+ *
  * Revision 1.16  1994/05/23  22:48:48  ahd
  * Require at least one operand for commands with tokenized
  * operands (i.e. alias)

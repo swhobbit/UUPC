@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.h 1.1 1993/07/31 16:28:59 ahd Exp $
+ *    $Id: execute.h 1.2 1994/01/01 19:08:10 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: execute.h $
+ *    Revision 1.2  1994/01/01 19:08:10  ahd
+ *    Annual Copyright Update
+ *
  * Revision 1.1  1993/07/31  16:28:59  ahd
  * Initial revision
  *

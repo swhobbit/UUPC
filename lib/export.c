@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.8 1994/02/19 04:41:08 ahd Exp $
+ *    $Id: export.c 1.9 1994/03/13 17:22:20 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: export.c $
+ *    Revision 1.9  1994/03/13 17:22:20  ahd
+ *    Add debugging statement
+ *
  *     Revision 1.8  1994/02/19  04:41:08  ahd
  *     Use standard first header
  *

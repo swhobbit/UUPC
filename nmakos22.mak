@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.7 1994/05/25 20:58:34 ahd Exp $
+#       $Id: nmakos22.mak 1.8 1994/06/13 00:08:33 ahd v1-12k $
 #
-#       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.8  1994/06/13 00:08:33  ahd
+#       Add UUHOUR command to build
+#
 #       Revision 1.7  1994/05/25  20:58:34  ahd
 #       Don't enable automatic generation of precompiled headers in
 #       makefile; we can do that via ICC environment variable.

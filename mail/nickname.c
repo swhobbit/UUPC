@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.16 1994/04/24 20:35:08 ahd Exp $
+ *    $Id: alias.c 1.17 1994/10/23 23:29:44 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: alias.c $
+ *    Revision 1.17  1994/10/23 23:29:44  ahd
+ *    Add additional checks for format of aliases
+ *
  * Revision 1.16  1994/04/24  20:35:08  ahd
  * Change case of userElements
  *

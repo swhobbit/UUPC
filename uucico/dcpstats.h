@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPSTATS.H 1.2 1993/09/20 04:53:57 ahd Exp $
+ *       $Id: dcpstats.h 1.3 1994/01/01 19:23:15 ahd v1-12k $
  *
- *       $Log: DCPSTATS.H $
+ *       $Log: dcpstats.h $
+ *       Revision 1.3  1994/01/01 19:23:15  ahd
+ *       Annual Copyright Update
+ *
  * Revision 1.2  1993/09/20  04:53:57  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support

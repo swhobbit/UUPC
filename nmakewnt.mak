@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.6 1994/05/30 02:19:23 ahd Exp $
+#       $Id: nmakewnt.mak 1.7 1994/12/09 03:39:49 ahd v1-12k $
 #
-#       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.7  1994/12/09 03:39:49  ahd
+#       Drop regsetup.dll from install to get work done.
+#
 #       Revision 1.6  1994/05/30  02:19:23  ahd
 #       Normalize options
 #       Delete build of uupcdll.dll in prod

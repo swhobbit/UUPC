@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.9 1994/02/19 05:11:28 ahd Exp $
+ *    $Id: ulibfs.c 1.10 1994/05/07 21:45:33 ahd v1-12k $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.10  1994/05/07 21:45:33  ahd
+ *    Correct CD() processing to be sticky -- once it fails, it
+ *    keeps failing until reset by close or hangup.
+ *
  * Revision 1.9  1994/02/19  05:11:28  ahd
  * Use standard first header
  *

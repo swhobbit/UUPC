@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.6 1994/02/19 04:18:57 ahd Exp $
+ *    $Id: sysalias.c 1.7 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.7  1994/12/09 03:42:09  ahd
+ *    Modify alias support to recurse in system aliases file
+ *    Put 'U' line first to work with brain dead MKS systems
+ *
  * Revision 1.6  1994/02/19  04:18:57  ahd
  * Use standard first header
  *

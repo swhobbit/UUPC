@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.13 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: printmsg.c 1.14 1994/02/25 02:23:42 ahd v1-12k $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.14  1994/02/25 02:23:42  ahd
+ *    Suppress compile warning with IBM ICC compiler
+ *
  *     Revision 1.13  1994/02/20  19:05:02  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.41 1994/05/06 03:55:50 ahd Exp $
+ *       $Id: ulibos2.c 1.42 1994/05/07 21:45:33 ahd v1-12k $
  *       $Log: ulibos2.c $
+ *       Revision 1.42  1994/05/07 21:45:33  ahd
+ *       Correct CD() processing to be sticky -- once it fails, it
+ *       keeps failing until reset by close or hangup.
+ *
  *        Revision 1.41  1994/05/06  03:55:50  ahd
  *        Hot login support
  *

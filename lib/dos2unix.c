@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.9 1994/02/19 04:40:35 ahd Exp $
+ *    $Id: dos2unix.c 1.10 1994/02/20 19:07:38 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.10  1994/02/20 19:07:38  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.9  1994/02/19  04:40:35  ahd
  *     Use standard first header
  *

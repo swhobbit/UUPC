@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.12 1994/01/24 03:05:48 ahd Exp $
+ *    $Id: dcp.h 1.13 1994/12/09 03:51:22 ahd v1-12k $
  *
  *    $Log: dcp.h $
+ *    Revision 1.13  1994/12/09 03:51:22  ahd
+ *    Add new states for running UUXQT after line closes
+ *
  * Revision 1.12  1994/01/24  03:05:48  ahd
  * Annual Copyright Update
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.8 1994/02/19 04:08:44 ahd Exp $
+ *    $Id: mkfilenm.c 1.9 1994/02/19 04:43:47 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *    Revision 1.9  1994/02/19 04:43:47  ahd
+ *    Use standard first header
+ *
  *     Revision 1.8  1994/02/19  04:08:44  ahd
  *     Use standard first header
  *

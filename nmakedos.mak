@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.2 1994/03/07 06:00:49 ahd Exp $
+#       $Id: nmakedos.mak 1.3 1994/03/11 01:49:00 ahd v1-12k $
 #
-#       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.3  1994/03/11 01:49:00  ahd
+#       Lower stack size
+#
 #       Revision 1.2  1994/03/07  06:00:49  ahd
 #       Additional multi-platform clean up.
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.17 1994/06/05 01:57:26 ahd Exp $
+ *    $Id: maillib.c 1.18 1994/08/07 21:28:54 ahd v1-12k $
  *
  *    $Log: maillib.c $
+ *    Revision 1.18  1994/08/07 21:28:54  ahd
+ *    Clean up OS/2 processing to not use new sessions, but rather simply user
+ *    command processor to allow firing off PM programs such as E and EPM.
+ *
  * Revision 1.17  1994/06/05  01:57:26  ahd
  * Don't use exit as a variable name, scope errors are not trapped
  * Make sure exitNow properly set for all returns in Pager()

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.14 1994/03/07 06:09:51 ahd Exp $
+ *    $Id: address.c 1.15 1994/05/08 21:43:33 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.15  1994/05/08 21:43:33  ahd
+ *    Trap hostname missing normal user@node RFC-822 address
+ *
  * Revision 1.14  1994/03/07  06:09:51  ahd
  * Add additional debugging messages controlled by UDEBUG
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.14 1994/01/01 19:27:27 ahd Exp $
+ *    $Id: uucp.c 1.15 1994/02/19 05:14:52 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.15  1994/02/19 05:14:52  ahd
+ *    Use standard first header
+ *
  * Revision 1.14  1994/01/01  19:27:27  ahd
  * Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.48 1994/05/24 03:44:04 ahd Exp $
+ *    $Id: configur.c 1.49 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.49  1994/12/09 03:42:09  ahd
+ *    All suppressbeep support to allow NOT making any sound
+ *
  *     Revision 1.48  1994/05/24  03:44:04  ahd
  *     Sort boolean options
  *     Add suppressemptypassword option
@@ -932,7 +935,7 @@ boolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1989-1994 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1995 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");

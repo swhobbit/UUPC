@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.16 1994/08/07 21:28:54 ahd Exp $
+ *    $Id: mailsend.c 1.17 1994/08/08 00:21:00 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.17  1994/08/08 00:21:00  ahd
+ *    Further OS/2 cleanup
+ *
  * Revision 1.16  1994/08/07  21:28:54  ahd
  * Clean up OS/2 processing to not use new sessions, but rather simply user
  * command processor to allow firing off PM programs such as E and EPM.

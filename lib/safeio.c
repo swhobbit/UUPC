@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.12 1994/02/19 04:46:00 ahd Exp $
+ *    $Id: safeio.c 1.13 1994/02/20 19:07:38 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *    Revision 1.13  1994/02/20 19:07:38  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.12  1994/02/19  04:46:00  ahd
  *     Use standard first header
  *

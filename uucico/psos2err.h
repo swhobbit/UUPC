@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: psos2err.h 1.1 1994/04/26 03:34:33 ahd Exp $
+ *    $Id: psos2err.h 1.2 1994/05/23 23:19:29 dmwatt v1-12k $
  *
  *    Revision history:
  *    $Log: psos2err.h $
+ *    Revision 1.2  1994/05/23 23:19:29  dmwatt
+ *    Add reference for h_errno
+ *
  * Revision 1.1  1994/04/26  03:34:33  ahd
  * Initial revision
  *

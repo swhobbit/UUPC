@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.h 1.3 1993/11/13 17:38:09 ahd Exp $
+ *    $Id: timestmp.h 1.4 1994/01/01 19:09:57 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: timestmp.h $
+ *    Revision 1.4  1994/01/01 19:09:57  ahd
+ *    Annual Copyright Update
+ *
  *     Revision 1.3  1993/11/13  17:38:09  ahd
  *     Alter comment for compilew
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.h 1.4 1994/01/24 03:18:12 ahd Exp $
+ *    $Id: sysalias.h 1.5 1994/12/09 03:54:15 ahd v1-12k $
  *
  *    $Log: sysalias.h $
+ *    Revision 1.5  1994/12/09 03:54:15  ahd
+ *    Support recursely processing system aliases file for same address
+ *
  * Revision 1.4  1994/01/24  03:18:12  ahd
  * Annual Copyright Update
  *

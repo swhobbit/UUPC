@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1994 by Kendra Electronic Wonderworks.       */
+/*    Copyright (c) 1989-1995 by Kendra Electronic Wonderworks.       */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.24 1994/04/27 00:02:15 ahd Exp $
+ *    $Id: nbstime.c 1.25 1994/05/01 21:57:55 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.25  1994/05/01 21:57:55  ahd
+ *    Insert leading zeroes (0) in fixed format time output
+ *    Correct IBM OS/2 daylight savings time error
+ *
  *        Revision 1.24  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support

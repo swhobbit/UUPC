@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.19 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: confvars.h 1.20 1994/02/25 02:31:10 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.20  1994/02/25 02:31:10  ahd
+ *    Add E_ignoreList, and E_replytoList for MAIL
+ *
  *     Revision 1.19  1994/02/20  19:16:21  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

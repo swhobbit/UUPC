@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.h 1.5 1994/01/01 19:13:40 ahd Exp $
+ *    $Id: mlib.h 1.6 1994/08/08 00:32:53 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mlib.h $
+ *    Revision 1.6  1994/08/08 00:32:53  ahd
+ *    Drop new session support from Invoke
+ *
  * Revision 1.5  1994/01/01  19:13:40  ahd
  * Annual Copyright Update
  *

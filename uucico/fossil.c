@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.6 1994/01/24 03:04:32 ahd Exp $
+ *    $Id: fossil.c 1.7 1994/02/19 05:08:28 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: fossil.c $
+ *    Revision 1.7  1994/02/19 05:08:28  ahd
+ *    Use standard first header
+ *
  * Revision 1.6  1994/01/24  03:04:32  ahd
  * Annual Copyright Update
  *

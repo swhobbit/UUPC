@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.22 1994/08/08 00:32:15 ahd Exp $
+ *    $Id: uupoll.c 1.23 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.23  1994/12/09 03:42:09  ahd
+ *    Don't issue redundant UUUXQT commands when autoUUXQT is active
+ *
  * Revision 1.22  1994/08/08  00:32:15  ahd
  * Update usage() message
  *
@@ -168,7 +171,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.22 1994/08/08 00:32:15 ahd Exp $";
+         "$Id: uupoll.c 1.23 1994/12/09 03:42:09 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

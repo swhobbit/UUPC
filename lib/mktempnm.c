@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.10 1994/02/19 04:09:02 ahd Exp $
+ *    $Id: mktempnm.c 1.11 1994/02/19 04:44:03 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.11  1994/02/19 04:44:03  ahd
+ *    Use standard first header
+ *
  *     Revision 1.10  1994/02/19  04:09:02  ahd
  *     Use standard first header
  *

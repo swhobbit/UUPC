@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,9 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.25 1994/06/05 01:57:26 ahd Exp $
+ *    $Id: import.c 1.26 1994/06/13 00:14:17 ahd v1-12k $
  *
  *    $Log: import.c $
+ *    Revision 1.26  1994/06/13 00:14:17  ahd
+ *    Use Kai Uwe Rommel's dummy file open to check valid file names
+ *    rather than file system name under OS/2
+ *
  *     Revision 1.25  1994/06/05  01:57:26  ahd
  *     Trap NETWARE file system
  *     Call advancedFS() *after* checking longname flag

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.13 1994/02/19 04:15:47 ahd Exp $
+ *    $Id: winutil.c 1.14 1994/02/19 04:45:12 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ *    Revision 1.14  1994/02/19 04:45:12  ahd
+ *    Use standard first header
+ *
  * Revision 1.13  1994/02/19  04:15:47  ahd
  * Use standard first header
  *

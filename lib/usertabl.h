@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: usertabl.h 1.4 1994/04/26 03:34:33 ahd v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: usertabl.h $
+ *    Revision 1.4  1994/04/26 03:34:33  ahd
+ *    Lower case name
+ *
  */
 
 #ifndef __USERTABL

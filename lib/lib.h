@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.22 1994/11/27 17:31:34 ahd Exp ahd $
+ *    $Id: lib.h 1.23 1994/11/27 17:34:39 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.23  1994/11/27 17:34:39  ahd
+ *    Ooops, B_GENERIC needs to be added to B_ALL to work.
+ *
  *     Revision 1.22  1994/11/27  17:31:34  ahd
  *     Allow confguring for generic UUPC/extended utilities via B_GENERIC
  *

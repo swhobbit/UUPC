@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u t i l . m a k                                                *
 # *                                                                    *
-# *   Changes Copyright (c) 1989-1994 by Kendra Electronic             *
+# *   Changes Copyright (c) 1989-1995 by Kendra Electronic             *
 # *   Wonderworks.                                                     *
 # *                                                                    *
 # *   All rights reserved except those explicitly granted by the       *
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.5 1993/11/21 04:46:03 ahd Exp $
+#     $Id: util.mak 1.6 1994/01/01 19:17:29 ahd v1-12k $
 #
 #     Revision history:
 #     $Log: util.mak $
+#     Revision 1.6  1994/01/01 19:17:29  ahd
+#     Annual Copyright Update
+#
 # Revision 1.5  1993/11/21  04:46:03  ahd
 # Normalize OS/2 build of NOVRSTRK
 #

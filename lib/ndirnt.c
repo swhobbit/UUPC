@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.10 1994/02/19 04:09:26 ahd Exp $
+ *       $Id: ndirnt.c 1.11 1994/02/19 04:44:20 ahd v1-12k $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.11  1994/02/19 04:44:20  ahd
+ *       Use standard first header
+ *
  *     Revision 1.10  1994/02/19  04:09:26  ahd
  *     Use standard first header
  *

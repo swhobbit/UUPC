@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.17 1994/02/19 05:11:47 ahd Exp $
+ *    $Id: ulibnb.c 1.1 1994/03/28 02:18:45 ahd v1-12k $
  *
- *    $Log: ulibip.c $
+ *    $Log: ulibnb.c $
+ *    Revision 1.1  1994/03/28 02:18:45  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/

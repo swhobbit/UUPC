@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.31 1994/04/26 23:56:16 ahd Exp $
+ *    $Id: deliver.c 1.32 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    $Log: deliver.c $
+ *    Revision 1.32  1994/12/09 03:42:09  ahd
+ *    Modify alias support to recurse in system aliases file
+ *    Put 'U' line first to work with brain dead MKS systems
+ *
  * Revision 1.31  1994/04/26  23:56:16  ahd
  * Correct gateway parameters
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.13 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: timestmp.c 1.14 1994/04/24 20:35:08 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.14  1994/04/24 20:35:08  ahd
+ *    Add title setting
+ *
  *     Revision 1.13  1994/02/20  19:07:38  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

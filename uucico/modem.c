@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.51 1994/10/24 23:42:55 rommel Exp $
+ *    $Id: modem.c 1.52 1994/12/09 03:45:50 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.52  1994/12/09 03:45:50  ahd
+ *    Add more setTitle commands to better track call progress
+ *    Better handling of login scripts which end with except string
+ *
  *        Revision 1.51  1994/10/24  23:42:55  rommel
  *        Prevent suspend processing from hanging when file is rapidly
  *        opened and closed.

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.21 1994/03/15 03:02:26 ahd Exp $
+ *    $Id: uustat.c 1.22 1994/04/27 00:02:15 ahd v1-12k $
  *
  *    $Log: uustat.c $
+ *    Revision 1.22  1994/04/27 00:02:15  ahd
+ *    Properly trap failure to delete files when killing jobs
+ *    consistently use printmsg() for output
+ *
  * Revision 1.21  1994/03/15  03:02:26  ahd
  * Further shorten summary buffer
  *
@@ -35,7 +39,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.21 1994/03/15 03:02:26 ahd Exp $";
+         "$Id: uustat.c 1.22 1994/04/27 00:02:15 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */

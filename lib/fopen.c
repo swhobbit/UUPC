@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.11 1994/06/05 01:57:26 ahd Exp $
+ *    $Id: fopen.c 1.12 1994/06/13 00:09:40 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.12  1994/06/13 00:09:40  ahd
+ *    Correct inverted test for multitask mode when determining
+ *    retry count.
+ *
  *     Revision 1.11  1994/06/05  01:57:26  ahd
  *     Correct trap sharing violations under OS/2 32 bit compilers
  *

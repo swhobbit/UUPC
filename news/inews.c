@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.12 1994/06/14 01:19:24 ahd Exp $
+ *       $Id: inews.c 1.13 1994/12/09 03:52:46 ahd v1-12k $
  *
  * $Log: inews.c $
+ * Revision 1.13  1994/12/09 03:52:46  ahd
+ * Generate 'U' line first in X.* files to operate with brain dead MKS
+ *
  * Revision 1.12  1994/06/14  01:19:24  ahd
  * Clean yp RCS information
  * patches from Kai Uwe Rommel
@@ -75,7 +78,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.12 1994/06/14 01:19:24 ahd Exp $";
+      "$Id: inews.c 1.13 1994/12/09 03:52:46 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

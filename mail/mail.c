@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.29 1994/06/05 01:57:26 ahd Exp $
+ *    $Id: mail.c 1.30 1994/12/09 03:53:30 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.30  1994/12/09 03:53:30  ahd
+ *    Allocate mailbox of 1000 letters, not 100, on first try in
+ *    32 bit mode.
+ *
  * Revision 1.29  1994/06/05  01:57:26  ahd
  * Add debugging message
  * Make success dependent on command actual working
@@ -138,7 +142,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.29 1994/06/05 01:57:26 ahd Exp $";
+      "$Id: mail.c 1.30 1994/12/09 03:53:30 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

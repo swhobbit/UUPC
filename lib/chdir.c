@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.19 1994/02/14 00:29:49 ahd Exp $
+ *    $Id: chdir.c 1.7 1994/02/20 19:05:02 ahd v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: chdir.c $
+ *    Revision 1.7  1994/02/20 19:05:02  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  */
 
 #include "uupcmoah.h"

@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.38 1994/10/03 01:01:25 ahd Exp $
+ *    $Id: uuxqt.c 1.39 1994/10/23 23:29:44 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.39  1994/10/23 23:29:44  ahd
+ *    Be consistent in use of flags to execute() for foreground
+ *    control.
+ *
  * Revision 1.38  1994/10/03  01:01:25  ahd
  * Run programs foreground (drop silly OS/2 hack)
  *

@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     r n e w s . m a k                                              *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: rnews.mak 1.5 1993/10/31 11:57:13 ahd Exp $
+#     $Id: rnews.mak 1.6 1994/01/01 19:14:29 ahd v1-12k $
 #
 #     Revision history:
 #     $Log: rnews.mak $
+#     Revision 1.6  1994/01/01 19:14:29  ahd
+#     Annual Copyright Update
+#
 # Revision 1.5  1993/10/31  11:57:13  ahd
 # Add inews, genhist, and history support from Kai Uwe Rommel
 #

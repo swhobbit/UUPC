@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.15 1994/10/24 23:40:36 rommel Exp $
+ *    $Id: suspend2.c 1.16 1994/12/09 03:50:40 rommel v1-12k $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.16  1994/12/09 03:50:40  rommel
+ *    Correct errors with back-to-back uses of port failing
+ *
  *        Revision 1.15  1994/10/24  23:40:36  rommel
  *        Prevent suspend processing hanging from rapid closing and opening
  *        of the same file.

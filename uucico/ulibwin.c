@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.13 1994/05/07 21:45:33 ahd Exp $
+ *    $Id: ulibwin.c 1.14 1994/05/08 22:46:32 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.14  1994/05/08 22:46:32  ahd
+ *    Correct compile error
+ *
  *        Revision 1.13  1994/05/07  21:45:33  ahd
  *        Correct CD() processing to be sticky -- once it fails, it
  *        keeps failing until reset by close or hangup.

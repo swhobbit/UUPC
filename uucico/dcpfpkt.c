@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.18 1994/01/01 19:18:29 ahd Exp $
+ *    $Id: dcpfpkt.c 1.19 1994/02/19 05:07:00 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.19  1994/02/19 05:07:00  ahd
+ *    Use standard first header
+ *
  * Revision 1.18  1994/01/01  19:18:29  ahd
  * Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.35 1994/10/23 23:29:44 ahd Exp $
+ *    $Id: dcp.c 1.36 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    $Log: dcp.c $
+ *    Revision 1.36  1994/12/09 03:42:09  ahd
+ *    Don't spawn UUXQT with handle open to serial port
+ *
  *        Revision 1.35  1994/10/23  23:29:44  ahd
  *        Add new title information
  *

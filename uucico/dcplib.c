@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.20 1994/05/07 21:45:33 ahd Exp $
+ *    $Id: dcplib.c 1.21 1994/05/08 22:46:32 ahd v1-12k $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.21  1994/05/08 22:46:32  ahd
+ *    Add missing value for return.
+ *
  *        Revision 1.20  1994/05/07  21:45:33  ahd
  *        Handle empty passwords different from blocked (asterisk) passwords
  *

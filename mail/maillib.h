@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.2 1994/03/05 21:15:49 ahd Exp $
+ *    $Id: maillib.h 1.3 1994/03/11 01:50:58 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.3  1994/03/11 01:50:58  ahd
+ *    Make mail box description array UUFAR
+ *
  * Revision 1.2  1994/03/05  21:15:49  ahd
  * Revamp header copyrights, line buffer lengths
  *

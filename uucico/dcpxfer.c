@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.45 1994/06/05 01:57:26 ahd Exp $
+ *       $Id: dcpxfer.c 1.46 1994/08/07 21:45:09 ahd v1-12k $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.46  1994/08/07 21:45:09  ahd
+ *       Initialize process ID properly when receiving files
+ *
  *        Revision 1.45  1994/06/05  01:57:26  ahd
  *        Truncate invalid responses after one line of data, more or less
  *

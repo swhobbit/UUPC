@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.14 1994/10/03 01:01:25 ahd Exp $
+ *    $Id: uuport.c 1.15 1994/12/09 03:48:15 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *    Revision 1.15  1994/12/09 03:48:15  ahd
+ *    Use B_UUSTAT to limit variables loaded by configuration
+ *
  *        Revision 1.14  1994/10/03  01:01:25  ahd
  *        Give up time slice during processing to allow other programs
  *        to run (and basic stuff like Mouse clicks to be handled) under

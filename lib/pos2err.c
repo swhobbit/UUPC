@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.7 1994/03/09 04:17:41 ahd Exp $
+ *    $Id: pos2err.c 1.8 1994/03/09 04:53:53 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.8  1994/03/09 04:53:53  ahd
+ *    Add missing <ctype.h> header
+ *
  * Revision 1.7  1994/03/09  04:17:41  ahd
  * Suppress all control characters in OS/2 message text
  *

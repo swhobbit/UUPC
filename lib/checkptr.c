@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.6 1994/02/19 04:04:36 ahd Exp $
+ *    $Id: checkptr.c 1.7 1994/02/19 04:39:43 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.7  1994/02/19 04:39:43  ahd
+ *    Use standard first header
+ *
  *     Revision 1.6  1994/02/19  04:04:36  ahd
  *     Use standard first header
  *

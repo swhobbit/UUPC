@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.14 1994/04/26 03:34:33 ahd Exp $
+ *    $Id: modem.h 1.15 1994/05/08 02:50:44 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: modem.h $
+ *    Revision 1.15  1994/05/08 02:50:44  ahd
+ *    Change name of carrier detect
+ *
  *        Revision 1.14  1994/04/26  03:34:33  ahd
  *        hot (previously opened) handle support
  *

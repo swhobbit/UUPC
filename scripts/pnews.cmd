@@ -22,7 +22,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.1 1994/01/18 13:31:15 ahd Exp ahd $
+ *    $Id: pnews.cmd 1.2 1994/02/13 04:56:14 ahd v1-12k $
  *
- *    $Log$
+ *    $Log: pnews.cmd $
+ *    Revision 1.2  1994/02/13 04:56:14  ahd
+ *    Add RCS log field
+ *
  */
 
 signal on novalue

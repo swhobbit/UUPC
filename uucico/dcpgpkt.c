@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.34 1994/05/23 22:45:10 ahd Exp $
+ *      $Id: dcpgpkt.c 1.35 1994/06/13 00:12:05 ahd v1-12k $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.35  1994/06/13 00:12:05  ahd
+ *      Correct length of error variable in messages
+ *
  *        Revision 1.34  1994/05/23  22:45:10  ahd
  *        Drop use of second variable for buffer tracking
  *

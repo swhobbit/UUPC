@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.24 1994/05/07 21:45:33 ahd Exp $
+ *       $Id: ulibnt.c 1.26 1994/05/23 21:44:05 dmwatt v1-12k $
  *       $Log: ulibnt.c $
+ *       Revision 1.26  1994/05/23 21:44:05  dmwatt
+ *       Allow port sharing between parent and child
+ *
  *        Revision 1.24  1994/05/07  21:45:33  ahd
  *        Correct CD() processing to be sticky -- once it fails, it
  *        keeps failing until reset by close or hangup.

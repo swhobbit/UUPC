@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.8 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: uucico.c 1.9 1994/03/09 04:21:30 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.9  1994/03/09 04:21:30  ahd
+ *    Also trap SIGTERM when possible
+ *
  * Revision 1.8  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *

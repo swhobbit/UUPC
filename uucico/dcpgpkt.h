@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -14,9 +14,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpgpkt.h 1.6 1994/01/01 19:23:09 ahd Exp $
+  *      $Id: dcpgpkt.h 1.7 1994/01/24 03:06:04 ahd v1-12k $
   *
   *      $Log: dcpgpkt.h $
+  *      Revision 1.7  1994/01/24 03:06:04  ahd
+  *      Annual Copyright Update
+  *
  * Revision 1.6  1994/01/01  19:23:09  ahd
  * Annual Copyright Update
  *

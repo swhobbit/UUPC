@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.8 1994/05/04 18:32:49 kewms Exp $
+ *    $Id: suspend.c 1.9 1994/12/09 03:50:40 rommel v1-12k $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *    Revision 1.9  1994/12/09 03:50:40  rommel
+ *    Correct errors with back-to-back uses of port failing
+ *
  *        Revision 1.8  1994/05/04  18:32:49  kewms
  *        Pretend we successfully initialized for suspending
  *

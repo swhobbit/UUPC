@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.20 1994/05/07 21:47:55 ahd Exp $
+ *    $Id: uutypes.h 1.21 1994/11/27 17:09:27 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.21  1994/11/27 17:09:27  ahd
+ *    Add F_SUPPRESSBEEP, to trap OS/2 dos box crash (not UUPC's fault)
+ *
  *     Revision 1.20  1994/05/07  21:47:55  ahd
  *     Support suppressing prompts for empty passwords
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.12 1994/02/19 04:44:30 ahd Exp $
+ *    $Id: ndiros2.c 1.13 1994/02/20 19:05:02 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *    Revision 1.13  1994/02/20 19:05:02  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.12  1994/02/19  04:44:30  ahd
  *     Use standard first header
  *

@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1989-1994 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1995 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.5 1994/05/04 02:05:03 ahd Exp $
+ *       $Id: su.cmd 1.6 1994/05/23 23:16:48 ahd v1-12k $
  *
  *       $Log: su.cmd $
+ *       Revision 1.6  1994/05/23 23:16:48  ahd
+ *       Correct copyright
+ *       Normalize to only one trailing backslash in name
+ *
  *       Revision 1.5  1994/05/04  02:05:03  ahd
  *       Also set LOGNAME for various OS/2 programs
  *
@@ -55,7 +59,7 @@ Call 'SysLoadFuncs'
 parse arg who what;
 if words(who) = 0 then
 do;
-   say 'SU.CMD Copyright 1989-1994 Kendra Electronic Wonderworks';
+   say 'SU.CMD Copyright 1989-1995 Kendra Electronic Wonderworks';
    say 'No user specified to SU to';
    exit 1;
 end;

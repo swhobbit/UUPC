@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.37 1994/02/19 05:12:25 ahd Exp $
+ *     $Id: dcpsys.c 1.38 1994/02/20 19:11:18 ahd v1-12k $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.38  1994/02/20 19:11:18  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.37  1994/02/19  05:12:25  ahd
  * Use standard first header
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: alias.h 1.2 1994/03/05 21:15:49 ahd v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: alias.h $
+ *    Revision 1.2  1994/03/05 21:15:49  ahd
+ *    Revamp header copyrights, line buffer lengths
+ *
  */
 
 static struct AliasTable {

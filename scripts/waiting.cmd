@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1989-1994 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1995 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: waiting.cmd 1.7 1994/02/13 04:56:14 ahd Exp $
+ *       $Id: waiting.cmd 1.8 1994/05/23 23:20:05 ahd v1-12k $
  *
  *       $Log: waiting.cmd $
+ *       Revision 1.8  1994/05/23 23:20:05  ahd
+ *       Correct copyright
+ *
  *       Revision 1.7  1994/02/13  04:56:14  ahd
  *       Sort mailboxes by name
  *

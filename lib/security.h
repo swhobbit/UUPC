@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.h 1.3 1993/10/12 01:22:27 ahd Exp $
+ *    $Id: security.h 1.4 1994/01/01 19:09:40 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: security.h $
+ *    Revision 1.4  1994/01/01 19:09:40  ahd
+ *    Annual Copyright Update
+ *
  *     Revision 1.3  1993/10/12  01:22:27  ahd
  *     Normalize comments to PL/I style
  *

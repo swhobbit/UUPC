@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    Get and set disk transfer address in MS C 6.0                   */
 /*                                                                    */
-/*    Changes and compilation copyright (c) 1989-1994,                */
+/*    Changes and compilation copyright (c) 1989-1995,                */
 /*    Andrew H. Derbyshire                                            */
 /*                                                                    */
 /*    Barry Schwartz <trashman@crud.hawkmoon.mn.org> rewrote the      */

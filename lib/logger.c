@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.18 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: logger.c 1.19 1994/10/23 23:29:44 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.19  1994/10/23 23:29:44  ahd
+ *    Allow multiple calls to logger to change log name on the fly
+ *
  *     Revision 1.18  1994/02/20  19:05:02  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

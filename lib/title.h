@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: title.h 1.1 1994/04/24 20:17:29 dmwatt v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: title.h $
+ *    Revision 1.1  1994/04/24 20:17:29  dmwatt
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/

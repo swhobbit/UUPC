@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u u c p . m a k                                                *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucp.mak 1.4 1993/09/20 04:36:42 ahd Exp $
+#     $Id: uucp.mak 1.5 1994/01/01 19:28:13 ahd v1-12k $
 #
 #     Revision history:
 #     $Log: uucp.mak $
+#     Revision 1.5  1994/01/01 19:28:13  ahd
+#     Annual Copyright Update
+#
 # Revision 1.4  1993/09/20  04:36:42  ahd
 # TCP/IP support from Dave Watt
 # 't' protocol support

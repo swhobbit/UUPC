@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.12 1994/02/19 03:55:32 ahd Exp $
+ *    $Id: normaliz.c 1.13 1994/02/19 04:44:48 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.13  1994/02/19 04:44:48  ahd
+ *    Use standard first header
+ *
  *     Revision 1.12  1994/02/19  03:55:32  ahd
  *     Use standard first header
  *

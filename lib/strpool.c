@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.8 1994/02/21 16:38:58 ahd Exp $
+ *    $Id: strpool.c 1.9 1994/04/24 20:35:08 ahd v1-12k $
  *
  *    $Log: strpool.c $
+ *    Revision 1.9  1994/04/24 20:35:08  ahd
+ *    Optimize processing by saving length of strings
+ *    Insure extremely long strings are allocated properly
+ *
  *     Revision 1.8  1994/02/21  16:38:58  ahd
  *     Delete C++ style comment
  *

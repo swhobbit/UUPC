@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.3 1994/04/24 20:28:00 ahd Exp $
+#       $Id: nmakos21.mak 1.4 1994/06/13 00:08:33 ahd v1-12k $
 #
-#       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.4  1994/06/13 00:08:33  ahd
+#       Add UUHOUR command to build
+#
 #       Revision 1.3  1994/04/24  20:28:00  ahd
 #       Add title routine to build
 #

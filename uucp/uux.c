@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.14 1994/02/19 05:15:54 ahd Exp $
+ *    $Id: uux.c 1.15 1994/02/26 17:21:05 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.15  1994/02/26 17:21:05  ahd
+ *    Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.14  1994/02/19  05:15:54  ahd
  * Use standard first header
  *

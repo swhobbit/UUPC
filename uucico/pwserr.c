@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.7 1994/02/19 05:09:44 ahd Exp $
+ *    $Id: pwserr.c 1.8 1994/02/20 23:56:56 dmwatt v1-12k $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.8  1994/02/20 23:56:56  dmwatt
+ *    Avoid conflict of errno with Windows NT macro of the same name
+ *
  * Revision 1.7  1994/02/19  05:09:44  ahd
  * Use standard first header
  *

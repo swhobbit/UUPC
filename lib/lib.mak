@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     l i b . m a k                                                  *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.13 1994/01/01 19:10:34 ahd Exp $
+#       $Id: lib.mak 1.14 1994/04/24 20:30:08 ahd v1-12k $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.14  1994/04/24 20:30:08  ahd
+#       Add title altering function
+#
 #    Revision 1.13  1994/01/01  19:10:34  ahd
 #    Annual Copyright Update
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1994 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-1995 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.10 1994/02/19 05:15:33 ahd Exp $
+ *    $Id: uusub.c 1.11 1994/02/20 19:11:18 ahd v1-12k $
  *
  *    $Log: uusub.c $
+ *    Revision 1.11  1994/02/20 19:11:18  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.10  1994/02/19  05:15:33  ahd
  * Use standard first header
  *

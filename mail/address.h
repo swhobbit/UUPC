@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: address.h 1.2 1994/03/07 06:12:42 ahd v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: address.h $
+ *    Revision 1.2  1994/03/07 06:12:42  ahd
+ *    Add copyright information
+ *
  */
 
 void user_at_node( const char *address,

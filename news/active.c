@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.9 1994/02/19 04:47:46 ahd Exp $
+ *    $Id: active.c 1.10 1994/03/15 03:02:26 ahd v1-12k $
  *
  *    $Log: active.c $
+ *    Revision 1.10  1994/03/15 03:02:26  ahd
+ *    Update copyright, move include for mother of all headers
+ *
  *     Revision 1.9  1994/02/19  04:47:46  ahd
  *     Use standard first header
  *

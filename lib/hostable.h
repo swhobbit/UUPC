@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.7 1994/02/20 19:16:21 ahd Exp $
+  *   $Id: hostable.h 1.8 1994/05/08 21:46:58 ahd v1-12k $
   *
   *   $Log: hostable.h $
+  *   Revision 1.8  1994/05/08 21:46:58  ahd
+  *   Use name of caller of checkname(), checkreal() when panicing on
+  *   bad parameters
+  *
  *     Revision 1.7  1994/02/20  19:16:21  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

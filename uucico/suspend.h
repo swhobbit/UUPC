@@ -14,7 +14,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -26,10 +26,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.h 1.5 1994/05/01 21:59:06 dmwatt Exp Software $
+ *    $Id: suspend.h 1.6 1994/10/24 23:41:49 rommel v1-12k $
  *
  *    Revision history:
  *    $Log: suspend.h $
+ *    Revision 1.6  1994/10/24 23:41:49  rommel
+ *    Prevent suspend processing hanging from rapid closing and opening of
+ *    the same file.
+ *
  *        Revision 1.5  1994/05/01  21:59:06  dmwatt
  *        Trap errors from failure of suspend_init to create pipe
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.20 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: security.c 1.21 1994/02/21 16:38:58 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.21  1994/02/21 16:38:58  ahd
+ *    Delete public directory debugging message
+ *
  *     Revision 1.20  1994/02/20  19:07:38  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

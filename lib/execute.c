@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.34 1994/10/02 20:47:38 ahd Exp ahd $
+ *    $Id: execute.c 1.35 1994/10/23 23:29:44 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.35  1994/10/23 23:29:44  ahd
+ *    Under OS/2 and Windows NT, always use current window when processing
+ *    synchronous commands.
+ *
  * Revision 1.34  1994/10/02  20:47:38  ahd
  * Correct processing for synchronous command
  *

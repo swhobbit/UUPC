@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.10 1994/01/24 03:17:50 ahd Exp $
+ *    $Id: deliver.h 1.11 1994/12/09 03:54:15 ahd v1-12k $
  *
  *    $Log: deliver.h $
+ *    Revision 1.11  1994/12/09 03:54:15  ahd
+ *    Support recursely processing system aliases file for same address
+ *
  * Revision 1.10  1994/01/24  03:17:50  ahd
  * Annual Copyright Update
  *

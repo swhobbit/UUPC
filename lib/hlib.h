@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: hlib.h 1.5 1994/02/28 01:11:02 ahd v1-12k $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: hlib.h $
+ *    Revision 1.5  1994/02/28 01:11:02  ahd
+ *    Change BINARY_MODE to IMAGE_MODE,  allow longer addresses in real OS's
+ *
  */
 
 #define SAME 0

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.22 1994/10/03 03:24:10 ahd Exp $
+ *    $Id: ssleep.c 1.23 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.23  1994/12/09 03:42:09  ahd
+ *    All suppressbeep support to allow NOT making any sound
+ *
  *     Revision 1.22  1994/10/03  03:24:10  ahd
  *     Correct spelling of TimerId
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.8 1994/02/19 04:10:40 ahd Exp $
+ *    $Id: pwinsock.c 1.9 1994/02/19 04:45:42 ahd v1-12k $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.9  1994/02/19 04:45:42  ahd
+ *    Use standard first header
+ *
  * Revision 1.8  1994/02/19  04:10:40  ahd
  * Use standard first header
  *

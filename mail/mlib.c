@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.11 1994/04/26 23:56:16 ahd Exp $
+ *    $Id: mlib.c 1.12 1994/08/07 21:28:54 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.12  1994/08/07 21:28:54  ahd
+ *    Clean up OS/2 processing to not use new sessions, but rather simply user
+ *    command processor to allow firing off PM programs such as E and EPM.
+ *
  * Revision 1.11  1994/04/26  23:56:16  ahd
  * Allow for unique use of foreground flag under OS/2
  *

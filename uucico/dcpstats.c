@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.11 1994/02/26 17:22:04 ahd Exp $
+ *       $Id: dcpstats.c 1.12 1994/03/11 01:49:45 ahd v1-12k $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.12  1994/03/11 01:49:45  ahd
+ *       Don't backup the host status file before updates
+ *
  * Revision 1.11  1994/02/26  17:22:04  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *

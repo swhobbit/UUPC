@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.h 1.4 1993/07/20 21:41:51 dmwatt Exp $
+ *    $Id: safeio.h 1.5 1994/01/01 19:09:34 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: safeio.h $
+ *    Revision 1.5  1994/01/01 19:09:34  ahd
+ *    Annual Copyright Update
+ *
  *     Revision 1.4  1993/07/20  21:41:51  dmwatt
  *     Don't rely on standard I/O under Windows/NT
  *

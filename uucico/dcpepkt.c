@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.8 1994/05/04 23:36:34 ahd Exp $
+ *    $Id: dcpepkt.c 1.9 1994/10/03 01:01:25 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.9  1994/10/03 01:01:25  ahd
+ *    Reflect read errors to caller rather than (stupidly) eating them
+ *
  *        Revision 1.8  1994/05/04  23:36:34  ahd
  *        Count packets sent/received in command messages
  *

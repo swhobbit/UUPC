@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.13 1994/05/06 03:55:50 ahd Exp $
+ *    $Id: catcher.c 1.14 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.14  1994/12/09 03:42:09  ahd
+ *    All suppressbeep support to allow NOT making any sound
+ *
  *     Revision 1.13  1994/05/06  03:55:50  ahd
  *     Force SIGTERM to handled non-interactively, because it normally
  *     comes from a OS/2 kill process command (such as close window).

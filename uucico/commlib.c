@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.24 1994/04/27 00:02:15 ahd Exp $
+ *    $Id: commlib.c 1.25 1994/05/07 21:45:33 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.25  1994/05/07 21:45:33  ahd
+ *    Correct CD() processing to be sticky -- once it fails, it
+ *    keeps failing until reset by close or hangup.
+ *
  *        Revision 1.24  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support

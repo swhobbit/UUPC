@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.28 1994/05/07 21:45:33 ahd Exp $
+ *    $Id: ulib.c 1.29 1994/05/23 22:46:32 ahd v1-12k $
  *
  *    $Log: ulib.c $
+ *    Revision 1.29  1994/05/23 22:46:32  ahd
+ *    Print specific message when aborting because port is already closed
+ *
  *        Revision 1.28  1994/05/07  21:45:33  ahd
  *        Correct CD() processing to be sticky -- once it fails, it
  *        keeps failing until reset by close or hangup.

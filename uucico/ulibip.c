@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.21 1994/05/23 21:44:05 dmwatt Exp $
+ *    $Id: ulibip.c 1.22 1994/05/24 03:44:04 ahd v1-12k $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.22  1994/05/24 03:44:04  ahd
+ *    Deleted unneeded declare for tcloseline()
+ *
  *        Revision 1.21  1994/05/23  21:44:05  dmwatt
  *        Support h_nerr
  *

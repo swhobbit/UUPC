@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,13 +17,17 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.5 1994/03/07 06:09:51 ahd Exp $";
+      "$Id: hdbm.c 1.6 1994/06/14 01:19:24 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+/* Revision 1.6  1994/06/14 01:19:24  ahd
+/* Clean yp RCS information
+/* patches from Kai Uwe Rommel
+/*
  * Revision 1.5  1994/03/07  06:09:51  ahd
  * Add additional error messages to error returns
  *

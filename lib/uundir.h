@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uundir.h 1.6 1993/12/23 03:19:49 rommel Exp $
+ *    $Id: uundir.h 1.7 1994/01/01 19:10:14 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: uundir.h $
+ *    Revision 1.7  1994/01/01 19:10:14  ahd
+ *    Annual Copyright Update
+ *
  *     Revision 1.6  1993/12/23  03:19:49  rommel
  *     OS/2 32 bit support for additional compilers
  *

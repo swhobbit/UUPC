@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.1 1994/05/23 21:42:10 dmwatt Exp ahd $
+ *       $Id: uupcdll.c 1.2 1994/05/30 02:20:00 ahd v1-12k $
  *       $Log: uupcdll.c $
+ *       Revision 1.2  1994/05/30 02:20:00  ahd
+ *       Add missing definition for Dllmain
+ *
  * Revision 1.1  1994/05/23  21:42:10  dmwatt
  * Initial revision
  *

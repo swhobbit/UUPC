@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.13 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: pushpop.c 1.14 1994/03/15 03:02:26 ahd v1-12k $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.14  1994/03/15 03:02:26  ahd
+ *    Correct spelling error
+ *
  *     Revision 1.13  1994/02/20  19:07:38  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *

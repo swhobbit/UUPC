@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.10 1994/02/19 05:09:59 ahd Exp $
+ *    $Id: script.c 1.11 1994/05/23 22:46:32 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.11  1994/05/23 22:46:32  ahd
+ *    Use atol() for getting speed changes
+ *
  *        Revision 1.10  1994/02/19  05:09:59  ahd
  *        Use standard first header
  *

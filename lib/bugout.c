@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.9 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: bugout.c 1.10 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.10  1994/12/09 03:42:09  ahd
+ *    All suppressbeep support to allow NOT making any sound
+ *
  *     Revision 1.9  1994/02/20  19:05:02  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
