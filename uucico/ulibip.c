@@ -21,9 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.18 1994/03/28 02:18:45 ahd Exp $
+ *    $Id: ulibip.c 1.19 1994/04/27 00:02:15 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *        Revision 1.19  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  *        Revision 1.18  1994/03/28  02:18:45  ahd
  *        Cleanup header files
  *
@@ -148,8 +152,6 @@ boolean IsFatalSocketError(int err);
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
-
-static boolean carrierDetect = FALSE;
 
 currentfile();
 static boolean hangupNeeded = TRUE;
@@ -283,8 +285,6 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
                            /* Ctrl-BREAK                              */
 
-   carrierDetect = FALSE;  /* No modem connected yet                */
-
    connectionDied = FALSE; /* The connection hasn't failed yet */
 
 /*--------------------------------------------------------------------*/
@@ -381,7 +381,6 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    traceStart( name );
 
    portActive = TRUE;     /* record status for error handler */
-   carrierDetect = TRUE;   /* Carrier detect = connection              */
 
    return FALSE;                       /* Return success to caller     */
 
@@ -412,7 +411,6 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    norecovery = FALSE;     /* Flag we need a graceful shutdown after */
                            /* Ctrl-BREAK                             */
-   carrierDetect = FALSE;  /* No network connection yet              */
    connectionDied = FALSE; /* The connection hasn't failed yet       */
 
 /*--------------------------------------------------------------------*/
@@ -806,7 +804,6 @@ void tcloseline(void)
       pollingSock = INVALID_SOCKET;
    }
 
-   carrierDetect = FALSE;  /* No network connection yet               */
    traceStop();
 
 } /* tcloseline */
@@ -821,7 +818,9 @@ void thangup( void )
 {
    if (!hangupNeeded)
       return;
+
    hangupNeeded = FALSE;
+   connectionDied = FALSE;
 
    if (connectedSock != INVALID_SOCKET)
    {
@@ -834,8 +833,6 @@ void thangup( void )
       closesocket(pollingSock);
       pollingSock = INVALID_SOCKET;
    }
-
-   carrierDetect = FALSE;  /* No network connection yet               */
 
 } /* thangup */
 
@@ -889,9 +886,9 @@ BPS tGetSpeed( void )
 
 boolean tCD( void )
 {
-   boolean online = carrierDetect;
 
-   return online;
+   return connectionDied ? FALSE : TRUE;
+
 } /* tCD */
 
 /*--------------------------------------------------------------------*/
@@ -939,8 +936,6 @@ boolean tWaitForNetConnect(const unsigned int timeout)
       printmsg(0, "WaitForNetConnect: could not accept a connection");
       printWSerror("accept", wsErr);
    }
-
-   carrierDetect = TRUE;
 
    return TRUE;
 

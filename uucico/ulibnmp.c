@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.19 1994/04/27 00:02:15 ahd Exp $
+ *       $Id: ulibnmp.c 1.20 1994/05/06 03:55:50 ahd Exp $
  *       $Log: ulibnmp.c $
+ *        Revision 1.20  1994/05/06  03:55:50  ahd
+ *        Hot login support
+ *
  *        Revision 1.19  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -121,8 +124,6 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 
 currentfile();
 
-static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
-
 static boolean hangupNeeded = FALSE;
 
 static BPS currentSpeed = 0;
@@ -215,7 +216,6 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 
    portActive = TRUE;      /* Record status for error handler        */
    passive    = TRUE;
-   carrierDetect = FALSE;  /* Modem is not connected                 */
 
    return 0;
 
@@ -306,6 +306,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
    if ( rc )
    {
       printOS2error(name , rc );
+      pipeHandle = -1;
       return TRUE;
    }
 
@@ -319,7 +320,6 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 
    portActive = TRUE;      /* Record status for error handler        */
    passive    = FALSE;
-   carrierDetect = FALSE;  /* Modem is not connected                 */
 
    return 0;
 
@@ -684,7 +684,7 @@ BPS pGetSpeed( void )
 
 boolean pCD( void )
 {
-   return carrierDetect;
+   return TRUE;
 } /* pCD */
 
 /*--------------------------------------------------------------------*/

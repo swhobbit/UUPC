@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.22 1994/05/02 11:38:04 dmwatt Exp $
+ *       $Id: ulibnt.c 1.23 1994/05/06 03:55:50 ahd Exp $
  *       $Log: ulibnt.c $
+ *        Revision 1.23  1994/05/06  03:55:50  ahd
+ *        Hot login support
+ *
  *        Revision 1.22  1994/05/02  11:38:04  dmwatt
  *        Correct compiler error introduced by hot handle support
  *
@@ -162,8 +165,6 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
-
-static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 
@@ -376,7 +377,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
    traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;     /* record status for error handler        */
-   carrierDetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -924,7 +924,7 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean previousCarrierDetect = carrierDetect;
+   boolean newCarrierDetect;
    USHORT rc;
 
    DWORD status;
@@ -946,16 +946,18 @@ boolean nCD( void )
       oldstatus = status;
    }
 
+   newCarrierDetect = (status & MS_RLSD_ON) ? TRUE : FALSE;
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
+
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
 /*    report it was lost.  If we do not yet have carrier detect,      */
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   carrierDetect = status & MS_RLSD_ON ? TRUE : FALSE;
-
-   if (previousCarrierDetect)
-      return carrierDetect;
+   if (carrierDetect)
+      return newCarrierDetect;
    else
       return (status & MS_DSR_ON) ? TRUE : FALSE;
 

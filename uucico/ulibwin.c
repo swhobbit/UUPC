@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.11 1994/02/13 04:46:01 ahd Exp $
+ *    $Id: ulibwin.c 1.12 1994/02/19 05:07:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.12  1994/02/19  05:07:34  ahd
+ * Use standard first header
+ *
  * Revision 1.11  1994/02/13  04:46:01  ahd
  * Correct date of Microsoft document
  *
@@ -113,8 +116,6 @@
 #define MSR_RLSD             0x80  /* absolute RLSD state in MSR      */
 
 currentfile();
-
-static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 static UINT currentSpeed = 0;
@@ -570,6 +571,7 @@ void ncloseline(void)
 void nhangup( void )
 {
    hangupNeeded = FALSE;
+   carrierDetect = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -597,7 +599,8 @@ void nhangup( void )
       printmsg(0, "hangup: Unable to raise DTR for comm port");
       panic();
    }
-   ddelay(500);         /* Now wait for the poor thing to recover    */
+
+   ddelay(2000);         /* Now wait for the poor thing to recover    */
 
 } /* nhangup */
 
@@ -687,11 +690,9 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean online = carrierdetect;
-   boolean modem_present;
+   boolean newCarrierDetect;
 
-   carrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
-   modem_present = ((*lpbModemBits & MSR_DSR) != 0);
+   newCarrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -701,10 +702,13 @@ boolean nCD( void )
 /*    is either no modem at all(!) or it's not turned on.             */
 /*--------------------------------------------------------------------*/
 
-   if (online)
-      return (modem_present && carrierdetect);
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
+
+   if (carrierDetect)
+      return newCarrierDetect;
    else
-      return (modem_present);
+      return ((*lpbModemBits & MSR_DSR) != 0) ? TRUE : FALSE;
 
 } /* nCD */
 

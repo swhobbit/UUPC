@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.8 1994/01/01 19:21:33 ahd Exp $
+ *    $Id: ulibfs.c 1.9 1994/02/19 05:11:28 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ * Revision 1.9  1994/02/19  05:11:28  ahd
+ * Use standard first header
+ *
  * Revision 1.8  1994/01/01  19:21:33  ahd
  * Annual Copyright Update
  *
@@ -494,19 +497,19 @@ BPS fGetSpeed( void )
 
 boolean fCD( void )
 {
-   boolean saveCD = carrierDetect;
+   boolean newCarrierDetect;
 
    short status = FSStatus();
 
    showModem( status );
+
    if ( status & FS_STAT_DCD )
-      carrierDetect = TRUE;
+      carrierDetect = newCarrierDetect = TRUE;
 
-   if ((! saveCD) || carrierDetect)
+   if (carrierDetect)
+      return newCarrierDetect;
+   else
       return TRUE;
-
-   printmsg(0,"fCD: Lost carrier detect");
-   return FALSE;
 
 } /* fCD */
 

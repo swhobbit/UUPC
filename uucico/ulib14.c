@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.9 1994/01/01 19:21:25 ahd Exp $
+ *    $Id: ulib14.c 1.10 1994/02/19 05:11:10 ahd Exp $
  *
  *    $Log: ulib14.c $
+ * Revision 1.10  1994/02/19  05:11:10  ahd
+ * Use standard first header
+ *
  * Revision 1.9  1994/01/01  19:21:25  ahd
  * Annual Copyright Update
  *
@@ -471,10 +474,12 @@ BPS iGetSpeed( void )
 
 boolean iCD( void )
 {
-   boolean online = carrierDetect;
 
    ShowModem();
-   carrierDetect = FS_cd_high();
+   boolean newCarrierDetect = FS_cd_high();
+
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -482,8 +487,8 @@ boolean iCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   if (online)
-      return carrierDetect && FS_dsr_high();
+   if (carrierDetect)
+      return newCarrierDetect && FS_dsr_high();
    else
       return FS_dsr_high();
 

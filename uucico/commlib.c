@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.23 1994/03/11 01:49:45 ahd Exp $
+ *    $Id: commlib.c 1.24 1994/04/27 00:02:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *        Revision 1.24  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  *        Revision 1.23  1994/03/11  01:49:45  ahd
  *        Move the Mother of All Headers out of #ifdef
  *
@@ -175,10 +179,11 @@ typedef struct _COMMSUITE {
 /*--------------------------------------------------------------------*/
 
 boolean portActive;         /* Port active flag for error handler   */
-boolean traceEnabled;        /* Trace active flag                     */
+boolean traceEnabled;       /* Trace active flag                    */
 size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
 char UUFAR *commBuffer = NULL;
+boolean   carrierDetect;    /* Modem is not connected    */
 
 ref_activeopenline activeopenlinep;
 ref_passiveopenline passiveopenlinep;
@@ -401,6 +406,7 @@ boolean chooseCommunications( const char *name )
             "chooseCommunications: Chose suite %s",
             suite[subscript].type );
 
+   carrierDetect = FALSE;
    return TRUE;
 
 } /* chooseCommunications */
@@ -415,6 +421,16 @@ boolean traceStart( const char *port )
 {
    char *linelog;
    time_t now;
+
+/*--------------------------------------------------------------------*/
+/*               Perform a little common house keeping                */
+/*--------------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------------*/
+/*                  Don't trace if not requested to                   */
+/*--------------------------------------------------------------------*/
+
 
    if ( ! traceEnabled )
       return FALSE;

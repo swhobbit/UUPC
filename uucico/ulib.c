@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.26 1994/02/19 05:10:55 ahd Exp $
+ *    $Id: ulib.c 1.27 1994/03/28 02:18:45 ahd Exp $
  *
  *    $Log: ulib.c $
+ *        Revision 1.27  1994/03/28  02:18:45  ahd
+ *        Correct error message to report more possible reasons for
+ *        serial port failing to install
+ *
  * Revision 1.26  1994/02/19  05:10:55  ahd
  * Use standard first header
  *
@@ -139,7 +143,6 @@ static void ShowModem( void );
 
 static BPS current_bps;
 static char current_direct;
-static boolean carrierdetect;
 
 currentfile();
 
@@ -216,7 +219,6 @@ int nopenline(char *name, BPS bps, const boolean direct)
    open_com((unsigned) current_bps, current_direct, 'N', STOPBIT, 'D');
    dtr_on();
    ssleep(2);                 /* Wait two seconds as required by V.24  */
-   carrierdetect = FALSE;     /* No modem connected yet                */
 
    traceStart( name );
 
@@ -470,7 +472,6 @@ void ncloseline(void)
 /*                                                                    */
 /*    Hangup the telephone by dropping DTR.  Works with HAYES and     */
 /*    many compatibles.                                               */
-/*    14 May 89 Drew Derbyshire                                       */
 /*--------------------------------------------------------------------*/
 
 void nhangup( void )
@@ -479,13 +480,15 @@ void nhangup( void )
          return;
 
       hangup_needed = FALSE;
+      carrierDetect = FALSE;  /* No modem connected yet                */
+
       dtr_off();              /* Hang the phone up                     */
       ddelay(500);            /* Really only need 250 milliseconds     */
       dtr_on();               /* Bring the modem back on-line          */
-      ddelay(2000);           /* Now wait for the poor thing to recover */
+      ddelay(2000);           /* Now wait for the poor thing to recover*/
                               /* two seconds is required by V.24       */
+
       printmsg(3,"nhangup: complete.");
-      carrierdetect = FALSE;  /* No modem connected yet                */
 
 } /* nhangup */
 
@@ -555,10 +558,13 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean online = carrierdetect;
+   boolean newCarrierDetect;
 
    ShowModem();
-   carrierdetect = is_cd_high();
+   newCarrierDetect = is_cd_high();
+
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -566,8 +572,8 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   if (online)
-      return carrierdetect && is_dsr_high();
+   if (carrierDetect)
+      return newCarrierDetect && is_dsr_high();
    else
       return is_dsr_high();
 

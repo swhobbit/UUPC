@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.40 1994/04/27 00:02:15 ahd Exp $
+ *       $Id: ulibos2.c 1.41 1994/05/06 03:55:50 ahd Exp $
  *       $Log: ulibos2.c $
+ *        Revision 1.41  1994/05/06  03:55:50  ahd
+ *        Hot login support
+ *
  *        Revision 1.40  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -189,11 +192,9 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 
 currentfile();
 
-static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
-
 static boolean hangupNeeded = FALSE;
 
-static unsigned short currentSpeed = 0;
+static BPS currentSpeed = 0;
 static BPS saveSpeed = 0;
 
 #define FAR_NULL ((PVOID) 0L)
@@ -280,6 +281,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
       if ( rc )
       {
          printOS2error( name, rc );
+         commHandle = -1;
          return TRUE;
       }
 
@@ -1099,6 +1101,7 @@ void nhangup( void )
       return;
 
    hangupNeeded = FALSE;
+   carrierDetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -1145,7 +1148,6 @@ void nhangup( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"hangup: Dropped DTR");
-   carrierDetect = FALSE;  /* Modem is not connected                 */
    ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
@@ -1265,7 +1267,7 @@ void nSIOSpeed(BPS portSpeed)
       panic();
    } /*if */
 
-   currentSpeed = (unsigned short) portSpeed;
+   currentSpeed = portSpeed;
 
 } /* nSIOSpeed */
 
@@ -1421,7 +1423,7 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean previousCarrierDetect = carrierDetect;
+   boolean newCarrierDetect;
    APIRET rc;
 
 #ifdef __OS2__
@@ -1471,10 +1473,13 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   carrierDetect = (status & DCD_ON) ? TRUE : FALSE;
+   newCarrierDetect = (status & DCD_ON) ? TRUE : FALSE;
 
-   if (previousCarrierDetect)
-      return carrierDetect;
+   if ( newCarrierDetect )
+      carrierDetect = newCarrierDetect;
+
+   if (carrierDetect)
+      return newCarrierDetect;
    else
       return (status & DSR_ON) ? TRUE : FALSE;
 
