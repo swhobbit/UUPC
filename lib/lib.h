@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.19 1994/02/14 00:29:49 ahd Exp $
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.20  1994/02/20  19:16:21  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.19  1994/02/14  00:29:49  ahd
  *     Use quotes, not angle brackets, for local includes
  *
@@ -103,6 +106,10 @@
 #define SYSRCSYM "UUPCSYSRC"
 #define USRRCSYM  "UUPCUSRRC"
 #define SYSDEBUG  "UUPCDEBUG"    /* Initialize debug level ahd        */
+
+#if defined(WIN32)
+#define REGISTRYHIVE  "Software\\Kendra Electronic Wonderworks\\UUPC/extended"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                 Macro for recording when UUPC dies                 */
