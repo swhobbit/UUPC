@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.34 1994/10/03 01:01:25 ahd Exp $
+ *    $Id: dcp.c 1.35 1994/10/23 23:29:44 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.35  1994/10/23  23:29:44  ahd
+ *        Add new title information
+ *
  *        Revision 1.34  1994/10/03  01:01:25  ahd
  *        Change title message to be more descriptive when waiting for
  *        phone to ring.
@@ -464,6 +467,7 @@ static boolean master( const char recvGrade,
    char sendgrade = ALL_GRADES;
 
    boolean contacted = FALSE;
+   boolean needUUXQT = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*                    Validate the system to call                     */
@@ -569,6 +573,7 @@ static boolean master( const char recvGrade,
          case CONN_SERVER:
             if (bflag[F_MULTITASK])
                dcupdate();
+
             setTitle("%s connected to %s", securep->myname, hostp->via );
             m_state = process( POLL_ACTIVE, recvGrade );
             contacted = TRUE;
@@ -576,19 +581,13 @@ static boolean master( const char recvGrade,
 
          case CONN_TERMINATE:
             m_state = sysend();
+
             if ( hostp != NULL )
             {
                if (hostp->status.hstatus == inprogress)
                   hostp->status.hstatus = call_failed;
                dcstats();
-
-               if ( runUUXQT )
-               {
-                  char buf[100];
-                  sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-
-                  execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
-               }
+               needUUXQT = TRUE;
             }
             break;
 
@@ -597,6 +596,24 @@ static boolean master( const char recvGrade,
             shutDown();
             UnlockSystem();
             setTitle("Not connected");
+
+            m_state = CONN_CLEANUP;
+            break;
+
+         case CONN_CLEANUP:
+            if ( runUUXQT && needUUXQT )
+               m_state = CONN_UUXQT;
+            else
+               m_state = CONN_INITIALIZE;
+            break;
+
+         case CONN_UUXQT:
+            {
+               char buf[100];
+               sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+               execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+            }
+            needUUXQT = FALSE;
             m_state = CONN_INITIALIZE;
             break;
 
@@ -640,6 +657,7 @@ static boolean client( const time_t exitTime,
    CONN_STATE old_state = CONN_EXIT;
 
    boolean contacted = FALSE;
+   boolean needUUXQT = FALSE;
 
    char sendgrade = ALL_GRADES;
 
@@ -745,13 +763,7 @@ static boolean client( const time_t exitTime,
             if ( hostp != NULL )
             {
                dcstats();
-               if ( runUUXQT )
-               {
-                  char buf[100];
-                  sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-
-                  execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
-               }
+               needUUXQT = TRUE;
             }
             break;
 
@@ -760,6 +772,23 @@ static boolean client( const time_t exitTime,
             if ( locked )     /* Cause could get here w/o
                                  locking                    */
                UnlockSystem();
+            s_state = CONN_CLEANUP;
+            break;
+
+         case CONN_CLEANUP:
+            if ( runUUXQT && needUUXQT )
+               s_state = CONN_UUXQT;
+            else
+               s_state = CONN_EXIT;
+            break;
+
+         case CONN_UUXQT:
+            {
+               char buf[100];
+               sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+               execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+            }
+            needUUXQT = FALSE;
             s_state = CONN_EXIT;
             break;
 
@@ -770,6 +799,7 @@ static boolean client( const time_t exitTime,
             printmsg(0,"dcpmain: Unknown slave state = %c",s_state );
             panic();
             break;
+
       } /* switch */
 
       if ( terminate_processing )
