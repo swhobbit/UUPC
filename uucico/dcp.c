@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.6 1992/12/01 04:37:03 ahd Exp $
+ *    $Id: DCP.C 1.7 1992/12/18 12:05:57 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.7  1992/12/18  12:05:57  ahd
+ * Suppress duplicate machine state messages to improve OS/2 scrolling
+ *
  * Revision 1.6  1992/12/01  04:37:03  ahd
  * Add standard comment block for header
  *
@@ -251,11 +254,14 @@ int dcpmain(int argc, char *argv[])
 
    openlog( logfile_name );
 
-   if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK] &&
-      (syslog = FOPEN(SYSLOG, "a", TEXT)) == nil(FILE))
+   if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK])
    {
-      printerr( SYSLOG );
-      panic();
+      syslog = FOPEN(SYSLOG, "a", TEXT);
+      if ((syslog == nil(FILE)) || setvbuf( syslog, NULL, _IONBF, 0))
+      {
+         printerr( SYSLOG );
+         panic();
+      }
    }
 
    mkfilename(s_systems, E_confdir, SYSTEMS);
@@ -370,7 +376,11 @@ int dcpmain(int argc, char *argv[])
             case CONN_TERMINATE:
                m_state = sysend();
                if ( hostp != NULL )
+               {
+                  if (hostp->hstatus == inprogress)
+                     hostp->hstatus = call_failed;
                   dcstats();
+               }
                break;
 
             case CONN_DROPLINE:
