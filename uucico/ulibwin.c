@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.2 1993/07/31 16:27:49 ahd Exp $
+ *    $Id: ulibwin.c 1.3 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.3  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.2  1993/07/31  16:27:49  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -255,7 +258,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
         }
         ShowModem();
 
-
 /*--------------------------------------------------------------------*/
 /*        Log serial line data only if log file already exists        */
 /*--------------------------------------------------------------------*/
@@ -273,7 +275,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
    return 0;
 
 } /* nopenline */
-
 
 /*--------------------------------------------------------------------*/
 /*    s r e a d                                                       */
@@ -466,7 +467,6 @@ int nswrite(const char *data, unsigned int len)
 
 } /* nswrite */
 
-
 /*--------------------------------------------------------------------*/
 /*    n s s e n d b r k                                               */
 /*                                                                    */
@@ -522,7 +522,6 @@ void ncloseline(void)
 
 } /* ncloseline */
 
-
 /*--------------------------------------------------------------------*/
 /*    n h a n g u p                                                   */
 /*                                                                    */
@@ -567,7 +566,6 @@ void nhangup( void )
 
 } /* nhangup */
 
-
 /*--------------------------------------------------------------------*/
 /*       S I O S p e e d                                              */
 /*                                                                    */
@@ -594,7 +592,6 @@ void nSIOSpeed(BPS baud)
 
 } /* nSIOSpeed */
 
-
 /*--------------------------------------------------------------------*/
 /*    n f l o w c o n t r o l                                         */
 /*                                                                    */
@@ -609,7 +606,7 @@ void nflowcontrol( boolean flow )
    if (console)
       return;
 
-        GetCommState(nCid, &dcb);
+   GetCommState(nCid, &dcb);
 
    if (flow)
    {
@@ -617,14 +614,15 @@ void nflowcontrol( boolean flow )
       dcb.fInX = TRUE;
       dcb.fRtsflow = FALSE;
       dcb.fOutxCtsFlow = FALSE;
-        } else {
+   }
+   else {
       dcb.fOutX = FALSE;
       dcb.fInX = FALSE;
       dcb.fRtsflow = TRUE;
       dcb.fOutxCtsFlow = TRUE;
-        }
+   }
 
-        if ((rc = SetCommState(&dcb)) != 0)
+   if ((rc = SetCommState(&dcb)) != 0)
    {
       printmsg(0,"flowcontrol: Unable to set flow control");
                 printmsg(0,"Return code fromSetCommState was %#04x (%d)",
@@ -633,7 +631,6 @@ void nflowcontrol( boolean flow )
    } /*if */
 
 } /* nflowcontrol */
-
 
 /*--------------------------------------------------------------------*/
 /*    n G e t S p e e d                                               */
@@ -646,7 +643,6 @@ BPS nGetSpeed( void )
    return current_baud;
 } /* GetSpeed */
 
-
 /*--------------------------------------------------------------------*/
 /*   n C D                                                            */
 /*                                                                    */
@@ -655,16 +651,14 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-        WORD wEvBits;
-        boolean online = carrierdetect;
+   boolean online = carrierdetect;
    boolean modem_present;
 
    if ( console )
       return feof( stdin ) == 0;
 
-        carrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
-   modem_present = ((*lpbModemBits & MSR_DSR) != 0);
-
+    carrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
+    modem_present = ((*lpbModemBits & MSR_DSR) != 0);
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -673,7 +667,6 @@ boolean nCD( void )
 /*    If DSR is not present, we always report no carrier, as there    */
 /*    is either no modem at all(!) or it's not turned on.             */
 /*--------------------------------------------------------------------*/
-
 
    if (online)
       return (modem_present && carrierdetect);
@@ -692,9 +685,8 @@ boolean nCD( void )
 
 static void ShowModem( void )
 {
-        int status;
-        BYTE modem_bits = *lpbModemBits;
-        static BYTE old_bits = 0xFF;
+   BYTE modem_bits = *lpbModemBits;
+   static BYTE old_bits = 0xFF;
 
    if ( debuglevel < 4 )
       return;
@@ -729,3 +721,19 @@ static void ShowError( int status )
                 mannounce(CE_TXFULL,   status, " Xmit Queue Full"));
 
 } /* ShowError */
+
+/*--------------------------------------------------------------------*/
+/*       s e t P r t y                                                */
+/*                                                                    */
+/*       No operation under Windows                                   */
+/*--------------------------------------------------------------------*/
+
+void setPrty( void ) { }
+
+/*--------------------------------------------------------------------*/
+/*       r e s e t P r t y                                            */
+/*                                                                    */
+/*       No operation under Windows                                   */
+/*--------------------------------------------------------------------*/
+
+void resetPrty( void ) { }
