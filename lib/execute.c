@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.18 1993/11/14 20:51:37 ahd Exp $
+ *    $Id: execute.c 1.19 1993/11/30 04:16:23 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.19  1993/11/30  04:16:23  dmwatt
+ * Add Windows NT executeAsync()
+ *
  * Revision 1.18  1993/11/14  20:51:37  ahd
  * Correct Windows 3.1 compile error
  *
@@ -385,7 +388,7 @@ int execute( const char *command,
 #ifdef WIN32
       result = executeAsync( path, parameters, synchronous, foreground );
 #else
-      result = spawnlp( P_WAIT,
+      result = spawnl(  P_WAIT,
                         (char *) path,
                         (char *) command,
                         (char *) parameters,
@@ -489,8 +492,8 @@ static boolean internal( const char *command )
                                "ctty",    "date",  "del",      "dir",
                                "echo",    "erase", "for",      "md",
                                "mkdir",   "rd",    "rem",      "ren",
-                               "rename",  "rmdir", "time",     "ver",
-                               "verify",  "vol",
+                               "rename",  "rmdir", "time",     "type",
+                               "ver",     "verify",  "vol",
                                NULL };
    char **list;
 
@@ -509,9 +512,6 @@ static boolean internal( const char *command )
 
    while( *list != NULL )
    {
-      printmsg(5,"Searching for \"%s\", comparing to \"%s\"",
-                  *list, command);
-
       if (equali(*list++,command))
       {
          printmsg(4,"\"%s\" is an internal command",command);

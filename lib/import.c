@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.11 1993/10/12 00:48:44 ahd Exp $
+ *    $Id: import.c 1.12 1993/11/06 17:54:55 rhg Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.12  1993/11/06  17:54:55  rhg
+ *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  *     Revision 1.11  1993/10/12  00:48:44  ahd
  *     Normalize comments
  *
@@ -267,7 +270,7 @@ void importpath(char *local, const char *canon, const char *remote)
 
       boolean longname;
 
-      printmsg(4,"importpath: Checking File system for spool directory %s",
+      printmsg(6,"importpath: Checking File system for spool directory %s",
                   E_spooldir );
       longname = advancedFS( E_spooldir ) && bflag[B_LONGNAME];
 
