@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.3 1995/02/07 01:29:14 dmwatt Exp $
+ *    $Id: regsetup.c 1.4 1995/02/14 04:38:42 ahd v1-12n $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.4  1995/02/14 04:38:42  ahd
+ *    Correct problems with directory processing under NT
+ *
  *    Revision 1.3  1995/02/07 01:29:14  dmwatt
  *    Clean up compile errors caused by ahd's VC++ warnings cleanup
  *
@@ -60,7 +63,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.3 1995/02/07 01:29:14 dmwatt Exp $";
+         "$Id: regsetup.c 1.4 1995/02/14 04:38:42 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -377,9 +380,11 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
    for (tptr = envtable; tptr->sym != nil(char); tptr++)
    {
+      if (!tptr->loc)
+           continue;     /* Skip variables we don't save */
       if (tptr->flag & B_OBSOLETE)
          continue;      /* Skip obsolete stuff */
-      if (*((char **)(tptr->loc)) == NULL)
+      if (tptr->loc && *((char **)(tptr->loc)) == NULL)
          continue;  /* Skip uninitialized */
 
 /* For now, take it easy:  leave out KWBooleans, shorts, longs, and lists */
@@ -488,7 +493,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
          /* Skip obsolete stuff */
          continue;
       }
-      else if (*((char **)(tptr->loc)) == NULL)
+      else if (tptr->loc && *((char **)(tptr->loc)) == NULL)
       {
          /* Skip uninitialized */
          continue;
@@ -498,14 +503,14 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
          /* For now, take it easy:  leave out KWBooleans */
          continue;
       }
-          else if (tptr->flag & B_CHAR)
-          {
-             /* characters */
-                 char buf[2];
-                 buf[1] = '\0';
-                 buf[0] = *((char *)tptr->loc);
-                 PutRegistry(hSystemHive, subKey, tptr->sym, buf);
-          }
+      else if (tptr->flag & B_CHAR)
+      {
+         /* characters */
+             char buf[2];
+             buf[1] = '\0';
+             buf[0] = *((char *)tptr->loc);
+             PutRegistry(hSystemHive, subKey, tptr->sym, buf);
+      }
       else if (tptr->flag & (B_SHORT|B_LONG))
       {
          char buf[BUFSIZ];
@@ -550,7 +555,8 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
       } else
       {
          /* All that's left is strings */
-         PutRegistry(hSystemHive, subKey, tptr->sym, *((char **)(tptr->loc)));
+               if (tptr->loc)
+               PutRegistry(hSystemHive, subKey, tptr->sym, *((char **)(tptr->loc)));
       }
    }
 }
