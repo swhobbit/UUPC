@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.17 1993/10/02 22:56:59 ahd Exp $
+ *      $Id: dcpgpkt.c 1.18 1993/10/04 03:57:20 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.18  1993/10/04  03:57:20  ahd
+ * Drop new lines from start up message
+ *
  * Revision 1.17  1993/10/02  22:56:59  ahd
  * Suppress compile warning
  *
@@ -957,6 +960,7 @@ short gwrmsg( char *s )
    }
 
    return (*sendpkt)(s, (short) (strlen(s) + 1));
+
 } /* gwrmsg */
 
 /*--------------------------------------------------------------------*/
@@ -1075,6 +1079,8 @@ static short gmachine(const short timeout )
                    resend = TRUE;
                } /* if */
             } /* if */
+            else if ( now >= (idletimer + M_gPacketTimeout))
+               donak = TRUE;
 
             done = TRUE;
             break;
@@ -1095,7 +1101,7 @@ static short gmachine(const short timeout )
                done = TRUE;   /* return to caller when finished      */
                               /* in a mtask system, unneccesary      */
             } else {
-               if (inseq || ( now > (idletimer + M_gPacketTimeout)))
+               if (inseq || ( now >= (idletimer + M_gPacketTimeout)))
                {
                   donak = TRUE;  /* Only flag first out of sequence
                                     packet as error, since we know
@@ -1197,7 +1203,7 @@ static short gmachine(const short timeout )
       if ( donak )
       {
          nerr++;
-         if ( (lazynak < 1) || (now > (idletimer + M_gPacketTimeout)))
+         if ( (lazynak < 1) || (now >= (idletimer + M_gPacketTimeout)))
          {
             printmsg(5, "*** NAK d %d", rwl);
             gspack(NAK, rwl, 0, 0, 0, NULL);
