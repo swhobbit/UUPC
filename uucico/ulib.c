@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.27 1994/03/28 02:18:45 ahd Exp $
+ *    $Id: ulib.c 1.28 1994/05/07 21:45:33 ahd Exp $
  *
  *    $Log: ulib.c $
+ *        Revision 1.28  1994/05/07  21:45:33  ahd
+ *        Correct CD() processing to be sticky -- once it fails, it
+ *        keeps failing until reset by close or hangup.
+ *
  *        Revision 1.27  1994/03/28  02:18:45  ahd
  *        Correct error message to report more possible reasons for
  *        serial port failing to install
@@ -441,7 +445,10 @@ void ncloseline(void)
    int far *stats;
 
    if (!portActive)
+   {
+      printmsg(0,"ncloseline: Port already closed");
       panic();
+   }
 
    portActive = FALSE;        /* Flag port closed for error handler  */
 
