@@ -20,6 +20,9 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
+/* Revision 1.22  1997/04/24 01:39:02  ahd
+/* Annual Copyright Update
+/*
 /* Revision 1.21  1996/11/22 03:12:25  ahd
 /* Correct compile warning
 /*
@@ -94,7 +97,7 @@
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.21 1996/11/22 03:12:25 ahd Exp $");
+RCSID("$Id: genhist.c 1.22 1997/04/24 01:39:02 ahd v1-12t $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -277,10 +280,11 @@ static void IndexAll( void )
 /*    G e t H i s t o r y D a t a                                     */
 /*--------------------------------------------------------------------*/
 
-static void GetHistoryData(const char *group,
-                           struct direct *dp,
-                           char *messageID,
-                           char *histentry)
+static KWBoolean
+GetHistoryData(const char *group,
+               struct direct *dp,
+               char *messageID,
+               char *histentry)
 {
 
    KWBoolean bXref = KWFalse;
@@ -289,8 +293,9 @@ static void GetHistoryData(const char *group,
 
   if ( article == NULL )
   {
+    printmsg(0, "GetHistoryData: Cannot open article %s", dp->d_name );
     printerr( dp->d_name );
-    panic();
+    return KWFalse;
   }
 
   sprintf(histentry, "%ld %ld ", dp->d_modified, dp->d_size);
@@ -361,6 +366,8 @@ static void GetHistoryData(const char *group,
     sprintf(histentry, "%ld %ld %s:%s",
             dp->d_modified, dp->d_size, group, dp->d_name);
 
+  return KWTrue;
+
 } /* GetHistoryData */
 
 /*--------------------------------------------------------------------*/
@@ -416,7 +423,8 @@ static void IndexDirectory( const char *groupName,
          printmsg(6,"Processing file %s from %s",
                  dp->d_name, dater( dp->d_modified, NULL));
 
-         GetHistoryData(groupName, dp, messageID, histentry);
+         if ( ! GetHistoryData(groupName, dp, messageID, histentry) )
+            continue;
 
          if ( add_histentry(history, messageID, histentry) )
             articles++;
