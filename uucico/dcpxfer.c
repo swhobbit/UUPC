@@ -1,41 +1,24 @@
-/*
-   For best results in visual layout while viewing this file, set
-   tab stops to every 4 columns.
-   "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987
-*/
+/*--------------------------------------------------------------------*/
+/*    d c p x f e r . c                                               */
+/*                                                                    */
+/*    Procotol independent transfer level for UUCICO                  */
+/*                                                                    */
+/*    Stuart Lynne May/87                                             */
+/*                                                                    */
+/*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
+/*    Changes Copyright (c) Stuart Lynne 1987                         */
+/*    Changes Copyright (c) Andrew H. Derbyshire 1989                 */
+/*    Changes Copyright (c) Jordan Brown 1990, 1991                   */
+/*    Changes Copyright (c) Kendra Electronic Wonderworks 1990-1992   */
+/*--------------------------------------------------------------------*/
 
 /*
-   dcpxfer.c
-
-   Revised edition of dcp
-
-   Stuart Lynne May/87
-
-   Copyright (c) Richard H. Lamb 1985, 1986, 1987
-   Changes Copyright (c) Stuart Lynne 1987
-   Changes Copyright (c) Jordan Brown 1990, 1991
-   Changes Copyright (c) Andrew H. Derbyshire 1989, 1991
-
-
-   Maintenance Notes:
-
-   01Nov87 - that strncpy should be a memcpy! - Jal
-   22Jul90 - Add check for existence of the file before writing
-             it.                                                  ahd
-   09Apr91 - Add numerous changes from H.A.E.Broomhall and Cliff
-             Stanford for bidirectional support                   ahd
-   05Jul91 - Merged various changes from Jordan Brown's (HJB)
-             version of UUPC/extended to clean up transmission
-             of commands, etc.                                    ahd
-   09Jul91 - Rewrite to use unique routines for all four kinds of
-             transfers to allow for testing and security          ahd
-
-*/
-
-/*
- *       $Id: DCPXFER.C 1.6 1992/11/20 12:39:10 ahd Exp $
+ *       $Id: DCPXFER.C 1.7 1992/11/22 21:20:45 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.7  1992/11/22  21:20:45  ahd
+ * Make databuf char rather than unsigned char
+ *
  * Revision 1.6  1992/11/20  12:39:10  ahd
  * Add instead of substracting on the receive buffer!
  *
@@ -52,6 +35,21 @@
  * Use unbuffered files to eliminate extra data copy
  * Clean up modem file support for different protocols
  *
+ */
+
+ /*
+   Additional maintenance Notes:
+
+   01Nov87 - that strncpy should be a memcpy! - Jal
+   22Jul90 - Add check for existence of the file before writing
+             it.                                                  ahd
+   09Apr91 - Add numerous changes from H.A.E.Broomhall and Cliff
+             Stanford for bidirectional support                   ahd
+   05Jul91 - Merged various changes from Jordan Brown's (HJB)
+             version of UUPC/extended to clean up transmission
+             of commands, etc.                                    ahd
+   09Jul91 - Rewrite to use unique routines for all four kinds of
+             transfers to allow for testing and security          ahd
  */
 
 
@@ -341,12 +339,22 @@ XFER_STATE seof( const boolean purge_file )
       if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
-         fprintf( syslog,
+         if ( bflag[F_MULTITASK] )
+            syslog = FOPEN(SYSLOG, "a", TEXT);
+
+         if (( syslog == NULL ) || setvbuf( syslog, NULL, _IONBF, 0))
+            printerr(SYSLOG);
+         else {
+            fprintf( syslog,
                "%s!%s (%s) (%d/%d-%02d:%02d:%02d) -> %ld / %ld.%02d secs\n",
                    E_nodename, tname, hostname,
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
+            fclose( syslog );
+            syslog = NULL;
+         }
+
       } /* if (bflag[F_SYSLOG] ) */
 
    } /* if (bflag[F_SYSLOG] || (debuglevel > 2 )) */
@@ -1155,12 +1163,22 @@ XFER_STATE reof( void )
       if ( bflag[F_SYSLOG] )
       {
          tmx = localtime(&now.time);
-         fprintf( syslog,
-            "%s!%s (%s) (%d/%d-%02d:%02d:%02d) <- %ld / %ld.%02d secs\n",
+         if ( bflag[F_MULTITASK] )
+            syslog = FOPEN(SYSLOG, "a", TEXT);
+
+         if (( syslog == NULL ) || setvbuf( syslog, NULL, _IONBF, 0))
+            printerr(SYSLOG);
+         else {
+            fprintf( syslog,
+               "%s!%s (%s) (%d/%d-%02d:%02d:%02d) <- %ld / %ld.%02d secs\n",
                    rmtname, tname, spolname,
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
+            fclose( syslog );
+            syslog = NULL;
+         }
+
       } /* if ( bflag[SYSLOG ) */
    } /* if (bflag[F_SYSLOG] || (debuglevel > 2 )) */
 

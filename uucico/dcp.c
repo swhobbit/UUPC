@@ -27,9 +27,12 @@
 */
 
 /*
- *    $Id$
+ *    $Id: DCP.C 1.4 1992/11/22 21:30:55 ahd Exp $
  *
- *    $Log$
+ *    $Log: DCP.C $
+ * Revision 1.4  1992/11/22  21:30:55  ahd
+ * Do not bother to strdup() string arguments
+ *
  */
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
@@ -236,7 +239,8 @@ int dcpmain(int argc, char *argv[])
 
    openlog( logfile_name );
 
-   if (bflag[F_SYSLOG] && (syslog = FOPEN(SYSLOG, "a", TEXT)) == nil(FILE))
+   if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK] &&
+      (syslog = FOPEN(SYSLOG, "a", TEXT)) == nil(FILE))
    {
       printerr( SYSLOG );
       panic();
@@ -470,17 +474,18 @@ int dcpmain(int argc, char *argv[])
 /*                         Report our results                         */
 /*--------------------------------------------------------------------*/
 
-   if (!Contacted)
+   if (!Contacted && (poll_mode == POLL_ACTIVE))
    {
       if (dialed)
          printmsg(0, "Could not connect to remote system.");
       else
-         printmsg(0, "No work for requested system or wrong time to call.");
+         printmsg(0,
+               "No work for requested system or wrong time to call.");
    }
 
    dcupdate();
 
-   if (bflag[F_SYSLOG])
+   if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK])
       fclose(syslog);
 
    return terminate_processing ? 100 : (Contacted ? 0 : 5);
