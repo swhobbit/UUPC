@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.21 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: hostatus.c 1.22 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.22  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.21  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -101,7 +104,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: hostatus.c 1.22 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -112,6 +115,7 @@ time_t hstatus_age = (time_t) -2L;
 
 void HostStatus( void )
 {
+   static const char mName[] = "HostStatus";
 
    char fname[FILENAME_MAX];
    char buf[BUFSIZ];
@@ -161,7 +165,7 @@ void HostStatus( void )
    {
 
       perror( fname );
-      printmsg(1,"HostStatus: Unable to open host status file");
+      printmsg(1,"%s: Unable to open host status file: ", mName, fname);
       time(&start_stats);
       return;
 
@@ -172,7 +176,36 @@ void HostStatus( void )
 /*--------------------------------------------------------------------*/
 
    fread( &len1, sizeof len1, 1, stream );
+
+   if (feof( stream))
+   {
+      printmsg(0,"%s Invalid (empty) host status file: %s",
+                 mName,
+                 fname);
+      fclose(stream);
+      return;
+   }
+
    fread( &len2, sizeof len2, 1, stream );
+
+   if (feof( stream))
+   {
+      printmsg(0,"%s Invalid (almost empty) host status file: %s",
+                 mName,
+                 fname);
+      fclose(stream);
+      return;
+   }
+
+   if ((len1 + len2) >= sizeof buf)
+   {
+      printmsg(0,"%s Invalid (corrupt) host status file: %s",
+                 mName,
+                 fname);
+      fclose(stream);
+      return;
+   }
+
    fread( buf , 1, len1, stream);
    buf[len1++] = ' ';
    fread( buf + len1 , 1, len2, stream);
