@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.23 1993/09/23 03:26:51 ahd Exp $
+ *       $Id: dcpxfer.c 1.24 1993/10/02 22:56:59 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.24  1993/10/02  22:56:59  ahd
+ * Suppress compile warning
+ *
  * Revision 1.23  1993/09/23  03:26:51  ahd
  * Don't allow remote sites to send call files!
  *
@@ -1400,11 +1403,6 @@ static void buf_init( void )
       xferBufSize = BUFSIZ;
    if ( xferBufSize < M_xfer_bufsize )
       xferBufSize = M_xfer_bufsize;
-
-#if defined(__OS2__) || defined(WIN32)
-   if ( xferBufSize < (16 * 1024) )
-      xferBufSize = 16 * 1024;
-#endif
 
    if (databuf == NULL)
       databuf = malloc( xferBufSize );
