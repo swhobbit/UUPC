@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.15 1994/12/22 00:08:15 ahd Exp $
+ *    $Id: expath.c 1.16 1995/01/07 16:12:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.16  1995/01/07 16:12:21  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.15  1994/12/22 00:08:15  ahd
  *    Annual Copyright Update
  *
@@ -124,7 +127,7 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*               If a fully qualified path name, return               */
 /*--------------------------------------------------------------------*/
 
-   if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
+   if (isAbsolutePath( path ))
    {
       KWBoolean push = (cur_dir != NULL );
       strcpy( save, path );
