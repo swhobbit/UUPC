@@ -5,6 +5,30 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: catcher.c 1.2 1993/09/20 04:38:11 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: catcher.c $
+ *     Revision 1.2  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
 /*    the code uses conditionals to use system-level DOS and OS/2     */
 /*    services.  Another option is to set global flags and do any     */
@@ -20,6 +44,10 @@
 #include <process.h>
 #include <stdlib.h>
 
+#if defined(WIN32) || defined(_Windows)
+#include "winsock.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -29,6 +57,10 @@
 #include "catcher.h"
 #include "safeio.h"
 
+#if defined(_Windows)
+#include "pwinsock.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
@@ -36,6 +68,10 @@
 boolean terminate_processing = FALSE;
 boolean interactive_processing = TRUE;
 boolean norecovery = TRUE;
+
+#if defined(WIN32) || defined(_Windows)
+boolean winsockActive = FALSE;      // Set/reset in ulibip.c
+#endif
 
 int panic_rc = 69;
 
@@ -48,7 +84,15 @@ int panic_rc = 69;
 /*    Workbench QuickHelp samples                                     */
 /*--------------------------------------------------------------------*/
 
-void ctrlchandler( void )
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+void
+#ifdef __TURBOC__
+__cdecl
+#endif
+ctrlchandler( int sig )
 {
     int ch = INVALID_CHAR;
 
@@ -56,7 +100,7 @@ void ctrlchandler( void )
 /*                  Disallow CTRL+C during handler.                   */
 /*--------------------------------------------------------------------*/
 
-    signal( SIGINT, SIG_IGN );
+    signal( sig, SIG_IGN );
 
 /*--------------------------------------------------------------------*/
 /*          Don't ask if the program doesn't think we should          */
@@ -70,7 +114,27 @@ void ctrlchandler( void )
       panic_rc = 100;
       terminate_processing = interactive_processing = TRUE;
       safeout(": *** Termination in progress ***\r\n");
-      signal( SIGINT, ctrlchandler );
+
+#if defined(WIN32) || defined(_Windows)
+      if (winsockActive)
+      {
+         if (WSAIsBlocking())
+         {
+            printmsg(15, "catcher:  sockets are blocking");
+            WSACancelBlockingCall();
+         }
+         else {
+             printmsg(15, "catcher:  sockets are not blocking");
+         }
+      } /* if (winsockActive) */
+#endif
+
+#ifdef __OS2__
+      signal( sig, (void (__cdecl *)(int))ctrlchandler );
+#else
+      signal( sig, ctrlchandler );
+#endif
+
       return;
     }
 
@@ -103,6 +167,18 @@ void ctrlchandler( void )
             terminate_processing = TRUE;  /* Controlled shutdown  */
             panic_rc = 100;
             safeout("\n\r*** Termination in progress ***\r\n");
+#if 0
+#ifdef WIN32
+            if (IsNetwork()) {
+               if (WSAIsBlocking()) {
+                  printmsg(15, "catcher:  sockets are blocking");
+                  WSACancelBlockingCall();
+               } else {
+                   printmsg(15, "catcher:  sockets are not blocking");
+               }
+            }
+#endif
+#endif
             break;
 
         case 'N':
@@ -123,5 +199,10 @@ void ctrlchandler( void )
 /*    default it is reset to the system handler.                      */
 /*--------------------------------------------------------------------*/
 
-    signal( SIGINT, ctrlchandler );
+#ifdef __OS2__
+      signal( sig, (void (__cdecl *)(int))ctrlchandler );
+#else
+      signal( sig, ctrlchandler );
+#endif
+
 } /* catcher */
