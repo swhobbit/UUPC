@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.22 1996/01/01 21:20:24 ahd v1-12r $
+ *    $Id: dcpfpkt.c 1.23 1997/04/24 01:33:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.23  1997/04/24 01:33:24  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1996/01/01 21:20:24  ahd
  *    Annual Copyright Update
  *
@@ -493,7 +496,7 @@ short fsendpkt(char *ip, short len)
 
 short ffilepkt( const KWBoolean transmit, const unsigned long bytes )
 {
-   chksum = 0xffff;
+   chksum = (short) 0xffff;
    printmsg(3,"ffilepkt: Checksum reset");
    return DCP_OK;
 } /* ffilepkt */

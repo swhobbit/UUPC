@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.17 1996/01/01 20:47:44 ahd v1-12r $
+#       $Id: nmakos22.mak 1.18 1997/04/24 01:01:49 ahd Exp $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.18  1997/04/24 01:01:49  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.17  1996/01/01 20:47:44  ahd
 #       Annual Copyright Update
 #
@@ -98,11 +101,13 @@ DLLPROD=$(PROD)
 RTLDLL   = dde4sbs.dll
 DLLNAME  = UPCR$(VERS:1.=).dll
 OS2=1                   # Enables generation of .DEF file
+SMTP    = 1
 
-UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
-             $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
-             $(OBJ)\psos2err.obj
-UUCICOOBJ3 = $(UUCICOOBJX) $(OBJ)\ulibip.obj
+ULIBOBJS   = $(OBJ)\ulibip.obj $(OBJ)\ulibos2.obj $(OBJ)\psos2err.obj \
+             $(OBJ)\ulibnmp.obj
+UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj \
+             $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
+UUCICOOBJ3 = $(UUCICOOBJX) $(ULIBOBJS)
 
 OTHERLIBS=   so32dll.lib tcp32dll.lib
 

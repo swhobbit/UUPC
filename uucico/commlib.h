@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.20 1996/01/01 21:25:36 ahd v1-12r $
+ *    $Id: commlib.h 1.21 1997/04/24 01:36:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.21  1997/04/24 01:36:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1996/01/01 21:25:36  ahd
  *    Annual Copyright Update
  *
@@ -129,12 +132,16 @@ typedef void (*ref_SetComHandle)( const int );
 
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
-/*       returns KWTrue on success.                                    */
+/*       returns KWTrue on success.                                   */
 /*--------------------------------------------------------------------*/
 
-KWBoolean chooseCommunications( const char *suite );
+KWBoolean chooseCommunications( const char *suite,
+                                const KWBoolean directConnection,
+                                char **deviceNamePtr );
 
-KWBoolean IsNetwork(void);        /* Report if suite is network oriented  */
+KWBoolean IsNetwork(void);   /* Report if suite is network oriented  */
+
+
 
 /*--------------------------------------------------------------------*/
 /*       Trace functions for communications routines                  */
@@ -211,5 +218,7 @@ void resetPrty( void );
 /*--------------------------------------------------------------------*/
 
 #define MAXPACK 1024          /* Needed for 't' protocol blocks      */
+#define SUITE_NATIVE "internal"
+#define SUITE_TCPIP  "tcp/ip"
 
 #endif

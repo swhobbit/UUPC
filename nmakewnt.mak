@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.18 1996/11/18 04:40:55 ahd Exp $
+#       $Id: nmakewnt.mak 1.19 1997/04/24 01:01:37 ahd Exp $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.19  1997/04/24 01:01:37  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.18  1996/11/18 04:40:55  ahd
 #       Support for building automatically under Windows 95
 #
@@ -82,13 +85,15 @@ PROD    = $(PRODDRIVE)\uupc\ntbin
 ZIPID   = n
 ERASE   = del
 MODEL   = t                          # Really NT version in this case
+SMTP    = 1
 
 LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
             $(OBJ)\pnterr.obj $(OBJ)\titlen.obj
 
+ULIBOBJS   = $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj
 UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
-              $(OBJ)\prtynt.obj $(OBJ)\pwserr.obj $(OBJ)\suspendn.obj \
-              $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj
+              $(OBJ)\prtynt.obj $(OBJ)\suspendn.obj \
+              $(ULIBOBJS)
 
 #       You need to add MYUULIBS=OLDNAMES.LIB to your environment
 #       or NMAKE.MAK include file to build under NT's Visual C++

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.54 1997/04/24 01:10:21 ahd Exp $
+ *    $Id: rmail.c 1.55 1997/05/03 17:10:18 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.55  1997/05/03 17:10:18  ahd
+ *    Delete erronous check for null fromNode buffer
+ *
  *    Revision 1.54  1997/04/24 01:10:21  ahd
  *    Annual Copyright Update
  *
@@ -275,9 +278,14 @@
 #include "usertabl.h"
 #include "timestmp.h"
 #include "catcher.h"
+#include "execute.h"
 
 #ifdef _Windows
 #include "winutil.h"
+#endif
+
+#ifdef TCPIP
+#include "delivers.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -351,7 +359,8 @@ int main(int argc, char **argv)
    KWBoolean inHeader = KWTrue;  /* Assume terminated header         */
    KWBoolean DeleteInput = KWFalse;
 
-   KWBoolean daemon = KWFalse;
+   KWBoolean daemonMode = KWFalse;
+   KWBoolean queueMode = KWFalse;
 
    char *subject = NULL;
    char *logname = NULL;
@@ -401,7 +410,7 @@ int main(int argc, char **argv)
 /*                      Parse our operand flags                       */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "g:ws:tF:f:l:x:")) != EOF)
+   while ((option = getopt(argc, argv, "qg:ws:tF:f:l:x:")) != EOF)
    {
       switch (option)
       {
@@ -423,13 +432,16 @@ int main(int argc, char **argv)
          }
          break;
 
+      case 'q':
+         queueMode = KWTrue;
+
       case 'l':
          openlog( optarg );
          break;
 
       case 's':
          subject = optarg;
-         daemon = KWTrue;
+         daemonMode = KWTrue;
          break;
 
       case 't':
@@ -437,7 +449,7 @@ int main(int argc, char **argv)
          break;
 
       case 'w':
-         daemon = KWTrue;
+         daemonMode = KWTrue;
          break;
 
       case 'x':
@@ -479,7 +491,7 @@ int main(int argc, char **argv)
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
-   if (ReadHeader || daemon)
+   if (ReadHeader || daemonMode)
       remoteMail = KWFalse;
    else
       remoteMail = KWTrue;
@@ -529,7 +541,7 @@ int main(int argc, char **argv)
 /*   If in local mail mode, make up a list of addresses to mail to    */
 /*--------------------------------------------------------------------*/
 
-   if ( daemon )
+   if ( daemonMode )
    {
       addressees = (unsigned int) (argc - optind);
       address = &argv[optind];
@@ -595,6 +607,59 @@ int main(int argc, char **argv)
 
    close(tempHandle);               /* Don't need original handle    */
 
+
+/*--------------------------------------------------------------------*/
+/*                  Handle special SMTP delivery mode                 */
+/*--------------------------------------------------------------------*/
+
+   if ( queueMode && remoteMail )
+   {
+
+#ifdef TCPIP
+      char fromAddr[MAXADDR];
+      char path[MAXADDR];
+      char dummy[MAXADDR];
+      struct HostTable *hostp;
+
+      if ( ! tokenizeAddress(address[0], path, dummy, dummy) )
+      {
+         Bounce( imf,
+                 path,
+                 address[0],
+                 address[0],
+                 KWTrue );
+         Terminate( 0 , imf, datain );
+      }
+
+      hostp = checkname( path );
+
+      if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
+      {
+         sprintf( fromAddr, "%s@%s",
+                            fromUser,
+                            equal( fromNode , E_nodename ) ?
+                                 E_domain : E_nodename );
+
+         if ( ConnectSMTP( imf,
+                           hostp->via,
+                           fromAddr,
+                           address,
+                           (const char **) addressees,
+                           KWTrue ))
+            Terminate( 0 , imf, datain );
+
+         printmsg(1, "rmail: Cannot connect to remote SMTP server %s, exiting",
+                     hostp->via );
+
+         Terminate( EX_TEMPFAIL, imf, datain );
+      }
+
+#else
+      Terminate( EX_TEMPFAIL, imf, datain );
+#endif
+
+   } /* if ( queueMode && remoteMail ) */
+
 /*--------------------------------------------------------------------*/
 /*                    Perform delivery of the mail                    */
 /*--------------------------------------------------------------------*/
@@ -606,6 +671,11 @@ int main(int argc, char **argv)
          else
             delivered += Deliver(imf, address[count], KWTrue);
    }
+
+#ifdef TCPIP
+   DeliverSMTP( imf, NULL, NULL );   /* Flush any lingering remote
+                                          addresses                  */
+#endif
 
    DeliverRemote( imf, NULL, NULL );   /* Flush any lingering remote
                                           addresses                  */

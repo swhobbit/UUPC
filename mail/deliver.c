@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.50 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: deliver.c 1.51 1997/04/24 01:08:14 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.51  1997/04/24 01:08:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.50  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -242,6 +245,10 @@
 #include "trumpet.h"
 #include "arpadate.h"
 
+#ifdef TCPIP
+#include "delivers.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
@@ -315,13 +322,6 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    char *token;
    struct HostTable *hostp;
 
-   if ( strlen( address ) >= MAXADDR )
-      return Bounce( imf,
-                     "Excessive address length",
-                     address,
-                     address,
-                     validate );
-
    if ( ! tokenizeAddress(address, path, node, user) )
    {
       return Bounce( imf,
@@ -337,8 +337,40 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
 
    hostp = checkname( path );
 
+/*--------------------------------------------------------------------*/
+/*                    Do we need loop protection?                     */
+/*--------------------------------------------------------------------*/
+
+   if (!equal(path, E_nodename) && (hops > E_maxhops))
+      return Bounce(imf,
+             "Excessive number of hops",
+             address,
+             address,
+             validate );
+
+/*--------------------------------------------------------------------*/
+/*                      Handle gateway delivery                       */
+/*--------------------------------------------------------------------*/
+
    if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_GATEWAYED))
       return DeliverGateway( imf, user, node, hostp, validate );
+
+/*--------------------------------------------------------------------*/
+/*                 Handle SMTP delivery, if supported                 */
+/*--------------------------------------------------------------------*/
+
+   if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
+   {
+#ifdef TCPIP
+      if ( validate && remoteMail)
+         return DeliverSMTP( imf, address, hostp->via );
+#else
+      printmsg(1,"SMTP not available, queuing mail for %s@%s locally",
+                 user, node );
+#endif
+
+      return DeliverRemote( imf, address, E_nodename );
+   }
 
 /*--------------------------------------------------------------------*/
 /*                       Handle local delivery                        */
@@ -358,27 +390,16 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    }  /* if */
 
 /*--------------------------------------------------------------------*/
-/*                    Do we need loop protection?                     */
-/*--------------------------------------------------------------------*/
-
-   if (hops > E_maxhops)
-      return Bounce(imf,
-             "Excessive number of hops",
-             address,
-             address,
-             validate );
-
-/*--------------------------------------------------------------------*/
 /*         Deliver mail to a system directory connected to us         */
 /*--------------------------------------------------------------------*/
 
-   if (equal(path,node))   /* Directly connected system?          */
+   if (equal(path,node))   /* Directly connected system?        */
       return DeliverRemote( imf, user, path); /* Yes            */
 
 /*--------------------------------------------------------------------*/
-/*   Default delivery; strip any this node and the directly           */
-/*   connected system from the address, then deliver to the next      */
-/*   hop on the route                                                 */
+/*       Default remote delivery; strip this node and the directly    */
+/*       connected system from the address, then deliver to the       */
+/*       next hop on the route                                        */
 /*--------------------------------------------------------------------*/
 
    strcpy(node,address);
@@ -418,10 +439,9 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
 /*    Handle local delivery, including optional forwarding            */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverLocal( IMFILE *imf,
-                                          /* Input file name          */
-                          char *user,     /* Target address           */
-                          KWBoolean validate)  /* KWTrue = validate,
+static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
+                          char *user,           /* Target address     */
+                          KWBoolean validate)   /* KWTrue = validate,
                                                 forward user's mail   */
 {
    char mboxname[FILENAME_MAX];
@@ -633,12 +653,12 @@ static size_t DeliverFile( IMFILE *imf,
       switch(c)
       {
          case '#':
-            break;            /* Comment, ignore            */
+            break;                  /* Comment, ignore            */
 
-         case '\0':
-            break;            /* Empty line, ignore         */
+         case '\0':                 /* Empty line, ignore         */
+            break;
 
-         case '|':               /* Pipe mail into a command   */
+         case '|':                  /* Pipe mail into a command   */
          {
             long here = ftell(fwrd);
 
@@ -781,12 +801,118 @@ static size_t DeliverGateway(   IMFILE *imf,
 
 } /* DeliveryGateway */
 
+#ifdef TCPIP
+/*--------------------------------------------------------------------*/
+/*    D e l i v e r S M T P                                           */
+/*                                                                    */
+/*    Perform control processing for delivery to another UUCP node    */
+/*--------------------------------------------------------------------*/
+
+size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
+                    const char *address,  /* Target address           */
+                    const char *path)
+{
+
+   static char *savePath = NULL;    /* System we previously queued for*/
+   static char *addrList[50];
+   static int subscript = 0;
+   static int addressMax = sizeof addrList / sizeof addrList[0];
+
+/*--------------------------------------------------------------------*/
+/*            Flush previously queued addresses, if needed            */
+/*--------------------------------------------------------------------*/
+
+   if (subscript)
+   {
+      KWBoolean queueNow = KWFalse;
+
+      if ( path == NULL )
+         queueNow = KWTrue;
+      else if ( ! equal(savePath, path))
+         queueNow = KWTrue;
+      else if ( subscript >= addressMax )
+         queueNow = KWTrue;
+
+/*--------------------------------------------------------------------*/
+/*                We need to actually perform delivery                */
+/*--------------------------------------------------------------------*/
+
+      if ( queueNow )
+      {
+         KWBoolean noConnect = KWFalse;
+         char fromAddr[MAXADDR];
+
+         sprintf( fromAddr, "%s@%s",
+                            fromUser,
+                            equal( fromNode , E_nodename ) ?
+                                 E_domain : E_nodename );
+
+         if ( ! ConnectSMTP( imf,
+                             savePath,
+                             fromAddr,
+                             addrList,
+                             subscript,
+                             KWTrue ) )
+               noConnect = KWTrue;
+
+         while( subscript-- > 0 )
+         {
+            /* Queue failed SMTP mail for local node for retry */
+            if ( noConnect )
+               DeliverRemote( imf, addrList[subscript], E_nodename );
+
+            free( addrList[subscript] );
+         }
+
+         subscript = 0;
+
+         /* Flush UUCP queue if we put entries in it */
+         if ( ! noConnect )
+         {
+            DeliverRemote( imf, NULL, NULL );
+            return 0;
+         }
+
+      } /* if ( queueNow && subscript ) */
+
+   } /* if (savePath != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                Return if we only flushing the cache                */
+/*--------------------------------------------------------------------*/
+
+   if ( path == NULL )
+      return 0;
+
+/*--------------------------------------------------------------------*/
+/*               Report and queue the current delivery                */
+/*--------------------------------------------------------------------*/
+
+   printmsg(1,"Queuing SMTP mail %sfrom %s%s%s to %s via %s",
+               stats( imf ),
+               ruser,
+               remoteMail ? "@" : "",
+               remoteMail ? rnode : "",
+               address ,
+               path);
+
+   savePath = newstr( path );
+   addrList[subscript] = strdup( address );
+   checkref( addrList[subscript] );
+   subscript++;
+
+   return 1;
+
+} /* DeliverSMTP */
+
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       D e l i v e r V M S                                          */
 /*                                                                    */
-/*       Deliver mail into the queue of Rick Vandenburg's             */
-/*       V-Mail server.  This is a nasty hack to overcome DOS <-->    */
-/*       OS/2 problems.                                               */
+/*       Deliver mail into the queue of Rick Vandenburg's V-Mail      */
+/*       server.  This is a nasty hack to overcome DOS <--> OS/2      */
+/*       problems.                                                    */
 /*--------------------------------------------------------------------*/
 
 static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
@@ -902,8 +1028,6 @@ size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
          queueNow = KWTrue;
       else if ( ! equal(savePath, path))
          queueNow = KWTrue;
-      else if ( address == NULL )
-         queueNow = KWTrue;
       else if ((strlen(everyone) + strlen(address) + 2) > E_maxuuxqt)
          queueNow = KWTrue;
 
@@ -965,9 +1089,9 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
                     const char *path)     /* Node to queue for        */
 {
 
-   static char *spool_fmt = SPOOLFMT;              /* spool file name */
-   static char *dataf_fmt = DATAFFMT;
-   static char *send_cmd  = "S %s %s %s - %s 0666\n";
+   static const char spool_fmt[] = SPOOLFMT;  /* spool file name */
+   static const char dataf_fmt[] = DATAFFMT;
+   static const char send_cmd[]  = "S %s %s %s - %s 0666\n";
 
    char *seq = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
    FILE *stream;              /* For writing out data                 */
@@ -976,13 +1100,19 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
    char msname[22];           /* MS-DOS format w/o path name          */
 
    char tmfile[15];           /* Call file, UNIX format name          */
-   static char ixfile[15];    /* eXecute file for remote system,
-                                UNIX format name for local system   */
-   static char idfile[15];    /* Data file, UNIX format name          */
-   static char rdfile[15];    /* Data file name on remote system,
-                                 UNIX format                          */
-   static char rxfile[15];    /* Remote system UNIX name of eXecute
+
+   char ixfile[15];           /* eXecute file for remote system,
+                                 UNIX format name for local system    */
+   char rxfile[15];           /* Remote system UNIX name of eXecute
                                  file                                 */
+
+   char idfile[15];           /* Data file, UNIX format name          */
+   char rdfile[15];           /* Data file name on remote system,
+                                 UNIX format                          */
+
+   char *callFile = equal( E_nodename , path ) ? BIT_BUCKET : tmfile;
+   char *dataFile = equal( E_nodename , path ) ? rdfile     : idfile;
+   char *exqtFile = equal( E_nodename , path ) ? rxfile     : ixfile;
 
    sprintf(tmfile, spool_fmt, 'C', path,     grade , seq);
    sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
@@ -994,7 +1124,7 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 /*                     create remote X (xqt) file                     */
 /*--------------------------------------------------------------------*/
 
-   importpath( msname, ixfile, path);
+   importpath( msname, exqtFile, path);
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w", IMAGE_MODE);
@@ -1029,7 +1159,7 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
                       compiled,
                       compilet,
                       arpadate() );
-   fprintf(stream, "# Call file    %s\n",    tmfile );
+   fprintf(stream, "# Call file    %s\n",    callFile );
    fprintf(stream, "# Execute file %s %s\n", idfile, rdfile );
    fprintf(stream, "# Data file    %s %s\n", ixfile, rxfile );
 
@@ -1039,7 +1169,7 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 /*  Create the data file with the mail to send to the remote system   */
 /*--------------------------------------------------------------------*/
 
-   importpath(msname, idfile, path);
+   importpath(msname, dataFile, path);
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w", IMAGE_MODE);
@@ -1063,7 +1193,10 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 /*                     create local C (call) file                     */
 /*--------------------------------------------------------------------*/
 
-   importpath( msname, tmfile, path);
+   if ( equal( callFile, BIT_BUCKET ))
+      return 1;
+
+   importpath( msname, callFile, path);
    mkfilename( msfile, E_spooldir, msname);
 
    stream = FOPEN(msfile, "w",TEXT_MODE);

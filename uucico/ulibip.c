@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.27 1996/03/18 03:52:46 ahd Exp $
+ *    $Id: ulibip.c 1.28 1997/04/24 01:35:43 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.28  1997/04/24 01:35:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.27  1996/03/18 03:52:46  ahd
  *    Cleanup compiler warnings
  *    Add additional debugging/status output for TCP/IP connections
@@ -198,8 +201,6 @@ KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
 extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 #endif
 
-#define NETDEBUG 4
-
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
 
@@ -309,7 +310,7 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
    SOCKADDR_IN sin;
    LPHOSTENT phe;
    LPSERVENT pse;
-   u_short remotePort;
+   u_short remotePort = htons((u_short) bps);
    char *portStr;
 
    if (!InitWinsock())           /* Initialize library?               */
@@ -329,7 +330,6 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
 /*                        Parse out port address                      */
 /*--------------------------------------------------------------------*/
 
-   remotePort = 0;
    portStr = strchr(name, ':');
 
    if (portStr)
@@ -484,10 +484,11 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 /*                Fill in service information for tcp                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(NETDEBUG, "tpassiveopenline: doing getservbyname");
-   pse = getservbyname(UUCP_SERVICE, "tcp");
+   printmsg(NETDEBUG, "tpassiveopenline: determining port");
 
-   if (pse == NULL)
+   if ( bps )
+      sin.sin_port = htons((u_short) bps);
+   else if ( (pse = getservbyname(UUCP_SERVICE, "tcp")) == NULL )
    {
       int wsErr = WSAGetLastError();
 
@@ -530,7 +531,7 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 
       printmsg(0, "tpassiveopen: bind(pollingSock) failed");
       printWSerror("bind", wsErr);
-      return KWTrue;                     /* report failure              */
+      return KWTrue;                     /* report failure            */
    }
 
    printmsg(NETDEBUG, "tpassiveopen: doing listen()");

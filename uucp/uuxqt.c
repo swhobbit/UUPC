@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.54 1996/01/01 21:34:38 ahd v1-12r $
+ *    $Id: uuxqt.c 1.55 1997/04/24 01:41:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.55  1997/04/24 01:41:35  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.54  1996/01/01 21:34:38  ahd
  *    Annual Copyright Update
  *
@@ -262,6 +265,8 @@ typedef enum {
         F_NOCHDIR,
         F_NOCOPY,
         F_BADF,
+
+        F_SAVEFILES,   /* Temp RMAIL/RNEWS error, save files   */
 
         E_NORMAL,
         E_NOACC,
@@ -729,7 +734,10 @@ static void process( const char *eXecFileName,
          else
          {
             strcpy(hostfile, cp);
-            expand_path(hostfile, securep->pubdir , securep->pubdir, NULL);
+            expand_path(hostfile,
+                        securep->pubdir ,
+                        securep->pubdir,
+                        NULL);
 
             if (!equal(remote, E_nodename))
                if (!ValidateFile( hostfile, ALLOW_READ))
@@ -1183,10 +1191,13 @@ static void process( const char *eXecFileName,
 
       } /* if (!reject) */
 
-      for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
+      if ( ! xflag[F_SAVEFILES] )
       {
-         if ( REMOVE(qPtr->spoolname) )
-            printerr( qPtr->spoolname );
+         for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
+         {
+            if ( REMOVE(qPtr->spoolname) )
+               printerr( qPtr->spoolname );
+         }
       }
 
       ReportResults( status,
@@ -1206,7 +1217,7 @@ static void process( const char *eXecFileName,
       if ((!reject) && (outputName != NULL ) && REMOVE(outputName))
          printerr( outputName );
 
-      if (REMOVE(eXecFileName))
+      if (! xflag[F_SAVEFILES] && REMOVE(eXecFileName))
          printerr( eXecFileName );
 
    } /* (!skip) */
@@ -1380,7 +1391,7 @@ static int shell(char *command,
 /*       third party packages.                                        */
 /*--------------------------------------------------------------------*/
 
-#elif defined(__OS2__)
+#elif defined(__OS2__) || defined( BIT32ENV )
 
          sprintf( commandBuf, "-x %d " , debuglevel );
 
@@ -1389,6 +1400,10 @@ static int shell(char *command,
          *commandBuf = '\0';
 
 #endif
+
+         /* The local node is used for SMTP queuing support */
+         if ( equal( remoteName, E_nodename ))
+            strcat( commandBuf, "-q " );
 
          if ( *parameters == '-' )        /* Funny user id or
                                              funnier options?     */
@@ -1445,7 +1460,15 @@ static int shell(char *command,
          {
             printmsg(0,"shell: command \"%s %s\" returned error code %d",
                   cmdname, commandBuf, result);
-            panic();
+
+            if ( result == EX_TEMPFAIL )
+            {
+               xflag[F_SAVEFILES] = KWTrue;
+               return result;
+            }
+            else {
+               panic();
+            }
          }
 
 /*--------------------------------------------------------------------*/
@@ -1489,7 +1512,11 @@ static int shell(char *command,
    {
       printmsg(0,"shell: command %s returned error code %d",
             cmdname, result);
-      panic();
+
+      if ( result == EX_TEMPFAIL )
+         xflag[F_SAVEFILES]= KWTrue;
+      else
+         panic();
    }
    else if ( result > 0 )
       xflag[E_STATUS] = KWTrue;

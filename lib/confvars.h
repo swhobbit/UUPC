@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.27 1996/03/18 03:48:14 ahd Exp $
+ *    $Id: confvars.h 1.28 1997/03/31 06:58:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.28  1997/03/31 06:58:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.27  1996/03/18 03:48:14  ahd
  *    Allow compilation under C++ compilers
  *
@@ -151,17 +154,18 @@ extern char *E_version;
 extern char *E_xqtRootDir;
 extern char *E_vmsQueueDir;
 extern char *E_vmail;
-extern char **E_ignoreList;      /* Headers not displayed by print      */
-extern char **E_replyToList;     /* Primary Addr used to reply to mail  */
-extern char E_firstGrade;        /* First class searched for by UUCICO  */
-extern char E_mailGrade;         /* Default grade for mail              */
-extern char E_newsGrade;         /* Default grade for news              */
-extern char *E_tz;               /* Time zone                           */
+extern char **E_ignoreList;      /* Headers not displayed by print   */
+extern char **E_replyToList;     /* Primary Addr to reply to mail    */
+extern char E_firstGrade;        /* First class searched by UUCICO   */
+extern char E_mailGrade;         /* Default grade for mail           */
+extern char E_newsGrade;         /* Default grade for news           */
+extern char *E_tz;               /* Time zone                        */
 
+extern KEWSHORT E_timeoutSMTP;   /* SMTP read timeout for rmail      */
 extern KEWSHORT E_maxhops;
-extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
-extern long E_batchsize;         /* Size of remote batches                */
-extern KEWSHORT E_newsCache;     /* Pages of news index to cache        */
+extern KEWSHORT E_maxuuxqt;      /* Max length of remote cmd line    */
+extern long E_batchsize;         /* Size of remote batches           */
+extern KEWSHORT E_newsCache;     /* Pages of news index to cache     */
 
 #ifdef __cplusplus
    }

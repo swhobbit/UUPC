@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.66 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: modem.c 1.67 1997/04/24 01:34:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.67  1997/04/24 01:34:23  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.66  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -293,6 +296,7 @@ static KEWSHORT vWindowSize, vPacketSize;
 static KEWSHORT GWindowSize, GPacketSize;
 
 KEWSHORT M_charDelay;
+KEWSHORT M_portNumber;           /* TCP/IP only                   */
 KEWSHORT M_fPacketSize;
 KEWSHORT M_gPacketTimeout;       /* "g" procotol                  */
 KEWSHORT M_ePacketTimeout;       /* "e" procotol                  */
@@ -344,6 +348,7 @@ static CONFIGTABLE modemTable[] = {
    { "noconnect",      &noconnect,        0, B_LIST   },
    { "options",        bmodemflag,        0, B_BOOLEAN},
    { "porttimeout",    0,                 0, B_OBSOLETE },
+   { "portnumber",     &M_portNumber,     0, B_SHORT  },
    { "priority",       &M_priority,       0, B_SHORT  },
    { "prioritydelta",  &M_prioritydelta,  0, B_SHORT  },
    { "ring",           &ring,             0, B_LIST   },
@@ -608,7 +613,7 @@ CONN_STATE callin( const time_t exit_time )
 
    if ( IsNetwork() )
    {
-      if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
+      if (passiveopenline(M_device, M_portNumber, bmodemflag[MODEM_DIRECT]))
          panic();
    }
    else {
@@ -769,6 +774,7 @@ KWBoolean getmodem( const char *brand)
    M_gPacketTimeout = 10;
    M_ePacketTimeout = 60;
    M_tPacketTimeout = 60;
+   M_portNumber = 0;
    modemTimeout  = 3;         /* Default is 3 seconds for modem cmds  */
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
    scriptEchoTimeout = 5;     /* Default is 5 seconds for script echo */
@@ -846,7 +852,9 @@ KWBoolean getmodem( const char *brand)
 /*       the processing routines.                                     */
 /*--------------------------------------------------------------------*/
 
-   if ( ! chooseCommunications( M_suite ))
+   if ( ! chooseCommunications( M_suite,
+                                bmodemflag[MODEM_CARRIERDETECT] ,
+                                &M_device ))
       return KWFalse;
 
 /*--------------------------------------------------------------------*/
@@ -886,7 +894,7 @@ static KWBoolean dial(char *number, const BPS speed)
 
    if ( IsNetwork() )
    {
-      if (activeopenline(number, speed, bmodemflag[MODEM_DIRECT]))
+      if (activeopenline(number, M_portNumber, bmodemflag[MODEM_DIRECT]))
       {
          hostp->status.hstatus = HS_NODEVICE;
          return KWFalse;

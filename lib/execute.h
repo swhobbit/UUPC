@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.h 1.5 1996/01/01 20:56:26 ahd v1-12r $
+ *    $Id: execute.h 1.6 1997/03/31 06:58:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.h $
+ *    Revision 1.6  1997/03/31 06:58:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1996/01/01 20:56:26  ahd
  *    Annual Copyright Update
  *
@@ -37,6 +40,12 @@
  * Initial revision
  *
  */
+
+/*--------------------------------------------------------------------*/
+/*                   BSD code for temporary failure                   */
+/*--------------------------------------------------------------------*/
+
+#define EX_TEMPFAIL     75      /* temp failure; user is invited to retry */
 
 /*--------------------------------------------------------------------*/
 /*       e x e c u t e                                                */

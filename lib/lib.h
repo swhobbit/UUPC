@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.37 1996/11/19 00:25:20 ahd Exp $
+ *    $Id: lib.h 1.38 1997/03/31 07:00:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.38  1997/03/31 07:00:15  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.37  1996/11/19 00:25:20  ahd
  *    Correct C++ scoping
  *
@@ -164,6 +167,16 @@
 #define REGISTRYHIVE  "Software\\Kendra Electronic Wonderworks\\UUPC/extended"
 #endif
 
+/*--------------------------------------------------------------------*/
+/*       Use the NOTCPIP to suppress the TCP/IP when you don't        */
+/*       have WINSOCK.H                                               */
+/*--------------------------------------------------------------------*/
+
+#if defined(WIN32) || defined(_Windows) || defined(__OS2__)
+#ifndef NOTCPIP
+#define TCPIP
+#endif
+#endif
 /*--------------------------------------------------------------------*/
 /*                 Macro for recording when UUPC dies                 */
 /*--------------------------------------------------------------------*/

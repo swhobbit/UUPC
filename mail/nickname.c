@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.24 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: nickname.c 1.25 1997/04/24 01:10:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.25  1997/04/24 01:10:12  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.24  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -158,23 +161,38 @@ int nickCompare( const void *a, const void *b )
 KWBoolean InitRouter()
 {
    KWBoolean success = KWTrue;     /* Assume the input data is good      */
-   struct HostTable *Hptr;
+   struct HostTable *hostP = checkname( E_mailserv );
 
 /*--------------------------------------------------------------------*/
 /*          Verify that the user gave us a good name server           */
 /*--------------------------------------------------------------------*/
 
-   Hptr = checkreal(E_mailserv);
-   if (Hptr == BADHOST)
+   if (hostP == BADHOST)
    {
-      printmsg(0, "mail server '%s' must be listed in SYSTEMS file",
-         E_mailserv);
+      printmsg(0, "mail server '%s' must be listed in SYSTEMS or HOSTPATH file",
+         hostP->hostname);
       success = KWFalse;
    }
-   else if (Hptr->status.hstatus == HS_LOCALHOST)  /* local system?     */
+   else if ( hostP->status.hstatus >= HS_NOCALL )
+      printmsg( 8, "mailserver '%s' is real system.", hostP->hostname );
+   else if ( hostP->status.hstatus == HS_SMTP)
+      printmsg(2,"mailserver '%s' is an SMTP relay via %s",
+                 hostP->hostname,
+                 hostP->via );
+   else if ( hostP->status.hstatus == HS_GATEWAYED)
+      printmsg(2,"mailserver '%s' is via gateway program '%s'",
+                  hostP->hostname,
+                  hostP->via );
+   else if (hostP->status.hstatus == HS_LOCALHOST)  /* local system?     */
    {
       printmsg(0, "'%s' is name of this host and cannot be mail server",
-            E_mailserv);
+            hostP->hostname);
+      success = KWFalse;
+   }
+   else {
+      printmsg(0, "'%s' has an invalid status of %d; check SYSTEMS and HOSTPATH file.",
+            hostP->hostname,
+            hostP->status.hstatus);
       success = KWFalse;
    }
 

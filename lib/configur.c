@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.75 1996/09/24 15:22:22 ahd Exp $
+ *    $Id: configur.c 1.76 1997/03/31 06:58:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.76  1997/03/31 06:58:28  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.75  1996/09/24 15:22:22  ahd
  *    *** empty log message ***
  *
@@ -338,8 +341,9 @@ char E_firstGrade = 'C';       /* First class (and above) UUCICO
 char E_mailGrade = 'C';        /* Class mail is transferred at        */
 char E_newsGrade = 'n';        /* Class news is transferred at        */
 
-KEWSHORT E_maxhops = 20;                                    /* ahd */
-KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
+KEWSHORT E_timeoutSMTP = 60;   /* SMTP read timeout for rmail         */
+KEWSHORT E_maxhops = 20;
+KEWSHORT E_maxuuxqt = 0;      /* Max length of remote command line   */
 
 #ifdef BIT32ENV
 KEWSHORT E_newsCache = 128;   /* Pages of news index to cache        */
@@ -447,6 +451,7 @@ CONFIGTABLE rcTable[] = {
    {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
    {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
    {"tempdir",      &E_tempdir,      B_ALL,     B_GLOBAL|B_PATH },
+   {"timeoutsmtp",  &E_timeoutSMTP,  B_MTA,     B_SHORT },
    {"tz",           &E_tz,           B_ALL,     B_TOKEN },
    {"uncompress",   &E_uncompress,   B_RNEWS,   B_GLOBAL|B_STRING  },
    {"version",      &E_version,      B_INSTALL, B_TOKEN },

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.18 1996/11/19 00:25:20 ahd Exp $
+ *    $Id: deliver.h 1.19 1997/04/24 01:10:40 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.19  1997/04/24 01:10:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1996/11/19 00:25:20  ahd
  *    Externalize functions
  *
@@ -85,6 +88,12 @@ size_t Deliver( IMFILE *imf,           /* Input file name            */
 size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
                     const char *address,  /* Target address           */
                     const char *path);
+
+#ifdef TCPIP
+size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
+                    const char *address,  /* Target address           */
+                    const char *path);
+#endif
 
 size_t Bounce( IMFILE *imf,
                const char *text,

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.23 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: address.c 1.24 1997/04/24 01:07:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.24  1997/04/24 01:07:56  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -489,7 +492,8 @@ char *HostAlias( char *input)
 /*       a routing entry and we should ignore it.                     */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp->status.hstatus == HS_PHANTOM) && ( hostp->realname == NULL ))
+   if ((hostp->status.hstatus == HS_PHANTOM) &&
+       ( hostp->realname == NULL ))
       return input;
 
 /*--------------------------------------------------------------------*/
@@ -549,7 +553,10 @@ char *HostPath( char *input, char *best)
    if (hostp == BADHOST)
       return best;
 
-   if (hostp->status.hstatus == HS_GATEWAYED)  /* Gatewayed?             */
+   if (hostp->status.hstatus == HS_GATEWAYED)  /* Gatewayed?          */
+      return hostp->hostname;      /* Yes --> Use name for path       */
+
+   if (hostp->status.hstatus == HS_SMTP)      /* SMTP Gatewayed?      */
       return hostp->hostname;      /* Yes --> Use name for path       */
 
 /*--------------------------------------------------------------------*/
@@ -587,7 +594,7 @@ char *HostPath( char *input, char *best)
 
       if (equal(hostp->hostname, alias))
       {
-         if (hostp->status.hstatus == HS_LOCALHOST) /* Ourself?          */
+         if (hostp->status.hstatus == HS_LOCALHOST) /* Ourself?       */
             hostp->via = E_nodename;      /* Yes --> Deliver local    */
          else if ( checkreal( hostp->hostname ) == BADHOST )
                                           /* Unknown system?          */

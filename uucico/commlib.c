@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.31 1996/01/01 21:19:46 ahd v1-12r $
+ *    $Id: commlib.c 1.32 1997/04/24 01:32:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.32  1997/04/24 01:32:59  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.31  1996/01/01 21:19:46  ahd
  *    Annual Copyright Update
  *
@@ -186,16 +189,17 @@ typedef struct _COMMSUITE {
 
 #if defined(WIN32) || defined(_Windows) || defined(__OS2__)
 #ifndef NOTCPIP
-#include "ulibip.h"           /* Windows sockets on TCP/IP interface  */
 #define TCPIP
 #endif
+#endif
+
+#ifdef TCPIP
+#include "ulibip.h"           /* Windows sockets on TCP/IP interface  */
 #endif
 
 #if defined(__OS2__) || defined(FAMILYAPI)
 #include "ulibnmp.h"          /* OS/2 named pipes interface           */
 #endif
-
-#define NATIVE "internal"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -207,6 +211,7 @@ size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
 char UUFAR *commBuffer = NULL;
 KWBoolean  carrierDetect;    /* Modem is not connected    */
+KWBoolean  reportModemCarrierDirect;   /* Report true status         */
 
 ref_activeopenline activeopenlinep;
 ref_passiveopenline passiveopenlinep;
@@ -249,11 +254,13 @@ KWBoolean dummyWaitForNetConnect(const unsigned int timeout);
 /*       Choose communications suite to use                           */
 /*--------------------------------------------------------------------*/
 
-KWBoolean chooseCommunications( const char *name )
+KWBoolean chooseCommunications( const char *name,
+                                const KWBoolean carrierDetectParam,
+                                char  **deviceNamePtr )
 {
    static COMMSUITE suite[] =
    {
-        { NATIVE,                      /* Default for any opsys        */
+        { SUITE_NATIVE,                /* Default for any opsys        */
           nopenline, nopenline, nsread, nswrite,
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
@@ -325,7 +332,7 @@ KWBoolean chooseCommunications( const char *name )
 #endif
 
 #if defined(TCPIP)
-        { "tcp/ip",                    /* Win32 TCP/IP Winsock interface  */
+        { SUITE_TCPIP,                 /* Win32 TCP/IP Winsock interface  */
           tactiveopenline, tpassiveopenline, tsread, tswrite,
           tssendbrk, tcloseline, tSIOSpeed, tflowcontrol, thangup,
           tGetSpeed,
@@ -378,8 +385,7 @@ KWBoolean chooseCommunications( const char *name )
    }
 
 /*--------------------------------------------------------------------*/
-/*       We have a valid suite, define the routines to use and        */
-/*       return to caller                                             */
+/*       We have a valid suite, define the routines to use            */
 /*--------------------------------------------------------------------*/
 
    activeopenlinep    = suite[subscript].activeopenline;
@@ -398,12 +404,14 @@ KWBoolean chooseCommunications( const char *name )
    SetComHandlep      = suite[subscript].SetComHandle;
    network            = suite[subscript].network;
 
+   reportModemCarrierDirect = carrierDetectParam;
+
 /*--------------------------------------------------------------------*/
 /*                  Override device name as required                  */
 /*--------------------------------------------------------------------*/
 
-   if ( suite[subscript].netDevice != NULL )
-      M_device = suite[subscript].netDevice;
+   if (deviceNamePtr && ( suite[subscript].netDevice != NULL ))
+      *deviceNamePtr = suite[subscript].netDevice;
 
    if ( suite[subscript].buffered && ! commBufferLength)
    {
@@ -425,7 +433,7 @@ KWBoolean chooseCommunications( const char *name )
    }
    commBufferUsed = 0;
 
-   printmsg(equal(suite[subscript].type, NATIVE) ? 5 : 4,
+   printmsg(equal(suite[subscript].type, SUITE_NATIVE) ? 5 : 4,
             "chooseCommunications: Chose suite %s",
             suite[subscript].type );
 
@@ -607,13 +615,14 @@ KWBoolean dummyWaitForNetConnect(const unsigned int timeout)
 /*--------------------------------------------------------------------*/
 /*       C D                                                          */
 /*                                                                    */
-/*       Wrapped script for determining if carrier detect is active   */
+/*       Wrapper function script for determining if carrier detect    */
+/*       is active                                                    */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
 CD( void )
 {
-   if (bmodemflag[MODEM_CARRIERDETECT])
+   if (reportModemCarrierDirect)
       return (*CDp)();
    else
       return KWTrue;

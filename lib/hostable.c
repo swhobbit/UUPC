@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.27 1996/11/18 04:46:49 ahd Exp $
+  *      $Id: hostable.c 1.28 1997/03/31 06:59:39 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.28  1997/03/31 06:59:39  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.27  1996/11/18 04:46:49  ahd
   *      Normalize arguments to bugout
   *      Reset title after exec of sub-modules
@@ -62,20 +65,8 @@
  *     Revision 1.15  1994/02/20  19:07:38  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
- *     Revision 1.14  1994/02/19  04:42:16  ahd
- *     Use standard first header
- *
- *     Revision 1.13  1994/02/19  04:07:01  ahd
- *     Use standard first header
- *
- *     Revision 1.12  1994/02/19  03:51:20  ahd
- *     Use standard first header
- *
  *     Revision 1.11  1994/02/18  23:09:55  ahd
  *     Use standard first header
- *
- *     Revision 1.10  1994/01/24  03:07:52  ahd
- *     Annual Copyright Update
  *
  *     Revision 1.9  1994/01/01  19:02:25  ahd
  *     Annual Copyright Update
@@ -635,15 +626,17 @@ static size_t loadhost()
 
          else if ((equal(token,"|") || equal(token,"@")))
          {
+            char operator = *token;
+
             token = strtok(NULL,"\n");
 
             if (( hostp->via != NULL ) || ( token == NULL ))
                freeit = KWTrue;
             else {
-               if ( *token == '@' )
-                  hostp->status.hstatus = HS_GATEWAYED;
-               else
+               if ( operator == '@' )
                   hostp->status.hstatus = HS_SMTP;
+               else
+                  hostp->status.hstatus = HS_GATEWAYED;
 
                while(isspace( *token ))   /* Drop leading white space only */
                   token++;
@@ -763,8 +756,9 @@ static size_t loadhost()
 
    for (hit = 0; hit < HostElements; hit++)
    {
-      printmsg(8,"loadhost: entry[%02d] %-20s\tvia %s\talias %s",
+      printmsg(8,"loadhost: entry[%02d:%02d] %-20s\tvia %s\talias %s",
                   hit,
+                  hosts[hit].status.hstatus,
                   hosts[hit].hostname,
                   (hosts[hit].via == NULL) ? "(self)" : hosts[hit].via,
                   (hosts[hit].realname == NULL)
