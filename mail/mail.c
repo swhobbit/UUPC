@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.50 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: mail.c 1.51 1999/01/08 02:21:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.51  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.50  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -91,7 +94,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: mail.c 1.50 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: mail.c 1.51 1999/01/08 02:21:05 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -341,7 +344,9 @@ main(int argc, char **argv)
       exit(1);    /* system configuration failed */
 
    if (!InitRouter())
-      exit(1);    /* system configuration failed */
+   {
+      panic();    /* system configuration failed */
+   }
 
    checkuser(E_mailbox);         /* Force load of user table         */
 
