@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.11 1993/09/27 00:44:27 ahd Exp $
+#     $Id: uucico.mak 1.12 1993/09/29 13:17:37 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.12  1993/09/29  13:17:37  ahd
+# Correct build of uuport.com under DOS
+#
 # Revision 1.11  1993/09/27  00:44:27  ahd
 # Add uuport build for OS/2.
 #
@@ -70,8 +73,16 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
             $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend.obj
 !elif $d(WINDOWS)
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
-            $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj $(OBJ)\suspend.obj
+
+# *--------------------------------------------------------------------*
+# *      Delete ulibip.obj and pswerr.obj if you don't have WINSOCK.H. *
+# *      You also need to define NOTCPIP to commlib.c so it doesn't    *
+# *      try to include the suite's definition.                        *
+# *--------------------------------------------------------------------*
+
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj
+            $(OBJ)\ulibwin.obj $(OBJ)\suspend.obj \
+            $(OBJ)\ulibip.obj $(OBJ)\pwserr.obj
 !else
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj $(OBJ)\fossil.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj \
