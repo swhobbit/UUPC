@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: rnews.mak 1.6 1994/01/01 19:14:29 ahd Exp $
+#     $Id: rnews.mak 1.8 1994/12/31 03:34:53 ahd Exp $
 #
 #     Revision history:
 #     $Log: rnews.mak $
+#     Revision 1.8  1994/12/31 03:34:53  ahd
+#     First pass of integrating Mike McLagan's news SYS file suuport
+#
 # Revision 1.6  1994/01/01  19:14:29  ahd
 # Annual Copyright Update
 #
@@ -44,7 +47,7 @@ LINKOPT=$(LINKOPTD)
 .path.c = $(RNEWS)
 
 RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\idx.obj \
-           $(OBJ)\hdbm.obj $(OBJ)\sys.obj $(OBJ)\batch.obj
+           $(OBJ)\hdbm.obj $(OBJ)\sys.obj
 
 SENDBATSOBJ = $(OBJ)\sendbats.obj $(OBJ)\batch.obj $(OBJ)\sys.obj
 
