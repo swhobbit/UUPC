@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.12 1997/04/24 01:34:50 ahd v1-12u $
+ *    $Id: pwserr.c 1.13 1998/03/01 01:40:10 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.13  1998/03/01 01:40:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1997/04/24 01:34:50  ahd
  *    Annual Copyright Update
  *
@@ -70,6 +73,7 @@
 
 #include <io.h>
 
+#define WIN32_LEAN_AND_MEAN
 #include "winsock.h"       /* So we search local directories           */
 
 /*--------------------------------------------------------------------*/
