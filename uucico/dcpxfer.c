@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.7 1992/11/22 21:20:45 ahd Exp $
+ *       $Id: DCPXFER.C 1.8 1992/11/28 19:51:16 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.8  1992/11/28  19:51:16  ahd
+ * If in multitask mode, only open syslog on demand basis
+ *
  * Revision 1.7  1992/11/22  21:20:45  ahd
  * Make databuf char rather than unsigned char
  *
@@ -1048,8 +1051,8 @@ XFER_STATE rsfile( void )
 
 XFER_STATE rdata( void )
 {
-   size_t len;
-   size_t used = 0;
+   int    len;
+   int    used = 0;
 
    do {
 
