@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.32 1995/05/07 14:41:07 ahd Exp $
+ *    $Id: nbstime.c 1.33 1995/08/27 23:34:11 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.33  1995/08/27 23:34:11  ahd
+ *    Relax search for MJD string
+ *
  *    Revision 1.32  1995/05/07 14:41:07  ahd
  *    The infamous bi-annual daylight savings time switch bug fest
  *
@@ -664,12 +667,13 @@ KWBoolean nbstime( void )
 
    switch( dst )
    {
-      case 00:
+      case 0:
          daylightSavingsInEffect = KWFalse;
          break;
 
       case 50:
          daylightSavingsInEffect = KWTrue;
+         break;
 
       case 51:
          if ( (tx.tm_hour - timezone() / 3600 ) >= 2 )
@@ -684,7 +688,7 @@ KWBoolean nbstime( void )
 #endif
          break;
 
-      case 01:
+      case 1:
          if ( (tx.tm_hour - timezone() / 3600 ) >= 1 )
             daylightSavingsInEffect = KWFalse;
          else
