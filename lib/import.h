@@ -3,6 +3,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Constants used for mapping between character sets; changing     */
 /*    any of these parameters requires clearing all the files from    */
 /*    UUPC/extended spool directories.                                */
@@ -24,4 +43,5 @@ void importpath(char *host,
                 char const *canon,
                 char const *remote);
 
-boolean ValidDOSName( const char *s);
+boolean ValidDOSName( const char *s,
+                      const boolean longname );

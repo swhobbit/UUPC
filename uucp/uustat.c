@@ -463,7 +463,7 @@ static void poll(const char *callee)
       printmsg(1,"POLL(%s)", hostp->hostname);
       sprintf(tmfile,"%.8s",hostp->hostname);
 
-      if ( ValidDOSName( tmfile ) || !equal(callee, ALL))
+      if ( ValidDOSName( tmfile, FALSE ) || !equal(callee, ALL))
       {
          sprintf(tmfile, spool_fmt, 'C', hostp->hostname,'Z' ,
                   "000");
@@ -787,7 +787,7 @@ static CALLTYPE open_call( const char *callname,
                long size;
 
                if (equal(dname, "D.0"))
-                  importpath( host, fname, remote );
+                  strcpy( host, fname );
                else
                   importpath( host, dname, remote );
 

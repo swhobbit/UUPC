@@ -15,19 +15,36 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: IMPORT.C 1.2 1992/11/22 21:06:14 ahd Exp $
+ *    $Id: IMPORT.C 1.3 1993/04/11 00:31:31 dmwatt Exp $
  *
  *    $Log: IMPORT.C $
+ *     Revision 1.3  1993/04/11  00:31:31  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/22  21:06:14  ahd
  * Correct mapping of dos paths with trailing slashes
  *
  */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#if defined(FAMILYAPI) || defined(__OS2__)
+#define INCL_NOPM             // No need to include OS/2 PM info
+#define INCL_BASE
+#include <os2.h>
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "import.h"
@@ -50,7 +67,12 @@ currentfile();
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
 
-static void ImportName( char *local, const char *canon, size_t charsetsize );
+static void ImportName( char *local,
+                        const char *canon,
+                        size_t charsetsize,
+                        const boolean longname );
+
+static boolean advancedFS( const char *path );
 
 /*-------------------------------------------------------------------*/
 /*                                                                   */
@@ -179,7 +201,8 @@ void importpath(char *local, char const *canon, char const *remote)
 /*--------------------------------------------------------------------*/
 
     if ( E_charset == NULL )
-      E_charset = DOSCHARS;
+       E_charset = DOSCHARS;
+
     charsetsize = strlen( E_charset );
 
 /*--------------------------------------------------------------------*/
@@ -210,12 +233,14 @@ void importpath(char *local, char const *canon, char const *remote)
                               /* Arbitary length number, for base
                                  conversions                        */
 
+      boolean longname = advancedFS( E_spooldir ) && bflag[F_LONGNAME];
+
 /*--------------------------------------------------------------------*/
 /*                    Verify we have a remote name                    */
 /*--------------------------------------------------------------------*/
 
-   if ( remote == NULL )
-      panic();
+      if ( remote == NULL )
+         panic();
 
 /*--------------------------------------------------------------------*/
 /*    Put the host name (up to six characters) at the beginning of    */
@@ -305,12 +330,19 @@ void importpath(char *local, char const *canon, char const *remote)
 /*    MS-DOS name with period.                                        */
 /*--------------------------------------------------------------------*/
 
-      ImportName( next, out, charsetsize);
+      ImportName( next, out, charsetsize, longname );
 
    }
    else {         /* Not file for spooling directory, convert it  */
 
       char *in = (char *) canon;
+      boolean longname = advancedFS( canon );
+
+      if ( ValidDOSName( canon, longname ))
+      {
+         strcpy( local, canon );
+         return;
+      }
 
 /*--------------------------------------------------------------------*/
 /*      Handle leading drive letter (ignore it, assuming valid)       */
@@ -339,7 +371,7 @@ void importpath(char *local, char const *canon, char const *remote)
          if ( s != NULL )
             *s = '\0';        /* Truncate input string to simple name */
 
-         ImportName( out, in , charsetsize );
+         ImportName( out, in , charsetsize, longname );
 
          if ( s == NULL )
             break;
@@ -363,7 +395,10 @@ void importpath(char *local, char const *canon, char const *remote)
 /*    Translate a simple DOS name without the path                    */
 /*--------------------------------------------------------------------*/
 
-static void ImportName( char *local, const char *canon, size_t charsetsize )
+static void ImportName( char *local,
+                        const char *canon,
+                        size_t charsetsize,
+                        const boolean longname )
 {
 
    char *in = (char *) canon;
@@ -371,6 +406,7 @@ static void ImportName( char *local, const char *canon, size_t charsetsize )
    size_t len = strlen( canon );
    size_t column;
    char *best_period = NULL;     /* Assume no prince charming         */
+
 
    if ( strchr(canon,'/') != NULL )
    {
@@ -389,7 +425,7 @@ static void ImportName( char *local, const char *canon, size_t charsetsize )
 /*                 If a valid DOS name, use it as-is                  */
 /*--------------------------------------------------------------------*/
 
-   if (ValidDOSName( canon ))
+   if (ValidDOSName( canon, longname ))
    {
       strcpy( local, canon );
       return;
@@ -504,18 +540,65 @@ static void ImportName( char *local, const char *canon, size_t charsetsize )
 /*    Validate an MS-DOS file name                                    */
 /*--------------------------------------------------------------------*/
 
-boolean ValidDOSName( const char *s)
+boolean ValidDOSName( const char *s,
+                      const boolean longname )
 {
    char *ptr;
    size_t len = strlen ( s );
    char tempname[FILENAME_MAX];
 
+   static char *longCharSet = NULL;
+
 /*--------------------------------------------------------------------*/
 /*                      Define our character set                      */
 /*--------------------------------------------------------------------*/
 
-    if ( E_charset == NULL )
+   if ( E_charset == NULL )
       E_charset = DOSCHARS;
+
+   if ( longname )
+   {
+
+#if defined(FAMILYAPI) || defined(__OS2__)
+
+/*--------------------------------------------------------------------*/
+/*       Ask OS/2 if the file name is okay.  Because the invoked      */
+/*       function accepts wildcards, we pre-test for them and reject  */
+/*       them as needed.                                              */
+/*--------------------------------------------------------------------*/
+
+      if ((strchr( s, '*') == NULL ) && (strchr( s, '?') == NULL))
+      {
+         USHORT result = DosQPathInfo( (PSZ) s,
+                                       FIL_NAMEISVALID,
+                                       (PBYTE) tempname,
+                                       sizeof tempname,
+                                       0 );
+         if ( result == 0 )
+            return TRUE;
+
+         printmsg(0,
+                  "ValidDOSName: Invalid name %s, syntax error code %d",
+                   s,
+                   (int) result);
+
+      } /* if */
+
+#endif
+
+      if ( longCharSet == NULL )
+      {
+         *tempname = '.';
+         longCharSet = newstr(strcpy( tempname + 1, E_charset ));
+      }
+
+      if (strspn(s, longCharSet) == len)
+      {
+         printmsg(9,"ValidDOSName: \"%s\" is valid long name", s);
+         return TRUE;
+      }
+
+   } /* if ( longname ) */
 
 /*--------------------------------------------------------------------*/
 /*                 Name must be 12 characters or less                 */
@@ -579,3 +662,68 @@ boolean ValidDOSName( const char *s)
       return FALSE;
 
 } /* ValidateDOSName */
+
+/*--------------------------------------------------------------------*/
+/*       a d v a n c e d F S                                          */
+/*                                                                    */
+/*       Determine if a file system is advanced (supports better than */
+/*       8.3 file names)                                              */
+/*--------------------------------------------------------------------*/
+
+#if defined(FAMILYAPI) || defined( __OS2__ )
+
+static boolean advancedFS( const char *path )
+{
+   char buf[BUFSIZ];             // One generic large buffer
+   SHORT bufSize = sizeof buf;
+   char driveInfo[3];
+   USHORT result;
+   char *p;
+   FSQBUFFER *FSQBuffer = (FSQBUFFER *) buf;
+
+   if ( isalpha( *path ) && (path[1] == ':') )
+      strncpy( driveInfo, path, 2 );
+   else
+      strncpy( driveInfo, E_cwd, 2 );
+
+   driveInfo[2] = '\0';          // Terminate drive string data
+
+   result = DosQFSAttach( driveInfo,
+                          0,
+                          FSAIL_QUERYNAME,
+                          (PBYTE) buf,
+                          &bufSize,
+                          0L );
+   if ( result != 0 )
+   {
+      printmsg(0, "advancedFS: Unable to query file system for %s, error = %d",
+                  (int) result );
+      panic();
+   }
+
+   p = FSQBuffer->szFSDName + FSQBuffer->cbName - 1;
+
+   printmsg(4,"advancedFS: File system %d, name \"%s\", FS name \"%s\"",
+               FSQBuffer->iType,
+               FSQBuffer->szName,
+               p );
+
+   return strcmp( FSQBuffer->szName , "FAT");
+
+} /* advancedFS */
+
+#elif WIN32
+
+static boolean advancedFS( const char *path )
+{
+   return FALSE;                 // Have fun Dave!
+} /* advancedFS */
+
+#else
+
+static boolean advancedFS( const char *path )
+{
+   return FALSE;                 // DOS is always dumb on file systems!
+} /* advancedFS */
+
+#endif
