@@ -61,7 +61,7 @@ char     *readnext(char *xname,
       sprintf(remotedir,"%s/%.8s/%s",E_spooldir,remote, subdir);
       if ((dirp = opendirx(remotedir,pattern)) == nil(DIR))
       {
-         printmsg(2, "readnext: couldn't opendir() %s", remotedir);
+         printmsg(5, "readnext: couldn't opendir() %s", remotedir);
          return NULL;
       } /* if */
 
