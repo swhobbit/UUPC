@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.19 1994/05/06 03:55:50 ahd Exp $
+ *    $Id: dcplib.c 1.20 1994/05/07 21:45:33 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *        Revision 1.20  1994/05/07  21:45:33  ahd
+ *        Handle empty passwords different from blocked (asterisk) passwords
+ *
  *        Revision 1.19  1994/05/06  03:55:50  ahd
  *        Force hot logins to always be UUCICO (internal) shell -- why else
  *        would we be called, and otherwise UUCICO can't call itself
@@ -279,7 +282,7 @@ boolean login(void)
       printmsg(14, "login: password=\"%s\"", pswd);
 
       if ( ! CD() )
-         return;
+         return FALSE;
 
 /*--------------------------------------------------------------------*/
 /*                 Validate the user id and passowrd                  */
