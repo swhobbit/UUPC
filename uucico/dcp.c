@@ -272,6 +272,7 @@ int dcpmain(int argc, char *argv[])
 
       if ((fsys = FOPEN(s_systems, "r", TEXT)) == nil(FILE))
          exit(FAILED);
+      setvbuf( fsys, NULL, _IONBF, 0);
 
       while (m_state != CONN_EXIT )
       {
