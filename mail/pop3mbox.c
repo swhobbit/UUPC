@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.5 1998/03/08 04:50:04 ahd Exp $
+ *       $Id: pop3mbox.c 1.6 1998/03/09 01:18:19 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.6  1998/03/09 01:18:19  ahd
+ *       Handle locked mailboxes correctly
+ *
  *       Revision 1.5  1998/03/08 04:50:04  ahd
  *       Correct passing of file length to imopen()
  *
@@ -55,7 +58,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.5 1998/03/08 04:50:04 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.6 1998/03/09 01:18:19 ahd Exp $");
 
 currentfile();
 
@@ -114,7 +117,10 @@ KWBoolean
 popBoxLoad(SMTPClient *client)
 {
    static const char mName[] = "popBoxLoad";
+   static const char fromString[] = "From ";
+   static const char commentString[] = "Comment: ";
    MailMessage *current = NULL;
+   KWBoolean firstHeader = KWTrue;
    long position = -1;
    long length;
 
@@ -171,6 +177,8 @@ popBoxLoad(SMTPClient *client)
          /* Add new message into the message queue */
          current = newPopMessage(client, current, position);
 
+         firstHeader = KWTrue;         /* Flag at top of message */
+
          /* Don't write or count the bytes in the header line */
          continue;
       }
@@ -185,9 +193,25 @@ popBoxLoad(SMTPClient *client)
          return KWFalse;
       }
 
-      current->octets += bytes + 1; /* UNIX is LF, POP3 is CR/LF  */
+      current->octets += bytes;
 
-      /* Now write it out, with error checking */
+      /* Add extra byte for each line we will transmit */
+      if (client->transmit.data[strlen(client->transmit.data )] == '\n')
+         current->octets ++;        /* UNIX is LF, POP3 is CR/LF  */
+
+      /* Make From ... line a comment to prevent Netscape from
+         indenting all headers absurdly  */
+      if ( firstHeader && equaln(client->transmit.data,
+                                 fromString,
+                                 strlen( fromString )))
+      {
+         imputs( commentString, client->transaction->imf );
+         current->octets += strlen( commentString );
+      }
+
+      firstHeader = KWFalse;
+
+      /* Now write input string out, with error checking */
       if (imwrite(client->transmit.data,
                   sizeof(char),
                   bytes,
@@ -202,8 +226,8 @@ popBoxLoad(SMTPClient *client)
       /* Perform limited header parsing */
       if (current->startBodyPosition == 0)
       {
-         if (equal(client->transmit.data, "\n"))
-            current->startBodyPosition = position;
+         if (equal(client->transmit.data, "\n"))   /* end of header? */
+            current->startBodyPosition = position; /* y --> remember */
          else if (equaln(client->transmit.data, uidl, sizeof uidl - 1))
          {
             /* Destructively parse the buffer for the UIDL */
