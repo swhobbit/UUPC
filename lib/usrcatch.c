@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.2 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: usrcatch.c 1.1 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
- *    $Log: catcher.c $
+ *    $Log: usrcatch.c $
+ * Revision 1.1  1993/09/29  04:49:20  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -44,7 +47,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-int raised = 0;
+extern unsigned long raised = 0;
 
 /*--------------------------------------------------------------------*/
 /*    u s r 1 h a n d l e r                                           */
@@ -59,17 +62,13 @@ __cdecl
 #endif
 usrhandler( int sig )
 {
-   raised = sig;
+   raised |= 1 << (sig-1);       // Set bit and in signal field mask
 
 /*--------------------------------------------------------------------*/
 /*    The handler pointer must be reset to our handler since by       */
 /*    default it is reset to the system handler.                      */
 /*--------------------------------------------------------------------*/
 
-#ifdef __OS2__
-      signal( sig , (void (__cdecl *)(int))usrhandler );
-#else
-      signal( sig , usrhandler );
-#endif
+   signal( sig , usrhandler );
 
 } /* usrhandler */
