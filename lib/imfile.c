@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.11 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: imfile.c 1.12 1995/02/20 00:40:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.12  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.11  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -339,7 +342,7 @@ int imchsize( IMFILE *imf, long length )
    if ( imf->buffer == NULL )
       return chsize( fileno( imf->stream ), length );
 
-   if ( (unsigned) length > imf->inUse )
+   if ( (unsigned long) length > imf->inUse )
       memset( imf + imf->inUse, (int) (length - (long) imf->inUse), 0 );
 
    imf->inUse = (unsigned long) length;
@@ -450,7 +453,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 /*               Select the string from our own buffer                */
 /*--------------------------------------------------------------------*/
 
-   stringLength = imf->inUse - imf->position;
+   stringLength = (size_t) (imf->inUse - imf->position);
 
    if ( stringLength > (size_t) (userLength - 1 ))
       stringLength = (size_t) userLength;
@@ -464,7 +467,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    p = imf->buffer + (size_t) imf->position;
 
-   while ( (long) subscript < stringLength )
+   while ( subscript < stringLength )
    {
       if ( p[subscript] == '\0' )
       {
@@ -564,7 +567,7 @@ size_t  imread( void *userBuffer,
    if ( imerror( imf ) )
       return 0;
 
-   if ( (long) bytes <= (imf->inUse - imf->position ))
+   if ( (unsigned long) bytes <= (imf->inUse - imf->position ))
    {
       MEMCPY( userBuffer,
               imf->buffer + (size_t) imf->position,
@@ -680,7 +683,7 @@ int imseek( IMFILE *imf, long int offset, int whence)
 /*                  Verify the offset is in our file                  */
 /*--------------------------------------------------------------------*/
 
-   if ((absoluteOffset < 0) || (absoluteOffset > imf->inUse ))
+   if ((absoluteOffset < 0) || (absoluteOffset > (long) imf->inUse ))
    {
       printmsg( 0, "Invalid seek position %ld for IMF %p; file is %d bytes",
                    absoluteOffset,

@@ -154,14 +154,14 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
          hi = (unsigned char) ((hi - ((hi <= 0x9f) ? 0x71 : 0xb1)) * 2 + 1);
 
          if (lo > 0x7f)
-            lo -= 1;
+            lo = (unsigned char) (lo - 1);
 
          if (lo >= 0x9e) {
-            lo -= 0x7d;
+            lo = (unsigned char) (lo - 0x7d);
             hi = (unsigned char) (hi + 1);
             }
          else {
-            lo -= 0x1f;
+            lo = (unsigned char) (lo - 0x1f);
             }
 
          if (EOF == fputc(hi, fp)) {

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.9 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: trumpet.c 1.10 1994/12/22 04:14:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.10  1994/12/22 04:14:54  ahd
+ *    Correct inverted dos beep flag
+ *
  *    Revision 1.9  1994/12/09 03:42:09  ahd
  *    All suppressbeep support to allow NOT making any sound
  *
@@ -107,7 +110,8 @@ void trumpet( const char *tune)
 #ifdef SMARTBEEP
    char buf[BUFSIZ];
    char *token = buf;
-   size_t tone, duration;
+   KEWSHORT tone;
+   KEWSHORT duration;
 #endif
 
    if ( bflag[F_SUPPRESSBEEP]  || (tune == NULL) )
@@ -123,9 +127,9 @@ void trumpet( const char *tune)
 
    while( (token = strtok( token, ",")) != NULL)
    {
-      tone = (size_t) atoi(token);
+      tone = (KEWSHORT) atoi(token);
       token = strtok( NULL, ",");
-      duration = (token == NULL) ? 500 : (size_t) atoi(token);
+      duration = (token == NULL) ? 500 : (KEWSHORT) atoi(token);
 
 #ifdef WIN32
       Beep( tone, duration );
@@ -138,7 +142,7 @@ void trumpet( const char *tune)
       DosBeep( tone, duration );
 
       if (tone == 0)
-         ddelay(duration);
+         ddelay((KEWSHORT) duration);
 
 #else
       if (tone != 0)
