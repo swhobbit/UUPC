@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.75 1995/02/21 02:44:51 ahd Exp $
+#     $Id: makefile 1.76 1995/02/23 04:25:47 ahd v1-12n $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.76  1995/02/23 04:25:47  ahd
+#     Add installw, to build only Windows
+#
 #     Revision 1.75  1995/02/21 02:44:51  ahd
 #     Further updates for renamed news directory
 #
@@ -339,7 +342,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12n
+VERS = 1.12o
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
