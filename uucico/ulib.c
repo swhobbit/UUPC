@@ -12,8 +12,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.6 1992/12/30 05:27:11 plummer Exp $
+ *    $Id: ULIB.C 1.7 1993/01/23 19:08:09 ahd Exp $
  *    $Log: ULIB.C $
+ * Revision 1.7  1993/01/23  19:08:09  ahd
+ * Don't attempt to detect lost carrier in sread()
+ *
  * Revision 1.6  1992/12/30  05:27:11  plummer
  * MS C compile fixes
  * Add CD() to sread
@@ -127,8 +130,6 @@ int openline(char *name, BPS bps, const boolean direct)
                 name);
       panic();
    }
-
-   norecovery = FALSE;
 
    com_handle = sopen( name, O_BINARY | O_RDWR, SH_DENYRW );
                                  /* Used soly for lock abilities  */
@@ -436,7 +437,6 @@ void closeline(void)
    close_com();
    restore_com();
    close( com_handle );
-   norecovery = TRUE;
 
    if (log_handle != -1) {    /* close serial line log file */
       fclose(log_stream);
