@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: alias.c 1.5 1993/07/19 02:52:11 ahd Exp $
  *
  *    Revision history:
- *    $Log: ALIAS.C $
+ *    $Log: alias.c $
+ * Revision 1.5  1993/07/19  02:52:11  ahd
+ * Don't load alias for empty names
+ *
  * Revision 1.4  1993/05/06  03:41:48  ahd
  * Use expand_path to get reasonable correct drive for aliases file
  *
@@ -400,7 +403,6 @@ size_t LoadAliases(void)
       if ( equal(users[subscript].realname,EMPTY_GCOS) )
          continue;
 
-      elements++;
       alias[elements].anick = "";   /* No nickname, only good for addr  */
       if (bflag[F_BANG])
          sprintf(buf, "(%s) %s!%s",
@@ -412,6 +414,8 @@ size_t LoadAliases(void)
       alias[elements].afull = newstr(buf);
       alias[elements].anode = E_nodename;
       alias[elements].auser = users[subscript].uid;
+
+      elements++;
    } /* for */
 
 /*--------------------------------------------------------------------*/
