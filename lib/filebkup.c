@@ -2,10 +2,14 @@
 /*       f i l e b k u p                                              */
 /*                                                                    */
 /*       UUPC/extended file backup routines                           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*       Copyright (c) 1991-1994 by Andrew H. Derbyshire;             */
-/*       all rights reserved except as granted by UUPC/extended       */
-/*       license included with documention.                           */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -13,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.6 1994/01/01 19:01:54 ahd Exp $
+ *    $Id: filebkup.c 1.7 1994/02/20 19:05:02 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *    Revision 1.7  1994/02/20 19:05:02  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.6  1994/01/01  19:01:54  ahd
  *     Annual Copyright Update
  *

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.12 1994/02/20 19:05:02 ahd v1-12k $
+ *    $Id: safeout.c 1.13 1994/12/22 00:10:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *    Revision 1.13  1994/12/22 00:10:51  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1994/02/20 19:05:02  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -61,8 +64,6 @@
 /*    services.  Another option is to set global flags and do any     */
 /*    I/O operations outside the signal handler.                      */
 /*--------------------------------------------------------------------*/
-
-#define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
 #ifdef WIN32
 
@@ -141,7 +142,7 @@ void safeout( char *str )
 
 #elif defined( FAMILYAPI ) || defined(__OS2__)
 
-   VioWrtTTY( str, strlen( str ), 0 );
+   VioWrtTTY( str, (unsigned short) strlen( str ), 0 );
 
 #else
     union REGS inregs, outregs;
@@ -156,4 +157,5 @@ void safeout( char *str )
     safeflush();              /* Flush keyboard                       */
 
 #endif /* _Windows */
+
 } /* safeout */

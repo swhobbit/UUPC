@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arbmath.c 1.6 1994/12/22 00:07:10 ahd Exp $
+ *    $Id: arbmath.c 1.7 1995/01/07 16:11:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: arbmath.c $
+ *    Revision 1.7  1995/01/07 16:11:47  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.6  1994/12/22 00:07:10  ahd
  *    Annual Copyright Update
  *
@@ -73,7 +76,8 @@ KWBoolean adiv( unsigned char *number,
    for ( subscript = 0; subscript < digits; subscript++)
    {
       unsigned digit =  *remain * 0x100 + number[subscript];
-      nonzero = nonzero || number[subscript];
+      if ( number[subscript] )
+         nonzero = KWTrue;
       *remain = digit % divisor;
       number[subscript] =  (unsigned char) (digit / divisor);
    } /* for */

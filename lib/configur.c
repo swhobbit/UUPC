@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.57 1995/01/15 19:48:35 ahd Exp $
+ *    $Id: configur.c 1.58 1995/01/28 22:08:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.58  1995/01/28 22:08:10  ahd
+ *    Correct use of TZ variable from within UUPC configuration file
+ *
  *    Revision 1.57  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -327,7 +330,7 @@ CONFIGTABLE envtable[] = {
    {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
    {"backupext",    &E_backup,       B_TOKEN|B_MUA},
    {"banner",       &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
-   {"batchsize",    (char **) &E_batchsize, B_GLOBAL|B_LONG|B_BATCH},
+   {"batchsize",    &E_batchsize, B_GLOBAL|B_LONG|B_BATCH},
    {"charset",      &E_charset,      B_TOKEN|B_GLOBAL|B_SPOOL},
    {"compress",     &E_compress,     B_GLOBAL|B_STRING|B_BATCH|B_NEWS},
    {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
@@ -337,27 +340,27 @@ CONFIGTABLE envtable[] = {
    {"folders",      &dummy,          B_PATH|B_MUSH },
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
-   {"ignore",       (char **) &E_ignoreList, B_MUA|B_LIST},
-   {"firstGrade",   (char **) &E_firstGrade, B_UUCICO|B_CHAR},
+   {"ignore",       &E_ignoreList,   B_MUA|B_LIST},
+   {"firstGrade",   &E_firstGrade,   B_UUCICO|B_CHAR},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
-   {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
+   {"internalcommands", &E_internal, B_GLOBAL|B_LIST|B_ALL},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
    {"mailbox",      &E_mailbox,      B_REQUIRED|B_TOKEN|B_ALL},
    {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
    {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"newsgrade",   (char **) &E_newsGrade, B_BATCH|B_CHAR},
-   {"maximumhops",  (char **) &E_maxhops, B_MTA | B_SHORT | B_GLOBAL},
-   {"maximumuuxqt", (char **) &E_maxuuxqt, B_MTA | B_SHORT | B_GLOBAL},
+   {"newsgrade",    &E_newsGrade,    B_BATCH|B_CHAR},
+   {"maximumhops",  &E_maxhops,      B_MTA | B_SHORT | B_GLOBAL},
+   {"maximumuuxqt", &E_maxuuxqt,     B_MTA | B_SHORT | B_GLOBAL},
    {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
-   {"mailgrade",   (char **) &E_mailGrade, B_MTA|B_CHAR},
+   {"mailgrade",    &E_mailGrade,    B_MTA|B_CHAR},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
    {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
    {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
    {"nodename",     &E_nodename,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"options",      (char **) bflag, B_ALL|B_BOOLEAN},
+   {"options",      bflag,           B_ALL|B_BOOLEAN},
    {"organization", &E_organization, B_STRING|B_MAIL|B_NEWS},
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
    {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
@@ -368,7 +371,7 @@ CONFIGTABLE envtable[] = {
    {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
-   {"replytoList",  (char **) &E_replyToList, B_MUA|B_LIST},
+   {"replytoList",  &E_replyToList,  B_MUA|B_LIST},
    {"rmail",        &dummy,          B_OBSOLETE },
    {"rnews",        &dummy,          B_OBSOLETE },
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
@@ -482,7 +485,7 @@ KWBoolean processconfig(char *buff,
 
       typedef struct _ENVLIST {
             char *name;
-            int value;
+            ENV_TYPE value;
       } ENVLIST;
 
       static ENVLIST envtable[] = {
@@ -532,7 +535,10 @@ KWBoolean processconfig(char *buff,
    for (tptr = table; tptr->sym != nil(char); tptr++)
    {
       KWBoolean error = KWFalse;
-      if (equal(keyword, tptr->sym)) {
+      char **varPtr = tptr->loc;
+
+      if (equal(keyword, tptr->sym))
+      {
 /*--------------------------------------------------------------------*/
 /*            Skip the keyword because of the environment?            */
 /*--------------------------------------------------------------------*/
@@ -557,7 +563,6 @@ KWBoolean processconfig(char *buff,
          else {
             if (tptr->bits & B_BOOLEAN)
                options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
-
 
 /*--------------------------------------------------------------------*/
 /*                       Handle integer values                        */
@@ -606,11 +611,11 @@ KWBoolean processconfig(char *buff,
 
                if (words > 0)
                {
-                  if ( *(tptr->loc) )
-                     free( *(tptr->loc) );
-                  list = realloc( list, (words+1) * sizeof(*list));
+                  if ( *(varPtr) )
+                     free( *(varPtr) );
+                  list = realloc( list, (size_t) (words+1) * sizeof(*list));
                   checkref( list );
-                  *(tptr->loc) = (char *) list;
+                  *(varPtr) = (char *) list;
                   list[words] = NULL;
 
                   while( *list != NULL)
@@ -668,11 +673,11 @@ KWBoolean processconfig(char *buff,
                } /* if (tptr->bits & B_CHAR ) */
                else if (tptr->bits & B_MALLOC)  /* Allocate normally?  */
                {
-                  *(tptr->loc) = strdup(cp); /* Save string           */
-                  checkref( *(tptr->loc) );  /* Verify malloc()       */
+                  *(varPtr) = strdup(cp);    /* Save string           */
+                  checkref( *(varPtr) );     /* Verify malloc()       */
                }
                else
-                  *(tptr->loc) = newstr(cp); /* Save string           */
+                  *(varPtr) = newstr(cp);    /* Save string           */
 
             } /* else */
 
@@ -713,7 +718,8 @@ KWBoolean getconfig(FILE *fp,
    char buff[BUFSIZ];
    char *cp;
 
-   while(!(fgets(buff, sizeof buff, fp) == nil(char))) {
+   while(!(fgets(buff, sizeof buff, fp) == nil(char)))
+   {
 
 /*--------------------------------------------------------------------*/
 /*                        Ingore comment lines                        */
@@ -770,7 +776,11 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
       size_t subscript;
       KWBoolean hit = KWFalse;
       KWBoolean negate;
-      negate = equaln(token,"no",2) && (strlen(token) > 2);
+
+      if ( equaln(token,"no",2) && (strlen(token) > 2) )
+         negate = KWTrue;
+      else
+         negate = KWFalse;
 
       for ( subscript=0; (flags[subscript].sym != NULL ) && !hit; subscript++)
       {
@@ -1083,7 +1093,7 @@ KWBoolean getrcnames(char **sysp,char **usrp)
 
 KWBoolean IsDOS( void )
 {
-   if ( active_env & ENV_DOS )
+   if ( ((unsigned long) active_env) & ENV_DOS )
       return KWTrue;
    else
       return KWFalse;

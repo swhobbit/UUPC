@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.5 1994/12/22 00:11:48 ahd Exp $
+ *    $Id: title2.c 1.6 1995/01/07 16:14:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.6  1995/01/07 16:14:56  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.5  1994/12/22 00:11:48  ahd
  *    Annual Copyright Update
  *
@@ -54,13 +57,6 @@
 #include "title.h"
 
 void restoreOriginalTitle( void );
-
-/*--------------------------------------------------------------------*/
-/*                          Local variables                           */
-/*--------------------------------------------------------------------*/
-
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*       s e t T i t l e                                              */

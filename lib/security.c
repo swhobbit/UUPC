@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.22 1994/12/22 00:11:05 ahd Exp $
+ *    $Id: security.c 1.23 1995/01/07 16:14:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.23  1995/01/07 16:14:36  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.22  1994/12/22 00:11:05  ahd
  *    Annual Copyright Update
  *
@@ -327,7 +330,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
    for (tptr = securetable; tptr->sym != nil(char); tptr++)
       if (tptr->bits & (B_TOKEN | B_STRING | B_LIST| B_CLIST))
-         *(tptr->loc) = nil(char);
+         *((char **) tptr->loc) = nil(char);
 
 /*--------------------------------------------------------------------*/
 /*                 Parse the information in the table                 */

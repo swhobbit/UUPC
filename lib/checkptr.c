@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.7 1994/02/19 04:39:43 ahd v1-12k $
+ *    $Id: checkptr.c 1.8 1994/12/22 00:07:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.8  1994/12/22 00:07:39  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/02/19 04:39:43  ahd
  *    Use standard first header
  *
@@ -57,7 +60,7 @@
 /*    Report that a pointer is NULL                                   */
 /*--------------------------------------------------------------------*/
 
-void checkptr( const char *file, const int line)
+void checkptr( const char *file, const size_t line)
 {
    printmsg(0,"Storage allocation failure; possible cause: "
                " memory shortage.");

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.53 1994/12/22 00:35:37 ahd Exp $
+ *    $Id: modem.c 1.54 1995/01/07 16:39:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.54  1995/01/07 16:39:06  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.53  1994/12/22 00:35:37  ahd
  *    Annual Copyright Update
  *
@@ -680,7 +683,7 @@ KWBoolean getmodem( const char *brand)
 
    for (tptr = modemtable; tptr->sym != nil(char); tptr++)
       if (tptr->bits & (B_TOKEN | B_STRING | B_LIST | B_CLIST))
-         *(tptr->loc) = nil(char);
+         *((char **) tptr->loc) = nil(char);
 
    for (subscript = 0; subscript < MODEM_LAST; subscript++)
       bmodemflag[subscript] = KWFalse;
@@ -747,7 +750,8 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    success = KWTrue;
-   for (tptr = modemtable; tptr->sym != nil(char); tptr++) {
+   for (tptr = modemtable; tptr->sym != nil(char); tptr++)
+   {
       if ((tptr->bits & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "getmodem: configuration parameter \"%s\" must be set.",
