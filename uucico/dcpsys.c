@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.20 1993/09/27 00:48:43 ahd Exp $
+ *     $Id: dcpsys.c 1.21 1993/09/27 04:04:06 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.21  1993/09/27  04:04:06  ahd
+ * Normalize references to modem speed to avoid incorrect displays
+ *
  * Revision 1.20  1993/09/27  00:48:43  ahd
  * Allow 't' protocol under 16 bit OS/2
  *
@@ -490,7 +493,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                      Begin normal processing                       */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, PROTOCOL_TIME, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for first message");
       return CONN_TERMINATE;
@@ -539,7 +542,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                  Second message is system is okay                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, PROTOCOL_TIME, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for second message");
       return CONN_TERMINATE;
@@ -555,7 +558,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                Third message is protocol exchange                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, PROTOCOL_TIME, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (*msg != 'P')
@@ -633,7 +636,7 @@ CONN_STATE startup_client( char *sendgrade )
                               E_nodename : securep->myname );
    wmsg(msg, TRUE);
 
-   if (rmsg(msg, TRUE, PROTOCOL_TIME, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    printmsg(2, "1st msg from remote = %s", msg);
@@ -784,7 +787,7 @@ CONN_STATE startup_client( char *sendgrade )
    sprintf(msg, "P%s", plist);
    wmsg(msg, TRUE);
 
-   if (rmsg(msg, TRUE, PROTOCOL_TIME, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (msg[0] != 'U')

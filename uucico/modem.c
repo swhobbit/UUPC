@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.23 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: modem.c 1.24 1993/09/27 04:04:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.24  1993/09/27  04:04:06  ahd
+ * Normalize references to modem speed to avoid incorrect displays
+ *
  * Revision 1.23  1993/09/27  00:45:20  ahd
  * Add suspend of serial port processing from K. Rommel
  *
@@ -152,6 +155,7 @@ KEWSHORT M_fPacketSize;
 KEWSHORT M_gPacketTimeout;       /* "g" procotol                  */
 KEWSHORT M_fPacketTimeout;       /* "f" procotol                  */
 KEWSHORT M_tPacketTimeout;       /* "t" procotol                  */
+KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 KEWSHORT M_MaxErr= 10;        /* Allowed errors per single packet    */
 KEWSHORT M_MaxErr;            /* Allowed errors per single packet    */
 KEWSHORT M_xfer_bufsize;      /* Buffering used for file transfers */
@@ -194,6 +198,7 @@ static CONFIGTABLE modemtable[] = {
    { "porttimeout",   NULL,                    B_OBSOLETE },
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
    { "scripttimeout", (char **) &scriptTimeout,B_KEWSHORT| B_UUCICO },
+   { "startuptimeout",(char **) &M_startupTimeout, B_KEWSHORT | B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
    { "transferbuffer",(char **) &M_xfer_bufsize, B_KEWSHORT| B_UUCICO },
    { "tpackettimeout",(char **) &M_tPacketTimeout, B_KEWSHORT | B_UUCICO },
@@ -559,6 +564,7 @@ static boolean getmodem( const char *brand)
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
    M_suite = NULL;            // Use default suite for communications
+   M_startupTimeout = 40;     // 40 seconds per message to exchange protocols
 
 /*--------------------------------------------------------------------*/
 /*                 Open the modem configuration file                  */
