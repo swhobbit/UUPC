@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.15 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: modem.c 1.16 1993/06/16 04:03:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: MODEM.C $
+ *    $Log: modem.c $
+ * Revision 1.16  1993/06/16  04:03:25  ahd
+ * Lower max wait time for NT
+ *
  * Revision 1.15  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -132,7 +135,7 @@ static FLAGTABLE modemFlags[] = {
    { "carrierdetect",  MODEM_CD,          B_LOCAL },
    { "direct",         MODEM_DIRECT,      B_LOCAL },
    { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
-   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL | B_OBSOLETE },
+   { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL },
    { "largepacket",    MODEM_LARGEPACKET, B_LOCAL | B_OBSOLETE },
    { nil(char) }
 }           ;
@@ -491,6 +494,7 @@ static boolean getmodem( const char *brand)
    M_gPacketTimeout = 10;
    modemTimeout  = 3;         /* Default is 3 seconds for modem cmds  */
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
+   answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
    M_suite = NULL;            // Use default suite for communications
