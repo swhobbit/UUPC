@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.26 1993/10/09 22:21:55 rhg Exp $
+ *       $Id: dcpxfer.c 1.27 1993/10/12 01:33:59 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.27  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.26  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -97,9 +100,6 @@
  * Use unbuffered files to eliminate extra data copy
  * Clean up modem file support for different protocols
  *
- */
-
- /*
    Additional maintenance Notes:
 
    01Nov87 - that strncpy should be a memcpy! - Jal
@@ -113,7 +113,6 @@
    09Jul91 - Rewrite to use unique routines for all four kinds of
              transfers to allow for testing and security          ahd
  */
-
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -220,7 +219,6 @@ XFER_STATE sdata( void )
    return XFER_SENDDATA;   /* Remain in send state                */
 
 } /*sdata*/
-
 
 /*--------------------------------------------------------------------*/
 /*    b u f i l l                                                     */
@@ -376,7 +374,6 @@ XFER_STATE seof( const boolean purge_file )
 /*--------------------------------------------------------------------*/
 /*                   If local spool file, delete it                   */
 /*--------------------------------------------------------------------*/
-
 
    if (purge_file && !equal(dName,"D.0"))
    {
@@ -541,6 +538,9 @@ XFER_STATE ssfile( void )
    {
       fileName = fName;       /* No --> Use the real name            */
       strcpy( hostFile, fileName );
+
+      if (ValidateFile( hostFile , ALLOW_READ ))
+         return XFER_FILEDONE;   /* Look for next file in our queue  */
    }
    else {
       fileName = dName;       /* Yes --> Use it                      */
@@ -667,6 +667,19 @@ appending file name \"%s\"", spolName, slash);
 
    printmsg(0, "Receiving \"%s\" as \"%s\" (%s)", fName, tName, spolName);
 
+/*--------------------------------------------------------------------*/
+/*                    Validate receiving of the file                  */
+/*--------------------------------------------------------------------*/
+
+   if (!ValidateFile( spolName , ALLOW_WRITE ))
+   {
+      return XFER_FILEDONE;      /* Look for next file from master   */
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*        Send the request to the remote and get the response         */
+/*--------------------------------------------------------------------*/
+
    if (!pktsendstr( databuf ))
       return XFER_LOST;
 
@@ -706,7 +719,6 @@ appending file name \"%s\"", spolName, slash);
 /*                     Set buffering for the file                     */
 /*--------------------------------------------------------------------*/
 
-
 #ifndef _Windows                 /* Leave file buffered under Windows */
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
@@ -745,7 +757,6 @@ XFER_STATE sinit( void )
    } /* else */
 
 } /*sinit*/
-
 
 /*********************** MISC SUB SUB PROTOCOL *************************/
 
@@ -820,7 +831,6 @@ XFER_STATE endp( void )
    return XFER_EXIT;
 
 } /*endp*/
-
 
 /*********************** RECIEVE PROTOCOL **********************/
 
@@ -1019,7 +1029,6 @@ XFER_STATE rrfile( void )
       xfer_stream = fopen( spolName, "wb");
    }
 
-
    if (xfer_stream == NULL)
    {
       printmsg(0, "rrfile: cannot open file %s (%s).",
@@ -1034,7 +1043,6 @@ XFER_STATE rrfile( void )
 /*--------------------------------------------------------------------*/
 /*               The file is open, now try to buffer it               */
 /*--------------------------------------------------------------------*/
-
 
 #ifndef _Windows                 /* Leave file buffered under Windows */
 
@@ -1100,6 +1108,7 @@ XFER_STATE rsfile( void )
                                     /* don't munge the file they want */
                                     /* sent                           */
 
+
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
 /*--------------------------------------------------------------------*/
@@ -1145,7 +1154,6 @@ XFER_STATE rsfile( void )
       else
          return XFER_FILEDONE;   /* Tell them to send next file   */
    } /* if */
-
 
 #ifndef _Windows                 /* Leave file buffered under Windows */
 
