@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.3 1993/10/03 20:37:34 ahd Exp $
+ *    $Id: pwserr.c 1.4 1993/10/12 01:32:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ * Revision 1.4  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.3  1993/10/03  20:37:34  ahd
  * Correct FAR pointer references
  *
@@ -51,7 +54,7 @@
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
 
-const char *LookupWSError(int err);
+const char UUFAR *LookupWSError(int err);
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -148,7 +151,7 @@ void pWSErr(const size_t lineno,
 {
    boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
-   const char *msg;
+   const char UUFAR *msg;
 
    msg = LookupWSError(rc);
 
@@ -185,7 +188,7 @@ void pWSErr(const size_t lineno,
 /*       Look up an error in our list of strings                      */
 /*--------------------------------------------------------------------*/
 
-const char *LookupWSError(int err)
+const char UUFAR *LookupWSError(int err)
 {
    WSERR *pwsErr = wsErrors;
 
