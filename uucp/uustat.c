@@ -21,11 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: uustat.c 1.14 1993/12/06 01:59:07 ahd Exp $
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $";
+         "$Id: uustat.c 1.14 1993/12/06 01:59:07 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -708,7 +708,7 @@ static void short_stats( const char *system )
 
    while(hostp != BADHOST )
    {
-      printf("%-8.8s  %s  %s\n", hostp->hostname,
+      printf("%-10.10s  %s  %s\n", hostp->hostname,
             dater( hostp->hstats->lconnect , NULL ),
             hostp->hstatus < last_status ?
                   host_status[ hostp->hstatus ] :
