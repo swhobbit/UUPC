@@ -90,10 +90,12 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
          hi = *buf++;
          if ((lo = *buf++) == '\0')
             break;
-         if (hi & 1) lo += 0x1f;
-         else lo += 0x7d;
+         if (hi & 1)
+            lo += 0x1f;
+         else
+            lo += 0x7d;
          if (lo >= 0x7f) lo++;
-         hi = (unsigned char) ((hi - 0x21 >> 1) + 0x81);
+         hi = (unsigned char) (((hi - 0x21) / 2) + 0x81);
          if (hi > 0x9f)
             hi += 0x40;
          if (EOF == fputc(hi, fp)) {
