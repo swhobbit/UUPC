@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.48 1994/08/07 21:45:09 ahd Exp $
+ *    $Id: modem.c 1.49 1994/10/03 01:01:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.49  1994/10/03  01:01:25  ahd
+ *        Release port to any sleeping program as soon as port is closed
+ *
  *        Revision 1.48  1994/08/07  21:45:09  ahd
  *        Don't report "modem ready" if really network connection
  *
@@ -294,7 +297,10 @@ static CONFIGTABLE modemtable[] = {
    { "vpacketsize",   (char **) &vPacketSize,  B_SHORT  | B_UUCICO },
    { "vwindowsize",   (char **) &vWindowSize,  B_SHORT  | B_UUCICO },
    { nil(char) }
+
 }; /* modemtable */
+
+static boolean reEnable = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -429,6 +435,7 @@ CONN_STATE callhot( const BPS xspeed, const int hotHandle )
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           /* Shutdown gracefully as needed     */
+   reEnable   = FALSE;           /* Don't reenable port, we own it!   */
 
    if ( hotHandle != -1 )
       SetComHandle( hotHandle );
@@ -493,6 +500,7 @@ CONN_STATE callin( const time_t exit_time )
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           /* Shutdown gracefully as needed    */
+   reEnable   = FALSE;           /* Don't reenable port, we own it!   */
 
    echoCheck( 0 );               /* Disable echo checking            */
 
@@ -550,7 +558,9 @@ CONN_STATE callin( const time_t exit_time )
       if (!WaitForNetConnect(offset))
       {
          interactive_processing = TRUE;
+
          shutDown();
+
          if ( suspend_processing )        /* Give up modem for another process?  */
          {
            return CONN_WAIT;
@@ -577,6 +587,8 @@ CONN_STATE callin( const time_t exit_time )
 
       setPrty(M_priority, M_prioritydelta );
                               /* Into warp drive for actual transfers  */
+
+      setTitle("Answering connection on port %s", M_device);
 
       if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
       {                           /* Pick up the telephone            */
@@ -753,6 +765,7 @@ static boolean dial(char *number, const BPS speed)
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           /* Shutdown gracefully as needed     */
+   reEnable   = TRUE;            /* Automatically reenable port       */
 
    echoCheck( 0 );               /* Disable echo checking            */
 
@@ -918,7 +931,7 @@ void shutDown( void )
 /*              Give port back to original owner, if any              */
 /*--------------------------------------------------------------------*/
 
-   if (!IsNetwork())
+   if (!IsNetwork() && reEnable )
       suspend_other(FALSE, M_device);
 
    norecovery = TRUE;

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.3 1994/02/19 05:10:36 ahd Exp $
+ *    $Id: suspendn.c 1.4 1994/05/01 21:59:06 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *        Revision 1.4  1994/05/01  21:59:06  dmwatt
+ *        Trap errors from failure of suspend_init to create pipe
+ *
  * Revision 1.3  1994/02/19  05:10:36  ahd
  * Use standard first header
  *
@@ -320,10 +323,17 @@ int suspend_other(const boolean suspend,
   UCHAR nChar;
   BOOL rc;
   boolean firstPass = TRUE;
+  static boolean suspended = FALSE;
   int result;
 
   static time_t lastSuspend = 0;
   static char *lastPort = "";    /* Must not be be NULL pointer      */
+
+  if ( ! suspend && ! suspended )
+  {
+     printmsg(4, "suspend_other: No port to resume.");
+     return 0;
+  }
 
 /*--------------------------------------------------------------------*/
 /*                      Open up the pipe to process                   */
@@ -436,8 +446,10 @@ int suspend_other(const boolean suspend,
                  nChar );
      result = -3;
    }
-   else
+   else {
       result = 1;                   /* Success!                       */
+      suspended = suspend;          /* Remember for future            */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                     Close up and return to caller                  */
