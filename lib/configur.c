@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.64 1995/02/20 18:54:08 ahd Exp $
+ *    $Id: configur.c 1.65 1995/02/21 03:30:52 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.65  1995/02/21 03:30:52  ahd
+ *    More compiler warning cleanup, drop selected messages at compile
+ *    time if not debugging.
+ *
  *    Revision 1.64  1995/02/20 18:54:08  ahd
  *    news panic support
  *
@@ -333,6 +337,8 @@ static ENV_TYPE active_env = ENV_WIN_32BIT | ENV_WIN | ENV_BIT32;
 static ENV_TYPE active_env = ENV_WIN_16BIT | ENV_WIN | ENV_BIT16;
 #elif defined(__OS2__)
 static ENV_TYPE active_env = ENV_OS2_32BIT | ENV_OS2 | ENV_BIT32;
+#elif defined(FAMILYAPI)
+static ENV_TYPE active_env = ENV_OS2_16BIT | ENV_OS2 | ENV_BIT16;
 #else
 static ENV_TYPE active_env = ENV_DOS | ENV_BIT16;
 #endif
@@ -351,8 +357,8 @@ CONFIGTABLE envtable[] = {
    {"aliases",      &E_nickname,     B_MUA,     B_TOKEN },
    {"altsignature", &E_altsignature, B_MUA,     B_TOKEN },
    {"anonymouslogin", &E_anonymous,  (B_ALL & ~ B_MAIL), B_GLOBAL|B_TOKEN },
-   {"archivedir",   &E_archivedir,   B_ALL,     B_GLOBAL|B_PATH },
-   {"backupext",    &E_backup,       B_MUA,     B_TOKEN },
+   {"archivedir",   &E_archivedir,   B_OBSOLETE,B_GLOBAL|B_PATH },
+   {"backupext",    &E_backup,       B_MUA | B_NEWS,     B_TOKEN },
    {"banner",       &E_banner,       B_UUCICO,  B_GLOBAL|B_PATH },
    {"batchsize",    &E_batchsize,    B_SENDBATS,B_GLOBAL|B_LONG },
    {"charset",      &E_charset,      B_SPOOL,   B_TOKEN|B_GLOBAL },
@@ -370,14 +376,14 @@ CONFIGTABLE envtable[] = {
    {"internalcommands", &E_internal, B_ALL,     B_GLOBAL|B_LIST },
    {"localdomain",  &E_localdomain,  B_MAIL,    B_GLOBAL|B_TOKEN   },
    {"mailbox",      &E_mailbox,      B_ALL,     B_REQUIRED|B_TOKEN },
-   {"maildir",      &E_maildir,      B_ALL,     B_GLOBAL|B_PATH },
+   {"maildir",      &E_maildir,      B_MAIL,    B_GLOBAL|B_PATH },
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
    {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
-   {"mailserv",     &E_mailserv,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"mailserv",     &E_mailserv,     B_MAIL,    B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
    {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
    {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
-   {"mushdir",      0     ,          B_MUSH,    B_GLOBAL|B_PATH },
+   {"mushdir",      0,               B_MUSH,    B_GLOBAL|B_PATH },
    {"name",         &E_name,         B_INEWS|B_MAIL, B_REQUIRED|B_STRING },
    {"newscache",    &E_newsCache,    B_NEWS,    B_SHORT },
    {"newsdir",      &E_newsdir,      B_NEWS,    B_GLOBAL|B_PATH },
@@ -390,17 +396,17 @@ CONFIGTABLE envtable[] = {
    {"pager",        &E_pager,        B_INEWS|B_MUA, B_STRING },
    {"passwd",       &E_passwd,       B_ALL,     B_GLOBAL|B_PATH },
    {"path",         &E_uuxqtpath,    B_UUXQT,   B_STRING|B_GLOBAL },
-   {"permissions",  &E_permissions,  B_ALL,     B_GLOBAL|B_PATH },
+   {"permissions",  &E_permissions,  B_UUCICO|B_UUXQT,   B_GLOBAL|B_PATH },
    {"postmaster",   &E_postmaster,   B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"priority",     0,               B_OBSOLETE  },
    {"prioritydelta",0,               B_OBSOLETE  },
-   {"pubdir",       &E_pubdir,       B_ALL,     B_GLOBAL|B_PATH },
+   {"pubdir",       &E_pubdir,       B_UUCICO|B_UUXQT,   B_GLOBAL|B_PATH },
    {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
    {"replytoList",  &E_replyToList,  B_MUA,     B_LIST },
    {"rmail",        0,               B_OBSOLETE  },
    {"rnews",        0,               B_OBSOLETE  },
    {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
-   {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
+   {"spooldir",     &E_spooldir,     B_SPOOL,   B_GLOBAL|B_PATH },
    {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
    {"tempdir",      &E_tempdir,      B_ALL,     B_GLOBAL|B_PATH },
    {"tz",           &E_tz,           B_ALL,     B_TOKEN },
@@ -901,6 +907,7 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
                hit = KWTrue;
             }
          } /* else */
+
       } /* for */
 
       if (!hit)
@@ -909,6 +916,7 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
       token = strtok(NULL,WHITESPACE);  /* Step to next token on line */
 
    } /* while */
+
 } /* options */
 
 /*--------------------------------------------------------------------*/
@@ -986,11 +994,6 @@ KWBoolean configure( CONFIGBITS program)
 /*--------------------------------------------------------------------*/
 /*                  Determine the active environment                  */
 /*--------------------------------------------------------------------*/
-
-#if !defined(__TURBOC__) && !defined(BIT32ENV)
-   if (_osmode != DOS_MODE)
-      active_env = ENV_OS2 | ENV_BIT16;
-#endif
 
    if (!getrcnames(&sysrc, &usrrc))
       return KWFalse;
