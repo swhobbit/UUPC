@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.32 1994/02/19 05:09:02 ahd Exp $
+ *      $Id: dcpgpkt.c 1.33 1994/05/08 02:43:07 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *        Revision 1.33  1994/05/08  02:43:07  ahd
+ *        Handle carrier detect option internal to CD()
+ *
  *        Revision 1.32  1994/02/19  05:09:02  ahd
  *        Use standard first header
  *
@@ -54,9 +57,6 @@
  *
  * Revision 1.24  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
- *
- * Revision 1.23  1993/10/24  12:48:56  ahd
- * Correct timeouts to user specified, rather than double user specified
  *
  * Revision 1.23  1993/10/24  12:48:56  ahd
  * Correct timeouts to user specified, rather than double user specified
@@ -183,7 +183,7 @@
 #define MINPKT    32
 
 #define HDRSIZE   6
-#define MAXTRY 4
+#define MAXTRY    4
 
 #ifndef GDEBUG
 #define GDEBUG 4
@@ -244,7 +244,6 @@ typedef enum {
                         (b<c && c<a))
 
 #define nextpkt(x)    ((x + 1) % MAXSEQ)
-#define nextbuf(x)    ((x + 1) % (nwindows+1))
 
 /*--------------------------------------------------------------------*/
 /*              Global variables for packet definitions               */
@@ -255,7 +254,6 @@ currentfile();
 static short irec, lazynak;
 static unsigned rwl, rwu, swl, swu;
 static unsigned nbuffers;
-static unsigned rbl, sbl, sbu;
 static KEWSHORT nerr;
 static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
 static boolean arrived[NBUF];
@@ -380,8 +378,8 @@ static short initialize(const boolean caller, const char protocol )
 
    nerr = 0;
    nbuffers = 0;
-   sbl = swl = swu = sbu = 1;
-   rbl = rwl = 0;
+   swl = swu = 1;
+   rwl = 0;
    nwindows = maxwindows;
    rwu = nwindows - 1;
 
@@ -682,7 +680,7 @@ static short initialize(const boolean caller, const char protocol )
 
    return(DCP_OK);                  /* Channel open to caller        */
 
-} /*initialize*/
+} /* initialize */
 
 /*--------------------------------------------------------------------*/
 /*    g f i l e p k t                                                 */
@@ -730,7 +728,7 @@ short gclosepk()
 
    return(0);
 
-} /*gclosepk*/
+} /* gclosepk */
 
 /*--------------------------------------------------------------------*/
 /*    g s t a t s                                                     */
@@ -752,6 +750,7 @@ static void gstats( void )
          "%d invalid pkt types, %d re-syncs, %d bad pkt hdrs, %d pkts resent",
             screwups, shifts, badhdr, resends);
    } /* if ( remote_stats.errors || shifts || badhdr ) */
+
 } /* gstats */
 
 /*--------------------------------------------------------------------*/
@@ -784,12 +783,12 @@ short ggetpkt(char *data, short *len)
 /*--------------------------------------------------------------------*/
 
    time( &start );
-   while (!arrived[rbl] && retry)
+   while (!arrived[rwl] && retry)
    {
       if (gmachine(M_gPacketTimeout) != POK)
          return(-1);
 
-      if (!arrived[rbl] )
+      if (!arrived[rwl] )
       {
          time_t now;
 
@@ -806,15 +805,15 @@ short ggetpkt(char *data, short *len)
             start = now;
          } /* if (time( now ) > (start + M_gPacketTimeout) ) */
 
-      } /* if (!arrived[rbl] ) */
+      } /* if (!arrived[rwl] ) */
 
-   } /* while (!arrived[rbl] && retry) */
+   } /* while (!arrived[rwl] && retry) */
 
 #ifdef _DEBUG
    debuglevel = savedebug;
 #endif
 
-   if (!arrived[rbl])
+   if (!arrived[rwl])
    {
       printmsg(0,"ggetpkt: Remote host failed to respond after %ld seconds",
                (long) M_gPacketTimeout * M_MaxErr);
@@ -826,15 +825,15 @@ short ggetpkt(char *data, short *len)
 /*                           Got a packet!                            */
 /*--------------------------------------------------------------------*/
 
-   *len = inlen[rbl];
-   MEMCPY(data, inbuf[rbl], *len);
+   *len = inlen[rwl];
+   MEMCPY(data, inbuf[rwl], *len);
 
-   arrived[rbl] = FALSE;      /* Buffer is now emptied               */
+   arrived[rwl] = FALSE;      /* Buffer is now emptied               */
    rwu = nextpkt(rwu);        /* bump receive window                 */
 
    return(0);
 
-} /*ggetpkt*/
+} /* ggetpkt */
 
 /*--------------------------------------------------------------------*/
 /*       g s e n d p k t                                              */
@@ -881,39 +880,39 @@ short gsendpkt(char *data, short len)
 /*               Place packet in table and mark unacked               */
 /*--------------------------------------------------------------------*/
 
-   MEMCPY(outbuf[sbu], data, len);
+   MEMCPY(outbuf[swu], data, len);
 
 /*--------------------------------------------------------------------*/
 /*                       Handle short packets.                        */
 /*--------------------------------------------------------------------*/
 
-   xmitlen[sbu] = (unsigned short) s_pktsize;
+   xmitlen[swu] = (unsigned short) s_pktsize;
    if (variablepacket)
-      while ( ((len * 2) < (short) xmitlen[sbu]) && (xmitlen[sbu] > MINPKT) )
-         xmitlen[sbu] /= 2;
+      while ( ((len * 2) < (short) xmitlen[swu]) && (xmitlen[swu] > MINPKT) )
+         xmitlen[swu] /= 2;
 
-   if ( xmitlen[sbu] < MINPKT )
+   if ( xmitlen[swu] < MINPKT )
    {
       printmsg(0,"gsendpkt: Bad packet size %d, "
                "data length %d",
-               xmitlen[sbu], len);
-      xmitlen[sbu] = MINPKT;
+               xmitlen[swu], len);
+      xmitlen[swu] = MINPKT;
    }
 
-   delta = xmitlen[sbu] - len;
+   delta = xmitlen[swu] - len;
    if (delta > 127)
    {
-      MEMMOVE(outbuf[sbu] + 2, outbuf[sbu], len);
-      MEMSET(outbuf[sbu]+len+2, 0, delta - 2);
+      MEMMOVE(outbuf[swu] + 2, outbuf[swu], len);
+      MEMSET(outbuf[swu]+len+2, 0, delta - 2);
                               /* Pad with nulls.  Ugh.               */
-      outbuf[sbu][0] = (unsigned char) ((delta & 0x7f) | 0x80);
-      outbuf[sbu][1] = (unsigned char) (delta >> 7);
+      outbuf[swu][0] = (unsigned char) ((delta & 0x7f) | 0x80);
+      outbuf[swu][1] = (unsigned char) (delta >> 7);
    } /* if (delta > 127) */
    else if (delta > 0 )
    {
-      MEMMOVE(outbuf[sbu] + 1, outbuf[sbu], len);
-      outbuf[sbu][0] = (unsigned char) delta;
-      MEMSET(outbuf[sbu]+len+1, 0, delta - 1);
+      MEMMOVE(outbuf[swu] + 1, outbuf[swu], len);
+      outbuf[swu][0] = (unsigned char) delta;
+      MEMSET(outbuf[swu]+len+1, 0, delta - 1);
                               /* Pad with nulls.  Ugh.               */
    } /* else if (delta > 0 )  */
 
@@ -921,18 +920,17 @@ short gsendpkt(char *data, short len)
 /*                            Mark packet                             */
 /*--------------------------------------------------------------------*/
 
-   outlen[sbu] = len;
-   ftimer[sbu] = time(nil(time_t));
+   outlen[swu] = len;
+   ftimer[swu] = time(nil(time_t));
    nbuffers++;
 
 /*--------------------------------------------------------------------*/
 /*                              send it                               */
 /*--------------------------------------------------------------------*/
 
-   gspack(DATA, rwl, swu, outlen[sbu], xmitlen[sbu], outbuf[sbu]);
+   gspack(DATA, rwl, swu, outlen[swu], xmitlen[swu], outbuf[swu]);
 
    swu = nextpkt(swu);        /* Bump send window                    */
-   sbu = nextbuf( sbu );      /* Bump to next send buffer            */
 
 #ifdef _DEBUG
    debuglevel = savedebug;
@@ -940,7 +938,7 @@ short gsendpkt(char *data, short len)
 
    return(0);
 
-} /*gsendpkt*/
+} /* gsendpkt */
 
 /*--------------------------------------------------------------------*/
 /*    g e o f p k t                                                   */
@@ -1022,17 +1020,21 @@ static short gmachine(const short timeout )
       unsigned long packet_no = remote_stats.packets;
 
       short pkttype;
-      unsigned rack, rseq, rlen, rbuf, i1;
+      unsigned rack, rseq, rlen, i1;
       time_t now;
 
       if ( debuglevel >= 10 )    /* Optimize processing a little bit */
       {
 
-         printmsg(10, "* send %d %d < W < %d %d, "
-                      "receive %d %d < W < %d, "
+         printmsg(10, "* send %d < W < %d, "
+                      "receive %d < W < %d, "
                       "error %d, packet %d",
-            swl, sbl, swu, sbu, rwl, rbl, rwu, nerr,
-            (long) remote_stats.packets);
+                      swl,
+                      swu,
+                      rwl,
+                      rwu,
+                      nerr,
+                      (long) remote_stats.packets);
 
 /*--------------------------------------------------------------------*/
 /*    Waiting for ACKs for swl to swu-1.  Next pkt to send=swu        */
@@ -1045,9 +1047,10 @@ static short gmachine(const short timeout )
 /*             Attempt to retrieve a packet and handle it             */
 /*--------------------------------------------------------------------*/
 
-      pkttype = grpack(&rack, &rseq, &rlen, inbuf[nextbuf(rbl)], timeout);
+      pkttype = grpack(&rack, &rseq, &rlen, inbuf[nextpkt(rwl)], timeout);
       time(&now);
-      switch (pkttype) {
+      switch (pkttype)
+      {
 
          case CLOSE:
             remote_stats.packets++;
@@ -1071,16 +1074,16 @@ static short gmachine(const short timeout )
                close = TRUE;
             }
 
-            if (ftimer[sbl])
+            if (ftimer[swl])
             {
 #ifdef UDEBUG
-               printmsg(6, "---> seq, elapst %d %ld", sbl,
-                    ftimer[sbl] - now);
+               printmsg(6, "---> seq, elapst %d %ld", swl,
+                    ftimer[swl] - now);
 #endif
-               if ( ftimer[sbl] <= (now - M_gPacketTimeout))
+               if ( ftimer[swl] <= (now - M_gPacketTimeout))
                {
                    printmsg(4, "*** timeout %d (%ld)",
-                               sbl, (long) remote_stats.packets);
+                               swl, (long) remote_stats.packets);
                        /* Since "g" is "go-back-N", when we time out we
                           must send the last N pkts in order.  The generalized
                           sliding window scheme relaxes this reqirment. */
@@ -1098,19 +1101,20 @@ static short gmachine(const short timeout )
          case DATA:
             printmsg(5, "**got DATA %d %d", rack, rseq);
             i1 = nextpkt(rwl);   /* (R+1)%8 <-- -->(R+W)%8 */
-            if (i1 == rseq) {
+            if (i1 == rseq)
+            {
                lazynak--;
                remote_stats.packets++;
                idletimer = now;
                rwl = i1;
-               rbl = nextbuf( rbl );
-               inseq = arrived[rbl] = TRUE;
-               inlen[rbl] = (unsigned short) rlen;
-               printmsg(5, "*** ACK d %d %d", rwl, rbl);
+               inseq = arrived[rwl] = TRUE;
+               inlen[rwl] = (unsigned short) rlen;
+               printmsg(5, "*** ACK d %d", rwl);
                gspack(ACK, rwl, 0, 0, 0, NULL);
                done = TRUE;   /* return to caller when finished      */
                               /* in a mtask system, unneccesary      */
-            } else {
+            }
+            else {
                if (inseq || ( now >= (idletimer + M_gPacketTimeout)))
                {
                   donak = TRUE;  /* Only flag first out of sequence
@@ -1143,12 +1147,11 @@ static short gmachine(const short timeout )
             {                             /* S<-- -->(S+W-1)%8 */
                remote_stats.packets++;
                printmsg(5, "*** ACK %d", swl);
-               ftimer[sbl] = 0;
+               ftimer[swl] = 0;
                idletimer = now;
                nbuffers--;
                done = TRUE;            /* Get more data for input */
                swl = nextpkt(swl);
-               sbl = nextbuf(sbl);
             } /* while */
 
             if (!done && (pkttype == ACK)) /* Find packet?         */
@@ -1178,30 +1181,30 @@ static short gmachine(const short timeout )
 /*--------------------------------------------------------------------*/
 
       if ( resend )
-      for (rack = swl,
-           rbuf = sbl;
+      for (rack = swl;
            between(swl, rack, swu);
-           rack = nextpkt(rack), rbuf = nextbuf( rbuf ))
+           rack = nextpkt(rack) )
       {                          /* resend rack->(swu-1)             */
          resends++;
 
-         if ( outbuf[rbuf] == NULL )
+         if ( outbuf[rack] == NULL )
          {
             printmsg(0,"gmachine: Transmit of NULL packet (%d %d)",
-                     rwl, rbuf);
+                     rwl, rack);
             panic();
          }
 
-         if ( xmitlen[rbuf] == 0 )
+         if ( xmitlen[rack] == 0 )
          {
             printmsg(0,"gmachine: Transmit of 0 length packet (%d %d)",
-                     rwl, rbuf);
+                     rwl, rack);
             panic();
          }
 
-         gspack(DATA, rwl, rack, outlen[rbuf], xmitlen[rbuf], outbuf[rbuf]);
+         gspack(DATA, rwl, rack, outlen[rack], xmitlen[rack], outbuf[rack]);
          printmsg(5, "*** resent %d", rack);
-         idletimer = ftimer[rbuf] = now;
+         idletimer = ftimer[rack] = now;
+
       } /* for */
 
 /*--------------------------------------------------------------------*/
@@ -1267,7 +1270,7 @@ static short gmachine(const short timeout )
    else
       return POK;
 
-} /*gmachine*/
+} /* gmachine */
 
 /*************** FRAMING *****************************/
 
@@ -1312,7 +1315,8 @@ static void gspack(short type,
    header[0] = '\020';
    header[4] = (unsigned char) (type << 3);
 
-   switch (type) {
+   switch (type)
+   {
 
       case CLOSE:
          break;   /* stop protocol */
@@ -1406,7 +1410,8 @@ static void gspack(short type,
 
 #ifdef   LINKTEST
    /***** More Link Testing Mods *****/
-   switch(dpkerr[0]) {
+   switch(dpkerr[0])
+   {
    case 'e':
       data[10] = - data[10];
       break;
@@ -1430,36 +1435,39 @@ static void gspack(short type,
    if (header[1] != 9)
       swrite(data, xmit);
 
-} /*gspack*/
+} /* gspack */
 
-/*
-   g r p a c k
-
-   Read packet
-
-   on return: yyy=pkrec xxx=pksent len=length<=PKTSIZE  data=*data
-
-   ret(type)       ok
-   ret(DCP_EMPTY)  input buf empty
-   ret(DCP_ERROR)  bad header
-
-   ret(DCP_EMPTY)  lost packet timeout
-   ret(DCP_ERROR)  checksum error
-
-   NOTE (specifications for sread()):
-
-   sread(buf, n, timeout)
-      while(TRUE) {
-         if (# of chars available >= n) (without dec internal counter)
-            read n chars into buf (decrement internal char counter)
-            break
-    else
-       if (time > timeout)
-          break;
-      }
-      return(# of chars available)
-
-*/
+/*--------------------------------------------------------------------*/
+/*       g r p a c k                                                  */
+/*                                                                    */
+/*       Read packet                                                  */
+/*                                                                    */
+/*       on return:  yyy=pkrec                                        */
+/*                   xxx=pksent                                       */
+/*                   len=length<=PKTSIZE                              */
+/*                   data=*data                                       */
+/*                                                                    */
+/*       ret(type)       ok                                           */
+/*       ret(DCP_EMPTY)  input buf empty                              */
+/*       ret(DCP_ERROR)  bad header                                   */
+/*                                                                    */
+/*       ret(DCP_EMPTY)  lost packet timeout                          */
+/*       ret(DCP_ERROR)  checksum error                               */
+/*                                                                    */
+/*       NOTE (specifications for sread()):                           */
+/*                                                                    */
+/*          sread(buf, n, timeout)                                    */
+/*          while(TRUE)                                               */
+/*          {                                                         */
+/*             if (# of chars available >= n)                         */
+/*                read n chars into buf                               */
+/*                break                                               */
+/*            else                                                    */
+/*               if (time > timeout)                                  */
+/*                  break;                                            */
+/*          }                                                         */
+/*          return(# of chars available)                              */
+/*--------------------------------------------------------------------*/
 
 static short grpack(unsigned *yyy,
                     unsigned *xxx,
@@ -1563,6 +1571,7 @@ static short grpack(unsigned *yyy,
                                  with next byte                      */
          } /* else */
       } /* if ( received > HDRSIZE ) */
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -1693,11 +1702,13 @@ get_data:
 
    return(type);
 
-} /*grpack*/
+} /* grpack */
 
-/*
-   c h e c k s u m
-*/
+/*--------------------------------------------------------------------*/
+/*       c h e c k s u m                                              */
+/*                                                                    */
+/*       Compute 16 bit checksum on buffer                            */
+/*--------------------------------------------------------------------*/
 
 static unsigned checksum(const char UUFAR *data, unsigned len)
 {
@@ -1706,11 +1717,14 @@ static unsigned checksum(const char UUFAR *data, unsigned len)
    chk1 = 0xffff;
    chk2 = 0;
    j = len;
-   for (i = 0; i < len; i++) {
-      if (chk1 & 0x8000) {
+   for (i = 0; i < len; i++)
+   {
+      if (chk1 & 0x8000)
+      {
          chk1 <<= 1;
          chk1++;
-      } else {
+      }
+      else {
          chk1 <<= 1;
       }
       tmp = chk1;
@@ -1722,4 +1736,4 @@ static unsigned checksum(const char UUFAR *data, unsigned len)
    }
    return(chk1 & 0xffff);
 
-} /*checksum*/
+} /* checksum */
