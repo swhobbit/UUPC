@@ -6,11 +6,38 @@
 /*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
 #include <io.h>
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "hlib.h"
@@ -165,7 +192,7 @@ void HostStatus( void )
          memcpy( host->hstats, &stats , sizeof stats );
       }
       else {
-         printmsg(5,"HostStatus: Bad record length %d (wanted %d), "
+         printmsg(0,"HostStatus: Bad record length %d (wanted %d), "
                     "purging status for host %s",
                     len2, (int) (sizeof *(host->hstats)), buf);
          fread( buf , len2, 1,  stream);
