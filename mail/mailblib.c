@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.5 1993/10/09 20:16:12 rhg Exp $
+ *    $Id: mailblib.c 1.7 1993/10/12 01:32:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.7  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.5  1993/10/09  20:16:12  rhg
  * ANSIy the source
  *
@@ -611,6 +614,8 @@ boolean SelectItems( char **input, int current , int bits)
          hit = success = SetItem( letternum );
       else if (equal( token, "."))
          hit = success = SetItem( current + 1 );
+      else if (equaln( token, "..", 2))   /* Parent directory?       */
+         break;                        /* Yes --> quit loop          */
       else if (strpbrk(token,"@!") != NULL ) /* User id?             */
          break;                  /* Yes --> Exit loop gracefully     */
       else if (isdigit(*token) || (*token == '$') || (*token == '.'))
