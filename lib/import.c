@@ -4,6 +4,22 @@
 /*    File name mapping routines for UUPC/extended                    */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -315,10 +331,15 @@ void importpath(char *local, char const *canon, char const *remote)
 /*              Now convert each simple name in the path              */
 /*--------------------------------------------------------------------*/
 
-      while ( (s != NULL) && (strlen(s) > 1))
+      while ( *in )
       {
-         *s = '\0';           /* Truncate input string to simple name */
+         if ( s != NULL )
+            *s = '\0';        /* Truncate input string to simple name */
+
          ImportName( out, in , charsetsize );
+
+         if ( s == NULL )
+            break;
          out = out + strlen( out );
          *out++ = *s++ = '/'; /* Restore path to input and output    */
          in = s;              /* Remember start of this simple name  */
@@ -326,13 +347,6 @@ void importpath(char *local, char const *canon, char const *remote)
             in++;             /* Skip them,  they mean nothing       */
          s = strchr( in , '/' );
       }
-
-/*--------------------------------------------------------------------*/
-/*                 Handle the last part of the string                 */
-/*--------------------------------------------------------------------*/
-
-      if ( s == NULL )        /* If not a slash at end of path ...   */
-         ImportName( out, in, charsetsize );
 
    } /* else */
 
