@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.36 1994/12/22 00:34:53 ahd Exp $
+ *      $Id: dcpgpkt.c 1.37 1995/01/07 16:38:17 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.37  1995/01/07 16:38:17  ahd
+ *      Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *      Revision 1.36  1994/12/22 00:34:53  ahd
  *      Annual Copyright Update
  *
@@ -271,8 +274,8 @@ static unsigned nwindows;
 static char UUFAR outbuf[NBUF][MAXPACK];
 static char UUFAR inbuf[NBUF][MAXPACK];
 static time_t ftimer[NBUF];
-static short timeouts, outsequence, naksin, naksout, screwups;
-static short reinit, shifts, badhdr, resends;
+static long timeouts, outsequence, naksin, naksout, screwups;
+static long reinit, shifts, badhdr, resends;
 
 static KWBoolean variablepacket;  /* "v" or in modem file             */
 
@@ -752,12 +755,19 @@ static void gstats( void )
    if ( remote_stats.errors || badhdr )
    {
       printmsg(0,
-         "%d time outs, %d port reinits, %d out of seq pkts, "
-         "%d NAKs rec, %d NAKs sent",
-            timeouts, reinit, outsequence, naksin, naksout);
+         "%ld time outs, %ld port reinits, %ld out of seq pkts, "
+         "%ld NAKs rec, %ld NAKs sent",
+            (long) timeouts,
+            (long) reinit,
+            (long) outsequence,
+            (long) naksin,
+            (long) naksout);
       printmsg(0,
-         "%d invalid pkt types, %d re-syncs, %d bad pkt hdrs, %d pkts resent",
-            screwups, shifts, badhdr, resends);
+         "%ld invalid pkt types, %ld re-syncs, %ld bad pkt hdrs, %ld pkts resent",
+            (long) screwups,
+            (long) shifts,
+            (long) badhdr,
+            (long) resends);
    } /* if ( remote_stats.errors || shifts || badhdr ) */
 
 } /* gstats */
