@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.8 1997/04/24 01:30:05 ahd v1-12u $
+ *    $Id: pnews.cmd 1.9 1998/03/01 01:32:25 ahd v1-13b $
  *
  *    $Log: pnews.cmd $
+ *      Revision 1.9  1998/03/01  01:32:25  ahd
+ *      Annual Copyright Update
+ *
  *    Revision 1.8  1997/04/24 01:30:05  ahd
  *    Annual Copyright Update
  *

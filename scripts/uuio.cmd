@@ -1,7 +1,10 @@
 /*
- *       $Id: uuio.cmd 1.6 1997/04/24 01:30:23 ahd v1-12u $
+ *       $Id: uuio.cmd 1.7 1998/03/01 01:32:44 ahd v1-13b $
  *
  *       $Log: uuio.cmd $
+ *      Revision 1.7  1998/03/01  01:32:44  ahd
+ *      Annual Copyright Update
+ *
  *       Revision 1.6  1997/04/24 01:30:23  ahd
  *       Annual Copyright Update
  *

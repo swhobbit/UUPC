@@ -11,9 +11,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: getuupc.cmd 1.6 1994/01/18 13:31:15 ahd v1-13a $
+ *       $Id: getuupc.cmd 1.7 1998/05/11 01:27:03 ahd v1-13b $
  *
  *       $Log: getuupc.cmd $
+ *      Revision 1.7  1998/05/11  01:27:03  ahd
+ *      Add distinct log directory
+ *
  *       Revision 1.6  1994/01/18 13:31:15  ahd
  *       Use pos() to detect lack of leading path; verify() didn't seem to work!
  *

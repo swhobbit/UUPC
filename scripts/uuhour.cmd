@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuhour.cmd 1.4 1997/04/24 01:30:18 ahd v1-12u $
+ *       $Id: uuhour.cmd 1.5 1998/03/01 01:32:40 ahd v1-13b $
  *
  *       $Log: uuhour.cmd $
+ *      Revision 1.5  1998/03/01  01:32:40  ahd
+ *      Annual Copyright Update
+ *
  *       Revision 1.4  1997/04/24 01:30:18  ahd
  *       Annual Copyright Update
  *

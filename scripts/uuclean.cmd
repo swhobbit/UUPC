@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.14 1997/05/03 17:11:13 ahd v1-13a $
+ *       $Id: uuclean.cmd 1.15 1998/05/11 01:27:03 ahd v1-13b $
  *
  *       $Log: uuclean.cmd $
+ *      Revision 1.15  1998/05/11  01:27:03  ahd
+ *      Add distinct log directory
+ *
  *       Revision 1.14  1997/05/03 17:11:13  ahd
  *       Up limit for rotation to 50K
  *

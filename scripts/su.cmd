@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.11 1997/04/24 01:30:11 ahd v1-12u $
+ *       $Id: su.cmd 1.12 1998/03/01 01:32:31 ahd v1-13b $
  *
  *       $Log: su.cmd $
+ *      Revision 1.12  1998/03/01  01:32:31  ahd
+ *      Annual Copyright Update
+ *
  *       Revision 1.11  1997/04/24 01:30:11  ahd
  *       Annual Copyright Update
  *

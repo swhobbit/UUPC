@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: waiting.cmd 1.11 1997/04/24 01:30:28 ahd v1-12u $
+ *       $Id: waiting.cmd 1.12 1998/03/01 01:32:48 ahd v1-13b $
  *
  *       $Log: waiting.cmd $
+ *      Revision 1.12  1998/03/01  01:32:48  ahd
+ *      Annual Copyright Update
+ *
  *       Revision 1.11  1997/04/24 01:30:28  ahd
  *       Annual Copyright Update
  *
