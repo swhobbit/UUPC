@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.57 1997/11/21 16:06:43 ahd Exp $
+ *    $Id: uuxqt.c 1.58 1997/11/24 02:58:14 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.58  1997/11/24 02:58:14  ahd
+ *    Don't allow non-mail programs to call checkname(), which could use
+ *    uninitialized local domain name.
+ *
  *    Revision 1.57  1997/11/21 16:06:43  ahd
  *    Invert security check for non-local files to deny if
  *    check passes.
@@ -1282,6 +1286,8 @@ static int shell(char *command,
    char   *cmdname;
    char   *parameters;
 
+   static char missing_address[] = "address-missing-on-rmail-command-line";
+
    if (xflag[X_USEEXEC])
       printmsg(2, "exec(2) not supported, executing using spawn");
 
@@ -1373,6 +1379,13 @@ static int shell(char *command,
 
    else if (equal(cmdname,RMAIL) && ( inname != NULL )) /* rmail w/input?  */
    {
+      /* rmail with no parameters is an remote error, we force it
+         into an invalid address which causes a bounce message
+         and prevents the tokenizing code below from crashing        */
+
+      if ( parameters == NULL )
+         parameters = missing_address;
+
       for ( ;; )
       {
 
