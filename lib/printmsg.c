@@ -1,18 +1,28 @@
 /*--------------------------------------------------------------------*/
 /*    p r i n t m s g . c                                             */
 /*                                                                    */
-/*    Support routines for UUPC/extended                              */
+/*    Logging routines for UUPC/extended                              */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.4 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: printmsg.c 1.5 1993/10/12 00:47:04 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.5  1993/10/12  00:47:04  ahd
+ *     Normalize comments
+ *
  *     Revision 1.4  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support
@@ -34,14 +44,13 @@
 
 #ifdef __CORE__
 #define __HEAPCHECK__
+#elif defined(__HEAPCHECK__)
+#define __CORELEFT__
+#define __ENVCHECK__
 #endif
 
-#ifdef __HEAPCHECK__
+#if defined(__HEAPCHECK__) || defined(__CORELEFT__) || defined(__ENVCHECK__)
 #include <alloc.h>
-#else
-#ifdef __CORELEFT__
-#include <alloc.h>
-#endif
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -85,11 +94,120 @@ char  *copywrong = NULL;
 char *full_log_file_name = "UUPC log file";
 
 /*--------------------------------------------------------------------*/
+/*             Internal debugging for environment failure             */
+/*--------------------------------------------------------------------*/
+
+#ifdef __ENVCHECK__
+
+static char UUFAR *myEnv[200];
+static char UUFAR *saveEnv[200];
+
+/*--------------------------------------------------------------------*/
+/*       p r i n t e n v                                              */
+/*                                                                    */
+/*       Print saved and current environment strings                  */
+/*--------------------------------------------------------------------*/
+
+static void printEnv( void )
+{
+   int subscript1 = 0;
+   int subscript2 = 0;
+   static boolean changed = FALSE;
+
+   static char UUFAR envBuf[32768];
+   static size_t offset = 0;
+
+   if ( offset > sizeof envBuf / 2 )
+      offset = 0;
+
+   printmsg(0,"Dumping environments at %Fp and %p ...", myEnv, environ);
+
+   while( (myEnv[subscript1] && _fstrlen(myEnv[subscript1])) ||
+         strlen(environ[subscript2]) )
+   {
+      int diff = (myEnv[subscript1] == 0) ||
+                 _fstrcmp( myEnv[subscript1], environ[subscript2] );
+
+      if ( diff && changed )
+         printmsg(0,
+            "Saved: %Fp: %-22.22Fs Current: %p: %.22s",
+            saveEnv[subscript1],
+            (char far *) (myEnv[subscript1]  ? myEnv[subscript1] : "*n/a*"),
+            environ[subscript2],
+            environ[subscript2]  ? environ[subscript2] : "*n/a*" );
+
+/*--------------------------------------------------------------------*/
+/*              Copy the new variable value as required               */
+/*--------------------------------------------------------------------*/
+
+      saveEnv[subscript2] = environ[subscript2];
+      if ( environ[subscript2] )
+      {
+         if ( diff || ( myEnv[subscript1] > ( envBuf + offset )))
+         {
+            myEnv[subscript1] = _fstrcpy( envBuf + offset,
+                                          environ[subscript2] );
+            offset += strlen(environ[subscript2]) + 1;
+         }
+         subscript2++;
+      }
+      else
+         myEnv[subscript1] = 0;
+      subscript1++;
+
+   } /* while */
+
+   myEnv[subscript1] = 0;
+
+   printmsg(0,"%d entries in local copy, %d entries in live copy",
+               subscript1, subscript2 );
+
+   changed = TRUE;               /* After first pass, always report  */
+
+} /* printEnv */
+
+/*--------------------------------------------------------------------*/
+/*       c h e c k e n v                                              */
+/*                                                                    */
+/*       Detect changed environment                                   */
+/*--------------------------------------------------------------------*/
+
+static void checkEnv( void )
+{
+   int subscript = 0;
+   static boolean recurse = FALSE;
+
+   if ( recurse )
+      return;
+
+   recurse = TRUE;
+
+   while( myEnv[subscript] && environ[subscript] )
+   {
+      if ( !_fstrcmp( myEnv[subscript], environ[subscript] ))
+         subscript++;
+      else
+         break;
+
+   } /* while */
+
+/*--------------------------------------------------------------------*/
+/*              If environments different length, report              */
+/*--------------------------------------------------------------------*/
+
+   if ( myEnv[subscript] || environ[subscript] )
+      printEnv();
+
+   recurse = FALSE;
+
+}  /* checkEnv */
+
+#endif
+
+/*--------------------------------------------------------------------*/
 /*   p r i n t m s g                                                  */
 /*                                                                    */
 /*   Print an error message if its severity level is high enough.     */
-/*   Print message on standard output if not in remote mode           */
-/*   (call-in).  Always log the error message into the log file.      */
 /*                                                                    */
 /*   Modified by ahd 10/01/89 to check for Turbo C NULL pointers      */
 /*   being de-referenced anywhere in program.  Fixed 12/14/89         */
@@ -123,6 +241,7 @@ void printmsg(int level, char *fmt, ...)
       putchar('\a');
       debuglevel = level;  /* Force this last message to print ahd    */
    }
+
 #endif
 
 
@@ -183,6 +302,9 @@ void printmsg(int level, char *fmt, ...)
       }
 #endif
 
+#ifdef __ENVCHECK__
+      checkEnv();
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                        Massive debug mode?                         */
