@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.4 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: mailsend.c 1.5 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.5  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.4  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -954,7 +957,7 @@ static void filter( char *tmailbag, char *command)
       printerr( pipename );
    }
    else if( statbuf.st_size == 0 )  /* Anything in the file?      */
-      printf("Outfile file is empty!\n");
+      printf("Output file %s is empty!\n", pipename);
    else {                  /* Good output, replace input file     */
       remove( tmailbag );
       if (rename( pipename, tmailbag ))
