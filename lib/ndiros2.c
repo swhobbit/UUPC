@@ -1,4 +1,26 @@
 /*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.4 1993/03/06 23:09:50 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+static const char rcsid[] =
+            "$Id$";
+
+/*--------------------------------------------------------------------*/
 /*    ndir.c for MS-DOS by Samuel Lam <skl@van-bc.UUCP>, June/87      */
 /*    ndir.c for MS-OS2 by Drew Derbyshire (help@kendra.kew.com>,     */
 /*           April/91                                                 */
@@ -6,11 +28,16 @@
 /*         Berkeley-style directory reading routine on MS-OS2         */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
@@ -23,8 +50,11 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#define FAMILY_API
+
 #include "lib.h"
-#include "ndir.h"
+#include "uundir.h"
+#include "dos2unix.h"
 
 static HDIR dir_handle;
 static char *pathname = NULL;
@@ -122,6 +152,9 @@ struct direct *readdir(DIR *dirp)
       dirp->dirent.d_namlen = findbuf.cchName;
       dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
+      dirp->dirent.d_modified = dos2unix( findbuf.fdateLastWrite,
+                                         findbuf.ftimeLastWrite );
+
       printmsg(4,"readdir: Returning \"%s\"", dirp->dirent.d_name);
       return &(dirp->dirent);
    }

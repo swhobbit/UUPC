@@ -22,8 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "ndir.h"
+#include "uundir.h"
 #include "getdta.h"
+
+#ifndef __TURBOC__
+#include "dos2unix.h"
+#endif
 
 #ifndef __TURBOC__
 #include "getdta.h"           /* Custom versions of Disk Xfer Addr
@@ -46,7 +50,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 {
    union REGS inregs, outregs;
    struct SREGS segregs;
-   char pathname[128];
+   char pathname[FILENAME_MAX];
    DTA far *dtasave;
    DTA far *dtaptr;
    char far *pathptr;
@@ -157,6 +161,9 @@ struct direct *readdir(DIR *dirp)
    dirp->dirent.d_namlen = strlen(dirp->dirent.d_name);
    dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
       ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
+
+   dirp->dirent.d_modified = dostounix( dirp->dirdta.filedate,
+                                        dirp->dirdta.filetime );
 
    return &(dirp->dirent);
 
