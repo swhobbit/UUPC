@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.41 1995/01/07 16:42:05 ahd Exp $
+ *    $Id: uuxqt.c 1.42 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.42  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.41  1995/01/07 16:42:05  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -962,7 +965,9 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
       if ( ! reject &&
-   //      ! equalni( command,"uucp ", 5) && /* Known to be secure   */
+#ifdef UUCP_SECURE
+           ! equalni( command,"uucp ", 5) && /* Known to be secure   */
+#endif
            ! equalni( command,"rmail ", 6))  /* Known to be secure   */
       {
          char *next;

@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.10 1994/12/22 00:11:31 ahd Exp $
+ *    $Id: strpool.c 1.11 1995/01/09 12:35:15 ahd Exp $
  *
  *    $Log: strpool.c $
+ *    Revision 1.11  1995/01/09 12:35:15  ahd
+ *    Correct VC++ compiler warnings
+ *
  *    Revision 1.10  1994/12/22 00:11:31  ahd
  *    Annual Copyright Update
  *
@@ -84,9 +87,9 @@ static int pools      = 0;
 #ifdef UDEBUG
 
 static int strings    = 0;
-static int used       = 0;
 static int duplicates = 0;
-static int saved      = 0;
+static long used      = 0;
+static long saved     = 0;
 
 #endif
 
@@ -170,14 +173,14 @@ char *strpool( const char *input , const char *file, size_t line)
          while( target < bufend )
          {
             int target_len = (unsigned char) *target++;
-            int diff =  target_len - len;
+            int diff =  target_len - (int) len;
 
             if ((diff >= 0 ) && equal( target + diff, input))
             {
 
 #ifdef UDEBUG
                duplicates ++;
-               saved += len + 1;
+               saved += (long) len + 2;
 #endif
                return target+diff;
             }
@@ -192,7 +195,7 @@ char *strpool( const char *input , const char *file, size_t line)
 /*    to allocate the string from scratch                             */
 /*--------------------------------------------------------------------*/
 
-      available = pool_size - current->used;
+      available = (int) (pool_size - current->used);
 
       if (( available < (int) best_fit) && (available > (int) (len+1) ))
       {
@@ -249,7 +252,7 @@ char *strpool( const char *input , const char *file, size_t line)
 
 #ifdef UDEBUG
    strings ++;
-   used    += len + 2;
+   used    += (long) len + 2;
 #endif
 
    return result;
@@ -302,12 +305,12 @@ void dump_pool( void )
    STR_QUEUE *current = anchor;
    int buffers = 0;
 
-   printmsg(3,"Allocated %d bytes in %d strings "
+   printmsg(3,"Allocated %ld bytes in %d strings "
               "requiring %d pools of %d bytes each",
               used, strings, pools, pool_size );
 
    if ( duplicates )
-      printmsg(3,"Saved %d bytes in %d redundant strings",
+      printmsg(3,"Saved %ld bytes in %d redundant strings",
                saved, duplicates);
 
    if ( debuglevel >= 5 )

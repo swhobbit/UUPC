@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.17 1995/01/07 16:41:55 ahd Exp $
+ *    $Id: uux.c 1.18 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.18  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.17  1995/01/07 16:41:55  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -835,9 +838,9 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
 /*                     create remote X (xqt) file                     */
 /*--------------------------------------------------------------------*/
 
-   sprintf(rxfile, dataf_fmt, 'X', E_nodename, sequence_s, subseq());
    sprintf(lxfile, dataf_fmt, d_remote ? 'D' : 'X', E_nodename,
            sequence_s, subseq());
+   sprintf(rxfile, dataf_fmt, 'X', E_nodename, sequence_s, subseq());
 
    importpath( msname, lxfile, dest_system);
    mkfilename( msfile, E_spooldir, msname);
@@ -1258,7 +1261,7 @@ void main(int  argc, char  **argv)
 } /* main */
 
 /*--------------------------------------------------------------------*/
-/*    s u b s e q                                                    */
+/*    s u b s e q                                                     */
 /*                                                                    */
 /*    Generate a valid sub-sequence number                            */
 /*--------------------------------------------------------------------*/

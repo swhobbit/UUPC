@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.13 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: getseq.c 1.14 1995/02/15 01:56:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.14  1995/02/15 01:56:18  ahd
+ *    Warn if sequence number is reset
+ *
  *    Revision 1.13  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -95,11 +98,11 @@ long getSeq()
 
    mkfilename(seqfile, E_spooldir, SFILENAME);
 
-   if ((stream = FOPEN(seqfile, "r+",TEXT_MODE)) == nil(FILE))
+   if ((stream = FOPEN(seqfile, "r+", IMAGE_MODE)) == nil(FILE))
    {
       printerr( seqfile );
 
-      if ((stream = FOPEN(seqfile, "w",TEXT_MODE)) == nil(FILE))
+      if ((stream = FOPEN(seqfile, "w", IMAGE_MODE)) == nil(FILE))
       {
          printerr( seqfile );
          panic();

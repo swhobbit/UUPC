@@ -8,14 +8,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: fmt.c 1.6 1995/01/30 04:08:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.6  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.5  1994/12/09 03:42:09  ahd
  *    Include configuration to allow suppressing beep
  *
@@ -38,7 +49,8 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
+static const char rcsid[] =
+      "$Id: fmt.c 1.6 1995/01/30 04:08:36 ahd Exp $";
 
 #include <ctype.h>
 
@@ -66,9 +78,6 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
 
    banner( argv );
 
-   if (!configure( B_GENERIC ))
-      exit(1);                      /* Configuration load failed     */
-
 /*--------------------------------------------------------------------*/
 /*                            Handle help                             */
 /*--------------------------------------------------------------------*/
@@ -93,7 +102,9 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
     if (argx == argc)
       input = stdin;
     else {
+
       input = fopen(argv[argx++],"r");
+
       if (input == NULL)
       {
          perror(argv[--argx]);
@@ -108,7 +119,9 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
     if (argx == argc )
       output = stdout;
     else {
+
       output = fopen(argv[argx++],"w");
+
       if (output == NULL)
       {
          perror(argv[--argx]);
@@ -123,6 +136,7 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
     while( fgets(buf, BUFSIZ, input) != NULL )
     {
       char *token = strtok(buf, " \t\n");
+
       if (token == NULL )
       {
          fputc('\n',output);
@@ -130,8 +144,10 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
       }
       else while(token != NULL)
       {
+
          register int toklen = (int) strlen(token);
          width = toklen + width + 1 + punct;
+
          if (width > max(maxwidth, toklen + 1))
          {
             fputc('\n',output);
@@ -139,19 +155,26 @@ static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
             punct = 0;
          }
          else {
+
             if (width > (toklen + 1))
             {
                fputc(' ',output);
                if (punct)
                   fputc(' ',output);
+
             }
             else
                width = toklen;
+
             punct = ispunct( token[toklen - 1] ) ? 1 : 0;
+
          } /* else */
+
          fputs(token, output);
          token = strtok(NULL, " \t\n");
+
       } /* else while */
+
    } /* while */
 
    if (ferror(input))

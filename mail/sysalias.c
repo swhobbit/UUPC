@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.9 1995/01/07 16:19:27 ahd Exp $
+ *    $Id: sysalias.c 1.10 1995/01/08 19:52:44 ahd Exp $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.10  1995/01/08 19:52:44  ahd
+ *    Add in memory files to RMAIL, including additional support and
+ *    bug fixes.
+ *
  *    Revision 1.9  1995/01/07 16:19:27  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -127,7 +131,7 @@ static void InitAlias( void )
 {
    char buf[BUFSIZ];
    int subscript  = -1;
-   int maxaliases = 64;
+   size_t maxmimumAliases = 64;
    KWBoolean inAlias = KWFalse;
    FILE *stream;
    long here;
@@ -153,7 +157,7 @@ static void InitAlias( void )
 /*                 The file is open, allocate a table                 */
 /*--------------------------------------------------------------------*/
 
-   aliasTable = malloc( sizeof *aliasTable * maxaliases );
+   aliasTable = malloc( sizeof *aliasTable * maxmimumAliases );
 
    here = ftell( stream );       /* Remember location in file        */
 
@@ -208,11 +212,11 @@ static void InitAlias( void )
             continue;
          }
 
-         if ( subscript+2 == maxaliases )
+         if ( subscript+2 == (int) maxmimumAliases )
          {
-            maxaliases *= 2;
+            maxmimumAliases *= 2;
             aliasTable = realloc( aliasTable,
-                                  maxaliases * sizeof *aliasTable );
+                                  maxmimumAliases * sizeof *aliasTable );
             checkref( aliasTable );
          }
 

@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.8 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: gensig.c 1.9 1995/01/29 16:43:03 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.9  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.8  1994/12/09 03:42:09  ahd
  *    Include configuration to allow suppressing beep
  *
@@ -55,7 +58,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.8 1994/12/09 03:42:09 ahd v1-12k $";
+static char rcsid[] = "$Id: gensig.c 1.9 1995/01/29 16:43:03 ahd Exp ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -298,15 +301,15 @@ static long chooseit( struct stat *current_status,
                                  length                              */
 
          quote = chooseavailable( quoteused, quotes);
+         printf("Chose quote %ld of %ld from %s for %s:\n\n",
+                  quote + 1 , quotes, fname, target);
+                              /* Announce number of quote of the day */
 
          fseek( stream, (long) quote * sizeof where , SEEK_CUR );
                               /* Step required number of quotes
                                  into the file                       */
          fread( &where, sizeof where, 1, stream);
                               /* Read offset in data file of quote   */
-         printf("Chose quote %ld of %ld from %s for %s:\n\n",
-                  quote + 1 , quotes, fname, target);
-                              /* Announce number of quote of the day */
          fclose( stream );    /* Done with lookaside file, of course */
          return where;        /* Return position in file to caller   */
 

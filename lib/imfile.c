@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.10 1995/01/28 22:07:13 ahd Exp $
+ *    $Id: imfile.c 1.11 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.11  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.10  1995/01/28 22:07:13  ahd
  *    Add chsize function
  *
@@ -858,7 +861,7 @@ int imunload( FILE *output, IMFILE *imf )
    {
       size_t bytes = imread( ioBuf, sizeof (char), ioBufSize, imf );
 
-      if ((imerror( imf ) || ((long) bytes < 0)))
+      if (imerror( imf ))
       {
          free(ioBuf);
          return -1;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.10 1994/12/22 00:09:34 ahd Exp $
+ *    $Id: mkmbox.c 1.11 1995/01/07 16:13:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *    Revision 1.11  1995/01/07 16:13:16  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.10  1994/12/22 00:09:34  ahd
  *    Annual Copyright Update
  *
@@ -70,7 +73,7 @@ currentfile();
 
 char *mkmailbox(char *buf, const char *userid)
 {
-   KWBoolean append = ( E_mailext != NULL );
+   KWBoolean append = (KWBoolean) (( E_mailext != NULL ) ? KWTrue : KWFalse);
 
    if (buf == NULL)           /* Do we need to allocate buffer?       */
    {

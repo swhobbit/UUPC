@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title.c 1.3 1994/05/31 00:08:11 ahd v1-12k $
+ *    $Id: title.c 1.4 1994/12/22 00:11:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: title.c $
+ *    Revision 1.4  1994/12/22 00:11:42  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/05/31 00:08:11  ahd
  *    Add missing title.h header file
  *
@@ -36,6 +39,8 @@
 /*                        System header files                         */
 /*--------------------------------------------------------------------*/
 
+#include <stdarg.h>
+
 #include "uupcmoah.h"
 #include "title.h"
 #include "timestmp.h"
@@ -43,7 +48,6 @@
 #ifdef _Windows
 #include <windows.h>
 #include <winutil.h>
-#include <stdarg.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -75,6 +79,28 @@ void setTitle( const char *fmt, ... )
    va_end( arg_ptr );
 
    SetWindowText(hOurWindow, buf);
+#else
+
+#ifdef DOSTITLE
+   va_list arg_ptr;
+   static char escape = 0x1b;
+   fprintf( stderr, "\n\n\n\n");    /* Insure three empty lines      */
+   fprintf( stderr, "%c[3A", escape );
+                                    /* Up three lines                */
+   fprintf( stderr, "%c[s%c[1;1f", escape, escape );
+                                    /* Save cursor pos, home cursor  */
+   fprintf( stderr, "%c[0K", escape );
+                                    /* Delete to end of line         */
+
+   fprintf( stderr, "%s: ", compilen );
+
+   va_start(arg_ptr,fmt);
+   vfprintf( stderr, fmt, arg_ptr );
+   va_end( arg_ptr );
+
+   fprintf( stderr, "%c[u", escape );  /* restore cursor position    */
+#endif
+
 #endif
 
 } /* setTitle */

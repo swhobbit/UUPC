@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.17 1995/01/07 16:41:26 ahd Exp $
+ *    $Id: uucp.c 1.18 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.18  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.17  1995/01/07 16:41:26  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -320,6 +323,35 @@ int   do_uux(char *remote,
 } /* do_uux */
 
 /*--------------------------------------------------------------------*/
+/*    s u b s e q                                                     */
+/*                                                                    */
+/*    Generate a valid sub-sequence number                            */
+/*--------------------------------------------------------------------*/
+
+static char subseq( void )
+{
+   static char next = '0' - 1;
+
+   switch( next )
+   {
+      case '9':
+         next = 'A';
+         break;
+
+      case 'Z':
+         next = 'a';
+         break;
+
+      default:
+         next += 1;
+   } /* switch */
+
+   printmsg(4,"subseq: Next subsequence is %c", next);
+   return next;
+
+} /* subseq */
+
+/*--------------------------------------------------------------------*/
 /*    d o _ c o p y                                                   */
 /*                                                                    */
 /*    At this point only one of the systems can be remote and only    */
@@ -345,7 +377,6 @@ int   do_copy(char *src_syst,
       struct  stat    statbuf;
       DIR *dirp = NULL;
       struct direct *dp = NULL;
-      char subseq = 'A';
       KWBoolean makeDirectory = KWTrue;  /* May need to build spool dir  */
 
       long    int     sequence;
@@ -467,7 +498,7 @@ int   do_copy(char *src_syst,
 
             if (spool_flag)
             {
-               sprintf(idfile, spool_fmt, 'D', E_nodename, (char) subseq++,
+               sprintf(idfile, spool_fmt, 'D', E_nodename, (char) subseq(),
                            sequence_s);
                importpath(work, idfile, remote_syst);
                mkfilename(idfilename, E_spooldir, work);
