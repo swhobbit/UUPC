@@ -26,13 +26,16 @@
 */
 
 /*
- *      $Id$
+ *      $Id: DCPGPKT.C 1.3 1992/11/16 02:10:27 ahd Exp $
  *
- *      $Log$
+ *      $Log: DCPGPKT.C $
+ * Revision 1.3  1992/11/16  02:10:27  ahd
+ * Rewrite protocol initialize to insure full exchange of packets
+ *
  */
 
 static const char rcsid[] =
-        "$Id$";
+        "$Id: DCPGPKT.C 1.3 1992/11/16 02:10:27 ahd Exp $";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -298,7 +301,38 @@ static int initialize(const boolean caller, const char protocol )
    state = caller ? I_CALLER : I_CALLEE;
 
 /*--------------------------------------------------------------------*/
-/*    INIT sequence.                                                  */
+/*    Exchange initialization messages with the other system.         */
+/*                                                                    */
+/*    A problem:                                                      */
+/*                                                                    */
+/*    We send INITA; it gets received                                 */
+/*    We receive INITA                                                */
+/*    We send INITB; it gets garbled                                  */
+/*    We receive INITB                                                */
+/*                                                                    */
+/*    We have seen and sent INITB, so we start to send INITC.  The    */
+/*    other side as sent INITB but not seen it, so it times out       */
+/*    and resends INITB.  We will continue sending INITC and the      */
+/*    other side will continue sending INITB until both sides give    */
+/*    up and start again with INITA.                                  */
+/*                                                                    */
+/*    It might seem as though if we are sending INITC and receive     */
+/*    INITB, we should resend our INITB, but this could cause         */
+/*    infinite echoing of INITB on a long-latency line.  Rather       */
+/*    than risk that, I have implemented a fast drop-back             */
+/*    procedure.  If we are sending INITB and receive INITC, the      */
+/*    other side has gotten ahead of us.  We immediately fail and     */
+/*    begin again with INITA.  For the other side, if we are          */
+/*    sending INITC and see INITA, we also immediately fail back      */
+/*    to INITA.                                                       */
+/*                                                                    */
+/*    Unfortunately, this doesn't work for the other case, in         */
+/*    which we are sending INITB but the other side has not yet       */
+/*    seen INITA.  As far as I can see, if this happens we just       */
+/*    have to wait until we time out and resend INITA.                */
+/*                                                                    */
+/*    (The above also quoted verbatim from Ian Taylor; however, the   */
+/*    code and associated bugs are all Drew's)                        */
 /*--------------------------------------------------------------------*/
 
    while( state != I_COMPLETE )
@@ -330,7 +364,7 @@ static int initialize(const boolean caller, const char protocol )
                   break;
 
                case EMPTY:
-                  printmsg(5, "**got EMPTY");
+                  printmsg(GDEBUG, "**got EMPTY");
                   state = I_EMPTY;
                   break;
 
@@ -338,7 +372,6 @@ static int initialize(const boolean caller, const char protocol )
                   printmsg(GDEBUG, "**got CLOSE");
                   gspack(CLOSE, 0, 0, 0, 0, NULL);
                   return FAILED;
-                  break;
 
                default:
                   printmsg(GDEBUG, "**got SCREW UP");
