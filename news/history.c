@@ -11,10 +11,13 @@
  * Created: Sun Aug 15 1993
  */
 
-static char *rcsid = "$Id$";
-static char *rcsrev = "$Revision$";
+static char *rcsid = "$Id: history.c,v 1.1 1993/09/05 10:56:49 rommel Exp rommel $";
+static char *rcsrev = "$Revision: 1.1 $";
 
-/* $Log$ */
+/* $Log: history.c,v $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -145,7 +148,7 @@ int add_histentry(void *hdbm_file, char *messageID, char *hist_record)
   datum key, val;
 
   if (hdbm_file == NULL)
-    return;
+    return FALSE;
 
   key.dptr = messageID;
   key.dsize = strlen(key.dptr) + 1;
@@ -169,7 +172,7 @@ int delete_histentry(void *hdbm_file, char *messageID)
   datum key;
 
   if (hdbm_file == NULL)
-    return;
+    return FALSE;
 
   key.dptr = messageID;
   key.dsize = strlen(key.dptr) + 1;
