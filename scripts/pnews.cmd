@@ -22,7 +22,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1999 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.9 1998/03/01 01:32:25 ahd v1-13b $
+ *    $Id: pnews.cmd 1.10 1998/05/18 12:25:09 ahd v1-13f $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.10  1998/05/18 12:25:09  ahd
+ *    Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.9  1998/03/01  01:32:25  ahd
  *      Annual Copyright Update
  *

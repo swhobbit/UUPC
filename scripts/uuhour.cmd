@@ -15,15 +15,18 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1998 by Kendra Electronic Wonderworks, all   */
+/*    Copyright (c) 1989-1999 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those granted by the UUPC/extended       */
 /*    license.                                                        */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuhour.cmd 1.5 1998/03/01 01:32:40 ahd v1-13b $
+ *       $Id: uuhour.cmd 1.6 1998/05/18 12:25:09 ahd v1-13f $
  *
  *       $Log: uuhour.cmd $
+ *       Revision 1.6  1998/05/18 12:25:09  ahd
+ *       Correct end-of-line character from linefeed to CR/LF
+ *
  *      Revision 1.5  1998/03/01  01:32:40  ahd
  *      Annual Copyright Update
  *
