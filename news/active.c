@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.20 1995/08/27 23:33:15 ahd Exp $
+ *    $Id: active.c 1.21 1995/09/04 02:13:41 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.21  1995/09/04 02:13:41  ahd
+ *    Move news group tree to FAR memory in 16 bit systems
+ *
  *    Revision 1.20  1995/08/27 23:33:15  ahd
  *    Load and use ACTIVE file as tree structure
  *
@@ -35,13 +38,7 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
-
-#ifdef __TURBOC__
-#include <mem.h>
-#include <alloc.h>
-#else
 #include <malloc.h>
-#endif
 
 #include "active.h"
 
@@ -456,8 +453,10 @@ addGroup( const char *group,
 
 #ifdef UDEBUG
          parents++;
+#endif
 
-         printmsg(8,"Comparing \"%s\" == \"%s\" for %d",
+#ifdef UDEBUG2
+         printmsg(12,"Comparing \"%s\" == \"%s\" for %d",
                      fullName,
                      group,
                      length);
@@ -474,11 +473,11 @@ addGroup( const char *group,
          {
             level = (char *) group + length;
 
-#ifdef UDEBUG
+#ifdef UDEBUG2
 #ifdef BIT32ENV
-            printmsg(7,"Making level %s under %s next to %s",
+            printmsg(17,"Making level %s under %s next to %s",
 #else
-            printmsg(7,"Making level %fs under %s next to %fs",
+            printmsg(17,"Making level %fs under %s next to %fs",
 #endif
                        level,
                        current->parent->name,
@@ -688,6 +687,14 @@ findGroup( const char *group )
       }
 
    } /* while ( name != NULL ) */
+
+   if ( current == NULL )
+   {
+#ifdef UDEBUG
+      printmsg(6,"findGroup: Did not find group %s", group );
+#endif
+      return NULL;
+   }
 
 /*--------------------------------------------------------------------*/
 /*     We have the node, return it if valid, other report failure     */
