@@ -15,9 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.24 1994/04/24 20:35:08 ahd Exp $
+ *    $Id: import.c 1.25 1994/06/05 01:57:26 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.25  1994/06/05  01:57:26  ahd
+ *     Trap NETWARE file system
+ *     Call advancedFS() *after* checking longname flag
+ *
  *     Revision 1.24  1994/04/24  20:35:08  ahd
  *     trap VINES file systems
  *
@@ -104,6 +108,8 @@
 #define INCL_BASE
 
 #include <os2.h>
+#include "pos2err.h"
+
 #elif defined(WIN32)
 #include <windows.h>
 #endif
@@ -760,86 +766,83 @@ boolean ValidDOSName( const char *s,
 /*       8.3 file names)                                              */
 /*--------------------------------------------------------------------*/
 
-static boolean advancedFS( const char *path )
+static boolean advancedFS( const char *input )
 {
-   char buf[BUFSIZ];             /* One generic large buffer          */
+   static char UUFAR cache[256] = "";  /* Initialize cache to zeroes  */
 
-#ifdef __OS2__
-   ULONG bufSize = sizeof buf;
-   FSQBUFFER2 *dataBuffer = (FSQBUFFER2 *) buf;
-   ULONG  result;
-#else
-   SHORT bufSize = sizeof buf;
-   FSQBUFFER *dataBuffer = (FSQBUFFER *) buf;
-   USHORT result;
-#endif
+   char fdrive[_MAX_DRIVE],
+        fpath[_MAX_DIR],
+        fname[_MAX_FNAME],
+        fdummy[_MAX_PATH];
+   int offset;
+
+  _splitpath((char *) input, fdrive, fpath, fdummy, fdummy);
 
 /*--------------------------------------------------------------------*/
-/*                  Get the drive letter to process                   */
+/*       Determine if our cache holds the answer for the drive        */
 /*--------------------------------------------------------------------*/
 
-   char driveInfo[3];
-   char *fileSystem;
-
-   if ( isalpha( *path ) && (path[1] == ':') )
-      strncpy( driveInfo, path, 2 );
-   else
-      strncpy( driveInfo, E_cwd, 2 );
-
-   driveInfo[ sizeof(driveInfo) - 1 ] = '\0';   /* Terminate string data */
-
-/*--------------------------------------------------------------------*/
-/*      Query the drive (both 1.x and 2.x calls are supported).       */
-/*--------------------------------------------------------------------*/
-
-#ifdef __OS2__
-   result = DosQueryFSAttach( (PSZ) driveInfo,
-                          1,
-                          FSAIL_QUERYNAME,
-                          dataBuffer,
-                          &bufSize );
-   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName);
-#else
-   result = DosQFSAttach( driveInfo,
-                          0,
-                          FSAIL_QUERYNAME,
-                          (PBYTE) buf,
-                          &bufSize,
-                          0L );
-   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName - 1);
-#endif
-
-   if ( result != 0 )
+   switch( cache[ (unsigned char) *fdrive ] )
    {
-      printmsg(0, "advancedFS: Unable to query file system for %s, error = %d",
-                  driveInfo,
-                  (int)  result );
-      return FALSE;
+      case 'L':
+      case 'S':
+         break;                        /* Cached answer, report it   */
+
+      default:                         /* No cache, determine answer */
+         strcpy(fname, fdrive);
+         strcat(fname, fpath);
+         strcat(fname, ".DUMB.TEST.NAME");
+
+         cache[ (unsigned char) *fdrive ] =
+                     IsFileNameValid(fname) ? 'L' : 'S';
+         break;
    }
 
-   printmsg(4,"advancedFS: File system %d, name \"%s\", FS name \"%s\"",
-               (int) dataBuffer->iType,
-               dataBuffer->szName,
-               fileSystem );
-
-   if (equal( fileSystem, "FAT"))
-      return FALSE;
-
-   if (equal( fileSystem, "VINES"))
-      return FALSE;
-
-   if (equal( fileSystem, "NETWARE"))
-      return FALSE;
-
-   if (equal( fileSystem, "HPFS"))
-      return TRUE;
-
-   printmsg(2,"Unknown file system \"%s\", assuming supports long names",
-               dataBuffer->szName);
-
-   return TRUE;
+   return cache[ (unsigned char) *fdrive ] == 'L' ? TRUE : FALSE;
 
 } /* advancedFS */
+
+/*--------------------------------------------------------------------*/
+/*    I s F i l e N a m e V a l i d                                   */
+/*                                                                    */
+/*    Determine if file system supports non-8.3 format names          */
+/*--------------------------------------------------------------------*/
+
+static int IsFileNameValid(char *name)
+{
+  HFILE hf;
+#ifdef __OS2__
+  ULONG uAction;
+  APIRET result;
+#else
+  USHORT uAction;
+  USHORT result;
+#endif
+
+  result = DosOpen(name, &hf, &uAction, 0, 0, FILE_OPEN,
+                  OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE, 0);
+
+  switch( result )
+  {
+     case ERROR_INVALID_NAME:
+     case ERROR_FILENAME_EXCED_RANGE:
+        if ( debuglevel > 1 )
+            printOS2error( name, result );
+        return FALSE;
+
+     case NO_ERROR:                 /* Hmmm, why does the file exist? */
+        DosClose(hf);
+        return TRUE;                /* But worked, so we have answer */
+
+     default:
+        if ( debuglevel > 1 )
+            printOS2error( name, result );
+        return TRUE;
+
+  } /* switch */
+
+} /* IsFileNameValid */
+
 
 #elif WIN32
 
