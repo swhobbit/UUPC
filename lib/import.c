@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.23 1994/02/28 04:10:29 ahd Exp $
+ *    $Id: import.c 1.24 1994/04/24 20:35:08 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.24  1994/04/24  20:35:08  ahd
+ *     trap VINES file systems
+ *
  *     Revision 1.23  1994/02/28  04:10:29  ahd
  *     Correct spelling of longname flag
  *
@@ -305,7 +308,7 @@ void importpath(char *local, const char *canon, const char *remote)
 
       printmsg(6,"importpath: Checking File system for spool directory %s",
                   E_spooldir );
-      longname = advancedFS( E_spooldir ) && bflag[F_LONGNAME];
+      longname = bflag[F_LONGNAME] && advancedFS( E_spooldir ) ;
 
 /*--------------------------------------------------------------------*/
 /*                    Verify we have a remote name                    */
@@ -825,10 +828,13 @@ static boolean advancedFS( const char *path )
    if (equal( fileSystem, "VINES"))
       return FALSE;
 
+   if (equal( fileSystem, "NETWARE"))
+      return FALSE;
+
    if (equal( fileSystem, "HPFS"))
       return TRUE;
 
-   printmsg(1,"Unknown file system \"%s\", assuming supports long names",
+   printmsg(2,"Unknown file system \"%s\", assuming supports long names",
                dataBuffer->szName);
 
    return TRUE;
