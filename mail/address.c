@@ -72,7 +72,7 @@ void user_at_node(const char *raddress,
 /*                     Determine if local address                     */
 /*--------------------------------------------------------------------*/
 
-   if (!strpbrk(raddress,"!@"))     /* Any host delimiters?                */
+   if (!strpbrk(raddress,"%!@"))    /* Any host delimiters?                */
    {                                /* No --> report local data            */
       strcpy(hisuser,raddress);
       strcpy(hisnode,E_nodename);
@@ -110,6 +110,23 @@ void user_at_node(const char *raddress,
    }
 
    saveaddr = strdup(address);   /* Remember address for next pass   */
+
+/*--------------------------------------------------------------------*/
+/*    If the address has no at sign (@), but does have a percent      */
+/*    sign (%), replace the last percent sign with an at sign.        */
+/*--------------------------------------------------------------------*/
+
+   if ( strchr(address,'@') == NULL )  // Any at signs?
+   {                                // No --> Look further for %
+      wptr = strrchr(address,'%');  // Locate any percent signs
+
+      if ( wptr != NULL )           // Got one?
+         *wptr = '@';               // Yup --> Make it an at sign at
+   }
+
+/*--------------------------------------------------------------------*/
+/*                   Initialize routing information                   */
+/*--------------------------------------------------------------------*/
 
    nptr = nil(char);             /* No known node for user           */
    pptr = E_mailserv;            /* Default routing via mail server  */
