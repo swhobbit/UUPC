@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.7 1994/12/09 03:39:49 ahd v1-12k $
+#       $Id: nmakewnt.mak 1.8 1994/12/22 00:05:33 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.8  1994/12/22 00:05:33  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.7  1994/12/09 03:39:49  ahd
 #       Drop regsetup.dll from install to get work done.
 #
@@ -51,9 +54,10 @@ UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
 #       or NMAKE.MAK include file to build under NT's Visual C++
 
 LDOPT    = $(COMMOPT) -Fe$@
+LIBEXE   = lib
 
-OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib $(MYUULIBS)
+OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
 
-#EXTRAT=regsetup.exe uupcdll.dll
+EXTRAT=regsetup.exe uupcdll.dll
 EXTRA3=$(PROD)\regsetup.exe
-# EXTRA4=$(PROD)\uupcdll.dll
+EXTRA4=$(PROD)\uupcdll.dll
