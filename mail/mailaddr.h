@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailaddr.h 1.3 1998/03/08 23:12:28 ahd Exp $
+ *    $Id: mailaddr.h 1.4 1998/03/16 06:43:00 ahd v1-13b $
  *
  *    $Log: mailaddr.h $
+ * Revision 1.4  1998/03/16  06:43:00  ahd
+ * Better trumpet support in rmail
+ *
  *    Revision 1.3  1998/03/08 23:12:28  ahd
  *    Add new fields for local information
  *
@@ -45,6 +48,7 @@ typedef struct _MAIL_ADDR
    char *activeUser;             /* Local user executing program     */
    KWBoolean remote;             /* Address is non-local             */
    KWBoolean daemon;             /* Delivery by long running daemon  */
+   KWBoolean received;           /* Received line already in msg     */
 }  MAIL_ADDR;
 
 #endif /* _MAILADDR_H */
