@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.84 1998/05/11 01:20:48 ahd v1-13b $
+ *    $Id: configur.c 1.85 1998/08/02 01:01:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.85  1998/08/02 01:01:27  ahd
+ *    Add autocall option
+ *
  *    Revision 1.84  1998/05/11  01:20:48  ahd
  *    Add logfile directory
  *
@@ -152,7 +155,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.84 1998/05/11 01:20:48 ahd v1-13b $");
+RCSID("$Id: configur.c 1.85 1998/08/02 01:01:27 ahd Exp $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -383,6 +386,7 @@ FLAGTABLE configFlags[] =
  { "pager",               F_PAGER,             B_LOCAL,    KWTrue},
  { "promiscuousrelay",    F_PROMISCUOUSRELAY,  B_GLOBAL},
  { "purge",               F_PURGE,             B_LOCAL,    KWTrue},
+ { "save",                F_SAVE,              B_LOCAL},
  { "senddebug",           F_SENDDEBUG,         B_GLOBAL},
  { "shortfrom",           F_SHORTFROM,         B_GLOBAL},
  { "showspool",           F_SHOWSPOOL,         B_GLOBAL,   KWTrue},
