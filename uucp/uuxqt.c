@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.46 1995/02/22 02:31:30 ahd v1-12n $
+ *    $Id: uuxqt.c 1.47 1995/02/25 18:21:44 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.47  1995/02/25 18:21:44  ahd
+ *    Don't require MAILSERV to be defined
+ *
  *    Revision 1.46  1995/02/22 02:31:30  ahd
  *    Don't redirect output unless asked to by remote
  *
@@ -1273,6 +1276,24 @@ static int shell(char *command,
 /*               RNEWS may be special, handle it if so                */
 /*--------------------------------------------------------------------*/
 
+#if defined(__OS2__)
+
+/*--------------------------------------------------------------------*/
+/*       To help debugging and workaround an OS/2 bug which causes    */
+/*       spawnl() to generate bogus arguments when none are           */
+/*       passed, we generate a debug flag under OS/2.  This will      */
+/*       work with any version of UUPC/extended rnews, but not        */
+/*       third party packages.                                        */
+/*--------------------------------------------------------------------*/
+
+   if (equal(cmdname,RNEWS) && (parameters == NULL))
+   {
+      sprintf( commandBuf, "-x %d" , debuglevel );
+      parameters = commandBuf;
+   }
+
+#endif
+
    if (equal(cmdname,RNEWS) &&
        bflag[F_WINDOWS] &&
        ( inname != NULL ))       /* rnews w/input?                    */
@@ -1306,7 +1327,8 @@ static int shell(char *command,
 
          size_t rlen = sizeof commandBuf - 2;
 
-#ifdef _Windows
+#if defined(_Windows)
+
          if ( bflag[F_WINDOWS] )
          {
             strcpy( commandBuf, "-f ");
@@ -1315,8 +1337,23 @@ static int shell(char *command,
          }
          else
             *commandBuf = '\0';
+
+/*--------------------------------------------------------------------*/
+/*       To help debugging and workaround an OS/2 bug which causes    */
+/*       spawnl() to generate bogus arguments when none are           */
+/*       passed, we generate a debug flag under OS/2.  This will      */
+/*       work with any version of UUPC/extended rmail, but not        */
+/*       third party packages.                                        */
+/*--------------------------------------------------------------------*/
+
+#elif defined(__OS2__)
+
+         sprintf( commandBuf, "-x %d" , debuglevel );
+
 #else
+
          *commandBuf = '\0';
+
 #endif
 
          rlen -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
