@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.19 1997/04/24 01:01:37 ahd Exp $
+#       $Id: nmakewnt.mak 1.20 1997/05/11 04:25:17 ahd Exp $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.20  1997/05/11 04:25:17  ahd
+#       SMTP client support for RMAIL/UUXQT
+#
 #       Revision 1.19  1997/04/24 01:01:37  ahd
 #       Annual Copyright Update
 #
@@ -90,10 +93,10 @@ SMTP    = 1
 LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
             $(OBJ)\pnterr.obj $(OBJ)\titlen.obj
 
-ULIBOBJS   = $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj
+RMAIL_DELIVERS_SUPPORT=$(OBJ)\pwserr.obj
 UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
-              $(OBJ)\prtynt.obj $(OBJ)\suspendn.obj \
-              $(ULIBOBJS)
+             $(OBJ)\prtynt.obj $(OBJ)\suspendn.obj \
+             $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj
 
 #       You need to add MYUULIBS=OLDNAMES.LIB to your environment
 #       or NMAKE.MAK include file to build under NT's Visual C++

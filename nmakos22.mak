@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.18 1997/04/24 01:01:49 ahd Exp $
+#       $Id: nmakos22.mak 1.19 1997/05/11 04:25:17 ahd Exp $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.19  1997/05/11 04:25:17  ahd
+#       SMTP client support for RMAIL/UUXQT
+#
 #       Revision 1.18  1997/04/24 01:01:49  ahd
 #       Annual Copyright Update
 #
@@ -103,11 +106,13 @@ DLLNAME  = UPCR$(VERS:1.=).dll
 OS2=1                   # Enables generation of .DEF file
 SMTP    = 1
 
+RMAIL_DELIVERS_SUPPORT=$(OBJ)\psos2err.obj
 ULIBOBJS   = $(OBJ)\ulibip.obj $(OBJ)\ulibos2.obj $(OBJ)\psos2err.obj \
              $(OBJ)\ulibnmp.obj
 UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj \
-             $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
-UUCICOOBJ3 = $(UUCICOOBJX) $(ULIBOBJS)
+             $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
+             $(OBJ)\ulibos2.obj $(OBJ)\psos2err.obj $(OBJ)\ulibnmp.obj
+UUCICOOBJ3 = $(UUCICOOBJX) $(OBJ)\ulibip.obj
 
 OTHERLIBS=   so32dll.lib tcp32dll.lib
 
