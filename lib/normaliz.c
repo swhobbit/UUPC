@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\LIB\RCS\NORMALIZ.C 1.1 1992/11/22 21:06:14 ahd Exp $
+ *    $Id: NORMALIZ.C 1.2 1993/04/11 00:32:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: NORMALIZ.C $
+ *     Revision 1.2  1993/04/11  00:32:05  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.1  1992/11/22  21:06:14  ahd
  * Initial revision
  *
@@ -59,9 +62,16 @@ char *normalize( const char *path )
       *p++ = '/';
 
    column = strlen( save ) - 1;
-   if ( save[column] == '/' )
+   if ((column > 2) && ( save[column] == '/' )) // Zap all but root
        save[column] = '\0';
 
-   return strlwr( save );
+   strlwr( save );
+
+   printmsg(5,"Normalize: cwd = %s, input = %s, output = %s",
+               (E_cwd == NULL) ? "?" : E_cwd,
+               path,
+               save );
+
+   return save;
 
 } /* normalize */

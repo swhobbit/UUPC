@@ -36,20 +36,21 @@
 /*   Expands ~, ~/ and relative paths                                 */
 /*--------------------------------------------------------------------*/
 
-char *expand_path(char *path,          /* Input/output path name     */
+char *expand_path(char *input,         /* Input/output path name     */
                   const char *cur_dir, /* Default directory path     */
                   const char *home,    /* Default home directory     */
                   const char *ftype )  /* Default extension          */
 {
    char        *p, *fname;
    char        save[FILENAME_MAX];
+   char        path[FILENAME_MAX];
    struct UserTable *userp;
 
 /*--------------------------------------------------------------------*/
 /*                   Convert backslashes to slashes                   */
 /*--------------------------------------------------------------------*/
 
-   p  = path;
+   p  = strcpy(path, input);
    while ((p = strchr(p,'\\')) != NULL)
       *p++ = '/';
 
@@ -76,21 +77,23 @@ char *expand_path(char *path,          /* Input/output path name     */
 
    if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
-      boolean pushed = ((cur_dir != NULL ) && ( path[1] != ':' ));
+      boolean push = ((cur_dir != NULL ) && ( path[1] != ':' ));
       strcpy( save, path );
 
-      if (pushed)
+      if (push)
          PushDir( cur_dir );
 
       p = _fullpath( path, save, sizeof save );
 
-      if (pushed)
+      if (push)
          PopDir();
 
       while ((p = strchr(p,'\\')) != NULL)
          *p++ = '/';
 
-      return path;
+      printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
+                  E_cwd, input, path );
+      return strcpy( input, path );
 
    } /* if */
 
@@ -169,6 +172,8 @@ char *expand_path(char *path,          /* Input/output path name     */
 /*                       Return data to caller                        */
 /*--------------------------------------------------------------------*/
 
-   return path;
+   printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
+               E_cwd, input, path );
+   return strcpy( input, path );
 
 } /* expand_path */
