@@ -1,10 +1,14 @@
-#       $Id: nmakewnt.mak 1.29 1998/04/27 01:54:27 ahd v1-13a $
+#       $Id: nmakewnt.mak 1.30 1998/05/11 01:19:08 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.30  1998/05/11 01:19:08  ahd
+#       Allow possible build of UUCICO w/o tapi (uucicon.exe) under NT
+#       Build zip files in build tree, not source tree
+#
 #       Revision 1.29  1998/04/27 01:54:27  ahd
 #       Revise icon source directory
 #
@@ -113,11 +117,12 @@ GUIOPT  = -DUUGUI -DTAPI_SUPPORT
 WINSTDIO = $(OBJ)\winstdio.obj
 UUTAPI   = $(OBJ)\uutapi.obj
 WIN32APP =  user32.lib gdi32.lib \
-            /link /nodefaultlib:libcd /subsystem:windows
+            /link /nodefaultlib:libcd /subsystem:windows /incremental:no
 
 MODEL    = g                         # Model = GUI
 !else
 MODEL    = c                         # Model = Console
+WIN32APP = /link /incremental:no
 !endif
 
 WIN32ENV=1
