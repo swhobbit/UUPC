@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.1 1993/09/20 04:48:25 ahd Exp $
+ *    $Id: ulibip.c 1.2 1993/09/21 01:42:13 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.2  1993/09/21  01:42:13  ahd
+ * Use standard MAXPACK limit for save buffer size
+ *
  * Revision 1.1  1993/09/20  04:48:25  ahd
  * Initial revision
  *
@@ -242,6 +245,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    traceStart( name );
 
    portActive = TRUE;     /* record status for error handler */
+   carrierDetect = TRUE;   // Carrier detect = connection
 
    return FALSE;                       // Return success to caller
 
