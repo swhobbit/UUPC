@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.10 1998/04/20 02:48:54 ahd v1-13a $
+ *    $Id: uupcmoah.h 1.11 1998/05/11 01:25:40 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ * Revision 1.11  1998/05/11  01:25:40  ahd
+ * Disconnect TAPI suppot from GUI support
+ *
  *    Revision 1.10  1998/04/20 02:48:54  ahd
  *    Windows 32 bit GUI environment/TAPI support
  *
@@ -76,12 +79,20 @@
 #endif /* __TURBOC__ */
 
 #if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
-#define BIT32ENV
+
+#define BIT32ENV 1
 
 #ifdef UDEBUG
 #define UDEBUG32
 #endif
+
+#else /* BIT32ENV */
+
+#if !defined(FAMILY_API) && !defined(WINDOWS) && !define(_Windows)
+#define MSDOSENV 1
 #endif
+
+#endif /* BIT32ENV */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -92,6 +103,21 @@
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
+
+/*--------------------------------------------------------------------*/
+/*                Define important buffer definitions                 */
+/*--------------------------------------------------------------------*/
+
+#if defined(BIT32ENV)
+#define COMMAND_TEXT_MAX   1024
+#define KW_BUFSIZ          4096
+#elif defined(FAMILY_API)
+#define COMMAND_TEXT_MAX   255
+#define KW_BUFSIZ          BUFSIZ
+#else /* DOS or 16 bit Windows */
+#define COMMAND_TEXT_MAX   128
+#define KW_BUFSIZ          BUFSIZ
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    Force our standard I/O into GUI functions if doing a GUI        */
