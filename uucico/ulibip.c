@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.33 1997/12/22 16:48:38 ahd Exp $
+ *    $Id: ulibip.c 1.34 1997/12/22 17:39:43 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.34  1997/12/22 17:39:43  ahd
+ *    Correct formatting of host name in connect
+ *
  *    Revision 1.33  1997/12/22 16:48:38  ahd
  *    Add support for 16 bit inet_ntoa for Borland C++ Windows UUCICO
  *
@@ -983,6 +986,16 @@ KWBoolean tWaitForNetConnect(const unsigned int timeout)
 
       printmsg(0, "WaitForNetConnect: could not accept a connection");
       printWSerror("accept", wsErr);
+      return KWFalse;
+   }
+
+   if ((pollingSock != INVALID_SOCKET) && ! multipleConn )
+   {
+#ifdef UDEBUG
+      printmsg(4, "WaitForNetConnect: Closing polling socket");
+#endif
+      closesocket(pollingSock);
+      pollingSock = INVALID_SOCKET;
    }
 
    return KWTrue;
