@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.50 1994/10/23 23:29:44 ahd Exp Software $
+ *    $Id: modem.c 1.51 1994/10/24 23:42:55 rommel Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.51  1994/10/24  23:42:55  rommel
+ *        Prevent suspend processing from hanging when file is rapidly
+ *        opened and closed.
+ *
  *        Revision 1.50  1994/10/23  23:29:44  ahd
  *        Better control of suspension of processing
  *
@@ -380,11 +384,17 @@ CONN_STATE callup( void )
 
    setTitle("Logging in to %s", rmtname );
 
-   for (i = FLD_EXPECT; i < kflds; i += 2)
+   i = FLD_EXPECT;
+
+   while (i < kflds )
    {
 
       exp = flds[i];
-      printmsg(2, "expecting %d of %d \"%s\"", i, kflds, exp);
+      printmsg(2, "expecting %d of %d \"%s\"",
+               i,
+               kflds,
+               exp);
+
       if (!sendalt( exp, scriptTimeout , noconnect))
       {
          printmsg(0, "SCRIPT FAILED");
@@ -392,13 +402,20 @@ CONN_STATE callup( void )
          return CONN_DROPLINE;
       } /* if */
 
-      printmsg(2, "callup: sending %d of %d \"%s\"",
-                   i + 1, kflds, flds[i + 1]);
+      if ( ++i < kflds )
+      {
 
-      if (!sendstr(flds[i + 1], scriptEchoTimeout, noconnect ))
-         return CONN_DROPLINE;
+         printmsg(2, "callup: sending %d of %d \"%s\"",
+                      i,
+                      kflds,
+                      flds[i]);
 
-   } /*for*/
+         if (!sendstr(flds[i++], scriptEchoTimeout, noconnect ))
+            return CONN_DROPLINE;
+
+      } /* if ( ++i < kflds ) */
+
+   } /* while (i < kflds ) */
 
    return CONN_PROTOCOL;
 
@@ -593,7 +610,7 @@ CONN_STATE callin( const time_t exit_time )
       setPrty(M_priority, M_prioritydelta );
                               /* Into warp drive for actual transfers  */
 
-      setTitle("Answering connection on port %s", M_device);
+      setTitle("Answering port %s", M_device);
 
       if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
       {                           /* Pick up the telephone            */
