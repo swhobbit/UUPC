@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtptrns.h 1.2 1997/12/14 02:42:06 ahd v1-12u $
+ *       $Id: smtptrns.h 1.3 1998/03/01 01:28:04 ahd v1-13a $
  *
  *       Revision history:
  *       $Log: smtptrns.h $
+ *       Revision 1.3  1998/03/01 01:28:04  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.2  1997/12/14 02:42:06  ahd
  *       Don't use sender address as pointer, just alloc room for it
  *
@@ -39,6 +42,10 @@ typedef struct _SMTPTransaction
    IMFILE *imf;
    size_t addressLength;            /* Size of address array         */
    size_t addressCount;             /* Number entries in array used  */
+   KWBoolean localRelay;            /* True = DNS reports machine
+                                       IP address in our local domain*/
+   KWBoolean localSender;           /* True = Announced sender addr
+                                       is known to us                */
 } SMTPTransaction;
 
 #endif /* _SMTPTRANS_H */
