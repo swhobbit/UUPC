@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.27 1993/10/12 01:33:59 ahd Exp $
+ *       $Id: dcpxfer.c 1.28 1993/10/30 02:29:46 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.28  1993/10/30  02:29:46  ahd
+ * Validate transfers for file queued locally
+ *
  * Revision 1.27  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *
@@ -539,7 +542,7 @@ XFER_STATE ssfile( void )
       fileName = fName;       /* No --> Use the real name            */
       strcpy( hostFile, fileName );
 
-      if (ValidateFile( hostFile , ALLOW_READ ))
+      if (!ValidateFile( hostFile , ALLOW_READ ))
          return XFER_FILEDONE;   /* Look for next file in our queue  */
    }
    else {
