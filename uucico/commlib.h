@@ -20,10 +20,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.10 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: COMMLIB.H 1.11 1993/11/20 14:50:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: commlib.h $
+ *    $Log: COMMLIB.H $
+ * Revision 1.11  1993/11/20  14:50:25  ahd
+ * Add prototype for GetComHandle
+ *
+ * Revision 1.11  1993/11/20  14:50:25  ahd
+ * Add prototype for GetComHandle
+ *
  * Revision 1.10  1993/11/06  17:57:46  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -67,11 +73,12 @@
 typedef int (*ref_activeopenline)(char *name, BPS baud, const boolean direct);
 
 typedef int (*ref_passiveopenline)(char *name, BPS baud, const boolean direct);
-typedef unsigned int (*ref_sread)(char *buffer,
+
+typedef unsigned int (*ref_sread)(char UUFAR *buffer,
                                   unsigned int wanted,
                                   unsigned int timeout);
 
-typedef int (*ref_swrite)(const char *data, unsigned int len);
+typedef int (*ref_swrite)(const char UUFAR *data, unsigned int len);
 
 typedef void (*ref_ssendbrk)(unsigned int duration);
 
@@ -108,7 +115,7 @@ boolean traceStart( const char *port );
 
 void traceStop( void );
 
-void traceData( const char *data,
+void traceData( const char UUFAR *data,
                 const unsigned len,
                 const boolean output);
 
@@ -137,8 +144,8 @@ extern ref_GetComHandle GetComHandlep;
 
 #define activeopenline(name, baud, direct) (*activeopenlinep)(name, baud, direct)
 #define passiveopenline(name, baud, direct)(*passiveopenlinep)(name, baud, direct)
-#define sread(buffer, wanted, timeout) (*sreadp)(buffer, wanted, timeout)
-#define swrite(buffer, wanted)         (*swritep)(buffer, wanted )
+#define sread(buffer, wanted, timeout) (*sreadp)( buffer, wanted, timeout)
+#define swrite(buffer, wanted)         (*swritep)( buffer, wanted )
 #define ssendbrk( duration )           (*ssendbrkp)(duration)
 #define closeline()                    (*closelinep)()
 #define flowcontrol(onoroff)           (*flowcontrolp)(onoroff)
@@ -151,7 +158,7 @@ extern ref_GetComHandle GetComHandlep;
 
 extern size_t commBufferLength;
 extern size_t commBufferUsed;
-extern char *commBuffer;
+extern char UUFAR *commBuffer;
 
 extern boolean portActive;          /* Port active flag for error handler  */
 extern boolean traceEnabled;        /* Enable comm port trace         */

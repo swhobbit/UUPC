@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBFS.H 1.1 1993/05/30 00:19:06 ahd Exp $
+ *    $Id: ULIB14.H 1.1 1993/05/30 15:27:22 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIBFS.H $
+ *    $Log: ULIB14.H $
+ * Revision 1.1  1993/05/30  15:27:22  ahd
+ * Initial revision
+ *
  * Revision 1.1  1993/05/30  00:19:06  ahd
  * Initial revision
  *
@@ -28,11 +31,11 @@
 
 extern int iopenline(char *name, BPS baud, const boolean direct);
 
-extern unsigned int isread(char *buffer,
+extern unsigned int isread(char UUFAR *buffer,
                           unsigned int wanted,
                           unsigned int timeout);
 
-int iswrite(const char *data, unsigned int len);
+int iswrite(const char UUFAR *data, unsigned int len);
 
 void issendbrk(unsigned int duration);
 

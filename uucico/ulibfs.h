@@ -17,19 +17,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: ULIBFS.H 1.1 1993/05/30 00:19:06 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: ULIBFS.H $
+ * Revision 1.1  1993/05/30  00:19:06  ahd
+ * Initial revision
+ *
  */
 
 extern int fopenline(char *name, BPS baud, const boolean direct);
 
-extern unsigned int fsread(char *buffer,
+extern unsigned int fsread(char UUFAR *buffer,
                           unsigned int wanted,
                           unsigned int timeout);
 
-int fswrite(const char *data, unsigned int len);
+int fswrite(const char UUFAR *data, unsigned int len);
 
 void fssendbrk(unsigned int duration);
 

@@ -24,21 +24,24 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.H 1.3 1993/05/30 00:11:03 ahd Exp $
+ *    $Id: ulibip.h 1.1 1993/09/20 04:53:57 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIB.H $
+ *    $Log: ulibip.h $
+ * Revision 1.1  1993/09/20  04:53:57  ahd
+ * Initial revision
+ *
  */
 
 extern int tactiveopenline(char *name, BPS baud, const boolean direct);
 
 extern int tpassiveopenline(char *name, BPS baud, const boolean direct);
 
-extern unsigned int tsread(char *buffer,
+extern unsigned int tsread(char UUFAR *buffer,
                           unsigned int wanted,
                           unsigned int timeout);
 
-int tswrite(const char *data, unsigned int len);
+int tswrite(const char UUFAR *data, unsigned int len);
 
 void tssendbrk(unsigned int duration);
 

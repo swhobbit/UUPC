@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBFS.H 1.1 1993/05/30 00:19:06 ahd Exp $
+ *    $Id: ulibnmp.h 1.1 1993/09/24 03:46:07 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIBFS.H $
+ *    $Log: ulibnmp.h $
+ * Revision 1.1  1993/09/24  03:46:07  ahd
+ * Initial revision
+ *
  *
  */
 
@@ -31,9 +34,9 @@ int pactiveopenline(char *name, BPS baud, const boolean direct );
 
 int ppassiveopenline(char *name, BPS baud, const boolean direct );
 
-unsigned int psread(char *output, unsigned int wanted, unsigned int timeout);
+unsigned int psread(char UUFAR *output, unsigned int wanted, unsigned int timeout);
 
-int pswrite(const char *input, unsigned int len);
+int pswrite(const char UUFAR *input, unsigned int len);
 
 void pssendbrk(unsigned int duration);
 
@@ -49,6 +52,6 @@ BPS pGetSpeed( void );
 
 boolean pCD( void );
 
-boolean pWaitForNetConnect(int timeout);
+boolean pWaitForNetConnect(const unsigned int timeout);
 
 #endif

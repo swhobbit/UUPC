@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.4 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: ulib.h 1.5 1993/11/20 14:50:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulib.h $
+ * Revision 1.5  1993/11/20  14:50:25  ahd
+ * Add prototype for GetComHandle
+ *
  * Revision 1.4  1993/09/20  04:53:57  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -36,11 +39,11 @@
 
 extern int nopenline(char *name, BPS baud, const boolean direct);
 
-extern unsigned int nsread(char *buffer,
+extern unsigned int nsread(char UUFAR *buffer,
                           unsigned int wanted,
                           unsigned int timeout);
 
-int nswrite(const char *data, unsigned int len);
+int nswrite(const char UUFAR *data, unsigned int len);
 
 void nssendbrk(unsigned int duration);
 
