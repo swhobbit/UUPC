@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.35 1996/01/01 21:21:51 ahd Exp $
+ *    $Id: nbstime.c 1.37 1997/05/13 04:02:01 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.37  1997/05/13 04:02:01  dmwatt
+ *    Windows NT support
+ *
  *    Revision 1.35  1996/01/01 21:21:51  ahd
  *    Annual Copyright Update
  *
