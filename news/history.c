@@ -25,9 +25,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.11 1995/03/11 01:59:57 ahd Exp $";
+      "$Id: history.c 1.12 1995/03/11 22:29:41 ahd v1-12q $";
 
 /* $Log: history.c $
+/* Revision 1.12  1995/03/11 22:29:41  ahd
+/* Use macro for file delete to allow special OS/2 processing
+/*
 /* Revision 1.11  1995/03/11 01:59:57  ahd
 /* Return result of cancel to caller to allow message
 /*
@@ -85,6 +88,8 @@ static const char rcsid[] =
 #include "history.h"
 #include "importng.h"
 #include "hdbm.h"
+
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*    o p e n _ h i s t o r y                                         */
@@ -191,7 +196,15 @@ int add_histentry(void *hdbm_file,
   datum key, val;
 
   if (hdbm_file == NULL)
+  {
+
+#ifdef UDEBUG
+     printmsg(2,"add_histentry: Invalid call, no file passed");
+     panic();
+#endif
+
     return KWFalse;
+  }
 
   key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
@@ -199,7 +212,14 @@ int add_histentry(void *hdbm_file,
   val.dsize = strlen(val.dptr) + 1;
 
   if (dbm_store(hdbm_file, key, val, DBM_REPLACE))
+  {
+
+#ifdef UDEBUG
+     printmsg(2,"add_histentry: dbm_store failed for %s", messageID);
+#endif
+
     return KWFalse;
+  }
 
   return KWTrue;
 }
@@ -234,7 +254,7 @@ int delete_histentry(void *hdbm_file, const char *messageID)
 
 int count_postings(char *histentry)
 {
-  char value[BUFSIZ], *ptr, *num;
+  char value[DBM_BUFSIZ], *ptr, *num;
   int count;
 
   strcpy(value, histentry);
@@ -300,11 +320,17 @@ static int matches(const char *group, char **grouplist)
 
 char *purge_article(char *histentry, char **groups)
 {
-  static char remain[BUFSIZ];
-  char value[BUFSIZ];
+  static char *remain = NULL;
+  char value[DBM_BUFSIZ];
   char filename[FILENAME_MAX];
   char *group, *num;
   long article, remaining;
+
+  if ( remain == NULL )
+  {
+      remain = malloc( DBM_BUFSIZ );
+      checkref( remain );
+  }
 
   strcpy(value, histentry);
   num = strtok(value, " ");     /* strip off date */
@@ -335,11 +361,26 @@ char *purge_article(char *histentry, char **groups)
       strcat(remain, ":");
       strcat(remain, num);
       remaining++;
-    }
+
+    }   /* else */
+
+  } /* while ((group = strtok(NULL, " ,\n")) != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*       If no articles remain name, free the persistent buffer       */
+/*       and return a NULL to the caller; otherwise, just return      */
+/*       the list.                                                    */
+/*--------------------------------------------------------------------*/
+
+  if ( ! remaining )
+  {
+      free( remain );
+      remain = NULL;
   }
 
-  return remaining ? remain : NULL;
-}
+  return remain;
+
+} /* purge_article */
 
 /*--------------------------------------------------------------------*/
 /*    c a n c e l _ a r t i c l e                                     */

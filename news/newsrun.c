@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.9 1995/08/27 23:33:15 ahd v1-12p $
+ *       $Id: newsrun.c 1.10 1995/11/30 12:50:15 ahd v1-12q $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.10  1995/11/30 12:50:15  ahd
+ *       Make header compares case insensitive
+ *
  *       Revision 1.9  1995/08/27 23:33:15  ahd
  *       Load and use ACTIVE file as tree structure
  *
@@ -220,7 +223,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.9 1995/08/27 23:33:15 ahd v1-12p $";
+         "$Id: newsrun.c 1.10 1995/11/30 12:50:15 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1048,7 +1051,7 @@ static void deliver_article( IMFILE *imf )
          if ( table[subscript].data )  /* Duplicate field?           */
          {                             /* Yes --> Drop article       */
 
-            printmsg(1,"Article %s has duplicate header for %s, discarded",
+            printmsg(1,"deliver_article: Article %s has duplicate header for %s, discarded",
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
@@ -1060,7 +1063,7 @@ static void deliver_article( IMFILE *imf )
          if ( *s == '\0' )          /* Empty header field?        */
          {                          /* Yes --> Drop article       */
 
-            printmsg(1,"Article %s has empty header for %s, discarded",
+            printmsg(1,"deliver_article: Article %s has empty header for %s, discarded",
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
@@ -1137,7 +1140,7 @@ static void deliver_article( IMFILE *imf )
    {
       if ( ! table[subscript].data && ! table[subscript].defaultData )
       {
-            printmsg(1,"Article %s missing header for %s, discarded",
+            printmsg(1,"deliver_article: Article %s missing header for %s, discarded",
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
@@ -1256,7 +1259,7 @@ static void control_message(const char *control,
 
   if ( operand == NULL )
   {
-      printmsg(0, "Control message %s missing operand, ignored",
+      printmsg(0, "control_message: Control message %s missing operand, ignored",
                  cmd );
       free( ctrl );
       return;
@@ -1270,7 +1273,7 @@ static void control_message(const char *control,
   if (equali(cmd, "cancel"))
   {
     if (cancel_article(history, operand))
-    printmsg(1, "Canceling article %s", operand );
+    printmsg(1, "control_message: Canceling article %s", operand );
     free( ctrl );
     return;
   }
@@ -1313,17 +1316,17 @@ static void control_message(const char *control,
       moderation = 'y';
 
     if ( addGroup(operand, 1, 0, moderation))
-       printmsg(1, "newsgroup added: %s", operand);
+       printmsg(1, "control_message: newsgroup added: %s", operand);
     else
-       printmsg(0, "Unable to add news group: %s", operand );
+       printmsg(0, "control_message: Unable to add news group: %s", operand );
 
   } /* if (equali(cmd, "newgroup")) */
   else if (equali(cmd, "rmgroup"))
   {
     if (deleteGroup(operand))
-      printmsg(1, "newsgroup removed: %s", operand);
+      printmsg(1, "control_message: newsgroup removed: %s", operand);
     else
-      printmsg( 0, "Unable to delete news group %s", operand );
+      printmsg( 0, "control_message: Unable to delete news group %s", operand );
   }
   else if (equali(cmd, "ihave") ||
            equali(cmd, "sendme") ||
@@ -1331,10 +1334,10 @@ static void control_message(const char *control,
            equali(cmd, "version") ||
            equali(cmd, "checkgroups"))
   {
-    printmsg(1, "control message not implemented: %s", cmd);
+    printmsg(0, "control_message: control message not implemented: %s", cmd);
   }
   else {
-    printmsg(1, "control message unknown: %s", cmd);
+    printmsg(0, "control_message: control message unknown: %s", cmd);
   }
 
   free(ctrl);
