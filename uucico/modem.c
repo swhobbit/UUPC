@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.58 1995/02/21 03:30:52 ahd v1-12n $
+ *    $Id: modem.c 1.59 1995/02/25 18:21:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.59  1995/02/25 18:21:44  ahd
+ *    Prevent UUCICO from looping without time limit
+ *
  *    Revision 1.58  1995/02/21 03:30:52  ahd
  *    More compiler warning cleanup, drop selected messages at compile
  *    time if not debugging.
@@ -727,8 +730,8 @@ KWBoolean getmodem( const char *brand)
    M_charDelay = 00;          /* Default is no delay between chars    */
    dialTimeout = 40;          /* Default is 40 seconds to dial phone  */
    gPacketSize = SMALL_PACKET;
-   vPacketSize = MAXPACK;
-   GPacketSize = MAXPACK;
+   vPacketSize = 512;
+   GPacketSize = 512;
    gWindowSize = 0;
    vWindowSize = 0;
    GWindowSize = 0;
