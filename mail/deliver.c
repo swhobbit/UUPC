@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.29 1994/02/25 03:45:46 ahd Exp $
+ *    $Id: deliver.c 1.30 1994/02/26 17:18:57 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.30  1994/02/26  17:18:57  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.29  1994/02/25  03:45:46  ahd
  * Don't attempt to de-reference user pointer if NULL in deliverfile.
  *
@@ -655,11 +658,13 @@ static size_t DeliverGateway(   const char *input,
 /*    Format the command and tell the user what we're going to do     */
 /*--------------------------------------------------------------------*/
 
-   sprintf(command , "%s %s %s %s",
+   sprintf(command , "%s %s %s %s %s %s",
                      hostp->via,          /* Program to perform forward */
                      hostp->hostname,     /* Nominal host routing via  */
                      node ,               /* Final destination system  */
-                     user );              /* user on "node" for delivery*/
+                     user,                /* user on "node" for delivery*/
+                     rnode,               /* Originating node           */
+                     ruser );             /* Originating user           */
 
    printmsg(3,"DeliverGateway: %s", command);
 
