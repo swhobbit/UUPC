@@ -1,3 +1,15 @@
+/*--------------------------------------------------------------------*/
+/*    a c t i v e . c                                                 */
+/*                                                                    */
+/*    Load and write UUPC/extended news active file                   */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 /*
    This file contains routines that muck with the "active" file.
 
@@ -91,7 +103,6 @@ void get_active( void )
    struct grp *cur_grp;
    struct grp *prev_grp;
    int i;
-   int j;
 
 /*--------------------------------------------------------------------*/
 /*    Open the active file and extract all the newsgroups and         */
@@ -142,10 +153,7 @@ void get_active( void )
          panic();
       }
 
-      j = strlen(grp_name_tmp) + 1;
-      cur_grp->grp_name = malloc(j);
-      checkref(cur_grp->grp_name);
-      strcpy(cur_grp->grp_name, grp_name_tmp);
+      cur_grp->grp_name = newstr(grp_name_tmp);
 
       cur_grp->grp_high++;    /* It is stored as one less than we want it */
 
