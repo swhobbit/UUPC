@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.1 1993/09/27 00:48:43 ahd Exp $
+ *    $Id: suspend.c 1.2 1993/09/27 02:42:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ * Revision 1.2  1993/09/27  02:42:11  ahd
+ * Include header, use proper return values to match OS/2 functions
+ *
  * Revision 1.1  1993/09/27  00:48:43  ahd
  * Initial revision
  *
@@ -58,7 +61,11 @@ boolean suspend_processing = FALSE;
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-void suspend_init(void)
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+void suspend_init(const char *port )
 {
 }
 
@@ -72,7 +79,8 @@ void suspend_init(void)
 #pragma argsused
 #endif
 
-int suspend_other(boolean suspend)
+int suspend_other(const boolean suspend,
+                  const char *port )
 {
    return 1;
 }
