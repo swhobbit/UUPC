@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.5 1993/01/23 19:15:47 ahd Exp ahd $
+ *       $Id: UUCLEAN.CMD 1.6 1993/04/04 05:01:49 ahd Exp $
  *
- *       $Log: uuclean.cmd $
+ *       $Log: UUCLEAN.CMD $
+*     Revision 1.6  1993/04/04  05:01:49  ahd
+*     Use common getuupc.cmd for variable retrieval
+*
 *     Revision 1.5  1993/01/23  19:15:47  ahd
 *     Load required subroutine packages before using them
 *
@@ -41,7 +44,7 @@
 /*--------------------------------------------------------------------*/
 /*                    Trap uninitialized variables                    */
 /*--------------------------------------------------------------------*/
-
+trace r
 signal on novalue
 '@echo off'                   /* Do not echo command input           */
 Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
@@ -68,21 +71,12 @@ end
 
 tempdir = getuupc("TEMPDIR" )
 if tempdir == '' then
-   tempdir = value('TEMP',,'OS2ENVIRONMENT')
-if tempdir == '' then
-   tempdir = value('TMP',,'OS2ENVIRONMENT')
-if tempdir == '' then
 do
    say 'No TEMP directory defined, cannot continue'
    exit 98
 end
 
-/*--------------------------------------------------------------------*/
-/*                    Disable UNDELETE processing                     */
-/*--------------------------------------------------------------------*/
-
 call setlocal;
-deldir = value('DELDIR','','OS2ENVIRONMENT')
 call value 'UUPCDEBUG','','OS2ENVIRONMENT';
 
 /*--------------------------------------------------------------------*/
@@ -138,23 +132,6 @@ call purge tempdir,'UUPC*.TXT'
 
 if exist( confdir || '\active' ) then
    'expire'
-
-/*--------------------------------------------------------------------*/
-/*     Re-enable UNDELETE processing so we can clean up the cache     */
-/*--------------------------------------------------------------------*/
-
-call value 'DELDIR',deldir,'OS2ENVIRONMENT'
-
-/*--------------------------------------------------------------------*/
-/*    Purge the undelete cache to improve performance and free        */
-/*    space                                                           */
-/*--------------------------------------------------------------------*/
-
-if deldir <> '' then
-do;
-   'UNDELETE /F /S /A' spooldir;
-   'UNDELETE /F /S /A' tempdir;
-end;
 
 /*--------------------------------------------------------------------*/
 /*                           All done, exit                           */
