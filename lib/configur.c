@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.43 1994/02/25 02:23:42 ahd Exp $
+ *    $Id: configur.c 1.44 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.44  1994/02/28  01:02:06  ahd
+ *     Add 'HonorControl' boolean option
+ *
  *     Revision 1.43  1994/02/25  02:23:42  ahd
  *     Add Ignore, ReplyToList for Mail user agent (mail)
  *
@@ -372,7 +375,7 @@ FLAGTABLE configFlags[] = {
  { "honorcontrol",
                   F_HONORCTRL,   B_GLOBAL},
  { "kanji",       F_KANJI,       B_GLOBAL},
- { "longname",    B_LONGNAME,    B_GLOBAL},
+ { "longname",    F_LONGNAME,    B_GLOBAL},
  { "monocase",    F_ONECASE,     B_GLOBAL},
  { "multiqueue",  F_MULTI,       B_GLOBAL},
  { "multitask",   F_MULTITASK,   B_GLOBAL},
