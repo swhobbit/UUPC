@@ -12,8 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.5 1992/12/12 16:12:13 ahd Exp $
+ *    $Id: ULIB.C 1.6 1992/12/30 05:27:11 plummer Exp $
  *    $Log: ULIB.C $
+ * Revision 1.6  1992/12/30  05:27:11  plummer
+ * MS C compile fixes
+ * Add CD() to sread
+ *
  * Revision 1.5  1992/12/12  16:12:13  ahd
  * Include header file for definition for memory avail routines
  *
@@ -219,12 +223,6 @@ unsigned int sread(char *buffer, unsigned int wanted, unsigned int timeout)
             recurse = TRUE;
          }
          return 0;
-      }
-
-      if ( !CD( ) )
-      {
-          printmsg( 0, "sread: Carrier lost" );
-          return 0;
       }
 
       printmsg(20, "sread: pending=%d, wanted=%d", pending, wanted);
