@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.38 1995/02/14 04:40:42 ahd v1-12n $
+ *    $Id: deliver.c 1.39 1995/03/08 02:58:08 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.39  1995/03/08 02:58:08  ahd
+ *    Use specific sequence numbers for VMS queue support
+ *
  *    Revision 1.38  1995/02/14 04:40:42  ahd
  *    Make compare for postmaster case insensitive
  *
@@ -212,7 +215,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                           KWBoolean validate); /* Validate/forward
                                                 local mail            */
 
-static int DeliverFile( IMFILE *imf,
+static size_t DeliverFile( IMFILE *imf,
                         const char *mboxname,
                         const long start,
                         const long end,
@@ -236,9 +239,9 @@ static size_t DeliverGateway(   IMFILE *imf,
                                 const struct HostTable *hostp,
                                 const KWBoolean validate );
 
-static int CopyData(   const KWBoolean remotedelivery,
-                       IMFILE *imf,
-                       FILE *mbox);
+static KWBoolean CopyData(   const KWBoolean remotedelivery,
+                             IMFILE *imf,
+                             FILE *mbox);
 
 static char *stats( IMFILE *imf );
 
@@ -286,20 +289,27 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    user_at_node(address, path, node, user);
 
 /*--------------------------------------------------------------------*/
+/*                   Deliver to a gateway if needed                   */
+/*--------------------------------------------------------------------*/
+
+   hostp = checkname( path );
+
+   if ( (hostp != BADHOST) && (hostp->status.hstatus == gatewayed))
+      return DeliverGateway( imf, user, node, hostp, validate );
+
+/*--------------------------------------------------------------------*/
 /*                       Handle local delivery                        */
 /*--------------------------------------------------------------------*/
 
    if (equal(path, E_nodename)) /* Local node?                        */
    {
-      struct HostTable *hostx = checkname( node );
-
-      if (hostx->status.hstatus == localhost)  /* Really the local node?     */
+      if (hostp->status.hstatus == localhost)  /* Really the local node?     */
          return DeliverLocal( imf, user, validate );
                                  /* Yes!                              */
       else
          return Bounce( imf,
                  "No known delivery path for host",
-                  address,
+                  path,
                   address,
                   validate );
    }  /* if */
@@ -314,15 +324,6 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
              address,
              address,
              validate );
-
-/*--------------------------------------------------------------------*/
-/*                   Deliver to a gateway if needed                   */
-/*--------------------------------------------------------------------*/
-
-   hostp = checkname( path );
-
-   if ( (hostp != BADHOST) && (hostp->status.hstatus == gatewayed))
-      return DeliverGateway( imf, user, node, hostp, validate );
 
 /*--------------------------------------------------------------------*/
 /*         Deliver mail to a system directory connected to us         */
@@ -383,7 +384,7 @@ static size_t DeliverLocal( IMFILE *imf,
    char mboxname[FILENAME_MAX];
    struct UserTable *userp = NULL;
    ALIASTABLE *aliasp = NULL;
-   int delivered = 0;
+   size_t delivered = 0;
    KWBoolean announce = KWFalse;
    FILE *mbox;
 
@@ -401,8 +402,8 @@ static size_t DeliverLocal( IMFILE *imf,
 
    if (validate)
    {
-      validate = stricmp( E_postmaster , user);
-                                 /* Don't loop delivering to postmast*/
+      if ( equali( E_postmaster , user) )
+         validate = KWFalse;     /* Don't loop delivering to postmast */
 
       userp = checkuser(user);   /* Locate user id in host table      */
 
@@ -514,7 +515,7 @@ static size_t DeliverLocal( IMFILE *imf,
 /*       Process a local or system aliases file                       */
 /*--------------------------------------------------------------------*/
 
-static int DeliverFile( IMFILE *imf,
+static size_t DeliverFile( IMFILE *imf,
                         const char *fwrdname,
                         const long start,
                         const long end,
@@ -526,7 +527,7 @@ static int DeliverFile( IMFILE *imf,
    char buf[BUFSIZ];
    FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
    char *cwd = ( ! userp) ? E_tempdir : userp->homedir;
-   int delivered = 0;
+   size_t delivered = 0;
 
    if ( fwrd == NULL )
    {
@@ -1017,13 +1018,15 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 /* Copy data into its final resting spot                              */
 /*--------------------------------------------------------------------*/
 
-static int CopyData( const KWBoolean remotedelivery,
+static KWBoolean CopyData( const KWBoolean remotedelivery,
                      IMFILE *imf,
                      FILE *dataout)
 {
    char buf[BUFSIZ];
    char trailer[BUFSIZ];
-   int column = 0;
+   size_t column = 0;
+   size_t deliveryMode = ((size_t) remoteMail) * 2 +
+                         ((size_t) remotedelivery);
    KWBoolean success = KWTrue;
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
@@ -1064,14 +1067,14 @@ static int CopyData( const KWBoolean remotedelivery,
 /*                        Generate a FROM line                        */
 /*--------------------------------------------------------------------*/
 
-   switch( (int) remoteMail * 2 + (int) remotedelivery )
+   switch( deliveryMode )
    {
       case 3:                 /* Remote sender, remote delivery       */
          strcpy( buf, fromUser );
          strtok( buf, "!");   /* Get first host in list               */
 
          if ( bflag[ F_SUPPRESSFROM ] )
-            ;                 /* No operation                        */
+            break;            /* No operation                        */
          else if ( equal(HostAlias( buf ), fromNode ))
                               /* Host already in list?                */
          {                    /* Yes --> Don't do it twice            */
@@ -1137,13 +1140,17 @@ static int CopyData( const KWBoolean remotedelivery,
 
    while (imgets(buf, BUFSIZ, imf) != NULL)
    {
+
       if ((*put_string)(buf, dataout) == EOF)     /* I/O error? */
       {
+
          printerr("output");
          printmsg(0,"I/O error on \"%s\"", "output");
          fclose(dataout);
-         return 0;
+         return KWFalse;
+
       } /* if */
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
