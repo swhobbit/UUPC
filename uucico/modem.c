@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.63 1996/01/02 02:51:53 ahd Exp $
+ *    $Id: modem.c 1.64 1996/01/04 04:00:46 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.64  1996/01/04 04:00:46  ahd
+ *    Use sorted list of boolean options with binary search and computed
+ *    table size.
+ *
  *    Revision 1.63  1996/01/02 02:51:53  ahd
  *    Sort security, modem configuration tables
  *
@@ -625,13 +629,14 @@ CONN_STATE callin( const time_t exit_time )
          panic();
       }
 
+      suspend_ready();
+
    } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                   Wait for the telephone to ring                   */
 /*--------------------------------------------------------------------*/
 
-   suspend_ready();
 
 
    printmsg(1,"Monitoring port %s device %s"
@@ -651,10 +656,6 @@ CONN_STATE callin( const time_t exit_time )
 
          shutDown();
 
-         if ( suspend_processing )        /* Give up modem for another process?  */
-         {
-           return CONN_WAIT;
-         }
          return CONN_INITIALIZE;
       }
 
