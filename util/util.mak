@@ -8,10 +8,13 @@
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.3 1993/09/20 04:36:42 ahd Exp $
+#     $Id: util.mak 1.4 1993/09/27 00:44:27 ahd Exp $
 #
 #     Revision history:
 #     $Log: util.mak $
+# Revision 1.4  1993/09/27  00:44:27  ahd
+# Correct build of small .com files.
+#
 # Revision 1.3  1993/09/20  04:36:42  ahd
 # TCP/IP support from Dave Watt
 # 't' protocol support
@@ -62,7 +65,7 @@ $(LIBRARY)
         tdstrip -s $<
 !endif
 
-novrstrk.exe:  $(UUPCCFG) $(OBJ)\novrstrk.obj $(LIBRARIES)
+novrstr$(PSUFFIX).exe:  $(UUPCCFG) $(OBJ)\novrstrk.obj $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(OBJ)\novrstrk.obj
