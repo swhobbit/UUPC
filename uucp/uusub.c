@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.13 1995/01/07 16:41:48 ahd v1-12n $
+ *    $Id: uusub.c 1.14 1995/03/11 15:49:23 ahd Exp $
  *
  *    $Log: uusub.c $
+ *    Revision 1.14  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.13  1995/01/07 16:41:48  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -82,7 +85,7 @@
 static void showstats( const char *name );
 static void showhost( struct HostTable *host);
 static char *when( time_t t );
-static char *status( hostatus current_status );
+static char *status( HOSTSTATUS current_status );
 static char *format( unsigned long l);
 
 /*--------------------------------------------------------------------*/
@@ -232,7 +235,7 @@ static void showhost( struct HostTable *host)
    column = 0;
 
    line( host->hostname,
-      status( (hostatus) host->status.hstatus ),
+      status( (HOSTSTATUS) host->status.hstatus ),
       when( host->status.lconnect ),
       when( host->status.ltime ),
       format( host->status.connect ),
@@ -272,7 +275,7 @@ static char *format( unsigned long l)
 
 } /* format */
 
-static char *status( hostatus current_status )
+static char *status( HOSTSTATUS current_status )
 {
    switch ( current_status )
    {
