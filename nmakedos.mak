@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.6 1995/02/21 13:01:20 ahd v1-12n $
+#       $Id: nmakedos.mak 1.7 1995/02/24 00:35:30 ahd v1-12n $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.7  1995/02/24 00:35:30  ahd
+#       Lower stack size on COM modules
+#
 #       Revision 1.6  1995/02/21 13:01:20  ahd
 #       Suppress map file
 #
@@ -52,13 +55,10 @@ LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj \
 UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
 
-!if "$(MODEL)" == "T"
-STACKSIZE=1a00                  # In hex, because /F below is brain dead
-!else
 STACKSIZE=3000                  # In hex, because /F below is brain dead
-!endif
 
-EXTRAT  = comm34.com
+EXTRAT  = comm34.com            # Include in test build ...
+EXTRA1  = comm34.com            # ... and ship it off to users as well
 LINKER  = link
 
 LINKOPT = /batch /map:nul /far /noig /stack:0x$(STACKSIZE)
