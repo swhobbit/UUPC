@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: WAITING.CMD 1.6 1993/04/04 05:01:49 ahd Exp $
+ *       $Id: SU.CMD 1.2 1993/05/04 00:25:58 ahd Exp $
  *
- *       $Log: WAITING.CMD $
+ *       $Log: SU.CMD $
+ *      Revision 1.2  1993/05/04  00:25:58  ahd
+ *      COnvert to REXX
+ *
  *
  */
 
@@ -40,7 +43,7 @@ signal on novalue
 parse source stuff
 Call RxFuncAdd 'SysLoadFuncs','RexxUtil','SysLoadFuncs'
 Call 'SysLoadFuncs'
-parse upper arg who what;
+parse arg who what;
 if words(who) = 0 then
 do;
    say 'SU.CMD Copyright 1989-1993 Kendra Electronic Wonderworks';
