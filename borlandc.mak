@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.52 1994/01/02 04:32:04 ahd Exp $
+#     $Id: makefile 1.53 1994/01/06 12:45:03 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.53  1994/01/06  12:45:03  ahd
+#         Version 1.12h
+#
 #         Revision 1.52  1994/01/02  04:32:04  ahd
 #         Go to version 1.12g
 #
@@ -260,7 +263,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12h
+VERS = 1.12i
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
