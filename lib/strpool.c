@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.7 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: strpool.c 1.8 1994/02/21 16:38:58 ahd Exp $
  *
  *    $Log: strpool.c $
+ *     Revision 1.8  1994/02/21  16:38:58  ahd
+ *     Delete C++ style comment
+ *
  *     Revision 1.7  1994/02/20  19:07:38  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -85,7 +88,7 @@ static int saved      = 0;
 /*    (<< 50 characters) string variables off the heap which are      */
 /*    never modified and never deallocated.  This means that the      */
 /*    possibly duplicate and relatively large overhead required by    */
-/*    malloc and causes these variables to waste space.               */
+/*    malloc causes these variables to waste space.                   */
 /*                                                                    */
 /*    The solution:  We use this routine to maintain our own local    */
 /*    pool of storage for allocating NULL terminated strings out      */
@@ -107,7 +110,7 @@ static int saved      = 0;
 
 char *strpool( const char *input , const char *file, size_t line)
 {
-   int len;
+   unsigned len;
    int best_fit = SHRT_MAX;
    char *result;
 
@@ -128,6 +131,19 @@ char *strpool( const char *input , const char *file, size_t line)
    len  = strlen( input );
 
 /*--------------------------------------------------------------------*/
+/*                     Handle over length strings                     */
+/*--------------------------------------------------------------------*/
+
+   if ( len > UCHAR_MAX )
+   {
+      result = strdup( input );
+
+      if ( !result)
+         checkptr( file, line);
+      return result;
+  }
+
+/*--------------------------------------------------------------------*/
 /*                      Perform best fit search                       */
 /*--------------------------------------------------------------------*/
 
@@ -146,7 +162,7 @@ char *strpool( const char *input , const char *file, size_t line)
 
          while( target < bufend )
          {
-            int target_len = strlen( target );
+            int target_len = (unsigned char) *target++;
             int diff =  target_len - len;
 
             if ((diff >= 0 ) && equal( target + diff, input))
@@ -171,7 +187,7 @@ char *strpool( const char *input , const char *file, size_t line)
 
       available = pool_size - current->used;
 
-      if (( available < best_fit) && (available > len ))
+      if (( available < best_fit) && (available > (len+1) ))
       {
          best_fit = available;
          save     = current;
@@ -180,6 +196,7 @@ char *strpool( const char *input , const char *file, size_t line)
          last =  current;        /* Save last buffer in case we
                                     have to chain new buffer in       */
       current = current->next_link;
+
    }  /* while */
 
 /*--------------------------------------------------------------------*/
@@ -192,7 +209,9 @@ char *strpool( const char *input , const char *file, size_t line)
       pools ++;
 
       save = malloc( sizeof *save );
-      if ( !save) checkptr( file, line);
+
+      if ( !save)
+         checkptr( file, line);
 
       if ( anchor == NULL )
       {
@@ -215,12 +234,15 @@ char *strpool( const char *input , const char *file, size_t line)
 /*    and return to the caller with the new string                    */
 /*--------------------------------------------------------------------*/
 
-   result = strcpy( save->pool + save->used, input );
-   save->used += len + 1;
+
+   result = save->pool + save->used;
+   *result = (char) ((unsigned char) len);
+   strcpy( ++result, input );
+   save->used += len + 2;
 
 #ifdef UDEBUG
    strings ++;
-   used    += len + 1;
+   used    += len + 2;
 #endif
 
    return result;
@@ -237,6 +259,7 @@ void safefree( void *input , const char *file, size_t line)
 {
    STR_QUEUE *current = anchor;
    int buffers = 0;
+
    while( current != NULL )
    {
       buffers ++;
@@ -291,14 +314,14 @@ void dump_pool( void )
 
       while( offset < current->used )
       {
-         size_t target_len = strlen( current->pool + offset );
+         size_t target_len = (unsigned char) *(current->pool + offset++);
          strings ++;
          printmsg(5,"[%d,%02d,%02d]=\"%s\"",
                      buffers,
                      strings,
                      target_len,
                      current->pool + offset);
-         offset += target_len +1;  /* Go to end of string             */
+         offset += target_len + 1;  /* Go to end of string             */
 
       } /* while( offset < current->used ) */
 
