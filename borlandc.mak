@@ -29,10 +29,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.90 1998/04/19 15:28:07 ahd v1-13a $
+#     $Id: borlandc.mak 1.91 1998/04/29 03:48:53 ahd Exp $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.91  1998/04/29 03:48:53  ahd
+#     Revise to use new location for icons
+#
 #     Revision 1.90  1998/04/19 15:28:07  ahd
 #     Move version number to external file
 #
@@ -120,14 +123,10 @@ WINMODEL=m
 #SRC=\src\uupc/
 #       Silly hack to allow back slash as last character in variable
 !if !$d(SRCSLASH) && !$d(SHORTPATH)
-!if $d(__OS2__)
-SRCSLASH=
-!else
 !if !$d(SRC)
 SRC      = ./
 !else
 SRCSLASH = $(SRC:/=\)
-!endif
 !endif
 !endif
 
@@ -162,7 +161,9 @@ CONF    = $(PRODDRIVE)\uupc
 DOCS    = $(SRCSLASH)docs
 LIB     = $(SRCSLASH)lib
 MAIL    = $(SRCSLASH)mail
+!if !$d(OBJ)
 OBJ     = $(SRCSLASH)objbc$(SUFFIX)
+!endif
 HDRCACHE= $(SRCSLASH)tcdef$(SUFFIX).sym
 RN      = $(SRCSLASH)rn
 NEWS    = $(SRCSLASH)news

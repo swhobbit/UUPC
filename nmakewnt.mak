@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.28 1998/04/20 02:47:11 ahd Exp $
+#       $Id: nmakewnt.mak 1.29 1998/04/27 01:54:27 ahd v1-13a $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.29  1998/04/27 01:54:27  ahd
+#       Revise icon source directory
+#
 #       Revision 1.28  1998/04/20 02:47:11  ahd
 #       TAPI/32 Windows GUI support
 #
@@ -105,11 +108,11 @@ UDEBUGFLAG=-DUDEBUG
 
 ICONS    = icons.win
 !ifdef GUI
-GUIOPT  = -DUUGUI
+GUIOPT  = -DUUGUI -DTAPI_SUPPORT
 
 WINSTDIO = $(OBJ)\winstdio.obj
-TAPIOBJ  = $(OBJ)\uutapi.obj
-WIN32APP =  user32.lib gdi32.lib tapi32.lib \
+UUTAPI   = $(OBJ)\uutapi.obj
+WIN32APP =  user32.lib gdi32.lib \
             /link /nodefaultlib:libcd /subsystem:windows
 
 MODEL    = g                         # Model = GUI
@@ -131,16 +134,19 @@ LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
             $(OBJ)\pnterr.obj $(OBJ)\titlen.obj $(WINSTDIO)
 
 RMAIL_DELIVERS_SUPPORT=$(OBJ)\pwserr.obj
-UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
+UUCICOOBJY = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
              $(OBJ)\prtynt.obj $(OBJ)\suspendn.obj \
-             $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj $(TAPIOBJ)
+             $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj
+UUCICOOBJX = $(UUCICOOBJY:ulibnt=ulibntn)
+UUCICOOBJ3 = $(UUCICOOBJY) $(UUTAPI)
 
 #       You need to add MYUULIBS=OLDNAMES.LIB to your environment
 #       or NMAKE.MAK include file to build under NT's Visual C++
 
 LDOPT    = $(COMMOPT) -Fe$@
 
-OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS) $(WIN32APP)
+OTHERLIBS= ADVAPI32.LIB WSOCK32.LIB tapi32.lib user32.lib gdi32.lib  \
+           kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS) $(WIN32APP)
 
 EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
 EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe
