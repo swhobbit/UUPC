@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.44 1994/03/05 21:12:05 ahd Exp $
+ *       $Id: dcpxfer.c 1.45 1994/06/05 01:57:26 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *        Revision 1.45  1994/06/05  01:57:26  ahd
+ *        Truncate invalid responses after one line of data, more or less
+ *
  * Revision 1.44  1994/03/05  21:12:05  ahd
  * Do not allow anonymous systems to feed us files (or cause
  * us to abort processing)
@@ -814,8 +817,6 @@ appending file name \"%s\"", spolName, slash);
 XFER_STATE sinit( void )
 {
 
-   pid = (int) getpid();
-   seq = (( seq + 99 ) / 100) * 100;
 
    if ((*openpk)( TRUE ))     /* Initialize in caller mode           */
       return XFER_ABORT;
@@ -1518,5 +1519,12 @@ static void buf_init( void )
 #else
    vbufsize = 0;
 #endif
+
+/*--------------------------------------------------------------------*/
+/*            Additional common initialization for logging            */
+/*--------------------------------------------------------------------*/
+
+   pid = (int) getpid();
+   seq = (( seq + 99 ) / 100) * 100;
 
 } /* buf_init */
