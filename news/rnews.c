@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.29 1994/02/22 04:18:46 rommel Exp $
+ *       $Id: rnews.c 1.30 1994/02/26 17:20:16 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.30  1994/02/26  17:20:16  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.29  1994/02/22  04:18:46  rommel
  * Correct message ID for duplicate articles
  *
@@ -129,7 +132,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.29 1994/02/22 04:18:46 rommel Exp $";
+         "$Id: rnews.c 1.30 1994/02/26 17:20:16 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1158,10 +1161,13 @@ static struct grp *find_newsgroup(const char *grp)
 {
    struct grp *cur = group_list;
 
-   while ((strcmp(grp,cur->grp_name) != 0)) {
-      if (cur->grp_next != NULL) {
+   while (equal(grp,cur->grp_name))
+   {
+      if (cur->grp_next != NULL)
+      {
          cur = cur->grp_next;
-      } else {
+      }
+      else {
          return NULL;
       }
    }
@@ -1234,35 +1240,110 @@ static void del_newsgroup(const char *grp)
 static void control_message(const char *control)
 {
   char *ctrl = strdup(control);
-  char *cmd, *group, *mod, *msg;
+  char *cmd, *mod;
   boolean moderated;
+  char buf[200];
+  char *operand;
+  static char bucket[] = BIT_BUCKET;
 
-  strtok(ctrl, " \t");
-  cmd = strtok(NULL, " \t");
+  printmsg(1,"Control Message: %s", control);
 
-  if (stricmp(cmd, "newgroup") == 0) {
-    group = strtok(NULL, " \t");
-    mod = strtok(NULL, " \t");
-    moderated = (mod != NULL) && (strcmp(mod, "moderated") == 0);
-    add_newsgroup(group, moderated);
-    printmsg(1, "rnews: newsgroup added: %s", group);
-  } else if (stricmp(cmd, "rmgroup") == 0) {
-    group = strtok(NULL, " \t");
-    del_newsgroup(group);
-    printmsg(1, "rnews: newsgroup removed: %s", group);
-  } else if (stricmp(cmd, "cancel") == 0) {
-    msg = strtok(NULL, " \t");
-    cancel_article(history, msg);
-  } else if (stricmp(cmd, "ihave") == 0 || stricmp(cmd, "sendme") == 0 ||
-             stricmp(cmd, "sendsys") == 0 || stricmp(cmd, "version") == 0 ||
-             stricmp(cmd, "checkgroups") == 0) {
+/*--------------------------------------------------------------------*/
+/*                     Parse the command verb off                     */
+/*--------------------------------------------------------------------*/
+
+  cmd = strtok(ctrl, WHITESPACE);      /* Discard first token        */
+  if ( cmd != NULL )
+     cmd = strtok(NULL, WHITESPACE);   /* Get second token, if any   */
+
+  if ( cmd == NULL )
+  {
+      printmsg(0,"Control message missing verb, ignored");
+      free( ctrl );
+      return;
+  }
+
+/*--------------------------------------------------------------------*/
+/*              Get the first operand, which we require               */
+/*--------------------------------------------------------------------*/
+
+  operand = strtok( NULL, WHITESPACE); /* Get first (required) op    */
+
+  if ( operand == NULL )
+  {
+      printmsg(0,"Control message %s missing operand, ignored",
+                 cmd );
+      free( ctrl );
+      return;
+  }
+
+/*--------------------------------------------------------------------*/
+/*    We always honor cancel messages, since they are pretty          */
+/*    frequent and trivial.                                           */
+/*--------------------------------------------------------------------*/
+
+  if (equali(cmd, "cancel"))
+  {
+    printmsg(2,"Canceling article %s", operand );
+    cancel_article(history, operand);
+    free( ctrl );
+    return;
+  }
+
+/*--------------------------------------------------------------------*/
+/*                       Log all other commands                       */
+/*--------------------------------------------------------------------*/
+
+  sprintf( buf,
+           "-wf %s -s\"(%s) %.100s\" %s",
+           bucket,
+           (const char *) (bflag[F_HONORCTRL] ? "executed" : "suppressed"),
+           control,
+           E_postmaster );          /* Do we need newsmaster as well? */
+
+  (void) execute( "rmail", buf, NULL, NULL, TRUE, FALSE);
+
+/*--------------------------------------------------------------------*/
+/*         Other messages require user authorize the commands         */
+/*--------------------------------------------------------------------*/
+
+  if ( ! bflag[F_HONORCTRL] )
+  {
+     free( ctrl );
+     return;
+  }
+
+/*--------------------------------------------------------------------*/
+/*              The command is authorized, let's do it.               */
+/*--------------------------------------------------------------------*/
+
+  if (equali(cmd, "newgroup"))
+  {
+    mod = strtok(NULL, WHITESPACE);
+    moderated = (mod != NULL) && equal(mod, "moderated");
+    add_newsgroup(operand, moderated);
+    printmsg(1, "rnews: newsgroup added: %s", operand);
+  }
+  else if (equali(cmd, "rmgroup"))
+  {
+    del_newsgroup(operand);
+    printmsg(1, "rnews: newsgroup removed: %s", operand);
+  }
+  else if (equali(cmd, "ihave") ||
+           equali(cmd, "sendme") ||
+           equali(cmd, "sendsys") ||
+           equali(cmd, "version") ||
+           equali(cmd, "checkgroups"))
+  {
     printmsg(1, "rnews: control message not implemented: %s", cmd);
-  } else {
+  }
+  else {
     printmsg(1, "rnews: control message unknown: %s", cmd);
   }
 
   free(ctrl);
-}
+
+} /* control_message */
 
 /*--------------------------------------------------------------------*/
 /*    c o p y _ f i l e                                               */
