@@ -87,6 +87,7 @@ typedef enum {  M_ALIAS,
 #define TOKEN_OP      0x0200
 #define USER_OP       0x0400
 #define NODISPLAY     0x0800  /* Do not display during help */
+#define NOAUTOHEADER  0x0100  /* Do not issue header command after cmd */
 
 /*--------------------------------------------------------------------*/
 /*               Options for copying mail between files               */
