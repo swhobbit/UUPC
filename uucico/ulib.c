@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.13 1993/07/11 14:38:32 ahd Exp $
+ *    $Id: ulib.c 1.14 1993/09/25 03:07:56 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.14  1993/09/25  03:07:56  ahd
+ * Add dummy priority function
+ *
  * Revision 1.13  1993/07/11  14:38:32  ahd
  * Correct routine names in displayed messages
  *
@@ -118,7 +121,6 @@ currentfile();
  * version.  RH Lamb
  */
 
-
 #define  STOPBIT  1
 
 static int com_handle;
@@ -188,7 +190,6 @@ int nopenline(char *name, BPS bps, const boolean direct)
    return 0;
 
 } /* nopenline */
-
 
 /*--------------------------------------------------------------------*/
 /*    n s r e a d                                                     */
@@ -377,7 +378,6 @@ int nswrite(const char *input, unsigned int len)
 
 } /* nswrite */
 
-
 /*--------------------------------------------------------------------*/
 /*    n s s e n d b r k                                               */
 /*                                                                    */
@@ -392,7 +392,6 @@ void nssendbrk(unsigned int duration)
    break_com();
 
 } /* nssendbrk */
-
 
 /*--------------------------------------------------------------------*/
 /*    n c l o s e l i n e                                             */
@@ -430,7 +429,6 @@ void ncloseline(void)
    printmsg(3, "CTS errors:       %-4d", stats[COM_ECTS]);
 
 } /*closeline*/
-
 
 /*--------------------------------------------------------------------*/
 /*    n h a n g u p                                                   */
@@ -573,7 +571,6 @@ static void ShowModem( void )
    old_status = status;
 
 } /* ShowModem */
-
 
 /*--------------------------------------------------------------------*/
 /*       s e t P r t y                                                */
