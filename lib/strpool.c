@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.14 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: strpool.c 1.15 1997/03/31 07:07:02 ahd v1-12s $
  *
  *    $Log: strpool.c $
+ *    Revision 1.15  1997/03/31 07:07:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -324,7 +327,7 @@ void dump_pool( void )
       printmsg(3,"Saved %ld bytes in %d redundant strings",
                saved, duplicates);
 
-   if ( debuglevel >= 5 )
+   if ( debuglevel >= 10 )
    while(current != NULL )
    {
       size_t offset = 0;

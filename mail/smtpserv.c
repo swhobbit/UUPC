@@ -17,114 +17,23 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusmtpd.c 1.1 1997/05/20 03:55:46 ahd v1-12s $
+ *    $Id: smtpserv.c 1.1 1997/06/03 03:25:31 ahd Exp $
  *
- *    $Log$
+ *    $Log: smtpserv.c $
+ *    Revision 1.1  1997/06/03 03:25:31  ahd
+ *    Initial revision
+ *
  */
 
 #include "uupcmoah.h"
 #include "smtpserv.h"
-#include "smtpverb.h"
 
 #include "../uucico/uutcpip.h"
 #include "ssleep.h"
 
-RCSID("$Id");
+RCSID("$Id: smtpclnt.c 1.1 1997/06/03 03:25:31 ahd Exp $");
 
 currentfile();
-
-/*--------------------------------------------------------------------*/
-/*       i n i t i a l i z e M a s t e r                              */
-/*                                                                    */
-/*       Initial master client client, which listens for              */
-/*       actual client connections                                    */
-/*--------------------------------------------------------------------*/
-
-SMTPClient *
-initializeMaster( const char *portName, time_t exitTime )
-{
-   static const char mName[] = "initializeMaster";
-   int port = 25;
-   SMTPClient *master = malloc( sizeof *master);
-
-   checkref( master );
-   memset( master, 0, sizeof *master);
-
-   if (( portName != NULL ) && isdigit( *portName ))
-      port = atol( portName );
-
-   if (passiveopenline( (char *) portName, port, KWFalse ))
-   {
-      printmsg(0,"%s: Unable to open master port for listening on port %d.",
-                 (int) port );
-      free( master );
-      return NULL;
-   }
-
-   master->connection = malloc( sizeof *(master->connection) );
-   checkref( master->connection );
-   memset( master->connection, 0, sizeof *(master->connection));
-   saveConnection( master->connection );
-
-   setClientMode(master, SM_MASTER);
-
-   return master;
-
-} /* initializeMaster */
-
-/*--------------------------------------------------------------------*/
-/*       a c c e p t C l i e n t                                      */
-/*                                                                    */
-/*       Accept a new client connection on master socket              */
-/*--------------------------------------------------------------------*/
-
-RemoteConnection *
-acceptClient( )
-{
-   static const char mName[] = "acceptClient";
-   RemoteConnection *connection = NULL;
-
-   printmsg(0,"%s: Accepting new client.", mName );
-
-   if (!WaitForNetConnect( 0 ))
-      return NULL;
-
-   connection = malloc( sizeof *connection );
-   checkref( connection );
-   memset( connection, 0, sizeof *connection);
-   saveConnection( connection );
-
-   return connection;
-
-} /* acceptClient */
-
-/*--------------------------------------------------------------------*/
-/*       a c c e p t H o t C l i e n t                                */
-/*                                                                    */
-/*       Accept a client which was opened externally to our           */
-/*       processing                                                   */
-/*--------------------------------------------------------------------*/
-
-RemoteConnection *
-acceptHotClient( int handle )
-{
-   static const char mName[] = "acceptClient";
-   RemoteConnection *connection;
-
-   printmsg(0,"%s: Accepting new hot client on handle %d.",
-            mName,
-            handle);
-
-   SetComHandle( handle );
-
-   connection = malloc( sizeof *connection );
-   checkref( connection );
-   memset( connection, 0, sizeof *connection);
-   saveConnection( connection );
-
-   return connection;
-
-} /* acceptClient */
 
 /*--------------------------------------------------------------------*/
 /*       f l a g R e a d y S o c k e t s                              */
@@ -147,7 +56,7 @@ flagReadySockets( SMTPClient *master )
    time_t now;
    struct timeval tm;
 
-   tm.tv_sec = 3600;
+   tm.tv_sec = 60;
    tm.tv_usec = 0;
 
    FD_ZERO(&readfds);
@@ -166,27 +75,67 @@ flagReadySockets( SMTPClient *master )
 /*--------------------------------------------------------------------*/
 
    do {
+#ifdef UDEBUG
+      printmsg(5,"%s: Processing client %d, handle %d, mode 0x%04x",
+                  mName,
+                  getClientSequence( current),
+                  getClientHandle( current),
+                  getClientMode( current ));
+#endif
 
-      if ( isClientValid( current ))
+      if ( isClientEOF( current ))
       {
-
-         if ( ! isClientIgnored( current ))
+         printmsg( 5, "%s: Client %d has reached EOF",
+                      mName,
+                      getClientSequence( current ));
+         setClientReady( current, KWTrue );
+         tm.tv_sec = 0;       /* Process client immediately */
+      }
+      else if ( isClientValid( current ))
+      {
+         if ( getClientHandle( current ) < 0 )
          {
-            printmsg( 5, "%s: Valid client has handle %d and timeout %d",
+            printmsg( 5, "%s: Client %d has invalid handle %d",
                          mName,
-                         getClientHandle( current ),
-                         getClientTimeout( current ) );
+                         getClientSequence( current ),
+                         getClientHandle( current ));
+            panic();
+         }
 
-            FD_SET(getClientHandle( current ), &readfds);
+         if ( isClientIgnored( current ))
+         {
+            printmsg( 5, "%s: Client %d ignored",
+                         mName,
+                         getClientSequence( current ));
 
-            if ( getClientHandle( current ) > maxSocket )
+         } /* if ( isClientIgnored( current )) */
+         else {
+
+#ifdef UDEBUG
+            printmsg( 5, "%s: Client %d valid",
+                         mName,
+                         getClientSequence( current ) );
+#endif
+
+            FD_SET((unsigned)getClientHandle( current ), &readfds);
+
+            if ( (int) getClientHandle( current ) > maxSocket )
                maxSocket = getClientHandle( current );
 
             nSelected++;
-         }
+
+         } /* else */
 
          if ( getClientTimeout( current ) < tm.tv_sec )
             tm.tv_sec = getClientTimeout( current );
+
+      } /* if ( isClientValid( current )) */
+      else {
+         printmsg( 5, "%s: Client %d invalid",
+                      mName,
+                      getClientSequence( current ));
+         setClientReady( current, KWTrue );
+         tm.tv_sec = 0;       /* Process client immediately */
       }
 
       nTotal++;
@@ -243,7 +192,7 @@ flagReadySockets( SMTPClient *master )
 
    do {
       if ( isClientValid(current) &&
-           FD_ISSET(getClientHandle( current ), &readfds ))
+           FD_ISSET((unsigned) getClientHandle( current ), &readfds ))
       {
          setClientReady( current, KWTrue );
       }
@@ -304,7 +253,7 @@ void
 dropTerminatedClients( SMTPClient *current )
 {
 
-   int closed = 0;
+   static const char mName[] = "dropTerminatedClients";
    int freed = 0;
    int total = 0;
 
@@ -313,30 +262,19 @@ dropTerminatedClients( SMTPClient *current )
       SMTPClient *next = current->next;
       total++;
 
-      if ( getClientMode( next ) == SM_TERMINATED )
+      if ( ! isClientValid( next ))
       {
-         restoreConnection( next->connection );
-         closeline();
-         setClientMode( next, SM_INVALID );
-         current = next;
-         closed++;
-      }
-      else if ( ! isClientValid( next ))
-      {
-         if ( getClientHandle( next ) != INVALID_SOCKET )
-            closeline();
-
          current->next = next->next;   /* Drop current from list */
-         freeClient( current );
+         freeClient( next );
          freed++;
       }
       else
         current = next;
    }
 
-   printmsg( ((closed + freed) > 0) ? 1 : 5,
-            "Closed %d and freed %d of %d client connections.",
-            closed,
+   printmsg( (freed > 0) ? 1 : 5,
+            "%s: freed %d of %d client connections.",
+            mName,
             freed,
             total );
 
@@ -368,10 +306,10 @@ dropAllClients( SMTPClient *master )
 
       if ( isClientValid( current ))
       {
-         SMTPResponse( current,
-                       SR_TE_SHUTDOWN,
-                       "SMTP Server shutting down.");
-         setClientMode(current, SM_TERMINATED);
+         setClientMode(current, SM_EXITING);
+         processClient( current );
+         ssleep(1);
+         processClient( current );
          count ++;
       }
       current = current->next;
@@ -389,7 +327,6 @@ dropAllClients( SMTPClient *master )
 /*                   Drop the master client itself                    */
 /*--------------------------------------------------------------------*/
 
-   terminateCommunications();
    freeClient( master );
 
 } /* dropAllClients */

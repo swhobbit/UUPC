@@ -1,9 +1,10 @@
-#ifndef _SMTPSERV_H
-#define _SMTPSERV_H
+#ifndef _SMTPNETW_H
+#define _SMTPNETW_H
+
 /*--------------------------------------------------------------------*/
-/*       s m t p s e r v . h                                          */
+/*       s m t p n e t w . h                                          */
 /*                                                                    */
-/*       SMTP server support routines for clients                     */
+/*       SMTP verb parser for UUPC/extended                           */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,26 +20,28 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.1 1997/06/03 03:26:38 ahd Exp $
+ *    $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
  *
- *    $Log: smtpserv.h $
- *    Revision 1.1  1997/06/03 03:26:38  ahd
- *    Initial revision
- *
+ *    $Log$
  */
 
 #include "smtpclnt.h"
 
-KWBoolean flagReadySockets( SMTPClient *master );
+KWBoolean
+SMTPGetLine( SMTPClient *client );
 
-KWBoolean processReadySockets( SMTPClient *first );
+KWBoolean
+SMTPResponse( SMTPClient *client, int code, const char *text );
 
-void addClient( SMTPClient *master, SMTPClient *client );
+SOCKET
+openMaster(const char *name );
 
-void dropTerminatedClients( SMTPClient *master );
+SOCKET
+openSlave(SOCKET pollingSock);
 
-void dropAllClients( SMTPClient *master );
+time_t
+getModeTimeout( SMTPMode );
 
-time_t getClientPeriod( SMTPClient *client );
+void closeSocket( SOCKET handle );
 
-#endif  /* _SMTPSERV_H */
+#endif /* _SMTPNETW_H */

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.9 1996/11/19 00:25:20 ahd Exp $
+ *    $Id: mail.h 1.10 1997/04/24 01:10:45 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.10  1997/04/24 01:10:45  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1996/11/19 00:25:20  ahd
  *    Revise LDESC declare
  *
@@ -42,7 +45,7 @@
 #define  MISSING  -1L      /* Line not found in this mail header   ahd */
 
 #ifdef BIT32ENV
-#define LSIZE  512
+#define LSIZE  1024
 #else
 #define LSIZE  256
 #endif

@@ -1,0 +1,762 @@
+/*--------------------------------------------------------------------*/
+/*       s m t p n e t w . c                                          */
+/*                                                                    */
+/*       SMTP verb parser for UUPC/extended                           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *
+ *    $Log: smtpverb.c $
+ *    Revision 1.1  1997/06/03 03:25:31  ahd
+ *    Initial revision
+ *
+ *    Revision 1.1  1997/05/20 03:55:46  ahd
+ *    Initial revision
+ *
+ */
+
+/*--------------------------------------------------------------------*/
+/*                         Standard includes                          */
+/*--------------------------------------------------------------------*/
+
+#include "uupcmoah.h"
+#include <time.h>
+
+#include "smtpnetw.h"
+#include "catcher.h"
+
+/*--------------------------------------------------------------------*/
+/*                      Global defines/variables                      */
+/*--------------------------------------------------------------------*/
+
+RCSID("$Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $");
+
+currentfile();
+
+#if defined(__OS2__)
+KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
+                                     No need for catcher -- no WSACleanup() of
+                                     OS/2 sockets required                  */
+#else
+extern KWBoolean winsockActive;                 /* Initialized in catcher.c  */
+#endif
+
+static const char crlf[] = "\r\n";
+
+/*--------------------------------------------------------------------*/
+/*                          Local prototypes                          */
+/*--------------------------------------------------------------------*/
+
+static int
+SMTPRead( SMTPClient *client );
+
+static int
+SMTPWrite(SMTPClient *client,
+          const char UUFAR *data,
+          unsigned int len);
+
+static KWBoolean
+isFatalSocketError(int err);
+
+#if !defined(__OS2__)
+void AtWinsockExit(void);
+#endif
+
+/*--------------------------------------------------------------------*/
+/*       S M T P R e s p o n s e                                      */
+/*                                                                    */
+/*       Send a response to a remote client                           */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+SMTPResponse( SMTPClient *client, int code, const char *text )
+{
+
+   char buf[BUFSIZ];
+   size_t totalLength;
+   KWBoolean buffered = KWFalse;
+
+   if ( code )
+      sprintf( buf, "%03.3d%c", code < 0 ? - code : code,
+                         code < 0 ? '-' : ' ' );
+   else
+      strcpy(buf, "??? " );
+
+   printmsg( 2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
+
+   incrementClientLinesWritten( client );
+   incrementClientBytesWritten( client, totalLength );
+
+   totalLength = strlen( buf ) + strlen( text ) + strlen( crlf );
+
+/*--------------------------------------------------------------------*/
+/*       If all three parts of the message fit, pack it into one      */
+/*       buffer so we only call the network write once and send       */
+/*       one packet.                                                  */
+/*--------------------------------------------------------------------*/
+
+   if ( totalLength < sizeof buf )
+   {
+      strcat( buf, text );
+      strcat( buf, crlf );
+      buffered = KWTrue;
+   }
+
+   if( !SMTPWrite( client, buf, strlen(buf)) )
+   {
+      printmsg(0,"Error sending response code to remote host: %s.4%.75s",
+                  buf,
+                  text );
+      return KWFalse;
+   }
+
+   if ( buffered )                  /* All info written from buffer? */
+      return KWTrue;                /* Yes --> Report success        */
+
+   if( !SMTPWrite( client, text, strlen(text)) )
+   {
+      printmsg(0,"Error sending response text to remote host: %s%.75s",
+                 buf,
+                 text );
+      return KWFalse;
+   }
+
+   if( !SMTPWrite( client, crlf, strlen( crlf )) )
+   {
+      printmsg(0, "Error sending CR/LF to remote host: %s%.75s",
+                  buf,
+                  text );
+      return KWFalse;
+   }
+
+   return KWTrue;
+
+} /* SMTPResponse */
+
+/*--------------------------------------------------------------------*/
+/*       S M T P G e t L i n e                                        */
+/*                                                                    */
+/*       Read an SMTP command from our internal buffer                */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+SMTPGetLine( SMTPClient *client )
+{
+   static const char mName[] = "SMTPGetLine";
+   int column;
+
+   printmsg( 5, "%s: entered for client %d with %d bytes available",
+                mName,
+                getClientSequence( client ),
+                client->receive.used );
+
+/*--------------------------------------------------------------------*/
+/*                   Handle previously signaled EOF                   */
+/*--------------------------------------------------------------------*/
+
+   if ( isClientEOF( client ) && ! client->receive.used )
+   {
+      printmsg( 0, "%s: client %d is out of data (EOF)",
+                   mName,
+                   getClientSequence( client ));
+      client->receive.data[ 0 ] = '\0';
+      setClientMode( client, SM_ABORT );
+      return KWTrue;
+   }
+
+/*--------------------------------------------------------------------*/
+/*                    Read more data if we need it                    */
+/*--------------------------------------------------------------------*/
+
+   if ( client->ready )
+      SMTPRead( client );
+
+/*--------------------------------------------------------------------*/
+/*           Locate start of input line if not in data mode           */
+/*--------------------------------------------------------------------*/
+
+   if ( getClientMode( client ) != SM_DATA )
+   {
+      for( column = 0;
+           column < client->receive.used;
+           column ++ )
+      {
+            if ( ! isspace( client->receive.data[column] ))
+               break;
+      }
+
+      if ( column == client->receive.used )
+      {
+         printmsg( 2, "%d <<<  (empty line with %d characters)",
+                      getClientSequence(client),
+                      client->receive.used);
+         client->receive.used = 0;
+         client->receive.data[ 0 ] = '\0';
+         setClientIgnore( client, 2 );    /* Make client wait */
+         return KWFalse;                  /* Ignore input line */
+
+      }
+      else if ( column > 0 )
+      {
+
+         client->receive.used -= column;
+         MEMMOVE( client->receive.data,
+                  client->receive.data + column,
+                  client->receive.used );
+      }
+
+   } /* if ( getClientMode( client ) != SM_DATA ) */
+
+/*--------------------------------------------------------------------*/
+/*    Locate the end of the input line; we deliberately parse past    */
+/*    embedded nulls ('\0') lest some idiot sent us binary data       */
+/*--------------------------------------------------------------------*/
+
+  for( column = 0;
+       column < client->receive.used;
+       column ++ )
+  {
+    /* After we have at least two characters, check for CR/LF pair */
+    if ( column &&
+         ! memcmp( client->receive.data + column - 1,
+                   crlf,
+                   2 ))
+    {
+        client->receive.data[column-1] = '\0';
+        printmsg( 2, "%d <<< %.75s",
+                     getClientSequence(client),
+                     client->receive.data );
+        incrementClientLinesRead( client );
+        client->receive.parsed = column + 1;
+                                    /* Incr because count, not
+                                       subscript for this         */
+        return KWTrue;
+    }
+  }
+
+
+   if ( isClientEOF( client ))
+   {
+      printmsg( 0, "%s: Client %d Terminated unexpectedly",
+                 mName,
+                 getClientSequence( client ) );
+      client->receive.data[ 0 ] = '\0';
+      setClientMode( client, SM_ABORT );/* Abort client immediately   */
+      return KWTrue;                 /* Process the abort immediately */
+   }
+
+/*--------------------------------------------------------------------*/
+/*       We did not find the end of the command; this is an error     */
+/*       only if we are also out of buffer space.                     */
+/*--------------------------------------------------------------------*/
+
+   printmsg( 0, "%d <<< %.75s",
+                getClientSequence(client),
+                client->receive.data );
+   printmsg( 0, "%s: Client %d Input buffer (%d bytes) overrun.",
+                 mName,
+                 getClientSequence( client ),
+                 client->receive.used );
+
+   if ( column < client->receive.length)
+   {
+      setClientIgnore( client, 2 );
+      return KWFalse;                   /* Don't process a command now   */
+   }
+   else {
+
+     client->receive.parsed = client->receive.used;
+     client->receive.data[ client->receive.used - 1 ] = '\0';
+                                    /* Don't run off the buffer      */
+     setClientMode( client, SM_ABORT );/* Abort client immediately   */
+     return KWTrue;                 /* Process the abort immediately */
+   }
+
+} /* SMTPGetLine */
+
+/*--------------------------------------------------------------------*/
+/*       g e t M o d e T i m e o u t                                  */
+/*                                                                    */
+/*       Determine timeout for specified client mode                  */
+/*--------------------------------------------------------------------*/
+
+time_t
+getModeTimeout( SMTPMode mode )
+{
+   switch( mode )
+   {
+      case SM_MASTER:   return 300;
+      default:          return 90;
+   }
+}
+
+/*--------------------------------------------------------------------*/
+/*    I n i t W i n s o c k                                           */
+/*                                                                    */
+/*    Start the Windows sockets DLL                                   */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+InitWinsock(void)
+{
+
+#if !defined(__OS2__)
+   WSADATA WSAData;
+#endif
+
+   int status;
+   static KWBoolean firstPass = KWTrue;
+
+   if ( winsockActive )
+      return KWTrue;
+
+/*--------------------------------------------------------------------*/
+/*       The atexit() must precede the WSAStartup() so the            */
+/*       FreeLibrary() call gets done                                 */
+/*--------------------------------------------------------------------*/
+
+#if !defined(__OS2__)
+   if ( firstPass )
+   {
+      firstPass = KWFalse;
+      atexit(AtWinsockExit);
+   }
+#endif
+
+#ifdef _Windows
+   if (!pWinSockInit())
+      return KWFalse;
+#endif
+
+#if defined(__OS2__)
+   status = sock_init();
+#else
+   status = WSAStartup(0x0101, &WSAData);
+#endif
+
+   if (status != 0)
+   {
+#if defined(__OS2__)
+      printf("sock_init Error: %d", status);
+#else
+      printf("WSAStartup Error: %d", status);
+#endif
+      return KWFalse;
+   }
+
+   winsockActive = KWTrue;
+   return KWTrue;
+
+} /* InitWinsock */
+
+#if !defined(__OS2__)
+/*--------------------------------------------------------------------*/
+/*       A t W i n s o c k E x i t                                    */
+/*                                                                    */
+/*       Clean up Windows DLL at shutdown                             */
+/*--------------------------------------------------------------------*/
+
+void
+AtWinsockExit(void)
+{
+   WSACleanup();
+
+#ifdef _Windows
+   pWinSockExit();
+#endif
+
+   winsockActive = KWFalse;
+
+}  /* AtWinsockExit */
+
+#endif
+
+/*--------------------------------------------------------------------*/
+/*       o p e n M a s t e r                                          */
+/*                                                                    */
+/*       Listen on a socket for an incoming uucp connection; this     */
+/*       a stripped down version of the original passive openline     */
+/*       in ulibip.c.                                                 */
+/*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+SOCKET
+openMaster(const char *name )
+{
+   static const char mName[] = "masterOpen";
+
+   SOCKET pollingSock;
+   SOCKADDR_IN sin;
+   LPSERVENT pse;
+   int sockopt = 1;
+
+   if (!InitWinsock())              /* Initialize library?           */
+      return INVALID_SOCKET;        /* No --> Report error           */
+
+   norecovery = KWFalse;            /* Flag we need a graceful
+                                       shutdown after Ctrl-BREAK      */
+
+/*--------------------------------------------------------------------*/
+/*                Fill in service information for tcp                 */
+/*--------------------------------------------------------------------*/
+
+   printmsg(NETDEBUG, "%s: determining port", mName);
+
+   if ( strlen( name ))
+      sin.sin_port = htons((u_short) atoi(name));
+   else if ( (pse = getservbyname(UUCP_SERVICE, "tcp")) == NULL )
+   {
+      int wsErr = WSAGetLastError();
+
+      sin.sin_port = htons(UUCP_PORT);
+      printWSerror("getservbyname", wsErr);
+      printmsg(0, "%s: cannot locate service %s, using port %d",
+                  mName,
+                  UUCP_SERVICE,
+                  (int)ntohs(sin.sin_port));
+   }
+   else
+      sin.sin_port = pse->s_port;
+
+   sin.sin_family = AF_INET;     /* A internet socket, of course     */
+   sin.sin_addr.s_addr = 0;      /* Listen on all interfaces         */
+
+/*--------------------------------------------------------------------*/
+/*                     Create and bind TCP socket                     */
+/*--------------------------------------------------------------------*/
+
+   printmsg(NETDEBUG + 1, "%s: doing socket()", mName );
+
+   pollingSock = socket( AF_INET, SOCK_STREAM, 0);
+
+   if (pollingSock == INVALID_SOCKET)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: socket() failed", mName);
+      printWSerror("socket", wsErr);
+      return INVALID_SOCKET;
+   }
+
+   printmsg(NETDEBUG, "%s: doing bind() on socket %d port %d",
+                      mName,
+                      pollingSock,
+                      (int) ntohs(sin.sin_port));
+
+   if (bind(pollingSock,
+           (struct sockaddr UUFAR *) (void *) &sin,
+           sizeof(sin)) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: bind(pollingSock) failed", mName);
+      printWSerror("bind", wsErr);
+      closeSocket( pollingSock );
+      return INVALID_SOCKET;        /* report failure            */
+   }
+
+   printmsg(NETDEBUG + 1, "%s: doing setsockopt()", mName);
+
+   if (setsockopt( pollingSock, SOL_SOCKET, SO_REUSEADDR,
+         (char UUFAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: setsockopt() failed", mName);
+      printWSerror("setsockopt", wsErr);
+      closeSocket( pollingSock );
+      return INVALID_SOCKET;
+   }
+
+   printmsg(NETDEBUG, "%s: doing listen()", mName);
+
+   if (listen(pollingSock, 2) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: listen(pollingSock) failed", mName);
+      printWSerror("listen", wsErr);
+      closeSocket( pollingSock );
+      return INVALID_SOCKET;
+   }
+
+   return pollingSock;              /* Return success to caller      */
+
+} /* openMaster */
+
+/*--------------------------------------------------------------------*/
+/*       o p e n S l a v e                                            */
+/*                                                                    */
+/*       Given a listening socket ready with a new connection,        */
+/*       accept the new connection and return the resulting socket    */
+/*--------------------------------------------------------------------*/
+
+SOCKET
+openSlave(SOCKET pollingSock)
+{
+   static const char mName[] = "slaveOpen";
+
+   SOCKET connectedSock = accept(pollingSock, NULL, NULL);
+
+   if (connectedSock == INVALID_SOCKET)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: could not accept a connection", mName);
+      printWSerror("accept", wsErr);
+   }
+
+   return connectedSock;
+
+} /* openSlave */
+
+/*--------------------------------------------------------------------*/
+/*    S M T P W r i t e                                               */
+/*                                                                    */
+/*    Write to the open socket                                        */
+/*--------------------------------------------------------------------*/
+
+static int
+SMTPWrite(SMTPClient *client,
+          const char UUFAR *data,
+          unsigned int len)
+{
+   static const char mName[] = "SMTPWrite";
+   int status;
+
+   status = send(client->handle, (char UUFAR *)data, (int) len, 0);
+
+   if (status == SOCKET_ERROR)
+   {
+      int err;
+
+      err = WSAGetLastError();
+      printmsg(0, "%s: Error sending data to socket", mName);
+      printWSerror("send", err);
+
+      if (isFatalSocketError(err))
+      {
+         shutdown(client->handle, 2);  /* Fail both reads and writes   */
+      }
+      return 0;
+   }
+
+   if (status < (int)len)     /* Breaks if len > 32K, which is unlikely */
+   {
+      printmsg(0,"%s: Write to network failed.", mName);
+      return status;
+   }
+/*--------------------------------------------------------------------*/
+/*              Return byte count transmitted to caller               */
+/*--------------------------------------------------------------------*/
+
+   return (int) len;
+
+} /* SMTPWrite */
+
+/*--------------------------------------------------------------------*/
+/*    S M T P R e a d                                                 */
+/*                                                                    */
+/*    Perform a read off the network to (perhaps) fill in the         */
+/*    supplied client read buffer; should be called only after        */
+/*    select determines client is ready.                              */
+/*--------------------------------------------------------------------*/
+
+static int
+SMTPRead( SMTPClient *client )
+{
+   static const char mName[] = "SMTPRead";
+   int received;
+
+/*--------------------------------------------------------------------*/
+/*                        Verify a few status                         */
+/*--------------------------------------------------------------------*/
+
+   if ( client->receive.length < client->receive.used )
+   {
+         printmsg(0, "%s: Client has used more bytes (%d) "
+                     "than buffer bytes allocated (%d)",
+                    mName,
+                    getClientSequence( client ),
+                    client->receive.used,
+                    client->receive.length );
+
+      panic();
+   }
+
+   if ( client->receive.used < client->receive.parsed )
+   {
+         printmsg(0, "%s: Client has parsed more bytes (%d) "
+                     "than bytes in use (%d)",
+                    mName,
+                    getClientSequence( client ),
+                    client->receive.parsed,
+                    client->receive.used );
+
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*     Discard any data we have already processed from the client     */
+/*--------------------------------------------------------------------*/
+
+   if ( client->receive.parsed > 0 )
+   {
+      client->receive.used -= client->receive.parsed;
+
+      if ( client->receive.used > client->receive.parsed)
+         MEMMOVE( client->receive.data,
+                  client->receive.data + client->receive.parsed,
+                  client->receive.used - client->receive.parsed);
+      client->receive.parsed = 0;
+   }
+
+/*--------------------------------------------------------------------*/
+/*                If no more data from client, return                 */
+/*--------------------------------------------------------------------*/
+
+   if ( client->endOfTransmission )
+      return client->receive.used;
+
+/*--------------------------------------------------------------------*/
+/*                 Make sure our buffer is big enough                 */
+/*--------------------------------------------------------------------*/
+
+   if ( client->receive.used >= client->receive.length )
+   {
+      if (client->receive.length < (16*1024))
+      {
+         printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
+                    mName,
+                    getClientSequence( client ),
+                    client->receive.length );
+         client->receive.length *= 2;
+         client->receive.data =
+                       realloc( client->receive.data,
+                                 client->receive.length );
+         checkref( client->receive.data );
+      }
+      else {
+          printmsg(0, "%s: Client %d overran of input buffer %d,"
+                      " truncated.",
+                      mName,
+                      getClientSequence( client ),
+                      client->receive.length );
+          return client->receive.used;
+      }
+
+   }
+
+/*--------------------------------------------------------------------*/
+/*                  Actually get our next data read                   */
+/*--------------------------------------------------------------------*/
+
+   received = recv(client->handle,
+                   client->receive.data +
+                           client->receive.used,
+                   client->receive.length -
+                           client->receive.used,
+                   0);
+
+   if ( received == 0 )
+   {
+      client->endOfTransmission = KWTrue;
+      printmsg(0, "%s: EOF on recv()", mName);
+
+   }
+   else if (received == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "%s: recv() failed", mName);
+      printWSerror("recv", wsErr);
+
+      if (isFatalSocketError(wsErr))
+      {
+         shutdown(client->handle, 2); /* Fail both reads and writes  */
+         return 0;                    /* Force termination of client */
+      }
+   }
+   else {
+      incrementClientBytesRead( client, received );
+      client->receive.used += received;
+   }
+
+   return client->receive.used;
+
+} /* SMTPRead */
+/*--------------------------------------------------------------------*/
+/*      i s F a t a l S o c k e t E r r o r                           */
+/*                                                                    */
+/*      Determine if an error is a show stopped                       */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+isFatalSocketError(int err)
+{
+
+#if defined(__OS2__)
+   if (err == ENOTSOCK     ||
+       err == ENETDOWN     ||
+       err == ENETRESET    ||
+       err == ECONNABORTED ||
+       err == ECONNRESET   ||
+       err == ENOTCONN     ||
+       err == ECONNREFUSED ||
+       err == EHOSTDOWN    ||
+       err == EHOSTUNREACH)
+#else
+   if (err == WSAENOTSOCK     ||
+       err == WSAENETDOWN     ||
+       err == WSAENETRESET    ||
+       err == WSAECONNABORTED ||
+       err == WSAECONNRESET   ||
+       err == WSAENOTCONN     ||
+       err == WSAECONNREFUSED ||
+       err == WSAEHOSTDOWN    ||
+       err == WSAEHOSTUNREACH)
+#endif
+       return KWTrue;
+    else
+       return KWFalse;
+
+} /* isFatalSocketError */
+
+/*--------------------------------------------------------------------*/
+/*       c l o s e S o c k e t                                        */
+/*                                                                    */
+/*       Close a socket, terminating all socket processing if this    */
+/*       is the last one.  Must be called for ALL sockets for which   */
+/*       socketsOpen is incremented                                   */
+/*--------------------------------------------------------------------*/
+
+void
+closeSocket( SOCKET handle )
+{
+   static const char mName[] = "closeSocket";
+
+   if ( handle == INVALID_SOCKET )
+   {
+      printmsg(0, "%s: Called for invalid socket", mName );
+      panic();
+   }
+
+   closesocket( handle );
+
+} /* closeSocket */
