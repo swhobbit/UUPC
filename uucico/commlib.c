@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.3 1993/07/11 14:38:32 ahd Exp $
+ *    $Id: commlib.c 1.4 1993/07/13 01:13:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.4  1993/07/13  01:13:32  ahd
+ * Don't print NULL communications suite name!
+ *
  * Revision 1.3  1993/07/11  14:38:32  ahd
  * Display chosen suite
  *
@@ -57,7 +60,7 @@
 #endif
 #endif
 
-#define NATIVE "native"
+#define NATIVE "internal"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -98,6 +101,7 @@ boolean chooseCommunications( const char *name )
           nGetSpeed,
           nCD },
 #ifndef WIN32
+#ifndef _Windows
 #ifndef FAMILYAPI
         { "fossil",                    // MS-DOS FOSSIL driver
           fopenline, fsread, fswrite,
@@ -109,6 +113,7 @@ boolean chooseCommunications( const char *name )
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD },
+#endif
 #endif
 #endif
         { NULL }                       // End of list

@@ -7,15 +7,22 @@
 /*                                                                    */
 /*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
 /*    Changes Copyright (c) Stuart Lynne 1987                         */
-/*    Changes Copyright (c) Andrew H. Derbyshire 1989                 */
 /*    Changes Copyright (c) Jordan Brown 1990, 1991                   */
-/*    Changes Copyright (c) Kendra Electronic Wonderworks 1990-1993   */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.17 1993/05/30 00:04:53 ahd Exp $
+ *       $Id: dcpxfer.c 1.18 1993/07/19 02:52:11 ahd Exp $
  *
- *       $Log: DCPXFER.C $
+ *       $Log: dcpxfer.c $
+ *
  * Revision 1.17  1993/05/30  00:04:53  ahd
  * Multiple communications drivers support
  *
@@ -175,11 +182,12 @@ XFER_STATE sdata( void )
    do {
       size_t xmit = min( (size_t) S_size - used , s_pktsize );
 
-      if ((*sendpkt)((char *) databuf + used, xmit) != OK)   /* Send data */
+      if ((*sendpkt)((char *) databuf + used, xmit) != DCP_OK)
+                                    /* Send data fail?            */
       {
          fclose( xfer_stream );
          xfer_stream = NULL;
-         return XFER_LOST;    /* Trouble!                            */
+         return XFER_LOST;    /* Trouble!                         */
       }
       else
          used += xmit;
@@ -306,19 +314,19 @@ XFER_STATE seof( const boolean purge_file )
 
    switch ((*eofpkt)())
    {
-      case RETRY:                /* retry */
+      case DCP_RETRY:            /* retry */
          printmsg(0, "Remote system asks that the file be resent");
          fseek(xfer_stream, 0L, SEEK_SET);
          bytes = 0;
          (*filepkt)();           /* warmstart file-transfer protocol */
          return XFER_SENDDATA;   /* stay in data phase */
 
-      case FAILED:
+      case DCP_FAILED:
          fclose(xfer_stream);
          xfer_stream = NULL;
          return XFER_ABORT;      /* cannot send file */
 
-      case OK:
+      case DCP_OK:
          fclose(xfer_stream);
          xfer_stream = NULL;
          break;                  /* sent, proceed */
@@ -376,9 +384,12 @@ XFER_STATE seof( const boolean purge_file )
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
-         if (( syslog == NULL ) ||
-             (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
+         if ( syslog == NULL )
             printerr(SYSLOG);
+#ifndef _Windows
+         else if ((bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
+            printerr(SYSLOG);
+#endif
          else {
             fprintf( syslog,
                    "%s!%s %c %s (%d/%d-%02d:%02d:%02d) -> %ld"
@@ -531,6 +542,8 @@ XFER_STATE ssfile( void )
 /*              The file is open, now set its buffering               */
 /*--------------------------------------------------------------------*/
 
+#ifndef _Windows                 // Leave file buffered under Windows
+
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
       printmsg(0, "ssfile: Cannot unbuffer file %s (%s).",
@@ -540,6 +553,8 @@ XFER_STATE ssfile( void )
       xfer_stream = NULL;
       return XFER_ABORT;         /* Clearly not our day; quit  */
    } /* if */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    Okay, we have a file to process; offer it to the other host     */
@@ -665,6 +680,9 @@ appending filename \"%s\"", spolname, slash);
 /*                     Set buffering for the file                     */
 /*--------------------------------------------------------------------*/
 
+
+#ifndef _Windows                 // Leave file buffered under Windows
+
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
       printmsg(0, "srfile: Cannot unbuffer file %s (%s).",
@@ -675,6 +693,8 @@ appending filename \"%s\"", spolname, slash);
       xfer_stream = NULL;
       return XFER_ABORT;
    } /* if */
+
+#endif
 
    spool = FALSE;             /* Do not rename file at completion */
    lname = spolname;          // Use full name for local logging
@@ -787,7 +807,7 @@ XFER_STATE endp( void )
 XFER_STATE rinit( void )
 {
 
-   if ((*openpk)( FALSE ) == OK )   /* Initialize in callee mode     */
+   if ((*openpk)( FALSE ) == DCP_OK )   /* Initialize in callee mode */
    {
       buf_init();
       return XFER_SLAVE;
@@ -979,6 +999,9 @@ XFER_STATE rrfile( void )
 /*               The file is open, now try to buffer it               */
 /*--------------------------------------------------------------------*/
 
+
+#ifndef _Windows                 // Leave file buffered under Windows
+
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
       printmsg(0, "rrfile: Cannot unbuffer file %s (%s).",
@@ -989,6 +1012,8 @@ XFER_STATE rrfile( void )
       pktsendstr("SN4");             /* Report cannot create file     */
       return XFER_ABORT;
    } /* if */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    Announce we are receiving the file to console and to remote     */
@@ -1085,6 +1110,9 @@ XFER_STATE rsfile( void )
          return XFER_FILEDONE;   /* Tell them to send next file   */
    } /* if */
 
+
+#ifndef _Windows                 // Leave file buffered under Windows
+
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
       printmsg(0, "rsfile: Cannot unbuffer file %s (%s).", fname, spolname);
@@ -1094,6 +1122,8 @@ XFER_STATE rsfile( void )
       xfer_stream = NULL;
       return XFER_ABORT;
    } /* if */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*  We have the file open, announce it to the log and to the remote   */
@@ -1127,7 +1157,7 @@ XFER_STATE rdata( void )
 
    do {
 
-      if ((*getpkt)((char *) (databuf + used), &len) != OK)
+      if ((*getpkt)((char *) (databuf + used), &len) != DCP_OK)
       {
          fclose(xfer_stream);
          xfer_stream = NULL;
@@ -1241,9 +1271,12 @@ XFER_STATE reof( void )
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
-         if (( syslog == NULL ) ||
-             (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
+         if ( syslog == NULL )
             printerr(SYSLOG);
+#ifndef _Windows
+         else if ((bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
+            printerr(SYSLOG);
+#endif
          else {
             fprintf( syslog,
                    "%s!%s %c %s (%d/%d-%02d:%02d:%02d) <- %ld"
@@ -1298,7 +1331,7 @@ static boolean pktsendstr( char *s )
    if ( (! bflag[ F_MULTITASK ]) || (debuglevel > 2) )
       fflush( logfile );         /* Known safe place  to flush log      */
 
-   if((*wrmsg)(s) != OK )
+   if((*wrmsg)(s) != DCP_OK )
       return FALSE;
 
    remote_stats.bsent += strlen(s)+1;
@@ -1314,7 +1347,7 @@ static boolean pktsendstr( char *s )
 
 static boolean pktgetstr( char *s)
 {
-   if ((*rdmsg)(s) != OK )
+   if ((*rdmsg)(s) != DCP_OK )
      return FALSE;
 
    remote_stats.breceived += strlen( s ) + 1;

@@ -1,34 +1,35 @@
-/*
-   d c p g p k t . c
+/*--------------------------------------------------------------------*/
+/*       d c p g p k t . c                                            */
+/*                                                                    */
+/*       UUCP 'g' protocol module for UUPC/extended.  Supports 7      */
+/*       window variable length packets of up yo 512 bytes in         */
+/*       length.                                                      */
+/*--------------------------------------------------------------------*/
 
-   Revised edition of dcp
+/*--------------------------------------------------------------------*/
+/*       Stuart Lynne May/87                                          */
+/*                                                                    */
+/*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
+/*       Changes Copyright (c) Stuart Lynne 1987                      */
+/*                                                                    */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
 
-   Stuart Lynne May/87
-
-   Copyright (c) Richard H. Lamb 1985, 1986, 1987
-   Changes Copyright (c) Stuart Lynne 1987
-   Changes Copyright (c) Andrew H. Derbyshire 1989
-   Changes Copyright (c) Kendra Electronic Wonderworks 1990-1993
-
-   Maintenance notes:
-
-   25Aug87 - Allow for up to 7 windows - Jal
-   01Nov87 - those strncpy's should really be memcpy's! - Jal
-   11Sep89 - Raise TimeOut to 15 - ahd
-   30Apr90 - Add Jordon Brown's fix for short packet retries.
-             Reduce retry limit to 20                             ahd
-   22Jul90 - Change error retry limit from per host to per
-             packet.                                              ahd
-   22Jul90 - Add error message for number of retries exceeded     ahd
-   08Sep90 - Drop memmove to memcpy change supplied by Jordan
-             Brown, MS 6.0 and Turbo C++ agree memmove insures
-             no overlap
-*/
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
 
 /*
- *      $Id: DCPGPKT.C 1.12 1993/04/13 03:19:45 ahd Exp $
+ *      $Id: DCPGPKT.C 1.13 1993/05/30 00:01:47 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.13  1993/05/30  00:01:47  ahd
+ * Move UUFAR into header file
+ *
  * Revision 1.12  1993/04/13  03:19:45  ahd
  * Only perform copy to gspkt if input to gsendpkt is non-null
  *
@@ -59,12 +60,26 @@
  * Revision 1.3  1992/11/16  02:10:27  ahd
  * Rewrite protocol initialize to insure full exchange of packets
  *
+ *          25Aug87 - Allow for up to 7 windows - Jal
+ *
+ *          01Nov87 - those strncpy's should really be memcpy's! -
+ *                    Jal
+ *
+ *          11Sep89 - Raise TimeOut to 15 - ahd
+ *
+ *          30Apr90 - Add Jordon Brown's fix for short packet
+ *                    retries. Reduce retry limit to 20
+ *
+ *          22Jul90 - Change error retry limit from per host to per
+ *                    packet.
+ *
+ *          22Jul90 - Add error message for number of retries
+ *                    exceeded
+ *
+ *          08Sep90 - Drop memmove to memcpy change supplied by
+ *                    Jordan Brown, MS 6.0 and Turbo C++ agree
+ *                    memmove insures no overlap
  */
-
-
-/* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
-
-/* 7-window "g" ptotocol */
 
 /*--------------------------------------------------------------------*/
 /*    Thanks goes to John Gilmore for sending me a copy of Greg       */
@@ -84,11 +99,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#ifndef _Windows
 #ifdef __TURBOC__
 #include <mem.h>
 #include <alloc.h>
 #else
 #include <malloc.h>
+#endif
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -176,7 +193,7 @@ typedef enum {
 /*                 Handle 16 bit vs. 32 bit compilers                 */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_Windows)
 #define MEMSET(p,c,l)  memset(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
@@ -206,9 +223,11 @@ static time_t ftimer[NBUF];
 static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
-#ifndef WIN32
-static char *gspkt = NULL;
+
+#if !defined(WIN32) && !defined(_Windows)
+static char *gspkt = NULL;       // Local buffer dir
 #endif
+
 static boolean variablepacket;  /* "v" or in modem file              */
 
 /*--------------------------------------------------------------------*/
@@ -444,21 +463,21 @@ static short initialize(const boolean caller, const char protocol )
                   state = I_INITC_RECV;
                   break;
 
-               case EMPTY:
+               case DCP_EMPTY:
                   printmsg(GDEBUG, "**got EMPTY");
                   state = I_EMPTY;
 
                   if (bmodemflag[MODEM_CD] && !CD())
                   {
                      printmsg(0,"gopenpk: Modem carrier lost");
-                     return FAILED;
+                     return DCP_FAILED;
                   }
                   break;
 
                case CLOSE:
                   printmsg(GDEBUG, "**got CLOSE");
                   gspack(CLOSE, 0, 0, 0, 0, NULL);
-                  return FAILED;
+                  return DCP_FAILED;
 
                default:
                   printmsg(GDEBUG, "**got SCREW UP");
@@ -469,7 +488,7 @@ static short initialize(const boolean caller, const char protocol )
             if (bmodemflag[MODEM_CD] && !CD())
             {
                printmsg(0,"gopenpk: Modem carrier lost");
-               return FAILED;
+               return DCP_FAILED;
             }
             break;
 
@@ -576,7 +595,7 @@ static short initialize(const boolean caller, const char protocol )
       if ( terminate_processing )
       {
          printmsg(0,"gopenpk: Terminated by user");
-         return FAILED;
+         return DCP_FAILED;
       }
 
       if (nerr >= M_MaxErr)
@@ -587,7 +606,7 @@ static short initialize(const boolean caller, const char protocol )
             "gopenpk: Consecutive error limit of %ld exceeded, "
                      "%ld total errors",
              (long) M_MaxErr, remote_stats.errors);
-         return(FAILED);
+         return(DCP_FAILED);
       }
    } /* while */
 
@@ -598,7 +617,7 @@ static short initialize(const boolean caller, const char protocol )
    grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
    checkref( grpkt );
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_Windows)
    gspkt = malloc( s_pktsize );
    checkref( gspkt );
 #endif
@@ -606,7 +625,8 @@ static short initialize(const boolean caller, const char protocol )
    nerr = 0;
    lazynak = 0;
 
-#ifdef WIN32
+
+#if defined(WIN32) || defined(_Windows)
    printmsg(2,"%s packets, "
               "Window size %d, "
               "Receive packet %d\n, "
@@ -628,7 +648,7 @@ static short initialize(const boolean caller, const char protocol )
             memavail());
 #endif
 
-   return(OK); /* channel open */
+   return(DCP_OK); /* channel open */
 
 } /*initialize*/
 
@@ -641,7 +661,7 @@ static short initialize(const boolean caller, const char protocol )
 short gfilepkt( void )
 {
 
-   return OK;
+   return DCP_OK;
 
 } /* gfilepkt */
 
@@ -669,7 +689,7 @@ short gclosepk()
    free( grpkt );
    grpkt = NULL;
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_Windows)
    free( gspkt );
    gspkt = NULL;
 #endif
@@ -814,11 +834,18 @@ short gsendpkt(char *data, short len)
 
    checkref( data );
    irec = 0;
-   /* WAIT FOR INPUT i.e. if weve sent SWINDOW pkts and none have been
-      acked, wait for acks */
-   while (nbuffers >= nwindows)
+
+/*--------------------------------------------------------------------*/
+/*       WAIT FOR INPUT i.e. if we have sent SWINDOW pkts and none    */
+/*       have been acked, wait for acks.  Note that we always go      */
+/*       through the machine at least once to keep caught up with     */
+/*       ACK's sent by remote machine.                                */
+/*--------------------------------------------------------------------*/
+
+   do {
       if (gmachine(0) != POK)    /* Spin with no timeout             */
          return(-1);
+   } while (nbuffers >= nwindows);
 
 /*--------------------------------------------------------------------*/
 /*               Place packet in table and mark unacked               */
@@ -895,9 +922,9 @@ short gsendpkt(char *data, short len)
 short geofpkt( void )
 {
    if (gsendpkt("", 0))          /* Empty packet == EOF              */
-      return FAILED;
+      return DCP_FAILED;
    else
-      return OK;
+      return DCP_OK;
 } /* geofpkt */
 
 /*--------------------------------------------------------------------*/
@@ -999,7 +1026,7 @@ static short gmachine(const short timeout )
             close = done = TRUE;
             break;
 
-         case EMPTY:
+         case DCP_EMPTY:
             printmsg(timeout ? GDEBUG : 8, "**got EMPTY");
 
             if (bmodemflag[MODEM_CD] && !CD())
@@ -1100,7 +1127,7 @@ static short gmachine(const short timeout )
             } /* if */
             break;
 
-         case ERROR:
+         case DCP_ERROR:
             printmsg(GDEBUG, "*** got BAD CHK");
             naksout++;
             donak = TRUE;
@@ -1224,7 +1251,7 @@ static void gspack(short type,
                    short xxx,
                    short len,
                    unsigned short xmit,
-#ifdef WIN32
+#if defined(WIN32) || defined(_Windows)
                    char *data)
 #else
                    char UUFAR *input)
@@ -1233,7 +1260,7 @@ static void gspack(short type,
    unsigned short check, i;
    unsigned char header[HDRSIZE];
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_Windows)
    char *data;                   // Local data buffer address
    if ( input == NULL )
       data = NULL;               // Make consistent with real buffer
@@ -1391,13 +1418,12 @@ static void gspack(short type,
 
    on return: yyy=pkrec xxx=pksent len=length<=PKTSIZE  data=*data
 
-   ret(type)   ok
-   ret(EMPTY)  input buf empty
-   ret(ERROR)  bad header
+   ret(type)       ok
+   ret(DCP_EMPTY)  input buf empty
+   ret(DCP_ERROR)  bad header
 
-   ret(EMPTY)  lost packet timeout
-   ret(ERROR)  checksum error
-   ret(-5)     packet size != 64
+   ret(DCP_EMPTY)  lost packet timeout
+   ret(DCP_ERROR)  checksum error
 
    NOTE (specifications for sread()):
 
@@ -1460,7 +1486,7 @@ static short grpack(short *yyy,
          if (sread((char *) &grpkt[received], needed, wait ) <
              (unsigned short) needed )
                               /* Did we get the needed data?         */
-            return EMPTY;     /* No --> Return to caller             */
+            return DCP_EMPTY; /* No --> Return to caller             */
 
          received += needed;
       } /* if ( needed < received ) */
@@ -1539,7 +1565,7 @@ get_data:
       {
          printmsg(0,"grpack: Unexpected data packet!");
          received = 0;
-         return(ERROR);
+         return(DCP_ERROR);
       }
 
 /*--------------------------------------------------------------------*/
@@ -1554,7 +1580,7 @@ get_data:
             total, (int) grpkt[1]);
          received = 0;
          got_hdr = FALSE;
-         return(ERROR);
+         return(DCP_ERROR);
       }
 
       needed = total + HDRSIZE - received;
@@ -1568,7 +1594,7 @@ get_data:
       if ((needed > 0) &&
           (sread((char *) &grpkt[HDRSIZE+total-needed], needed, timeout) <
            (unsigned short)needed))
-         return(EMPTY);
+         return(DCP_EMPTY);
 
       got_hdr = FALSE;           /* Must re-process header next pass */
 
@@ -1596,7 +1622,7 @@ get_data:
          memmove( grpkt, grpkt + HDRSIZE, total );
                               /* Save data so we can scan for sync   */
          received = total;    /* Note the amount of the data in buf  */
-         return(ERROR);       /* Return to caller with error         */
+         return(DCP_ERROR);   /* Return to caller with error         */
       }
 
 /*--------------------------------------------------------------------*/

@@ -31,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.7 1993/04/05 12:26:01 ahd Exp $
+ *    $Id: DCPFPKT.C 1.8 1993/05/30 00:01:47 ahd Exp $
  *
  *    $Log: DCPFPKT.C $
+ * Revision 1.8  1993/05/30  00:01:47  ahd
+ * Multiple communications driver support
+ *
  * Revision 1.7  1993/04/05  12:26:01  ahd
  * Correct prototypes to match gpkt
  *
@@ -102,6 +105,10 @@ static short chksum;
 /*    Open "f" protocol to other system                               */
 /*--------------------------------------------------------------------*/
 
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
 short fopenpk(const boolean master)
 {
    flowcontrol(TRUE);
@@ -111,7 +118,7 @@ short fopenpk(const boolean master)
 
    r_pktsize = s_pktsize = M_fPacketSize;
    ssleep(2); /* Give peer time to perform corresponding port setup */
-   return OK;
+   return DCP_OK;
 } /* fopenpk */
 
 /*--------------------------------------------------------------------*/
@@ -123,7 +130,7 @@ short fopenpk(const boolean master)
 short fclosepk()
 {
    flowcontrol(FALSE);
-   return OK;
+   return DCP_OK;
 } /* fclosepk */
 
 /*--------------------------------------------------------------------*/
@@ -143,9 +150,9 @@ short fwrmsg(char *str)
       s--;
    *s++ = '\r';
    if (swrite(bufr, s - bufr) == (s - bufr))
-      return OK;
+      return DCP_OK;
    else
-      return FAILED;
+      return DCP_FAILED;
 } /* fwrmsg */
 
 /*--------------------------------------------------------------------*/
@@ -179,11 +186,11 @@ short frdmsg(char *str)
       } /* if (s++ >= smax) */
    }
    *s = '\0';
-   return OK;
+   return DCP_OK;
 
 msgerr:
    printmsg(0,"frdmsg: Message received \"%s\"", str);
-   return FAILED;
+   return DCP_FAILED;
 } /* frdmsg */
 
 /*--------------------------------------------------------------------*/
@@ -210,10 +217,10 @@ short fgetpkt(char *packet, short *bytes)
       eof = FALSE;
       printmsg(0,"fgetpkt: EOF from other host");
       *bytes = 0;
-      if (fsendresp(OK) == OK)
-         return OK;
+      if (fsendresp(DCP_OK) == DCP_OK)
+         return DCP_OK;
       else
-         return FAILED;
+         return DCP_FAILED;
    } /* if ( eof ) */
 
    left = s_pktsize;
@@ -229,7 +236,7 @@ short fgetpkt(char *packet, short *bytes)
       len = sread(ip, 1, M_fPacketTimeout); /* single-byte reads for now */
       if (len == 0) {
          printmsg(0,"fgetpkt: Timeout after %d seconds", M_fPacketTimeout);
-         return FAILED;               /* Fail if timed out */
+         return DCP_FAILED;               /* Fail if timed out */
       }
       if ((*ip &= 0177) >= '\172') {
          if (special) {
@@ -269,12 +276,12 @@ short fgetpkt(char *packet, short *bytes)
             if (chksum == sum) {
                eof = TRUE;
                printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
-               return OK;
+               return DCP_OK;
             } else {
                printmsg(0, "fgetpkt: Checksum mismatch, told %04x, calc %04x",
                             chksum, sum);
-               fsendresp(RETRY);
-               return RETRY;
+               fsendresp(DCP_RETRY);
+               return DCP_RETRY;
             }
          }
          special = *ip++;
@@ -331,7 +338,7 @@ short fgetpkt(char *packet, short *bytes)
    *bytes = s_pktsize;
    printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
    chksum = sum;
-   return OK;
+   return DCP_OK;
 
 /*--------------------------------------------------------------------*/
 /*            The data is corrupt; flush the incoming file            */
@@ -344,8 +351,8 @@ dcorr:
    while (len)
       len = sread(packet, 1, M_fPacketTimeout);
 
-   fsendresp(RETRY);
-   return RETRY;
+   fsendresp(DCP_RETRY);
+   return DCP_RETRY;
 } /* fgetpkt */
 
 /*--------------------------------------------------------------------*/
@@ -366,7 +373,7 @@ short fsendpkt(char *ip, short len)
    if (len == 0)
    {
       printmsg(0,"fsendpkt: Internal error: zero length for packet");
-      return FAILED;
+      return DCP_FAILED;
    }
    do {
       if (sum & 0x8000) {
@@ -410,9 +417,9 @@ short fsendpkt(char *ip, short len)
    chksum = sum;
    ret = swrite(obuf, nl);
    if ( ret == nl )
-      return OK;
+      return DCP_OK;
    else
-      return FAILED;
+      return DCP_FAILED;
 } /* fsendpkt */
 
 /*--------------------------------------------------------------------*/
@@ -425,7 +432,7 @@ short ffilepkt( void)
 {
    chksum = 0xffff;
    printmsg(3,"ffilepkt: Checksum reset");
-   return OK;
+   return DCP_OK;
 } /* ffilepkt */
 
 /*--------------------------------------------------------------------*/
@@ -451,8 +458,8 @@ short feofpkt( void )
 /*                 Now get the response and report it                 */
 /*--------------------------------------------------------------------*/
 
-   if (frdmsg(ibuf) == FAILED)
-      return FAILED;
+   if (frdmsg(ibuf) == DCP_FAILED)
+      return DCP_FAILED;
 
    printmsg(2,"<-- %s",ibuf);
 
@@ -463,13 +470,13 @@ short feofpkt( void )
    switch(*ibuf)
    {
       case 'R':
-         return RETRY;
+         return DCP_RETRY;
 
       case 'G':
-         return OK;
+         return DCP_OK;
 
       default:
-         return FAILED;
+         return DCP_FAILED;
 
    } /* switch */
 
@@ -486,11 +493,11 @@ static short fsendresp(short state)
    char *s;
    switch (state)
    {
-      case OK:
+      case DCP_OK:
          s = "G";
          break;
 
-      case RETRY:
+      case DCP_RETRY:
          s = "R";
          break;
 

@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/* d c p . c                                                          */
+/*          d c p . c                                                 */
 /*                                                                    */
-/* Main routines for UUCICO                                           */
+/*          Main routines for UUCICO                                  */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,23 +17,13 @@
 /*    Changes Copyright (c) Stuart Lynne 1987                         */
 /*--------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------------*/
-/* Maintenance Notes:                                                 */
-/*                                                                    */
-/* 25Aug87 - Added a version number - Jal                             */
-/* 25Aug87 - Return 0 if contact made with host, or 5 otherwise.      */
-/* 04Sep87 - Bug causing premature sysend() fixed. - Randall Jessup   */
-/* 13May89 - Add date to version message  - Drew Derbyshire           */
-/* 17May89 - Add '-u' (until) option for login processing             */
-/* 01 Oct 89      Add missing function prototypes                     */
-/* 28 Nov 89      Add parse of incoming user id for From record       */
-/* 18 Mar 90      Change checktime() calls to Microsoft C 5.1         */
-/*--------------------------------------------------------------------*/
-
 /*
- *    $Id: DCP.C 1.10 1993/04/11 00:35:46 ahd Exp $
+ *    $Id: DCP.C 1.11 1993/05/30 00:01:47 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.11  1993/05/30  00:01:47  ahd
+ * Allow tracing connection via UUCICO -t flag
+ *
  * Revision 1.10  1993/04/11  00:35:46  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -55,6 +45,14 @@
  * Revision 1.4  1992/11/22  21:30:55  ahd
  * Do not bother to strdup() string arguments
  *
+ * 25Aug87 - Added a version number - Jal
+ * 25Aug87 - Return 0 if contact made with host, or 5 otherwise.
+ * 04Sep87 - Bug causing premature sysend() fixed. - Randall Jessup
+ * 13May89 - Add date to version message  - Drew Derbyshire
+ * 17May89 - Add '-u' (until) option for login processing
+ * 01 Oct 89      Add missing function prototypes
+ * 28 Nov 89      Add parse of incoming user id for From record
+ * 18 Mar 90      Change checktime() calls to Microsoft C 5.1
  */
 
 /*--------------------------------------------------------------------*/
@@ -81,6 +79,10 @@
 /*                           file.                                    */
 /* UUCICO [-x n] -s any      call any host we have work queued for.   */
 /* UUCICO [-x n]             same as the above.                       */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -312,7 +314,7 @@ int dcpmain(int argc, char *argv[])
       if ((fsys = FOPEN(E_systems, "r",TEXT_MODE)) == nil(FILE))
       {
          printerr(E_systems);
-         exit(FAILED);
+         panic();
       }
 
       setvbuf( fsys, NULL, _IONBF, 0);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NBSTIME.C 1.6 1993/05/30 00:04:53 ahd Exp $
+ *    $Id: NBSTIME.C 1.7 1993/06/13 14:02:32 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: NBSTIME.C $
+ * Revision 1.7  1993/06/13  14:02:32  dmwatt
+ * Additional Windows/NT fixes
+ *
  * Revision 1.6  1993/05/30  00:04:53  ahd
  * Multiple communications drivers support
  *
@@ -100,8 +103,10 @@ boolean nbstime( void )
    int dst= 0;
    time_t delta;
    char sync = '?';
-   struct tm *tp;
 
+#ifndef __TURBOC__
+   struct tm *tp;
+#endif
 
 #ifdef WIN32
    SYSTEMTIME DateTime;
@@ -192,24 +197,8 @@ boolean nbstime( void )
 #endif
 
 /*--------------------------------------------------------------------*/
-/*     Borland C++ doesn't set the time properly; do a conversion     */
-/*--------------------------------------------------------------------*/
-
-#ifdef __TURBOC__
-   today -= timezone;
-#endif
-
-#ifdef FAMILYAPI
-   today -= timezone;
-#endif
-
-#if !defined(WIN32)
-/*--------------------------------------------------------------------*/
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
-
-   tp = localtime(&today);    /* Get local time as a record          */
-#endif
 
 #ifdef FAMILYAPI
 
@@ -224,6 +213,9 @@ boolean nbstime( void )
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
+
+   today -= timezone;
+   tp = localtime(&today);    /* Get local time as a record          */
 
    DateTime.year    = (USHORT) tp->tm_year + 1900;
    DateTime.month   = (UCHAR) (tp->tm_mon + 1);
@@ -307,6 +299,12 @@ boolean nbstime( void )
 #elif defined( __TURBOC__ )
 
 /*--------------------------------------------------------------------*/
+/*     Borland C++ doesn't set the time properly; do a conversion     */
+/*--------------------------------------------------------------------*/
+
+   today -= timezone;
+
+/*--------------------------------------------------------------------*/
 /*    If this timezone uses daylight savings and we are in the        */
 /*    period to spring forward, do so.                                */
 /*--------------------------------------------------------------------*/
@@ -316,6 +314,7 @@ boolean nbstime( void )
    stime( &today );
 
 #else /* __TURBOC__ */
+
 
    tp = localtime(&today);    /* Get local time as a record          */
 
@@ -355,8 +354,8 @@ boolean nbstime( void )
 #if !defined(WIN32)
    delta = today - time( NULL );
    printmsg(2,"nbstime: \"%s\"", buf);
-   printmsg(2,"nbstime: Time delta is %ld seconds, zone offset %ld, \
-daylight savings %d",
+   printmsg(2,"nbstime: Time delta is %ld seconds, zone offset %ld, "
+              "daylight savings %d",
                   delta, timezone, dst );
 #endif
 

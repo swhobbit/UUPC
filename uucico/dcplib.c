@@ -23,32 +23,39 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.10 1993/04/11 00:35:46 ahd Exp $
+ *    $Id: DCPLIB.C 1.3 1993/05/30 00:01:47 ahd Exp $
  *
- *    $Log: DCP.C $
+ *    $Log: DCPLIB.C $
+ * Revision 1.3  1993/05/30  00:01:47  ahd
+ * Multiple commuications drivers support
+ *
+ *
+ * Updated:
+ *
+ *    14May89  - Added system name to login prompt - ahd
+ *               Added configuration file controlled user id, password
+ *               Added Kermit server option
+ *    17May89  - Redo login processing to time out after five minutes;
+ *               after all, we have to exit someday.                    ahd
+ *    22Sep89  - Add password file processing                           ahd
+ *    24Sep89  - Modify login() to issue only one wait command for up
+ *               to 32K seconds; this cuts down LOGFILE clutter.        ahd
+ *    01Oct89  - Re-do function headers to allow copying for function
+ *               prototypes in ulib.h                                   ahd
+ *    17Jan90  - Filter unprintable characters from logged userid and
+ *               password to prevent premature end of file.             ahd
+ *    18Jan90  - Alter processing of alternate shells to directly
+ *               invoke program instead of using system() call.         ahd
+ * 6  Sep 90   - Change logging of line data to printable               ahd
+ *    8 Sep 90 - Split ulib.c into dcplib.c and ulib.c                  ahd
+ *    8 Oct 90 - Break rmail.com and rnews.com out of uuio
+ *               Add FIXED_SPEED option for no-autobauding              ahd
+ *    10Nov 90 - Move sleep call into ssleep and rename                 ahd
+ */
 
-   Updated:
-
-      14May89  - Added system name to login prompt - ahd
-                 Added configuration file controlled user id, password
-                 Added Kermit server option
-      17May89  - Redo login processing to time out after five minutes;
-                 after all, we have to exit someday.                    ahd
-      22Sep89  - Add password file processing                           ahd
-      24Sep89  - Modify login() to issue only one wait command for up
-                 to 32K seconds; this cuts down LOGFILE clutter.        ahd
-      01Oct89  - Re-do function headers to allow copying for function
-                 prototypes in ulib.h                                   ahd
-      17Jan90  - Filter unprintable characters from logged userid and
-                 password to prevent premature end of file.             ahd
-      18Jan90  - Alter processing of alternate shells to directly
-                 invoke program instead of using system() call.         ahd
-   6  Sep 90   - Change logging of line data to printable               ahd
-      8 Sep 90 - Split ulib.c into dcplib.c and ulib.c                  ahd
-      8 Oct 90 - Break rmail.com and rnews.com out of uuio
-                 Add FIXED_SPEED option for no-autobauding              ahd
-      10Nov 90 - Move sleep call into ssleep and rename                 ahd
-*/
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <ctype.h>
 #include <direct.h>
@@ -63,6 +70,14 @@
 #ifdef __TURBOC__
 #include <sys/timeb.h>
 #endif
+
+#if defined(_Windows)
+#include <windows.h>
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "arpadate.h"
@@ -109,6 +124,10 @@ boolean login(void)
    char *token;                        /* Pointer to returned token  */
    struct UserTable *userp;
 
+#if defined(_Windows)
+   WORD wVersion;
+#endif
+
    if ( E_banner != NULL )
       motd( E_banner, line, sizeof line );
 
@@ -117,21 +136,38 @@ boolean login(void)
 /*    by displaying a banner.                                         */
 /*--------------------------------------------------------------------*/
 
+#if defined(_Windows)
+    wVersion = LOWORD(GetVersion());
+    sprintf(line, "\r\n\nMS-Windows(TM) %d.%02d with %s %s (%s) (%s)\r\n",
+         (WORD)(LOBYTE(wVersion)),
+         (WORD)(HIBYTE(wVersion)),
+          compilep,
+          compilev,
+         E_domain,
+         device);           // Print a hello message
+
+#else /* not Windows */
+
    sprintf(line,"\r\n\n%s %d.%02d with %s %s (%s) (%s)\r\n",
 #ifdef WIN32
             "Windows/NT(TM)",
+            _osmajor,
+#ifif defined(__OS2__)
+            "OS/2(R)",
             _osmajor,
 #elif defined( __TURBOC__ )
             "MS-DOS(R)",
             _osmajor,
 #else
-            (_osmode == DOS_MODE) ? "MS-DOS(R)" : "OS/2(R)" ,
+            (_osmode == DOS_MODE) ? "DOS" : "OS/2(R)" ,
             (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
 #endif
        _osminor,
        compilep,
        compilev,
        E_domain, device); /* Print a hello message            */
+#endif
+
    wmsg(line,0);
    ddelay(250);
 
@@ -290,6 +326,21 @@ boolean loginbypass(const char *user)
 
 static void LoginShell( const   struct UserTable *userp )
 {
+
+#if defined(_Windows)
+        char line[128];
+        //
+        // No special shell support under Windows, sorry!
+        //
+        sprintf(line,
+           "login: special shell %s not supported. Goodbye.\r\n",
+                userp->sh);
+        wmsg(line, 0);
+   printmsg(0, "Login with special shell %s, not supported.", userp->sh);
+   return;
+
+#else
+
    char *shellstring;
    char *path;
    char *args;
@@ -300,7 +351,7 @@ static void LoginShell( const   struct UserTable *userp )
 /*--------------------------------------------------------------------*/
 
    shellstring = strdup(userp->sh);
-                           /* Copy user shell for parsing   */
+                              /* Copy user shell for parsing   */
    path = strtok(shellstring," \t");   /* Get program name  */
    args = strtok(NULL,"");    /* Get rest of arg string     */
 
@@ -331,7 +382,11 @@ static void LoginShell( const   struct UserTable *userp )
       printerr(path);
    }
    else                    /* No --> Report normal result   */
-      printmsg(rc == 0 ? 4 : 0,"LoginShell: %s return code is %d", path, rc);
+      printmsg(rc == 0 ? 4 : 0,"LoginShell: %s return code is %d",
+               path,
+               rc);
+
+#endif
 
 } /* LoginShell */
 
