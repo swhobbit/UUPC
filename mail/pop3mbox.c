@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------*/
-/*       p o p 3 l w c . c                                            */
+/*       p o p 3 m b o x . c                                          */
 /*                                                                    */
 /*       Light-weight POP3 server verb processors                     */
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.4 1998/03/06 17:35:12 ahd Exp $
+ *       $Id: pop3mbox.c 1.5 1998/03/08 04:50:04 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.5  1998/03/08 04:50:04  ahd
+ *       Correct passing of file length to imopen()
+ *
  *       Revision 1.4  1998/03/06 17:35:12  ahd
  *       Correct header from user to system
  *
@@ -52,7 +55,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.4 1998/03/06 17:35:12 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.5 1998/03/08 04:50:04 ahd Exp $");
 
 currentfile();
 
@@ -83,7 +86,7 @@ newPopMessage(SMTPClient *client,
    if (previous != NULL)
    {
       previous->next = current;
-      previous->endPosition = position - 1;
+      previous->endPosition = position;
 
       if (previous->startBodyPosition == 0)
           previous->startBodyPosition = previous->endPosition;
@@ -115,18 +118,27 @@ popBoxLoad(SMTPClient *client)
    long position = -1;
    long length;
 
+   /* If mailbox does not exist, it is simply an empty mailbox */
+   if (access(client->transaction->mailboxName, 0))
+   {
+      if (debuglevel > 2)
+         printerr(client->transaction->mailboxName);
+      return KWTrue;
+   }
+
+/*--------------------------------------------------------------------*/
+/*        Open the input and output files, checking for errors        */
+/*--------------------------------------------------------------------*/
+
    client->transaction->mailboxStream =
                   FOPEN(client->transaction->mailboxName,
                          "r+",
                          TEXT_MODE);
 
-   /* Just treat file not existing as no mail */
    if (client->transaction->mailboxStream == NULL)
    {
-      if ( errno == EACCES )        /* Unless it's access problem */
-         return KWFalse;
-      else
-         return KWTrue;
+      printerr(client->transaction->mailboxName);
+      return KWFalse;
    }
 
    length = filelength(fileno(client->transaction->mailboxStream));
@@ -424,13 +436,13 @@ popBoxGet( MailMessage *current, const long sequence )
 } /* popBoxGet */
 
 /*--------------------------------------------------------------------*/
-/*       g e t P o p M e s s a g e N e x t                            */
+/*       g e t B o x P o p N e x t                                    */
 /*                                                                    */
 /*       Iterate to the next undeleted message                        */
 /*--------------------------------------------------------------------*/
 
 MailMessage *
-getPopMessageNext( MailMessage *current )
+getBoxPopNext( MailMessage *current )
 {
    if ( current == NULL )
       return NULL;
@@ -449,7 +461,7 @@ getPopMessageNext( MailMessage *current )
    /* We did not find an undeleted message, report failure */
    return NULL;
 
-} /* getPopMessageNext */
+} /* getBoxPopNext */
 
 /*--------------------------------------------------------------------*/
 /*       p o p B o x U n d e l e t e                                  */
