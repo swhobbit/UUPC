@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.4 1993/09/02 12:08:17 ahd Exp $
+ *    $Id: import.c 1.5 1993/09/03 12:18:55 dmwatt Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.5  1993/09/03  12:18:55  dmwatt
+ *     Windows NT support for long names on file systems
+ *
  *     Revision 1.4  1993/09/02  12:08:17  ahd
  *     HPFS Support
  *
@@ -757,3 +760,5 @@ static boolean advancedFS( const char *path )
 {
    return FALSE;                 // DOS is always dumb on file systems!
 } /* advancedFS for MS-DOS */
+
+#endif
