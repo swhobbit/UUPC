@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.6 1997/11/30 04:21:39 ahd Exp $
+ *       $Id: delivers.c 1.7 1997/12/13 18:11:01 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.7  1997/12/13 18:11:01  ahd
+ *       Change parsing and passing of sender address information
+ *
  *       Revision 1.6  1997/11/30 04:21:39  ahd
  *       Delete older RCS log comments, force full address for SMTP delivery,
  *       recongize difference between local and remote delivery
@@ -82,7 +85,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.6 1997/11/30 04:21:39 ahd Exp $");
+RCSID("$Id: delivers.c 1.7 1997/12/13 18:11:01 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -647,12 +650,29 @@ ConnectSMTP(
   }
 
 /*--------------------------------------------------------------------*/
-/*                  Handle the from and to addresses                  */
+/*       Handle the sender address command; we try to use what we     */
+/*       were presented, and rewrite it as user@host if it the        */
+/*       host if needed.  If it is NOT an FQDN, we're rewrite it      */
+/*       as gatewayed via us (yuck).                                  */
 /*--------------------------------------------------------------------*/
 
   /* PSEUDO Send MAIL From: $*/
 
-  sprintf(buf, "MAIL From: <%s>", sender->address );
+#ifdef UDEBUG
+   printmsg( 4,"ConnectSMTP: Sender is %s (%s at %s via %s)",
+            sender->address,
+            sender->user,
+            sender->host,
+            (sender->relay == NULL) ? "*local*" : sender->relay );
+#endif
+
+   /* Reformat as RFC-822 only if needed */
+   if (strchr( sender->address , '@' ) != NULL )
+      sprintf(buf, "MAIL From: <%s>", sender->address );
+   else if (strchr(sender->host, '.' ) != NULL)
+      sprintf(buf, "MAIL From: <%s@%s>", sender->user, sender->host );
+   else
+      sprintf(buf, "MAIL From: <%s@%s>", sender->address, E_domain );
 
   if (! SendSMTPCmdCheckReply(buf, 250))
   {
@@ -675,10 +695,11 @@ ConnectSMTP(
   {
       if (SendSMTPData(imf))         /* yes --> Transmit the message  */
       {
-          printmsg(0, "%s: Delivered %ld byte message "
-                      "to %d addresses via relay %s",
+          printmsg(0, "%s: Delivered %ld byte message from %s"
+                      "to %ld addresses via relay %s",
                       mName,
                       imlength( imf ),
+                      sender->address,
                       successes,
                       relay );
       }

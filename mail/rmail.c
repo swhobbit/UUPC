@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.62 1997/11/30 04:21:39 ahd Exp $
+ *    $Id: rmail.c 1.63 1997/12/13 18:05:06 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.63  1997/12/13 18:05:06  ahd
+ *    Change parsing and passing of sender address information
+ *
  *    Revision 1.62  1997/11/30 04:21:39  ahd
  *    Delete older RCS log comments, force full address for SMTP delivery,
  *    recongize difference between local and remote delivery
@@ -476,6 +479,32 @@ int main(int argc, char **argv)
    }
 
 /*--------------------------------------------------------------------*/
+/*                    Validate the sender address                     */
+/*--------------------------------------------------------------------*/
+
+   if ((sender.host == NULL) || !strlen(sender.host))
+   {
+      printmsg(0,"rmail: Cannot parse sender host (result was %s)",
+                 (sender.host == NULL) ? "NULL" : "empty" );
+      Terminate(8, imf, datain);
+   }
+
+   if ((sender.user == NULL) || !strlen(sender.user))
+   {
+      printmsg(0,"rmail: Cannot parse sender user (result was %s)",
+                 (sender.user == NULL) ? "NULL" : "empty" );
+      Terminate(9, imf, datain);
+   }
+
+#ifdef UDEBUG
+   printmsg( 4,"rmail: Sender is %s (%s at %s via %s)",
+            sender.address,
+            sender.user,
+            sender.host,
+            (sender.relay == NULL) ? "*local*" : sender.relay );
+#endif
+
+/*--------------------------------------------------------------------*/
 /*       Copy the rest of the input file into our holding tank        */
 /*--------------------------------------------------------------------*/
 
@@ -517,12 +546,6 @@ int main(int argc, char **argv)
    }
 
    close(tempHandle);                /* Don't need original handle    */
-
-   printmsg( 4,"rmail: Sender is %s (%s at %s via %s)",
-            sender.address,
-            sender.user,
-            sender.host,
-            (sender.relay == NULL) ? "*local*" : sender.relay );
 
 /*--------------------------------------------------------------------*/
 /*                  Handle special SMTP delivery mode                 */
@@ -679,7 +702,7 @@ static void ParseFrom(
             sender->relay = NULL;      /* Flag address as local      */
          }
          else
-            sender->relay = newstr(fHost);
+            sender->relay = sender->host = newstr(fHost);
       }
       else {
 
@@ -1212,6 +1235,9 @@ static KWBoolean DaemonMail(
    if (sender->user == NULL)
       sender->user = E_mailbox;
 
+   sender->host = bflag[F_BANG] ? E_nodename : E_fdomain;
+                                     /* Use full address, if possible */
+
 /*--------------------------------------------------------------------*/
 /*              Get the name of the user, or make one up              */
 /*--------------------------------------------------------------------*/
@@ -1219,8 +1245,8 @@ static KWBoolean DaemonMail(
    userp = checkuser(sender->user);  /* Locate user id in table     */
 
    if ((userp != BADUSER) &&
-        (userp->realname != NULL) &&
-         !equal(userp->realname, EMPTY_GCOS))
+       (userp->realname != NULL) &&
+       !equal(userp->realname, EMPTY_GCOS))
       fullName = userp->realname;
    else if (equali(sender->user, E_postmaster) ||
              equali(sender->user, POSTMASTER))
@@ -1230,8 +1256,14 @@ static KWBoolean DaemonMail(
    else
       fullName = sender->user;       /* Dummy for formatting From:    */
 
+   if (bflag[F_BANG])
+      sprintf(buf,"%s!%s", sender->host, sender->user);
+   else
+      sprintf(buf, "%s@%s", sender->user, sender->host);
+   sender->address = newstr( buf );
+
 /*--------------------------------------------------------------------*/
-/*    Add the boilerplate the front:                                  */
+/*    Add the boilerplate to the header:                              */
 /*                                                                    */
 /*       Date, From, Organization, and Reply-To                       */
 /*--------------------------------------------------------------------*/
@@ -1256,9 +1288,9 @@ static KWBoolean DaemonMail(
    PutHead("Date:", arpadate(), imf, KWFalse);
 
    if (bflag[F_BANG])
-      sprintf(buf, "(%s) %s!%s", fullName, E_nodename, sender->user);
+      sprintf(buf, "(%s) %s", fullName, sender->address);
    else {
-      sprintf(buf, "\"%s\" <%s@%s>", fullName, sender->user, E_fdomain);
+      sprintf(buf, "\"%s\" <%s>", fullName, sender->address );
    }
 
    PutHead("From:", buf, imf, KWFalse);
@@ -1326,9 +1358,6 @@ static KWBoolean DaemonMail(
 /*--------------------------------------------------------------------*/
 /*                          Return to caller                          */
 /*--------------------------------------------------------------------*/
-
-   sender->host = bflag[F_BANG] ? E_nodename : E_fdomain;
-                                     /* Use full address, if possible */
 
    return KWTrue;
 

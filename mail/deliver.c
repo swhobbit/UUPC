@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.56 1997/11/30 04:21:39 ahd Exp $
+ *    $Id: deliver.c 1.57 1997/12/13 18:11:01 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.57  1997/12/13 18:11:01  ahd
+ *    Change parsing and passing of sender address information
+ *
  *    Revision 1.56  1997/11/30 04:21:39  ahd
  *    Delete older RCS log comments, force full address for SMTP delivery,
  *    recongize difference between local and remote delivery
@@ -373,7 +376,9 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
    if (equali(user, POSTMASTER))
    {
 #ifdef UDEBUG
-      printmsg(0, "DeliverLocal: Using %s as %s", user, POSTMASTER );
+      printmsg(2, "DeliverLocal: Using %s as %s",
+               E_postmaster,
+               POSTMASTER );
 #endif
 
       user = E_postmaster;
@@ -475,7 +480,15 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
       mkmailbox(mboxname, user);
                               /* No --> Build normal name             */
 
-   printmsg(1,"Delivering mail %sfrom %s to %s",
+#ifdef UDEBUG
+   printmsg( 4,"DeliverLocal: Sender is %s (%s at %s via %s)",
+            sender->address,
+            sender->user,
+            sender->host,
+            (sender->relay == NULL) ? "*local*" : sender->relay );
+#endif
+
+   printmsg(1,"DeliverLocal: Delivering mail %sfrom %s to %s",
               formatFileSize( imf ),
               sender->address,
               user );
@@ -949,29 +962,29 @@ size_t Bounce( IMFILE *imf,
                const MAIL_ADDR *sender,
                const char *text,
                const char *data,
-               const char *address ,
+               const char *failedAddress ,
                const KWBoolean validate )
 {
    FILE *newfile;
    char tname[FILENAME_MAX]; /* name of temporary file used */
-   MAIL_ADDR *daemon;
    char buf[BUFSIZ];
+   MAIL_ADDR daemon;
    char daemonAddress[MAXADDR];
 
    KWBoolean bounce = bflag[F_BOUNCE];
 
-   memset( daemon, 0, sizeof daemon );
-   daemon->host = E_domain;
-   daemon->user = "uucp";
+   memset( &daemon, 0, sizeof daemon );
+   daemon.host = E_domain;
+   daemon.user = "uucp";
 
-   strcpy( daemonAddress, daemon->user );
-   strcpy( daemonAddress, "@" );
-   strcat( daemonAddress, daemon->host );
-   daemon->address = daemonAddress;
+   strcpy( daemonAddress, daemon.user );
+   strcat( daemonAddress, "@" );
+   strcat( daemonAddress, daemon.host );
+   daemon.address = daemonAddress;
 
    printmsg(0,"Bounce: Mail from %s for %s failed, %s: %s",
               sender->address,
-              address,
+              failedAddress,
               text,
               (data == NULL) ? "(no data)" : data );
 
@@ -987,7 +1000,7 @@ size_t Bounce( IMFILE *imf,
       bounce = KWFalse;
 
    if ( ! bounce )
-     return Deliver( imf, daemon, POSTMASTER, validate );
+     return Deliver( imf, &daemon, POSTMASTER, validate );
 
    mktempname( tname , "tmp");  /* Generate a temp file name           */
 
@@ -1002,7 +1015,7 @@ size_t Bounce( IMFILE *imf,
      "Your message for address <%s> could not be delivered at system\n"
      "%s (uucp node %s) for the following reason:\n\t\t%s.\n",
                   sender->user,
-                  address,
+                  failedAddress,
                   E_domain,
                   E_nodename,
                   text );
@@ -1030,13 +1043,19 @@ size_t Bounce( IMFILE *imf,
 
    putenv("LOGNAME=uucp");
 
-   sprintf( buf, "-w -F %s -s \"Failed mail for %.20s\" -- %s -c postmaster",
+   sprintf( buf,
+            "-w -F %s -s \"Failed mail for %.20s\" -- %s -c postmaster",
             tname,
-            address,
+            failedAddress,
             sender->address );
 
     if ( execute( myProgramName, buf, NULL, NULL, KWTrue, KWFalse ))
-         DeliverLocal( imf, daemon, POSTMASTER, validate);
+    {
+         printerr("execute");
+         DeliverLocal( imf, &daemon, POSTMASTER, validate);
+    }
+
+    printmsg(2,"bounce: rmail delivery complete.");
 
     return (1);
 
