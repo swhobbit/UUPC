@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.35 1994/02/26 17:21:25 ahd Exp $
+ *    $Id: uuxqt.c 1.36 1994/03/05 21:12:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.36  1994/03/05  21:12:05  ahd
+ * Use standard name for NUL device
+ *
  * Revision 1.35  1994/02/26  17:21:25  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -148,6 +151,7 @@
 #include <fcntl.h>
 #include <process.h>
 #include <sys/stat.h>
+#include <title.h>
 #include <io.h>
 
 #ifdef _Windows
@@ -260,7 +264,7 @@ static void ReportResults(const int   status,
 static int shell(char *command,
                  const char *inname,
                  const char *outname,
-                 const char *remotename,
+                 const char *remoteName,
                  boolean xflag[]);
 
 static boolean MailStatus(char *tempfile,
@@ -460,6 +464,8 @@ static boolean do_uuxqt( const char *sysname )
    {
       char fname[FILENAME_MAX];
       boolean locked = FALSE;
+
+      setTitle( "Processing host %s", hostp->hostname );
 
 /*--------------------------------------------------------------------*/
 /*                Initialize security for this remote                 */
@@ -1158,7 +1164,7 @@ static void process( const char *fname,
 static int shell(char *command,
                  const char *inname,
                  const char *outname,
-                 const char *remotename,
+                 const char *remoteName,
                  boolean xflag[])
 {
    int    result = 0;
@@ -1197,12 +1203,16 @@ static int shell(char *command,
 /*    Verify we support the command, and get it's real name, if so    */
 /*--------------------------------------------------------------------*/
 
-   if ( (!equal(remotename, E_nodename)) && (!ValidateCommand( cmdname )) )
+   if ( (!equal(remoteName, E_nodename)) && (!ValidateCommand( cmdname )) )
    {
       printmsg(0,"Command %s not allowed at this site", cmdname);
       xflag[E_NOEXE] = TRUE;
       return 99;
    }
+
+   setTitle( "Processing host %.10s, command %.10s",
+               remoteName,
+               cmdname );
 
 /*--------------------------------------------------------------------*/
 /*               We support the command; execute it                   */

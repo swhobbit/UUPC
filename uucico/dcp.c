@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.31 1994/05/04 23:36:34 ahd Exp $
+ *    $Id: dcp.c 1.32 1994/05/06 03:55:50 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.32  1994/05/06  03:55:50  ahd
+ *        Hot login support
+ *
  *        Revision 1.31  1994/05/04  23:36:34  ahd
  *        Trap missing modem file
  *
@@ -673,7 +676,7 @@ static boolean client( const time_t exitTime,
 
          case CONN_WAIT:
 #if !defined(__TURBOC__) || defined(BIT32ENV)
-            setTitle("Suspended for port %s", M_device);
+            setTitle("Port %s suspended", M_device);
            s_state = suspend_wait();
 #else
            panic();                 /* Why are we here?!           */
@@ -725,7 +728,7 @@ static boolean client( const time_t exitTime,
 
             setTitle("%s connected to %s",
                       securep->myname,
-                      rmtname,
+                      hostp->via,
                       M_device);
             s_state = process( POLL_PASSIVE, sendgrade );
             break;
