@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.11 1993/07/24 03:40:55 ahd Exp $
+ *    $Id: uuxqt.c 1.12 1993/07/31 16:27:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.12  1993/07/31  16:27:49  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.11  1993/07/24  03:40:55  ahd
  * Agressively trap carriage returns at ends of lines (from X.* files
  * being edited by elves with DOS editors!)
@@ -291,16 +294,17 @@ void main( int argc, char **argv)
 
    if ( E_uuxqtpath != NULL )
    {
-      char *p = malloc( 6 + strlen( E_uuxqtpath ));
-      checkref( p );
-             /*  ....+        5 characters plus \0 and length of path */
-      sprintf(p,"PATH=%s", E_uuxqtpath);
+      char buf[BUFSIZ];
+      char *p;
+      sprintf(buf,"PATH=%s", E_uuxqtpath);
+      p = newstr(p);
 
       if (putenv( p ))
       {
          printmsg(0,"Unable to set path \"%s\"", p);
          panic();
       } /* if (putenv( p )) */
+
    } /* if ( E_uuxqtpath != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -876,7 +880,9 @@ static int shell(char *command,
 
          boolean firstPass = TRUE;
 
-#ifdef __TURBOC__
+#ifdef __OS2__
+         size_t rlen =  254 ;
+#elif defined(__TURBOC__)
          size_t rlen =  126 ;
 #else
          size_t rlen = (_osmode == DOS_MODE) ? 126 :  254;
@@ -889,6 +895,10 @@ static int shell(char *command,
             strcat( buf, inlocal);
             strcat( buf, " ");
          }
+         else
+            *buf = '\0';
+#else
+         *buf = '\0';
 #endif
          rlen -= strlen( buf ) + strlen( RMAIL ) + 1;
 
@@ -900,7 +910,6 @@ static int shell(char *command,
                 (rlen - strlen( parameters) > 0))
          {
             char *next = strtok( NULL, "");
-
 
             if ( *parameters == '-')   /* Option flag for mail?      */
                printmsg(0,"Disallowed option %s ignored",parameters);
