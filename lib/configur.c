@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.45 1994/03/05 21:12:05 ahd Exp $
+ *    $Id: configur.c 1.46 1994/04/26 23:49:06 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.46  1994/04/26  23:49:06  dmwatt
+ *     Windows NT registry support
+ *
  *     Revision 1.45  1994/03/05  21:12:05  ahd
  *     Correct spelling of LONGNAME flag
  *
@@ -271,7 +274,10 @@ static ENV_TYPE active_env = ENV_DOS | ENV_BIT16;
 #endif
 
 boolean getrcnames(char **sysp,char **usrp);
+
+#ifdef WIN32
 static char *getregistry(char *envName, char **value);
+#endif
 
 /*--------------------------------------------------------------------*/
 /*  The following table controls the configuration files processing   */
