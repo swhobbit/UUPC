@@ -24,6 +24,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
+#include "pnterr.h"
+#include "commlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -39,7 +41,7 @@ static boolean restore = FALSE;
 /*       Set priority to configuration defined value                  */
 /*--------------------------------------------------------------------*/
 
-void setPrty( void )
+void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 {
 /*--------------------------------------------------------------------*/
 /*                     Up our processing priority                     */
@@ -84,7 +86,7 @@ void resetPrty( void )
    if (!rc)
    {
       DWORD err = GetLastError();
-      printNTerr("resetPrty, err);
+      printNTerror("resetPrty", err);
    }
 
 }
