@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.2 1992/11/29 22:09:10 ahd Exp $
+ *    $Id: SCRSIZE.C 1.3 1992/12/11 12:45:11 ahd Exp $
  *
  *    $Log: SCRSIZE.C $
+ * Revision 1.3  1992/12/11  12:45:11  ahd
+ * Use BIOS values if no ANSI driver
+ *
  * Revision 1.2  1992/11/29  22:09:10  ahd
  * Add stdlib.h for _osmajor under MSC
  *
@@ -43,6 +46,7 @@
 
 short scrsize( void )
 {
+
 #ifdef __TURBOC__
    static unsigned far char *bios_rows = MK_FP( 0x0040, 0x0084 );
 /* static unsigned far char *bios_cols = MK_FP( 0x40, 0x4a ); */
@@ -51,6 +55,7 @@ short scrsize( void )
 #endif
 
    static boolean error = FALSE;
+   static short default_rows = 0;
 
    typedef struct _DISPLAYMODE   /* Page 310 MS-DOS 5.0 PGMR Reference */
    {
@@ -77,7 +82,8 @@ short scrsize( void )
 /*--------------------------------------------------------------------*/
 
    if ((_osmajor < 4) || error )
-      return (short) *bios_rows; /* Faster, but not well documented  */
+      return (short) (default_rows ? default_rows : *bios_rows);
+                                 /* Faster, but not well documented  */
 
 /*--------------------------------------------------------------------*/
 /*             Fill in information to perform processing              */
@@ -95,13 +101,26 @@ short scrsize( void )
    regs.x.dx = (short) &info;    /* Address of structure          */
 
    intdos(&regs, &regs );
-   if ( regs.x.cflag )
-      return info.dmRows;
-   else {
-      printmsg(2,"DOS error %d retrieving screen size", (int) regs.x.ax );
-      error = TRUE;
-   }
 
-   return (short) *bios_rows;    /* Faster, but not well documented  */
+/*--------------------------------------------------------------------*/
+/*    If we have an error, set up to use the BIOS information (or     */
+/*    a fixed default) on future calls.  Otherwise, return the        */
+/*    ANSI supplied value.                                            */
+/*--------------------------------------------------------------------*/
+
+   if ( regs.x.cflag )
+   {
+      if ((*bios_rows < 20 ) || (*bios_rows > 99)) /* Sanity check   */
+         default_rows = 24;
+
+      printmsg(2,"DOS error %d retrieving screen size, using BIOS value %d",
+                  (int) regs.x.ax,
+                  (short) (default_rows ? default_rows : *bios_rows ));
+      error = TRUE;
+      return (short) (default_rows ? default_rows : *bios_rows);
+                                 /* Faster, but not well documented  */
+   }
+   else
+      return info.dmRows;
 
 } /* scrsize */
