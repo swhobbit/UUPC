@@ -8,10 +8,13 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: IDX.C 1.5 1994/03/07 06:09:51 ahd Exp rommel $";
-static char *rcsrev = "$Revision: 1.5 $";
+static char *rcsid = "$Id: idx.c 1.6 1994/03/20 23:35:57 rommel Exp $";
+static char *rcsrev = "$Revision: 1.6 $";
 
-/* $Log: IDX.C $
+/* $Log: idx.c $
+ * Revision 1.6  1994/03/20  23:35:57  rommel
+ * Handle 16/32 bit compiler differences
+ *
  * Revision 1.5  1994/03/07  06:09:51  ahd
  * Add additional error messages to error returns
  *
@@ -338,7 +341,6 @@ void idx_exit(IDX *idx)
 
 int idx_addkey(IDX *idx, char *key, long offset, int size)
 {
-  int pos;
   ITEM new;
 
   if (idx == NULL || idx -> magic != IDX_MAGIC)
@@ -347,7 +349,7 @@ int idx_addkey(IDX *idx, char *key, long offset, int size)
   idx_get_page(idx, 0);
   idx -> page_stacksize = 0;
 
-  if ((pos = idx_search(idx, key)) != -1)
+  if (idx_search(idx, key) != -1)
     return -1;
 
   strncpy(new.key, key, IDX_MAXKEY - 1);
@@ -360,7 +362,8 @@ int idx_addkey(IDX *idx, char *key, long offset, int size)
     return -1;
 
   return 0;
-}
+
+} /* idx_addkey */
 
 int idx_getkey(IDX *idx, char *key, long *offset, int *size)
 {
