@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.4 1993/10/07 22:56:45 ahd Exp $
+ *    $Id: uuport.c 1.5 1993/11/30 04:18:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.5  1993/11/30  04:18:14  ahd
+ * Automatically close program window after execution under Windows
+ *
  * Revision 1.4  1993/10/07  22:56:45  ahd
  * Adding missing copy of port name
  *
@@ -59,6 +62,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef _Windows
+#include <windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -67,6 +74,11 @@
 #include "timestmp.h"
 #define  NO_SUSPEND_FUNCTIONS
 #include "suspend.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#include "logger.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       u s a g e                                                    */
@@ -89,11 +101,6 @@ static void usage(const char *program)
 
 int main(int argc, char **argv)
 {
-
-#if defined(_Windows)
-   openlog( NULL );
-   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
-#endif
 
   int file;
   char name[64], pipe[FILENAME_MAX];
@@ -147,6 +154,16 @@ int main(int argc, char **argv)
     strcpy(pipe, SUSPEND_PIPE );
     strcat(pipe, name);
   }
+
+#if defined(_Windows)
+
+/*--------------------------------------------------------------------*/
+/*    If we get this far, automatically close the Window when done    */
+/*--------------------------------------------------------------------*/
+
+   openlog( NULL );
+   atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
+#endif
 
   if ( (file = open(pipe, O_RDWR, 0)) == -1 )
   {
