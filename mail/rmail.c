@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.23 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: rmail.c 1.24 1994/02/21 16:38:58 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.24  1994/02/21  16:38:58  ahd
+ * Add routine name to failed to parse address message
+ *
  * Revision 1.23  1994/02/20  19:07:38  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -814,13 +817,13 @@ static char **Parse822( boolean *header,
 
    sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
    PutHead("Message-ID:", buf, dataout , offset != 0 );
-   PutHead(NULL, NULL, dataout , FALSE );
+   PutHead(NULL, NULL, dataout , FALSE ); /* Terminate header        */
 
 /*--------------------------------------------------------------------*/
 /*                        Find the From: line                         */
 /*--------------------------------------------------------------------*/
 
-   while( (fgets( buf, BUFSIZ, datain) != NULL) && *header )
+   while( *header && (fgets( buf, BUFSIZ, datain) != NULL) )
    {
       char *startAddress = buf;
 
@@ -994,7 +997,7 @@ static char **Parse822( boolean *header,
 /*                Fill in the sender field, if needed                 */
 /*--------------------------------------------------------------------*/
 
-   user_at_node( headerTable[subscript].found ? sender : from,
+   user_at_node( headerTable[senderID].found ? sender : from,
                  path,
                  fromNode,
                  fromUser);      /* Separate portions of the address */
@@ -1019,7 +1022,8 @@ static char **Parse822( boolean *header,
 /*                     Insert a date field if needed                  */
 /*--------------------------------------------------------------------*/
 
-   PutHead("Date:", arpadate() , dataout , offset != 0 );
+   if ( ! headerTable[dateID].found )
+      PutHead("Date:", arpadate() , dataout , offset != 0 );
 
 /*--------------------------------------------------------------------*/
 /*      Set UUCP requestor name while we've got the information       */
@@ -1231,7 +1235,7 @@ static boolean DaemonMail( const char *subject,
       PutHead("Subject:", subject, dataout, FALSE);
 
    PutHead(NULL, "", dataout, FALSE);  /* Terminate the header line   */
-   PutHead(NULL, "", dataout, FALSE);  /* Terminate the header file   */
+   fputc('\n',dataout );               /* Terminate the header        */
 
 /*--------------------------------------------------------------------*/
 /*                          Return to caller                          */
