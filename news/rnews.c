@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.32 1994/03/07 06:09:51 ahd Exp $
+ *       $Id: rnews.c 1.33 1994/05/08 21:43:33 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.33  1994/05/08  21:43:33  ahd
+ * Use value of E_uncompress over default determination
+ *
  * Revision 1.32  1994/03/07  06:09:51  ahd
  * Add additional error messages to error returns
  *
@@ -141,7 +144,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.32 1994/03/07 06:09:51 ahd Exp $";
+         "$Id: rnews.c 1.33 1994/05/08 21:43:33 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -654,7 +657,8 @@ static int Compressed( char *filename ,
    else
       sprintf(buf, E_uncompress, zfile, unzfile );
 
-   status = executeCommand ( unpacker, NULL, NULL, TRUE, FALSE);
+   printmsg(4,"Executing command: %s", buf );
+   status = executeCommand ( buf, NULL, NULL, TRUE, FALSE);
 
    unlink( zfile );           /* Kill the compressed input file      */
 
