@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.24 1997/04/24 01:07:56 ahd Exp $
+ *    $Id: address.c 1.25 1997/05/11 04:27:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.25  1997/05/11 04:27:40  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.24  1997/04/24 01:07:56  ahd
  *    Annual Copyright Update
  *
@@ -110,6 +113,8 @@
 
 currentfile();
 
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
@@ -160,7 +165,8 @@ tokenizeAddress(const char *raddress,
    if ( strlen( raddress ) >= MAXADDR )
    {
       printmsg(0, "tokenizeAddress: Unable to process %d length address: %s",
-            strlen(raddress), raddress );
+            strlen(raddress),
+            raddress );
       strcpy( hisPath ,"The address is too long to parse." );
       return KWFalse;
    }
@@ -196,52 +202,24 @@ tokenizeAddress(const char *raddress,
    }
 
 /*--------------------------------------------------------------------*/
-/*   The address is different; save the new address and then proceed  */
-/*   to parse it.                                                     */
-/*--------------------------------------------------------------------*/
-
-   address = strdup(raddress);   /* Copy address for parsing          */
-   checkref(address);            /* Verify allocation worked          */
-
-   if (saveaddr != NULL)         /* Was the data previously allocated? */
-   {                             /* Yes --> Free it                   */
-      free(saveaddr);
-   }
-
-   saveaddr = strdup(address);   /* Remember address for next pass    */
-
-/*--------------------------------------------------------------------*/
-/*    If the address has no at sign (@), but does have a percent      */
-/*    sign (%), replace the last percent sign with an at sign.        */
-/*--------------------------------------------------------------------*/
-
-   if ( strchr(address, '@') == NULL )  /* Any at signs?              */
-   {                                /* No --> Look further for %      */
-      wPtr = strrchr(address, '%'); /* Locate any percent signs       */
-
-      if ( wPtr != NULL )           /* Got one?                       */
-         *wPtr = '@';               /* Yup --> Make it an at sign at  */
-   }
-
-/*--------------------------------------------------------------------*/
 /*       Look for unparsable addresses, with node/userid separator    */
 /*       characters next to each other or beginning or ending the     */
 /*       string.  Note that at sign (@) can start the string,         */
 /*       because @domain:user@domain2 is a valid construct.           */
 /*--------------------------------------------------------------------*/
 
-   tPtr = address + strlen(address) - 1;
+   tPtr = (const char *) (raddress + strlen(raddress) - 1);
 
-   if (( *address == '!' ) || ( *tPtr == '!' ) ||
-       ( *address == '%' ) || ( *tPtr == '%' ) ||
-       ( *tPtr    == '@' ))
+   if (( *raddress == '!' ) || ( *tPtr == '!' ) ||
+       ( *raddress == '%' ) || ( *tPtr == '%' ) ||
+       ( *tPtr    == '@' ) || ( *tPtr == ':' ))
    {
       strcpy( hisPath, "The address is hopelessly invalid -- "
                        "it begins or ends with a delimiter character" );
       return KWFalse;
    }
 
-   while( tPtr > address )
+   while( tPtr > raddress )
    {
       switch( *tPtr-- )
       {
@@ -264,7 +242,36 @@ tokenizeAddress(const char *raddress,
 
       } /* switch( *tPtr-- ) */
 
-   } /* while( tPtr > address ) */
+   } /* while( tPtr > raddress ) */
+
+/*--------------------------------------------------------------------*/
+/*   The address is different; save the new address and then proceed  */
+/*   to parse it.                                                     */
+/*--------------------------------------------------------------------*/
+
+   address = strdup(raddress);   /* Copy address for parsing          */
+   checkref(address);            /* Verify allocation worked          */
+
+   if (saveaddr != NULL)         /* Was the data previously allocated? */
+   {                             /* Yes --> Free it                   */
+      free(saveaddr);
+   }
+
+   saveaddr = strdup(address);   /* Remember address for next pass    */
+   checkref( saveaddr );
+
+/*--------------------------------------------------------------------*/
+/*    If the address has no at sign (@), but does have a percent      */
+/*    sign (%), replace the last percent sign with an at sign.        */
+/*--------------------------------------------------------------------*/
+
+   if ( strchr(address, '@') == NULL )  /* Any at signs?              */
+   {                                /* No --> Look further for %      */
+      wPtr = strrchr(address, '%'); /* Locate any percent signs       */
+
+      if ( wPtr != NULL )           /* Got one?                       */
+         *wPtr = '@';               /* Yup --> Make it an at sign at  */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize routing information                   */
@@ -279,6 +286,14 @@ tokenizeAddress(const char *raddress,
 /*--------------------------------------------------------------------*/
 
    uPtr = tPtr = rfc_route( tPtr, &nPtr, &pPtr );
+
+   if ( uPtr == NULL )
+   {
+      strcpy( hisPath, "The address is hopelessly invalid -- "
+                       "Leading RFC-822 route syntax is invalid.");
+      free( address );
+      return KWFalse;
+   }
 
 /*--------------------------------------------------------------------*/
 /*   If the user had an RFC-822 path, then the pointer to the path is */
@@ -309,6 +324,7 @@ tokenizeAddress(const char *raddress,
                     saveaddr );
          strcpy( hisPath, "The address is hopelessly invalid -- "
                           "domain name is missing after at sign (@)" );
+         free( address );
          return KWFalse;
       }
       else
@@ -342,9 +358,18 @@ tokenizeAddress(const char *raddress,
 
       if (*tPtr == '@')             /* Explicit RFC-822 route?        */
       {                             /* Yes --> Examine in detail      */
-         uPtr = strtok( rfc_route( tPtr, &nPtr, &pPtr ), "!");
-                                    /* Second token, or what's
+
+         uPtr = rfc_route( tPtr, &nPtr, &pPtr );
+         if ( uPtr == NULL )
+         {
+            strcpy( hisPath, "The address is hopelessly invalid -- "
+                             "Embedded RFC-822 route syntax is invalid.");
+            free( address );
+            return KWFalse;
+         }
+         uPtr = strtok(uPtr, "!");  /* Second token, or what's
                                        left of it, is user id         */
+
          tPtr = strtok(NULL, "");   /* Save rest of string            */
       } /* if (*tPtr == '@') */
       else {
@@ -443,25 +468,57 @@ tokenizeAddress(const char *raddress,
 
 static char *rfc_route( char *tPtr, char **nPtr, char **pPtr )
 {
+   char *token = tPtr;
+
+   if ( *tPtr != '@' )              /* RFC-822 path?                 */
+      return tPtr;                  /* No --> No special processing  */
+
+   tPtr = strrchr( tPtr, ':' );     /* Find end of routing           */
+
+   if ( tPtr == NULL )              /* No end of route (error?)      */
+   {
+#ifdef UDEBUG
+      printmsg(0,"rfc_route: No ':' in %s", token );
+#endif
+      return NULL;                  /* Yes --> Report the error      */
+   }
+
+   *tPtr++ = '\0';                  /* Terminate route, point to
+                                       main part of address          */
+
+   if (strchr( tPtr,'@') == NULL)   /* user@node in main part?       */
+   {
+#ifdef UDEBUG
+      printmsg(0,"rfc_route: No ':' in %s", tPtr );
+#endif
+      return NULL;                  /* No --> I'm sooo confused ...  */
+   }
 
 /*--------------------------------------------------------------------*/
 /*          Loop as long as we have an explicit RFC-822 path          */
 /*--------------------------------------------------------------------*/
 
-   while (*tPtr == '@')        /* Explicit RFC 822 path?              */
+   while ((token != NULL ) && *token++ == '@')
+                                    /* Explicit RFC 822 path?        */
    {
-      *nPtr = strtok(++tPtr, ",:"); /* First token is path/node       */
-      tPtr = strtok(NULL, ""); /* Second has rest, including user id  */
+      if (( *token == ',' ) || (*token == ':') || ( *token == '\0' ))
+         return NULL;               /* Flag error to caller          */
+
+      *nPtr = strtok(token, ",:");  /* First token is path/node      */
+      token = strtok(NULL, "");     /* Second has rest               */
+
       *pPtr = HostPath( *nPtr,  *pPtr );
-                              /* Determine actual path                */
+                                    /* Determine actual path         */
       printmsg(9, "rfc_route: RFC-822 explicit path: "
                   "\"%s\" routed via \"%s\" is via \"%s\"",
-         tPtr, *nPtr, *pPtr);
+                  tPtr,
+                  *nPtr,
+                  *pPtr);
    } /* while */
 
 /*--------------------------------------------------------------------*/
 /*    At this point, *nPtr is last node in list, *pPtr is path to     */
-/*    *nPtr, and *tPtr is the rest of the string (userid?)            */
+/*    *nPtr, and *tPtr is the rest of the string (userid@node)        */
 /*--------------------------------------------------------------------*/
 
    return tPtr;
