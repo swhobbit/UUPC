@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.16 1993/10/02 19:07:49 ahd Exp $
+ *      $Id: dcpgpkt.c 1.17 1993/10/02 22:56:59 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.17  1993/10/02  22:56:59  ahd
+ * Suppress compile warning
+ *
  * Revision 1.16  1993/10/02  19:07:49  ahd
  * Treat Windows 3.x ala DOS in handling packets in far memory
  *
@@ -640,8 +643,8 @@ static short initialize(const boolean caller, const char protocol )
 #if defined(BIT32ENV) || defined(_Windows)
    printmsg(2,"%s packets, "
               "Window size %d, "
-              "Receive packet %d\n, "
-              "Send packet %d\n",
+              "Receive packet %d, "
+              "Send packet %d",
             variablepacket ? "Variable" : "Fixed",
             nwindows,
             r_pktsize,
