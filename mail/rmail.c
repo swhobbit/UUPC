@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.44 1995/03/12 16:42:24 ahd Exp $
+ *    $Id: rmail.c 1.45 1995/03/23 01:42:52 ahd Exp ahd $
  *
  *    $Log: rmail.c $
+ *    Revision 1.45  1995/03/23 01:42:52  ahd
+ *    Handle empty forward files which result in no delivery more gracefully
+ *
  *    Revision 1.44  1995/03/12 16:42:24  ahd
  *    Suppress compiler warnings
  *
@@ -274,7 +277,7 @@ static void Terminate( const int rc, IMFILE *imf, FILE *datain );
 
 static KWBoolean DaemonMail( const char *subject,
                            char **address,
-                           int count,
+                           size_t count,
                            IMFILE *imf );
 
  static void usage( void );
@@ -297,7 +300,7 @@ static KWBoolean DaemonMail( const char *subject,
 /*                            main program                            */
 /*--------------------------------------------------------------------*/
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
    KWBoolean ReadHeader = KWFalse;  /* KWTrue = Parse RFC-822 headers    */
 
@@ -309,7 +312,7 @@ void main(int argc, char **argv)
    size_t count;                 /* Loop variable for delivery        */
    size_t delivered = 0;         /* Count of successful deliveries    */
    int user_debug  = -1;
-   KWBoolean header = KWTrue;      /* Assume terminated header         */
+   KWBoolean inHeader = KWTrue;  /* Assume terminated header         */
    KWBoolean DeleteInput = KWFalse;
 
    KWBoolean daemon = KWFalse;
@@ -428,7 +431,7 @@ void main(int argc, char **argv)
          printmsg(4,"rmail argv[%d] = \"%s\"", count, argv[count] );
    } /* if ( debuglevel > 4 ) */
 
-   if ((optind == argc) != ReadHeader)
+   if ((optind == argc) != (int) ReadHeader)
    {
       printmsg(0,"Missing/extra parameter(s) at end.");
       usage();
@@ -440,7 +443,10 @@ void main(int argc, char **argv)
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
 #endif
 
-   remoteMail = ! (ReadHeader || daemon);
+   if (ReadHeader || daemon)
+      remoteMail = KWFalse;
+   else
+      remoteMail = KWTrue;
                               /* If not reading headers, must be in
                                  normal rmail mode ...               */
 
@@ -489,15 +495,15 @@ void main(int argc, char **argv)
 
    if ( daemon )
    {
-      addressees = argc - optind;
+      addressees = (unsigned int) (argc - optind);
       address = &argv[optind];
       DaemonMail( subject, address, addressees, imf );
-      header = KWFalse;
+      inHeader = KWFalse;
    }
    else if (ReadHeader)
-      address = Parse822( &header, &addressees, imf, datain );
+      address = Parse822( &inHeader, &addressees, imf, datain );
    else {
-      addressees = argc - optind;
+      addressees = (unsigned int) (argc - optind);
       address = &argv[optind];
       ParseFrom( addressees > 1 ? "multiple addressees" : *address,
                  imf,
@@ -514,9 +520,10 @@ void main(int argc, char **argv)
 /*       Copy the rest of the input file into our holding tank        */
 /*--------------------------------------------------------------------*/
 
-   header = CopyTemp( imf, datain ) && header ;
+   if ( ! CopyTemp( imf, datain ) )
+      inHeader = KWFalse;
 
-   if (header)                   /* Was the header ever terminated?  */
+   if (inHeader)                 /* Was the header ever terminated?  */
    {
       printmsg(0,"rmail: Improper header, adding trailing newline");
       imputc('\n', imf);         /* If not, it is now ...            */
@@ -585,6 +592,8 @@ void main(int argc, char **argv)
       printmsg(0,"Unable to deliver/bounce to all addresses!");
       Terminate( 1, imf, datain );  /* Some mail delivered           */
    }
+
+   return 0;
 
 } /* main */
 
@@ -657,7 +666,7 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
 
    if (hit)
    {
-      int nodelen = strlen( fromNode ) + 1; /* Plus ! */
+      size_t nodelen = strlen( fromNode ) + 1; /* Plus ! */
       char *s;
       token = strtok( &buf[ fromlen ], " ");
                                        /* Get second token on line
@@ -665,7 +674,7 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
       s = strtok( NULL, "\n");         /* Get first non-blank of third
                                           token on the line          */
 
-      if (strlen( token ) + nodelen >= MAXADDR) /* overlength addr?  */
+      if ((strlen( token ) + nodelen) >= MAXADDR) /* overlength addr?  */
       {                                /* Reduce address to length
                                           that we can handle         */
          char *next;
@@ -674,7 +683,7 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
          while ((next = strtok( NULL , "!")) != NULL )
          {
             token = next;
-            if (strlen( next ) + nodelen < MAXADDR)
+            if ((strlen( next ) + nodelen) < MAXADDR)
                break;
          } /* while */
       } /* if */
@@ -873,11 +882,11 @@ static char **Parse822( KWBoolean *header,
          subscript++ )
    {
       if ( equal( headerTable[subscript].text, "Date:" ))
-         dateID = subscript;
+         dateID = (int) subscript;
       else if ( equal( headerTable[subscript].text, "From:" ))
-         fromID = subscript;
+         fromID = (int) subscript;
       else if ( equal( headerTable[subscript].text, "Sender:" ))
-         senderID = subscript;
+         senderID = (int) subscript;
 
       headerTable[subscript].found = KWFalse;
 
@@ -911,7 +920,7 @@ static char **Parse822( KWBoolean *header,
 /*--------------------------------------------------------------------*/
 
    sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
-   PutHead("Message-ID:", buf, imf , offset != 0 );
+   PutHead("Message-ID:", buf, imf , (KWBoolean) offset );
    PutHead(NULL, NULL, imf , KWFalse ); /* Terminate header           */
 
 /*--------------------------------------------------------------------*/
@@ -983,7 +992,7 @@ static char **Parse822( KWBoolean *header,
                {
                   ExtractAddress( headerTable[subscript].address,
                                   startAddress,
-                                  KWFalse );
+                                  ADDRESSONLY );
                }
 
 /*--------------------------------------------------------------------*/
@@ -1031,8 +1040,10 @@ static char **Parse822( KWBoolean *header,
       while( *outputBuffer &&
              (! output || (strlen(outputBuffer) > MAXADDR )))
       {
-         char *next = ExtractAddress( address, outputBuffer, KWFalse );
-                                 /* Get address to add to list    */
+         char *next = ExtractAddress( address,
+                                      outputBuffer,
+                                      ADDRESSONLY);
+                                    /* Get address to add to list    */
 
          if (allocated == (*count+1))  /* Do we have room for addr?  */
          {
@@ -1098,6 +1109,8 @@ static char **Parse822( KWBoolean *header,
                  fromNode,
                  fromUser);      /* Separate portions of the address */
 
+#ifdef VERIFY_SENDER
+
 /*--------------------------------------------------------------------*/
 /*               Generate a Sender: line if we need it                */
 /*--------------------------------------------------------------------*/
@@ -1111,15 +1124,17 @@ static char **Parse822( KWBoolean *header,
        (hostp == BADHOST) || (hostp->status.hstatus != localhost))
    {
       sprintf(buf, "%s <%s@%s>", E_name, E_mailbox, E_fdomain );
-      PutHead("Sender:", buf, imf , offset != 0 );
+      PutHead("Sender:", buf, imf , (KWBoolean) offset );
    } /* if */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Insert a date field if needed                  */
 /*--------------------------------------------------------------------*/
 
    if ( ! headerTable[dateID].found )
-      PutHead("Date:", arpadate() , imf , offset != 0 );
+      PutHead("Date:", arpadate() , imf , (KWBoolean) offset );
 
 /*--------------------------------------------------------------------*/
 /*      Set UUCP requestor name while we've got the information       */
@@ -1209,7 +1224,7 @@ static KWBoolean CopyTemp( IMFILE *imf,
 
 static KWBoolean DaemonMail( const char *subject,
                           char **address,
-                          int count,
+                          size_t count,
                           IMFILE *imf )
 {
    char buf[BUFSIZ];

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.41 1995/03/11 22:27:34 ahd Exp $
+ *    $Id: deliver.c 1.42 1995/03/23 01:30:34 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.42  1995/03/23 01:30:34  ahd
+ *    Handle empty forward files more gracefully
+ *
  *    Revision 1.41  1995/03/11 22:27:34  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -309,11 +312,11 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
 /*                       Handle local delivery                        */
 /*--------------------------------------------------------------------*/
 
-   if (equal(path, E_nodename)) /* Local node?                        */
+   if (equal(path, E_nodename))     /* Route via Local node?          */
    {
-      if (hostp->status.hstatus == localhost)  /* Really the local node?     */
+      if (equal( HostAlias( node ), E_nodename )) /* To local node?   */
          return DeliverLocal( imf, user, validate );
-                                 /* Yes!                              */
+                                 /* Yes --> Deliver                   */
       else
          return Bounce( imf,
                  "No known delivery path for host",
