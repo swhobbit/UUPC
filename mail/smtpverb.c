@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.8 1998/03/01 01:31:54 ahd Exp $
+ *       $Id: smtpverb.c 1.9 1998/03/01 19:40:48 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.9  1998/03/01 19:40:48  ahd
+ *       First compiling POP3 server which accepts user id/password
+ *
  *       Revision 1.8  1998/03/01 01:31:54  ahd
  *       Annual Copyright Update
  *
@@ -61,7 +64,8 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.8 1998/03/01 01:31:54 ahd Exp $");
+RCSID("$Id: smtpverb.c 1.9 1998/03/01 19:40:48 ahd Exp $");
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */
@@ -93,6 +97,8 @@ getOperands(SMTPClient *client, SMTPVerb *verb)
 
    char **list = NULL;
    char *token = client->receive.data + strlen(verb->name);
+   size_t subscript = 0;
+   size_t maxEntries = client->receive.parsed / 2 + 1;
 
 /*--------------------------------------------------------------------*/
 /*         Perform limited case insensitive pattern matching          */
@@ -109,33 +115,50 @@ getOperands(SMTPClient *client, SMTPVerb *verb)
          }
          else
             token ++;
-      }
 
-      if (token == '\0')
-         token = NULL;
+      } /* while(*token != '\0') */
 
    } /* if (verb->pattern != NULL) */
 
-   if (token != NULL)
-      token = strtok(token, WHITESPACE);
+   list = malloc(maxEntries * sizeof *list);
+   checkref(list);
+   memset(list, 0, maxEntries * sizeof *list);
 
-   if (token == NULL)
+   /* Load the list of whitespace delimited list of tokens */
+   if ((token != NULL) && (token != '\0'))
+   {
+      while((token = strtok(token, WHITESPACE)) != NULL)
+      {
+         list[subscript++] = token;
+#ifdef UDEBUG
+         printmsg(9, "%s: Token %d: \"%s\"", mName, subscript, token );
+#endif
+         token = NULL;
+      }
+   } /* if */
+
+   /* Insure the list is terminated */
+   list[subscript] = NULL;
+
+   if ((verb->minOperands != SV_OPTIONAL_OPERANDS) &&
+       (verb->minOperands > subscript))
    {
       SMTPResponse(client,
-                    SR_PE_OPER_MISS,
-                    "Command operand is missing");
+                   missingOperandError,
+                   "Command operand is missing");
       return NULL;
    }
 
-   list = malloc(2 * sizeof *list);
-   list[0] = token;
-
-   printmsg(5, "%s Returning client %d token %s",
+   printmsg(5, "%s Returning client %d total of %d tokens%s%s.",
                mName,
                getClientSequence(client),
-               token);
+               subscript,
+               subscript ? " beginning with " : "",
+               subscript ? list[0] : "");
+
    return list;
-}
+
+} /* getOperands */
 
 /*--------------------------------------------------------------------*/
 /*       S M T P I n v o k e C o m m a n d                            */
@@ -164,7 +187,7 @@ SMTPInvokeCommand(SMTPClient *client)
       else if ((*currentVerb->name != '\0') &&
                 equalni(currentVerb->name,
                          client->receive.data,
-                         max( 4, strlen(currentVerb->name))))
+                         max(3, strlen(currentVerb->name))))
          break;
       else
          currentVerb++;
@@ -172,8 +195,8 @@ SMTPInvokeCommand(SMTPClient *client)
 
    if (currentVerb->trivial)
       incrementClientTrivialCount(client); /* Track for possible
-                                                denial of service
-                                                attack               */
+                                              denial of service
+                                              attack               */
 
 /*--------------------------------------------------------------------*/
 /*            If not proper mode for this verb, reject it             */
