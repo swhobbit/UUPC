@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.1 1992/11/22 20:58:55 ahd Exp ahd $
+ *    $Id: STRPOOL.C 1.2 1992/12/01 04:37:03 ahd Exp $
  *
- *    $Log: strpool.c $
+ *    $Log: STRPOOL.C $
+ * Revision 1.2  1992/12/01  04:37:03  ahd
+ * Add SpeedOverMemory
+ *
  * Revision 1.1  1992/11/22  20:58:55  ahd
  * Initial revision
  *
@@ -182,10 +185,6 @@ char *strpool( const char *input , const char *file, size_t line)
 
       save->used = 0;
       save->next_link = NULL;
-
-      printmsg( 5,"strpool: Allocated pool %d,"
-                  " input from %s(%d) is \"%s\"",
-                  pools, file, line, input );
    }
 
 /*--------------------------------------------------------------------*/
