@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.20 1994/02/19 04:46:54 ahd Exp $
+ *    $Id: ssleep.c 1.21 1994/10/03 01:04:39 Software Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.21  1994/10/03  01:04:39  Software
+ *     Trap in ability to set Windows timer
+ *
  *     Revision 1.20  1994/02/19  04:46:54  ahd
  *     Use standard first header
  *
@@ -175,7 +178,7 @@ void ddelay( KEWSHORT milliseconds )
       return;
    }
 
-   TimerID = SetTimer( hOurWindow,
+   TimerId = SetTimer( hOurWindow,
                        TimerId,
                        (milliseconds > 55) ? (WORD)milliseconds : (WORD)55 ,
                        NULL );
