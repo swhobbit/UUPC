@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFVARS.H 1.2 1993/04/04 05:01:08 ahd Exp $
+ *    $Id: CONFVARS.H 1.3 1993/04/11 00:36:59 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: CONFVARS.H $
+ * Revision 1.3  1993/04/11  00:36:59  dmwatt
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1993/04/04  05:01:08  ahd
  * Add configurable OS/2 priority values
  *
@@ -56,6 +59,8 @@ extern char *E_charset;
 extern char *E_anonymous;
 extern char *E_version;
 extern char *E_uncompress;
+extern char *E_banner;
+extern char *E_motd;
 extern INTEGER E_priority;
 extern INTEGER E_prioritydelta;
 extern INTEGER E_maxhops;
