@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.17 1999/01/08 02:21:01 ahd Exp $
+ *       $Id: pop3user.c 1.18 2000/05/12 12:35:45 ahd v1-13g $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.18  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.17  1999/01/08 02:21:01  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -104,7 +107,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.17 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: pop3user.c 1.18 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       s el e c t P o p M e s s a g e                               */
@@ -147,27 +150,6 @@ selectPopMessage(SMTPClient *client, const char *number)
    return NULL;
 
 } /* selectPopMessage */
-
-/*--------------------------------------------------------------------*/
-/*       i s A l l P e r i o d s                                      */
-/*                                                                    */
-/*       Determine if a character array of specified length is all    */
-/*       periods.                                                     */
-/*--------------------------------------------------------------------*/
-
-static KWBoolean
-isAllPeriods(char *s, int len)      /* COPIED -- FIX ME! */
-{
-   int column;
-   for (column = 0; column < len; column++)
-   {
-      if (s[column] != '.')
-         return KWFalse;
-   }
-
-   return KWTrue;
-
-} /* allPeriods */
 
 /*--------------------------------------------------------------------*/
 /*       w r i t e P o p M e s s a g e                                */
@@ -238,37 +220,41 @@ writePopMessage(SMTPClient *client,
       if (imgets(linePointer,
                  bufferLength - bufferUsed - 3,
                  client->transaction->imf) == NULL)
+      {
+         /* Jump out of loop on EOF */
          break;
+      }
 
       length = strlen(linePointer);
 
       if (linePointer[length - 1] == '\n')
+      {
+         /* Trim off LF we found (normal case); we'll add       */
+         /* an Internet standard CR/LF period below if needed.  */
          linePointer[--length] = '\0';
-      else {
+      }
+      else
+      {
+         /* Line must be too long for normal use. */
          incomplete = KWTrue;
       }
 
-      if (((length > 0) && isAllPeriods(linePointer, length)) ||
-          ((length == 0) && wasPeriods))
+      /* Unlike SMTP, POP3 only checks first octet of each line for */
+      /* quoting a leading period; this makes an easy check.        */
+      if (!continued && (linePointer[0] == '.'))
       {
-         if (incomplete)
-         {
-            if (! continued)
-               wasPeriods = KWTrue;
-            /* Otherwise, left we leave it as it was */
-         }
-         else if (wasPeriods || !continued)
-         {
-            strcat(linePointer, ".");
-            length++;
-            wasPeriods = KWFalse;
+         /*
+          * Shift the entire buffer over one octet to byte stuff an
+          * extra leading period.  This quotes the original leading
+          * perdiod.
+          */
+         memmove(linePointer + 1, linePointer, length++);
+         linePointer[0] = '.';
+
 #ifdef UDEBUG
-            quotedPeriod = KWTrue;
+         quotedPeriod = KWTrue;
 #endif
-         }
       }
-      else
-         wasPeriods = KWFalse;
 
 #ifdef UDEBUG
       printmsg(5,"--> [%03d] %s%s%s%s",
@@ -333,7 +319,10 @@ writePopMessage(SMTPClient *client,
    /* Drop allocated resources */
    free(buffer);
 
-   /* Terminate the message */
+   /*
+      Terminate the message with a line only consisting of a
+      period (.)
+    */
    if (!networkError && !SMTPResponse(client, PR_DATA, "."))
       networkError = KWTrue;
 
