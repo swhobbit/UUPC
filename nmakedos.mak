@@ -1,10 +1,14 @@
-#       $Id: nmakedos.mak 1.9 1995/03/24 04:09:32 ahd v1-12o $
+#       $Id: nmakedos.mak 1.10 1995/09/11 00:19:01 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.10  1995/09/11 00:19:01  ahd
+#       Go to version 1.12p
+#       Add support for Word for Windows source archive, PIF files
+#
 #       Revision 1.9  1995/03/24 04:09:32  ahd
 #       Allow generating debug versions of MS VC COM files.
 #
@@ -40,7 +44,9 @@
 #
 #
 
-PROD    = \uupc\bin
+!ifndef PROD
+PROD    = $(PRODDRIVE)\uupc\bin
+!endif
 MASM    = masm.exe
 !ifndef ERASE
 ERASE    = del

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.13 1995/02/23 04:26:17 ahd v1-12n $
+#       $Id: nmakewnt.mak 1.14 1995/09/04 18:42:59 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.14  1995/09/04 18:42:59  ahd
+#       Add -DUDEBUG flag to NT build
+#
 #       Revision 1.13  1995/02/23 04:26:17  ahd
 #       Correct extra install variable names
 #
@@ -59,7 +62,9 @@ UDEBUGFLAG=-DUDEBUG
 
 COMMOPT = -nologo  -MT $(cdebug)
 CCOPT   = $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
-PROD    = \uupc\ntbin
+!ifndef PROD
+PROD    = $(PRODDRIVE)\uupc\ntbin
+!endif
 ZIPID   = n
 ERASE   = del
 MODEL   = t                          # Really NT version in this case

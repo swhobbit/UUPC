@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.7 1995/02/20 00:07:07 ahd Exp $
+#       $Id: nmakos21.mak 1.8 1995/02/20 17:24:05 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.8  1995/02/20 17:24:05  ahd
+#       ooops, we did need that OS=1
+#
 #       Revision 1.7  1995/02/20 00:07:07  ahd
 #       Move various common news subroutines into own library
 #       Break common library into two parts to prevent NMAKE failures
@@ -39,7 +42,9 @@ EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd   \
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj    \
            $(OBJ)\title2.obj
 MODEL    = M                    # All OS/2 16 bit programs are medium
-PROD     = \uupc\os2bin
+!ifndef PROD
+PROD     = $(PRODDRIVE)\uupc\os2bin
+!endif
 STACKSIZE= 0x02A00
 ZIPID    = 1
 OS2=1                   # Enables generation of .DEF file

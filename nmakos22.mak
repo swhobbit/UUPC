@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.13 1995/02/20 17:24:05 ahd v1-12n $
+#       $Id: nmakos22.mak 1.14 1995/03/23 01:28:55 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.14  1995/03/23 01:28:55  ahd
+#       Add special OS/2 delete file function
+#
 #       Revision 1.13  1995/02/20 17:24:05  ahd
 #       ooops, we did need that OS=1
 #
@@ -65,7 +68,7 @@ LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
 MODEL    = 2                    # Really OS/2 version in this case
 
 !ifndef PROD
-PROD     = \uupc\os2bin32
+PROD     = $(PRODDRIVE)\uupc\os2bin32
 !endif
 
 STACKSIZE= 0x50000
