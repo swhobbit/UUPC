@@ -1,47 +1,54 @@
-/*
-   For best results in visual layout while viewing this file, set
-   tab stops to every 4 columns.
-*/
+/*--------------------------------------------------------------------*/
+/*    d c p s y s . c                                                 */
+/*                                                                    */
+/*    System support functions for UUCICO                             */
+/*                                                                    */
+/*    Stuart Lynne May/87                                             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*                                                                    */
+/*                                                                    */
+/*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
+/*    Changes Copyright (c) Stuart Lynne 1987                         */
+/*                                                                    */
+/* Updated:                                                           */
+/*                                                                    */
+/*    13May89  - Modified checkname to only examine first token of    */
+/*               name.                                                */
+/*               Modified rmsg to initialize input character before   */
+/*               use.                                                 */
+/*    16May89  - Moved checkname to router.c - ahd                    */
+/*    17May89  - Wrote real checktime() - ahd                         */
+/*    17May89  - Changed getsystem to return 'I' instead of 'G'       */
+/*    25Jun89  - Added Reach-Out America to keyword table for         */
+/*               checktime                                            */
+/*    22Sep89  - Password file support for hosts                      */
+/*    25Sep89  - Change 'ExpectStr' message to debuglevel 2           */
+/*    01Jan90  - Revert 'ExpectStr' message to debuglevel 1           */
+/*    28Jan90  - Alter callup() to use table driven modem driver.     */
+/*               Add direct(), qx() procedures.                       */
+/*    8 Jul90  - Add John DuBois's expectstr() routine to fix         */
+/*               problems with long input buffers.                    */
+/*    11Nov90  - Delete QX support, add ddelay, ssleep calls          */
+/*    21Sep92  - Insure system system name and time do not crash      */
+/*               UUCICO - from the original fix by Eugene             */
+/*               Nesterenko, Moscow, Russia                           */
+/*--------------------------------------------------------------------*/
+
 
 /*
-   dcpsys.c
-
-   Revised edition of dcp
-
-   Stuart Lynne May/87
-
-   Copyright (c) Richard H. Lamb 1985, 1986, 1987
-   Changes Copyright (c) Stuart Lynne 1987
-   Changes Copyright (c) Andrew H. Derbyshire 1989, 1990
-
-   Updated:
-
-      13May89  - Modified checkname to only examine first token of name.
-                 Modified rmsg to initialize input character before use.
-                 - ahd
-      16May89  - Moved checkname to router.c - ahd
-      17May89  - Wrote real checktime() - ahd
-      17May89  - Changed getsystem to return 'I' instead of 'G'
-      25Jun89  - Added Reach-Out America to keyword table for checktime
-      22Sep89  - Password file support for hosts
-      25Sep89  - Change 'ExpectStr' message to debuglevel 2
-      01Jan90  - Revert 'ExpectStr' message to debuglevel 1
-      28Jan90  - Alter callup() to use table driven modem driver.
-                 Add direct(), qx() procedures.
-      8 Jul90  - Add John DuBois's expectstr() routine to fix problems
-                 with long input buffers.
-      11Nov90  - Delete QX support, add ddelay, ssleep calls
-      21Sep92  - Insure system system name and time do not crash
-                 UUCICO - from the original fix by Eugene Nesterenko,
-                 Moscow, Russia
-
-
-*/
-
-/*
- *     $Id: DCPSYS.C 1.7 1992/11/21 06:17:08 ahd Exp $
+ *     $Id: DCPSYS.C 1.8 1992/11/22 21:20:45 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.8  1992/11/22  21:20:45  ahd
+ * Use strpool for const string allocation
+ *
  * Revision 1.7  1992/11/21  06:17:08  ahd
  * Transmit only one character in response to P (protocol) request
  *
@@ -65,8 +72,6 @@
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
-
-/* Support routines */
 
 /*--------------------------------------------------------------------*/
 /*                        system include files                        */
@@ -283,11 +288,11 @@ CONN_STATE sysend()
 } /*sysend*/
 
 
-/*
-   w m s g
-
-   write a ^P type msg to the remote uucp
-*/
+/*--------------------------------------------------------------------*/
+/*    w m s g                                                         */
+/*                                                                    */
+/*    write a ^P type msg to the remote uucp                          */
+/*--------------------------------------------------------------------*/
 
 void wmsg(char *msg, const boolean synch)
 {
@@ -305,11 +310,11 @@ void wmsg(char *msg, const boolean synch)
 } /*wmsg*/
 
 
-/*
-   r m s g
-
-   read a ^P msg from UUCP
-*/
+/*--------------------------------------------------------------------*/
+/*    r m s g                                                         */
+/*                                                                    */
+/*    read a ^P msg from UUCP                                         */
+/*--------------------------------------------------------------------*/
 
 int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
 {
@@ -536,6 +541,7 @@ CONN_STATE startup_server(const char recvgrade )
 
 } /*startup_server*/
 
+
 /*--------------------------------------------------------------------*/
 /*    s t a r t u p _ c l i e n t                                     */
 /*                                                                    */
@@ -760,6 +766,7 @@ CONN_STATE startup_client( char *sendgrade )
 
 } /*startup_client*/
 
+
 /*--------------------------------------------------------------------*/
 /*    s e t p r o t o                                                 */
 /*                                                                    */
@@ -794,6 +801,7 @@ static void setproto(char wanted)
    filepkt = tproto->filepkt;
 
 } /*setproto*/
+
 
 /*--------------------------------------------------------------------*/
 /*    s c a n d i r                                                   */
@@ -881,6 +889,7 @@ XFER_STATE scandir(char *remote, const char grade )
 
 } /*scandir*/
 
+
 /*--------------------------------------------------------------------*/
 /*    H o s t G r a d e                                               */
 /*                                                                    */
@@ -901,6 +910,7 @@ static char HostGrade( const char *fname, const char *remote )
    return tempname[len + 2 ];
 
 } /* HostGrade */
+
 
 /*--------------------------------------------------------------------*/
 /*    C a l l W i n d o w                                             */
@@ -933,8 +943,7 @@ boolean CallWindow( const char callgrade )
    if (!callgrade)
    {
       if ((*flds[FLD_PROTO] != '*') ||       /* Not setting clock?   */
-          ((hostp->hstats->ltime >  hostp->hstats->lconnect) &&
-           (hostp->hstats->ltime >  630720000L )))
+          ((hostp->hstats->ltime >  630720000L )))
                                              /* Clock okay?          */
       {                                      /* Yes--> Return        */
          hostp->hstatus = wrong_time;
