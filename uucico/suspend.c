@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.6 1994/02/19 05:10:08 ahd Exp $
+ *    $Id: suspend.c 1.7 1994/05/04 02:03:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *        Revision 1.7  1994/05/04  02:03:11  ahd
+ *        Add (fake) error return
+ *
  * Revision 1.6  1994/02/19  05:10:08  ahd
  * Use standard first header
  *
@@ -82,7 +85,7 @@ boolean suspend_processing = FALSE;
 
 boolean suspend_init(const char *port )
 {
-   return FALSE;
+   return TRUE;
 }
 
 #if _MSC_VER >= 700
