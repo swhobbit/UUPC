@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.63 1995/03/23 01:42:52 ahd Exp $
+ *       $Id: rnews.c 1.64 1995/03/24 04:17:22 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.64  1995/03/24 04:17:22  ahd
+ *       Compiler warning message cleanup, optimize for low memory processing
+ *
  *       Revision 1.63  1995/03/23 01:42:52  ahd
  *       Try not to abort on funky input (pipes) or eat first
  *       character of single articles.
@@ -59,7 +62,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.63 1995/03/23 01:42:52 ahd Exp $";
+         "$Id: rnews.c 1.64 1995/03/24 04:17:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -517,7 +520,6 @@ main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    c = getc(input);
-   ungetc(c, input);
 
    if ((c != '#' && c != MAGIC_FIRST)  )
    {
