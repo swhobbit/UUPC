@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.35 1995/11/30 12:51:07 ahd v1-12q $
+ *    $Id: uutypes.h 1.36 1996/01/01 21:00:14 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.36  1996/01/01 21:00:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.35  1995/11/30 12:51:07  ahd
  *    Add flag for automatic auto-receipt
  *

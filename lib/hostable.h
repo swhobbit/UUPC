@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.14 1996/01/01 20:55:56 ahd v1-12r $
+  *   $Id: hostable.h 1.15 1996/11/19 00:25:20 ahd Exp $
   *
   *   $Log: hostable.h $
+  *   Revision 1.15  1996/11/19 00:25:20  ahd
+  *   Normalize host status flags
+  *
   *   Revision 1.14  1996/01/01 20:55:56  ahd
   *   Annual Copyright Update
   *

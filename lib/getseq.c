@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.18 1995/09/26 00:37:40 ahd v1-12q $
+ *    $Id: getseq.c 1.19 1996/01/01 20:52:08 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.19  1996/01/01 20:52:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1995/09/26 00:37:40  ahd
  *    Use unsigned sequence number for jobs to prevent mapping errors
  *

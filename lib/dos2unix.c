@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.14 1995/09/24 19:07:05 ahd v1-12q $
+ *    $Id: dos2unix.c 1.15 1996/01/01 20:50:43 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.15  1996/01/01 20:50:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1995/09/24 19:07:05  ahd
  *    Correct for 16 bit OS/2 compile
  *

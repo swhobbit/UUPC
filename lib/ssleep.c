@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.28 1995/05/07 14:39:30 ahd v1-12q $
+ *    $Id: ssleep.c 1.29 1996/01/01 20:52:02 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.29  1996/01/01 20:52:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.28  1995/05/07 14:39:30  ahd
  *    Add comment check for user break, for use with Windows software
  *

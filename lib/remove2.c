@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: remove2.c 1.3 1995/09/24 19:07:05 ahd v1-12q $
+ *    $Id: remove2.c 1.4 1996/01/01 20:53:16 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: remove2.c $
+ *    Revision 1.4  1996/01/01 20:53:16  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1995/09/24 19:07:05  ahd
  *    Correct for 16 bit OS/2 compile
  *

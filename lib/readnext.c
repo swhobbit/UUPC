@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.12 1995/03/24 04:17:22 ahd v1-12q $
+ *    $Id: readnext.c 1.13 1996/01/01 20:53:11 ahd v1-12r $
  *
  *    $Log: readnext.c $
+ *    Revision 1.13  1996/01/01 20:53:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *

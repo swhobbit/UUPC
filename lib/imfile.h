@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.6 1996/01/01 20:58:15 ahd v1-12r $
+ *    $Id: imfile.h 1.7 1996/01/20 13:11:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.7  1996/01/20 13:11:22  ahd
+ *    Allow specifying text/binary mode when processing an in-memory file
+ *
  *    Revision 1.6  1996/01/01 20:58:15  ahd
  *    Annual Copyright Update
  *

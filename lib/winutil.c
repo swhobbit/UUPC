@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.16 1995/01/07 16:15:11 ahd v1-12q $
+ *    $Id: winutil.c 1.17 1996/01/01 20:53:50 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ *    Revision 1.17  1996/01/01 20:53:50  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1995/01/07 16:15:11  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.14 1995/01/07 16:12:40 ahd v1-12q $
+ *    $Id: hostrset.c 1.15 1996/01/01 20:52:41 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *    Revision 1.15  1996/01/01 20:52:41  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1995/01/07 16:12:40  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

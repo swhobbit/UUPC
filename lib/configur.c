@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.74 1996/01/07 14:14:40 ahd v1-12r ahd $
+ *    $Id: configur.c 1.75 1996/09/24 15:22:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.75  1996/09/24 15:22:22  ahd
+ *    *** empty log message ***
+ *
  *    Revision 1.74  1996/01/07 14:14:40  ahd
  *    Support for external access to configuration table data by NT regsetup
  *
@@ -1259,7 +1262,7 @@ KWBoolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1989-1996 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");

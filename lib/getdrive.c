@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getdrive.c 1.1 1995/02/12 23:37:04 ahd v1-12q $
+ *    $Id: getdrive.c 1.2 1996/01/01 20:51:49 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: getdrive.c $
+ *    Revision 1.2  1996/01/01 20:51:49  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.1  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *

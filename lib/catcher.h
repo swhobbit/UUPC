@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.h 1.5 1995/01/07 16:15:29 ahd v1-12q $
+ *    $Id: catcher.h 1.6 1996/01/01 20:56:08 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: catcher.h $
+ *    Revision 1.6  1996/01/01 20:56:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/01/07 16:15:29  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

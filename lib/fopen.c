@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.14 1995/03/11 22:33:46 ahd v1-12q $
+ *    $Id: fopen.c 1.15 1996/01/01 20:51:43 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.15  1996/01/01 20:51:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1995/03/11 22:33:46  ahd
  *    Make IBM C/Set++ specific macro local
  *

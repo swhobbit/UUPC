@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.19 1995/03/12 16:42:24 ahd v1-12q $
+ *    $Id: catcher.c 1.20 1996/01/01 20:50:00 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.20  1996/01/01 20:50:00  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.19  1995/03/12 16:42:24  ahd
  *    Correct compiler warnings
  *
@@ -84,7 +87,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-         "$Id: catcher.c 1.19 1995/03/12 16:42:24 ahd v1-12q $";
+         "$Id: catcher.c 1.20 1996/01/01 20:50:00 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.12 1995/07/21 13:23:19 ahd v1-12q $
+ *    $Id: pos2err.c 1.13 1996/01/01 20:54:55 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.13  1996/01/01 20:54:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/07/21 13:23:19  ahd
  *    Clean up OS/2 compiler warnings
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.h 1.6 1994/12/27 23:36:37 ahd v1-12q $
+ *    $Id: usertabl.h 1.7 1996/01/01 20:58:43 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: usertabl.h $
+ *    Revision 1.7  1996/01/01 20:58:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/12/27 23:36:37  ahd
  *    Allow hostable.h, usertable.h to be included without others
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.28 1996/01/02 02:51:53 ahd Exp $
+ *    $Id: security.c 1.29 1996/01/04 04:00:46 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.29  1996/01/04 04:00:46  ahd
+ *    Use sorted list of boolean options with binary search and computed
+ *    table size.
+ *
  *    Revision 1.28  1996/01/02 02:51:53  ahd
  *    Sort security, modem confifuration tables
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.h 1.4 1994/12/22 00:12:30 ahd v1-12q $
+ *    $Id: dos2unix.h 1.5 1996/01/01 20:56:19 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: dos2unix.h $
+ *    Revision 1.5  1996/01/01 20:56:19  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/12/22 00:12:30  ahd
  *    Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.9 1995/01/07 16:13:36 ahd v1-12q $
+ *    $Id: pnterr.c 1.10 1996/01/01 20:49:54 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ *    Revision 1.10  1996/01/01 20:49:54  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1995/01/07 16:13:36  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
