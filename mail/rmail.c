@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.49 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: rmail.c 1.50 1996/01/01 21:03:58 ahd v1-12r $
  *
  *    $Log: rmail.c $
+ *    Revision 1.50  1996/01/01 21:03:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.49  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -497,7 +500,7 @@ int main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    fflush(datain);
-   imf = imopen( filelength( fileno( datain )) + 512 );
+   imf = imopen( filelength( fileno( datain )) + 512, TEXT_MODE );
 
    if (imf == NULL)
    {
@@ -725,17 +728,14 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
             fromNode[ sizeof fromNode -1 ] = '\0';
                                  /* Insure string is terminated      */
          }
-         else {                  /* No --> look at fromUuser string  */
+         else if ( strchr( fromUser, '!' ) == NULL )  /* Any node?   */
+            strcpy( fromNode, E_nodename );  /* No --> Call it local */
+         else {                     /* else look at fromUuser string */
             token = strtok( fromUser, "!");  /* Find end of the node */
-
-            if ( token != NULL )
-            {
-               strcpy( fromNode, token ); /* Take first part as node */
-               token = strtok( NULL, ""); /* Get next part of user   */
-               memmove( fromUser, token, strlen( token ) + 1 );
-                                          /* Move to front of buffer */
-            } /* if ( token != NULL ) */
-
+            strcpy( fromNode, token ); /* Take first part as node    */
+            token = strtok( NULL, ""); /* Get next part of user      */
+            memmove( fromUser, token, strlen( token ) + 1 );
+                                    /* Move to front of buffer       */
          } /* else */
 
       } /* if (*fromNode == '\0') */
