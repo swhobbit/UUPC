@@ -22,10 +22,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.17 1995/02/25 13:17:09 miles Exp $
+ *    $Id: ulibwin.c 1.18 1995/02/25 18:21:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.18  1995/02/25 18:21:44  ahd
+ *    Normalize source from Miles, revert to MS approved modem
+ *    register inspection.  (#define SUICIDE will yield interesting,
+ *    if fatal, results under OS/2)
+ *
  *    Revision 1.17  1995/02/25 13:17:09  miles
  *    Make module more robust
  *
@@ -110,18 +115,23 @@
 
 #include <windows.h>
 
-#ifdef CHATPRJ
+#if defined(CHATPRJ)
 #include "chat.h"
 #else
+
   static void checkForBreak( void )
   {
      /* Source not supplied by Miles.  (Grrrrr).   */
   };
+
 #endif
 
 unsigned int windowsBuffer = 2048;
                                  /* Hardcoded, since rest of Mile's
-                                    package is not available. Grrrr. */
+                                    package is not available. Grrrr.
+                                    This allows a full window of
+                                    data with 1K packets, double
+                                    the suggested 512 byte packets.  */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -130,6 +140,10 @@ unsigned int windowsBuffer = 2048;
 #include "ulib.h"
 #include "ssleep.h"
 #include "commlib.h"
+
+#ifdef CATCHER
+#include "catcher.h"
+#endif
 
 currentfile();
 
@@ -140,23 +154,7 @@ static UINT currentSpeed = 0;
 static unsigned int inQueueSize, outQueueSize;
 
 /*--------------------------------------------------------------------*/
-/*                                                                    */
-/*    The q101417 algorithm referenced below, while it may be ugly,   */
-/*    gives a GP fault if the port is invalid.                        */
-/*                                                                    */
-/*    getMSR has been substituted instead.                            */
-/*                                                                    */
-/* Finally, Microsoft has documented a way to see the Modem Status    */
-/* Register bits for modem control lines. This was a real bizarre     */
-/* mess with SetCommEventMask() and GetCommEventMask(). The document  */
-/* is in the Developer's Knowledge Base:                              */
-/*                                                                    */
-/* Title: INF: Accessing the Modem Status Register (MSR) in Windows   */
-/* Document Number: Q101417           Publ Date: 15-JUL-1993          */
-/* Product Name: Microsoft Windows Software Development Kit           */
-/* Product Version:  3.10                                             */
-/* Operating System: WINDOWS                                          */
-/*                                                                    */
+/*                      Modem register status bits                    */
 /*--------------------------------------------------------------------*/
 
 #define MSR_CTS              0x10  /* absolute CTS state in MSR       */
@@ -164,9 +162,27 @@ static unsigned int inQueueSize, outQueueSize;
 #define MSR_RI               0x40  /* absolute RI state in MSR        */
 #define MSR_RLSD             0x80  /* absolute RLSD state in MSR      */
 
-#ifdef SUICIDE
+/*--------------------------------------------------------------------*/
+/*       The q101417 algorithm referenced below, while it may be      */
+/*       ugly, gives a GP fault if the port is invalid. getMSR can    */
+/*       be substituted instead, but crashes under Win-OS/2.          */
+/*                                                                    */
+/*       Microsoft has documented a way to see the Modem Status       */
+/*       Register bits for modem control lines.  This was a real      */
+/*       bizarre mess with SetCommEventMask() and GetCommEventMask(). */
+/*       The document is in the Developer's Knowledge Base:           */
+/*                                                                    */
+/*       Title: INF: Accessing the Modem Status Register (MSR) in     */
+/*                   Windows                                          */
+/*       Document Number: Q101417           Publ Date: 15-JUL-1993    */
+/*       Product Name: Microsoft Windows Software Development Kit     */
+/*       Product Version:  3.10                                       */
+/*       Operating System: WINDOWS                                    */
+/*--------------------------------------------------------------------*/
 
-#ifdef _MSC_VER
+#if defined(SUICIDE)
+
+#if defined(_MSC_VER)
 #define inportb _inp
 #endif
 
@@ -175,8 +191,6 @@ static unsigned int inQueueSize, outQueueSize;
 #define COMM_MSRSHADOW 35          /* Offset in DEB of MSR shadow     */
 
 #endif
-
-#define FAR_NULL ((PVOID) 0L)
 
 #define IN_XOFF_LIM     256
 #define IN_XON_LIM      256
@@ -212,7 +226,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    if (portActive)               /* Was the port already active?     */
       closeline();               /* Yes --> Shutdown it before open  */
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15, "openline: %s, %ul", name, (unsigned long) baud);
 #endif
 
@@ -226,12 +240,14 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 
    portNum = name[3] - '0';
 
-   windowsBuffer = max(windowsBuffer,2048);
+   windowsBuffer = max(windowsBuffer, 2048);
 
    inQueueSize = windowsBuffer;
    outQueueSize = min(windowsBuffer, 8192);
 
-   if ((nCid = OpenComm(name, inQueueSize, outQueueSize)) < 0)
+   nCid = OpenComm(name, inQueueSize, outQueueSize);
+
+   if (nCid < 0)
    {
       printmsg(0, "openline: Failed to open port %s.", name);
       printmsg(0, "nopenline: %s: OpenComm returned %#04X (%d)",
@@ -261,7 +277,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*                        Set line attributes                         */
 /*--------------------------------------------------------------------*/
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15,"openline: Getting attributes");
 #endif
 
@@ -282,7 +298,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*                      Set up for Flow Control                       */
 /*--------------------------------------------------------------------*/
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15,"openline: Disabling XON/XOFF flow control");
 #endif
 
@@ -292,7 +308,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    if (!direct)                 /* nodirect means RTS/CTS flow OK      */
    {
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
       printmsg(15, "openline: Enabling RTS/CTS flow control");
 #endif
 
@@ -303,7 +319,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    }
    else {
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
       printmsg(4, "openline: Disabling RTS/CTS flow control");
 #endif
 
@@ -322,7 +338,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*              Modify the DCB with the new attributes                */
 /*--------------------------------------------------------------------*/
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15,"openline: Setting attributes");
 #endif
 
@@ -339,7 +355,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*                 Assure RTS and DTR are asserted                    */
 /*--------------------------------------------------------------------*/
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15,"openline: Raising RTS/DTR");
 #endif
 
@@ -377,67 +393,67 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 } /* nopenline */
 
 /*--------------------------------------------------------------------*/
-/*    s r e a d                                                       */
+/*       s r e a d                                                    */
 /*                                                                    */
-/*    Read from the serial port                                       */
+/*       Non-blocking serial port read essential to "g" protocol.     */
 /*                                                                    */
-/*   Non-blocking read essential to "g" protocol. The rather cryptic  */
-/*   "description" in dcpgpkt.c is:                                   */
+/*       This version is based on the internally buffering OS/2       */
+/*       version, which allows us to save data above and beyond       */
+/*       the internal Windows buffering. it also results in fewer     */
+/*       interrupts to Windows during script processing, yielding     */
+/*       better performance during login.                             */
 /*                                                                    */
-/*   sread(buf, n, timeout)                                           */
-/*      while (KWTrue)                                                */
-/*         if# of chars available >= n (w/o dec internal counter)     */
-/*            read n chars into buf (dec internal counter)            */
-/*            break                                                   */
-/*         else                                                       */
-/*            if time > timeout                                       */
-/*               break                                                */
-/*                                                                    */
-/*   NOTE: Timeout of 0 returns right away, indicating the number of  */
-/*         bytes in our local receive buffer. There's GOTTA be a      */
-/*         better way...                                              */
-/*                                                                    */
-/*   This all changes in a multi-tasking system.  Requests for I/O    */
-/*   should get queued and an event flag given.  Then the             */
-/*   requesting process (e.g. gmachine()) waits for the event flag    */
-/*   to fire processing either a read or a write.  Could be           */
-/*   implemented on VAX/VMS or DG but not MS-DOS.                     */
-/*                                                                    */
+/*       Note that this is actually simpler than the OS/2, NT, and    */
+/*       TCP/IP versions of this routine, since the actual            */
+/*       ReadComm call is non-blocking -- we just always try to       */
+/*       fill the buffer if we read anything at all.                  */
 /*--------------------------------------------------------------------*/
 
-unsigned int nsread(char UUFAR *output,
-            unsigned int wanted,
-            unsigned int timeout)
+unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeout)
 {
-
-   int received;
-   time_t stop_time, now;
-   COMSTAT stat;
+   time_t stop_time ;
+   time_t now ;
 
 /*--------------------------------------------------------------------*/
-/*            This catches a fencepost condition later...             */
+/*                           Validate input                           */
 /*--------------------------------------------------------------------*/
 
-   if (wanted == 0)
+   if ( wanted > commBufferLength )
    {
-      ddelay(0);
-      return(0);
+      printmsg(0,"nsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
+      panic();
    }
 
 /*--------------------------------------------------------------------*/
-/*                      Report our modem status                       */
+/*           Determine if our internal buffer has the data            */
 /*--------------------------------------------------------------------*/
 
-  ShowModem();
+   if ( ! wanted )
+      return wanted;
+
+   if (commBufferUsed >= wanted)
+   {
+      MEMCPY( output, commBuffer, wanted );
+      commBufferUsed -= wanted;
+
+      if ( commBufferUsed )   /* Any data left over?                 */
+         MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
+                              /* Yes --> Save it                     */
+
+      return wanted + commBufferUsed;
+
+   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*                 Determine when to stop processing                  */
 /*--------------------------------------------------------------------*/
 
-   if ( timeout == 0 )        /* 0 = don't wait around.               */
+   if ( timeout == 0 )
    {
       stop_time = 0;
-      now = 1;                /* Any number greater than stop time    */
+      now = 1;                /* Any number greater than stop time   */
    }
    else {
       time( & now );
@@ -445,13 +461,18 @@ unsigned int nsread(char UUFAR *output,
    }
 
 /*--------------------------------------------------------------------*/
-/*       Watch RX Queue till wanted bytes available or timeout        */
+/*            Try to read any needed data into the buffer             */
 /*--------------------------------------------------------------------*/
 
-   for( ;; )
-   {
+   do {
+      long   signedReceived = 0;
+      unsigned received = 0;
 
-#ifdef CHATPRJ
+/*--------------------------------------------------------------------*/
+/*                    Check for program interruptions                 */
+/*--------------------------------------------------------------------*/
+
+#if defined(CHATPRJ)
       if (beenPressed())
          return 0;
 #else
@@ -459,57 +480,114 @@ unsigned int nsread(char UUFAR *output,
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       Check & clear the comm port.  This gets the number chars in  */
-/*       the receive queue as well, in the COMSTAT structure.         */
+/*                     Handle an aborted program                      */
 /*--------------------------------------------------------------------*/
 
-      GetCommError(nCid, &stat );
+#ifdef CATCHER
+      if ( raised )
+         return 0;
 
-/*--------------------------------------------------------------------*/
-/*       If wanted number of bytes are available, break out and       */
-/*       read 'em.                                                    */
-/*--------------------------------------------------------------------*/
-
-      if (stat.cbInQue >= wanted)
-         break;
-
-      ddelay(0);                    /* Be friendly to Windows'
-                                       cooperative multitasking...   */
-
-      if (stop_time == 0)           /* Immediate timeout?            */
-      {                             /* We're out of here             */
-         return(stat.cbInQue);
-      }
-
-      time( &now );
-
-      if (stop_time <= now)         /* Timeout on request*/
+      if ( terminate_processing )
       {
-#ifdef UDEBUG
-         printmsg(15, "nsread: timeout(%d) - %d chars avail",
-             timeout, stat.cbInQue);
-#endif
-         return(stat.cbInQue);
+         static KWBoolean recurse = KWFalse;
+
+         if ( ! recurse )
+         {
+            printmsg(2,"nsread: User aborted processing");
+            recurse = KWTrue;
+         }
+
+         return 0;
       }
-
-   } /* for( ;; ) */
+#endif
 
 /*--------------------------------------------------------------------*/
-/*       We have enough in the RX queue.  Grab 'em right into the     */
-/*       caller's buffer.                                             */
+/*       Try to fill our data buffer.  Since Windows ReadComm is      */
+/*       non-blocking, we always try to just fill the internal        */
+/*       buffer and get what we can.                                  */
 /*--------------------------------------------------------------------*/
 
-   received = ReadComm(nCid, output, wanted);
+      signedReceived = ReadComm(nCid,
+                          commBuffer + commBufferUsed,
+                          commBufferLength - commBufferUsed );
 
-   printmsg(15, "nsread: Got %d characters, %d still in RX queue.",
-          (int)received, (int)(stat.cbInQue - received));
+/*--------------------------------------------------------------------*/
+/*       Check for errors.  Errors are so common under Windows we     */
+/*       basically report them and ignore them.                       */
+/*--------------------------------------------------------------------*/
+
+      if ( signedReceived <= 0 )
+      {
+         int rc = GetCommError(nCid, NULL);
+
+         if (rc)
+         {
+            printmsg(0,"nsread: ReadComm failed, "
+                       "return code from GetCommError was %#04x (%d)",
+                        rc ,
+                        rc);
+
+            ShowError(rc);
+         }
+
+         received = (unsigned) (signedReceived * -1);
+      }
+      else
+         received = (unsigned) signedReceived;
+
+#if defined(UDEBUG)
+      if ( received )
+         printmsg(15,"nsread: Want %d characters, received %d, "
+                     "total %d in buffer",
+                  (int) wanted,
+                  (int) received,
+                  (int) commBufferUsed + received);
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-   traceData( output, wanted, KWFalse );
-   return(received);
+      traceData( commBuffer + commBufferUsed, (unsigned) received, KWFalse );
+
+/*--------------------------------------------------------------------*/
+/*            If we got the data, return it to the caller             */
+/*--------------------------------------------------------------------*/
+
+      commBufferUsed += received;
+
+      if ( commBufferUsed >= wanted )
+      {
+         MEMCPY( output, commBuffer, wanted );
+         commBufferUsed -= wanted;
+
+         if ( commBufferUsed )   /* Any data left over?              */
+            MEMMOVE( commBuffer, commBuffer + wanted, commBufferUsed );
+
+         return wanted;
+
+      } /* if */
+
+/*--------------------------------------------------------------------*/
+/*                 Update the clock for the next pass                 */
+/*--------------------------------------------------------------------*/
+
+      if (stop_time > 0)
+         time( &now );
+
+/*--------------------------------------------------------------------*/
+/*     Since we're still waiting for data, give Windows a time slice  */
+/*--------------------------------------------------------------------*/
+
+      ddelay( 0 );
+
+   } while (stop_time > now);
+
+/*--------------------------------------------------------------------*/
+/*         We don't have enough data; report what we do have          */
+/*--------------------------------------------------------------------*/
+
+   return commBufferUsed;
 
 } /* nsread */
 
@@ -541,7 +619,7 @@ int nswrite(const char UUFAR *data, unsigned int len)
 
    hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(15,"nswrite: Writing %u bytes to port", len );
 #endif
 
@@ -658,7 +736,7 @@ int nswrite(const char UUFAR *data, unsigned int len)
 void nssendbrk(unsigned int duration)
 {
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(12, "nssendbrk: %d", duration);
 #endif
 
@@ -666,9 +744,9 @@ void nssendbrk(unsigned int duration)
    ddelay(duration == 0 ? 200 : duration);
    ClearCommBreak(nCid);
 
-} /*ssendbrk*/
+} /* ssendbrk */
 
-#ifdef SUICIDE                      /* Crashes on kendra, alas       */
+#if defined(SUICIDE)                /* Crashes on kendra, alas       */
 
 /*--------------------------------------------------------------------*/
 /*    g e t M S R                                                     */
@@ -679,9 +757,9 @@ void nssendbrk(unsigned int duration)
 
 static getMSR(const int port)
 {                                   /* port is 1 thru 4              */
-  static unsigned short far *bios = (unsigned short far *) 0x400000;
+  static unsigned far *bios = (unsigned far *) 0x400000;
                                     /* == 0040:0000                  */
-  unsigned short baseAddr = bios[port-1];
+  unsigned baseAddr = bios[port-1];
 
   if ( ! port )                     /* Reset lookaside info?         */
     return 0;                       /* Yes --> No op in this version */
@@ -698,14 +776,12 @@ static getMSR(const int port)
 /*--------------------------------------------------------------------*/
 /*    g e t M S R                                                     */
 /*                                                                    */
-/*    Get modem statrus register bits via by Windows                  */
-/*    directly.                                                       */
+/*    Get modem statrus register bits via Windows API                 */
 /*--------------------------------------------------------------------*/
 
 static int getMSR(const int port)
 {
    static LPBYTE lpbModemBits = 0;  /* --> Modem Status Register bits */
-
 
    if ( ! port )                    /* Reset lookaside info?         */
    {
@@ -758,7 +834,7 @@ void ncloseline(void)
 
    traceStop();
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    printmsg(3,"Serial port closed");
 #endif
 
@@ -821,7 +897,7 @@ void nSIOSpeed(BPS baud)
    printmsg(15,"nSIOSpeed: Setting baud rate to %lu",
            (unsigned long) currentSpeed);
 
-#ifdef UDEBUG
+#if defined(UDEBUG)
    ShowModem();
 #endif
 
@@ -873,7 +949,7 @@ void nflowcontrol( KWBoolean flow )
           (int) rc,
           (int) rc);
       panic();
-   } /*if */
+   } /* if */
 
 } /* nflowcontrol */
 
@@ -921,7 +997,7 @@ KWBoolean nCD( void )
 
 } /* nCD */
 
-#ifdef CHATPRJ                   /*  don't call printmsg from the DLL. */
+#if defined(CHATPRJ)             /*  don't call printmsg from the DLL. */
 
 static void ShowModem( void )
 {
@@ -985,7 +1061,7 @@ static void ShowError( int status )
 /*       No operation under Windows                                   */
 /*--------------------------------------------------------------------*/
 
-#ifdef __TURBOC__
+#if defined(__TURBOC__)
 #pragma argsused
 #endif
 
