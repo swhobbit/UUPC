@@ -1,32 +1,34 @@
-# Microsoft Developer Studio Project File - Name="lib" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 5.00
+# Microsoft Developer Studio Project File - Name="uupclib" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=lib - Win32 Debug
+CFG=uupclib - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "lib.mak".
+!MESSAGE NMAKE /f "uupclib.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "lib.mak" CFG="lib - Win32 Debug"
+!MESSAGE NMAKE /f "uupclib.mak" CFG="uupclib - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "lib - Win32 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "lib - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "uupclib - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "uupclib - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
+# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+RSC=rc.exe
 
-!IF  "$(CFG)" == "lib - Win32 Release"
+!IF  "$(CFG)" == "uupclib - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -40,6 +42,8 @@ CPP=cl.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -47,7 +51,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
-!ELSEIF  "$(CFG)" == "lib - Win32 Debug"
+!ELSEIF  "$(CFG)" == "uupclib - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -60,7 +64,9 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WIN32" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WIN32" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -72,8 +78,8 @@ LIB32=link.exe -lib
 
 # Begin Target
 
-# Name "lib - Win32 Release"
-# Name "lib - Win32 Debug"
+# Name "uupclib - Win32 Release"
+# Name "uupclib - Win32 Debug"
 # Begin Group "Source"
 
 # PROP Default_Filter "*.c"
@@ -272,10 +278,6 @@ SOURCE=.\ssleep.c
 # Begin Source File
 
 SOURCE=.\stater.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\strlwr.c
 # End Source File
 # Begin Source File
 
