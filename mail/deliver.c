@@ -5,6 +5,26 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *
+ *    $Log: LIB.H $
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Embedded Japanese support provided by Kenji Rikitake            */
 /*    28-AUG-1991                                                     */
 /*                                                                    */
@@ -35,6 +55,12 @@
 #define SMARTBEEP
 #endif
 
+#define INCLUDE ":include:"
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <io.h>
@@ -42,6 +68,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <process.h>
+#include <limits.h>
 
 #ifdef __TURBOC__
 #include <dos.h>
@@ -54,6 +81,10 @@
 #include <os2.h>
 #endif
 #endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "address.h"
@@ -68,6 +99,7 @@
 #include "security.h"
 #include "stater.h"
 #include "usertabl.h"
+#include "sysalias.h"
 
 #ifdef SMARTBEEP
 #include "ssleep.h"
@@ -85,8 +117,19 @@ currentfile();
 
 static size_t DeliverLocal( const char *input,  /* Input file name    */
                           char *user,     /* Target address           */
+                          const boolean sysalias,
+                                             /* Already sys alias     */
                           boolean validate); /* Validate/forward
                                                 local mail            */
+
+static int DeliverFile( const char *input,
+                        const char *mboxname,
+                        const long start,
+                        const long end,
+                        boolean *announce,
+                        struct UserTable *userp,
+                        boolean sysalias,  /* Already sys alias     */
+                        const boolean validate );
 
 static void trumpet( const char *tune);
 
@@ -123,8 +166,9 @@ static char *stats( const char *fname );
 /*    Deliver mail to one user                                        */
 /*--------------------------------------------------------------------*/
 
-size_t Deliver(        const char *input,    /* Input file name       */
+size_t Deliver(       const char *input,    /* Input file name       */
                             char *address,  /* Target address           */
+                      const boolean sysalias,  /* Already sys alias     */
                           boolean validate)  /* Validate/forward
                                                 local mail            */
 {
@@ -139,9 +183,8 @@ size_t Deliver(        const char *input,    /* Input file name       */
       printmsg( 0,
             "Delivering to postmaster: Excessive address length %d for %s",
                strlen(address) , address );
-      return Deliver( input, E_postmaster, TRUE);
+      return Deliver( input, E_postmaster, FALSE, TRUE);
    }
-
 
    user_at_node(address, path, node, user);
 
@@ -153,12 +196,13 @@ size_t Deliver(        const char *input,    /* Input file name       */
    {
       struct HostTable *hostx = checkname( node );
       if (hostx->hstatus == localhost)  /* Really the local node?    */
-         return DeliverLocal( input, user, validate );   /* Yes!     */
+         return DeliverLocal( input, user, sysalias, validate );
+                                 /* Yes!                             */
       else {
          printmsg(0,"Mail for \"%s\" via \"%s\" has no "
                     "delivery route, delivering to postmaster %s",
                address, path , E_postmaster);
-         return Deliver( input, E_postmaster, TRUE);
+         return Deliver( input, E_postmaster, FALSE, TRUE);
       } /* else */
    }  /* if */
 
@@ -172,7 +216,7 @@ size_t Deliver(        const char *input,    /* Input file name       */
          "Mail for \"%s\" via \"%s\" has exceeded hop "
          "limit of %d, delivering to postmaster %s",
                address, path , E_maxhops, E_postmaster);
-         return Deliver( input, E_postmaster, TRUE);
+         return Deliver( input, E_postmaster, FALSE, TRUE);
    }
 
 /*--------------------------------------------------------------------*/
@@ -235,16 +279,17 @@ size_t Deliver(        const char *input,    /* Input file name       */
 static size_t DeliverLocal( const char *input,
                                           /* Input file name          */
                           char *user,     /* Target address           */
+                          const boolean sysalias,
+                                          /* Already sys alias     */
                           boolean validate)  /* TRUE = validate,
                                                 forward user's mail   */
 {
    char mboxname[FILENAME_MAX];
-   FILE *mbox;
-   char buf[BUFSIZ];
-   char command[BUFSIZ];
    struct UserTable *userp = NULL;
+   ALIASTABLE *aliasp = NULL;
    int delivered = 0;
    boolean announce = FALSE;
+   FILE *mbox;
 
 /*--------------------------------------------------------------------*/
 /*    If the parameter is the postmaster, use the configuration       */
@@ -262,83 +307,64 @@ static size_t DeliverLocal( const char *input,
    {
       validate = strcmp( E_postmaster , user);
                                  /* Don't loop delivering to postmast*/
+
       userp = checkuser(user);   /* Locate user id in host table     */
+
+/*--------------------------------------------------------------------*/
+/*                     Process any system aliases                     */
+/*--------------------------------------------------------------------*/
+
+      if ( ! sysalias )
+      {
+         aliasp = checkalias( user );  /* System alias?             */
+
+         if ( aliasp != NULL )
+         {
+            delivered += DeliverFile( input,
+                                      SysAliases,
+                                      aliasp->start,
+                                      aliasp->end,
+                                      &announce ,
+                                      userp,
+                                      TRUE,
+                                      validate );
+
+            if ( announce && ( userp != BADUSER ))
+               trumpet( userp->beep);  /* Yes --> Inform the user    */
+            return delivered;
+
+         } /* if */
+      } /* if */
+
+/*--------------------------------------------------------------------*/
+/*             No system alias, verify the user is valid              */
+/*--------------------------------------------------------------------*/
+
       if ( userp == BADUSER )    /* Invalid user id?                 */
       {                          /* Yes --> Dump in trash bin        */
          printmsg(0,
                "\"%s\" is an invalid user, delivering to %s",
                user, E_postmaster);
-         return DeliverLocal( input, E_postmaster, validate);
+         return DeliverLocal( input, E_postmaster, FALSE, validate);
       } /* if */
-
 
 /*--------------------------------------------------------------------*/
 /*               The user id validated; handle the mail               */
 /*--------------------------------------------------------------------*/
 
       mkfilename(mboxname, userp->homedir, DOTFORWARD);
-      mbox = FOPEN(mboxname, "r", TEXT);
 
-      if (mbox == NULL )         /* The .forward file exists?        */
+      if (access( mboxname, 0 )) /* The .forward file exists?        */
          announce = TRUE;        /* No --> Fall through              */
       else {
-         while( fgets( buf , BUFSIZ , mbox) != NULL )
-         {
-            char c = *buf;
-            if ( buf[ strlen(buf) - 1 ]== '\n')
-               buf[ strlen(buf) - 1 ] = '\0';
-            printmsg(8,"Forwarding to \"%s\"", buf);
-            if ( isalpha( c ) && (buf[1] == ':'))  /* Drive name?    */
-               c = ':';             /* Yes --> special case          */
-
-            switch(c)
-            {
-               case '\0':
-                  break;            /* Empty line, ignore         */
-
-               case '|':               /* Pipe mail into a command   */
-               {
-                  long here = ftell(mbox);
-                  fclose(mbox);
-                  sprintf(command , "%s < %s", &buf[1], input);
-                  printmsg(1,"Executing \"%s\" in %s",
-                        command, userp->homedir);
-                  PushDir( userp->homedir );
-                  system(command);                 /* FIX THIS */
-                  PopDir();
-                  delivered += 1;
-                  mbox = FOPEN(mboxname, "r", TEXT);
-                  fseek( mbox, here, SEEK_SET);
-                  break;
-               } /* case */
-
-               case '\\':              /* Deliver without forwarding */
-                  delivered += Deliver( input, &buf[1], FALSE );
-                  announce = TRUE;
-                  break;
-
-               case '/':               /* Save in absolute path name */
-               case ':':
-               case '~':
-                  if (expand_path(buf, NULL, userp->homedir,
-                                  E_mailext) == NULL )
-                  {
-                     printmsg(0,
-                           "Invalid path in filename, delivering to %s",
-                           user, E_postmaster);
-                     return DeliverLocal( input, E_postmaster, validate );
-                  }
-                  else
-                     delivered += DeliverLocal( input, buf, FALSE );
-                  announce = TRUE;
-                  break;
-
-               default:                /* Deliver normally           */
-                  delivered += Deliver( input, buf, validate );
-            } /* switch */
-         } /* while */
-
-         fclose(mbox);
+         delivered += DeliverFile( input,
+                                   mboxname,
+                                   0,
+                                   LONG_MAX,
+                                   &announce,
+                                   userp,
+                                   FALSE,
+                                   validate);
 
          if (announce)        /* Did we deliver mail locally?        */
             trumpet( userp->beep);  /* Yes --> Inform the user       */
@@ -383,6 +409,115 @@ static size_t DeliverLocal( const char *input,
    return CopyData( FALSE, input , mbox );
 
 } /* DeliverLocal */
+
+/*--------------------------------------------------------------------*/
+/*       D e l i v e r F i l e                                        */
+/*                                                                    */
+/*       Process a local or system aliases file                       */
+/*--------------------------------------------------------------------*/
+
+static int DeliverFile( const char *input,
+                        const char *fwrdname,
+                        const long start,
+                        const long end,
+                        boolean *announce,
+                        struct UserTable *userp,
+                        const boolean sysalias,  /* Already sys alias     */
+                        const boolean validate )
+{
+   char buf[BUFSIZ];
+   FILE *fwrd = FOPEN(fwrdname, "r", TEXT);
+   int delivered = 0;
+
+   if ( fwrd == NULL )
+   {
+      printerr( fwrdname );
+      panic();
+   }
+
+   if ( start != 0 )
+      fseek( fwrd, start, SEEK_SET);
+
+   while((ftell(fwrd) < end) && (fgets( buf , BUFSIZ , fwrd) != NULL ))
+   {
+      char command[BUFSIZ];
+      char c = *buf;
+      char *nextfile;
+
+      if ( buf[ strlen(buf) - 1 ]== '\n')
+         buf[ strlen(buf) - 1 ] = '\0';
+
+      printmsg(8,"Forwarding to \"%s\"", buf);
+      if ( equalni( buf, INCLUDE, strlen(INCLUDE)))
+      {
+         nextfile = strtok( buf + strlen(INCLUDE), WHITESPACE );
+         c = '*';
+      }
+      else if ( isalpha( c ) && (buf[1] == ':'))  /* Drive name?    */
+         c = '/';             /* Yes --> special case          */
+
+      switch(c)
+      {
+         case '#':
+            break;            /* Comment, ignore            */
+
+         case '\0':
+            break;            /* Empty line, ignore         */
+
+         case '|':               /* Pipe mail into a command   */
+         {
+            long here = ftell(fwrd);
+            fclose(fwrd);
+            sprintf(command , "%s < %s", &buf[1], input);
+            printmsg(1,"Executing \"%s\" in %s",
+                  command, userp->homedir);
+            PushDir( userp->homedir );
+            system(command);                 /* FIX THIS */
+            PopDir();
+            delivered += 1;
+            fwrd = FOPEN(fwrdname, "r", TEXT);
+            fseek( fwrd, here, SEEK_SET);
+            break;
+         } /* case */
+
+         case '\\':              /* Deliver without forwarding */
+            delivered += Deliver( input, &buf[1], TRUE, FALSE );
+            *announce = TRUE;
+            break;
+
+         case '*':
+            delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
+                                      announce, userp,
+                                      FALSE, TRUE );
+            break;
+
+         case '/':               /* Save in absolute path name */
+         case '~':
+            if (expand_path(buf, NULL, userp->homedir,
+                            E_mailext) == NULL )
+            {
+               printmsg(0,
+                     "Invalid path in filename, delivering to %s",
+                      E_postmaster);
+               return DeliverLocal( input, E_postmaster,
+                                    sysalias, validate );
+            }
+            else
+               delivered += DeliverLocal( input, buf, sysalias, FALSE );
+            *announce = TRUE;
+            break;
+
+         default:                /* Deliver normally           */
+            delivered += Deliver( input, buf, sysalias, validate );
+      } /* switch */
+   } /* while */
+
+   fclose( fwrd );
+
+   return delivered;
+
+} /* DeliverFile */
+
 
 /*--------------------------------------------------------------------*/
 /*    t r u m p e t                                                   */
