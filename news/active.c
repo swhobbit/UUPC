@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.29 1996/01/01 23:57:29 ahd Exp $
+ *    $Id: active.c 1.30 1996/01/02 02:51:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.30  1996/01/02 02:51:53  ahd
+ *    Correct conditional debugging code to be consistent
+ *
  *    Revision 1.29  1996/01/01 23:57:29  ahd
  *    Use one large red/black tree for entire active file, not small trees at each level
  *
@@ -121,7 +124,7 @@ typedef struct _GROUP
 #ifdef BIT32ENV
 #define GROUPS_PER_BLOCK      (0x10000 / sizeof (GROUP))
 #else
-#define GROUPS_PER_BLOCK      200
+#define GROUPS_PER_BLOCK      (0x1000 / sizeof (GROUP))
 #endif
 
 static GROUP UUFAR *cachedGroup = NULL;   /* Last group walked       */
@@ -667,14 +670,30 @@ addGroup( const char *group,
    GROUP UUFAR *prevLevel;
    char  *rest = (char *) group;
 
+   static size_t maxLength = 0;
+
 /*--------------------------------------------------------------------*/
-/*                   Verify grouop name can be used                   */
+/*       Verify group name can be used on our file system.  The       */
+/*       group name must fit in the standard buffer, and also on      */
+/*       the file system, including any periods we need to insert.    */
 /*--------------------------------------------------------------------*/
 
-   if ( strlen( group ) >= MAXGRP )
+   if ( maxLength == 0 )
    {
-      printmsg(0, "addGroup: Name too long to use as news group: %s",
-                 group );
+      maxLength = FILENAME_MAX - (strlen( E_newsdir ) + (MAXGRP / 9));
+                                    /* The 1/9 allows for an inserted
+                                       period every nine characters. */
+
+      if ( MAXGRP < maxLength )
+         maxLength = MAXGRP;
+   }
+
+   if ( strlen( group ) >= maxLength )
+   {
+      printmsg(0, "addGroup: news group too long, "
+                  "maximum allowed length is %d: %s",
+                  maxLength,
+                  group );
       return KWFalse;
    }
 
@@ -870,11 +889,7 @@ loadActive( const KWBoolean mustExist )
                       group );
       }
 
-      if ( !addGroup( group, high, low, *s ) )
-      {
-         printmsg(0, "loadActive: Unable to load group (duplicate?): %s",
-                  group );
-      }
+      addGroup( group, high, low, *s );
 
    } /* while */
 
@@ -1271,8 +1286,8 @@ writeActive()
    {
       long realSearches = searches - cacheHits;
 
-      printmsg( 1, "writeActive: %ld searches, %ld search cache hits, "
-                   "maximum tree depth %ld.",
+      printmsg( 1, "writeActive: %ld searches, %ld cache hits, "
+                   "maximum recursion %ld.",
                    searches,
                    cacheHits,
                    maxPushed);
