@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRIPT.C 1.6 1993/11/30 04:18:14 ahd Exp $
+ *    $Id: script.c 1.7 1993/12/24 05:12:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: SCRIPT.C $
+ *    $Log: script.c $
+ * Revision 1.7  1993/12/24  05:12:54  ahd
+ * Support for checking echoing of transmitted characters
+ *
  * Revision 1.6  1993/11/30  04:18:14  ahd
  * Share buffer between input and output
  *
@@ -260,15 +263,24 @@ static int StrMatch(char *MatchStr, char C, char **failure)
       alternates = 0;
       if ( failure != NULL )
       {
+
          while (failure[alternates] != NULL )
          {
-            SearchPos[alternates] = MatchInit( failure[alternates] );
-            alternates++;
+            if ( strlen( failure[alternates] ) )
+               SearchPos[alternates] = MatchInit( failure[alternates] );
+            else {
+               printmsg(0,"Empty NOCONNECT string is invalid!");
+               panic();
+            }
+
+            alternates++;         /* Step to next string in the list  */
+
          } /* while (failure[alternates] != NULL ) */
 
       } /* if ( failure != NULL ) */
 
       return 0;
+
    } /* if (MatchStr) */
 
 /*--------------------------------------------------------------------*/
