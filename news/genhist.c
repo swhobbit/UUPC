@@ -6,11 +6,26 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  */
- 
-static char *rcsid = "$Id$";
-static char *rcsrev = "$Revision$";
 
-/* $Log$ */
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+static char *rcsid = "$Id: GENHIST.C 1.1 1993/09/05 10:56:49 rommel Exp $";
+static char *rcsrev = "$Revision: 1.1 $";
+
+/* $Log: GENHIST.C $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -79,7 +94,7 @@ void main( int argc, char **argv)
 /*     Report our version number and date/time compiled               */
 /*--------------------------------------------------------------------*/
 
-   debuglevel = 2;
+   debuglevel = 1;
    banner( argv );
 
 #if defined(__CORE__)
@@ -192,8 +207,8 @@ static void IndexOneGroup( struct grp *cur_grp )
 /*    G e t H i s t o r y D a t a                                     */
 /*--------------------------------------------------------------------*/
 
-static void GetHistoryData(char *group, struct direct *dp, 
-			   char *messageID, char *histentry)
+static void GetHistoryData(char *group, struct direct *dp,
+                           char *messageID, char *histentry)
 {
   FILE *article;
   char line[BUFSIZ], *ptr, *item;
@@ -227,7 +242,7 @@ static void GetHistoryData(char *group, struct direct *dp,
     {
       ptr = line + strlen(ptr) + 1;
       while (isspace(*ptr))
-	ptr++;
+        ptr++;
       strcpy(messageID, ptr);
       b_msgid++;
       continue;
@@ -238,17 +253,17 @@ static void GetHistoryData(char *group, struct direct *dp,
     {
       ptr = line + strlen(ptr) + 1;
       while (isspace(*ptr))
-	ptr++;
+        ptr++;
 
       strtok(ptr, " "); /* strip off system name */
       first = 1;
 
       while ((item = strtok(NULL, " ")) != NULL)
       {
-	if (!first)
-	  strcat(histentry, ",");
-	first = 0;
-	strcat(histentry, item);
+        if (!first)
+          strcat(histentry, ",");
+        first = 0;
+        strcat(histentry, item);
       }
 
       b_xref++;
@@ -259,8 +274,8 @@ static void GetHistoryData(char *group, struct direct *dp,
   fclose(article);
 
   if ( !b_xref )
-    sprintf(histentry, "%ld %ld %s:%s", 
-	    dp->d_modified, dp->d_size, group, dp->d_name);    
+    sprintf(histentry, "%ld %ld %s:%s",
+            dp->d_modified, dp->d_size, group, dp->d_name);
 }
 
 /*--------------------------------------------------------------------*/
@@ -268,7 +283,7 @@ static void GetHistoryData(char *group, struct direct *dp,
 /*--------------------------------------------------------------------*/
 
 static void IndexDirectory( struct grp *cur_grp,
-			    const char *directory )
+                            const char *directory )
 {
    boolean not_built = TRUE;  /* Did not insure archive directory
                                  exists                           */
@@ -314,16 +329,16 @@ static void IndexDirectory( struct grp *cur_grp,
       if ( numeric( dp->d_name ))/* Article format name?             */
       {                          /* Yes --> Examine it closer        */
 
-	printmsg(6,"Processing file %s from %s",
-		 dp->d_name, dater( dp->d_modified, NULL));
+        printmsg(6,"Processing file %s from %s",
+                 dp->d_name, dater( dp->d_modified, NULL));
 
-	GetHistoryData(cur_grp->grp_name, dp, messageID, histentry);
+        GetHistoryData(cur_grp->grp_name, dp, messageID, histentry);
 
-	if ( add_histentry(history, messageID, histentry) )
-	  articles++;
+        if ( add_histentry(history, messageID, histentry) )
+          articles++;
 
-	files++;
-	bytes += dp->d_size;
+        files++;
+        bytes += dp->d_size;
       }
 
    } /* while */
