@@ -21,8 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.18 1994/02/19 05:05:26 ahd Exp $
+ *       $Id: ulibnt.c 1.19 1994/02/23 04:17:23 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.19  1994/02/23  04:17:23  ahd
+ * Only go into extended character (buffering) mode if reading one
+ * character AND over 2400 bps, not either!
+ *
  * Revision 1.18  1994/02/19  05:05:26  ahd
  * Use standard first header
  *
@@ -826,6 +830,7 @@ void nSIOSpeed(BPS baud)
 
    GetCommState (hCom, &dcb);
    dcb.BaudRate = baud;
+   FlushFileBuffers(hCom);
    rc = SetCommState (hCom, &dcb);
    if (!rc) {
       printmsg(0,"SIOSpeed: Unable to set baud rate for port to %lu",
@@ -863,6 +868,7 @@ void nflowcontrol( boolean flow )
       dcb.fRtsControl = RTS_CONTROL_ENABLE;
       dcb.fOutxCtsFlow = TRUE;
    }
+   FlushFileBuffers(hCom);
    rc = SetCommState(hCom, &dcb);
 
    if ( !rc )
