@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.54 1995/02/12 23:37:04 ahd Exp $
+ *       $Id: rnews.c 1.55 1995/02/14 04:38:42 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.55  1995/02/14 04:38:42  ahd
+ *       Correct problems with directory processing under NT
+ *
  *       Revision 1.54  1995/02/12 23:37:04  ahd
  *       compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -30,7 +33,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.54 1995/02/12 23:37:04 ahd Exp $";
+         "$Id: rnews.c 1.55 1995/02/14 04:38:42 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -76,70 +79,12 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void
-queueNews( FILE *inputStream, const char *inputName )
+queueNews( const char *inputName )
 {
 
    char commandOptions[BUFSIZ];
    int status;
    const char *command = bflag[ F_NEWSRUN ] ? "newsrun" : "uux";
-
-/*--------------------------------------------------------------------*/
-/*                 Handle snews/NNS processing first                  */
-/*--------------------------------------------------------------------*/
-
-   if ( bflag[ F_SNEWS ] || bflag[ F_NNS ] )
-   {
-      char workName[FILENAME_MAX];
-      char buffer[BUFSIZ];
-      FILE *outputStream;
-      size_t length;
-
-/*--------------------------------------------------------------------*/
-/*                Create new file name and open it up                 */
-/*--------------------------------------------------------------------*/
-
-      sprintf( workName,
-               "%s/UUPC%s.ART",
-               E_newsdir,
-               jobNumber( getSeq(), 4, KWTrue ) );
-
-      outputStream = FOPEN( workName, "w", IMAGE_MODE );
-
-      if ( outputStream == NULL )
-      {
-         printerr( workName );
-         panic();
-      }
-
-/*--------------------------------------------------------------------*/
-/*                      Perform the actual copy                       */
-/*--------------------------------------------------------------------*/
-
-      while ((length = fread( buffer, 1, sizeof buffer, inputStream)) != 0)
-      {
-         if (fwrite( buffer, 1, length, outputStream ) != length)
-         {
-            printerr(workName);
-            panic();
-         } /* if */
-
-      } /* while */
-
-      fclose( outputStream );
-
-      sprintf( workName, "%s\\SYS", E_confdir );
-
-      if ( access( workName, 0 ))
-      {
-         if ( debuglevel > 2 )
-            printerr( workName );
-
-         return;
-      }
-
-      rewind( inputStream );
-
-   } /* if ( bflag[ F_SNEWS ] || bflag[ F_NNS ] ) */
 
 /*--------------------------------------------------------------------*/
 /*       Perform SYS file based processing.                           */
@@ -175,24 +120,86 @@ queueNews( FILE *inputStream, const char *inputName )
 } /* queueNews */
 
 /*--------------------------------------------------------------------*/
+/*       s a v e N e w s                                              */
+/*                                                                    */
+/*       Save an entire news for processing by an third-party         */
+/*       program                                                      */
+/*--------------------------------------------------------------------*/
+
+static void saveNews( FILE *inputStream, const char *extension )
+{
+   char workName[FILENAME_MAX];
+   FILE *outputStream;
+   size_t length;
+
+#if defined(FAMILYAPI) || defined(BIT32ENV)
+   char buf[BUFSIZ * 10];
+#else
+   char buf[BUFSIZ];
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                Create new file name and open it up                 */
+/*--------------------------------------------------------------------*/
+
+   sprintf( workName,
+            "%s/UUPC%s.%s",
+            E_newsdir,
+            jobNumber( getSeq(), 4, KWTrue ),
+            extension );
+
+   outputStream = FOPEN( workName, "w", IMAGE_MODE );
+
+   if ( outputStream == NULL )
+   {
+      printerr( workName );
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*                      Perform the actual copy                       */
+/*--------------------------------------------------------------------*/
+
+   while ((length = fread( buf, 1, sizeof buf, inputStream)) != 0)
+   {
+      if (fwrite( buf, 1, length, outputStream ) != length)
+      {
+         printerr(workName);
+         panic();
+      } /* if */
+
+   } /* while */
+
+   fclose( outputStream );
+
+   rewind( inputStream );
+
+} /* saveNews */
+
+/*--------------------------------------------------------------------*/
 /*    C o m p r e s s e d                                             */
 /*                                                                    */
 /*    Decompress news                                                 */
 /*--------------------------------------------------------------------*/
 
-static int Compressed( FILE *in_stream ,
-                       const char *unpacker ,
-                       const char *suffix )
+static char *Compressed( FILE *in_stream ,
+                         const char *unpacker ,
+                         const char *suffix  )
 {
 
    FILE *workStream;
 
    char zfile[FILENAME_MAX];
    char unzfile[FILENAME_MAX];
+
+#if defined(FAMILYAPI) || defined(BIT32ENV)
+   char buf[BUFSIZ * 10];
+#else
    char buf[BUFSIZ];
+#endif
 
    long cfile_size = 0L;
-   size_t chars_read, i;
+   size_t length;
    int status = 0;
    KWBoolean needtemp = KWTrue;
 
@@ -202,13 +209,20 @@ static int Compressed( FILE *in_stream ,
 
    while( needtemp )
    {
-      mktempname( zfile , suffix );    /* Generate "compressed" file
+      if ( bflag[F_NNS] )
+         sprintf( zfile,
+                  "%s/UUPC%s.%s",
+                  E_newsdir,
+                  jobNumber( getSeq(), 4, KWTrue ),
+                  suffix );
+      else
+         mktempname( zfile , suffix ); /* Generate "compressed" file
                                           name                        */
       strcpy( unzfile, zfile );
-      unzfile[ strlen(unzfile)-2 ] = '\0';
+      *strrchr( unzfile, '.' ) = '\0'; /* No extension on uncomp file */
 
       if ( access( unzfile, 0 ))  /* Does the host file exist?        */
-         needtemp = KWFalse;       /* No, we have a good pair          */
+         needtemp = KWFalse;      /* No, we have a good pair          */
       else
          printmsg(0, "Had compressed name %s, found %s already exists!",
                   zfile, unzfile );
@@ -223,7 +237,7 @@ static int Compressed( FILE *in_stream ,
    {
       printmsg(0, "Compressed: Can't open %s (%d)", zfile, errno);
       printerr(zfile);
-      return 2;
+      panic();
    }
 
    printmsg(2, "Compressed: Copy to %s for later processing", zfile);
@@ -232,12 +246,9 @@ static int Compressed( FILE *in_stream ,
 /*                 Main loop to copy compressed file                  */
 /*--------------------------------------------------------------------*/
 
-   while ((chars_read = fread(buf, sizeof(char), BUFSIZ, in_stream)) != 0)
+   while ((length = fread(buf, sizeof(char), sizeof buf, in_stream)) != 0)
    {
-      char *t_buf = buf;
-      i = fwrite(t_buf, sizeof(char), chars_read, workStream);
-
-      if (i != chars_read)
+      if (fwrite(buf, sizeof(char), length, workStream) != length)
       {
          fclose( workStream );
          printerr( zfile );
@@ -248,7 +259,7 @@ static int Compressed( FILE *in_stream ,
          panic();
       }
 
-      cfile_size += (long)chars_read;
+      cfile_size += (long) length;
 
    } /* while */
 
@@ -264,11 +275,12 @@ static int Compressed( FILE *in_stream ,
          printerr( zfile );
       printmsg(1, "Compressed: %s empty, deleted",
                    zfile);
-      return status;
+      return NULL;
    }
    else
       printmsg(2, "Compressed: Copy to %s complete, %ld characters",
-               zfile, cfile_size);
+                  zfile,
+                  cfile_size);
 
 /*--------------------------------------------------------------------*/
 /*          Uncompress the article and feed it back to rnews          */
@@ -302,21 +314,25 @@ static int Compressed( FILE *in_stream ,
    } /* if status != 0 */
 
 /*--------------------------------------------------------------------*/
-/*            Now process the file as normal batched news             */
+/*                  Make the name nice for NNS mode                   */
 /*--------------------------------------------------------------------*/
 
-                              /* Create uncompressed output file name */
+   if ( bflag[F_NNS] )
+   {
+      char finalName[FILENAME_MAX];
+      strcpy( finalName, unzfile );
+      strcat( finalName, ".NNS" );
 
-   queueNews( workStream, unzfile );
+      if ( rename( unzfile, finalName ))
+      {
+         printerr( finalName );
+         panic();
+      }
 
-/*--------------------------------------------------------------------*/
-/*                   Clean up and return to caller                    */
-/*--------------------------------------------------------------------*/
-
-   if ( unlink( unzfile ) )
-      printerr( unzfile );
-
-   return status;
+      return newstr( finalName );
+   }
+   else
+      return newstr( unzfile );     /* Just use original temp name   */
 
 } /* Compressed */
 
@@ -332,6 +348,7 @@ main( int argc, char **argv)
    FILE *input;
    char *inputName = NULL;
    KWBoolean deleteInput = KWFalse;
+   KWBoolean useSYSFile  = KWTrue;
    int c;
    int status;
 
@@ -410,6 +427,38 @@ main( int argc, char **argv)
     } /* if (argc > 1) */
 
 /*--------------------------------------------------------------------*/
+/*       Determine if we should queue work for SYS file oriented      */
+/*       processing.  This processing is unconditional if we are      */
+/*       not saving the data for a third-party program, otherwise     */
+/*       we queue for SYS file processing only if the file exists.    */
+/*--------------------------------------------------------------------*/
+
+   if ( bflag[F_SNEWS] || bflag[F_NNS] )
+   {
+      char workName[FILENAME_MAX];
+
+      sprintf( workName, "%s\\SYS", E_confdir );
+
+      if ( access( workName, 0 ))
+      {
+         if ( debuglevel > 2 )
+            printerr( workName );
+
+         useSYSFile = KWFalse;
+      }
+      else
+         useSYSFile = KWTrue;
+
+   } /* if ( bflag[F_SNEWS] || bflag[F_NNS] ) */
+
+/*--------------------------------------------------------------------*/
+/*              SNEWS gets our raw input. whatever it is              */
+/*--------------------------------------------------------------------*/
+
+    if ( bflag[F_SNEWS] )
+       saveNews( input , "ART" );
+
+/*--------------------------------------------------------------------*/
 /*    A news article/batch either has a '#' character as its first    */
 /*    character or it does not.                                       */
 /*                                                                    */
@@ -442,31 +491,36 @@ main( int argc, char **argv)
    c = getc(input);
    ungetc(c, input);
 
-   if ((c != '#' && c != MAGIC_FIRST) || bflag[F_SNEWS] )
+   if ((c != '#' && c != MAGIC_FIRST)  )
    {
 
       /***********************************************/
       /* 1  single (unbatched, uncompressed) article */
       /***********************************************/
 
-      queueNews( input, inputName );
+      if ( bflag[F_NNS] )
+         saveNews( input, "NNS" );
+
+      if ( useSYSFile )
+         queueNews( inputName );
 
    }
    else {
-
-      unsigned char buf[BUFSIZ];
-      int bytes;
+                              /*           ....+....1..   */
+      unsigned char buf[12];  /* Length of #! ?unbatch\n  */
       char *unpacker = NULL, *suffix = NULL;
 
-      bytes = fread((char *) buf, 1, 12, input);
+      size_t bytes = fread((char *) buf, 1, sizeof buf, input);
 
       if (bytes == 12 && memcmp(buf, "#! ", 3) == 0
                       && memcmp(buf + 4, "unbatch", 7) == 0 )
       {
         /* ignore headers like "#! cunbatch" where the 'c' can  *
          * also be one of "fgz" for frozen or [g]zipped batches */
-        bytes = fread((char *) buf, 2, 1, input);
-        fseek(input, 12L, SEEK_SET);
+
+        bytes = fread((char *) buf, 2, 1, input);     /* Get magic bytes */
+        fseek(input, (long) sizeof buf, SEEK_SET);    /* Back to magic B */
+
       }
       else
         fseek(input, 0L, SEEK_SET);
@@ -495,7 +549,13 @@ main( int argc, char **argv)
          /*  2  Compressed batch                        */
          /***********************************************/
 
-         status = Compressed( input, unpacker, suffix);
+         char *tempName = Compressed( input, unpacker, suffix);
+
+         if ( useSYSFile && ( tempName != NULL ))
+            queueNews( tempName );
+
+         if ( (! bflag[F_NNS] ) && unlink( tempName ) )
+            printerr( tempName );
 
       }
       else {
@@ -504,20 +564,24 @@ main( int argc, char **argv)
          /* 3  Uncompressed batch                       */
          /***********************************************/
 
-         queueNews( input, inputName );
+         if ( bflag[F_NNS] )
+            saveNews( input, "NNS" );
+
+         if ( useSYSFile )
+            queueNews( inputName );
 
       } /* else */
 
    } /* else */
 
 /*--------------------------------------------------------------------*/
-/*               Summarize the results of our processing              */
+/*                     Clean up and exit gracefully                   */
 /*--------------------------------------------------------------------*/
 
-   if ( deleteInput && (status == 0 ))
-      remove( inputName );
 
-   exit(0);
+   if ( deleteInput && (status == 0 ) && unlink( inputName ))
+      printerr( inputName );
+
    return 0;
 
 } /* main */
