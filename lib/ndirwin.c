@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: ndirwin.c 1.1 1993/07/22 23:19:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: ndirwin.c $
+ * Revision 1.1  1993/07/22  23:19:50  ahd
+ * Initial revision
+ *
  */
 
 #include <stdio.h>
@@ -35,13 +38,15 @@
 #include <dir.h>
 #include <dos.h>
 #include <errno.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "ndir.h"
+#include "uundir.h"
+#include "dos2unix.h"
 
 #define USHORT unsigned short
 
@@ -128,6 +133,10 @@ struct direct *readdir(DIR *dirp)
           dirp->dirent.d_namlen = strlen(findbuf.ff_name);
       dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
+
+      dirp->dirent.d_modified = dos2unix( *((FDATE *) &findbuf.ff_fdate),
+                                          *((FTIME *) &findbuf.ff_ftime));
+
       printmsg(4,"readdir: Returning \"%s\"", dirp->dirent.d_name);
       return &(dirp->dirent);
    }

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SSLEEP.C 1.4 1993/04/11 00:32:29 ahd Exp $
+ *    $Id: ssleep.c 1.5 1993/07/22 23:19:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: SSLEEP.C $
+ *    $Log: ssleep.c $
+ *     Revision 1.5  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
  *     Revision 1.4  1993/04/11  00:32:29  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -60,7 +63,7 @@
 
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_Windows)
 #include <windows.h>
 #endif
 
@@ -71,6 +74,10 @@
 #include "lib.h"
 #include "ssleep.h"
 #include "safeio.h"
+
+#if defined(_Windows)
+#include "winutil.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -120,6 +127,7 @@ static void WindowsDelay( int milliseconds )
    if ( TimerId == 0 )
    {
       printmsg(0, "WindowsDelay: Unable to set Windows Timer");
+      panic();
       return;
    } /* if */
 
@@ -192,12 +200,11 @@ static int RunningUnderWindows(void)
 
    static int result = 2;
    union REGS inregs, outregs;
-   int irq;
+   static const int irq = MULTIPLEX;
 
    if (result != 2)           /* First call?                         */
       return result;          /* No --> Return saved result          */
 
-   irq = MULTIPLEX;
    inregs.x.ax = 0x1600;
    int86(irq, &inregs, &outregs);
    if ( (outregs.h.al & 0x7f) == 0)
@@ -219,7 +226,7 @@ static int RunningUnderWindows(void)
 static void WinGiveUpTimeSlice(void)
 {
    union REGS inregs, outregs;
-   int irq = MULTIPLEX;
+   static const int irq = MULTIPLEX;
 
    inregs.x.ax = 0x1680;
    int86(irq, &inregs, &outregs);
@@ -334,7 +341,7 @@ void   ddelay   (int milliseconds)
 
 #ifdef FAMILYAPI
    USHORT result;
-#else
+#elif !defined(_Windows)
    struct timeb t;
    time_t seconds;
    unsigned last;

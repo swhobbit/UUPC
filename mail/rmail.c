@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.10 1993/06/13 14:06:00 ahd Exp $
+ *    $Id: rmail.c 1.11 1993/07/24 03:40:55 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.11  1993/07/24  03:40:55  ahd
+ * Make usage() return code unique
+ *
  * Revision 1.10  1993/06/13  14:06:00  ahd
  * Save invoked program name and use it for recursive calls
  *
@@ -126,6 +129,10 @@
 #include <time.h>
 #include <signal.h>
 
+#ifdef _Windows
+#include <windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                     Application include files                      */
 /*--------------------------------------------------------------------*/
@@ -142,6 +149,10 @@
 #include "usertabl.h"
 #include "timestmp.h"
 #include "catcher.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -301,6 +312,10 @@ void main(int argc, char **argv)
       puts("Missing/extra parameter(s) at end.");
       Terminate(4);
    }
+
+#if defined(_Windows)
+   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+#endif
 
    remoteMail = ! (ReadHeader || daemon);
                               /* If not reading headers, must be in

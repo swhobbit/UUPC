@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: winutil.c 1.1 1993/07/22 23:19:50 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: winutil.c $
+ * Revision 1.1  1993/07/22  23:19:50  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -123,20 +126,23 @@ void CloseEasyWin(void)
 //    Logs and displays an error message using printmsg()
 //
 //------------------------------------------------------------------------
-int SpawnWait(char *cmdLine, UINT fuCmdShow)
+
+int SpawnWait(const char *cmdLine, const UINT fuCmdShow)
 {
-        BOOL bChildIsExecuting = FALSE;
-        MSG msg;
+   BOOL bChildIsExecuting = FALSE;
+   MSG msg;
    int iChildExitStatus = 0;
 
-        lpfnNotifyCB =
-                (LPFNNOTIFYCALLBACK)MakeProcInstance((FARPROC)NotifyCatcher, _hInstance);
-        if (!NotifyRegister(hOurTask, lpfnNotifyCB, NF_NORMAL))
-        {
-                FreeProcInstance(lpfnNotifyCB);
-                printmsg(0, "SpawnWait: NotifyRegister() failed.");
-                return(-1);
-        }
+   lpfnNotifyCB = (LPFNNOTIFYCALLBACK)
+                           MakeProcInstance((FARPROC) NotifyCatcher,
+                                             _hInstance);
+
+   if (!NotifyRegister(hOurTask, lpfnNotifyCB, NF_NORMAL))
+   {
+           FreeProcInstance(lpfnNotifyCB);
+           printmsg(0, "SpawnWait: NotifyRegister() failed.");
+           return(-1);
+   }
 
    //
    // Start up the child proc with the given command line. To start a DOS
