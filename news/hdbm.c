@@ -17,29 +17,35 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.10 1995/03/11 00:18:45 rommel Exp $";
+      "$Id: hdbm.c 1.11 1995/03/11 12:39:24 ahd v1-12o $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Log: hdbm.c $
-/* Revision 1.10  1995/03/11 00:18:45  rommel
-/* Trap possible spaces in message ids
 /*
-/* Revision 1.9  1995/01/29 14:03:29  ahd
-/* Clean up IBM C/Set compiler warnings
-/*
-/* Revision 1.8  1995/01/03 05:32:26  ahd
-/* Further SYS file support cleanup
-/*
-/* Revision 1.7  1994/12/22 00:24:36  ahd
-/* Annual Copyright Update
-/*
-/* Revision 1.6  1994/06/14 01:19:24  ahd
-/* Clean yp RCS information
-/* patches from Kai Uwe Rommel
-/*
+ * $Id:$
+ *
+ * $Log: hdbm.c $
+ * Revision 1.11  1995/03/11 12:39:24  ahd
+ * Correct compiler warnings for size mismatches
+ *
+ * Revision 1.10  1995/03/11 00:18:45  rommel
+ * Trap possible spaces in message ids
+ *
+ * Revision 1.9  1995/01/29 14:03:29  ahd
+ * Clean up IBM C/Set compiler warnings
+ *
+ * Revision 1.8  1995/01/03 05:32:26  ahd
+ * Further SYS file support cleanup
+ *
+ * Revision 1.7  1994/12/22 00:24:36  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.6  1994/06/14 01:19:24  ahd
+ * Clean yp RCS information
+ * patches from Kai Uwe Rommel
+ *
  * Revision 1.5  1994/03/07  06:09:51  ahd
  * Add additional error messages to error returns
  *
@@ -134,7 +140,7 @@ void dbm_close(DBM *db)
 
 int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 {
-  char buffer[BUFSIZ];
+  char buffer[DBM_BUFSIZ];
   long offset;
   size_t size;
 
@@ -169,7 +175,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 
 int dbm_delete(DBM *db, const datum key)
 {
-  char buffer[BUFSIZ];
+  char buffer[DBM_BUFSIZ];
   long offset;
   size_t size;
 
@@ -189,7 +195,8 @@ int dbm_delete(DBM *db, const datum key)
   }
 
   return 0;
-}
+
+} /* dbm_delete */
 
 datum dbm_fetch(DBM *db, const datum key)
 {
@@ -226,7 +233,8 @@ datum dbm_fetch(DBM *db, const datum key)
   }
 
   return val;
-}
+
+} /* dbm_fetch */
 
 /* Accessing the database sequentially is not as easy as the records
  * are of variable length to save space and make it look like a text
@@ -273,7 +281,8 @@ datum dbm_firstkey(DBM *db)
   val.dsize = strlen(db -> buffer) + 1;
 
   return val;
-}
+
+} /* dbm_firstkey */
 
 datum dbm_nextkey(DBM *db)
 {
@@ -303,6 +312,7 @@ datum dbm_nextkey(DBM *db)
   val.dsize = strlen(db -> buffer) + 1;
 
   return val;
-}
+
+} /* dbm_nextkey */
 
 /* end of hdbm.c */

@@ -17,9 +17,13 @@
 #include "uupcmoah.h"
 
 static const char *rcsid =
-      "$Id: idx.c 1.9 1995/01/29 14:03:29 ahd Exp $";
+      "$Id: idx.c 1.10 1995/02/20 00:03:07 ahd v1-12o $";
 
-/* $Log: idx.c $
+/*
+ * $Log: idx.c $
+ * Revision 1.10  1995/02/20 00:03:07  ahd
+ * Kai Uwe Rommel's cache support
+ *
  * Revision 1.9  1995/01/29 14:03:29  ahd
  * Clean up IBM C/Set compiler warnings
  *
@@ -382,7 +386,7 @@ int idx_addkey(IDX *idx,
   strncpy(new.key, key, IDX_MAXKEY - 1);
   new.key[IDX_MAXKEY - 1] = 0;
   new.offset = offset;
-  new.size   = size;
+  new.size   = (unsigned short) size;
   new.child  = 0;
 
   if (idx_add(idx, new) == -1)
