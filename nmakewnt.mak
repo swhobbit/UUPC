@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.11 1995/01/13 12:23:44 ahd Exp $
+#       $Id: nmakewnt.mak 1.12 1995/01/22 04:15:00 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.12  1995/01/22 04:15:00  ahd
+#       Convert internal zip names to match external names
+#
 #       Revision 1.11  1995/01/13 12:23:44  ahd
 #       Support for UUPCDLL.DLL for Windows NT
 #
@@ -63,7 +66,6 @@ UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
 #       or NMAKE.MAK include file to build under NT's Visual C++
 
 LDOPT    = $(COMMOPT) -Fe$@
-LIBEXE   = lib
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
 
