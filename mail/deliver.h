@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.5 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: deliver.h 1.6 1993/10/12 01:35:12 ahd Exp $
  *
  *    $Log: deliver.h $
+ * Revision 1.6  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.5  1993/09/20  04:51:31  ahd
  * TCP Support from Dave Watt
  * 't' protocol support
@@ -58,5 +61,6 @@ extern char fromnode[];
 extern  char *ruser;
 extern  char *rnode;
 extern  char *uuser;
+extern char grade;
 
 extern  char *myProgramName;
