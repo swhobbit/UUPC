@@ -83,6 +83,8 @@ static int changedir(const char *path)
          return -1;
    }
 
+   E_cwd = (char *) path;
+
    return chdir(path);
 
 } /*changedir*/
