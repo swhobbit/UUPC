@@ -1,10 +1,13 @@
-#       $Id: NMAKEDOS.MAK 1.1 1994/03/05 21:09:21 ahd Exp $
+#       $Id: nmakedos.mak 1.2 1994/03/07 06:00:49 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
-#       $Log: NMAKEDOS.MAK $
+#       $Log: nmakedos.mak $
+#       Revision 1.2  1994/03/07  06:00:49  ahd
+#       Additional multi-platform clean up.
+#
 #     Revision 1.1  1994/03/05  21:09:21  ahd
 #     Initial revision
 #
@@ -21,7 +24,8 @@ UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
 LIBLIST   =$(MODEL)libce+$(LIBCOMM)
 EXTRAT  = comm34.exe
 LINKER  = link
-LINKOPT = /batch /far /noignorecase /stack:20000
+STACKSIZE=3000                  # In hex, because /F below is brain dead
+LINKOPT = /batch /far /noignorecase /stack:0x$(STACKSIZE)
 ZIPID   = d
 
 # *--------------------------------------------------------------------*
@@ -49,4 +53,4 @@ DBGOPT  = -Odr -Zi -DUDEBUG # -FR$(SBR)\$(@B).sbr
 !endif
 
 CCOPT   = $(DBGOPT) -I$(UULIB) -A$(MODEL) -Gd -c -W4 -nologo -Fo$@
-LDOPT   = $(DBGOPT) -nologo -A$(MODEL) -F 4000 $(DBGOPT) -Fe$@
+LDOPT   = $(DBGOPT) -nologo -A$(MODEL) -F $(STACKSIZE) $(DBGOPT) -Fe$@
