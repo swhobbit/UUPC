@@ -21,13 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.12 1993/12/06 01:59:07 ahd Exp $
+ *       $Id: ulibnt.c 1.13 1993/12/06 02:29:32 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.13  1993/12/06  02:29:32  ahd
+ * Make bit twiddles of modem status bit AND and bit OR's, not logical!
+ *
  * Revision 1.12  1993/12/06  01:59:07  ahd
  * Add missing handle retrieval function
- *
- * Revision 1.11  1993/11/30  04:13:30  dmwatt
- * Optimize port processing
  *
  * Revision 1.11  1993/11/30  04:13:30  dmwatt
  * Optimize port processing
@@ -468,15 +468,35 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       if (!console)
       {
           portTimeout *= 10; /* OS/2 is in hundredths; NT in msec */
-          CommTimeout.ReadTotalTimeoutConstant = portTimeout;
+
+          CommTimeout.ReadTotalTimeoutConstant = 0;
           CommTimeout.WriteTotalTimeoutConstant = 0;
 
-/* ReadIntervalTimeout has to be set to MAXDWORD to get a ReadFile() to
+/*
+   ReadIntervalTimeout has to be set to MAXDWORD to get a ReadFile() to
    return immediately -- see the description of the COMMTIMEOUT structure
-   in volume 5 of the Win32 API for an explanation */
+   in volume 5 of the Win32 API for an explanation.
 
-          CommTimeout.ReadIntervalTimeout = (portTimeout != 0) ? 0 : MAXDWORD;
-          CommTimeout.ReadTotalTimeoutMultiplier = 0;
+   Also, we're using ReadIntervalTimeout here instead of ReadTotalTimeout
+   because of an NT bug:  during a non-zero wait, if you want to ^C in the
+   middle of the wait, then both ReadIntervalTimeout <and>
+   ReadTotalTimeoutMultiplier must be non-zero.  Otherwise, the ReadFile()
+   call further down continues executing, even though the user pressing ^C.
+   The bug has been reported to Microsoft.
+
+*/
+
+          CommTimeout.ReadIntervalTimeout = (portTimeout != 0) ?
+             portTimeout : MAXDWORD;
+
+/*
+   ReadTotalTimeoutMultiplier is key.  If the timeout multiplier is 0,
+   then when portTimeout != 0, the ^C bug appears.
+*/
+
+          CommTimeout.ReadTotalTimeoutMultiplier = (portTimeout != 0) ?
+             1 : 0; /* 1 msec/character:  effectively zero. */
+
           CommTimeout.WriteTotalTimeoutMultiplier = 0;
           rc = SetCommTimeouts(hCom, &CommTimeout);
 
