@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.4 1998/05/11 01:20:48 ahd Exp $
+ *       $Id: smtputil.c 1.5 1998/05/11 13:55:28 ahd v1-13b $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ * Revision 1.5  1998/05/11  13:55:28  ahd
+ * Correct setting of local address flag
+ *
  *       Revision 1.4  1998/05/11 01:20:48  ahd
  *       Correct resolution of host name to better determine
  *       local/neighorhood/remote nature of addresses
@@ -52,7 +55,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.4 1998/05/11 01:20:48 ahd Exp $");
+RCSID("$Id: smtputil.c 1.5 1998/05/11 13:55:28 ahd v1-13b $");
 
 currentfile();
 
@@ -187,7 +190,10 @@ isValidAddress(const char *address,
 /*--------------------------------------------------------------------*/
 
    if (! tokenizeAddress(address, path, node, user))
+   {
+      strcpy(response, path);
       return KWFalse;               /* Message already in buffer     */
+   }
 
    printmsg(4, "%s: Address %s is user %s at %s via %s",
                mName,
