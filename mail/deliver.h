@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.24 1998/03/01 01:31:21 ahd v1-13f ahd $
+ *    $Id: deliver.h 1.25 1999/01/04 03:56:09 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.25  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.24  1998/03/01 01:31:21  ahd
  *    Annual Copyright Update
  *
@@ -82,12 +85,6 @@ size_t Bounce( IMFILE *imf,
                const char *data,
                const char *address,
                const KWBoolean validate );
-
-KWBoolean
-retrySMTPdelivery( IMFILE *imf,
-                   const MAIL_ADDR *sender,
-                   const char **address,
-                   int addresses );
 
 void
 flushQueues( IMFILE *imf,
