@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.27 1994/04/26 23:56:16 ahd Exp $
+ *    $Id: mail.c 1.28 1994/05/04 02:03:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.28  1994/05/04  02:03:11  ahd
+ * Include title.h to correctly invoke setTitle()
+ *
  * Revision 1.27  1994/04/26  23:56:16  ahd
  * Add title support
  *
@@ -131,7 +134,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.27 1994/04/26 23:56:16 ahd Exp $";
+      "$Id: mail.c 1.28 1994/05/04 02:03:11 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -977,11 +980,19 @@ static void Interactive_Mail( const boolean PrintOnly,
                          cmd_ptr->verb );
                modified = TRUE;
          } /* switch */
+
          first_pass = FALSE;
+
+#ifdef UDEBUG
+         printmsg( 2, "success %s, integer %d",
+                     success ? "TRUE" : "FALSE",
+                     integer );
+#endif
+
       } /* while */
 
-      success = ! first_pass; /* If first_pass not run, then
-                                 Get_Operand failed                  */
+      success &= ! first_pass; /* If first_pass not run, then
+                                  Get_Operand failed                  */
 
       if ( crlf )
          putchar('\n');
