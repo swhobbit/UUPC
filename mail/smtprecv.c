@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.16 1998/05/11 13:54:34 ahd v1-13b $
+ *       $Id: smtprecv.c 1.17 1998/08/02 01:01:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.17  1998/08/02 01:01:27  ahd
+ *       Don't bounce inbound bounce messages from mis-configured mailers
+ *
  * Revision 1.16  1998/05/11  13:54:34  ahd
  * Correct determination of current local host
  *
@@ -98,7 +101,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.16 1998/05/11 13:54:34 ahd v1-13b $");
+RCSID("$Id: smtprecv.c 1.17 1998/08/02 01:01:27 ahd Exp $");
 
 currentfile();
 
@@ -168,23 +171,7 @@ commandMAIL(SMTPClient *client,
    size_t lenDomain;
 
 /*--------------------------------------------------------------------*/
-/*       Handle special case of @@nodename, which is what some        */
-/*       bogus mailers use for the postmaster by mistake              */
-/*--------------------------------------------------------------------*/
-
-   if (strlen(operands[0]) > 2 &&
-       equaln(operands[0], "@@", 2) &&
-       (strchr(operands[0] + 2, '@') == NULL))
-   {
-      printmsg(0,"%s: Invalid address %s from %s "
-                 "replaced by postmaster address",
-                 operands[0],
-                 client->connection.hostName );
-       strcpy( operands[0], "<>");
-   }
-
-/*--------------------------------------------------------------------*/
-/*                         Validate the address                       */
+/*   Perform basic examination of address and remove delimiters <>    */
 /*--------------------------------------------------------------------*/
 
    if (! stripAddress(operands[0], response))
@@ -196,6 +183,27 @@ commandMAIL(SMTPClient *client,
       SMTPResponse(client, SR_PE_SYNTAX, xmitBuf);
       return KWFalse;
    }
+
+/*--------------------------------------------------------------------*/
+/*       Handle special case of @@nodename, which is what some        */
+/*       bogus mailers use for the postmaster by mistake              */
+/*--------------------------------------------------------------------*/
+
+   if (strlen(operands[0]) > 2 &&
+       equaln(operands[0], "@@", 2) &&
+       (strchr(operands[0] + 2, '@') == NULL))
+   {
+      printmsg(0,"%s: Invalid address %s from %s "
+                 "replaced by postmaster address",
+                 mName,
+                 operands[0],
+                 client->connection.hostName );
+       strcpy( operands[0], "<>");
+   }
+
+/*--------------------------------------------------------------------*/
+/*                         Validate the address                       */
+/*--------------------------------------------------------------------*/
 
    if (! isValidAddress(operands[0], response, &ourProblem))
    {
