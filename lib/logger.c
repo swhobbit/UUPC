@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.22 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: logger.c 1.23 1995/03/11 22:26:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.23  1995/03/11 22:26:25  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.22  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -178,7 +181,7 @@ void openlog( const char *log )
          mktempname(fname, "log");  /* Get a temp log file name       */
 
          denormalize( fname );
-         stream = _fsopen(fname, "a", SH_DENYWR);
+         stream = fopen(fname, "a" );
 
          if ( stream == NULL )
             printerr( fname );
