@@ -32,7 +32,7 @@
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
 
-const char *LookupOS2SocketError(int err);
+static const char *LookupOS2SocketError(int err);
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -124,8 +124,14 @@ void pSOS2Err(const size_t lineno,
 
    msg = LookupOS2SocketError(rc);
 
-   if (msg == NULL) {
-      printmsg(0, "Invalid error sent to pSOS2Err: %d", rc);
+   if (msg == NULL)
+   {
+      printmsg(0,
+               "%s: undefined OS/2 socket error in file %s at line %d: %d",
+               prefix,
+               fname,
+               lineno,
+               rc);
       return;
    }
 
@@ -149,7 +155,7 @@ void pSOS2Err(const size_t lineno,
 /*       Look up an error in our list of strings                      */
 /*--------------------------------------------------------------------*/
 
-const char *LookupOS2SocketError(int err)
+static const char *LookupOS2SocketError(int err)
 {
    WSERR *pwsErr = wsErrors;
 
