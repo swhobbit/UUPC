@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.33 1995/08/27 23:34:11 ahd v1-12o $
+ *    $Id: nbstime.c 1.34 1995/09/26 03:11:36 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.34  1995/09/26 03:11:36  ahd
+ *    Add missing BREAK after case 50:
+ *
  *    Revision 1.33  1995/08/27 23:34:11  ahd
  *    Relax search for MJD string
  *

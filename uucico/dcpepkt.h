@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpepkt.h 1.4 1994/12/22 00:39:31 ahd Exp $
+  *      $Id: dcpepkt.h 1.5 1995/01/07 16:45:23 ahd v1-12q $
   *
   *      $Log: dcpepkt.h $
+  *      Revision 1.5  1995/01/07 16:45:23  ahd
+  *      Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+  *
   *      Revision 1.4  1994/12/22 00:39:31  ahd
   *      Annual Copyright Update
   *

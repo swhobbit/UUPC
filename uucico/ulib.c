@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.31 1995/01/07 16:40:09 ahd Exp $
+ *    $Id: ulib.c 1.32 1995/02/21 03:30:52 ahd v1-12q $
  *
  *    $Log: ulib.c $
+ *    Revision 1.32  1995/02/21 03:30:52  ahd
+ *    More compiler warning cleanup, drop selected messages at compile
+ *    time if not debugging.
+ *
  *    Revision 1.31  1995/01/07 16:40:09  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

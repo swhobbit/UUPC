@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u u c i c o . m a k                                            *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1996 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.20 1994/10/02 20:46:04 ahd v1-12k $
+#     $Id: uucico.mak 1.21 1994/12/22 00:42:28 ahd v1-12q $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+#     Revision 1.21  1994/12/22 00:42:28  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.20  1994/10/02 20:46:04  ahd
 #     Suppress blow up assigning icon uucico.exe
 #

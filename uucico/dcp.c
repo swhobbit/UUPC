@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.47 1995/04/02 00:01:39 ahd Exp $
+ *    $Id: dcp.c 1.48 1995/07/21 13:27:00 ahd v1-12q $
  *
  *    $Log: dcp.c $
+ *    Revision 1.48  1995/07/21 13:27:00  ahd
+ *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
+ *
  *    Revision 1.47  1995/04/02 00:01:39  ahd
  *    Correct processing to not send files below requested call grade
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.20 1994/12/22 00:34:46 ahd Exp $
+ *    $Id: dcpfpkt.c 1.21 1995/01/07 16:38:08 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.21  1995/01/07 16:38:08  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.20  1994/12/22 00:34:46  ahd
  *    Annual Copyright Update
  *

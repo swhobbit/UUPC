@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.12 1995/03/11 22:28:11 ahd Exp $
+ *    $Id: gensig.c 1.13 1995/03/24 04:17:22 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.13  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.12  1995/03/11 22:28:11  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -68,7 +71,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.12 1995/03/11 22:28:11 ahd Exp $";
+      "$Id: gensig.c 1.13 1995/03/24 04:17:22 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */

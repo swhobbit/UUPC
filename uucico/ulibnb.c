@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.3 1995/01/07 16:40:38 ahd v1-12n $
+ *    $Id: ulibnb.c 1.4 1995/03/24 04:17:22 ahd v1-12q $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.4  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.3  1995/01/07 16:40:38  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

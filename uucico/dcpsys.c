@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.48 1995/03/11 15:49:23 ahd Exp $
+ *     $Id: dcpsys.c 1.49 1995/04/02 00:01:39 ahd v1-12q $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.49  1995/04/02 00:01:39  ahd
+ *     Correct processing to not send files below requested call grade
+ *
  *     Revision 1.48  1995/03/11 15:49:23  ahd
  *     Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *

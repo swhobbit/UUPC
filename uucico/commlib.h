@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.18 1995/01/07 16:45:02 ahd Exp $
+ *    $Id: commlib.h 1.19 1995/02/12 23:39:45 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.19  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.18  1995/01/07 16:45:02  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u t i l . m a k                                                *
 # *                                                                    *
-# *   Changes Copyright (c) 1989-1995 by Kendra Electronic             *
+# *   Changes Copyright (c) 1989-1996 by Kendra Electronic             *
 # *   Wonderworks.                                                     *
 # *                                                                    *
 # *   All rights reserved except those explicitly granted by the       *
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.8 1994/12/27 20:47:27 ahd Exp $
+#     $Id: util.mak 1.9 1995/02/12 23:27:23 ahd v1-12q $
 #
 #     Revision history:
 #     $Log: util.mak $
+#     Revision 1.9  1995/02/12 23:27:23  ahd
+#     split rnews into rnews/news, rename rnews dir to news, make inews COM file
+#
 #     Revision 1.8  1994/12/27 20:47:27  ahd
 #     Smoother call grading'
 #

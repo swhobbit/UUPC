@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.7 1994/12/22 00:42:01 ahd Exp $
+ *    $Id: ulibip.h 1.8 1995/01/07 16:50:32 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ *    Revision 1.8  1995/01/07 16:50:32  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.7  1994/12/22 00:42:01  ahd
  *    Annual Copyright Update
  *

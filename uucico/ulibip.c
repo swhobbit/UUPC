@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.24 1995/01/07 16:40:31 ahd Exp $
+ *    $Id: ulibip.c 1.25 1995/02/23 04:27:54 ahd v1-12q $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.25  1995/02/23 04:27:54  ahd
+ *    Explicitly report timeouts, compiler warning cleanup
+ *
  *    Revision 1.24  1995/01/07 16:40:31  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.28 1995/07/21 13:23:19 ahd v1-12p $
+ *    $Id: uupoll.c 1.29 1995/11/30 12:50:15 ahd v1-12q $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.29  1995/11/30 12:50:15  ahd
+ *    Use normal file open for log file when debugging to allow
+ *    multiple UUPOLLs to log at once.
+ *
  *    Revision 1.28  1995/07/21 13:23:19  ahd
  *    Spread out parameters on generated command line a little
  *
@@ -187,7 +191,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.28 1995/07/21 13:23:19 ahd v1-12p $";
+         "$Id: uupoll.c 1.29 1995/11/30 12:50:15 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.37 1995/01/07 16:38:17 ahd Exp $
+ *      $Id: dcpgpkt.c 1.38 1995/01/29 14:08:40 ahd v1-12q $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.38  1995/01/29 14:08:40  ahd
+ *      Use long counters to avoid overflow on really lousy phone lines
+ *
  *      Revision 1.37  1995/01/07 16:38:17  ahd
  *      Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

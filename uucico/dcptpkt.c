@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.12 1995/01/07 16:38:47 ahd Exp $
+ *    $Id: dcptpkt.c 1.13 1995/02/23 04:27:54 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.13  1995/02/23 04:27:54  ahd
+ *    Explicitly report timeouts, compiler warning cleanup
+ *
  *    Revision 1.12  1995/01/07 16:38:47  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

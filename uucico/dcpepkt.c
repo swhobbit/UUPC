@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.13 1995/03/24 04:17:22 ahd Exp $
+ *    $Id: dcpepkt.c 1.14 1995/07/21 13:27:00 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.14  1995/07/21 13:27:00  ahd
+ *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
+ *
  *    Revision 1.13  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.13 1995/02/22 12:14:24 ahd v1-12n $
+ *    $Id: ulibfs.c 1.14 1995/03/24 04:17:22 ahd v1-12q $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.14  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.13  1995/02/22 12:14:24  ahd
  *    Correct 16 bit compiler warning errors
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.44 1995/01/07 16:41:02 ahd v1-12n $
+ *       $Id: ulibos2.c 1.45 1995/02/25 18:21:44 ahd v1-12q $
  *       $Log: ulibos2.c $
+ *       Revision 1.45  1995/02/25 18:21:44  ahd
+ *       Prevent UUCICO from looping without time limit
+ *
  *       Revision 1.44  1995/01/07 16:41:02  ahd
  *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.18 1995/01/07 16:39:55 ahd v1-12n $
+ *    $Id: suspend2.c 1.19 1995/07/21 13:27:00 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.19  1995/07/21 13:27:00  ahd
+ *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
+ *
  *    Revision 1.18  1995/01/07 16:39:55  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

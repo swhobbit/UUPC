@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.h 1.4 1994/12/22 00:40:00 ahd Exp $
+ *    $Id: dcplib.h 1.5 1995/01/07 16:46:21 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: dcplib.h $
+ *    Revision 1.5  1995/01/07 16:46:21  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.4  1994/12/22 00:40:00  ahd
  *    Annual Copyright Update
  *

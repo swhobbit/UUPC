@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnmp.h 1.6 1994/12/22 00:42:12 ahd Exp $
+ *    $Id: ulibnmp.h 1.7 1995/01/07 16:50:38 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: ulibnmp.h $
+ *    Revision 1.7  1995/01/07 16:50:38  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.6  1994/12/22 00:42:12  ahd
  *    Annual Copyright Update
  *

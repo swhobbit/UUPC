@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.53 1995/03/11 22:29:21 ahd Exp $
+ *       $Id: dcpxfer.c 1.54 1995/04/02 00:01:39 ahd v1-12q $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.54  1995/04/02 00:01:39  ahd
+ *       Correct processing to not send files below requested call grade
+ *
  *       Revision 1.53  1995/03/11 22:29:21  ahd
  *       Use macro for file delete to allow special OS/2 processing
  *

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.16 1994/12/22 00:38:51 ahd v1-12n $
+ *    $Id: uuport.c 1.17 1995/03/11 22:33:46 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *    Revision 1.17  1995/03/11 22:33:46  ahd
+ *    BLow off undelete processing if so configured under OS/2
+ *
  *    Revision 1.16  1994/12/22 00:38:51  ahd
  *    Annual Copyright Update
  *

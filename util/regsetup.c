@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.4 1995/02/14 04:38:42 ahd v1-12n $
+ *    $Id: regsetup.c 1.5 1995/03/09 00:31:26 dmwatt v1-12q $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.5  1995/03/09 00:31:26  dmwatt
+ *    Don't reference NULL ptrs in configuration table
+ *
  *    Revision 1.4  1995/02/14 04:38:42  ahd
  *    Correct problems with directory processing under NT
  *
@@ -63,7 +66,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.4 1995/02/14 04:38:42 ahd v1-12n $";
+         "$Id: regsetup.c 1.5 1995/03/09 00:31:26 dmwatt v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

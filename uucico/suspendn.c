@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.7 1994/12/22 00:36:20 ahd Exp $
+ *    $Id: suspendn.c 1.8 1995/01/07 16:40:02 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *    Revision 1.8  1995/01/07 16:40:02  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.7  1994/12/22 00:36:20  ahd
  *    Annual Copyright Update
  *

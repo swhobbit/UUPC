@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.6 1995/03/11 22:28:22 ahd Exp $
+ *       $Id: uupcdll.c 1.7 1995/08/27 23:34:11 ahd v1-12q $
  *       $Log: uupcdll.c $
+ *       Revision 1.7  1995/08/27 23:34:11  ahd
+ *       Correct compile errors
+ *
  *       Revision 1.6  1995/03/11 22:28:22  ahd
  *       Use macro for file delete to allow special OS/2 processing
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.10 1995/03/12 16:42:24 ahd Exp $
+ *    $Id: checktim.c 1.11 1995/03/24 04:17:22 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.11  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.10  1995/03/12 16:42:24  ahd
  *    Suppress compiler warnings
  *

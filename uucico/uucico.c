@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.11 1995/01/07 16:41:19 ahd Exp $
+ *    $Id: uucico.c 1.12 1995/02/14 04:38:42 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.12  1995/02/14 04:38:42  ahd
+ *    Correct problems with directory processing under NT
+ *
  *    Revision 1.11  1995/01/07 16:41:19  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

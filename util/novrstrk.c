@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,6 +21,9 @@
 
 /*
    $Log: novrstrk.c $
+   Revision 1.5  1995/01/30 04:08:36  ahd
+   Additional compiler warning fixes
+
    Revision 1.4  1994/02/19 05:03:07  ahd
    Use standard first header
 
@@ -41,7 +44,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-         "$Id: novrstrk.c 1.4 1994/02/19 05:03:07 ahd v1-12k $";
+         "$Id: novrstrk.c 1.5 1995/01/30 04:08:36 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */

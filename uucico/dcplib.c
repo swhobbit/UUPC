@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.24 1995/01/30 04:08:36 ahd v1-12n $
+ *    $Id: dcplib.c 1.25 1995/04/02 00:01:39 ahd v1-12q $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.25  1995/04/02 00:01:39  ahd
+ *    Correct processing to not send files below requested call grade
+ *
  *    Revision 1.24  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *

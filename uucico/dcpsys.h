@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpsys.h 1.10 1995/01/07 16:46:46 ahd Exp $
+ *    $Id: dcpsys.h 1.11 1995/02/12 23:39:45 ahd v1-12q $
  *
  *    Revision history:
  */

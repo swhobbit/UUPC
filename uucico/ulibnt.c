@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.28 1995/01/07 16:40:53 ahd Exp $
+ *       $Id: ulibnt.c 1.29 1995/01/09 12:35:15 ahd v1-12q $
  *       $Log: ulibnt.c $
+ *       Revision 1.29  1995/01/09 12:35:15  ahd
+ *       Correct VC++ compiler warnings
+ *
  *       Revision 1.28  1995/01/07 16:40:53  ahd
  *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
