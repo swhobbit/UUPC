@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.3 1992/11/29 22:09:10 ahd Exp $
+ *    $Id: ULIB.C 1.4 1992/12/07 02:43:20 ahd Exp $
  *
  *    $Log: ULIB.C $
+ * Revision 1.4  1992/12/07  02:43:20  ahd
+ * Improve error message when low memory prevents COMM port install
+ *
  * Revision 1.3  1992/11/29  22:09:10  ahd
  * Use sopen() rather than FOPEN() to avoid retries on comm port
  *
@@ -34,6 +37,10 @@
 #include <string.h>
 #include <time.h>
 #include <share.h>
+
+#ifdef __TURBOC__
+#include <alloc.h>
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
