@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.55 1995/01/29 14:07:59 ahd Exp $
+ *    $Id: modem.c 1.56 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.56  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.55  1995/01/29 14:07:59  ahd
  *    Clean up most IBM C/Set Compiler Warnings
  *
@@ -506,7 +509,19 @@ CONN_STATE callin( const time_t exit_time )
    char c;                    /* A character for input buffer        */
 
    unsigned int    offset;    /* Time to wait for telephone          */
-   time_t now, left;
+   time_t now = time(NULL);
+   time_t left;
+   time_t stop_time = exit_time + 59;
+
+/*--------------------------------------------------------------------*/
+/*                Round the time up to the next minute                */
+/*--------------------------------------------------------------------*/
+
+   struct tm  *time_record;
+
+   time_record = localtime(&stop_time);
+   time_record->tm_sec = 0;
+   stop_time = mktime(time_record);
 
 /*--------------------------------------------------------------------*/
 /*    Determine how long we can wait for the telephone, up to         */
@@ -514,10 +529,12 @@ CONN_STATE callin( const time_t exit_time )
 /*    kick the modem once in a while.                                 */
 /*--------------------------------------------------------------------*/
 
-      if ((now = time(NULL)) > exit_time) /* Any time left?          */
+      if (now >= exit_time)            /* Any time left?             */
          return CONN_EXIT;             /* No --> shutdown            */
 
-      if ( (left = exit_time - now) > SHRT_MAX)
+      left = stop_time - now;
+
+      if ( left > SHRT_MAX)
          offset = SHRT_MAX;
       else
          offset = (unsigned int) left;
@@ -589,7 +606,7 @@ CONN_STATE callin( const time_t exit_time )
                      M_device, E_inmodem , (int) (offset / 60),
                      (left > hhmm2sec(10000)) ?
                               "user hits Ctrl-Break" :
-                              dater( exit_time , NULL));
+                              dater( stop_time , NULL));
 
    interactive_processing = KWFalse;
 
