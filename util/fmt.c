@@ -18,10 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.10 1998/03/01 01:36:26 ahd v1-13a $
+ *    $Id: fmt.c 1.11 1998/05/17 21:12:13 ahd v1-12d $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.11  1998/05/17 21:12:13  ahd
+ *    Support -c, -s options
+ *    Correct paragraph break processing
+ *    Correct file names used in error messages
+ *
  *    Revision 1.10  1998/03/01 01:36:26  ahd
  *    Annual Copyright Update
  *
@@ -59,7 +64,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id$");
+RCSID("$Id: fmt.c 1.11 1998/05/17 21:12:13 ahd v1-12d $");
 
 #include <ctype.h>
 
