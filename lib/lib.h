@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.26 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: lib.h 1.27 1995/01/07 16:16:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.27  1995/01/07 16:16:05  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.26  1994/12/31 03:51:25  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -336,10 +339,6 @@ char *normalize( const char *path );
       *xxp++ = '\\';  }
 
 KWBoolean IsDOS( void );
-
-#ifdef __GNUC__
-char *strlwr( char *s );
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                   Compiler specific information                    */
