@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: SCRIPT.C 1.6 1993/11/30 04:18:14 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: SCRIPT.C $
+ * Revision 1.6  1993/11/30  04:18:14  ahd
+ * Share buffer between input and output
+ *
+ * Revision 1.6  1993/11/30  04:18:14  ahd
+ * Share buffer between input and output
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -77,11 +83,13 @@ static boolean Match( char *Search,
 
 static size_t MatchInit( const char *MatchStr );
 
-static void writestr(register char *s);
+static boolean writestr(register char *s,
+                     unsigned int timeout,
+                     char **failure);
 
 static void flushScriptBuffer( void );
 
-static void slowWrite( char *s, size_t len);
+static boolean slowWrite( char *s, size_t len, char **failure);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -95,6 +103,10 @@ static char scriptBuffer[MAXMATCH]; /* Shared between input & output  */
                                  /* sent without buffering            */
 
 static size_t scriptBufferLen = 0;
+
+static unsigned int waitForEcho = 0;   /* Timeout for each echo      */
+
+static boolean echoMode = FALSE;       /* Looking for echo char      */
 
 /*--------------------------------------------------------------------*/
 /*       e x p e c t s t r                                            */
@@ -127,7 +139,8 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
    time_t quit = time( NULL ) + Timeout;
    register char *ptr = buf;
 
-   printmsg(2, "wanted \"%s\"", Search);
+   if ( ! echoMode )
+      printmsg(2, "wanted \"%s\"", Search);
 
    if (!strlen(Search))                      /* expects nothing */
        return TRUE;
@@ -159,8 +172,13 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
             if (*ptr < ' ')
                *ptr = '?';
 
-         if ( debuglevel < 2 )
-            printmsg(1, "wanted \"%s\"", Search);
+         if (( debuglevel < 2 ) || echoMode )
+         {
+            if ( (strlen( Search ) == 1) && iscntrl( *Search ) )
+               printmsg(1, "wanted \"^%c\"", Search + 64 );
+            else
+               printmsg(1, "wanted \"%s\"", Search);
+         }
 
          printmsg(1, "got ??? \"%s\"",s );
          return FALSE;
@@ -174,7 +192,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
 
    return result;
 
-} /*expectstr*/
+} /* expectstr */
 
 /*
  *      StrMatch: Incrementally search for a string.
@@ -261,7 +279,8 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 
    if (Match( MatchStr, scriptBuffer, &SearchPosition))
    {
-      printmsg(2, "got that");
+      if ( ! echoMode )
+         printmsg(2, "got that");
       return 1;
    }
 
@@ -341,7 +360,9 @@ static size_t MatchInit( const char *MatchStr )
 /*    Send a string to the port during login                          */
 /*--------------------------------------------------------------------*/
 
-static void writestr(register char *s)
+static boolean writestr(register char *s,
+                        unsigned int timeout,
+                        char **failure)
 {
    register char last = '\0';
    boolean writeCR = TRUE;
@@ -357,37 +378,58 @@ static void writestr(register char *s)
             flushScriptBuffer();
             ssleep(2);
             break;
+
+         case 'e':   /* Echo checking off                         */
+            echoCheck( 0 );
+            break;
+
+         case 'E':   /* echo checking on                          */
+            echoCheck( timeout );
+            break;
+
          case 'c':   /* don't output CR at end of string */
          case 'C':
             writeCR = FALSE;
             break;
+
          case 'r':   /* carriage return */
          case 'R':
          case 'm':
          case 'M':
-            slowWrite("\r", 1);
+            if (!slowWrite("\r", 1, failure))
+               return FALSE;
             break;
+
          case 'n':   /* new line */
          case 'N':
-            slowWrite("\n", 1);
+            if (!slowWrite("\n", 1, failure))
+               return FALSE;
             break;
+
          case 'p':   /* delay */
          case 'P':
             flushScriptBuffer();
             ddelay(400);
             break;
+
          case 'b':   /* backspace */
          case 'B':
-            slowWrite("\b", 1);
+            if (slowWrite("\b", 1, failure))
+               return FALSE;
             break;
+
          case 't':   /* tab */
          case 'T':
-            slowWrite("\t", 1);
+            if (!slowWrite("\t", 1, failure))
+               return FALSE;
             break;
+
          case 's':   /* space */
          case 'S':
-            slowWrite(" ", 1);
+            if (!slowWrite(" ", 1, failure))
+               return FALSE;
             break;
+
          case 'z':   /* set serial port speed */
          case 'Z':
             flushScriptBuffer();
@@ -408,16 +450,21 @@ static void writestr(register char *s)
             while( (*s >= '0') && (*s < '8'))
                digit = (unsigned char) (digit * 8 + *s++ - '0');
             s--;              /* Backup before non-numeric char      */
-            slowWrite((char *) &digit,1);
+            if (!slowWrite((char *) &digit,1, failure))
+               return FALSE;
             break;
 
          default: /* ordinary character */
-            slowWrite(s, 1);
+            if (!slowWrite(s, 1, failure))
+               return FALSE;
             last = '\0';      /* Zap any repeated backslash (\)      */
          }
       }
       else if (*s != '\\') /* backslash */
-         slowWrite(s, 1);
+      {
+         if ( !slowWrite(s, 1, failure))
+            return FALSE;
+      }
       else
          last = *s;
       s++;
@@ -425,9 +472,12 @@ static void writestr(register char *s)
    }  /* while */
 
    if ( writeCR )
-      slowWrite( "\r", 1 );
+      if ( !slowWrite( "\r", 1 , failure))
+         return FALSE;
 
-   flushScriptBuffer();             /* Handle any queued data on net  */
+   flushScriptBuffer();          /* Handle any queued data on net    */
+
+   return TRUE;                  /* Return success to caller         */
 
 } /* writestr */
 
@@ -437,8 +487,10 @@ static void writestr(register char *s)
 /*       Send line of login sequence                                  */
 /*--------------------------------------------------------------------*/
 
-void sendstr(char *str)
+boolean  sendstr(char *str, unsigned int timeout, char **failure)
 {
+   boolean success;
+
    printmsg(2, "sending \"%s\"", str);
 
    if (equaln(str, "BREAK", 5))
@@ -448,22 +500,57 @@ void sendstr(char *str)
       if (nulls <= 0 || nulls > 10)
          nulls = 3;
       ssendbrk(nulls);  /* send a break signal */
-      return;
+
+      return TRUE;
+
+   }  /* if (equaln(str, "BREAK", 5)) */
+
+
+   if ( waitForEcho )
+   {
+      echoCheck( timeout );
    }
+   echoMode = TRUE;
 
    if (equal(str, "EOT"))
    {
-      slowWrite(EOTMSG, strlen(EOTMSG));
+      success = slowWrite(EOTMSG, strlen(EOTMSG), failure);
       flushScriptBuffer();
-      return;
    }
+   else {
+      if (equal(str, "\"\""))
+         *str = '\0';
 
-   if (equal(str, "\"\""))
-      *str = '\0';
+      success = writestr(str, timeout, failure);
 
-   writestr(str);
+   } /* else */
 
-} /*sendstr*/
+   echoMode = FALSE;
+
+   if ( ! success )
+      printmsg(0,"sendstr: Did not receive echo of string \"%s\"",str);
+
+   return success;
+
+} /* sendstr */
+
+/*--------------------------------------------------------------------*/
+/*       e c h o C h e c k                                            */
+/*                                                                    */
+/*       Enable/disable checking for echoed characters                */
+/*--------------------------------------------------------------------*/
+
+void echoCheck( const unsigned int timeout )
+{
+   if ( (waitForEcho && !timeout) || (timeout && !waitForEcho) )
+      printmsg(2,"echoCheck: %sabled", timeout ? "en" : "dis" );
+
+   if ( waitForEcho )
+      flushScriptBuffer();
+
+   waitForEcho = timeout;
+
+} /* echoCheck */
 
 /*--------------------------------------------------------------------*/
 /*    s l o w w r i t e                                               */
@@ -472,7 +559,7 @@ void sendstr(char *str)
 /*    snail's pace.                                                   */
 /*--------------------------------------------------------------------*/
 
-static void slowWrite( char *s, size_t len)
+static boolean slowWrite( char *s, size_t len, char **failure)
 {
 
 /*--------------------------------------------------------------------*/
@@ -480,11 +567,27 @@ static void slowWrite( char *s, size_t len)
 /*       character delay is constant for one connection-- on or off   */
 /*--------------------------------------------------------------------*/
 
-   if ( M_charDelay )
+   if ( M_charDelay || waitForEcho )
    while ( len-- )
    {
-      swrite( s++ , 1 );
-      ddelay(M_charDelay);
+      swrite( s , 1 );
+      if ( M_charDelay )
+         ddelay(M_charDelay);
+
+      if ( waitForEcho )
+      {
+         char exp[2];
+
+         exp[0] = *s;
+         exp[1] = '\0';          /* Terminate the string             */
+
+         if (!expectstr(exp, waitForEcho, failure ))
+            return FALSE;
+
+      } /* if ( waitForEcho ) */
+
+      s++;
+
    } /* while ( len-- ) */
    else {
 
@@ -501,6 +604,8 @@ static void slowWrite( char *s, size_t len)
       } /* else */
 
    } /* else */
+
+   return TRUE;
 
 } /* slowWrite */
 

@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.36 1993/11/14 20:51:37 ahd Exp $
+ *    $Id: MODEM.C 1.37 1993/11/15 05:43:29 ahd Exp $
  *
  *    Revision history:
- *    $Log: modem.c $
+ *    $Log: MODEM.C $
+ * Revision 1.37  1993/11/15  05:43:29  ahd
+ * Drop BPS rate from connect messages
+ *
+ * Revision 1.37  1993/11/15  05:43:29  ahd
+ * Drop BPS rate from connect messages
+ *
  * Revision 1.36  1993/11/14  20:51:37  ahd
  * Drop modem speed from network dialing/connection messages
  * Normalize internal speed for network links to 115200 (a large number)
@@ -184,7 +190,7 @@ static char *dialPrefix, *dialSuffix;
 static char *M_suite;
 static char *dummy;
 
-static KEWSHORT dialTimeout, modemTimeout, scriptTimeout;
+static KEWSHORT dialTimeout, modemTimeout, scriptTimeout, scriptEchoTimeout;
 static KEWSHORT answerTimeout;
 static BPS inspeed;
 static KEWSHORT gWindowSize, gPacketSize;
@@ -200,6 +206,7 @@ KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 KEWSHORT M_MaxErr= 10;        /* Allowed errors per single packet    */
 KEWSHORT M_MaxErr;            /* Allowed errors per single packet    */
 KEWLONG  M_xfer_bufsize;      /* Buffering used for file transfers */
+
 static KEWSHORT M_priority = 999;
 static KEWSHORT M_prioritydelta = 999;
 
@@ -243,6 +250,7 @@ static CONFIGTABLE modemtable[] = {
    {"prioritydelta",  (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
    { "scripttimeout", (char **) &scriptTimeout,B_SHORT| B_UUCICO },
+   { "scriptechotimeout", (char **) &scriptEchoTimeout,B_SHORT| B_UUCICO },
    { "startuptimeout",(char **) &M_startupTimeout, B_SHORT | B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
    { "transferbuffer",(char **) &M_xfer_bufsize, B_LONG| B_UUCICO },
@@ -340,7 +348,9 @@ CONN_STATE callup( void )
 
       printmsg(2, "callup: sending %d of %d \"%s\"",
                    i + 1, kflds, flds[i + 1]);
-      sendstr(flds[i + 1]);
+
+      if (!sendstr(flds[i + 1], scriptEchoTimeout, noconnect ))
+         return CONN_DROPLINE;
 
    } /*for*/
 
@@ -382,6 +392,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           /* Shutdown gracefully as needed     */
+
    if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
@@ -442,7 +453,9 @@ CONN_STATE callin( const time_t exit_time )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           /* Shutdown gracefully as needed     */
+   norecovery = FALSE;           /* Shutdown gracefully as needed    */
+
+   echoCheck( 0 );               /* Disable echo checking            */
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
@@ -606,6 +619,7 @@ boolean getmodem( const char *brand)
    M_tPacketTimeout = 60;
    modemTimeout  = 3;         /* Default is 3 seconds for modem cmds  */
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
+   scriptEchoTimeout = 5;     /* Default is 5 seconds for script echo */
    answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
@@ -698,6 +712,8 @@ static boolean dial(char *number, const BPS speed)
 
    norecovery = FALSE;           /* Shutdown gracefully as needed     */
 
+   echoCheck( 0 );               /* Disable echo checking            */
+
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
 /*--------------------------------------------------------------------*/
@@ -743,7 +759,9 @@ static boolean dial(char *number, const BPS speed)
       if (dialSuffix != NULL)
          strcat(buf, dialSuffix);
 
-      sendstr( buf );         /* Send the command to the telephone     */
+      if (!sendstr( buf, modemTimeout, noconnect ))
+         return FALSE;
+                              /* Send the dial command to the modem  */
 
       if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
       {
@@ -828,6 +846,8 @@ void shutDown( void )
 {
    static boolean recurse = FALSE;
 
+   echoCheck( 0 );
+
    if ( ! portActive )          /* Allowed for Ctrl-Break           */
       return;
 
@@ -887,8 +907,11 @@ static boolean sendlist(   char **list,
             return FALSE;
       }
       else
-         sendstr( *list++ );
+         if (!sendstr( *list++, timeout, failure ))
+            return FALSE;
+
       expect = ! expect;
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -896,6 +919,7 @@ static boolean sendlist(   char **list,
 /*--------------------------------------------------------------------*/
 
    return TRUE;
+
 } /* sendlist */
 
 /*--------------------------------------------------------------------*/
@@ -937,7 +961,10 @@ static boolean sendalt( char *exp, int timeout, char **failure)
          *exp++ = '\0';
 
       printmsg(0, "sending alternate");
-      sendstr(alternate);
+
+      if ( !sendstr(alternate,timeout, failure) )
+         return FALSE;
+
    } /*for*/
 
 } /* sendalt */
