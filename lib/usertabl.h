@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.h 1.4 1994/04/26 03:34:33 ahd v1-12k $
+ *    $Id: usertabl.h 1.5 1994/12/22 00:14:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: usertabl.h $
+ *    Revision 1.5  1994/12/22 00:14:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/04/26 03:34:33  ahd
  *    Lower case name
  *
@@ -30,6 +33,8 @@
 #define __USERTABLE
 
 #define UUCPSHELL "uucp"         /* Shell for UUCP users               */
+
+struct HostSecurity;             /* Suppress warning for undefined struct */
 
 struct  UserTable {
       char  *uid;                /* User id for this host to login via */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.8 1994/05/08 21:46:58 ahd v1-12k $
+  *   $Id: hostable.h 1.9 1994/12/22 00:13:02 ahd Exp $
   *
   *   $Log: hostable.h $
+  *   Revision 1.9  1994/12/22 00:13:02  ahd
+  *   Annual Copyright Update
+  *
   *   Revision 1.8  1994/05/08 21:46:58  ahd
   *   Use name of caller of checkname(), checkreal() when panicing on
   *   bad parameters
@@ -55,7 +58,6 @@
 #error Need "LIB.H"
 #endif
 
-#define UUCPSHELL "uucp"         /* Shell for UUCP users               */
 #define ANONYMOUS_HOST "*anonymous" /* Anonymous systems               */
 
 #define BADHOST NULL
@@ -120,6 +122,8 @@ struct HostStats {
 #if defined(WIN32) || defined(__OS2__)
 #pragma pack()
 #endif
+
+struct HostSecurity;             /* Declare tag to avoid silly warnings */
 
 /*--------------------------------------------------------------------*/
 /*                          Master hostable                           */
