@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.9 1997/11/24 02:59:06 ahd v1-12u $
+ *    $Id: imfile.h 1.10 1998/03/01 01:26:46 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.10  1998/03/01 01:26:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1997/11/24 02:59:06  ahd
  *    *** empty log message ***
  *
@@ -59,6 +62,7 @@
 #define IM_FLAG_RW     ( IM_FLAG_READ | IM_FLAG_WRITE )
 #define IM_FLAG_ERROR  0x04
 #define IM_FLAG_TEXT   0x08
+#define IM_FLAG_TELL   0x10         /* imtell() called for file */
 
 typedef struct _IMFILE
 {
