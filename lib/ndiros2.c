@@ -11,17 +11,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NDIROS2.C 1.2 1993/04/04 19:35:14 ahd Exp $
+ *    $Id: NDIROS2.C 1.3 1993/04/05 04:32:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: NDIROS2.C $
+ *     Revision 1.3  1993/04/05  04:32:19  ahd
+ *     Add timestamp, size to information returned by directory searches
+ *
  *     Revision 1.2  1993/04/04  19:35:14  ahd
  *     Include time_t timestamp
  *
  */
-
-static const char rcsid[] =
-            "$Id: NDIROS2.C 1.2 1993/04/04 19:35:14 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    ndir.c for MS-DOS by Samuel Lam <skl@van-bc.UUCP>, June/87      */
