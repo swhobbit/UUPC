@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.16 1997/11/21 18:15:18 ahd v1-12u $
+ *    $Id: strpool.c 1.17 1998/03/01 01:25:36 ahd v1-13e $
  *
  *    $Log: strpool.c $
+ *    Revision 1.17  1998/03/01 01:25:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1997/11/21 18:15:18  ahd
  *    Command processing stub SMTP daemon
  *
@@ -90,7 +93,7 @@
 typedef struct str_queue {
    struct str_queue *next_link;
    size_t used;
-   char pool[BUFSIZ - sizeof (size_t) - sizeof (struct str_queue *) ];
+   char pool[KW_BUFSIZ - sizeof (size_t) - sizeof (struct str_queue *) ];
 }  STR_QUEUE;
 
 /*--------------------------------------------------------------------*/
