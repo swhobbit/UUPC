@@ -3,8 +3,6 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Stuart Lynne May/87                                             */
-/*                                                                    */
 /*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
@@ -12,7 +10,6 @@
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
-/*                                                                    */
 /*                                                                    */
 /*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
 /*    Changes Copyright (c) Stuart Lynne 1987                         */
@@ -41,11 +38,13 @@
 /*               Nesterenko, Moscow, Russia                           */
 /*--------------------------------------------------------------------*/
 
-
 /*
- *     $Id: DCPSYS.C 1.8 1992/11/22 21:20:45 ahd Exp $
+ *     $Id: DCPSYS.C 1.9 1992/12/01 04:37:03 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.9  1992/12/01  04:37:03  ahd
+ * Modify *nbstime call restrictions to make it less agressive
+ *
  * Revision 1.8  1992/11/22  21:20:45  ahd
  * Use strpool for const string allocation
  *
@@ -68,10 +67,6 @@
  * Clean up modem file support for different protocols
  *
  */
-
-
-/* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
-
 
 /*--------------------------------------------------------------------*/
 /*                        system include files                        */
@@ -192,7 +187,7 @@ CONN_STATE getsystem( const char sendgrade )
 /*--------------------------------------------------------------------*/
 
    printmsg(2,
-          "remote=%s, call-time=%s, device=%s, telephone=%s, protocol=%s",
+          "remote=%s, when=%s, device=%s, phone=%s, protocol=%s",
           rmtname, flds[FLD_CCTIME], flds[FLD_TYPE], flds[FLD_PHONE],
           protocols);
 
