@@ -1,10 +1,13 @@
-#       $Id: NMAKOS21.MAK 1.1 1994/03/05 21:09:21 ahd Exp $
+#       $Id: nmakos21.mak 1.2 1994/03/07 06:00:49 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
-#       $Log: NMAKOS21.MAK $
+#       $Log: nmakos21.mak $
+#       Revision 1.2  1994/03/07  06:00:49  ahd
+#       Additional multi-platform clean up.
+#
 #     Revision 1.1  1994/03/05  21:09:21  ahd
 #     Initial revision
 #
@@ -15,7 +18,8 @@ EXTRA2   = $(PROD)\mail.ico $(PROD)\uucico.ico
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
 LIBLIST  = $(MODEL)libcep+$(LIBCOMM)+os2
 LIBOS    = $(LIBDIR)\$(MODEL)uupcmsc1.lib
-LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj
+LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj    \
+           $(OBJ)\title2.obj
 LINKOPT  = /exepack /far /noignorecase /nod /batch
 MODEL    = M                    # Really OS/2 version in this case
 PROD     = \uupc\os2bin
