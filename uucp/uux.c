@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: uux.c 1.5 1993/09/20 04:48:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: uux.c $
+ * Revision 1.5  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  */
 
 /*
@@ -189,9 +194,11 @@ static boolean split_path(char *path,
                           boolean expand,
                           char *default_sys);
 static boolean CopyData( const char *input, const char *output);
-static boolean remove_parens(char *string);
+
 static boolean do_uuxqt(char *job_name, char *src_syst, char *src_file, char *dest_syst, char *dest_file);
+
 static boolean do_copy(char *src_syst, char *src_file, char *dest_syst, char *dest_file);
+
 static boolean do_remote(int optind, int argc, char **argv);
 static void preamble(FILE* stream);
 static char subseq( void );
@@ -283,9 +290,10 @@ static boolean CopyData( const char *input, const char *output)
    FILE    *dataout;
    char     buf[BUFSIZ];
    boolean  status = TRUE;
-   int      len;
+   size_t   len;
 
-   if ( (dataout = FOPEN(output, "w", BINARY_MODE)) == NULL ) {
+   if ( (dataout = FOPEN(output, "w", BINARY_MODE)) == NULL )
+   {
       printerr(output);
       printmsg(0,"uux: Cannot open spool file \"%s\" for output",
                output);
@@ -318,7 +326,7 @@ static boolean CopyData( const char *input, const char *output)
 
    while ( (len = fread( buf, 1, BUFSIZ, datain)) != 0)
    {
-      if ((int) fwrite( buf, 1, len, dataout ) != len)     /* I/O error?               */
+      if ( fwrite( buf, 1, len, dataout ) != len)     /* I/O error?  */
       {
          printerr("dataout");
          printmsg(0,"I/O error on \"%s\"", output);
@@ -347,23 +355,6 @@ static boolean CopyData( const char *input, const char *output)
 } /* CopyData */
 
 /*--------------------------------------------------------------------*/
-/*    r e m o v e _ p a r e n s                                       */
-/*                                                                    */
-/*--------------------------------------------------------------------*/
-
-static boolean remove_parens(char *string)
-{
-      int len = strlen(string);
-
-      if ((string[0] != '(') || (string[len - 1] != ')'))
-          return FALSE;
-
-      strcpy(string, &string[1]);
-      string[len - 2] = '\0';
-      return TRUE;                 /* and we're done */
-}
-
-/*--------------------------------------------------------------------*/
 /*    s p l i t _ p a t h                                             */
 /*--------------------------------------------------------------------*/
 
@@ -390,11 +381,10 @@ static boolean split_path(char *path,
    }
 
 /*--------------------------------------------------------------------*/
-/*                   Find the first and last bangs                    */
+/*                        Find the first bangs                        */
 /*--------------------------------------------------------------------*/
 
    p_left = strchr(p, '!');         /* look for the first bang    */
-   p_right = strrchr(p, '!');       /* look for the last bang     */
 
 /*--------------------------------------------------------------------*/
 /*   If no bangs, then the file is on the remote system.  We hope.    */
@@ -413,7 +403,14 @@ static boolean split_path(char *path,
                                  nasty-gram to user                  */
 
       return TRUE;
+
    } /* if ( p_left == NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*                         Find the last bang                         */
+/*--------------------------------------------------------------------*/
+
+   p_right = strrchr(p, '!');       /* look for the last bang     */
 
 /*--------------------------------------------------------------------*/
 /*    If the first bang is the first character, it's a local file     */
@@ -452,20 +449,15 @@ static boolean split_path(char *path,
 
       if (p_left != p_right)
       {
-          char c = *p_right;
-          *p_right = '\0';    /* Terminate the system name           */
-          printmsg(0,"uux - Intermediate system %s not supported", p_left+1);
-          *p_right = c;       /* Restore original string             */
+
+          printmsg(0, "uux - Intermediate system %.*s not supported",
+                     p_right - (p_left + 1), p_left + 1);
           return FALSE;
+
       } /* if (p_left != p_right) */
 
-#if 0
-      if (expand && (strcspn(file, "~") >= strlen(file)) )
-          if (expand_path(file, NULL, E_homedir, NULL) == NULL)
-             return FALSE;
-#endif
-
       return TRUE;                     /* and we're done */
+
 } /* split_path */
 
 /*--------------------------------------------------------------------*/
@@ -808,49 +800,87 @@ static boolean do_remote(int optind, int argc, char **argv)
       {
 
          FileType f_remote = DATA_FILE;
+         char *remote_file;
 
-         if (*argv[optind] == '-')
+         switch (*argv[optind])
          {
+             case '-':
              strcat(command," ");
              strcat(command,argv[optind]);
              printmsg(9, "prm -> %s", argv[optind]);
              continue;
-         }
-         else if (equal(argv[optind], "<"))
-         {
+
+             case '<':
              if (i_remote) {
                  printmsg(0, "uux - multiple input files specified");
                  return FALSE;
              }
              else
                  i_remote = TRUE;
-
              f_remote = INPUT_FILE;
-             printmsg(9, "prm -> %s", argv[optind]);
-             optind++;
+             printmsg(9, "prm -> %c", *argv[optind]);
+             if (!*++argv[optind])
+                 if (++optind >= argc)
+                 {
+                 printmsg(0, "uux - no input file specified after <");
+                 return FALSE;
+                 }
+             break;
 
-         }
-         else if (equal(argv[optind], ">"))
-         {
+             case '>':
              if (o_remote) {
                  printmsg(0, "uux - multiple output files specified");
                  return FALSE;
              } else
                  o_remote = TRUE;
              f_remote = OUTPUT_FILE;
-             printmsg(9, "prm -> %s", argv[optind]);
-             optind++;
-         } else if (equal(argv[optind], "|")) {
-             strcat(command," ");
-             strcat(command,argv[optind]);
-             printmsg(9, "prm -> %s", argv[optind]);
+             printmsg(9, "prm -> %c", *argv[optind]);
+             if (!*++argv[optind])
+                 if (++optind >= argc)
+                 {
+                 printmsg(0, "uux - no output file specified after >");
+                 return FALSE;
+                 }
+             break;
+
+             case '|':
+             printmsg(9, "prm -> %c", *argv[optind]);
+             if (!*++argv[optind])
+                 if (++optind >= argc)
+                 {
+                 printmsg(0, "uux - no command specified after |");
+                 return FALSE;
+                 }
+             if (strchr(argv[optind], '!'))
+                 {
+                 printmsg(0, "uux - no host name allowed after |");
+                 return FALSE;
+                 }
+             strcat(command," | ");
+             strcat(command, argv[optind]);
              continue;
-         } else if (remove_parens(argv[optind])) {
-             strcat(command," ");
-             strcat(command,argv[optind]);
+
+             case '(':
+             {
+                 size_t len = strlen(argv[optind] + 1);
+
+                 if (argv[optind][len] != ')')
+                 {
+                 printmsg(0, "uux - missing close parenthesis in %s",
+                         argv[optind] + 1);
+                 return FALSE;
+                 }
+                 argv[optind][len] = '\0';
+             }
+
              printmsg(9, "prm -> %s", argv[optind]);
+             strcat(command," ");
+             strcat(command, argv[optind] + 1);
              continue;
-         }
+
+             /* default: fall through */
+         } /* switch (*argv[optind]) */
+
 
          printmsg(9, "prm -> %s", argv[optind]);
 
@@ -876,20 +906,39 @@ static boolean do_remote(int optind, int argc, char **argv)
             return FALSE;
          } /* if ((s_remote) && (checkreal(src_system) == BADHOST)) */
 
+         if (f_remote == OUTPUT_FILE)
+         {
+            fprintf(stream, "O %s %s\n", src_file,
+                (equal(src_system, dest_system) ? " " : src_system) );
+            continue;
+         } /* if (f_remote == OUTPUT_FILE) */
+
+         remote_file = src_file;
+         if (!equal(src_system, dest_system))
+         {
+             remote_file += strlen(src_file);
+             while (remote_file > src_file  /* Keep trailing / and : */
+             && (*--remote_file == '/'
+                 /* || *remote_file == '\\' */
+                 || *remote_file == ':'))
+            ;
+             while (remote_file > src_file  /* Stop at other / and : */
+                && remote_file[-1] != '/'
+                /* && remote_file[-1] != '\\' */
+                && remote_file[-1] != ':')
+            --remote_file;
+             /* remote_file is now src_file without any leading drive/path */
+        } /* if (!equal(src_system, dest_system)) */
+
         if (f_remote == DATA_FILE)
         {
-           strcat(command, " ");
-           strcat(command, src_file);
-        } /* if (f_remote == DATA_FILE) */
 
-        if (f_remote == OUTPUT_FILE)
-        {
-           fprintf(stream, "O %s %s\n", src_file,
-                   (equal(src_system, dest_system) ? " " : src_system) );
-           continue;
-        } /* if (f_remote == OUTPUT_FILE) */
+           strcat(command, " ");
+           strcat(command, remote_file);
+
+        } /* if (f_remote == DATA_FILE) */
         else if (f_remote == INPUT_FILE)
-           fprintf(stream, "I %s\n", src_file);
+           fprintf(stream, "I %s\n", remote_file);
 
 /*--------------------------------------------------------------------*/
 /*    if both source & dest are not the same we must copy src_file    */
@@ -901,7 +950,7 @@ static boolean do_remote(int optind, int argc, char **argv)
             sprintf(dest_file, dataf_fmt, 'D', src_system, sequence_s,
                     subseq());
 
-            fprintf(stream, "F %s %s\n", dest_file, src_file );
+            fprintf(stream, "F %s %s\n", dest_file, remote_file );
 
 /*--------------------------------------------------------------------*/
 /*      if source is remote and dest is local copy source to local    */
@@ -1021,12 +1070,6 @@ void main(int  argc, char  **argv)
 
    if (!configure( B_UUCP ))
       exit(1);   /* system configuration failed */
-
-/*--------------------------------------------------------------------*/
-/*                   Switch to the spool directory                    */
-/*--------------------------------------------------------------------*/
-
-   tzset();                      /* Set up time zone information  */
 
    user_id = E_mailbox;
 
