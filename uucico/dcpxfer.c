@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.30 1993/10/30 22:27:57 rommel Exp $
+ *       $Id: dcpxfer.c 1.31 1993/10/31 12:01:35 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.31  1993/10/31  12:01:35  ahd
+ * Make buffering for flexible for under OS/2 32 bit
+ *
  * Revision 1.30  1993/10/30  22:27:57  rommel
  * Make SYSLOG more UNIX like
  *
@@ -415,7 +418,7 @@ XFER_STATE seof( const boolean purge_file )
       if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
-       seq++;
+         seq++;
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
@@ -764,7 +767,7 @@ XFER_STATE sinit( void )
 {
 
    pid = (int) getpid();
-   seq = 0;
+   seq = (( seq + 99 ) / 100) * 100;
 
    if ((*openpk)( TRUE ))     /* Initialize in caller mode           */
       return XFER_ABORT;
@@ -1322,7 +1325,7 @@ XFER_STATE reof( void )
       if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
-       seq++;
+         seq++;
          if ( bflag[F_MULTITASK] )
             syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
