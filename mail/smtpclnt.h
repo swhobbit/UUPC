@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.10 1998/03/03 03:55:05 ahd v1-12v $
+ *    $Id: smtpclnt.h 1.11 1998/03/08 04:52:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.11  1998/03/08 04:52:02  ahd
+ *    Allowing setting per client timeout explicitly
+ *
  *    Revision 1.10  1998/03/03 03:55:05  ahd
  *    Routines to handle messages within a POP3 mailbox
  *
@@ -102,6 +105,12 @@ typedef struct _SMTPBuffer
    size_t  linesTransferred;        /* CR/LF delimited lines via net */
 } SMTPBuffer;
 
+/*--------------------------------------------------------------------*/
+/*       S M T P C l i e n t                                          */
+/*                                                                    */
+/*       The base structure for all client processing                 */
+/*--------------------------------------------------------------------*/
+
 typedef struct _SMTPClient
 {
    SMTPConnection connection;       /* Internal network information  */
@@ -129,6 +138,9 @@ typedef struct _SMTPClient
    KWBoolean endOfTransmission;
    KWBoolean esmtp;                 /* SMTP specific, but not
                                        transaction specific          */
+   KWBoolean listening;             /* Master client, only accepts
+                                       connections                   */
+   KWBoolean needQueueRun;          /* We have work to process       */
    struct _SMTPClient *next;
    struct _SMTPClient *previous;
 
@@ -156,6 +168,10 @@ void setClientClosed(SMTPClient *client);
 /* Alter network socket id, used only when opening/closing it  */
 SOCKET getClientHandle(const SMTPClient *client);
 void setClientHandle(SMTPClient *client, SOCKET handle);
+
+/* Set/retrieve queueRun flag */
+void setClientQueueRun(SMTPClient *client, KWBoolean needQueueRun);
+KWBoolean getClientQueueRun(const SMTPClient *client);
 
 /* Mode (state) flag */
 void setClientMode(SMTPClient *client, SMTPMode mode);
