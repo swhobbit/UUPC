@@ -16,14 +16,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <windows.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pnterr.h"
 #include "commlib.h"
 

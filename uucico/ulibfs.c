@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.7 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: ulibfs.c 1.8 1994/01/01 19:21:33 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ * Revision 1.8  1994/01/01  19:21:33  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.7  1993/12/24  05:12:54  ahd
  * Use far buffer in 16 bit compilers
  *
@@ -52,17 +55,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>        /* For memset() */
-#include <stdlib.h>        /* For max() */
+#include "uupcmoah.h"
+
 #include <dos.h>           /* For FOSSIL interrupt calls */
-#include <time.h>          /* For sleep.h support */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ulibfs.h"
 #include "commlib.h"
 #include "fossil.h"

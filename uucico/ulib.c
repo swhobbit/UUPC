@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.24 1994/01/06 12:45:33 ahd Exp $
+ *    $Id: ulib.c 1.25 1994/01/18 13:29:22 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.25  1994/01/18  13:29:22  ahd
+ * Delete comment
+ *
  * Revision 1.24  1994/01/06  12:45:33  ahd
  * Oooops.  Use UUFAR pointer in nswrite()
  *
@@ -101,12 +104,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <share.h>
 
 #ifdef __TURBOC__
@@ -117,8 +118,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "ulib.h"
 #include "comm.h"
 #include "ssleep.h"

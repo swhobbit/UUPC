@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.10 1994/01/01 19:22:22 ahd Exp $
+ *    $Id: ulibwin.c 1.11 1994/02/13 04:46:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.11  1994/02/13  04:46:01  ahd
+ * Correct date of Microsoft document
+ *
  * Revision 1.10  1994/01/01  19:22:22  ahd
  * Annual Copyright Update
  *
@@ -71,12 +74,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    MS Windows 3.1 include files                    */
@@ -88,7 +89,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ulib.h"
 #include "ssleep.h"
 #include "commlib.h"
@@ -273,7 +273,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 /*                 Assure RTS and DTR are asserted                    */
 /*--------------------------------------------------------------------*/
-
 
 #ifdef UDEBUG
    printmsg(15,"openline: Raising RTS/DTR");
@@ -511,7 +510,6 @@ int nswrite(const char UUFAR *data, unsigned int len)
 
 void nssendbrk(unsigned int duration)
 {
-
 
 #ifdef UDEBUG
    printmsg(12, "ssendbrk: %d", duration);

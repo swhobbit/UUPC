@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.32 1994/01/01 19:28:03 ahd Exp $
+ *    $Id: uuxqt.c 1.33 1994/01/06 12:45:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.33  1994/01/06  12:45:33  ahd
+ * Correct error message via mail when file is rejected
+ *
  * Revision 1.32  1994/01/01  19:28:03  ahd
  * Annual Copyright Update
  *
@@ -132,15 +135,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
 #include <errno.h>
-#include <time.h>
 #include <fcntl.h>
 #include <process.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
 
@@ -152,13 +152,11 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dater.h"
 #include "execute.h"
 #include "expath.h"
 #include "getopt.h"
 #include "getseq.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "import.h"
 #include "lock.h"

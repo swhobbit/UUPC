@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.15 1994/01/01 19:20:23 ahd Exp $
+ *    $Id: nbstime.c 1.16 1994/01/24 03:04:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.16  1994/01/24  03:04:44  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.15  1994/01/01  19:20:23  ahd
  * Annual Copyright Update
  *
@@ -68,13 +71,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-
-
 #ifdef WIN32
+
+#include "uupcmoah.h"
 
 #include <windows.h>
 #define NONDOS
@@ -92,12 +91,10 @@
 
 #endif /* WIN32 */
 
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "arpadate.h"
 #include "dcp.h"
 #include "dcpsys.h"
@@ -353,7 +350,6 @@ boolean nbstime( void )
    stime( &today );
 
 #else /* __TURBOC__ */
-
 
    tp = localtime(&today);    /* Get local time as a record          */
 

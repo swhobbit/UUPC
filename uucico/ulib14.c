@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.8 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: ulib14.c 1.9 1994/01/01 19:21:25 ahd Exp $
  *
  *    $Log: ulib14.c $
+ * Revision 1.9  1994/01/01  19:21:25  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/12/26  16:20:17  ahd
  * Use common buffering
  *
@@ -59,12 +62,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <errno.h>
 
 #include <dos.h>    /* Declares union REGS and int86(). */
@@ -73,8 +74,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "ulib14.h"
 #include "comm.h"          /*  Modem status bits */
 #include "ssleep.h"

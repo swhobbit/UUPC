@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.1 1993/12/29 03:34:37 dmwatt Exp $
+ *    $Id: suspendn.c 1.2 1994/01/01 19:21:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ * Revision 1.2  1994/01/01  19:21:10  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.1  1993/12/29  03:34:37  dmwatt
  * Initial revision
  *
@@ -67,21 +70,17 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 #include <limits.h>
 #include <signal.h>
 #include <process.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "hostable.h"
 #include "security.h"
 #include "dcp.h"

@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.35 1994/01/24 03:04:16 ahd Exp $
+ *     $Id: dcpsys.c 1.36 1994/02/13 04:46:01 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.36  1994/02/13  04:46:01  ahd
+ * Handle systems which only send seven characters of their names
+ *
  * Revision 1.35  1994/01/24  03:04:16  ahd
  * Annual Copyright Update
  *
@@ -155,17 +158,14 @@
 /*                        system include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "checktim.h"
 #include "dcp.h"
 #include "dcpfpkt.h"
@@ -175,7 +175,6 @@
 #include "dcplib.h"
 #include "dcpsys.h"
 #include "export.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "hostatus.h"
 #include "modem.h"

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SUSPEND.C 1.4 1993/11/06 17:57:09 rhg Exp $
+ *    $Id: suspend.c 1.5 1994/01/01 19:20:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: SUSPEND.C $
+ *    $Log: suspend.c $
+ * Revision 1.5  1994/01/01  19:20:54  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/11/06  17:57:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -49,14 +52,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <sys/types.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
+
 #include "hostable.h"
 #include "dcp.h"
 #include "security.h"

@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FMT.C 1.2 1993/04/11 00:33:54 ahd Exp $
+ *    $Id: fmt.c 1.3 1993/10/24 20:58:55 rhg Exp $
  *
  *    Revision history:
- *    $Log: FMT.C $
+ *    $Log: fmt.c $
+ * Revision 1.3  1993/10/24  20:58:55  rhg
+ * Clean up for MS C 7.0
+ *
  * Revision 1.2  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -27,14 +30,12 @@
  *
  */
 
-static char rcsid[] = "$Id: FMT.C 1.2 1993/04/11 00:33:54 ahd Exp $";
+#include "uupcmoah.h"
 
-#include <stdlib.h>
+static char rcsid[] = "$Id: fmt.c 1.3 1993/10/24 20:58:55 rhg Exp $";
+
 #include <ctype.h>
-#include <string.h>
-#include <stdio.h>
 
-#include "lib.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/

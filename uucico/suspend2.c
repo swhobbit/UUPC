@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.10 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: suspend2.c 1.11 1994/01/01 19:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.11  1994/01/01  19:21:01  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.10  1993/12/26  16:20:17  ahd
  * Use enumerated type for command verbs and responses
  *
@@ -86,14 +89,11 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#include "uupcmoah.h"
+
 #include <limits.h>
 #include <signal.h>
 #include <process.h>
-#include <time.h>
 
 #define INCL_DOS
 #define INCL_DOSPROCESS
@@ -105,7 +105,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "hostable.h"
 #include "security.h"
 #include "dcp.h"
@@ -182,7 +181,6 @@ static VOID APIENTRY SuspendThread(ULONG nArg)
 static VOID FAR SuspendThread(VOID)
 #endif
 {
-
 
 /*--------------------------------------------------------------------*/
 /*       Process until we get a request to change the status of       */

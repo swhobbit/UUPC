@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PRTYOS2.C 1.4 1993/10/12 01:33:23 ahd Exp $
+ *    $Id: prtyos2.c 1.5 1994/01/01 19:20:33 ahd Exp $
  *
  *    Revision history:
- *    $Log: PRTYOS2.C $
+ *    $Log: prtyos2.c $
+ * Revision 1.5  1994/01/01  19:20:33  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -42,17 +45,16 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-
 #define INCL_NOPMAPI
 #define INCL_BASE
+#include "uupcmoah.h"
+
 #include <os2.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pos2err.h"
 
 /*--------------------------------------------------------------------*/

@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.9 1994/01/01 19:22:35 ahd Exp $
+ *    $Id: uuport.c 1.10 1994/01/06 12:45:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.10  1994/01/06  12:45:33  ahd
+ * Initialize configuration under Windows to get spool directory
+ *
  * Revision 1.9  1994/01/01  19:22:35  ahd
  * Annual Copyright Update
  *
@@ -69,11 +72,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <io.h>
 #include <fcntl.h>
-#include <string.h>
 #include <ctype.h>
 
 #ifdef _Windows
@@ -84,7 +86,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 #define  NO_SUSPEND_FUNCTIONS
 #include "suspend.h"
@@ -188,7 +189,6 @@ int main(int argc, char **argv)
 /*       Under Windows 3.1, if we get this far, automatically         */
 /*       close the Window when done                                   */
 /*--------------------------------------------------------------------*/
-
 
    openlog( NULL );
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */

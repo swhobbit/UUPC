@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.16 1993/12/26 16:20:17 ahd Exp $
+ *       $Id: ulibnmp.c 1.17 1994/01/01 19:21:51 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.17  1994/01/01  19:21:51  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.16  1993/12/26  16:20:17  ahd
  * Add missing cast to far pointer
  *
@@ -76,12 +79,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
@@ -100,7 +101,6 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ulibnmp.h"
 #include "ssleep.h"
 #include "catcher.h"

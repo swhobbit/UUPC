@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.8 1994/01/01 19:27:44 ahd Exp $
+ *    $Id: uusub.c 1.9 1994/01/24 03:19:33 ahd Exp $
  *
  *    $Log: uusub.c $
+ * Revision 1.9  1994/01/24  03:19:33  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1994/01/01  19:27:44  ahd
  * Annual Copyright Update
  *
@@ -42,13 +45,8 @@
  *
  */
 
+#include "uupcmoah.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#include "lib.h"
 #include "hostable.h"
 #include "dater.h"
 #include "hostrset.h"

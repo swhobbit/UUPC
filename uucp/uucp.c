@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.13 1993/10/31 22:07:05 ahd Exp $
+ *    $Id: uucp.c 1.14 1994/01/01 19:27:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.14  1994/01/01  19:27:27  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.13  1993/10/31  22:07:05  ahd
  * Issue messages if opens during copies fail
  * Don't close directory after copy failure if never open
@@ -84,14 +87,12 @@
 /*                        system include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include  <ctype.h>
 #include  <direct.h>
 #include  <fcntl.h>
 #include  <io.h>
-#include  <stdio.h>
-#include  <stdlib.h>
-#include  <string.h>
-#include  <sys/types.h>
 #include  <sys/stat.h>
 
 #ifdef _Windows
@@ -102,11 +103,9 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include  "lib.h"
 #include  "expath.h"
 #include  "getopt.h"
 #include  "getseq.h"
-#include  "hlib.h"
 #include  "hostable.h"
 #include  "import.h"
 #include  "uundir.h"

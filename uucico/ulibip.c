@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.15 1993/12/30 02:56:28 dmwatt Exp $
+ *    $Id: ulibip.c 1.16 1994/01/01 19:21:42 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.16  1994/01/01  19:21:42  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.15  1993/12/30  02:56:28  dmwatt
  * Correct compile warnings
  *
@@ -78,20 +81,15 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <windows.h>
 #include "winsock.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "ulib.h"
 #include "comm.h"          /* Modem status bits                       */
 #include "ssleep.h"
@@ -188,7 +186,6 @@ boolean InitWinsock(void)
 /*                                                                    */
 /*       Clean up Windows DLL at shutdown                             */
 /*--------------------------------------------------------------------*/
-
 
 void AtWinsockExit(void)
 {

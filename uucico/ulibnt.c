@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.16 1994/01/01 19:22:00 ahd Exp $
+ *       $Id: ulibnt.c 1.17 1994/02/13 03:15:44 dmwatt Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.17  1994/02/13  03:15:44  dmwatt
+ * Prevent empty reads from eating the machine alive
+ *
  * Revision 1.16  1994/01/01  19:22:00  ahd
  * Annual Copyright Update
  *
@@ -111,12 +114,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                      Windows NT include files                      */
@@ -129,7 +130,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ulib.h"
 #include "ssleep.h"
 #include "catcher.h"

@@ -9,22 +9,17 @@
 /*         System include files                                       */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <io.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
-#include <time.h>
 #include <fcntl.h>
-#include <stdlib.h>
 
 /*--------------------------------------------------------------------*/
 /*         Local include files                                        */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "getopt.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "security.h"
 #include "timestmp.h"

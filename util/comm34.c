@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMM34.C 1.2 1993/04/11 00:33:54 ahd Exp $
+ *    $Id: comm34.c 1.3 1993/10/24 20:58:55 rhg Exp $
  *
  *    Revision history:
- *    $Log: COMM34.C $
+ *    $Log: comm34.c $
+ * Revision 1.3  1993/10/24  20:58:55  rhg
+ * Clean up for MS C 7.0
+ *
  * Revision 1.2  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -28,7 +31,9 @@
  *
  */
 
-static char rcsid[] = "$Id: COMM34.C 1.2 1993/04/11 00:33:54 ahd Exp $";
+#include "uupcmoah.h"
+
+static char rcsid[] = "$Id: comm34.c 1.3 1993/10/24 20:58:55 rhg Exp $";
 
 /*
  * Compiler: Microsoft C 5.1
@@ -46,14 +51,10 @@ static char rcsid[] = "$Id: COMM34.C 1.2 1993/04/11 00:33:54 ahd Exp $";
 /*                      C standard include files                      */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 
 #define MK_FP(seg,ofs)  ((void far *)(((unsigned long)(seg) << 16) | (ofs)))

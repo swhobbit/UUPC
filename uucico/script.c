@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.8 1993/12/30 03:26:21 ahd Exp $
+ *    $Id: script.c 1.9 1994/01/01 19:20:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ * Revision 1.9  1994/01/01  19:20:47  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/12/30  03:26:21  ahd
  * Trap empty failure strings
  *
@@ -43,21 +46,17 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "hostable.h"
-#include "hlib.h"
 #include "modem.h"
 #include "script.h"
 #include "security.h"
@@ -519,7 +518,6 @@ boolean  sendstr(char *str, unsigned int timeout, char **failure)
       return TRUE;
 
    }  /* if (equaln(str, "BREAK", 5)) */
-
 
    if ( waitForEcho )
    {

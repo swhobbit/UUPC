@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.39 1993/12/29 02:46:47 ahd Exp $
+ *       $Id: dcpxfer.c 1.40 1994/01/01 19:19:51 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.40  1994/01/01  19:19:51  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.39  1993/12/29  02:46:47  ahd
  * Correct assignment of transfer buffer size.  (set it, not reset it)
  *
@@ -154,29 +157,24 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
 #include <direct.h>
 #include <fcntl.h>
 #include <io.h>
 #include <process.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/timeb.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "dcpxfer.h"
 #include "expath.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "import.h"
 #include "security.h"
@@ -813,7 +811,6 @@ XFER_STATE sinit( void )
       return XFER_MASTER;
    } /* else */
 
-
 } /*sinit*/
 
 /*********************** MISC SUB SUB PROTOCOL *************************/
@@ -1167,7 +1164,6 @@ XFER_STATE rsfile( void )
                                     /* don't munge the file they want */
                                     /* sent                           */
 
-
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
 /*--------------------------------------------------------------------*/
@@ -1238,7 +1234,6 @@ XFER_STATE rsfile( void )
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fName, spolName, tName);
 
    lName = spolName;       /* Remember name of file to log            */
-
 
    fileSize = filelength( fileno( xfer_stream ) );
    (*filepkt)(TRUE, fileSize);   /* Init for file transfer            */

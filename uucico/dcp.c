@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.24 1993/12/02 13:48:35 ahd Exp $
+ *    $Id: dcp.c 1.25 1994/01/01 19:18:06 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.25  1994/01/01  19:18:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.24  1993/12/02  13:48:35  ahd
  * Don't release network ports after use
  *
@@ -128,12 +131,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#include "uupcmoah.h"
+
 #include <limits.h>
-#include <time.h>
 
 #ifdef _Windows
 #include <Windows.h>
@@ -143,7 +143,6 @@
 /*                      UUPC/extended prototypes                      */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "catcher.h"
 #include "checktim.h"
 #include "dcp.h"
@@ -153,7 +152,6 @@
 #include "dcpxfer.h"
 #include "expath.h"
 #include "getopt.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "hostatus.h"
 #include "lock.h"

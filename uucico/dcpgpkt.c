@@ -24,9 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.30 1994/02/13 13:51:22 rommel Exp $
+ *      $Id: dcpgpkt.c 1.31 1994/02/16 02:26:27 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.31  1994/02/16  02:26:27  ahd
+ * Delete unneeded allocation of gspkt
+ * Move grpkt to FAR memory
+ *
  * Revision 1.30  1994/02/13  13:51:22  rommel
  * Correct 32 bit ifdef
  *
@@ -144,10 +148,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <stdlib.h>
+#include "uupcmoah.h"
+
 #include <ctype.h>
 
 #ifdef __TURBOC__
@@ -161,7 +163,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "dcpgpkt.h"
@@ -241,7 +242,6 @@ typedef enum {
 
 #define nextpkt(x)    ((x + 1) % MAXSEQ)
 #define nextbuf(x)    ((x + 1) % (nwindows+1))
-
 
 /*--------------------------------------------------------------------*/
 /*              Global variables for packet definitions               */

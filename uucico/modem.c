@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.41 1994/02/14 01:03:56 ahd Exp $
+ *    $Id: modem.c 1.42 1994/02/16 02:26:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.42  1994/02/16  02:26:27  ahd
+ * Correct delay before banner display to 2 seconds from 30
+ *
  * Revision 1.41  1994/02/14  01:03:56  ahd
  * Add AnswerDelay variable to allow delay before presenting login:
  * prompt
@@ -162,20 +165,16 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <limits.h>
-#include <sys/types.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "hostable.h"
 #include "catcher.h"
 #include "checktim.h"
@@ -183,7 +182,6 @@
 #include "dater.h"
 #include "dcp.h"
 #include "dcpsys.h"
-#include "hlib.h"
 #include "modem.h"
 #include "script.h"
 #include "security.h"

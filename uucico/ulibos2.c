@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.35 1993/12/26 16:20:17 ahd Exp $
+ *       $Id: ulibos2.c 1.36 1994/01/01 19:22:11 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.36  1994/01/01  19:22:11  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.35  1993/12/26  16:20:17  ahd
  * Don't always perform read ahead on slow links
  *
@@ -134,12 +137,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "uupcmoah.h"
+
 #include <fcntl.h>
 #include <io.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
@@ -160,7 +161,6 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ulib.h"
 #include "ssleep.h"
 #include "catcher.h"
@@ -293,7 +293,6 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
    } /*if */
    else if ( com_error )
       ShowError( com_error );
-
 
 /*--------------------------------------------------------------------*/
 /*                           Set port speed                           */
@@ -927,7 +926,6 @@ void ncloseline(void)
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
 #endif
-
 
    if ( ! portActive )
    {

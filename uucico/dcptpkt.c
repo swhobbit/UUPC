@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.7 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: dcptpkt.c 1.8 1994/01/01 19:19:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.8  1994/01/01  19:19:40  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.7  1993/11/13  17:43:26  ahd
  * Correct debug level on sending empty packet message
  *
@@ -72,11 +75,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
 #if defined(WIN32) || defined(_Windows)
+#include "uupcmoah.h"
+
 #include "winsock.h"       /* Needed for byte ordering                 */
 #endif
 
@@ -84,7 +85,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dcp.h"
 #include "dcptpkt.h"
 #include "dcpsys.h"
@@ -236,7 +236,6 @@ short tsendpkt(char *ip, short len)
    return 0;
 
 } /* tsendpkt */
-
 
 /*--------------------------------------------------------------------*/
 /*    t c l o s e p k                                                 */

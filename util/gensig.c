@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.4 1993/09/27 04:04:06 ahd Exp rommel $
+ *    $Id: gensig.c 1.5 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ * Revision 1.5  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.4  1993/09/27  04:04:06  ahd
  * Suppress compiler warning message
  *
@@ -33,26 +36,22 @@
  *
  */
 
-static char rcsid[] = "$Id: gensig.c 1.4 1993/09/27 04:04:06 ahd Exp rommel $";
+#include "uupcmoah.h"
+
+static char rcsid[] = "$Id: gensig.c 1.5 1993/12/23 03:16:03 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <io.h>
 #include <direct.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/

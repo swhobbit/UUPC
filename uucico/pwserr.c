@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PWSERR.C 1.5 1993/10/30 22:07:19 dmwatt Exp $
+ *    $Id: pwserr.c 1.6 1994/01/01 19:20:39 ahd Exp $
  *
  *    Revision history:
- *    $Log: PWSERR.C $
+ *    $Log: pwserr.c $
+ * Revision 1.6  1994/01/01  19:20:39  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.5  1993/10/30  22:07:19  dmwatt
  * Host byte ordering and far/near pointer corrections
  *
@@ -45,7 +48,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <io.h>
 
 #include "winsock.h"       /* So we search local directories           */
@@ -53,8 +57,6 @@
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"           /* Cause we always include it!              */
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -141,7 +143,6 @@ static WSERR wsErrors[] = {
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pwserr.h"
 
 /*--------------------------------------------------------------------*/

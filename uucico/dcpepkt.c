@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.5 1993/12/30 03:11:05 ahd Exp $
+ *    $Id: dcpepkt.c 1.6 1994/01/01 19:18:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ * Revision 1.6  1994/01/01  19:18:19  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.5  1993/12/30  03:11:05  ahd
  * Use unique packet timeout variable for 'e' protocol
  *
@@ -51,16 +54,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
+
 #include "dcp.h"
 #include "dcpepkt.h"
 #include "dcpsys.h"

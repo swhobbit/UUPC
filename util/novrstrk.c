@@ -12,7 +12,10 @@
 /*--------------------------------------------------------------------*/
 
 /*
-   $Log: NOVRSTRK.C $
+   $Log: novrstrk.c $
+ * Revision 1.3  1993/10/24  20:58:55  rhg
+ * Clean up for MS C 7.0
+ *
  * Revision 1.2  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -24,19 +27,16 @@
  *
  */
 
+#include "uupcmoah.h"
+
 static char rcsid[] =
-         "$Id: NOVRSTRK.C 1.2 1993/04/11 00:33:54 ahd Exp $";
+         "$Id: novrstrk.c 1.3 1993/10/24 20:58:55 rhg Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */
 /*    returns, which is how Word for Windows does it                  */
 /*--------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "lib.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/

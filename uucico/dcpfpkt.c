@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.17 1993/12/29 03:54:30 dmwatt Exp $
+ *    $Id: dcpfpkt.c 1.18 1994/01/01 19:18:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.18  1994/01/01  19:18:29  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.17  1993/12/29  03:54:30  dmwatt
  * Suppress compiler warnings for unused args
  *
@@ -100,15 +103,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
+
 #include "dcp.h"
 #include "dcpfpkt.h"
 #include "dcpsys.h"

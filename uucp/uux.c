@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.12 1993/12/06 01:59:07 ahd Exp $
+ *    $Id: uux.c 1.13 1994/01/01 19:27:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.13  1994/01/01  19:27:52  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.12  1993/12/06  01:59:07  ahd
  * Correct support of commands for local system reading from STDIN
  *
@@ -103,7 +106,6 @@
 
      -z        Send success notification to the user.
 
-
       The command-string is made up of one or more arguments that
       look like a normal command line, except that the command and
       filenames may be prefixed by system-name!.  A null
@@ -115,13 +117,10 @@
 /*         System include files                                       */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "uupcmoah.h"
+
 #include <io.h>
-#include <string.h>
-#include <time.h>
-#include <stdlib.h>
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 #ifdef _Windows
@@ -132,8 +131,6 @@
 /*         Local include files                                        */
 /*--------------------------------------------------------------------*/
 
-#include  "lib.h"
-#include  "hlib.h"
 #include  "getopt.h"
 #include  "getseq.h"
 #include  "expath.h"
@@ -243,7 +240,6 @@ static void usage()
                    "command-string\n");
 }
 
-
 /*--------------------------------------------------------------------*/
 /*    s w a p s l a s h                                               */
 /*                                                                    */
@@ -302,7 +298,6 @@ static boolean cp(char *from, char *to)
       return FALSE;        /* failed in copy                          */
    return TRUE;
 }
-
 
 /*--------------------------------------------------------------------*/
 /*    C o p y D a t a                                                 */
@@ -610,7 +605,6 @@ static boolean do_copy(char *src_syst,
                         E_mailbox,
                         flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
-
          fclose(cfile);
          return TRUE;
       }
@@ -795,7 +789,6 @@ static boolean do_remote(int optind, int argc, char **argv)
                                  UNIX format                       */
    char* jobid_fmt = &spool_fmt[3];
 
-
 /*--------------------------------------------------------------------*/
 /*    Get the remote system and command to execute on that system     */
 /*--------------------------------------------------------------------*/
@@ -944,7 +937,6 @@ static boolean do_remote(int optind, int argc, char **argv)
        /* default: fall through */
       } /* switch (*argv[optind]) */
 
-
       printmsg(9, "prm -> %s", argv[optind]);
 
 /*--------------------------------------------------------------------*/
@@ -1064,7 +1056,6 @@ static boolean do_remote(int optind, int argc, char **argv)
          return FALSE;
       }
 
-
       sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
       sprintf(rifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
 
@@ -1089,7 +1080,6 @@ static boolean do_remote(int optind, int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    printmsg(4, "command \"%s\"", command);
-
 
    fprintf(stream, "C %s\n", command);
    fclose(stream);

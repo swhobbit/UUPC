@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.18 1994/01/24 03:03:52 ahd Exp $
+ *    $Id: commlib.c 1.19 1994/02/13 04:54:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.19  1994/02/13  04:54:35  ahd
+ * Report address when tracing data
+ *
  * Revision 1.18  1994/01/24  03:03:52  ahd
  * Annual Copyright Update
  *
@@ -87,12 +90,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 #ifndef BIT32ENV
+#include "uupcmoah.h"
+
 #include <malloc.h>        /* _fmalloc, etc.                         */
 #endif
 
@@ -100,8 +100,6 @@
 /*                       UUPC/extended includes                       */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "commlib.h"
 #include "dcp.h"
 #include "hostable.h"
@@ -509,7 +507,6 @@ boolean IsNetwork(void)
 {
    return network;         /* Preset when suite initialized           */
 }
-
 
 /*--------------------------------------------------------------------*/
 /*       d u m m y G e t C o m H a n d l e                            */

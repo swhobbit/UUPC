@@ -11,10 +11,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: INSTALL.C 1.2 1993/04/04 04:57:01 ahd Exp $
+ *    $Id: install.c 1.3 1993/04/11 00:33:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: INSTALL.C $
+ *    $Log: install.c $
+ * Revision 1.3  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
+ * Revision 1.3  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1993/04/04  04:57:01  ahd
  * *** empty log message ***
  *
@@ -23,21 +29,19 @@
  *
  */
 
+#include "uupcmoah.h"
+
 static char rcsid[] =
-      "$Id: INSTALL.C 1.2 1993/04/04 04:57:01 ahd Exp $";
+      "$Id: install.c 1.3 1993/04/11 00:33:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                      Standard C include files                      */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 /*--------------------------------------------------------------------*/
 /*                     UUPC/extended include files                    */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/

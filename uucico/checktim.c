@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CHECKTIM.C 1.3 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: checktim.c 1.4 1994/01/01 19:17:48 ahd Exp $
  *
  *    Revision history:
- *    $Log: CHECKTIM.C $
+ *    $Log: checktim.c $
+ * Revision 1.4  1994/01/01  19:17:48  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -38,16 +41,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
+
 #include "checktim.h"
 
 /*--------------------------------------------------------------------*/

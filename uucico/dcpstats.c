@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPSTATS.C 1.7 1993/10/09 22:21:55 rhg Exp $
+ *       $Id: dcpstats.c 1.8 1994/01/01 19:19:13 ahd Exp $
  *
- *       $Log: DCPSTATS.C $
+ *       $Log: dcpstats.c $
+ * Revision 1.8  1994/01/01  19:19:13  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.7  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -40,20 +43,15 @@
 /*                       standard include files                       */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <stdlib.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
+
 #include "dcp.h"
 #include "dcpstats.h"
 #include "stater.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "hostatus.h"
 #include "security.h"

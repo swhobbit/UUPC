@@ -21,35 +21,30 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.15 1993/12/09 04:51:21 ahd Exp $
+ *    $Id: uustat.c 1.16 1994/01/01 19:27:36 ahd Exp $
  */
 
+#include "uupcmoah.h"
+
 static const char rcsid[] =
-         "$Id: uustat.c 1.15 1993/12/09 04:51:21 ahd Exp $";
+         "$Id: uustat.c 1.16 1994/01/01 19:27:36 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
 #include <io.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
-#include <time.h>
 #include <fcntl.h>
-#include <stdlib.h>
 
 /*--------------------------------------------------------------------*/
 /*         Local include files                                        */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dater.h"
 #include "export.h"
 #include "getopt.h"
 #include "getseq.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "hostatus.h"
 #include "import.h"
