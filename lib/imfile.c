@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.32 1998/03/09 01:18:19 ahd Exp $
+ *    $Id: imfile.c 1.33 1998/03/09 01:22:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.33  1998/03/09 01:22:28  ahd
+ *    Flag when imtell() is issued on an in-memory file
+ *
  *    Revision 1.32  1998/03/09 01:18:19  ahd
  *    Correct DOS near/far memory problems in imReserve fix
  *
@@ -74,55 +77,6 @@
  *    Revision 1.17  1995/09/04 02:13:41  ahd
  *    Suppress selected debugging messages
  *
- *    Revision 1.16  1995/03/11 22:26:08  ahd
- *    Use macro for file delete to allow special OS/2 processing
- *
- *    Revision 1.15  1995/03/11 15:49:23  ahd
- *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
- *
- *    Revision 1.14  1995/02/26 02:51:34  ahd
- *    Clean up memory allocations to not require #ifdef
- *
- *    Revision 1.13  1995/02/20 17:28:43  ahd
- *    16 bit compiler warning message clean up
- *
- *    Revision 1.12  1995/02/20 00:40:12  ahd
- *    Correct C compiler warnings
- *
- *    Revision 1.11  1995/01/29 16:43:03  ahd
- *    IBM C/Set compiler warnings
- *
- *    Revision 1.10  1995/01/28 22:07:13  ahd
- *    Add chsize function
- *
- *    Revision 1.9  1995/01/14 14:08:59  ahd
- *    Make sure that 65000 byte limit is processed as long constant
- *
- *    Revision 1.8  1995/01/14 01:40:50  ahd
- *    Correct test for maximum file length under 16 bit compilers
- *
- *    Revision 1.7  1995/01/09 12:35:15  ahd
- *    Correct VC++ compiler warnings
- *
- *    Revision 1.6  1995/01/09 01:39:22  ahd
- *    Correct error processing vsprintf() in imprintf()
- *
- *    Revision 1.5  1995/01/08 21:02:02  ahd
- *    Correct BC++ 3.1 compiler warnings
- *
- *    Revision 1.4  1995/01/08 19:52:44  ahd
- *    Add in memory files to RMAIL, including additional support and
- *    bug fixes.
- *
- *    Revision 1.3  1995/01/07 23:52:37  ahd
- *    Convert rnews to use in-memory files, debug associated functions
- *
- *    Revision 1.2  1995/01/07 20:48:21  ahd
- *    Correct 16 compile warnings
- *
- *    Revision 1.1  1995/01/07 15:43:07  ahd
- *    Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -148,10 +102,14 @@
 /*--------------------------------------------------------------------*/
 
 #ifdef BIT32ENV
-#define IM_MAX_LENGTH (4096 * 1024)
+#define IM_MAX_LENGTH (4096L * 1024L)
 #else
 #define IM_MAX_LENGTH (63L * 1024L) /* Under 64K, avoid silly ptr
                                        wrap around                   */
+#endif
+
+#ifdef UDEBUG32
+#define UDEBUG2
 #endif
 
 currentfile();
@@ -164,11 +122,11 @@ currentfile();
 /*       Report status of current in-memory file                      */
 /*--------------------------------------------------------------------*/
 
-static void imStatus( IMFILE *imf )
+static void imStatus(IMFILE *imf)
 {
 
 #ifdef UDEBUG
-   if ( imf->buffer != NULL )
+   if (imf->buffer != NULL)
       printmsg(18,"imStatus: "
 #ifdef BIT32ENV
                "%p"
@@ -182,10 +140,10 @@ static void imStatus( IMFILE *imf )
                   imf->length,
                   imf->position,
                   imeof(imf)     ? ", EOF"   : "",
-                  imerror( imf ) ? ", ERROR" : "" );
+                  imerror(imf) ? ", ERROR" : "");
 #endif
-   else if ( imf->filename != NULL )
-      printmsg(20,"imStatus: File resides on disk as %s", imf->filename );
+   else if (imf->filename != NULL)
+      printmsg(20,"imStatus: File resides on disk as %s", imf->filename);
    else
       printmsg(5,"imstatus: No backing store exists for file");
 
@@ -204,7 +162,7 @@ static void imStatus( IMFILE *imf )
 /*       shortage                                                     */
 /*--------------------------------------------------------------------*/
 
-static int imReserve( IMFILE *imf, const unsigned long length )
+static int imReserve(IMFILE *imf, const unsigned long length)
 {
 
    unsigned long newLength = length + imf->position ;
@@ -213,27 +171,27 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 /*            If we have the memory allocated, return quietly         */
 /*--------------------------------------------------------------------*/
 
-   if ((imf->buffer == NULL ) || ( newLength <= imf->length ))
+   if ((imf->buffer == NULL) || (newLength <= imf->length))
       return 0;
 
 /*--------------------------------------------------------------------*/
 /*             Attempt to allocate the longer buffer needed           */
 /*--------------------------------------------------------------------*/
 
-   if ( newLength <= IM_MAX_LENGTH )
+   if (newLength <= IM_MAX_LENGTH)
    {
       char UUFAR *newBuffer;
 
       newLength += newLength;   /* Add a 100 percent pad             */
 
-      if ( newLength > IM_MAX_LENGTH )    /* Is the pad allowed?     */
+      if (newLength > IM_MAX_LENGTH)      /* Is the pad allowed?     */
          newLength = IM_MAX_LENGTH; /* No --> Just use max           */
 
-      newBuffer = REALLOC( imf->buffer, (size_t) newLength );
+      newBuffer = REALLOC(imf->buffer, (size_t) newLength);
 
-      if ( newBuffer == NULL )
+      if (newBuffer == NULL)
       {
-         printerr( "realloc" );
+         printerr("realloc");
          imf->flag |= IM_FLAG_ERROR;
          return -1;
       }
@@ -243,50 +201,50 @@ static int imReserve( IMFILE *imf, const unsigned long length )
          return 0;
       }
 
-   } /* if ( newLength <= IM_MAX_LENGTH ) */
+   } /* if (newLength <= IM_MAX_LENGTH) */
 
 /*--------------------------------------------------------------------*/
 /*       For wharever reason, we need to convert processing to a      */
 /*       file; do so.                                                 */
 /*--------------------------------------------------------------------*/
 
-   imf->filename = mktempname( NULL, "TMP" );
+   imf->filename = mktempname(NULL, "TMP");
 
    printmsg(2,"imReserve: Switching to disk file %s after %ld/%ld bytes",
                imf->filename,
                imf->inUse,
-               newLength );
+               newLength);
 
-   if ( imf->flag & IM_FLAG_TEXT )
+   if (imf->flag & IM_FLAG_TEXT)
    {
       /* We can't translate the position on non-binary files */
-      if ( imf->flag & IM_FLAG_TELL )
+      if (imf->flag & IM_FLAG_TELL)
       {
          printmsg(0,"imReserve: Internal error, imtell() issued on TEXT file");
          panic();
       }
 
-      imf->stream = FOPEN( imf->filename,
+      imf->stream = FOPEN(imf->filename,
                            "w+",
-                           TEXT_MODE );
+                           TEXT_MODE);
    }
    else
-      imf->stream = FOPEN( imf->filename,
+      imf->stream = FOPEN(imf->filename,
                            "w+",
-                           IMAGE_MODE );
+                           IMAGE_MODE);
 
-   if ( imf->stream == NULL )
+   if (imf->stream == NULL)
    {
-      printerr( imf->filename );
+      printerr(imf->filename);
       imf->flag |= IM_FLAG_ERROR;
       return -1;
    }
 
-   imrewind( imf );
+   imrewind(imf);
 
-   if ( imunload( imf->stream, imf ))
+   if (imunload(imf->stream, imf))
    {
-      printerr( imf->filename );
+      printerr(imf->filename);
       imf->flag |= IM_FLAG_ERROR;
       return -1;
    }
@@ -296,7 +254,7 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 /*       know what sort of I/O to perform.                            */
 /*--------------------------------------------------------------------*/
 
-   FREE( imf->buffer );
+   FREE(imf->buffer);
    imf->buffer = NULL;
 
    imf->length = imf->inUse = imf->position = 0;
@@ -311,23 +269,23 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 /*       Open an in memory file                                       */
 /*--------------------------------------------------------------------*/
 
-IMFILE *imopen( const long length,
+IMFILE *imopen(const long length,
                 const char *mode)
 {
-   IMFILE *imf = malloc( sizeof (IMFILE) );
+   IMFILE *imf = malloc(sizeof (IMFILE));
 
 /*--------------------------------------------------------------------*/
 /*          Allocate our control structure and initialize it          */
 /*--------------------------------------------------------------------*/
 
-   checkref( imf );
-   memset( imf, 0, sizeof *imf );
+   checkref(imf);
+   memset(imf, 0, sizeof *imf);
 
 /*--------------------------------------------------------------------*/
 /*       Determine if the file is image (binary) or text              */
 /*--------------------------------------------------------------------*/
 
-   if ( equal( mode, TEXT_MODE ))
+   if (equal(mode, TEXT_MODE))
       imf->flag |= IM_FLAG_TEXT;
 
 /*--------------------------------------------------------------------*/
@@ -335,55 +293,55 @@ IMFILE *imopen( const long length,
 /*       is too large, or we cannot allocate the buffer.              */
 /*--------------------------------------------------------------------*/
 
-   if (bflag[F_IMFILE] && ( length <= IM_MAX_LENGTH ))
+   if (bflag[F_IMFILE] && (length <= IM_MAX_LENGTH))
    {
 
-      if ( length <= 0 )
+      if (length <= 0)
          imf->length = IM_MAX_LENGTH / 10;
       else
          imf->length = (unsigned long) length;
 
-      imf->buffer = MALLOC( (size_t) imf->length );
+      imf->buffer = MALLOC((size_t) imf->length);
 
-      if ( imf->buffer == NULL )
-         printerr( "malloc" );
+      if (imf->buffer == NULL)
+         printerr("malloc");
 
-   }  /* if ( length <= IM_MAX_LENGTH ) */
+   }  /* if (length <= IM_MAX_LENGTH) */
    else
       printmsg(2,"imopen: Using disk for %ld byte file (max i-m is %ld)",
                   length,
-                  (long) IM_MAX_LENGTH );
+                  (long) IM_MAX_LENGTH);
 
 /*--------------------------------------------------------------------*/
 /*   Open a real file if we don't have a buffer for whatever reason   */
 /*--------------------------------------------------------------------*/
 
-   if ( imf->buffer == NULL )
+   if (imf->buffer == NULL)
    {
-      imf->filename = mktempname( NULL, "TMP" );
+      imf->filename = mktempname(NULL, "TMP");
 
-      if ( imf->flag & IM_FLAG_TEXT )
-         imf->stream = FOPEN( imf->filename,
+      if (imf->flag & IM_FLAG_TEXT)
+         imf->stream = FOPEN(imf->filename,
                               "w+",
-                              TEXT_MODE );
+                              TEXT_MODE);
       else
-         imf->stream = FOPEN( imf->filename,
+         imf->stream = FOPEN(imf->filename,
                               "w+",
-                              IMAGE_MODE );
+                              IMAGE_MODE);
 
-      if ( imf->stream == NULL )
+      if (imf->stream == NULL)
       {
-         imclose( imf );
+         imclose(imf);
          return NULL;
-      } /* if ( imf->stream == NULL ) */
+      } /* if (imf->stream == NULL) */
 
-   } /* if ( imf->buffer == NULL ) */
+   } /* if (imf->buffer == NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                     Return success to the caller                   */
 /*--------------------------------------------------------------------*/
 
-   imStatus( imf );
+   imStatus(imf);
 
    return imf;
 
@@ -395,26 +353,26 @@ IMFILE *imopen( const long length,
 /*       Terminate processing of an IMF file                          */
 /*--------------------------------------------------------------------*/
 
-int imclose( IMFILE *imf)
+int imclose(IMFILE *imf)
 {
    int result = 0;
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer != NULL )
-      FREE( imf->buffer );
+   if (imf->buffer != NULL)
+      FREE(imf->buffer);
 
-   if ( imf->stream != NULL )
+   if (imf->stream != NULL)
    {
-      result = fclose( imf->stream );
-      REMOVE( imf->filename );
+      result = fclose(imf->stream);
+      REMOVE(imf->filename);
    }
 
-   if ( imf->filename != NULL )
-      free( imf->filename );
+   if (imf->filename != NULL)
+      free(imf->filename);
 
-   memset( imf, 0, sizeof *imf );
-   free( imf );
+   memset(imf, 0, sizeof *imf);
+   free(imf);
 
    return result;
 
@@ -426,27 +384,27 @@ int imclose( IMFILE *imf)
 /*       Change size of imfile                                        */
 /*--------------------------------------------------------------------*/
 
-int imchsize( IMFILE *imf, long length )
+int imchsize(IMFILE *imf, long length)
 {
 
-   if ( length < 0 )
+   if (length < 0)
    {
       errno = EINVAL;
       return -1;
    }
 
-   if ( ((unsigned long) length) > imf->length )
-      imReserve( imf, (unsigned long) length - imf->length );
+   if (((unsigned long) length) > imf->length)
+      imReserve(imf, (unsigned long) length - imf->length);
 
-   if ( imf->buffer == NULL )
-      return chsize( fileno( imf->stream ), length );
+   if (imf->buffer == NULL)
+      return chsize(fileno(imf->stream), length);
 
-   if ( (unsigned long) length > imf->inUse )
-      memset( imf + imf->inUse, (int) (length - (long) imf->inUse), 0 );
+   if ((unsigned long) length > imf->inUse)
+      memset(imf + imf->inUse, (int) (length - (long) imf->inUse), 0);
 
    imf->inUse = (unsigned long) length;
 
-   if ( imf->position > imf->inUse )
+   if (imf->position > imf->inUse)
       imf->position = imf->inUse;
 
    return 0;
@@ -459,28 +417,28 @@ int imchsize( IMFILE *imf, long length )
 /*    Perform formatted output to an in-memory file.                  */
 /*--------------------------------------------------------------------*/
 
-int imprintf( IMFILE *imf, const char *fmt , ...  )
+int imprintf(IMFILE *imf, const char *fmt, ...)
 {
    va_list arg_ptr;
 
    va_start(arg_ptr,fmt);
 
-   if ( imf->buffer == NULL )
-      return vfprintf(imf->stream , fmt, arg_ptr);
+   if (imf->buffer == NULL)
+      return vfprintf(imf->stream, fmt, arg_ptr);
    else {
       char buffer[4096];
       int result = vsprintf(buffer, fmt, arg_ptr);
 
-      if ( result == EOF )
+      if (result == EOF)
          return EOF;
 
-      if ( result > (sizeof buffer) )
+      if (result > (sizeof buffer))
       {
-         printmsg(0, "imprintf: Memory overflow processing im memory file" );
+         printmsg(0, "imprintf: Memory overflow processing im memory file");
          panic();                /* We corrupted the stack!          */
       }
 
-      if ( imputs( buffer, imf ) == result )
+      if (imputs(buffer, imf) == result)
          return result;
       else
          return EOF;
@@ -495,11 +453,11 @@ int imprintf( IMFILE *imf, const char *fmt , ...  )
 /*       Report if an in-memory file is at end-of-file                */
 /*--------------------------------------------------------------------*/
 
-int imeof( IMFILE *imf )
+int imeof(IMFILE *imf)
 {
 
-   if ( imf->buffer == NULL )
-      return feof( imf->stream );
+   if (imf->buffer == NULL)
+      return feof(imf->stream);
    else
       return imf->inUse <= imf->position;
 
@@ -511,10 +469,10 @@ int imeof( IMFILE *imf )
 /*       Report if an in-memory file has previously had an error      */
 /*--------------------------------------------------------------------*/
 
-int imerror( IMFILE *imf )
+int imerror(IMFILE *imf)
 {
-   if ( imf->buffer == NULL )
-      return ferror( imf->stream );
+   if (imf->buffer == NULL)
+      return ferror(imf->stream);
    else if (imf->flag & IM_FLAG_ERROR)
       return -1;
    else
@@ -528,21 +486,21 @@ int imerror( IMFILE *imf )
 /*       Read a string from an in-memory file                         */
 /*--------------------------------------------------------------------*/
 
-char *imgets( char *userBuffer, int userLength, IMFILE *imf )
+char *imgets(char *userBuffer, int userLength, IMFILE *imf)
 {
    char UUFAR *p;
    size_t stringLength;
    size_t subscript = 0;
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer == NULL )
-      return fgets( userBuffer, userLength, imf->stream );
+   if (imf->buffer == NULL)
+      return fgets(userBuffer, userLength, imf->stream);
 
-   if ( imerror( imf ) || imeof( imf ))
+   if (imerror(imf) || imeof(imf))
       return NULL;
 
-   if ( userLength < 2 )            /* Need room for \n and \0          */
+   if (userLength < 2)              /* Need room for \n and \0          */
    {
       errno = EINVAL;
       return NULL;
@@ -554,40 +512,40 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    stringLength = (size_t) (imf->inUse - imf->position);
 
-   if ( stringLength > (size_t) (userLength - 1 ))
+   if (stringLength > (size_t) (userLength - 1))
       stringLength = (size_t) userLength;
 
 #ifdef UDEBUG2
    printmsg(6,"imgets: Requested up to %ld bytes, "
               "actually searching %ld bytes",
                (long) userLength,
-               (long) stringLength );
+               (long) stringLength);
 #endif
 
    p = imf->buffer + (size_t) imf->position;
 
-   while ( subscript < stringLength )
+   while (subscript < stringLength)
    {
-      if ( p[subscript] == '\0' )
+      if (p[subscript] == '\0')
       {
          printmsg(2,"imgets: Encountered null byte %ld bytes into search",
-                     (long) subscript );
+                     (long) subscript);
       }
 
-      if ( p[subscript] == '\n' )
+      if (p[subscript] == '\n')
          break;
       else
          subscript++;
    }
 
-   MEMCPY( userBuffer, p, ++subscript );
+   MEMCPY(userBuffer, p, ++subscript);
    userBuffer[ subscript ] = '\0';
    imf->position += subscript;
 
 #ifdef UDEBUG2
    printmsg(5,"imgets: Returning %d bytes = \"%s\"",
               subscript,
-              userBuffer );
+              userBuffer);
 #endif
 
    return userBuffer;
@@ -604,13 +562,13 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 /*       of characters to imwrite directly!                           */
 /*--------------------------------------------------------------------*/
 
-int imputc( int in, IMFILE *imf )
+int imputc(int in, IMFILE *imf)
 {
    char c = (char) in;
 
-   size_t result = imwrite( &c, sizeof c, 1, imf );
+   size_t result = imwrite(&c, sizeof c, 1, imf);
 
-   if ( result != 1 )
+   if (result != 1)
       return EOF;
    else
       return c;
@@ -623,11 +581,11 @@ int imputc( int in, IMFILE *imf )
 /*       Write a string to a in-memory file                           */
 /*--------------------------------------------------------------------*/
 
-int imputs( const char *userString, IMFILE *imf )
+int imputs(const char *userString, IMFILE *imf)
 {
-   size_t userLength = strlen( userString );
+   size_t userLength = strlen(userString);
 
-   if (imwrite( userString, 1, userLength, imf ) == userLength )
+   if (imwrite(userString, 1, userLength, imf) == userLength)
       return 1;
    else
       return EOF;
@@ -641,44 +599,44 @@ int imputs( const char *userString, IMFILE *imf )
 /*       file                                                         */
 /*--------------------------------------------------------------------*/
 
-size_t  imread( void *userBuffer,
+size_t  imread(void *userBuffer,
                 size_t objectSize,
                 size_t objectCount,
-                IMFILE * imf )
+                IMFILE * imf)
 {
    size_t bytes = objectSize * objectCount;
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer == NULL )
-      return fread( userBuffer, objectSize, objectCount, imf->stream );
+   if (imf->buffer == NULL)
+      return fread(userBuffer, objectSize, objectCount, imf->stream);
 
-   if (( objectSize <= 0 ) || (objectCount <= 0))
+   if ((objectSize <= 0) || (objectCount <= 0))
    {
-      printmsg(0, "imread: Requested read of less than zero bytes" );
+      printmsg(0, "imread: Requested read of less than zero bytes");
       errno = EINVAL;
       return 0;
    }
 
-   if ( imeof( imf ) )
+   if (imeof(imf))
       return 0;
 
-   if ( imerror( imf ) )
+   if (imerror(imf))
       return 0;
 
-   if ( (unsigned long) bytes <= (imf->inUse - imf->position ))
+   if ((unsigned long) bytes <= (imf->inUse - imf->position))
    {
-      MEMCPY( userBuffer,
+      MEMCPY(userBuffer,
               imf->buffer + (size_t) imf->position,
-              bytes );
+              bytes);
       imf->position += bytes;
       return objectCount;
    }
    else
-      return imread( userBuffer,
+      return imread(userBuffer,
                      objectSize,
-                     (size_t) (imf->inUse - imf->position ) / objectSize ,
-                     imf );
+                     (size_t) (imf->inUse - imf->position ) / objectSize,
+                     imf);
 
 } /* imread */
 
@@ -691,7 +649,7 @@ size_t  imread( void *userBuffer,
 size_t  imwrite(const void *userBuffer,
                 size_t objectSize,
                 size_t objectCount,
-                IMFILE *imf )
+                IMFILE *imf)
 {
    unsigned long bytes = objectSize * objectCount;
 
@@ -699,7 +657,7 @@ size_t  imwrite(const void *userBuffer,
 /*            Verify we have a reasonable amount to write             */
 /*--------------------------------------------------------------------*/
 
-   if ( bytes == 0 )
+   if (bytes == 0)
    {
       errno = EINVAL;
       return 0;
@@ -710,26 +668,26 @@ size_t  imwrite(const void *userBuffer,
 /*       switching to disk based data if we run low.                  */
 /*--------------------------------------------------------------------*/
 
-   if ( imReserve( imf, bytes ) )
+   if (imReserve(imf, bytes))
       return 0;                     /* Report failure if problems    */
 
-   imStatus( imf );
+   imStatus(imf);
 
 /*--------------------------------------------------------------------*/
 /*                        Actually write the data                     */
 /*--------------------------------------------------------------------*/
 
-   if ( imf->buffer == NULL )
-      return fwrite( userBuffer, objectSize, objectCount, imf->stream );
+   if (imf->buffer == NULL)
+      return fwrite(userBuffer, objectSize, objectCount, imf->stream);
    else {
 
-      MEMCPY( imf->buffer + (size_t) imf->position,
+      MEMCPY(imf->buffer + (size_t) imf->position,
               userBuffer,
-              (size_t) bytes );
+              (size_t) bytes);
 
       imf->position += bytes;
 
-      if ( imf->inUse < imf->position )
+      if (imf->inUse < imf->position)
          imf->inUse = imf->position;
 
       return objectCount;
@@ -744,20 +702,20 @@ size_t  imwrite(const void *userBuffer,
 /*       Update the current file position                             */
 /*--------------------------------------------------------------------*/
 
-int imseek( IMFILE *imf, long int offset, int whence)
+int imseek(IMFILE *imf, long int offset, int whence)
 {
    long absoluteOffset;
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer == NULL )
-      return fseek( imf->stream, offset, whence );
+   if (imf->buffer == NULL)
+      return fseek(imf->stream, offset, whence);
 
 /*--------------------------------------------------------------------*/
 /*    Determine the absolute offset from the beginning of the file    */
 /*--------------------------------------------------------------------*/
 
-   switch( whence )
+   switch(whence)
    {
 
       case SEEK_SET:
@@ -776,18 +734,18 @@ int imseek( IMFILE *imf, long int offset, int whence)
          errno = EINVAL;
          return -1;
 
-   } /* switch( whence ) */
+   } /* switch(whence) */
 
 /*--------------------------------------------------------------------*/
 /*                  Verify the offset is in our file                  */
 /*--------------------------------------------------------------------*/
 
-   if ((absoluteOffset < 0) || (absoluteOffset > (long) imf->inUse ))
+   if ((absoluteOffset < 0) || (absoluteOffset > (long) imf->inUse))
    {
-      printmsg( 0, "Invalid seek position %ld for IMF %p; file is %d bytes",
+      printmsg(0, "Invalid seek position %ld for IMF %p; file is %d bytes",
                    absoluteOffset,
                    imf,
-                   imf->inUse );
+                   imf->inUse);
       errno = EINVAL;
       return -1;
    }
@@ -808,10 +766,10 @@ int imseek( IMFILE *imf, long int offset, int whence)
 /*       Return current position in in-memory file                    */
 /*--------------------------------------------------------------------*/
 
-long imtell( IMFILE *imf )
+long imtell(IMFILE *imf)
 {
-   if ( imf->buffer ==  NULL )
-      return ftell( imf->stream );
+   if (imf->buffer ==  NULL)
+      return ftell(imf->stream);
    else {
       imf->flag |= IM_FLAG_TELL;
       return (long) imf->position;
@@ -825,21 +783,21 @@ long imtell( IMFILE *imf )
 /*       Rewind an in-memory file                                     */
 /*--------------------------------------------------------------------*/
 
-void imrewind( IMFILE *imf)
+void imrewind(IMFILE *imf)
 {
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer == NULL )
+   if (imf->buffer == NULL)
    {
-      fflush( imf->stream );
-      rewind( imf->stream );
+      fflush(imf->stream);
+      rewind(imf->stream);
    }
    else {
 
-      imseek( imf, 0 , SEEK_SET );
+      imseek(imf, 0, SEEK_SET);
 
-      if (imf->inUse && ( imf->inUse < (imf->length / 2)))
+      if (imf->inUse && (imf->inUse < (imf->length / 2)))
                                     /* Really overlength ?           */
       {                             /* Yes --> Shorten it up         */
 
@@ -847,14 +805,14 @@ void imrewind( IMFILE *imf)
          printmsg(4,"imrewind: Shortening IMF %p from %ld to %ld bytes",
                      imf,
                      imf->length,
-                     imf->inUse );
+                     imf->inUse);
 #endif
 
-         imf->buffer = REALLOC( imf->buffer, (size_t) imf->inUse );
-         checkref( imf->buffer );
+         imf->buffer = REALLOC(imf->buffer, (size_t) imf->inUse);
+         checkref(imf->buffer);
          imf->length = imf->inUse;
 
-      }  /* if ( imf->inUse < (imf->length / 2)) */
+      }  /* if (imf->inUse < (imf->length / 2)) */
 
    } /* else */
 
@@ -866,15 +824,15 @@ void imrewind( IMFILE *imf)
 /*       Return the length of an in-memory file                       */
 /*--------------------------------------------------------------------*/
 
-long imlength( IMFILE *imf )
+long imlength(IMFILE *imf)
 {
 
-   imStatus( imf );
+   imStatus(imf);
 
-   if ( imf->buffer == NULL )
+   if (imf->buffer == NULL)
    {
-      fflush( imf->stream );
-      return filelength( fileno( imf->stream ) );
+      fflush(imf->stream);
+      return filelength(fileno(imf->stream));
    }
    else
       return (long) imf->inUse;
@@ -888,7 +846,7 @@ long imlength( IMFILE *imf )
 /*       the current file position of both files.                     */
 /*--------------------------------------------------------------------*/
 
-int imunload( FILE *output, IMFILE *imf )
+int imunload(FILE *output, IMFILE *imf)
 {
   char *ioBuf    = NULL;
   size_t ioBufSize = (28 * 1024);
@@ -902,16 +860,16 @@ int imunload( FILE *output, IMFILE *imf )
 
 #ifdef BIT32ENV
 
-   if ( imf->buffer != NULL )
+   if (imf->buffer != NULL)
    {
-      while (! imeof( imf ))
+      while (! imeof(imf))
       {
          size_t bytes = imf->inUse - imf->position;
 
-         if ( bytes > fwrite( imf->buffer + imf->position,
+         if (bytes > fwrite(imf->buffer + imf->position,
                               sizeof (char),
                               bytes,
-                              output ))
+                              output))
             return -1;              /* Report error to caller        */
 
          imf->position += bytes;
@@ -920,7 +878,7 @@ int imunload( FILE *output, IMFILE *imf )
 
       return 0;                     /* Return success to caller      */
 
-   } /* if ( imf->buffer != NULL ) */
+   } /* if (imf->buffer != NULL) */
 
 #endif /* BIT32ENV */
 
@@ -933,22 +891,22 @@ int imunload( FILE *output, IMFILE *imf )
 /*                     Allocate a nice I/O bufer                      */
 /*--------------------------------------------------------------------*/
 
-   while (( ioBuf == NULL ) && (ioBufSize >= BUFSIZ))
+   while ((ioBuf == NULL) && (ioBufSize >= BUFSIZ))
    {
 
-      ioBuf = malloc( ioBufSize );
+      ioBuf = malloc(ioBufSize);
 
       if (ioBuf == NULL)
       {
-         if ( debuglevel > 2 )
-            printerr( "imunload: malloc:" );
+         if (debuglevel > 2)
+            printerr("imunload: malloc:");
 
          ioBufSize /= 2;            /* Try for half the buffer       */
       }
 
-   } /* while (( ioBuf == NULL ) && (ioBufSize >= BUFSIZ)) */
+   } /* while ((ioBuf == NULL) && (ioBufSize >= BUFSIZ)) */
 
-   if ( ioBuf == NULL )
+   if (ioBuf == NULL)
    {
       printmsg(0,"imunload: Unable to allocate I/O buffer for copy");
       panic();
@@ -958,20 +916,20 @@ int imunload( FILE *output, IMFILE *imf )
 /*                         Now copy the file                          */
 /*--------------------------------------------------------------------*/
 
-   while (! imeof( imf ))
+   while (! imeof(imf))
    {
-      size_t bytes = imread( ioBuf, sizeof (char), ioBufSize, imf );
+      size_t bytes = imread(ioBuf, sizeof (char), ioBufSize, imf);
 
-      if (imerror( imf ))
+      if (imerror(imf))
       {
          free(ioBuf);
          return -1;
       }
 
-      if ( bytes > fwrite( ioBuf,
-                           sizeof (char),
-                           (size_t) bytes,
-                           output ))
+      if (bytes > fwrite(ioBuf,
+                         sizeof (char),
+                         (size_t) bytes,
+                         output))
       {
          free(ioBuf);
          return -1;              /* Report error to caller        */
@@ -979,7 +937,7 @@ int imunload( FILE *output, IMFILE *imf )
 
    } /* for */
 
-   free( ioBuf );
+   free(ioBuf);
    return 0;                     /* Return success to caller      */
 
 } /* imunload */
@@ -991,11 +949,11 @@ int imunload( FILE *output, IMFILE *imf )
 /*       file to disk if needed.                                      */
 /*--------------------------------------------------------------------*/
 
-int executeIMFCommand( const char *command,
+int executeIMFCommand(const char *command,
                        IMFILE  *imf,
                        const char *output,
                        const KWBoolean synchronous,
-                       const KWBoolean foreground )
+                       const KWBoolean foreground)
 {
    char tempName[ FILENAME_MAX ];
    FILE *stream;
@@ -1011,69 +969,69 @@ int executeIMFCommand( const char *command,
 /*       fail, we halt if it does.                                    */
 /*--------------------------------------------------------------------*/
 
-   if ( imf->buffer == NULL )
+   if (imf->buffer == NULL)
    {
       int result;
 
-      fclose( imf->stream );
+      fclose(imf->stream);
 
-      result = executeCommand( command,
+      result = executeCommand(command,
                                imf->filename,
                                output,
                                synchronous,
-                               foreground );
+                               foreground);
 
-      if ( imf->flag & IM_FLAG_TEXT )
-         imf->stream = FOPEN( imf->filename,
+      if (imf->flag & IM_FLAG_TEXT)
+         imf->stream = FOPEN(imf->filename,
                               "a+",
-                              TEXT_MODE );
+                              TEXT_MODE);
       else
-         imf->stream = FOPEN( imf->filename,
+         imf->stream = FOPEN(imf->filename,
                               "a+",
-                              IMAGE_MODE );
+                              IMAGE_MODE);
 
-      if ( imf->stream == NULL )
+      if (imf->stream == NULL)
       {
-         perror( imf->filename );
+         perror(imf->filename);
          panic();
       }
 
       return result;
 
-   } /* if ( imf->buffer == NULL ) */
+   } /* if (imf->buffer == NULL) */
 
 /*--------------------------------------------------------------------*/
 /*       The data is in memory, we need to write it out an            */
 /*       external program to see it.                                  */
 /*--------------------------------------------------------------------*/
 
-   mktempname( tempName, "TMP" );
+   mktempname(tempName, "TMP");
 
-   stream = FOPEN( tempName,
+   stream = FOPEN(tempName,
                    "w+",
-                   TEXT_MODE );
+                   TEXT_MODE);
 
-   if ( stream == NULL )
+   if (stream == NULL)
    {
-      printerr( tempName );
+      printerr(tempName);
       return -1;
    }
 
-   if ( imunload( stream, imf ) )
+   if (imunload(stream, imf))
    {
-      printerr( tempName );
+      printerr(tempName);
       return -1;
    }
 
-   fclose( stream );
+   fclose(stream);
 
-   status = executeCommand( command,
+   status = executeCommand(command,
                             tempName,
                             output,
                             synchronous,
-                            foreground );
+                            foreground);
 
-   REMOVE( tempName );
+   REMOVE(tempName);
 
    return status;
 
