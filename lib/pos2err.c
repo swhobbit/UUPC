@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.6 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: pos2err.c 1.7 1994/03/09 04:17:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.7  1994/03/09  04:17:41  ahd
+ * Suppress all control characters in OS/2 message text
+ *
  * Revision 1.6  1994/02/20  19:05:02  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -52,10 +55,9 @@
 #include "uupcmoah.h"
 
 #include <os2.h>
-
 #include <errno.h>
-
 #include <io.h>
+#include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
