@@ -14,6 +14,34 @@
 ;; Add Plummer's fix for bad TASM assemble of com_errors
 ;;
 ;
+;  9-Oct-93 Gumpertz	Further improved RTI and made it exit via LSI2 when
+;			it still has the LSR available for counting errors.
+;			Added/removed some JMP $+2 instructions to get some
+;			I/O delay for slow 8259 and UART (8250) chips in
+;			some old machines; I think one JMP is plenty for an
+;			80286; the 386 and 486 are unlikely to be found in
+;			machines that use old chips like the 8250.  Moby Sigh.
+;			I suppose I will need some volunteers to test it.
+;			Simplified CHROUT and then expanded it inline and
+;			deleted the subroutine.  Simplified SENDII.
+;  8-Oct-93 Gumpertz	Added _rts_off and _rts_on to support hardware
+;			handshaking with modems.
+;			Changed RXI to read one character without testing LSR.
+;  7-Oct-93 Gumpertz	Made a number of changes to improve execution speed:
+;			Changed START_TDATA, END_TDATA, START_RDATA, END_RDATA
+;			to DWORDS.  Deleted TBuff and RBuff; (START_TDATA+2):0
+;			and (START_RDATA+2):0 are now used instead.
+;			Rearranged SPTAB for word alignment.
+;			Changed SEND_OK to not be 0/1 but 0/10H/20H/30H
+;			Deleted BP saving, setting, and restoring in routines
+;			that don't use BP.
+;			Added checks for R_SIZE or S_SIZE not powers of 2.
+;			Changed receive_com and sen_com to NOT use CLI
+;			unless really needed.
+;			Expanded TX_CHR inline and deleted the subroutine.
+;			Changed transmit FIFO back to 16 bytes and added
+;			IER_SHADOW to save reading the IER.
+;			Added a few even pseudo-ops togain a bit of speed.
 ; 28-Jun-93 Gumpertz	Added COM3IRQ5 option (and a few minor cleanups)
 ; 14-Jun-93 plummer	Add RET to spinloop routine
 ; 14-Jun-93 plummer	Set FIFO thresholds to 8 rather than 16 bytes
@@ -34,7 +62,7 @@
 ; Missing DX load in close_com() -- FIFO mode not cleared.  Plummer, 3/2/92
 ; C calling convention does not require saving AX, BX, CX, DX. Plummer 2/23/92
 ; Flush consideration of the PC Jr.  Wm. W. Plummer, 2/15/92
-; Cleanup PUSHF/POPF and CLI/STI useage.  Wm. W. Plummer, 2/15/92
+; Cleanup PUSHF/POPF and CLI/STI usage.  Wm. W. Plummer, 2/15/92
 ; Make SENDII have Giles Todd's change.  Wm. W. Plummer, 2/15/92
 ; Changes to Giles Todd's code to support dynamic buffers.  Plummer, 2/3/92
 ; 26 Jan 92 Giles Todd	Prime THR for UARTs which do not give a Tx empty
@@ -109,6 +137,14 @@ IFNDEF S_SIZE
 	S_SIZE	EQU	512	; Send buffer size
 ENDIF
 
+IF (R_SIZE AND -R_SIZE) NE R_SIZE
+	.ERR	R_SIZE must be a power of 2
+ENDIF
+
+IF (S_SIZE AND -S_SIZE) NE S_SIZE
+	.ERR	S_SIZE must be a power of 2
+ENDIF
+
 ; INTERRUPTS
 VECIRQ3 EQU	08H+3		; IRQ3 VECTOR FROM 8259
 VECIRQ4 EQU	08H+4		; IRQ4 VECTOR FROM 8259
@@ -149,6 +185,7 @@ PAGE;
 ;
 SP_TAB		STRUC
 PORT		DB	?	; 1 OR 2 OR 3 OR 4
+INSTALLED	DB	?	; IS PORT INSTALLED ON THIS PC? (1=YES,0=NO)
 ; PARAMETERS FOR THIS INTERRUPT LEVEL
 IRQVEC		DB	?	; INTERRUPT NUMBER
 IRQ		DB	?	; 8259A OCW1 MASK
@@ -156,20 +193,20 @@ NIRQ		DB	?	; COMPLEMENT OF ABOVE
 EOI		DB	?	; 8259A OCW2 SPECIFIC END OF INTERRUPT
 ; INTERRUPT HANDLERS FOR THIS LEVEL
 INT_HNDLR	DW	?	; OFFSET TO INTERRUPT HANDLER
-OLD_COM_OFF	DW	?	; OLD HANDLER'S OFFSET
-OLD_COM_SEG	DW	?	; OLD HANDLER'S SEGMENT
+OLD_COM		DD	?	; OLD HANDLER'S OFFSET AND SEGMENT
 ; ATTRIBUTES
-INSTALLED	DB	?	; IS PORT INSTALLED ON THIS PC? (1=YES,0=NO)
-BAUD_RATE	DW	?	; 19200 MAX
+BAUD_RATE	DW	?	; 19200 MAX (maybe 38400 or 57600 with 16550?)
 CONNECTION	DB	?	; M(ODEM), D(IRECT)
 PARITY		DB	?	; N(ONE), O(DD), E(VEN), S(PACE), M(ARK)
 STOP_BITS	DB	?	; 1, 2
 XON_XOFF	DB	?	; E(NABLED), D(ISABLED)
+UART_SILO_LEN	DB	?	; Size of a transmit silo chunk (1 for 8250)
 ; FLOW CONTROL STATE
 HOST_OFF	DB	?	; HOST XOFF'ED (1=YES,0=NO)
 PC_OFF		DB	?	; PC XOFF'ED (1=YES,0=NO)
 URGENT_SEND	DB	?	; We MUST send one byte (XON/XOFF)
-SEND_OK		DB	?	; DSR and CTS are ON
+SEND_OK		DB	?	; DSR and CTS bits, masked from MSR
+IER_SHADOW	DB	?	; shadow copy of what we last wrote to IER
 ; ERROR COUNTS
 ERROR_BLOCK	DW	8 DUP(?); EIGHT ERROR COUNTERS
 
@@ -181,19 +218,16 @@ LCR		DW	?	; LINE CONTROL REGISTER
 MCR		DW	?	; MODEM CONTROL REGISTER
 LSR		DW	?	; LINE STATUS REGISTER
 MSR		DW	?	; MODEM STATUS REGISTER
-UART_SILO_LEN	DB	?	; Size of a silo chunk (1 for 8250)
 ;
 ; BUFFER POINTERS
-START_TDATA	DW	?	; INDEX TO FIRST CHARACTER IN X-MIT BUFFER
-END_TDATA	DW	?	; INDEX TO FIRST FREE SPACE IN X-MIT BUFFER
-START_RDATA	DW	?	; INDEX TO FIRST CHARACTER IN REC. BUFFER
-END_RDATA	DW	?	; INDEX TO FIRST FREE SPACE IN REC. BUFFER
+START_TDATA	DD	?	; POINTER TO FIRST CHARACTER IN X-MIT BUFFER
+END_TDATA	DD	?	; POINTER TO FIRST FREE SPACE IN X-MIT BUFFER
+START_RDATA	DD	?	; POINTER TO FIRST CHARACTER IN REC. BUFFER
+END_RDATA	DD	?	; POINTER TO FIRST FREE SPACE IN REC. BUFFER
 ; BUFFER COUNTS
 SIZE_TDATA	DW	?	; NUMBER OF CHARACTERS IN X-MIT BUFFER
 SIZE_RDATA	DW	?	; NUMBER OF CHARACTERS IN REC. BUFFER
 ; BUFFERS
-TBuff		DD	?	; Pointer to transmit buffer
-RBuff		DD	?	; Pointer to receive buffer
 SP_TAB		ENDS
 
 ; SP_TAB EQUATES
@@ -220,9 +254,10 @@ FCR		EQU	IIR	; FIFO Control Register (WO)
  FIFO_CLR_XMT	EQU	004H	; Clear transmit FIFO
  FIFO_STR_DMA	EQU	008H	; Start DMA Mode
  ; 10H and 20H bits are register bank select on some UARTs (not handled)
- FIFO_SZ_4	EQU	040H	; Warning level is 4 before end
- FIFO_SZ_8	EQU	080H	; Warning level is 8 before end
- FIFO_SZ_14	EQU	0C0H	; Warning level is 14 before end
+ FIFO_SZ_1	EQU	000H	; RCV Warning level is 1 byte in the FIFO
+ FIFO_SZ_4	EQU	040H	; RCV Warning level is 4 bytes in the FIFO
+ FIFO_SZ_8	EQU	080H	; RCV Warning level is 8 bytes in the FIFO
+ FIFO_SZ_14	EQU	0C0H	; RCV Warning level is 14 bytes in the FIFO
  ;
  ; Commands used in code to operate FIFO.  Made up as combinations of above
  ;
@@ -233,7 +268,7 @@ FCR		EQU	IIR	; FIFO Control Register (WO)
  ; Miscellaneous FIFO-related stuff
  ;
 FIFO_ENABLED	EQU	0C0H	; 16550 makes these equal FIFO_ENABLE
-FIFO_LEN	EQU	8	; Length of the transmit FIFO in a 16550A
+FIFO_LEN	EQU	16	; Length of the transmit FIFO in a 16550A
 	PAGE;
 ;	put the data in the DGROUP segment
 ;	far calls enter with DS pointing to DGROUP
@@ -241,22 +276,23 @@ FIFO_LEN	EQU	8	; Length of the transmit FIFO in a 16550A
 DGROUP	GROUP _DATA
 _DATA	SEGMENT PUBLIC 'DATA'
 ;
-DIV50		DW	2304	; ACTUAL DIVISOR FOR 50 BAUD IN USE
-CURRENT_AREA	DW	AREA1	; CURRENTLY SELECTED AREA
 ; DATA AREAS FOR EACH PORT
-AREA1	SP_TAB	<1,VECIRQ4,IRQ4,NIRQ4,EOI4,OFFSET COM_TEXT:INT_HNDLR1>	; COM1
-AREA2	SP_TAB	<2,VECIRQ3,IRQ3,NIRQ3,EOI3,OFFSET COM_TEXT:INT_HNDLR2>	; COM2
+AREA1	SP_TAB	<1,0,VECIRQ4,IRQ4,NIRQ4,EOI4,OFFSET COM_TEXT:INT_HNDLR1> ; COM1
+AREA2	SP_TAB	<2,0,VECIRQ3,IRQ3,NIRQ3,EOI3,OFFSET COM_TEXT:INT_HNDLR2> ; COM2
  IFDEF COM3IRQ5 ; special KLUDGE: assemble for COM3 with IRQ5 instead of IRQ4
-AREA3	SP_TAB	<3,VECIRQ5,IRQ5,NIRQ5,EOI5,OFFSET COM_TEXT:INT_HNDLR3>	; COM3
+AREA3	SP_TAB	<3,0,VECIRQ5,IRQ5,NIRQ5,EOI5,OFFSET COM_TEXT:INT_HNDLR3> ; COM3
  ELSE		; normal: assemble for COM3 with IRQ4
-AREA3	SP_TAB	<3,VECIRQ4,IRQ4,NIRQ4,EOI4,OFFSET COM_TEXT:INT_HNDLR3>	; COM3
+AREA3	SP_TAB	<3,0,VECIRQ4,IRQ4,NIRQ4,EOI4,OFFSET COM_TEXT:INT_HNDLR3> ; COM3
  ENDIF
-AREA4	SP_TAB	<4,VECIRQ3,IRQ3,NIRQ3,EOI3,OFFSET COM_TEXT:INT_HNDLR4>	; COM4
+AREA4	SP_TAB	<4,0,VECIRQ3,IRQ3,NIRQ3,EOI3,OFFSET COM_TEXT:INT_HNDLR4> ; COM4
+CURRENT_AREA	DW OFFSET DGROUP:AREA1	; CURRENTLY SELECTED AREA
+
+DIV50		DW 2304			; ACTUAL DIVISOR FOR 50 BAUD IN USE
 
 IFDEF DEBUG
- ST8250:	DB "8250$"
- ST16550:	DB "16550$"
- STUART:	DB " UART detected", 0DH, 0AH, '$'
+ ST8250		DB "8250 or 16450$"
+ ST16550	DB "16550AN$"
+ STUART		DB " UART detected", 0DH, 0AH, '$'
 ENDIF
 
 _DATA	ENDS
@@ -277,6 +313,8 @@ COM_TEXT SEGMENT PARA PUBLIC 'CODE'
 	 PUBLIC _close_com
 	 PUBLIC _dtr_on
 	 PUBLIC _dtr_off
+	 PUBLIC _rts_off
+	 PUBLIC _rts_on
 	 PUBLIC _r_count
 	 PUBLIC _s_count
 	 PUBLIC _receive_com
@@ -291,21 +329,19 @@ ENDIF
 IFDEF DEBUG
 	 PUBLIC INST2, INST4
 	 PUBLIC OPEN1, OPEN2, OPENX
-	 PUBLIC DTRON1, DTRON6, DTRONF, DTRONS, DTRONX
+	 PUBLIC DTRON1, DTRON6, DTRONF, DTRDIR, DTRONS, DTRONX
 	 PUBLIC RECV1, RECV3, RECV4, RECVX
-	 PUBLIC SEND1, SENDX
+	 PUBLIC SEND1, SEND2, SEND3, SENDX
 	 PUBLIC WaitN, WaitN1, WaitN2
-	 PUBLIC SENDII, SENDII2, SENDII4, SENDIIX
+	 PUBLIC SENDII, SENDII1, SENDII2, SENDII4
 	 PUBLIC SPINLOOP
-	 PUBLIC CHROUT, CHROUX
 	 PUBLIC BREAKX
 	 PUBLIC INT_HNDLR1, INT_HNDLR2, INT_HNDLR3, INT_HNDLR4
 	 PUBLIC INT_COMMON, REPOLL, INT_END
-	 PUBLIC LSI
+	 PUBLIC LSI, LSI2
 	 PUBLIC MSI
-	 PUBLIC TXI, TXI1, TXI2, TXI3, TXI9
-	 PUBLIC TX_CHR
-	 PUBLIC RXI, RXI0, RXI1, RXI2, RXI6, RXIX
+	 PUBLIC TXI, TXI1, TXI3, TXI4, TXI9
+	 PUBLIC RXI, RXI0, RXINXT, RXIFUL, RXI1, RXI2, RXI3
 ENDIF
 	PAGE;
 ; Notes, thoughts and explainations by Bill Plummer.  These are intended to
@@ -429,8 +465,6 @@ _select_port ENDP
 ;	N.B. save_com() and restore_com() call MUST be properly nested
 ;
 _save_com PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	PUSH	ES			; SAVE EXTRA SEGMENT
 	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
@@ -439,12 +473,10 @@ _save_com PROC FAR
 	MOV	AH,35H			; FETCH INTERRUPT VECTOR CONTENTS
 	MOV	AL,IRQVEC[SI]		; INTERRUPT NUMBER
 	INT	DOS			; DOS 2 FUNCTION
-	MOV	OLD_COM_OFF[SI],BX	; SAVE ES:BX
-	MOV	OLD_COM_SEG[SI],ES	; FOR LATER RESTORATION
+	MOV	WORD PTR OLD_COM[SI],BX	; SAVE ES:BX
+	MOV	WORD PTR OLD_COM[SI+2],ES ; FOR LATER RESTORATION
 	POP	ES			; RESTORE ES
 	POP SI
-	mov sp,bp
-	pop bp
 	RET				; DONE
 _save_com ENDP
 	PAGE;
@@ -461,81 +493,49 @@ _save_com ENDP
 ; Assign blocks of memory for transmit and receive buffers
 ;
 _install_com PROC FAR
-	push bp
-	mov bp,sp
-	PUSHF				; Save caller's interrupt state
 	PUSH SI
-	PUSH DI
 	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	CMP	INSTALLED[SI],1 	; Is port installed on this machine?
 	 JNE	INST1			; NO, CONTINUE
-	JMP	INST9			; ELSE JUMP IF ALREADY INSTALLED
+	 JMP	INST9			; ELSE JUMP IF ALREADY INSTALLED
 
 ; Assign memory for transmit and receive buffers
 
-INST1:	MOV BX,S_SIZE			; Send buffer size
-	ADD BX,0FH			; Round up
-	SHR BX,1			; Must run on an XT
-	SHR BX,1
-	SHR BX,1
-	SHR BX,1			; Now have number of paragraphs
+INST1:
+	MOV BX,S_SIZE/16		; Send buffer size in paragraphs
 	MOV AX,4800H			; Allocate memory
 	INT DOS
 	 JC INSTFAIL			; Give fail return
-	MOV WORD PTR TBuff[SI],0	; Save in private block for this port
-	MOV WORD PTR TBuff[SI+2],AX
+	MOV WORD PTR START_TDATA[SI],0
+	MOV WORD PTR START_TDATA[SI+2],AX
+	MOV WORD PTR END_TDATA[SI],0
+	MOV WORD PTR END_TDATA[SI+2],AX
 
-	MOV BX,R_SIZE			; Receive buffer size
-	ADD BX,0FH			; Round up
-	SHR BX,1			; Must run on an XT
-	SHR BX,1
-	SHR BX,1
-	SHR BX,1			; Now have number of paragraphs
+	MOV BX,R_SIZE/16		; Receive buffer size in paragraphs
 	MOV AX,4800H			; Allocate memory
 	INT DOS
-	 JNC INSTSUCC			; Success --> Continue
-
-	; Unhand the send buffer assigned above
-
-	MOV AX,WORD PTR TBuff+2[SI]	; Transmit buffer paragraph
-	MOV ES,AX			; Honest.  That's where the arg goes.
-	MOV AX,4900H			; Release memory
-	INT DOS
-	; Ignore error
-	; Fall into INSTFAIL
-
-INSTFAIL:
-	 JMP INST666			; Failure --> Give failed response
-
-INSTSUCC:
-	MOV WORD PTR RBuff[SI],0	; Save in private block for this port
-	MOV WORD PTR RBuff[SI+2],AX
+	 JC INSTFREET			; jump on FAILURE
+	MOV WORD PTR START_RDATA[SI],0
+	MOV WORD PTR START_RDATA[SI+2],AX
+	MOV WORD PTR END_RDATA[SI],0
+	MOV WORD PTR END_RDATA[SI+2],AX
 
 IFDEF DEBUG
 	PUSH DI
 	CLD				; Go up in memory
 	XOR AX,AX			; A zero to store
-	LES DI,TBuff[SI]		; Transmit buffer location
-	MOV CX,S_SIZE			; Size of buffer
-	REP STOSB			; Clear entire buffer
-	LES DI,RBuff[SI]		; Receive buffer location
-	MOV CX,R_SIZE			; Size of buffer
-	REP STOSB			; Clear entire buffer
+	MOV ES,START_TDATA[SI]		; Transmit buffer location
+	MOV DI,AX
+	MOV CX,S_SIZE/2			; Size of buffer
+	REP STOSW			; Clear entire buffer
+	MOV ES,START_RDATA[SI]		; Receive buffer location
+	MOV DI,AX
+	MOV CX,R_SIZE/2			; Size of buffer
+	REP STOSW			; Clear entire buffer
 	POP DI
 ENDIF
 	PAGE;
-
-; CLEAR ERROR COUNTS
-	CLI				; Stray interrupts cause havoc
-	MOV	WORD PTR EOVFLOW[SI],0	; BUFFER OVERFLOWS
-	MOV	WORD PTR EOVRUN[SI],0	; RECEIVE OVERRUNS
-	MOV	WORD PTR EBREAK[SI],0	; BREAK CHARS
-	MOV	WORD PTR EFRAME[SI],0	; FRAMING ERRORS
-	MOV	WORD PTR EPARITY[SI],0	; PARITY ERRORS
-	MOV	WORD PTR EXMIT[SI],0	; TRANSMISSION ERRORS
-	MOV	WORD PTR EDSR[SI],0	; DATA SET READY ERRORS
-	MOV	WORD PTR ECTS[SI],0	; CLEAR TO SEND ERRORS
 
 	MOV	BX,RBDA 		; ROM BIOS DATA AREA
 	MOV	ES,BX			; TO ES
@@ -562,6 +562,30 @@ ENDIF
 	CMP	PORT[SI],4		; PORT 4?
 	 JE	INST2E8 		; Yes
 	INT	20H			; NOTA. (Caller is screwed up badly)
+
+; We interrupt this program to bring you code that we want to be within
+; short-jump range of the code that conditionally jumps to it:
+
+INSTFREEBOTH:	; Unhand the receive and send buffers assigned above
+	MOV ES,WORD PTR START_RDATA[SI+2] ; Receive buffer paragraph
+	assume ES:nothing
+	MOV AX,4900H			; Release memory
+	INT DOS
+	; Ignore error
+INSTFREET:	; Unhand the send buffer assigned above
+	MOV ES,WORD PTR START_TDATA[SI+2] ; Transmit buffer paragraph
+	MOV AX,4900H			; Release memory
+	INT DOS
+	; Ignore error
+	; Fall into INSTFAIL
+
+; PORT NOT INSTALLED
+INSTFAIL:
+	XOR AX,AX
+	JMP INSTX
+
+	ASSUME	ES:RBDA
+; And now back to your regularly scheduled program:
 
 INST3F8:MOV AX,3F8H			; Standard COM1 location
 	CMP	RS232_BASE+0,0000H	; We have information?
@@ -600,7 +624,7 @@ INST2:	CMP	AX,RS232_BASE		; INSTALLED?
 	CMP	AX,RS232_BASE+4 	; INSTALLED?
 	 JE	INST2A			; JUMP IF SO
 	CMP	AX,RS232_BASE+6 	; INSTALLED?
-	 JNE	INST666 		; JUMP IF NOT
+	 JNE	INSTFREEBOTH 		; JUMP IF NOT
 	; Fall into INST2A
 
 INST2A: MOV	BX,DATREG		; OFFSET OF TABLE OF PORTS
@@ -609,6 +633,20 @@ INST3:	MOV	WORD PTR [SI][BX],AX	; SET PORT ADDRESS
 	INC	AX			; NEXT PORT
 	ADD	BX,2			; NEXT WORD ADDRESS
 	 LOOP	INST3			; RS232 BASE LOOP
+
+; CLEAR ERROR COUNTS
+	MOV	WORD PTR EOVFLOW[SI],0	; BUFFER OVERFLOWS
+	MOV	WORD PTR EOVRUN[SI],0	; RECEIVE OVERRUNS
+	MOV	WORD PTR EBREAK[SI],0	; BREAK CHARS
+	MOV	WORD PTR EFRAME[SI],0	; FRAMING ERRORS
+	MOV	WORD PTR EPARITY[SI],0	; PARITY ERRORS
+	MOV	WORD PTR EXMIT[SI],0	; TRANSMISSION ERRORS
+	MOV	WORD PTR EDSR[SI],0	; DATA SET READY ERRORS
+	MOV	WORD PTR ECTS[SI],0	; CLEAR TO SEND ERRORS
+
+	PUSHF				; Save caller's interrupt state
+	CLI				; Stray interrupts cause havoc
+
 	MOV DX,FCR[SI]			; Get FIFO Control Register
 	MOV AL,FIFO_INIT
 	OUT DX,AL			; Try to initialize the FIFO
@@ -616,13 +654,18 @@ INST3:	MOV	WORD PTR [SI][BX],AX	; SET PORT ADDRESS
 	MOV DX,IIR[SI]			; Get interrupt ID register
 	IN AL,DX			; See how the UART responded
 	AND AL,FIFO_ENABLED		; Keep only these bits
-	MOV CX,1			; Assume chunk size of 1 for 8250 case
+	MOV CL,1			; Assume size 1 for 8250/16450 case
 	CMP AL,FIFO_ENABLED		; See if 16550A
 	 JNE INST4			; Jump if not
-	MOV CX,FIFO_LEN
-INST4:	MOV UART_SILO_LEN[SI],CL	; Save chunk size for XMIT side only
-	MOV AL,FIFO_CLEAR
+	MOV CL,FIFO_LEN
+INST4:	MOV UART_SILO_LEN[SI],CL	; Save chunk size for XMIT side
+ IF FCR NE IIR				; FCR should be same as IIR
+	MOV DX,FCR[SI]
+ ENDIF
+	MOV AL,FIFO_CLEAR		; disable the FIFOs until open_com
 	OUT DX,AL
+
+	POPF				; Restore caller's interrupt state
 
 	MOV	AH,25H			; SET INTERRUPT VECTOR CONTENTS
 	MOV	AL,IRQVEC[SI]		; INTERRUPT NUMBER
@@ -635,30 +678,23 @@ INST4:	MOV UART_SILO_LEN[SI],CL	; Save chunk size for XMIT side only
 
 ; PORT INSTALLED
 INST9:	MOV AX,1
-	JMP SHORT INSTX
-
-; PORT NOT INSTALLED
-INST666:MOV AX,0
 	;Fall into INSTX
 
 ; Common exit
 INSTX:	MOV INSTALLED[SI],AL		; Indicate whether installed or not
 IFDEF DEBUG
-	MOV DX,ST8250
+	MOV DX,OFFSET ST8250
 	CMP UART_SILO_LEN[SI],1
 	 JE INSTXX
-	MOV DX,ST16550
+	MOV DX,OFFSET ST16550
 INSTXX: MOV AH,9
 	INT DOS 			; Announce UART type
-	MOV DX,STUART
+	MOV DX,OFFSET STUART
 	INT DOS
 ENDIF
 	POP ES
-	POP DI
+	assume ES:nothing
 	POP SI
-	POPF				; Restore caller's interrupt state
-	mov sp,bp
-	pop bp
 	RET
 _install_com ENDP
 	PAGE;
@@ -667,38 +703,30 @@ _install_com ENDP
 ;	Restore original interrupt vector and release storage
 ;
 _restore_com PROC FAR
-	push bp
-	mov bp,sp
 	PUSHF
 	PUSH SI
 	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	CLI
 	MOV	INSTALLED[SI],0 	; PORT IS NO LONGER INSTALLED
+	PUSH	DS			; SAVE DS
+	LDS	DX,OLD_COM[SI]		; OLD INTERRUPT HANDLER IN DS:BX
 	MOV	AH,25H			; SET INTERRUPT VECTOR FUNCTION
 	MOV	AL,IRQVEC[SI]		; INTERRUPT NUMBER
-	MOV	DX,OLD_COM_OFF[SI]	; OLD OFFSET TO DX
-	MOV	BX,OLD_COM_SEG[SI]	; OLD SEG
-	PUSH	DS			; SAVE DS
-	MOV	DS,BX			; TO DS
 	INT	DOS			; DOS FUNCTION
-	POP DS				; Recover our data segment
+	POP	DS			; Recover our data segment
 
-	MOV AX,WORD PTR TBuff+2[SI]	; Transmit buffer paragraph
-	MOV ES,AX			; Honest.  That's where the arg goes.
+	MOV ES,WORD PTR START_TDATA[SI+2] ; Transmit buffer paragraph
 	MOV AX,4900H			; Release memory
 	INT DOS
 	 ; Ignore error
-	MOV AX,WORD PTR RBuff+2[SI]	; Receive buffer paragraph
-	MOV ES,AX
+	MOV ES,WORD PTR START_RDATA[SI+2] ; Receive buffer paragraph
 	MOV AX,4900H
 	INT DOS
 	 ; Ignore error
 	POP ES
 	POP SI
 	POPF
-	mov sp,bp
-	pop bp
 	RET
 _restore_com ENDP
 	PAGE;
@@ -718,13 +746,13 @@ _restore_com ENDP
 _open_com PROC FAR
 	push bp
 	mov bp,sp
-	PUSHF
 	PUSH SI
+	PUSHF
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	CLI				; INTERRUPTS OFF
 	TEST INSTALLED[SI],1		; Port installed?
 	 JNZ OPEN1			; Yes --> Proceed
-	 JMP OPENX			; No  --> Get out
+	  JMP OPENX			; No  --> Get out
 
 OPEN1:	mov ax,[bp+6]
 	MOV	BAUD_RATE[SI],AX	; SET
@@ -744,10 +772,10 @@ OPEN1:	mov ax,[bp+6]
 	MOV SEND_OK[SI],0		; DTR&CTS are not on yet
 
 ; RESET BUFFER COUNTS AND POINTERS
-	MOV	START_TDATA[SI],0
-	MOV	END_TDATA[SI],0
-	MOV	START_RDATA[SI],0
-	MOV	END_RDATA[SI],0
+	MOV	WORD PTR START_TDATA[SI],0
+	MOV	WORD PTR END_TDATA[SI],0
+	MOV	WORD PTR START_RDATA[SI],0
+	MOV	WORD PTR END_RDATA[SI],0
 	MOV	SIZE_TDATA[SI],0
 	MOV	SIZE_RDATA[SI],0
 
@@ -755,25 +783,31 @@ OPEN1:	mov ax,[bp+6]
 ; RESET THE UART
 	MOV DX,MCR[SI]			; Modem Control Register
 	IN AL,DX			; Get current settings
+	JMP SHORT $+2
+; In next line, comment doesn't match the constant.  Should it be 01H?  -RHG
 	AND AL,0FEH			; Clr RTS, OUT1, OUT2 & LOOPBACK, but
 	OUT DX,AL			; Not DTR (No hangup during autobaud)
 	MOV DX,MSR[SI]			; Modem Status Register
+	JMP SHORT $+2
 	IN AL,DX			; Get current DSR and CTS states.
+	JMP SHORT $+2
 	AND AL,30H			; Init PREVIOUS STATE FLOPS to current
 	OUT DX,AL			;  state and clear Loopback, etc.
+	MOV SEND_OK[SI],AL		; If 30H, allow TXI to send out data
+	JMP SHORT $+2
 	IN AL,DX			; Re-read to get delta bits & clr int
-	AND AL,30H			; Leave the two critical bits
-	CMP AL,30H			; Both on?
-	 JNE OPEN2			; No.  Leave SEND_OK zero.
-	MOV SEND_OK[SI],1		; Allow TXI to send out data
+	JMP SHORT $+2
 OPEN2:	MOV DX,FCR[SI]			; I/O Address of FIFO control register
 	MOV AL,FIFO_CLEAR		; Disable FIFOs
 	OUT DX,AL			; Non-16550A chips will ignore this
 	MOV	DX,LSR[SI]		; RESET LINE STATUS CONDITION
+	JMP SHORT $+2
 	IN	AL,DX
 	MOV	DX,DATREG[SI]		; RESET RECEIVE DATA CONDITION
+	JMP SHORT $+2
 	IN	AL,DX
 	MOV	DX,MSR[SI]		; RESET MODEM DELTAS AND CONDITIONS
+	JMP SHORT $+2
 	IN	AL,DX
 
 	CALL Set_Baud			; Set the baud rate from arg
@@ -807,20 +841,26 @@ STOP1:	MOV	DX,LCR[SI]		; LINE CONTROL REGISTER
 	OUT	DX,AL			; SET UART PARITY MODE AND DLAB=0
 
 ; Initialize the FIFOs
+	
+	CMP UART_SILO_LEN[SI],1		; Is it a 16550A?
+	 JE P5				; jump if 8250, 16450, or 16550(no A)
 	MOV	DX,FCR[SI]		; I/O Address of FIFO control register
 	MOV	AL,FIFO_INIT		; Clear FIFOs, set size, enable FIFOs
-	OUT	DX,AL			; Non-16550A chips will ignore this
+	OUT	DX,AL
+	JMP SHORT $+2
 
 ; ENABLE INTERRUPTS ON 8259 AND UART
-	IN	AL,INTA01		; SET ENABLE BIT ON 8259
+P5:	IN	AL,INTA01		; SET ENABLE BIT ON 8259
 	AND	AL,NIRQ[SI]
+	JMP SHORT $+2
 	OUT	INTA01,AL
 	MOV DX,IER[SI]			; Interrupt enable register
 	MOV AL,0DH			; Line & Modem status, recv [GT]
 	OUT DX,AL			; Enable those interrupts
+	MOV IER_SHADOW[SI],AL
 
-OPENX:	POP SI
-	POPF				; Restore interrupt state
+OPENX:	POPF				; Restore interrupt state
+	POP SI
 	mov sp,bp
 	pop bp
 	RET				; DONE
@@ -834,19 +874,19 @@ _open_com ENDP
 _ioctl_com PROC FAR
 	PUSH BP
 	MOV BP,SP
-	PUSHF				; Save interrupt context
 	PUSH SI
 	MOV SI,CURRENT_AREA		; Pointer to COMi private area
-	CLI				; Prevent surprises
 	TEST INSTALLED[SI],1
 	 JE IOCTLX			; No good.  Just return.
-	MOV AX,[BP+6]			; Flags
+	PUSHF				; Save interrupt context
+	CLI				; Prevent surprises
+	; MOV AX,[BP+6]			; Flags
 	; Check bits here...
 	MOV AX,[BP+8]			; Line speed
 	MOV BAUD_RATE[SI],AX		; Save in parameter block
 	CALL Set_Baud			; Set the baud rate in UART
-IOCTLX: POP SI
 	POPF				; Restore interrupt state
+IOCTLX:	POP SI
 	MOV SP,BP
 	POP BP
 	RET
@@ -866,17 +906,21 @@ Set_Baud PROC NEAR
 	MOV BX,AX			; Save it
 	MOV DX,LCR[SI]			; Line Control Register
 	IN AL,DX			; Get current size, stops, parity,...
-	PUSH AX
+	MOV AH,AL
 	OR AL,80H			; DLAB bit
+	JMP SHORT $+2
 	OUT DX,AL			; Talk to the baud rate regs now
 	MOV DX,WORD PTR DLL[SI] 	; Least significant byte
 	MOV AL,BL			; New value
+	JMP SHORT $+2
 	OUT DX,AL			; To UART
-	MOV DX,WORD PTR DLH[SI] 	; Most signifiant byte
+	MOV DX,WORD PTR DLH[SI] 	; Most significant byte
 	MOV AL,BH			; New value
+	JMP SHORT $+2
 	OUT DX,AL
 	MOV DX,LCR[SI]			; Line Control Register
-	POP AX
+	MOV AL,AH
+	JMP SHORT $+2
 	OUT DX,AL			; Turn off DLAB, keep saved settings
 	RET
 Set_Baud ENDP
@@ -886,10 +930,8 @@ Set_Baud ENDP
 ;	Turn off interrupts from the COM port
 ;
 _close_com PROC FAR
-	push bp
-	mov bp,sp
-	PUSHF
 	PUSH SI
+	PUSHF
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	CCX			; ABORT IF NOT
@@ -897,28 +939,28 @@ _close_com PROC FAR
 ; TURN OFF UART and clear FIFOs in NS16550A
 	CLI
 	MOV DX,IER[SI]
-	MOV AL,0
+	XOR AL,AL
 	OUT DX,AL			; No interrupts right now, please
+	MOV IER_SHADOW[SI],AL
 	MOV DX,FCR[SI]			; FIFO Control Register
 	MOV AL,FIFO_CLEAR		; Disable FIFOs
+	JMP SHORT $+2
 	OUT DX,AL
 	MOV DX,MCR[SI]			; Modem control register
 	XOR AL,AL			; OUT2 is IRQ enable on some machines,
+	JMP SHORT $+2
 	OUT DX,AL			; So, clear RTS, OUT1, OUT2, LOOPBACK
 
 ; TURN OFF 8259
 	MOV	DX,INTA01
+	JMP SHORT $+2
 	IN	AL,DX
 	OR	AL,IRQ[SI]
-	JMP	$+2			; DELAY FOR AT
-	JMP	$+2			; DELAY FOR AT
-	JMP	$+2			; DELAY FOR AT
+	JMP SHORT $+2
 	OUT	DX,AL
 
-CCX:	POP SI
-	POPF				; Restore interrupt state
-	mov sp,bp
-	pop bp
+CCX:	POPF				; Restore interrupt state
+	POP SI
 	RET
 _close_com ENDP
 	PAGE;
@@ -927,28 +969,25 @@ _close_com ENDP
 ;	Tells modem we are done.  Remote end should hang up also.
 ;
 _dtr_off PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	DFX			; ABORT IF NOT
 
 	MOV DX,MCR[SI]			; Modem Control Register
+IFNDEF UUPC
 	IN AL,DX			; Get current state
-	PUSH AX 			; Save MCR
+	SHR AL,1			; Save old DTR bit in Carry flag
+	JMP SHORT $+2
+ENDIF
 	MOV AL,08H			; DTR off, RTS off, OUT2 on
 	OUT DX,AL
-	POP AX				; Get previous state
-	AND AL,1			; Just look at the DTR bit
-	 JE DFX 			; Not on.  Don't clr.  Don't wait.
-	MOV AX,50			; 50/100 of second
 IFNDEF UUPC
+	 JNC DFX			; if DTR wasn't on then don't wait.
+	MOV AX,50			; 50/100 of second
 	CALL WaitN			; V.24 says it must be low >1/2 sec
 ENDIF
 DFX:	POP SI
-	mov sp,bp
-	pop bp
 	RET
 _dtr_off	ENDP
 	PAGE;
@@ -956,8 +995,6 @@ _dtr_off	ENDP
 ; void far dtr_on(void) 	Tell modem we can take traffic
 ;
 _dtr_on PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
@@ -969,20 +1006,18 @@ _dtr_on PROC FAR
 	MOV AL,00001011B		; OUT 2, RTS, DTR
 	OUT DX,AL
 	CMP CONNECTION[SI],'D'          ; Direct connection (no DSR,CTS)?
-	 JNE DTRON0			; Go wait for DSR, CTS
-	MOV SEND_OK[SI],1		; Set output enable flag
-	JMP SHORT DTRONS		; Give success return
+	 JE DTRDIR			; if so, then don't wait
 
 ; Wait for awhile to give the modem time to respond
 
-DTRON0: MOV AH,2CH			; Get time (H:M:S:H to CH:CL:DH:DL)
+	MOV AH,2CH			; Get time (H:M:S:H to CH:CL:DH:DL)
 	INT 21H
 	MOV BX,DX			; Save seconds&hundreths
 	ADD BH,06			; Allow a few seconds
 	CMP BH,60			; Wrap around check
 	 JL DTRON1			; No wrap
 	SUB BH,60
-DTRON1: CMP SEND_OK[SI],1		; Did the modem come up?
+DTRON1: CMP SEND_OK[SI],30H		; Did the modem come up?
 	 JE DTRONS			; Yes.	Both DSR and CTS are true.
 	INT 21H 			; Get the time again
 	CMP DX,BX			; Current time is passed the deadline?
@@ -1001,25 +1036,57 @@ DTRON6: TEST	AL,10H			; Clear To Send?
 	PAGE;
 ; Failure return
 
-DTRONF: MOV SEND_OK[SI],1		; Make believe DSR & CTS are up!!!
-	MOV CONNECTION[SI],'D'          ; Switch to DIR connection (MSTATINT)
-	JMP SHORT DTRONX
+DTRONF:	MOV CONNECTION[SI],'D'          ; Switch to DIR connection (MSTATINT)
+	; Fall into DTRDIR
 
+DTRDIR:	MOV SEND_OK[SI],30H		; Make believe DSR & CTS are up!!!
+	; Fall into DTRONS
 
 ; Successful return
 
 DTRONS: ; SEND_OK is on.  Setting it again could confuse interrupt level
 	; Fall into DTRONX
 
-DTRONX: MOV AX,200H			; 2 Seconds
+DTRONX:
 IFNDEF UUPC
+	MOV AX,200H			; 2 Seconds
 	CALL WaitN			; V.24 says 2 sec hi before data
 ENDIF
 	POP SI
-	mov sp,bp
-	pop bp
 	RET
 _dtr_on ENDP
+	PAGE;
+;
+; void far rts_off(void)
+;	Turns off RTS for RTS-style throttling of modem->PC data
+;
+_rts_off PROC FAR
+	PUSH SI
+	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
+	TEST	INSTALLED[SI],1		; PORT INSTALLED?
+	 JZ	RFX			; ABORT IF NOT
+	MOV DX,MCR[SI]			; Modem Control Register
+	MOV AL,00001001B		; OUT 2, DTR
+	OUT DX,AL
+RFX:	POP SI
+	RET
+_rts_off	ENDP
+	PAGE;
+;
+; void far rts_off(void)
+;	Turns on RTS for RTS-style throttling of modem->PC data
+;
+_rts_on PROC FAR
+	PUSH SI
+	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
+	TEST	INSTALLED[SI],1		; PORT INSTALLED?
+	 JZ	RNX			; ABORT IF NOT
+	MOV DX,MCR[SI]			; Modem Control Register
+	MOV AL,00001011B		; OUT 2, RTS, DTR
+	OUT DX,AL
+RNX:	POP SI
+	RET
+_rts_on	ENDP
 	PAGE;
 ;
 ; Wait for specified time using the 18.2 ticks/second clock
@@ -1030,8 +1097,6 @@ _dtr_on ENDP
 ;
 
 WaitN	PROC NEAR
-	PUSH BP
-	MOV BP,SP
 	PUSH AX
 	PUSH BX
 	PUSH CX
@@ -1055,8 +1120,6 @@ WaitN2: INT DOS 			; Get the time again
 	POP CX
 	POP BX
 	POP CX
-	MOV SP,BP
-	POP BP
 	RET
 WaitN	ENDP
 	PAGE;
@@ -1067,18 +1130,14 @@ WaitN	ENDP
 ;		(More may come in after you asked.)
 ;
 _r_count PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
-	XOR AX,AX			; Say nothing available if not inst'd
+	XOR	AX,AX			; Say nothing available if not inst'd
 	MOV DX,R_SIZE			; Size of entire receive buffer
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	RCX			; ABORT IF NOT
 	MOV	AX,SIZE_RDATA[SI]	; GET NUMBER OF BYTES USED
 RCX:	POP SI
-	mov sp,bp
-	pop bp
 	RET
 _r_count ENDP
 	PAGE;
@@ -1088,54 +1147,49 @@ _r_count ENDP
 ;		or AX: the next character with parity stipped if not in P mode
 ;
 _receive_com PROC FAR
-	push bp
-	mov bp,sp
-	PUSHF				; Save interrupt state
 	PUSH SI
 	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	mov	ax,-1			; -1 if bad call
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	RECVX			; ABORT IF NOT
-	CLI
 	CMP	SIZE_RDATA[SI],0	; ANY CHARACTERS?
-	 JE RECVX			; Return -1 in AX
+	 JE	RECVX			; Return -1 in AX
 
 	mov ah,0			; good call
-	LES	BX,RBuff[SI]		; Location of receive buffer
-	ADD	BX,START_RDATA[SI]	; GET POINTER TO OLDEST CHAR
-	MOV AL,ES:[BX]			; Get character from buffer
+	LES	BX,START_RDATA[SI]	; GET POINTER TO OLDEST CHAR
+	MOV	AL,ES:[BX]		; Get character from buffer
+	INC	BX			; BUMP START_RDATA
+	AND	BX,R_SIZE-1		; Ring the pointer
+	MOV	WORD PTR START_RDATA[SI],BX ; SAVE THE NEW START_RDATA VALUE
+	DEC	SIZE_RDATA[SI]		; ONE LESS CHARACTER
 	CMP	PARITY[SI],'N'          ; ARE WE RUNNING WITH NO PARITY? LBA
 	 JE	RECV1			; IF SO, DON'T STRIP HIGH BIT    LBA
 	AND	AL,7FH			; STRIP PARITY BIT
-RECV1:	MOV BX,START_RDATA[SI]		; Get the start index again
-	INC	BX			; BUMP START_RDATA
-	AND BX,R_SIZE-1 		; Ring the pointer
-	MOV	START_RDATA[SI],BX	; SAVE THE NEW START_RDATA VALUE
-	DEC	SIZE_RDATA[SI]		; ONE LESS CHARACTER
-	CMP	XON_XOFF[SI],'E'        ; FLOW CONTROL ENABLED?
+RECV1:	CMP	XON_XOFF[SI],'E'        ; XON/XOFF FLOW CONTROL ENABLED?
 	 JNE	RECVX			; DO NOTHING IF DISABLED
 	CMP	HOST_OFF[SI],1		; HOST TURNED OFF?
 	 JNE	RECVX			; JUMP IF NOT
 	CMP	SIZE_RDATA[SI],R_SIZE/16; RECEIVE BUFFER NEARLY EMPTY?
-	 JGE	RECVX			; DONE IF NOT
+	 JAE	RECVX			; DONE IF NOT
 	MOV	HOST_OFF[SI],0		; TURN ON HOST IF SO
 
 	PUSH	AX			; SAVE RECEIVED CHAR
 	MOV	AL,CONTROL_Q		; TELL HIM TO TALK
+	PUSHF				; Save interrupt context
 RECV3:	CLI				; TURN OFF INTERRUPTS
 	CMP URGENT_SEND[SI],1		; Previous send still in progress?
 	 JNE RECV4			; No.  There is space now.
 	STI				; Yes.	Wait for interrupt to take it.
+	JMP SHORT $+2			; Waste some time with interrupts on
 	JMP SHORT RECV3 		; Loop 'til it's gone
+
 RECV4:	CALL	SENDII			; SEND IMMEDIATELY INTERNAL
+	POPF				; Restore interrupt state
 	POP	AX			; RESTORE RECEIVED CHAR
 
 RECVX:	POP ES
 	POP SI
-	POPF				; Restore interrupt state
-	mov sp,bp
-	pop bp
 	RET
 _receive_com ENDP
 	PAGE;
@@ -1151,21 +1205,18 @@ _receive_com ENDP
 ; the remote sender.  Return 0 in this case.
 ;
 _s_count PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
-	MOV	AX,0			; NO SPACE LEFT IF NOT INSTALLED
-	mov dx,S_SIZE-1 		; Leave 1 byte for a SENDII call
+	XOR	AX,AX			; NO SPACE LEFT IF NOT INSTALLED
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	SCX			; ABORT IF NOT
 	MOV AX,S_SIZE-1 		; Size, keeping one aside for SENDII
 	SUB AX,SIZE_TDATA[SI]		; Minus number in use right now
-	 JGE SCX			; Avoid returning negative number
-	XOR AX,AX			; Return 0
-SCX:	POP SI
-	mov sp,bp
-	pop bp
+	CWD				; Avoid returning a negative number
+	NOT DX
+	AND AX,DX			; return 0 if it was negative
+SCX:	MOV DX,S_SIZE-1			; Leave 1 byte for a SENDII call
+	POP SI
 	RET
 _s_count ENDP
 	PAGE;
@@ -1176,32 +1227,36 @@ _s_count ENDP
 _send_com PROC FAR
 	push bp
 	mov bp,sp
-	PUSHF				; Save interrupt state
 	PUSH SI
-	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	SENDX			; ABORT IF NOT
 
 SEND1:	CMP	SIZE_TDATA[SI],S_SIZE-1 ; BUFFER FULL? (Leave room for SENDII)
-	 JGE SEND1			; Wait for interrupts to empty buffer
-	CLI
-	LES BX,TBuff[SI]		; Pointer to buffer
-	ADD BX,END_TDATA[SI]		; ES:BX points to free space
+	 JAE SEND1			; Wait for interrupts to empty buffer
 	MOV AL,[BP+6]			; Character to send
+	PUSH ES
+	LES BX,END_TDATA[SI]		; ES:BX points to free space
 	MOV ES:[BX],AL			; Move character to buffer
-	MOV BX,END_TDATA[SI]		; Get index of end
 	INC	BX			; INCREMENT END_TDATA
 	AND BX,S_SIZE-1 		; Ring the pointer
-	MOV	END_TDATA[SI],BX	; SAVE NEW END_TDATA
+	MOV WORD PTR END_TDATA[SI],BX	; SAVE NEW END_TDATA
 	INC	SIZE_TDATA[SI]		; ONE MORE CHARACTER IN X-MIT BUFFER
-
 	TEST PC_OFF[SI],1		; Were we stopped by a ^S from host?
-	 JNZ SENDX			; Yes.	Don't enable interrupts yet.
-	CALL CHROUT			; Put a character out to the UART
-SENDX:	POP ES
-	POP SI
-	POPF				; Restore interrupt state
+	 JNZ SEND2			; Yes.	Don't enable interrupts yet.
+	CMP SEND_OK[SI],30H		; See if Data Set Ready & CTS are on
+	 JNE SEND2			; No. Still can't enable TX ints
+	PUSHF				; Save interrupt state
+	CLI
+	TEST IER_SHADOW[SI],02H		; Tx interrupts enabled?
+	 JNZ SEND3			; Jump if so: transmit already running
+	MOV DX,IER[SI]			; Interrupt Enable Register
+	MOV AL,0FH			; Rx, Tx, Line & Modem enable bits
+	OUT DX,AL			; Enable those interrupts
+	MOV IER_SHADOW[SI],AL
+SEND3:	POPF				; Restore interrupt state
+SEND2:	POP ES
+SENDX:	POP SI
 	mov sp,bp
 	pop bp
 	RET
@@ -1214,23 +1269,22 @@ _send_com ENDP
 _sendi_com PROC FAR
 	push bp
 	mov bp,sp
-	PUSHF				; Save interrupt state
 	PUSH SI
 	mov al,[bp+6]
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ SENDIX			; Return if not
-
+	PUSHF				; Save interrupt state
 SENDI3: CLI				; TURN OFF INTERRUPTS
 	CMP URGENT_SEND[SI],1		; Previous send still in progress?
 	 JNE SENDI4			; No.  There is space now.
 	STI				; Yes.	Wait for interrupt to take it.
+	JMP SHORT $+2			; Waste some time with interrupts on
 	JMP SHORT SENDI3		; Loop 'til it's gone
 
 SENDI4: CALL	SENDII			; CALL INTERNAL SEND IMMEDIATE
-
-SENDIX: POP SI
 	POPF				; Restore interrupt state
+SENDIX:	POP SI
 	mov sp,bp
 	pop bp
 	RET
@@ -1240,35 +1294,45 @@ _sendi_com ENDP
 ;	Put char at head of output queue so it will go out next
 ;	Called from process level and (receive) interrupt level
 ;	DEPENDS ON CALLER TO KEEP INTERRUPTS CLEARED AND SET SI
+;	Clobbers AL
 ;
 SENDII	PROC NEAR
-	PUSH BX
-	PUSH DX
+	TEST	IER_SHADOW[SI],02H	; Tx interrupts enabled?
+	 JNZ	SENDII1			; Jump if so: transmit already running
+	CMP	SEND_OK[SI],30H		; See if Data Set Ready & CTS are on
+	 JNE	SENDII1			; No. Still can't enable TX ints
+; Was idle: transmit the character without buffering; enable TX interrupt
+	PUSH	DX
+	MOV	DX,DATREG[SI]		; I/O address of data register
+	OUT	DX,AL			; Output the character
+	MOV	DX,IER[SI]		; Interrupt Enable Register
+	MOV	AL,0FH			; Rx, Tx, Line & Modem enable bits
+	OUT	DX,AL			; Enable those interrupts
+	MOV	IER_SHADOW[SI],AL
+	POP	DX
+	RET
+
+; Unable to send the character now: buffer it.
+SENDII1:PUSH BX
 	PUSH ES
-	LES BX,TBuff[SI]		; Location of transmit buffer
+	LES BX,START_TDATA[SI]		; ES:BX point to 1st chr in buffer
 	CMP	SIZE_TDATA[SI],S_SIZE	; BUFFER FULL?
 	 JB	SENDII2 		; JUMP IF NOT
 	INC	WORD PTR EOVFLOW[SI]	; BUMP ERROR COUNT (Can this happen?)
-	ADD BX,START_TDATA[SI]		; ES:BX point to 1st chr in buffer
-	MOV ES:[BX],AL			; Overwrite 1st character
-	JMP SHORT SENDII4
+	JMP SHORT SENDII4		; and overwrite old first char
 
-SENDII2:MOV DX,START_TDATA[SI]		; DX is index of 1st char
-	DEC DX				; Back it up
-	AND DX,S_SIZE-1 		; Ring it
-	MOV START_TDATA[SI],DX		; Save new value
-	ADD BX,DX			; Address within buffer
-	MOV ES:[BX],AL			; Move character to buffer
+SENDII2:DEC BX				; Back it up
+	AND BX,S_SIZE-1 		; Ring it
+	MOV WORD PTR START_TDATA[SI],BX	; Save new value
 	INC	SIZE_TDATA[SI]		; ONE MORE CHARACTER IN X-MIT BUFFER
-	MOV URGENT_SEND[SI],1		; Flag high priority message
 	; No check for PC_OFF here.  Flow control ALWAYS gets sent!
-SENDII4:CALL CHROUT			; Output a chr if possible
-SENDIIX:POP ES
-	POP DX
+SENDII4:MOV ES:[BX],AL			; Move character to buffer
+	MOV URGENT_SEND[SI],1		; Flag high priority message
+	POP ES
 	POP BX
 	RET
 SENDII	ENDP
-
+	PAGE;
 ;*---------------------------------------------------------------------*
 ;*	s p i n l o o p 					       *
 ;*								       *
@@ -1284,28 +1348,6 @@ WASTERS:
 	POP  CX
 CRET:	RET
 SPINLOOP ENDP
-
-; CHROUT()	Process level routine to remove a chr from the buffer,
-;		give it to the UART and adjust the pointer and count.
-;		If interrupts are disabled at entry, nothing is done.
-;		If a character is successfully output, Tx ints are enabled.
-;	Requires: SI pointing at the appropriate data area
-;	Clobbers: AX, BX, DX, ES
-;	Must preserve: CX in case there is a count there
-
-CHROUT	PROC NEAR
-	MOV DX,IER[SI]			; Interrupt Enable Register
-	IN AL,DX
-	TEST AL,2			; Tx interrupts enabled?
-	 JNZ CHROUX			; Jump if not
-	CMP SEND_OK[SI],1		; See if Data Set Ready & CTS are on
-	 JNE CHROUX			; No. Still can't enable TX ints
-	CALL TX_CHR			; Actually transmit the chr
-	MOV DX,IER[SI]			; Interrupt Enable Register
-	MOV AL,0FH			; Rx, Tx, Line & Modem enable bits
-	OUT DX,AL			; Enable those interrupts
-CHROUX: RET
-CHROUT	ENDP
 	PAGE;
 
 IFNDEF UUPC
@@ -1316,32 +1358,31 @@ IFNDEF UUPC
 _send_local PROC FAR
 	push bp
 	mov bp,sp
-	PUSHF
 	PUSH SI
-	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	SLX			; ABORT IF NOT
 
+	PUSHF				; Save interrupt state
 	CLI				; INTERRUPTS OFF
+
 	CMP	SIZE_RDATA[SI],R_SIZE	; SEE IF ANY ROOM
 	 JB SL3 			; SKIP IF ROOM
 	INC	WORD PTR EOVFLOW[SI]	; BUMP OVERFLOW COUNT
-	JMP SHORT SLX			; PUNT
+	JMP SHORT SL9			; PUNT
 
-SL3:	LES BX,RBuff[SI]		; Receive buffer location
-	ADD BX,END_RDATA[SI]		; ES:BX POINTS TO FREE SPACE
+SL3:	PUSH ES
+	LES BX,END_RDATA[SI]		; ES:BX POINTS TO FREE SPACE
 	MOV AL,[BP+6]			; Get the byte to send
 	MOV ES:[BX],AL			; Put into buffer
-	MOV BX,END_RDATA[SI]		; Get the end pointer
 	INC	BX			; INCREMENT END_RDATA POINTER
 	AND BX,R_SIZE-1 		; Ring the pointer
-	MOV	END_RDATA[SI],BX	; SAVE VALUE
+	MOV WORD PTR END_RDATA[SI],BX	; SAVE VALUE
 	INC	SIZE_RDATA[SI]		; GOT ONE MORE CHARACTER
+	POP ES
 
-SLX:	POP ES
-	POP SI
-	POPF				; Restore interrupt state
+SL9:	POPF				; Restore interrupt state
+SLX:	POP SI
 	mov sp,bp
 	pop bp
 	RET				; DONE
@@ -1352,8 +1393,6 @@ ENDIF
 ; void far break_com(void)	Send a BREAK out to alert the remote end
 ;
 _break_com PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
@@ -1363,16 +1402,16 @@ _break_com PROC FAR
 	MOV	DX,LCR[SI]		; LINE CONTROL REGISTER
 	IN	AL,DX			; GET CURRENT SETTING
 	OR	AL,40H			; TURN ON BREAK BIT
+	JMP SHORT $+2
 	OUT	DX,AL			; SET IT ON THE UART
 	MOV AX,25			; 25/100 of a second
 	CALL WaitN
 	MOV	DX,LCR[SI]		; LINE CONTROL REGISTER
 	IN	AL,DX			; GET CURRENT SETTING
-	AND	AL,0BFH 		; TURN OFF BREAK BIT
+	AND	AL,NOT 40H 		; TURN OFF BREAK BIT
+	JMP SHORT $+2
 	OUT	DX,AL			; RESTORE LINE CONTROL REGISTER
 BREAKX: POP SI
-	mov sp,bp
-	pop bp
 	RET
 _break_com ENDP
 	PAGE;
@@ -1381,15 +1420,11 @@ _break_com ENDP
 ;	Returns a pointer to the table of error counters
 ;
 _com_errors PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV SI,CURRENT_AREA		; Point to block for selected port
 	LEA AX,ERROR_BLOCK[SI]		; Offset to error counters
 	MOV DX,DS			; Value is in DX:AX
 	POP SI
-	mov sp,bp
-	pop bp
 	RET
 _com_errors ENDP
 
@@ -1412,22 +1447,20 @@ _com_errors ENDP
 ;		0x01:	Delta CTS		(CTS changed)
 
 _modem_status PROC FAR
-	push bp
-	mov bp,sp
 	PUSH SI
 	MOV SI,CURRENT_AREA		; Point to block for selected port
 	MOV DX,MSR[SI]			; IO Addr of Modem Status Register
 	IN AL,DX			; Get the live value
 	XOR AH,AH			; Flush unwanted bits
 	POP SI
-	mov sp,bp
-	pop bp
 	RET
 _modem_status ENDP
 	PAGE;
 ;
 ; INT_HNDLR1 - HANDLES INTERRUPTS GENERATED BY COM1:
 ;
+	assume	DS:nothing
+	even
 INT_HNDLR1 PROC FAR
 	PUSH SI
 	MOV	SI,OFFSET DGROUP:AREA1	; DATA AREA FOR COM1:
@@ -1435,6 +1468,7 @@ INT_HNDLR1 PROC FAR
 ;
 ; INT_HNDLR2 - HANDLES INTERRUPTS GENERATED BY COM2:
 ;
+	even
 INT_HNDLR2 PROC FAR
 	PUSH SI
 	MOV	SI,OFFSET DGROUP:AREA2	; DATA AREA FOR COM2:
@@ -1442,6 +1476,7 @@ INT_HNDLR2 PROC FAR
 ;
 ; INT_HNDLR3 - HANDLES INTERRUPTS GENERATED BY COM3:
 ;
+	even
 INT_HNDLR3 PROC FAR
 	PUSH SI
 	MOV	SI,OFFSET DGROUP:AREA3	; DATA AREA FOR COM3:
@@ -1449,6 +1484,7 @@ INT_HNDLR3 PROC FAR
 ;
 ; INT_HNDLR4 - HANDLES INTERRUPTS GENERATED BY COM4:
 ;
+	even
 INT_HNDLR4 PROC FAR
 	PUSH SI
 	MOV	SI,OFFSET DGROUP:AREA4	; DATA AREA FOR COM4:
@@ -1459,53 +1495,53 @@ INT_HNDLR4 PROC FAR
 ;
 INT_COMMON: ; SI has been pushed and loaded
 	PUSH AX
-	PUSH BX
-	PUSH CX
 	PUSH DX
 	PUSH DS
+	PUSH BX
+	PUSH CX
 	PUSH ES
 
-	MOV AX,DGROUP			; Offsets are relative to DGROUP [WWP]
+	MOV AX,DGROUP			; offsets are relative to DGROUP [WWP]
 	MOV	DS,AX
-
+	assume	DS:DGROUP
 
 ; FIND OUT WHERE INTERRUPT CAME FROM AND JUMP TO ROUTINE TO HANDLE IT
 REPOLL: MOV DX,IIR[SI]			; Interrupt Identification Register
 	IN AL,DX
-	TEST AL,1			; Check the "no interrupt present" bit
-	 JNZ INT_END			; ON means we are done
 	MOV BL,AL			; Put where we can index by it
+	SHR AL,1			; Check the "no interrupt present" bit
+	 JC INT_END			; ON means we are done
 	AND BX,000EH			; Ignore FIFO_ENABLED bits, etc.
 
 	JMP WORD PTR CS:INT_DISPATCH[BX]; Go to appropriate routine
 
+	even
 INT_DISPATCH:
 	DW MSI				; 0: Modem status interrupt
 	DW TXI				; 2: Transmitter interrupt
 	DW RXI				; 4: Receiver interrupt
 	DW LSI				; 6: Line status interrupt
-	DW REPOLL			; 8: (Future use by UART makers)
-	DW REPOLL			; A: (Future use by UART makers)
+	DW INT_END			; 8: (Future use by UART makers)
+	DW INT_END			; A: (Future use by UART makers)
 	DW RXI				; C: FIFO Timeout
-	DW REPOLL			; E: (Future use by UART makers)
+	DW INT_END			; E: (Future use by UART makers)
 
 INT_END: ; Now tell 8259 we handled that IRQ
 
 	MOV DX,IER[SI]			; Gordon Lee's cure for dropped ints
-	IN AL,DX			; Get enabled interrupts
-	MOV AH,AL
 	XOR AL,AL
 	OUT DX,AL			; Disable UART interrupts
 	MOV AL,EOI[SI]			; End of Interrupt. With input gone,
+	POP ES				; do the POPs now for some I/O delay
+	POP CX
 	OUT INTA00,AL			; Give EOI to 8259 Interrupt ctlr
-	MOV AL,AH			; Get save interrupt enable bits
+	MOV AL,IER_SHADOW[SI]		; Get saved interrupt enable bits
+	POP BX				; do the POPs now for some I/O delay
+	POP DS
+	assume	DS:nothing
 	OUT DX,AL			; Restore them, maybe causing a
 					; transition into the 8259!!!
-	POP ES
-	POP DS
 	POP DX
-	POP CX
-	POP BX
 	POP AX
 	POP SI
 	IRET
@@ -1513,146 +1549,135 @@ INT_END: ; Now tell 8259 we handled that IRQ
 ;
 ; Line status interrupt
 ;
-LSI:	MOV DX,LSR[SI]			; Line status register
-	IN AL,DX			; Read line status & bump error counts
-	TEST	AL,2			; OVERRUN ERROR?
-	 JZ	LSI1			; JUMP IF NOT
-	INC	WORD PTR EOVRUN[SI]	; ELSE BUMP ERROR COUNT
-LSI1:	TEST	AL,4			; PARITY ERROR?
-	 JZ	LSI2			; JUMP IF NOT
-	INC	WORD PTR EPARITY[SI]	; ELSE BUMP ERROR COUNT
-LSI2:	TEST	AL,8			; FRAMING ERROR?
-	 JZ	LSI3			; JUMP IF NOT
-	INC	WORD PTR EFRAME[SI]	; ELSE BUMP ERROR COUNT
-LSI3:	TEST	AL,16			; BREAK RECEIVED?
-	 JZ	LSI4			; JUMP IF NOT
-	INC	WORD PTR EBREAK[SI]	; ELSE BUMP ERROR COUNT
-LSI4:	JMP	REPOLL			; SEE IF ANY MORE INTERRUPTS
+	even
+	assume	DS:DGROUP
+LSI:	MOV	DX,LSR[SI]		; Line status register
+	IN	AL,DX			; Read line status & bump error counts
+	SHR	AL,1
+LSI2:	; RXI also comes here with the LSR (shifted right 1) already in AL
+	SHR	AL,1			; OVERRUN ERROR?
+	ADC	WORD PTR EOVRUN[SI],0	; BUMP ERROR COUNT
+	SHR	AL,1			; PARITY ERROR?
+	ADC	WORD PTR EPARITY[SI],0	; BUMP ERROR COUNT
+	SHR	AL,1			; FRAMING ERROR?
+	ADC	WORD PTR EFRAME[SI],0	; BUMP ERROR COUNT
+	SHR	AL,1			; BREAK RECEIVED?
+	ADC	WORD PTR EBREAK[SI],0	; BUMP ERROR COUNT
+	JMP	REPOLL			; SEE IF ANY MORE INTERRUPTS
 
 ;
 ; Modem status interrupt
 ;
+	even
+	assume	DS:DGROUP
 MSI:	MOV DX,MSR[SI]			; Modem Status Register
 	IN AL,DX			; Read status & clear interrupt
-	CMP CONNECTION[SI],'D'          ; Direct connection - ignore int
-	 JE MSI0			; Just noise on DSR,CTS pins
 	AND AL,30H			; Expose CTS and Data Set Ready
-	CMP AL,30H			; Both on?
-	 JE MSI0			; Yes.	Enable output at TXI
-	XOR AL,AL
-	JMP SHORT MSI1
-
-MSI0:	MOV AL,1
-MSI1:	MOV SEND_OK[SI],AL		; Put where TXI and send_com can see
+	CMP CONNECTION[SI],'D'          ; Direct connection - ignore int
+	 JNE MSI0			; if not direct them DSR,CTS valid
+	MOV AL,30H			; Make believe DSR & CTS are up!!!
+MSI0:	MOV SEND_OK[SI],AL		; Put where TXI and send_com can see
 	MOV DX,IER[SI]			; Let a TX int happen for thoro chks
 	MOV AL,0FH			; Line & modem sts, recv, send.
 	OUT DX,AL
+	MOV IER_SHADOW[SI],AL
 	JMP REPOLL			; Check for other interrupts
-	PAGE;
-;
-; Transmit interrupt
-;
-TXI:	CMP SEND_OK[SI],1		; Harware (CTS & DSR on) OK?
-	 JNE TXI9			; No.  Must wait 'til cable right!
-	MOV CX,1			; Transfer count for flow ctl
-	CMP URGENT_SEND[SI],1		; Flow control character to send?
-	 JE TXI3			; Yes.	Always send flow control.
-	CMP PC_OFF[SI],1		; Flow control (XON/XOFF) OK?
-	 JE TXI9			; Stifled & not urgent. Forget it.
-
-TXI1:	MOV CL,UART_SILO_LEN[SI]	; MAX size chunk (1 for simple 8250)
-	; Too bad there is no "Tranmitter FIFO Full" indication!
-	CMP SIZE_TDATA[SI],CX		; SEE IF ANY MORE DATA TO SEND
-	 JG TXI2			; UART is the limit
-	MOV CX,SIZE_TDATA[SI]		; Buffer space limited.  Use that.
-TXI2:	 JCXZ TXI9			; No data, disable TX ints
-
-TXI3:	CALL TX_CHR			; Transmit a character
-	 LOOP TXI3			; Keep going 'til silo is full
-	MOV URGENT_SEND[SI],0		; Tell process level we sent flow ctl
-	JMP	REPOLL
-
-; IF NO DATA TO SEND, or can't send, RESET TX INTERRUPT AND RETURN
-TXI9:	MOV DX,IER[SI]
-	MOV AL,0DH			; Line & modem sts, recv, no send.
-	OUT DX,AL
-	JMP REPOLL
-
-
-; TX_CHR	Internal routine used to actually move a character from
-;		the transmit buffer to the UART and adjust pointers.
-;		Called from process and interrupt levels with interrutps
-;		enabled or disabled.
-;	Requires: SI pointing at data area for this UART
-;	Clobbers: AX, BX, DX, ES
-;	Must preserve: CX  (Caller has count here).
-
-TX_CHR	PROC NEAR
-	LES BX,TBuff[SI]		; Pointer to buffer
-	ADD BX,START_TDATA[SI]		; ES:BX points to next char to send
-	MOV AL,ES:[BX]			; Get character from buffer
-	MOV DX,DATREG[SI]		; I/O address of data register
-	OUT DX,AL			; Output the character
-	INC BX				; Bump the head pointer
-	AND BX,S_SIZE-1 		; Ring it
-	MOV START_TDATA[SI],BX		; Store back in private block
-	DEC SIZE_TDATA[SI]		; One fewer in buffer now
-	RET
-TX_CHR	ENDP
 	PAGE;
 ;
 ; Receive interrupt
 ;
-RXI:
-RXI0:	MOV DX,LSR[SI]			; Line Status Register
-	IN AL,DX			; Read it
-	TEST AL,1			; Check the RECV DATA READY bit
-	 JE RXIX			; No more data available
-	MOV	DX,DATREG[SI]		; UART DATA REGISTER
-	IN AL,DX			; Get data, clear status
-	CMP	XON_XOFF[SI],'E'        ; FLOW CONTROL ENABLED?
-	 JNE RXI2			; No.  Don't check for XON/XOFF
+	even
+	assume	DS:DGROUP
+RXI:	LES	BX,END_RDATA[SI]	; ES:BX points to free space
+RXI0:	MOV	DX,DATREG[SI]		; UART DATA REGISTER
+	IN	AL,DX			; Get data, clear status
+	CMP	XON_XOFF[SI],'E'        ; XON/XOFF FLOW CONTROL ENABLED?
+	 JE	RXI1			; Yes.  Check for XON/XOFF
+	CMP	SIZE_RDATA[SI],R_SIZE	; Any room in buffer?
+	 JAE	RXIFUL			; No room left
+	MOV	ES:[BX],AL		; Put character in buffer
+	INC	SIZE_RDATA[SI]		; GOT ONE MORE CHARACTER
+	INC	BX			; Bump pointer past location just used
+	AND	BX,R_SIZE-1		; Ring the pointer
+RXINXT:	MOV	DX,LSR[SI]		; Line Status Register
+	IN	AL,DX			; Read it
+	SHR	AL,1			; Check the RECV DATA READY bit
+	 JC	RXI0			; More data; go get it
+	MOV	WORD PTR END_RDATA[SI],BX ; Store updated pointer
+	JMP	SHORT LSI2		; No more data; count errors if any
+
+RXIFUL:	INC	WORD PTR EOVFLOW[SI]	; BUMP OVERFLOW ERROR COUNT
+	MOV	WORD PTR END_RDATA[SI],BX ; Store updated pointer
+	JMP	REPOLL
 
 ; Check each character for possible flow control (XON/XOFF)
+RXI1:	MOV	AH,AL			; Save character in AH
 	AND	AL,7FH			; STRIP PARITY
 	CMP	AL,CONTROL_S		; STOP COMMAND RECEIVED?
-	 JNE RXI1			; Jump if not. Might be ^Q though.
-	MOV PC_OFF[SI],1		; Stop output
-	JMP SHORT RXI0			; Don't store character
+	 JNE	RXI2			; Jump if not. Might be ^Q though.
+	MOV	PC_OFF[SI],1		; Stop output
+	JMP	SHORT RXINXT		; Don't store the character
 
-RXI1:	CMP	AL,CONTROL_Q		; GO COMMAND RECEIVED?
-	 JNE RXI2			; No.  Not a flow control character
-	MOV PC_OFF[SI],0		; Enable output
-	JMP SHORT RXI0			; Don't store character
+RXI2:	CMP	AL,CONTROL_Q		; GO COMMAND RECEIVED?
+	 JNE	RXI3			; No.  Not a flow control character
+	MOV	PC_OFF[SI],0		; Enable output
+	JMP	SHORT RXINXT		; Don't store the character
 
-; Have a real data byte.  Store if possible.
-RXI2:	CMP	SIZE_RDATA[SI],R_SIZE	; SEE IF ANY ROOM
-	 JL RXI6			; CONTINUE IF SO
-	INC	WORD PTR EOVFLOW[SI]	; BUMP OVERFLOW ERROR COUNT
-	JMP SHORT RXIX
-
-RXI6:	LES BX,RBuff[SI]		; Receive buffer location
-	ADD BX,END_RDATA[SI]		; ES:BX points to free space
-	MOV ES:[BX],AL			; Put character in buffer
+RXI3:	CMP	SIZE_RDATA[SI],R_SIZE	; SEE IF ANY ROOM
+	 JAE	RXIFUL			; No room left
+	MOV	ES:[BX],AH		; Put saved character in buffer
 	INC	SIZE_RDATA[SI]		; GOT ONE MORE CHARACTER
-	MOV BX,END_RDATA[SI]		; Get the end index
-	INC BX				; Bump it passed location just used
-	AND BX,R_SIZE-1 		; Ring the pointer
-	MOV	END_RDATA[SI],BX	; SAVE VALUE
-
+	INC	BX			; Bump pointer past location just used
+	AND	BX,R_SIZE-1		; Ring the pointer
 ; See if we must tell remote host to stop outputting.
-	CMP	XON_XOFF[SI],'E'        ; FLOW CONTROL ENABLED?
-	 JNE RXI0			; No
-	CMP HOST_OFF[SI],1		; Already told remote to shut up?
-	 JE RXI0			; Yes.	Don't flood him with ^Ss
+	CMP	HOST_OFF[SI],1		; Already told remote to shut up?
+	 JE	RXINXT			; Yes.	Don't flood him with ^Ss
 	CMP	SIZE_RDATA[SI],R_SIZE/2 ; RECEIVE BUFFER NEARLY FULL?
-	 JLE RXIX			; No.  No need to stifle remote end
+	 JBE	RXINXT			; No.  No need to stifle remote end
 	; Would like to wait here for URGENT_SEND to go off if it is on.
 	; But we need to take a TX interrupt for that to happen.
 	MOV	AL,CONTROL_S		; TURN OFF HOST IF SO
 	CALL	SENDII			; SEND IMMEDIATELY INTERNAL
 	MOV	HOST_OFF[SI],1		; HOST IS NOW OFF
-RXIX:	JMP REPOLL
+	JMP	RXINXT
+	PAGE;
+;
+; Transmit interrupt
+;
+	even
+	assume	DS:DGROUP
+TXI:	CMP	SEND_OK[SI],30H		; Hardware (CTS & DSR on) OK?
+	 JNE	TXI9			; No.  Must wait 'til cable right!
+	MOV	CX,1			; Transfer count for flow ctl
+	CMP	URGENT_SEND[SI],CL	; Flow control character to send?
+	 JE	TXI3			; Yes.	Always send flow control.
+	CMP	PC_OFF[SI],CL		; Flow control (XON/XOFF) OK?
+	 JE	TXI9			; Stifled & not urgent. Forget it.
+
+TXI1:	MOV	CL,UART_SILO_LEN[SI]	; MAX size chunk (1 for 8250/16450)
+	; Too bad there is no "Transmitter FIFO Full" indication!
+	CMP	SIZE_TDATA[SI],CX	; SEE IF ANY MORE DATA TO SEND
+	 JAE	TXI3			; jump if UART is the limit
+	MOV	CX,SIZE_TDATA[SI]	; Buffer contents limited.  Use that.
+	 JCXZ	TXI9			; No data, disable TX ints
+TXI3:	LES	BX,START_TDATA[SI]	; ES:BX points to next char to send
+	MOV	DX,DATREG[SI]		; I/O address of data register
+TXI4:	MOV	AL,ES:[BX]		; Get character from buffer
+	OUT	DX,AL			; Output the character
+	INC	BX			; Bump the head pointer
+	AND	BX,S_SIZE-1		; Ring it
+	DEC	SIZE_TDATA[SI]		; One fewer in buffer now
+	 LOOP	TXI4			; Keep going 'til silo is full
+	MOV	WORD PTR START_TDATA[SI],BX ; Store pointer back
+	MOV	URGENT_SEND[SI],0	; Tell process level we sent flow ctl
+	JMP	REPOLL
+
+; IF NO DATA TO SEND, or can't send, RESET TX INTERRUPT AND RETURN
+TXI9:	MOV	DX,IER[SI]
+	MOV	AL,0DH			; Line & modem sts, recv, no send.
+	OUT	DX,AL
+	MOV	IER_SHADOW[SI],AL
+	JMP	REPOLL
 
 INT_HNDLR4 ENDP
 INT_HNDLR3 ENDP
