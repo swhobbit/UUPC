@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.3 1995/01/03 05:32:26 ahd Exp $
+ *    $Id: batch.c 1.4 1995/01/05 03:43:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.4  1995/01/05 03:43:49  ahd
+ *    rnews SYS file support
+ *
  *    Revision 1.3  1995/01/03 05:32:26  ahd
  *    Further SYS file support cleanup
  *
@@ -306,6 +309,7 @@ void process_batch(const struct sys *node,
    while ((filelength(fileno(names)) > 0) || done)
    {
      FILE    *batch = NULL;
+     size_t batchLength;
      char fileNameBuf[FILENAME_MAX];
 
      build_batchName( batchName, node->flag.c );
@@ -377,6 +381,8 @@ void process_batch(const struct sys *node,
 
      } /* while names and batch small */
 
+     batchLength = filelength(fileno(batch));
+
      fclose(batch);
 
 /*--------------------------------------------------------------------*/
@@ -384,16 +390,20 @@ void process_batch(const struct sys *node,
 /*       refusing to send underlength batches                         */
 /*--------------------------------------------------------------------*/
 
-     if ((!node->flag.B) ||
-         (filelength(fileno(batch)) >= E_batchsize))
+     if ((!node->flag.B) || (batchLength >= E_batchsize))
      {
 
-       /* if we get back the compression happened ok */
+/*--------------------------------------------------------------------*/
+/*         Only queue up a file to send if we have data in it         */
+/*--------------------------------------------------------------------*/
 
-       if (!node->flag.c)
-         compress_batch(system, batchName);
-       else
-         queue_news(system, batchName);
+       if ( batchLength )
+       {
+          if (!node->flag.c)
+            compress_batch(system, batchName);
+          else
+            queue_news(system, batchName);
+       }
 
        /* keep the rest of the names in case of failure */
 
