@@ -19,10 +19,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-static char *rcsid = "$Id: GENHIST.C 1.1 1993/09/05 10:56:49 rommel Exp $";
-static char *rcsrev = "$Revision: 1.1 $";
+static char *rcsid = "$Id: genhist.c 1.2 1993/10/30 22:27:57 rommel Exp $";
+static char *rcsrev = "$Revision: 1.2 $";
 
-/* $Log: GENHIST.C $
+/* $Log: genhist.c $
+ * Revision 1.2  1993/10/30  22:27:57  rommel
+ * Lower debug level to 1
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -388,6 +391,6 @@ static boolean numeric( char *start)
 
 static void usage( void )
 {
-   printf( "Usage:   genhist\n");
+   printf( "Usage:   genhist\t[-x debuglevel]\n");
    exit(1);
 } /* usage */
