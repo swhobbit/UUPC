@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.45 1995/02/20 18:54:08 ahd Exp $
+ *    $Id: uuxqt.c 1.46 1995/02/22 02:31:30 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.46  1995/02/22 02:31:30  ahd
+ *    Don't redirect output unless asked to by remote
+ *
  *    Revision 1.45  1995/02/20 18:54:08  ahd
  *    news panic support
  *
@@ -380,7 +383,7 @@ main( int argc, char **argv)
    atexit( PopDir );
 
    checkuser( E_mailbox  );   /* Force User Table to initialize        */
-   checkreal( E_mailserv );   /* Force Host Table to initialize        */
+   checkreal( E_nodename );   /* Force Host Table to initialize        */
 
    if (!LoadSecurity())
    {
