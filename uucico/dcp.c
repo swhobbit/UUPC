@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.51 1997/04/24 01:33:12 ahd v1-12u $
+ *    $Id: dcp.c 1.52 1998/03/01 01:39:14 ahd v1-13b $
  *
  *    $Log: dcp.c $
+ *        Revision 1.52  1998/03/01  01:39:14  ahd
+ *        Annual Copyright Update
+ *
  *    Revision 1.51  1997/04/24 01:33:12  ahd
  *    Annual Copyright Update
  *
@@ -658,7 +661,7 @@ static KWBoolean master( const char recvGrade,
             break;
 
          case CONN_DROPLINE:
-            setTitle("Closing connection on port %s", M_device);
+            setTitle("Closing port %s", M_device);
             shutDown();
             UnlockSystem();
             setTitle("Not connected");
@@ -677,7 +680,9 @@ static KWBoolean master( const char recvGrade,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+               copylog();
                execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
+               openlog(NULL);
             }
             needUUXQT = KWFalse;
             m_state = CONN_INITIALIZE;
@@ -696,7 +701,6 @@ static KWBoolean master( const char recvGrade,
          m_state = CONN_EXIT;
 
    } /* while */
-
 
    setTitle("Exiting");
 
@@ -852,7 +856,9 @@ static KWBoolean client( const time_t exitTime,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+               copylog();
                execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
+               openlog(NULL);
             }
             needUUXQT = KWFalse;
             s_state = CONN_EXIT;
