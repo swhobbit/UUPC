@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.29 1993/10/28 12:19:01 ahd Exp $
+ *     $Id: dcpsys.c 1.30 1993/11/06 17:56:09 rhg Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.30  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.29  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *
@@ -640,8 +643,19 @@ CONN_STATE startup_server(const char recvgrade )
 /*    The connection is complete; report this and return to caller    */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s connected to %s: %ld bps, %c protocol, %c grade",
-         E_nodename, rmtname, (long) GetSpeed() , *s, recvgrade );
+   if ( IsNetwork() )
+      printmsg(0,"%s connected to %s: network link, %c protocol, %c grade",
+                  securep->myname,
+                  rmtname,
+                  *s,
+                  recvgrade );
+   else
+      printmsg(0,"%s connected to %s: %ld bps, %c protocol, %c grade",
+                 securep->myname,
+                 rmtname,
+                 (long) GetSpeed(),
+                 *s,
+                 recvgrade );
 
    return CONN_SERVER;
 
@@ -849,12 +863,19 @@ CONN_STATE startup_client( char *sendgrade )
 /*            Report that we connected to the remote host             */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s called by %s: %ld bps, %c protocol, %c grade",
-         E_nodename,
-         hostp->via,
-         (long) GetSpeed(),
-         msg[1],
-         *sendgrade );
+   if ( IsNetwork() )
+      printmsg(0,"%s called by %s: network link, %c protocol, %c grade",
+            securep->myname,
+            hostp->via,
+            msg[1],
+            *sendgrade );
+   else
+      printmsg(0,"%s called by %s: %ld bps, %c protocol, %c grade",
+            securep->myname,
+            hostp->via,
+            (long) GetSpeed(),
+            msg[1],
+            *sendgrade );
 
    if ( hostp == BADHOST )
       panic();

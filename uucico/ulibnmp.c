@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.11 1993/11/06 17:57:09 rhg Exp $
+ *       $Id: ulibnmp.c 1.12 1993/11/08 04:46:49 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.12  1993/11/08  04:46:49  ahd
+ * Up buffer size for named pipes
+ *
  * Revision 1.11  1993/11/06  17:57:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -284,7 +287,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 /*                           Set baud rate                            */
 /*--------------------------------------------------------------------*/
 
-   SIOSpeed(57600);
+   SIOSpeed(baud);
 
    traceStart( name );     /* Enable logging                          */
 
