@@ -21,16 +21,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.42 1998/03/01 01:26:54 ahd Exp $
+ *       $Id: pop3mbox.h 1.1 1998/03/03 03:55:26 ahd Exp $
  *
  *       Revision history:
- *       $Log: lib.h $
+ *       $Log: pop3mbox.h $
+ *       Revision 1.1  1998/03/03 03:55:26  ahd
+ *       Initial revision
+ *
  */
 
 #include "pop3clnt.h"
 
 KWBoolean
 popBoxLoad(SMTPClient *client);
+
+KWBoolean
+popBoxUnload( SMTPClient *client );
 
 long
 getMessageOctetCount( MailMessage *current,
@@ -51,7 +57,10 @@ popBoxUIDL( MailMessage *current );
 MailMessage *
 getPopMessageNext( MailMessage *current );
 
+#define popBoxIsUpdated( current ) (current->deleted || current->fakeUIDL)
+
 #define popBoxIsDeleted( current ) (current->deleted)
+
 #define popBoxDelete( current ) { current->deleted = KWTrue; }
 
 #endif  /* POP3MBOX_H */

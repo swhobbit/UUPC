@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3trns.h 1.1 1998/03/01 19:45:01 ahd Exp $
+ *       $Id: pop3trns.h 1.2 1998/03/03 03:55:26 ahd Exp $
  *
  *       Revision history:
  *       $Log: pop3trns.h $
+ *       Revision 1.2  1998/03/03 03:55:26  ahd
+ *       First POP3 server to handle most data commands
+ *
  *       Revision 1.1  1998/03/01 19:45:01  ahd
  *       Initial revision
  *
@@ -57,6 +60,7 @@ typedef struct _POP3Transaction
    IMFILE *imf;                     /* Mailbox temporary copy        */
    FILE *mailboxStream;             /* Stream used to access mbox    */
    MailMessage *top;                /* Our message queue             */
+   KWBoolean rewrite;               /* At least one message updated  */
 
 } POP3Transaction;
 
