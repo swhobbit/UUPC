@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.21 1998/04/27 01:55:28 ahd v1-13a $
+ *    $Id: printmsg.c 1.22 1998/04/28 02:20:22 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.22  1998/04/28 02:20:22  ahd
+ *    Correct output of timestamp buffer in non-GUI mode
+ *
  *    Revision 1.21  1998/04/27 01:55:28  ahd
  *    Timestamp all output to GUI window
  *
@@ -320,7 +323,7 @@ void printmsg(int level, char *fmt, ...)
          struct tm lt;
 
 #ifndef UUGUI
-         if (debuglevel > 1)
+         if (debuglevel <= 1)
 #endif
          {
             time(&now);
@@ -332,11 +335,10 @@ void printmsg(int level, char *fmt, ...)
          vfprintf(stderr, fmt, arg_ptr);
          fputc('\n',stderr);
 
-         if ( debuglevel > 1 )
-            fprintf(stream, "(%d) ", level);
-         else
+         if ( debuglevel <= 1 )
             fprintf(stream, "%s ", timeBuffer);
-
+         else
+            fprintf(stream, "(%d) ", level);
 
       } /* if (stream != stdout) */
 
