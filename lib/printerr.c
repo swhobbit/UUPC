@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.11 1995/01/13 14:00:40 ahd Exp $
+ *    $Id: printerr.c 1.12 1995/01/29 16:43:03 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.12  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.11  1995/01/13 14:00:40  ahd
  *    Print error number as well as location at higher debug levels
  *
@@ -119,6 +122,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
       fprintf(stdout,"%s: %s\n", prefix, s);
 
 #if !defined(_Windows) && !defined(BIT32ENV) && (defined(__TURBOC__) || (_MSC_VER >= 700))
+
    if (_osmajor >= 3 )
    {
       union REGS regs;
@@ -142,20 +146,6 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
                                  second almost duplicate literal str  */
       } /* if ( redirect ) */
 
-/*--------------------------------------------------------------------*/
-/*               Abort if that is the suggested action                */
-/*--------------------------------------------------------------------*/
-
-      switch( regs.h.bl )
-      {
-         case 0x04:
-         case 0x05:
-               bugout( lineno, fname);
-
-         default:
-               break;
-      } /* switch */
-   } /* (_osmajor >= 3 ) */
 #endif
 
 } /* printerr */
