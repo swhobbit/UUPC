@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.5 1994/04/26 02:47:50 ahd Exp $
+#       $Id: nmakos22.mak 1.6 1994/05/23 21:40:09 ahd Exp ahd $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.6  1994/05/23  21:40:09  ahd
+#       Add support for non-TCP/IP UUCICO under 32 bit OS/2
+#
 #       Revision 1.5  1994/04/26  02:47:50  ahd
 #       Re-enable automatic preset header generation - kendra's CPU is just
 #       too slow not too.
@@ -62,7 +65,7 @@ DBGOPT  = -Ti -DUDEBUG -Tx # -D__DEBUG_ALLOC__ -Wall -Wcnv- -Wext- -Wgen- -Wlan-
 !endif
 
 COMMOPT = -Sv -Q $(DBGOPT) -Gd
-CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@ -Fi
+CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@
 LDOPT   = -b"/A:4 /BAT" $(COMMOPT) -Fe $@
 UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
