@@ -17,8 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.29 1993/11/08 04:46:49 ahd Exp $
+ *       $Id: ulibos2.c 1.30 1993/11/15 05:43:29 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.30  1993/11/15  05:43:29  ahd
+ * Save/restore port status for dain bramaged programs like TCP/IP
+ * Normalize, shorten error messages
+ *
  * Revision 1.29  1993/11/08  04:46:49  ahd
  * Drop DTR if program is killed
  *
@@ -184,7 +188,7 @@ static void ShowModem( const BYTE status );
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int nopenline(char *name, BPS baud, const boolean direct )
+int nopenline(char *name, BPS portSpeed, const boolean direct )
 {
 
    APIRET rc;
@@ -206,7 +210,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       closeline();               /* Yes --> Shutdown it before open */
 
 #ifdef UDEBUG
-   printmsg(15, "nopenline: %s, %lu", name, baud);
+   printmsg(15, "nopenline: %s, %lu", name, portSpeed);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -278,7 +282,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
    saveSpeed = GetSpeed();    /* Save original speed                 */
-   SIOSpeed(baud);
+   SIOSpeed(portSpeed);
 
 /*--------------------------------------------------------------------*/
 /*                        Set line attributes                         */
@@ -528,6 +532,8 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    time_t now ;
    USHORT com_error;
 
+   boolean firstPass = TRUE;
+
 #ifdef __OS2__
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
@@ -577,8 +583,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
    if (rc )
    {
-      printmsg(0,"nsread: Unable to read port errors");
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_GETCOMMERROR", rc );
    } /*if */
    else if ( com_error )
       ShowError( com_error );
@@ -604,7 +609,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    do {
       USHORT needed =  (USHORT) wanted - commBufferUsed;
 
-      USHORT port_timeout;
+      USHORT portTimeout;
 
 #ifdef __OS2__
       ULONG received = 0;
@@ -634,18 +639,20 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*           Compute a new timeout for the read, if needed            */
 /*--------------------------------------------------------------------*/
 
-      if (stop_time > now )
+      if ((stop_time <= now ) || firstPass )
       {
-         port_timeout = (USHORT) (stop_time - now) / needed * 100;
-         if (port_timeout < 100)
-            port_timeout = 100;
+         portTimeout = 0;
+         firstPass = FALSE;
       }
-      else
-         port_timeout = 0;
+      else {
+         portTimeout = (USHORT) (stop_time - now) / needed * 100;
+         if (portTimeout < 100)
+            portTimeout = 100;
+      } /* else */
 
-      if ( port_timeout != com_dcbinfo.usReadTimeout )
+      if ( portTimeout != com_dcbinfo.usReadTimeout )
       {
-         com_dcbinfo.usReadTimeout = port_timeout;
+         com_dcbinfo.usReadTimeout = portTimeout;
 
 #ifdef __OS2__
 
@@ -672,15 +679,14 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 #endif
          if ( rc )
          {
-            printmsg(0,"nsread: Unable to set timeout for comm port");
-            printOS2error( "DosDevIOCtl", rc );
+            printOS2error( "ASYNC_SETDCBINFO", rc );
             panic();
          } /* if */
       } /* if */
 
 #ifdef UDEBUG
       printmsg(15,"nsread: Port time out is %ud seconds/100",
-               port_timeout);
+               portTimeout);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -689,7 +695,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
       rc = DosRead( com_handle,
                     commBuffer + commBufferUsed,
-                    needed,
+                    portTimeout ? needed : commBufferLength - commBufferUsed,
                     &received );
 
       if ( rc == ERROR_INTERRUPT)
@@ -724,10 +730,12 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       commBufferUsed += received;
-      if ( commBufferUsed == wanted )
+      if ( commBufferUsed >= wanted )
       {
-         memcpy( output, commBuffer, commBufferUsed);
-         commBufferUsed = 0;
+         memcpy( output, commBuffer, wanted );
+         commBufferUsed -= wanted;
+         if ( commBufferUsed )   /* Any data left over?              */
+            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
 
          return wanted;
 
@@ -904,7 +912,7 @@ void ncloseline(void)
    com_signals.fbModemOn  = 0x00;
    com_signals.fbModemOff = DTR_OFF;
 
-   printmsg(2,"Restoring port attributes and speed %ul",
+   printmsg(2,"Restoring port attributes and speed %lu",
                (unsigned long) saveSpeed );
 
 #ifdef __OS2__
@@ -1146,7 +1154,7 @@ void nhangup( void )
 /*    command state because it is at the wrong speed or whatever.)    */
 /*--------------------------------------------------------------------*/
 
-void nSIOSpeed(BPS baud)
+void nSIOSpeed(BPS portSpeed)
 {
    APIRET rc;
 
@@ -1157,33 +1165,33 @@ void nSIOSpeed(BPS baud)
 
    struct
    {
-      ULONG baud;       /* this structure is needed to set the extended  */
+      ULONG portSpeed;  /* this structure is needed to set the extended  */
       BYTE fraction;    /* port speed using function 41h DosDevIOCtl  */
-   } com_baud;
+   } comPortSpeed;
 
 #else
 
-   USHORT speed = (USHORT) baud;
+   USHORT speed = (USHORT) portSpeed;
 
 #endif
 
 #ifdef UDEBUG
    printmsg(15,"SIOSpeed: Setting port speed to %lu",
-               (unsigned long) baud);
+               (unsigned long) portSpeed);
 #endif
 
 #ifdef __OS2__
 
-   com_baud.baud = baud;
-   com_baud.fraction = 0;
-   ParmLengthInOut = sizeof(com_baud);
+   comPortSpeed.portSpeed = portSpeed;
+   comPortSpeed.fraction = 0;
+   ParmLengthInOut = sizeof(comPortSpeed);
    DataLengthInOut = 0;
 
    rc = DosDevIOCtl( com_handle,
                     IOCTL_ASYNC,
                     ASYNC_SETBAUDRATE,
-                    (PVOID) &com_baud,
-                    sizeof(com_baud),
+                    (PVOID) &comPortSpeed,
+                    sizeof(comPortSpeed),
                     &ParmLengthInOut,
                     NULL,
                     0L,
@@ -1200,12 +1208,12 @@ void nSIOSpeed(BPS baud)
    if (rc)
    {
       printmsg(0,"SIOSPeed: Unable to set port speed for port to %lu",
-               baud);
-      printOS2error( "DosDevIOCtl", rc );
+               portSpeed);
+      printOS2error( "ASYNC_SETBAUDRATE", rc );
       panic();
    } /*if */
 
-   currentSpeed = (unsigned short) baud;
+   currentSpeed = (unsigned short) portSpeed;
 
 } /* nSIOSpeed */
 
@@ -1259,8 +1267,7 @@ void nflowcontrol( boolean flow )
 
    if ( rc )
    {
-      printmsg(0,"flowcontrol: Unable to set flow control");
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETDCBINFO", rc );
       panic();
    } /*if */
 
@@ -1283,9 +1290,9 @@ BPS nGetSpeed( void )
 
    struct
    {
-      ULONG baud;       /* this structure is needed to set the extended  */
+      ULONG portSpeed;  /* this structure is needed to set the extended  */
       BYTE fraction;    /* port speed using function 41h DosDevIOCtl  */
-   } com_baud;
+   } comPortSpeed;
 
    BPS speed;
 
@@ -1302,11 +1309,11 @@ BPS nGetSpeed( void )
 #ifdef __OS2__
 
 /*--------------------------------------------------------------------*/
-/*       OS/2 2.x Format of call for DosDevIOCtl accepts baud         */
+/*       OS/2 2.x Format of call for DosDevIOCtl accepts portSpeed    */
 /*       rates greater than 19200.                                    */
 /*--------------------------------------------------------------------*/
 
-   DataLengthInOut = sizeof(com_baud);
+   DataLengthInOut = sizeof(comPortSpeed);
    ParmLengthInOut = 0;
 
    rc = DosDevIOCtl( com_handle,
@@ -1315,11 +1322,11 @@ BPS nGetSpeed( void )
                     NULL,
                     0L,
                     &ParmLengthInOut,
-                    (PVOID) &com_baud,
-                    sizeof(com_baud),
+                    (PVOID) &comPortSpeed,
+                    sizeof(comPortSpeed),
                     &DataLengthInOut);
 
-   speed = com_baud.baud;
+   speed = comPortSpeed.portSpeed;
 
 #else
    rc = DosDevIOCtl( &speed,
@@ -1332,7 +1339,6 @@ BPS nGetSpeed( void )
 
    if (rc)
    {
-      printmsg(0,"nGetSpeed: Unable to get port speed");
       printOS2error( "ASYNC_GETBAUDRATE", rc );
       panic();
    } /*if */
@@ -1388,8 +1394,7 @@ boolean nCD( void )
 
    if ( rc )
    {
-      printmsg(0,"CD: Unable to get modem status");
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_GETMODEMINPUT", rc );
    } /*if */
 
    if ( status != oldstatus )
