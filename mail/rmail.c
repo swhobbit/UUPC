@@ -224,8 +224,6 @@
 #include <windows.h>
 #endif
 
-#include <windows.h>
-
 /*--------------------------------------------------------------------*/
 /*                     Application include files                      */
 /*--------------------------------------------------------------------*/
@@ -679,8 +677,6 @@ static void ParseFrom(
    KWBoolean bWriteReceived = KWTrue;
 
    sender->remote = KWTrue;
-
-   BREAKPOINT;
 
 /*--------------------------------------------------------------------*/
 /*           Use UUXQT Information for nodename, if available         */
