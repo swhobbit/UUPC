@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: NBSTIME.C 1.3 1993/04/11 00:34:11 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: NBSTIME.C $
+ * Revision 1.3  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -202,7 +205,7 @@ boolean nbstime( void )
 
 #endif /* FAMILYAPI */
 
-#ifdef NONDOS
+#if defined( FAMILYAPI )
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
@@ -218,6 +221,23 @@ boolean nbstime( void )
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
+#elif defined( WIN32 )
+   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
+      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
+      (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
+      (int) DateTime.wDayOfWeek );
+
+   DateTime.wYear    = (WORD) tp->tm_year + 1900;
+   DateTime.wMonth   = (WORD) (tp->tm_mon + 1);
+   DateTime.wDay     = (WORD) tp->tm_mday;
+   DateTime.wHour    = (WORD) tp->tm_hour;
+   DateTime.wMinute  = (WORD) tp->tm_min;
+   DateTime.wSecond  = (WORD) tp->tm_sec;
+   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
+      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
+      (int) DateTime.wHour, (int) DateTime.wMinute, (int) DateTime.wSecond ,
+      (int) DateTime.wDayOfWeek );
+
 #endif
 
 #ifdef WIN32  /* See July edition of Programmer's Overview, p. 268-69 */
@@ -270,7 +290,7 @@ boolean nbstime( void )
       printmsg(0,"Return code from DosGetDateTime %d", rc);
       panic();
    }
-#endif /* WIN32 */
+#endif /* FAMILYAPI */
 
 #ifndef NONDOS
 #ifdef __TURBOC__
@@ -290,7 +310,7 @@ boolean nbstime( void )
    ddate.day     = (unsigned char) tp->tm_mday;
    ddate.month   = (unsigned char) (tp->tm_mon + 1);
    ddate.year    = (unsigned int)  (tp->tm_year + 1900);
-   ddate.dayofweek = (unsigned char) tp->tm_wday;       /* 0-6, 0=Sunday */
+   ddate.dayofweek = (unsigned char) tp->tm_wDay;       /* 0-6, 0=Sunday */
 
    dtime.hour    = (unsigned char) tp->tm_hour;
    dtime.minute  = (unsigned char) tp->tm_min;

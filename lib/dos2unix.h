@@ -18,15 +18,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.4 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: DOS2UNIX.H 1.1 1993/04/05 04:38:55 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: DOS2UNIX.H $
+ * Revision 1.1  1993/04/05  04:38:55  ahd
+ * Initial revision
+ *
  */
 
 #include "uundir.h"
 
 time_t dos2unix( const FDATE ddmmyy,
                  const FTIME ssmmhh );
+
+#ifdef WIN32
+time_t nt2unix( FILETIME *nsec );
+#endif
 
 #endif
