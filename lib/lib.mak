@@ -1,7 +1,13 @@
-#     $Header: E:\src\uupc\LIB\RCS\LIB.MAK 1.3 1992/11/23 02:46:06 ahd Exp $
+#     $Header: E:\SRC\UUPC\LIB\RCS\lib.mak 1.5 1993/03/06 22:47:34 ahd Exp $
 #
 #     Revision history:
-#     $Log: LIB.MAK $
+#     $Log: lib.mak $
+#    Revision 1.5  1993/03/06  22:47:34  ahd
+#    Move active into shared library
+#
+#       Revision 1.4  1992/11/27  14:37:34  ahd
+#       Add scrsize() to build
+#
 #       Revision 1.3  1992/11/23  02:46:06  ahd
 #       Addd strpool and normalize to build list
 #
@@ -21,9 +27,11 @@
 
 #       The names of various object files that we create.
 
-LIBLST1=+$(OBJ)\arbmath.obj+$(OBJ)\arpadate.obj+$(OBJ)\bugout.obj\
+LIBLST1=+$(OBJ)\active.obj\
+        +$(OBJ)\arbmath.obj+$(OBJ)\arpadate.obj+$(OBJ)\bugout.obj\
         +$(OBJ)\catcher.obj+$(OBJ)\chdir.obj+$(OBJ)\checkptr.obj\
-        +$(OBJ)\configur.obj+$(OBJ)\dater.obj+$(OBJ)\expath.obj
+        +$(OBJ)\configur.obj+$(OBJ)\dater.obj+$(OBJ)\dos2unix.obj\
+        +$(OBJ)\expath.obj
 LIBLST2=+$(OBJ)\export.obj+$(OBJ)\filebkup.obj+$(OBJ)\fopen.obj\
         +$(OBJ)\getargs.obj+$(OBJ)\getopt.obj+$(OBJ)\getseq.obj\
         +$(OBJ)\hostable.obj+$(OBJ)\hostatus.obj
