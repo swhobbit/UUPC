@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.65 1995/02/21 03:30:52 ahd v1-12n $
+ *    $Id: configur.c 1.66 1995/02/24 00:37:28 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.66  1995/02/24 00:37:28  ahd
+ *    Optimize which variables are included where
+ *
  *    Revision 1.65  1995/02/21 03:30:52  ahd
  *    More compiler warning cleanup, drop selected messages at compile
  *    time if not debugging.
@@ -379,7 +382,7 @@ CONFIGTABLE envtable[] = {
    {"maildir",      &E_maildir,      B_MAIL,    B_GLOBAL|B_PATH },
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
    {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
-   {"mailserv",     &E_mailserv,     B_MAIL,    B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"mailserv",     &E_mailserv,     B_MAIL|B_INEWS,    B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
    {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
    {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
@@ -393,7 +396,7 @@ CONFIGTABLE envtable[] = {
    {"nodename",     &E_nodename,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"options",      bflag,           B_ALL,     B_BOOLEAN },
    {"organization", &E_organization, B_INEWS|B_MAIL, B_STRING },
-   {"pager",        &E_pager,        B_INEWS|B_MUA, B_STRING },
+   {"pager",        &E_pager,        B_MUA, B_STRING },
    {"passwd",       &E_passwd,       B_ALL,     B_GLOBAL|B_PATH },
    {"path",         &E_uuxqtpath,    B_UUXQT,   B_STRING|B_GLOBAL },
    {"permissions",  &E_permissions,  B_UUCICO|B_UUXQT,   B_GLOBAL|B_PATH },
@@ -406,7 +409,7 @@ CONFIGTABLE envtable[] = {
    {"rmail",        0,               B_OBSOLETE  },
    {"rnews",        0,               B_OBSOLETE  },
    {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
-   {"spooldir",     &E_spooldir,     B_SPOOL,   B_GLOBAL|B_PATH },
+   {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
    {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
    {"tempdir",      &E_tempdir,      B_ALL,     B_GLOBAL|B_PATH },
    {"tz",           &E_tz,           B_ALL,     B_TOKEN },

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.21 1995/02/21 03:30:52 ahd Exp $
+  *      $Id: hostable.c 1.22 1995/02/21 13:02:33 ahd v1-12n $
   *
   *      $Log: hostable.c $
+  *      Revision 1.22  1995/02/21 13:02:33  ahd
+  *      Supress compiler warning
+  *
   *      Revision 1.21  1995/02/21 03:30:52  ahd
   *      More compiler warning cleanup, drop selected messages at compile
   *      time if not debugging.
@@ -180,6 +183,7 @@ struct HostTable *checkName(const char *name,
 /*--------------------------------------------------------------------*/
 
    column = namel - localdomainl;
+
    if ((namel > localdomainl) && equali(E_localdomain, &name[column]) &&
        (name[ column - 1] == '.'))
    {
@@ -193,6 +197,7 @@ struct HostTable *checkName(const char *name,
 /*--------------------------------------------------------------------*/
 
    column = namel - 5;
+
    if ((column > 0) && equali(".UUCP", &name[column]))
    {
       if ((hostz = searchname(name, column )) != BADHOST)
@@ -206,8 +211,10 @@ struct HostTable *checkName(const char *name,
    if ((namel + localdomainl + 2) < MAXADDR)
    {
       sprintf(hostname,"%s.%s",name,E_localdomain);
+
       if ((hostz = searchname(hostname, MAXADDR)) != BADHOST)
          return hostz;
+
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -223,6 +230,7 @@ struct HostTable *checkName(const char *name,
 /*--------------------------------------------------------------------*/
 
    period = (char *) name;    /* Begin at front of name               */
+
    while( period != NULL )
    {
       sprintf( hostname,(*period == '.') ? "*%s" : "*.%s",period);
@@ -319,6 +327,7 @@ struct HostTable *searchname(const char *name, const size_t namel)
 /*--------------------------------------------------------------------*/
 
       hit = strnicmp(name,hosts[midpoint].hostname,namel);
+
       if (hit > 0)
          lower = midpoint + 1;
       else if ((hit < 0) || (strlen(hosts[midpoint].hostname) > namel))
@@ -415,6 +424,7 @@ struct HostTable *inithost(char *name)
 #endif
 
    }
+
    checkref(hosts);
 
 /*--------------------------------------------------------------------*/
@@ -466,18 +476,6 @@ static size_t loadhost()
    struct HostTable *hostp;
 
 /*--------------------------------------------------------------------*/
-/*                      Validate the domain name                      */
-/*--------------------------------------------------------------------*/
-
-   token = strrchr(E_domain,'.');
-
-   if (token == NULL)
-   {
-      printmsg(0,"Domain name \"%s\" is invalid, missing period",E_domain);
-      panic();
-   }
-
-/*--------------------------------------------------------------------*/
 /*                  Load the local host information                   */
 /*--------------------------------------------------------------------*/
 
@@ -490,15 +488,33 @@ static size_t loadhost()
 /*                Now do the local domain information                 */
 /*--------------------------------------------------------------------*/
 
-   hostp = inithost(E_domain);
+   if ( E_domain != NULL )
+   {
 
-   if (hostp->via == NULL )   /* Not initialized?                     */
-      hostp->via      = E_nodename;  /* Correct --> Route via local   */
-   else
-      panic();                /* "Houston, we a have problem" -
-                                 Apollo 13                            */
+      if (strchr(E_domain,'.') == NULL)
+      {
+         printmsg(0,"Domain name \"%s\" is invalid, missing period",
+                     E_domain);
+         panic();
+      }
 
-   hostp->realname = E_nodename;
+      token = strchr( E_domain, '%' );
+
+      if ( token == NULL )
+         token = strchr( E_domain, '!' );
+
+      if (token != NULL)
+      {
+         printmsg(0,"Domain name \"%s\" contains invalid character \"%c\"",
+                     E_domain,
+                     *token );
+         panic();
+      }
+
+      hostp = inithost(E_domain);
+      hostp->via = hostp->realname = E_nodename;
+
+   } /* if ( E_domain != NULL ) */
 
 /*--------------------------------------------------------------------*/
 /*    If we allow anonymous UUCP, load the dummy host we use for      */
@@ -517,6 +533,7 @@ static size_t loadhost()
 /*--------------------------------------------------------------------*/
 
    ff = FOPEN(E_systems, "r",TEXT_MODE);
+
    if (ff == NULL)
    {
       printerr(E_systems);
@@ -527,9 +544,12 @@ static size_t loadhost()
    {
       if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line       */
          break;                  /* Exit if end of file               */
+
       token = strtok(buf,WHITESPACE);
+
       if (token == NULL)         /* Any data?                         */
          continue;               /* No --> read another line          */
+
       if (token[0] == '#')
          continue;                  /* Line is a comment; loop again  */
 
@@ -546,6 +566,7 @@ static size_t loadhost()
       {
          hostp->status.hstatus = nocall;
       }
+
    } /* while */
 
    fclose(ff);
@@ -556,7 +577,8 @@ static size_t loadhost()
 
    mkfilename(s_hostable, E_confdir, PATHS);
 
-   if ((ff = FOPEN(s_hostable, "r",TEXT_MODE)) != NULL)
+   if ((E_mailserv != NULL ) &&
+       (ff = FOPEN(s_hostable, "r",TEXT_MODE)) != NULL)
    {
 
       while (! feof(ff))
@@ -565,6 +587,7 @@ static size_t loadhost()
 
          if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line    */
             break;                  /* Exit if end of file            */
+
          token = strtok(buf,WHITESPACE);
 
          if (token == NULL)         /* Any data?                      */
@@ -582,9 +605,11 @@ static size_t loadhost()
                         hostp->hostname);
             freeit = KWTrue;
          }
+
 /*--------------------------------------------------------------------*/
 /*                              Gate way                              */
 /*--------------------------------------------------------------------*/
+
          else if (equal(token,"|"))
          {
             token = strtok(NULL,"\n");
@@ -601,6 +626,7 @@ static size_t loadhost()
                   freeit = KWTrue;         /* Yes --> Flag for error   */
                else
                   hostp->via = token = newstr(token);
+
             } /* else if */
 
             if ( freeit )
@@ -608,9 +634,11 @@ static size_t loadhost()
                      hostp->hostname );
 
          } /* else if */
+
 /*--------------------------------------------------------------------*/
 /*                               Alias                                */
 /*--------------------------------------------------------------------*/
+
          else if (equal(token,"="))
          {
             token = strtok(NULL,WHITESPACE);
@@ -618,14 +646,19 @@ static size_t loadhost()
             if (( hostp->realname == NULL ) && (token != NULL))
                hostp->realname = token = newstr( token );
             else {
+
                printmsg(0,"loadhost: Invalid/duplicate alias of \"%s\"",
                      hostp->hostname );
                freeit = KWTrue;
+
             } /* else */
+
          } /* else if (equal(token,"=")) */
+
 /*--------------------------------------------------------------------*/
 /*                           Routing entry                            */
 /*--------------------------------------------------------------------*/
+
          else {
 
             if ( hostp->via == NULL )
@@ -644,11 +677,14 @@ static size_t loadhost()
 
             if (*token == '*')       /* Wildcard on right side?    */
             {
-               printmsg(0,
-     "loadhost: Wildcard \"%s\" not allowed for real name of host \"%s\"",
-         token, hostp->hostname);
+               printmsg(0, "loadhost: Wildcard \"%s\" not "
+                           "allowed for real name of host \"%s\"",
+                           token,
+                           hostp->hostname);
                freeit = KWTrue;
+
             } /* if (*token == '*') */
+
          } /* if ( ! freeit ) */
 
          if ( freeit )
@@ -656,28 +692,35 @@ static size_t loadhost()
             if ( hostp->status.hstatus == phantom )
                HostElements--;            /* Ignore the routing entry */
          }
+
       }  /* end while */
 
       fclose(ff);
-   }
+
+   } /* if ((E_mailserv != NULL ) && ... */
    else {
-      if ( debuglevel > 2 )
+
+      if (( debuglevel > 2 ) && (E_mailserv != NULL ))
          perror( s_hostable );
-   }
+
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                   Provide default for fromdomain                   */
 /*--------------------------------------------------------------------*/
 
-   if (E_fdomain != NULL)     /* If fromdomain provided ...           */
+   if ( E_mailserv != NULL )
    {
-      hostp = inithost(E_fdomain);
+      if (E_fdomain != NULL)     /* If fromdomain provided ...        */
+      {
+         hostp = inithost(E_fdomain);
 
-      if (hostp->via == NULL)    /* Uninitialized?                    */
-         hostp->via = E_mailserv;   /* Yes --> Use default route      */
+         if (hostp->via == NULL)    /* Uninitialized?                 */
+            hostp->via = E_mailserv;   /* Yes --> Use default route   */
+      }
+      else
+         E_fdomain = E_domain;   /* Use domain as fromdomain          */
    }
-   else
-      E_fdomain = E_domain;   /* Use domain as fromdomain             */
 
 /*--------------------------------------------------------------------*/
 /*    Shrink the table to whatever we actually need, then sort it     */
@@ -687,6 +730,27 @@ static size_t loadhost()
    checkref(hosts);
 
    qsort(hosts, HostElements ,sizeof(hosts[0]) , hostcmp);
+
+/*--------------------------------------------------------------------*/
+/*                      Display the final table                       */
+/*--------------------------------------------------------------------*/
+
+   for (hit = 0; hit < HostElements; hit++)
+   {
+      printmsg(8,"loadhost: entry[%02d] %-20s\tvia %s\talias %s",
+                  hit,
+                  hosts[hit].hostname,
+                  (hosts[hit].via == NULL) ? "(self)" : hosts[hit].via,
+                  (hosts[hit].realname == NULL)
+                                    ? "(self)" : hosts[hit].realname);
+   } /* for */
+
+/*--------------------------------------------------------------------*/
+/*      If not processing domain/routing information, return now      */
+/*--------------------------------------------------------------------*/
+
+   if ( E_mailserv == NULL )
+      return (HostElements) ;
 
 /*--------------------------------------------------------------------*/
 /*    If the user did not define a local domain, then generate one    */
@@ -702,6 +766,7 @@ static size_t loadhost()
       if (E_localdomain == NULL)
          E_localdomain = "UUCP";
       else {
+
          E_localdomain ++;    /* Step past the period                 */
 
          if ( !equali(E_localdomain, "UUCP" ) &&
@@ -709,6 +774,7 @@ static size_t loadhost()
                               /* Implied single level domain name?    */
             E_localdomain = E_domain;
                               /* Impossible, use both parts of name   */
+
       } /* else */
 
       printmsg(3,"loadhost: domain name is %s, "
@@ -735,24 +801,11 @@ static size_t loadhost()
    }
 
 /*--------------------------------------------------------------------*/
-/*                      Display the final table                       */
-/*--------------------------------------------------------------------*/
-
-   for (hit = 0; hit < HostElements; hit++)
-   {
-      printmsg(8,"loadhost: entry[%02d] %-20s\tvia %s\talias %s",
-                  hit,
-                  hosts[hit].hostname,
-                  (hosts[hit].via == NULL) ? "(self)" : hosts[hit].via,
-                  (hosts[hit].realname == NULL)
-                                    ? "(self)" : hosts[hit].realname);
-   } /* for */
-
-/*--------------------------------------------------------------------*/
 /*                          Return to caller                          */
 /*--------------------------------------------------------------------*/
 
    return (HostElements) ;
+
 } /*loadhost*/
 
 /*--------------------------------------------------------------------*/
@@ -764,6 +817,8 @@ static size_t loadhost()
 
 int hostcmp( const void *a , const void *b )
 {
+
    return stricmp(((struct HostTable*) a)->hostname,
         ((struct HostTable*) b)->hostname);
+
 }  /*hostcmp*/
