@@ -125,7 +125,7 @@ struct direct *readdir(DIR *dirp)
    {
       flushall();
       printmsg(0,"readdir: INTERNAL ERROR: dirp pointer is NULL");
-      printmsg(0,"readdir: Snuffles debug code: %s %p %p %p",
+      printmsg(0,"readdir: Snuffles debug code: %s %p %p",
                   openForBusiness ? "Open" : "Closed",
                   lastDirP,
                   thisDirP );
