@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.5 1994/01/01 19:20:54 ahd Exp $
+ *    $Id: suspend.c 1.6 1994/02/19 05:10:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ * Revision 1.6  1994/02/19  05:10:08  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/01/01  19:20:54  ahd
  * Annual Copyright Update
  *
@@ -77,8 +80,9 @@ boolean suspend_processing = FALSE;
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-void suspend_init(const char *port )
+boolean suspend_init(const char *port )
 {
+   return FALSE;
 }
 
 #if _MSC_VER >= 700
