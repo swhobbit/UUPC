@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.4 1992/12/18 12:05:57 ahd Exp $
+ *    $Id: SCRSIZE.C 1.5 1992/12/30 05:27:11 plummer Exp $
  *
  *    $Log: SCRSIZE.C $
+ *     Revision 1.5  1992/12/30  05:27:11  plummer
+ *     MS C compile fixes
+ *
  * Revision 1.4  1992/12/18  12:05:57  ahd
  * Fix query for ANSI sys
  *
@@ -84,6 +87,9 @@ short scrsize( void )
 /*            If an old version of DOS, return stock size             */
 /*--------------------------------------------------------------------*/
 
+   if ((*bios_rows < 20 ) || (*bios_rows > 99)) /* Sanity check   */
+      default_rows = 24;
+
    if ((_osmajor < 4) || error )
       return (short) (default_rows ? default_rows : *bios_rows);
                                  /* Faster, but not well documented  */
@@ -113,9 +119,6 @@ short scrsize( void )
 
    if ( regs.x.cflag )
    {
-      if ((*bios_rows < 20 ) || (*bios_rows > 99)) /* Sanity check   */
-         default_rows = 24;
-
       printmsg(2,"DOS error %d retrieving screen size, using BIOS value %d",
                   (int) regs.x.ax,
                   (short) (default_rows ? default_rows : *bios_rows ));
