@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.7 1993/05/30 15:27:22 ahd Exp $
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: lib.h $
+ *     Revision 1.8  1993/06/13  14:12:29  ahd
+ *     Changes per Mike McLagan for outbound batched news support
+ *
  *     Revision 1.7  1993/05/30  15:27:22  ahd
  *     Drop PASSWD, SYSTEMS definitions
  *
