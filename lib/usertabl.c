@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.8 1993/10/12 00:49:39 ahd Exp $
+ *    $Id: usertabl.c 1.9 1993/11/06 13:04:13 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *     Revision 1.9  1993/11/06  13:04:13  ahd
+ *     Trap NULL user passwords
+ *
  *     Revision 1.8  1993/10/12  00:49:39  ahd
  *     Normalize comments
  *
@@ -243,7 +246,7 @@ static size_t loaduser( void )
 
       if ( token == NULL )       /* No password needed for login?     */
          printmsg(2,"loaduser: WARNING: No password assigned for user %s",
-                     users[hit].uid );
+                     userp->uid );
       else if (!equal(token,"*")) /* User can login with passwd?      */
          userp->password = newstr(token); /* Yes --> Set password     */
 
