@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.66 1995/02/24 00:37:28 ahd v1-12n $
+ *    $Id: configur.c 1.67 1995/02/25 18:21:44 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.67  1995/02/25 18:21:44  ahd
+ *    Correct selected flags for config variables
+ *
  *    Revision 1.66  1995/02/24 00:37:28  ahd
  *    Optimize which variables are included where
  *
@@ -451,7 +454,6 @@ FLAGTABLE configFlags[] = {
  { "bang",                    F_BANG,                  B_GLOBAL},
  { "bounce",                  F_BOUNCE,                B_GLOBAL},
  { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
- { "compressbatch",           F_COMPRESSBATCH,         B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
  { "fastnews",                F_NEWSRUN,               B_GLOBAL},
@@ -464,7 +466,6 @@ FLAGTABLE configFlags[] = {
  { "multitask",               F_MULTITASK,             B_GLOBAL},
  { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "nns",                     F_NNS,                   B_GLOBAL},
- { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
  { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
  { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
