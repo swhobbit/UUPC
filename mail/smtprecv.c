@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.15 1998/05/11 01:20:48 ahd Exp $
+ *       $Id: smtprecv.c 1.16 1998/05/11 13:54:34 ahd v1-13b $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ * Revision 1.16  1998/05/11  13:54:34  ahd
+ * Correct determination of current local host
+ *
  *       Revision 1.15  1998/05/11 01:20:48  ahd
  *       Allow disallowing third-party relaying by default
  *
@@ -95,7 +98,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.15 1998/05/11 01:20:48 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.16 1998/05/11 13:54:34 ahd v1-13b $");
 
 currentfile();
 
@@ -163,6 +166,26 @@ commandMAIL(SMTPClient *client,
    KWBoolean ourProblem;
    size_t lenHost;
    size_t lenDomain;
+
+/*--------------------------------------------------------------------*/
+/*       Handle special case of @@nodename, which is what some        */
+/*       bogus mailers use for the postmaster by mistake              */
+/*--------------------------------------------------------------------*/
+
+   if (strlen(operands[0]) > 2 &&
+       equaln(operands[0], "@@", 2) &&
+       (strchr(operands[0] + 2, '@') == NULL))
+   {
+      printmsg(0,"%s: Invalid address %s from %s "
+                 "replaced by postmaster address",
+                 operands[0],
+                 client->connection.hostName );
+       strcpy( operands[0], "<>");
+   }
+
+/*--------------------------------------------------------------------*/
+/*                         Validate the address                       */
+/*--------------------------------------------------------------------*/
 
    if (! stripAddress(operands[0], response))
    {
