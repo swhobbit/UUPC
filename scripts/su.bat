@@ -6,6 +6,20 @@ REM *   Address:        help@kendra.kew.com                            *
 REM *   Function:       Demonstration of multiple user support         *
 REM *                   with UUPC/extended                             *
 REM *------------------------------------------------------------------*
+
+REM *------------------------------------------------------------------*
+REM *    Changes Copyright (c) 1989-1993 by Kendra Electronic         **
+REM *    Wonderworks.                                                 **
+REM *                                                                 **
+REM *    All rights reserved except those explicitly granted by       **
+REM *    the UUPC/extended license agreement.                         **
+REM *------------------------------------------------------------------*
+
+REM *   $Id$
+REM *
+REM *   $Log$
+
+REM *--------------------------------------------------------------*
 REM *  This command file provides a simple example of changing the *
 REM *  active user id (the user id used when sending mail) in      *
 REM *  UUPC/extended.  It assumes:                                 *
@@ -13,7 +27,8 @@ REM *                                                              *
 REM *  1) The configuration directory is C:\LIB\UUPC,              *
 REM *                                                              *
 REM *  2) That each user has a PERSONAL.RC file under under his    *
-REM *     under own name in the configuration directory.           *
+REM *     under own name in the configuration directory.  The      *
+REM *     user also normally needs a PASSWD file entry as well.    *
 REM *                                                              *
 REM *  3) The MS-DOS environment has enough space free to save an  *
 REM *     extra copy of the DOS prompt and the current UUPCUSRC    *
