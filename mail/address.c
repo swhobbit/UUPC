@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.8 1993/10/12 01:30:23 ahd Exp $
+ *    $Id: address.c 1.9 1994/01/01 19:11:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.9  1994/01/01  19:11:59  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/10/12  01:30:23  ahd
  * Normalize comments to PL/I style
  *

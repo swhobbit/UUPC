@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SYSALIAS.H 1.2 1993/04/11 00:36:13 ahd Exp $
+ *    $Id: sysalias.h 1.3 1994/01/01 19:13:45 ahd Exp $
  *
- *    $Log: SYSALIAS.H $
+ *    $Log: sysalias.h $
+ * Revision 1.3  1994/01/01  19:13:45  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1993/04/11  00:36:13  ahd
  * Global edits for year, TEXT, etc.
  *

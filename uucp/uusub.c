@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1990-1994 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-1994 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.7 1993/10/12 01:34:47 ahd Exp $
+ *    $Id: uusub.c 1.8 1994/01/01 19:27:44 ahd Exp $
  *
  *    $Log: uusub.c $
+ * Revision 1.8  1994/01/01  19:27:44  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.7  1993/10/12  01:34:47  ahd
  * Normalize comments to PL/I style
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.8 1993/12/07 05:02:09 ahd Exp $
+ *    $Id: deliver.h 1.9 1994/01/01 19:13:31 ahd Exp $
  *
  *    $Log: deliver.h $
+ * Revision 1.9  1994/01/01  19:13:31  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/12/07  05:02:09  ahd
  * rename fromUser and fromNode
  *
