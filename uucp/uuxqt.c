@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.31 1993/12/23 03:17:55 rommel Exp $
+ *    $Id: uuxqt.c 1.32 1994/01/01 19:28:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.32  1994/01/01  19:28:03  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.31  1993/12/23  03:17:55  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -274,6 +277,7 @@ void main( int argc, char **argv)
    extern char *optarg;
    extern int   optind;
    char *sysname = "all";
+   char *logname = NULL;
 
 /*--------------------------------------------------------------------*/
 /*     Report our version number and date/time compiled               */
@@ -291,8 +295,12 @@ void main( int argc, char **argv)
 /*        Process our arguments                                       */
 /*--------------------------------------------------------------------*/
 
-   while ((c = getopt(argc, argv, "s:x:")) !=  EOF)
+   while ((c = getopt(argc, argv, "l:s:x:")) !=  EOF)
       switch(c) {
+
+      case 'l':
+         logname = optarg;
+         break;
 
       case 's':
          sysname = optarg;
@@ -338,7 +346,7 @@ void main( int argc, char **argv)
 /*                     Initialize logging file                        */
 /*--------------------------------------------------------------------*/
 
-   openlog( NULL );
+   openlog( logname );
 
    checkuser( E_mailbox  );   /* Force User Table to initialize        */
    checkreal( E_mailserv );   /* Force Host Table to initialize        */
@@ -532,6 +540,8 @@ static void process( const char *fname,
         *output = NULL,
         *job_id = NULL;
    char hostfile[FILENAME_MAX];
+
+   struct F_list *qPtr;
 
 #if defined(BIT32ENV)
    char   line[2048];   /* New OS/2, Windows NT environments   */
@@ -761,7 +771,6 @@ static void process( const char *fname,
              && (strchr(cp,'\\') == NULL))
          {
             char temp[FILENAME_MAX];
-            struct F_list *p;
 
             importpath(temp, cp, remote);
             mkfilename(hostfile, E_spooldir, temp);
@@ -774,10 +783,10 @@ static void process( const char *fname,
                break;
             }
 
-            p = malloc(sizeof *F_list);
-            checkref(p);
-            p->next = F_list;
-            F_list = p;
+            qPtr = malloc(sizeof *F_list);
+            checkref(qPtr);
+            qPtr->next = F_list;
+            F_list = qPtr;
 
             F_list->spoolname = strdup(hostfile);
             checkref(F_list->spoolname);
@@ -884,7 +893,6 @@ static void process( const char *fname,
    if ( fxqt != NULL )
       fclose(fxqt);
 
-
    if ((command == NULL) && !skip)
    {
       printmsg(0,"No command supplied for X.* file %s, rejected", fname);
@@ -897,6 +905,23 @@ static void process( const char *fname,
 
    if ( !skip )
    {
+      if ( user == NULL )
+      {
+         user = strdup("uucp"); /* User if none given              */
+         checkref(user);
+      }
+
+      if ( machine == NULL )
+      {
+         machine = strdup( remote );
+         checkref( machine );
+      }
+
+      if (requestor == NULL)
+      {
+         requestor = strdup(user);
+         checkref(requestor);
+      }
 
 /*--------------------------------------------------------------------*/
 /*       Taylor/GNU uuxqt seems to check for both READ and WRITE      */
@@ -909,7 +934,9 @@ static void process( const char *fname,
 /*       fooled by handling such here.                                */
 /*--------------------------------------------------------------------*/
 
-      if ( ! reject && !equaln( command,"rmail ", 6))
+      if ( ! reject &&
+   //      ! equalni( command,"uucp ", 5) && /* Known to be secure   */
+           ! equalni( command,"rmail ", 6))  /* Known to be secure   */
       {
          char *next;
 
@@ -918,50 +945,41 @@ static void process( const char *fname,
 
          next = strtok( NULL, "");        /* Get rest of string      */
 
-         while( next )
+         while( next && ! reject )
          {
             char *token = strtok( next, WHITESPACE "'\"" );
             next = strtok( NULL, "");     /* Get rest of string      */
 
             strncpy( hostfile, token, sizeof hostfile);
 
-            if (( strlen( token ) > sizeof hostfile ) ||
+            if ((strlen( token ) > (sizeof hostfile -1)) || /* Too long ?  */
+                 (strstr( token ,".." ) != NULL ) ||     /* Parent games?  */
                  (expand_path(hostfile,
                               executeDirectory,
                               securep->pubdir,
-                              NULL) == NULL ))
-            {
+                              NULL) == NULL ))  /* Can't expand path?   */
                reject = xflag[E_NOACC] = TRUE;
-               break;
+                                 /* Cannot determine true file name
+                                    easily, reject it.               */
+            else if (equalni( executeDirectory,
+                              hostfile,
+                              strlen( executeDirectory )))
+            {
+               /* In execute directory, 'tis okay  */
             }
-
-            if (((strchr( token, ':' ) != NULL ) ||  /* drive letter? */
+            else if (((strchr( token, ':' ) != NULL ) ||  /* drive letter? */
                  (strchr( token, '/' ) != NULL ) ||  /* path sep? */
                  (strchr( token, '\\') != NULL )) && /* path sep? */
                  (!ValidateFile( hostfile, ALLOW_WRITE ) ||
                   !ValidateFile( hostfile, ALLOW_READ  )))
-            {
                reject = xflag[E_NOACC] = TRUE;
-               break;
-            } /* if */
 
-         } /* while( next ) */
+         } /* while( next && ! reject ) */
 
       } /* if ( ! reject && !equaln( command,"rmail ", 6)) */
 
       if ( !reject )
       {
-         if ( user == NULL )
-         {
-            user = strdup("uucp"); /* User if none given              */
-            checkref(user);
-         }
-
-         if (requestor == NULL)
-         {
-            requestor = strdup(user);
-            checkref(requestor);
-         }
 
          if (input == NULL)
          {
@@ -975,8 +993,10 @@ static void process( const char *fname,
          output = mktempname(NULL, "out");
 
          printmsg(equaln(command,RMAIL,5) ? 2 : 0,
-                  "uuxqt: executing \"%s\" for user %s at %s",
-                      command, user, machine);
+                     "uuxqt: executing \"%s\" for user %s at %s",
+                      command,
+                      user,
+                      machine);
 
 /*--------------------------------------------------------------------*/
 /*           Copy the input files to the execution directory          */
@@ -986,25 +1006,23 @@ static void process( const char *fname,
          PushDir(executeDirectory);
 
    //    purify( executeDirectory );
+   //    This needs to be enabled after we allow multiple directory
+   //    searches at once.  The MS C compiler warning is a reminder.
 
+         for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
          {
-            struct F_list *p;
-
-            for (p = F_list; p != NULL; p = p->next)
-            {
-               if (p->xqtname != NULL)
-                  if (!copylocal(p->spoolname, p->xqtname))
-                  {
-                     /* Should we try again later in case its a temporary
-                        error like execute directory on a full disk?  For
-                        now, just reject it completely. */
-                     printmsg(0, "Copy %s to %s failed",
-                                 p->spoolname, p->xqtname);
-                     reject = xflag[F_NOCOPY] = TRUE;
-                     break;
-                  }
-            } /* for ( ;; ) */
-        }
+            if (qPtr->xqtname != NULL)
+               if (!copylocal(qPtr->spoolname, qPtr->xqtname))
+               {
+                  /* Should we try again later in case its a temporary
+                     error like execute directory on a full disk?  For
+                     now, just reject it completely. */
+                  printmsg(0, "Copy %s to %s failed",
+                              qPtr->spoolname, qPtr->xqtname);
+                  reject = xflag[F_NOCOPY] = TRUE;
+                  break;
+               }
+         } /* for ( ;; ) */
 
 /*--------------------------------------------------------------------*/
 /*            Create the environment and run the command(s)           */
@@ -1075,26 +1093,28 @@ static void process( const char *fname,
 
          PopDir();
 
-         {
-            struct F_list *p;
-
-            for (p = F_list; p != NULL; p = p->next)
-               if (p->xqtname != NULL)
-                  unlink(p->xqtname);
-         }
+         for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
+            if (qPtr->xqtname != NULL)
+               unlink(qPtr->xqtname);
 
       } /* if (!reject) */
 
-      {
-         struct F_list *p;
+      for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
+         unlink(qPtr->spoolname);
 
-         for (p = F_list; p != NULL; p = p->next)
-            unlink(p->spoolname);
-      }
-
-      ReportResults( status, input, output, command, job_id,
-                     jtime, requestor, outnode, outname, xflag,
-                     statfil, machine, user);
+      ReportResults( status,
+                     input,
+                     output,
+                     command,
+                     job_id,
+                     jtime,
+                     requestor,
+                     outnode,
+                     outname,
+                     xflag,
+                     statfil,
+                     machine,
+                     user);
 
       if (!reject)
          unlink(output);
@@ -1109,16 +1129,16 @@ static void process( const char *fname,
 
    while (F_list != NULL)
    {
-      struct F_list *next;
-
       free(F_list->spoolname);
+
       if (F_list->xqtname != NULL)
          free(F_list->xqtname);
 
-      next = F_list->next;
+      qPtr = F_list->next;
       free(F_list);
-      F_list = next;
-   }
+      F_list = qPtr;
+
+   }  /* while (F_list != NULL) */
 
    if (command    != NULL) free(command);
    if (input      != NULL) free(input);
@@ -1470,7 +1490,6 @@ static boolean do_copy(char *localfile,
           char   *sequence_s;
           FILE   *cfile;
 
-
           sequence = getseq();
           sequence_s = JobNumber( sequence );
 
@@ -1530,11 +1549,12 @@ static void ReportResults(const int status,
                           const char *machine,
                           const char *user)
 {
+   char addrBuf[MAXADDR];
    char address[MAXADDR];
    char subject[80];
    FILE *mailtmp = NULL;
-   char *tempmail;
-
+   char *hisUser, *hisNode;
+   char tempmail[FILENAME_MAX];
 
    if (!(xflag[X_FAILED] | xflag[X_SUCCESS] |
          xflag[X_INPUT]  | xflag[X_STATFIL] ))
@@ -1542,7 +1562,39 @@ static void ReportResults(const int status,
       return;
    }
 
-   tempmail = mktempname(NULL, "tmp");
+#ifdef BETA_TEST
+   strcpy(address,"postmaster");
+#else
+
+   if ( strlen(requestor) >= sizeof address )
+   {
+      printmsg(0, "ReportResults: Overlength address %s", requestor );
+      panic();
+   }
+
+   strcpy( addrBuf, requestor );
+   hisUser = strtok( addrBuf, WHITESPACE );
+   hisNode = strtok( NULL,    WHITESPACE );
+
+   if ( hisNode == NULL )
+      hisNode = (char *) machine;
+
+   if (equal(hisNode, E_nodename))
+      strcpy(address, requestor);
+   else {
+
+      if ( equal( machine, hisNode ))
+         sprintf(address,"%s!%s", hisNode, hisUser );
+      else
+         sprintf(address,"%s!%s!%s", machine, hisNode, hisUser );
+
+      printmsg(4,"ReportResults: requestor %s, address %s",
+                  requestor, address );
+
+   } /* else */
+#endif
+
+   mktempname(tempmail, "tmp");
 
    if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
       printerr(tempmail);
@@ -1553,15 +1605,6 @@ static void ReportResults(const int status,
 
    fprintf(mailtmp,"remote execution\n");
    fprintf(mailtmp,"%s\n", command);
-
-#ifdef BETA_TEST
-   strcpy(address,"postmaster");
-#else
-   if (equal(machine, E_nodename))
-      strcpy(address, requestor);
-   else
-      sprintf(address,"%s!%s", machine, requestor);
-#endif
 
    if (xflag[E_NORMAL])
    {                        /* command succeded, process appropriate flags */
@@ -1640,6 +1683,7 @@ static void ReportResults(const int status,
 
    unlink(tempmail);
    return;
+
 } /* ReportResults */
 
 /*--------------------------------------------------------------------*/
