@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.18 1998/04/24 03:30:13 ahd Exp $
+ *    $Id: smtpnetw.c 1.19 1998/04/27 01:45:15 ahd v1-13a $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.19  1998/04/27 01:45:15  ahd
+ *    Revamp bufferring for larger buffers
+ *
  *    Revision 1.18  1998/04/24 03:30:13  ahd
  *    Use local buffers, not client->transmit.buffer, for output
  *    Rename receive buffer, use pointer into buffer rather than
@@ -112,7 +115,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.18 1998/04/24 03:30:13 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.19 1998/04/27 01:45:15 ahd v1-13a $");
 
 currentfile();
 
@@ -293,7 +296,7 @@ SMTPGetLine(SMTPClient *client)
       } /* if (client->receive.used < client->receive.allocated) */
       else {
 
-        printmsg(0, "%d <<< %.75s",
+        printmsg(0, "%d <<< %.125s",
                      getClientSequence(client),
                      client->receive.next);
         printmsg(0, "%s: Client %d Input buffer (%d bytes) overrun.",
@@ -331,7 +334,7 @@ SMTPGetLine(SMTPClient *client)
 
 #ifdef UDEBUG2
       if (debuglevel >= 6)
-         printmsg(6,"%s: Last line in buffer %p (%d bytes) at %p: %.75s",
+         printmsg(6,"%s: Last line in buffer %p (%d bytes) at %p: %.125s",
                   mName,
                   client->receive.buffer,
                   client->receive.allocated,
@@ -348,7 +351,7 @@ SMTPGetLine(SMTPClient *client)
    {
       clearClientFlag(client, SF_NO_TOKENIZE);
 
-      printmsg(5,"%d <<< %.75s",
+      printmsg(5,"%d <<< %.125s",
                getClientSequence(client),
                client->receive.line );
    }
@@ -377,7 +380,7 @@ SMTPGetLine(SMTPClient *client)
                   getClientSequence(client),
                   client->receive.line );
       else
-         printmsg(2,"%d <<< %.75s",
+         printmsg(2,"%d <<< %.125s",
                     getClientSequence(client),
                     client->receive.line );
 
@@ -453,7 +456,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if (printLevel <= debuglevel)
    {
-      printmsg(printLevel,"%d >>> %s%.75s",
+      printmsg(printLevel,"%d >>> %s%.125s",
                           getClientSequence(client),
                           buf,
                           text);
@@ -471,7 +474,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
    {
       if(!SMTPWrite(client, text, totalLength))
       {
-         printmsg(0,"%s: Error sending %u bytes to remote host: \"%.75s\"",
+         printmsg(0,"%s: Error sending %u bytes to remote host: \"%.125s\"",
                     mName,
                     totalLength,
                     text);
@@ -500,7 +503,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, buf, strlen(buf)))
    {
-      printmsg(0,"%s: Error sending response code to remote host: %.4s %.75s",
+      printmsg(0,"%s: Error sending response code to remote host: %.4s %.125s",
                   mName,
                   buf,
                   text);
@@ -512,7 +515,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, text, strlen(text)))
    {
-      printmsg(0,"%s: Error sending %d bytes to remote host: %s%.75s",
+      printmsg(0,"%s: Error sending %d bytes to remote host: %s%.125s",
                  mName,
                  strlen(text),
                  buf,
@@ -522,7 +525,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, crlf, strlen(crlf)))
    {
-      printmsg(0, "%s: Error sending CR/LF to remote host: %s%.75s",
+      printmsg(0, "%s: Error sending CR/LF to remote host: %s%.125s",
                   mName,
                   buf,
                   text);
