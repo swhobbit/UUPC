@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.8 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: commlib.c 1.9 1993/10/02 23:13:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.9  1993/10/02  23:13:29  ahd
+ * Allow suppressing TCPIP support
+ *
  * Revision 1.8  1993/09/27  00:45:20  ahd
  * Allow named pipes under OS/2 16 bit
  *
@@ -54,6 +57,7 @@
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -64,6 +68,11 @@
 #include "lib.h"
 #include "hlib.h"
 #include "commlib.h"
+#include "dcp.h"
+#include "hostable.h"
+#include "usertabl.h"
+#include "security.h"
+#include "modem.h"
 
 #include "ulib.h"             // Native communications interface
 
@@ -71,6 +80,25 @@
 #include "ulibfs.h"           // DOS FOSSIL interface
 #include "ulib14.h"           // DOS ARTISOFT INT14 interface
 #endif
+
+/*--------------------------------------------------------------------*/
+/*         Define table for looking up communications functions       */
+/*--------------------------------------------------------------------*/
+
+typedef struct _COMMSUITE {
+        char     *type;
+        commrefi activeopenline;
+        commrefi passiveopenline;
+        commrefu sread;
+        commrefi swrite;
+        commrefv ssendbrk, closeline, SIOSpeed, flowcontrol, hangup;
+        commrefB GetSpeed;
+        commrefb CD;
+        commrefb WaitForNetConnect;
+        boolean  network;
+        boolean  buffered;
+        char     *netDevice;           // Network device name
+} COMMSUITE;
 
 /*--------------------------------------------------------------------*/
 /*       Use the NOTCPIP to suppress the TCP/IP when you don't        */
@@ -96,6 +124,9 @@
 
 boolean portActive;         /* Port active flag for error handler   */
 boolean traceEnabled;        // Trace active flag
+size_t commBufferLength = 0;
+size_t commBufferUsed   = 0;
+char *commBuffer = NULL;
 
 commrefi activeopenlinep, passiveopenlinep, swritep;
 commrefu sreadp;
@@ -134,7 +165,13 @@ boolean chooseCommunications( const char *name )
           nGetSpeed,
           nCD,
           (commrefb) NULL,
-          FALSE
+          FALSE,                       // Not network based
+#if defined(BIT32ENV) || defined(FAMILYAPI)
+          TRUE,                        // Buffered under OS/2 and Windows NT
+#else
+          TRUE,                        // Unbuffered for DOS, Windows 3.x
+#endif
+          NULL                         // No network device name
         },
 #if !defined(BIT32ENV) && !defined(_Windows) && !defined(FAMILYAPI)
         { "fossil",                    // MS-DOS FOSSIL driver
@@ -143,7 +180,9 @@ boolean chooseCommunications( const char *name )
           fGetSpeed,
           fCD,
           (commrefb) NULL,
-          FALSE
+          FALSE,                       // Not network oriented
+          FALSE,                       // Not buffered
+          NULL                         // No network device name
         },
         { "articomm",                  // MS-DOS ARTISOFT INT14 driver
           iopenline, iopenline, isread, iswrite,
@@ -151,7 +190,9 @@ boolean chooseCommunications( const char *name )
           iGetSpeed,
           iCD,
           (commrefb) NULL,
-          FALSE
+          FALSE,                       // Not network oriented
+          FALSE,                       // Not buffered
+          NULL                         // No network device name
         },
 #endif
 
@@ -162,7 +203,9 @@ boolean chooseCommunications( const char *name )
           tGetSpeed,
           tCD,
           tWaitForNetConnect,
-          TRUE
+          TRUE,                        // Network oriented
+          TRUE,                        // Uses internal buffer
+          "tcptty",                    // Network device name
         },
 #endif
 
@@ -173,7 +216,9 @@ boolean chooseCommunications( const char *name )
           pGetSpeed,
           pCD,
           pWaitForNetConnect,
-          TRUE
+          TRUE,                        // Network oriented
+          TRUE,                        // Uses internal buffer
+          "pipe",                      // Network device name
         },
 #endif
         { NULL }                       // End of list
@@ -218,6 +263,34 @@ boolean chooseCommunications( const char *name )
    CDp                = suite[subscript].CD;
    WaitForNetConnectp = suite[subscript].WaitForNetConnect;
    network            = suite[subscript].network;
+
+/*--------------------------------------------------------------------*/
+/*                  Override device name as required                  */
+/*--------------------------------------------------------------------*/
+
+   if ( suite[subscript].netDevice != NULL )
+      M_device = suite[subscript].netDevice;
+
+   if ( suite[subscript].buffered && ! commBufferLength)
+   {
+
+#ifdef BIT32ENV
+      commBufferLength = (MAXPACK * 4);      // Generous to reduce I/O's
+#else
+      commBufferLength = (MAXPACK * 4) / 3;  // Packet plus header
+#endif
+
+      commBuffer = malloc( commBufferLength );
+      checkref( commBuffer );
+
+   } /* if */
+   else if ( suite[subscript].buffered && ! commBufferLength )
+   {
+      commBufferLength = 0;
+      free( commBuffer );
+      commBuffer = NULL;
+   }
+   commBufferUsed = 0;
 
    printmsg(equal(suite[subscript].type, NATIVE) ? 5 : 4,
             "chooseCommunications: Chose suite %s",
@@ -306,8 +379,13 @@ void traceData( const char *data,
    int subscript;
 #endif
 
+
    if ( ! traceEnabled || ! len )
       return;
+
+   printmsg(network ? 4 : 15,"traceData: %d bytes %s",
+               (int) len,
+               output ? "written" : "read" );
 
    if ( traceMode != (short) output )
    {
