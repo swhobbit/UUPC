@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*    f o p e n . c                                                   */
+/*       f o p e n . c                                                */
 /*                                                                    */
-/*    File open function retry and locking                            */
+/*       File open function retry and locking                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.15 1996/01/01 20:51:43 ahd v1-12r $
+ *    $Id: fopen.c 1.16 1997/03/31 06:59:11 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.16  1997/03/31 06:59:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1996/01/01 20:51:43  ahd
  *    Annual Copyright Update
  *
@@ -116,19 +119,22 @@ FILE *FSOPEN(const char *name, const char *mode)
    {
       perror( fname );
 
-      if ( retries++ > maxRetries )   /* Fall through and return     */
-         break;
-
 /*--------------------------------------------------------------------*/
 /*                Determine if we care about the error                */
 /*--------------------------------------------------------------------*/
 
       switch( errno )
       {
+         case EACCES:               /* DOS share error               */
+#ifdef EISDIR
+            if (!retries && (stater(fname) == -1) && (errno == EISDIR))
+               return results;      /* No, really directory!         */
+#endif /* EISDIR */
+            /* Fall through */
+
 #ifdef EISOPEN
          case EISOPEN:              /* File is open (OS/2 only)      */
 #endif
-         case EACCES:               /* DOS share error               */
             ssleep( retries * 2);
             break;
 
@@ -136,6 +142,9 @@ FILE *FSOPEN(const char *name, const char *mode)
             return results;         /* So just return immediately    */
 
       } /* switch */
+
+      if ( retries++ > maxRetries )   /* Fall through and return     */
+         break;
 
    }  /* while */
 
