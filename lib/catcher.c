@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.15 1994/12/22 00:07:26 ahd Exp $
+ *    $Id: catcher.c 1.16 1995/01/07 16:11:54 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.16  1995/01/07 16:11:54  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.15  1994/12/22 00:07:26  ahd
  *    Annual Copyright Update
  *
@@ -67,6 +70,9 @@
  *     OS/2 2.x support
  *
  */
+
+ static const char rcsid[] =
+         "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
