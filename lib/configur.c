@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.82 1998/04/08 11:32:07 ahd Exp $
+ *    $Id: configur.c 1.83 1998/04/27 01:55:28 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.83  1998/04/27 01:55:28  ahd
+ *    Allow defaulting selected options to enabled
+ *    Print warning, copyright if configuration version doesn't match
+ *
  *    Revision 1.82  1998/04/08 11:32:07  ahd
  *    Add Boolean option commentfrom
  *
@@ -145,7 +149,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.82 1998/04/08 11:32:07 ahd Exp $");
+RCSID("$Id: configur.c 1.83 1998/04/27 01:55:28 ahd v1-13a $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -171,6 +175,7 @@ char *E_filesent = NULL;
 char *E_homedir = NULL;
 char *E_inmodem = NULL;
 char *E_localdomain = NULL;
+char *E_logdir = NULL;
 char *E_mailbox = NULL;
 char *E_maildir = NULL;
 char *E_mailext = NULL;
@@ -280,6 +285,7 @@ CONFIGTABLE rcTable[] = {
    {"inmodem",      &E_inmodem,      B_UUCICO,  B_GLOBAL|B_TOKEN },
    {"internalcommands", &E_internal, B_ALL,     B_GLOBAL|B_LIST },
    {"localdomain",  &E_localdomain,  B_MAIL,    B_GLOBAL|B_TOKEN   },
+   {"logdir",       &E_logdir,       B_ALL,     B_GLOBAL|B_PATH },
    {"mailbox",      &E_mailbox,      B_ALL,     B_REQUIRED|B_TOKEN },
    {"maildir",      &E_maildir,      B_MAIL,    B_GLOBAL|B_PATH },
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
@@ -371,7 +377,7 @@ FLAGTABLE configFlags[] =
  { "newspanic",           F_NEWSPANIC,         B_GLOBAL,   KWTrue},
  { "nns",                 F_NNS,               B_GLOBAL},
  { "pager",               F_PAGER,             B_LOCAL,    KWTrue},
- { "promiscuousrelay",    F_SMTPRELAY,         B_GLOBAL},
+ { "promiscuousrelay",    F_PROMISCUOUSRELAY,  B_GLOBAL},
  { "purge",               F_PURGE,             B_LOCAL,    KWTrue},
  { "senddebug",           F_SENDDEBUG,         B_GLOBAL},
  { "shortfrom",           F_SHORTFROM,         B_GLOBAL},
@@ -460,14 +466,16 @@ typedef struct _DEFAULTS
 
 static DEFAULTS directoryList[] =
 {
+   {&E_logdir,       "log"     , KWTrue },
    {&E_maildir,      "mail"    , KWTrue },
    {&E_newsdir,      "news"    , KWTrue },
-   {&E_pubdir,       "public"  , KWTrue },
-   {&E_spooldir,     "spool"   , KWTrue },
-   {&E_tempdir,      "tmp"     , KWTrue },
-   {&E_systems,      "systems" , KWTrue },
    {&E_passwd,       "passwd"  , KWTrue },
    {&E_permissions,  "permissn", KWTrue },
+   {&E_pubdir,       "public"  , KWTrue },
+   {&E_spooldir,     "spool"   , KWTrue },
+   {&E_systems,      "systems" , KWTrue },
+   {&E_tempdir,      "tmp"     , KWTrue },
+
    {&E_homedir,      HOMEDIRLIT, KWTrue },
    { NULL  }
 } ;
