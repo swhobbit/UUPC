@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.27 1994/02/19 04:19:16 ahd Exp $
+ *    $Id: deliver.c 1.28 1994/02/20 19:07:38 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.28  1994/02/20  19:07:38  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.27  1994/02/19  04:19:16  ahd
  * Use standard first header
  *
@@ -493,7 +496,7 @@ static int DeliverFile( const char *input,
 {
    char buf[BUFSIZ];
    FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
-   char *cwd = sysalias ? E_tempdir : userp->homedir;
+   char *cwd = (sysalias || ! userp) ? E_tempdir : userp->homedir;
    int delivered = 0;
 
    if ( fwrd == NULL )
