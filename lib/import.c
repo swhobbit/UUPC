@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.29 1995/01/07 16:12:48 ahd Exp $
+ *    $Id: import.c 1.30 1995/01/29 16:43:03 ahd v1-12o $
  *
  *    $Log: import.c $
+ *    Revision 1.30  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.29  1995/01/07 16:12:48  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -397,6 +400,15 @@ void importpath(char *local, const char *canon, const char *remote)
 
       while( (*s != '\0') && (*number == '\0'))
       {
+         if ( isspace( *s ) )
+         {
+            printmsg(0,"importPath: Invalid file \"%s\" for %s, "
+                       "name contains whitespace",
+                       canon,
+                       remote );
+            panic();
+         }
+
          mult(number, range, MAX_DIGITS); /* Shift the number over    */
          add(number, (unsigned) (*s++  - UNIX_START_C) , MAX_DIGITS);
                                           /* Add in new low order     */
