@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.23 1994/12/22 00:37:05 ahd Exp $
+ *    $Id: ulibip.c 1.24 1995/01/07 16:40:31 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.24  1995/01/07 16:40:31  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.23  1994/12/22 00:37:05  ahd
  *    Annual Copyright Update
  *
@@ -123,7 +126,6 @@
 #define LPSERVENT struct servent *
 #define PSOCKADDR struct sockaddr *
 
-
 #include "psos2err.h"        /* Windows sockets error messages        */
 #include "catcher.h"         /* For norecovery declaration            */
 
@@ -139,7 +141,6 @@
 #include "catcher.h"
 
 #include "pwserr.h"        /* Windows sockets error messages           */
-
 
 #ifdef WIN32
 #include "pnterr.h"
@@ -615,10 +616,11 @@ unsigned int tsread(char UUFAR *output,
       }
 
 /*--------------------------------------------------------------------*/
-/*       Special case for network sockets: block for at least 5      */
+/*       Special case for network sockets: block for at least 5       */
 /*       msec if we have to read at least one character (this         */
 /*       needs to be tuned)                                           */
 /*--------------------------------------------------------------------*/
+
       if ( stop_time <= now )
       {
          tm.tv_usec = 5000;
@@ -665,7 +667,14 @@ unsigned int tsread(char UUFAR *output,
 
          firstPass = KWFalse;
 
-         if (received == SOCKET_ERROR)
+         if ( received == 0 )
+         {
+            printmsg(0, "tsread: EOF on recv()");
+            commBufferUsed = 0;
+            return 0;
+
+         }
+         else if (received == SOCKET_ERROR)
          {
             int wsErr = WSAGetLastError();
 
@@ -674,6 +683,7 @@ unsigned int tsread(char UUFAR *output,
             commBufferUsed = 0;
             return 0;
          }
+
       }  /* else */
 
 #ifdef UDEBUG

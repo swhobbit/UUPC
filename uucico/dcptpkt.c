@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.11 1994/12/22 04:13:38 ahd Exp $
+ *    $Id: dcptpkt.c 1.12 1995/01/07 16:38:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.12  1995/01/07 16:38:47  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.11  1994/12/22 04:13:38  ahd
  *    Correct 't' protocol processing to use 512 messages with no header
  *
@@ -74,10 +77,10 @@
 /*       followed by the packet data itself.  No padding is           */
 /*       performed.                                                   */
 /*                                                                    */
-/*       Note:  Many of the functions (msg write, msg read, start     */
-/*       of file, file eof) for this protocol are as the same as      */
-/*       the functions for 'g' protocol, and we use the actual 'g'    */
-/*       protocol copies as defined in dcpsys.c.                      */
+/*       Note:  A few of the functions (start of file, file eof)      */
+/*       for this protocol are as the same as the functions for       */
+/*       'g' protocol, and we use the actual 'g' protocol copies      */
+/*       as defined in dcpsys.c.                                      */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -205,7 +208,7 @@ short tgetpkt(char *packet, short *bytes)
       return -1;
    }
 
-   recv = (short) ntohl( nrecv );
+   recv = (unsigned short) ntohl( nrecv );
 
    if ( recv > r_pktsize )
    {
@@ -225,7 +228,7 @@ short tgetpkt(char *packet, short *bytes)
 
    remote_stats.packets++;
 
-   *bytes = recv;
+   *bytes = (short) recv;
 
    return 0;
 
@@ -247,7 +250,7 @@ short tsendpkt(char *ip, short len)
 
    if ( ! len )
       printmsg(4,"tsendpkt: Sending empty packet");
-   else if ( swrite( ip , len ) != len )
+   else if ( swrite( ip , (unsigned short) len ) != (int) len )
       return -1;
 
    remote_stats.packets++;
@@ -276,13 +279,13 @@ short tclosepk()
 short twrmsg( char *s )
 {
 
-   int len = strlen(s) + 1;
+   size_t len = strlen(s) + 1;
 
 /*--------------------------------------------------------------------*/
 /*                    Write the actual message out                    */
 /*--------------------------------------------------------------------*/
 
-   if (swrite( s,  len ) < len )
+   if (swrite( s,  len ) < (int) len )
    {
       printmsg(0, "twrmsg: message write of %d bytes failed", len);
       return -1;
@@ -303,7 +306,7 @@ short twrmsg( char *s )
 
       memset( buf, '\0', len );     /* Helps data compression     */
 
-      if (swrite( buf,  len ) < len )
+      if (swrite( buf,  len ) < (int) len )
       {
          printmsg(0, "twrmsg: write of %d padding bytes failed", len);
          return -1;
@@ -349,6 +352,8 @@ short trdmsg( char *s)
 /*    We didn't get the end of the string in time, report an error    */
 /*--------------------------------------------------------------------*/
 
+   printmsg(0, "trdmsg: Command read failed with %d bytes read",
+                (int) bytes );
 
    return -1;
 
