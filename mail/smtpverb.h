@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.8 1998/03/01 19:45:01 ahd v1-12v $
+ *       $Id: smtpverb.h 1.9 1998/03/06 06:53:00 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.9  1998/03/06 06:53:00  ahd
+ *       Add dummy commands to make Netscape happy
+ *
  *       Revision 1.8  1998/03/01 19:45:01  ahd
  *       First compiling POP3 server which accepts user id/password
  *
@@ -74,9 +77,10 @@ typedef enum
 
    /* Following only used for POP3 server */
    PR_AA_FIRST         = ( SR_ZZ_LAST / 100 + 1 ) * 100,
-   PR_OK_GENERIC,
-   PR_DATA,
-   PR_ERROR_WARNING,          /* Doesn't print a message in the log */
+   PR_OK_GENERIC,             /* Standard okay response              */
+   PR_DATA,                   /* Generic multi-responses             */
+   PR_TEXT,                   /* Message text responses              */
+   PR_ERROR_WARNING,          /* Doesn't print a message in the log  */
    PR_ERROR_GENERIC,
    PR_ZZ_LAST,
 
