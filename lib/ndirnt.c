@@ -4,6 +4,8 @@
 /*           April/91                                                 */
 /*    ndir.c for Windows/NT by Tom Loebach (loebach@mips.com),        */
 /*           April/92                                                 */
+/*    ndir.c for NT extended to include timestamp information by      */
+/*           Dave Watt, April/93                                      */
 /*                                                                    */
 /*         Berkeley-style directory reading routine on Windows NT     */
 /*--------------------------------------------------------------------*/
@@ -17,9 +19,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: NDIRNT.C 1.2 1993/01/01 01:21:29 dmwatt Exp $
  *
- *       $Log$
+ *       $Log: NDIRNT.C $
+ *     Revision 1.2  1993/01/01  01:21:29  dmwatt
+ *     Add currentfile() to support strpool memory handling
+ *
+ *     Revision 1.2  1993/01/01  01:21:29  dmwatt
+ *     Add currentfile() to support strpool memory handling
+ *
  */
 
 #include <stdio.h>
@@ -42,8 +50,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "ndir.h"
-
+#include "uundir.h"
+#include "dos2unix.h"
 
 static char *pathname = NULL;
 static HANDLE dirHandle;
@@ -112,7 +120,7 @@ struct direct *readdir(DIR *dirp)
    {
       printmsg(5,"readdir: Opening directory %s", pathname );
       dirp->dirfirst = 0;
-   }else {
+   } else {
       printmsg(5, "dirhandle = %d\n",dirHandle);
       rc = FindNextFile(dirHandle, &dirData);
    }
@@ -136,7 +144,15 @@ struct direct *readdir(DIR *dirp)
       dirp->dirent.d_namlen = strlen(dirData.cFileName);
 
       printmsg(9, "%d \n",dirp->dirent.d_namlen);
+      dirp->dirent.d_modified = nt2unix(&dirData.ftLastWriteTime);
 
+      if (dirData.nFileSizeHigh > 0) {
+         printmsg(0, "readdir:  File %s larger than 2^32 bits?!",
+            dirData.cFileName);
+         panic();
+      }
+
+      dirp->dirent.d_size = dirData.nFileSizeLow;
       dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
       return &(dirp->dirent);

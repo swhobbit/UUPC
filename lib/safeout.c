@@ -15,23 +15,23 @@
 
 #include <stdio.h>
 
-#if defined( FAMILYAPI )
 #ifdef WIN32
-#include <windows.h>
-#include <string.h>
+    #include <windows.h>
+    #include <string.h>
 #else
+#if defined( FAMILYAPI )
     #define INCL_NOCOMMON
     #define INCL_NOPM
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
     #include <string.h>
-#endif
 #else
     #include <dos.h>
     #include <bios.h>
     #include <conio.h>
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -54,7 +54,6 @@ void safeout( char *str )
    fputs( str , stdout );
    return;
 #else
-#if defined( FAMILYAPI )
 #if defined( WIN32 )
    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
    DWORD dwBytesWritten;
@@ -63,8 +62,8 @@ void safeout( char *str )
    return;
    
 #else
+#if defined( FAMILYAPI )
    VioWrtTTY( str, strlen( str ), 0 );
-#endif /* WIN32 */
 #else
     union REGS inregs, outregs;
 
@@ -77,6 +76,7 @@ void safeout( char *str )
 
     safeflush();              /* Flush keyboard                      */
 
-#endif
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
+#endif /* _Windows */
 } /* safeout */

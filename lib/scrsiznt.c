@@ -1,7 +1,10 @@
 /*
- *    $Id$
+ *    $Id: SCRSIZNT.C 1.3 1992/12/30 13:09:25 dmwatt Exp $
  *
- *    $Log$
+ *    $Log: SCRSIZNT.C $
+ *     Revision 1.3  1992/12/30  13:09:25  dmwatt
+ *     Correct boolean compare
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -42,3 +45,4 @@ short scrsize( void )
 
    return info.dwSize.Y;
 } /* scrsize */
+

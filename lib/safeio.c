@@ -15,22 +15,22 @@
 
 #include <stdio.h>
 
-#if defined( FAMILYAPI )
 #if defined( WIN32 )
-#include <windows.h>
-#include <string.h>
-#else
+    #include <windows.h>
+    #include <string.h>
+#else /* WIN32 */
+#if defined( FAMILYAPI )
     #define INCL_NOCOMMON
     #define INCL_NOPM
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
     #include <string.h>
-#endif
 #else /* FAMILYAPI */
-#include <conio.h>
+    #include <conio.h>
     #include <dos.h>
     #include <bios.h>
+#endif
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -80,7 +80,6 @@ int safein( void )
 #ifdef _Windows
    return getchar( );
 #else
-#if defined( FAMILYAPI )
 #if defined( WIN32 )
    CHAR ch;
    DWORD dwBytesRead;
@@ -90,11 +89,11 @@ int safein( void )
 
    return ch;
 #else /* WIN32 */
+#if defined( FAMILYAPI )
     KBDKEYINFO kki;
 
     KbdCharIn( &kki, IO_WAIT, 0 );
     return kki.chChar;
-#endif /* WIN32 */
 #else /* FAMILYAPI */
 
     int c = (_bios_keybrd( _KEYBRD_READ ) & 0xff );
@@ -105,8 +104,9 @@ int safein( void )
     int86( 0x10, &inregs, &outregs );
     return c;
 
-#endif
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
+#endif /* _Windows */
 } /* safein */
 
 /*--------------------------------------------------------------------*/
@@ -124,8 +124,7 @@ boolean safepeek( void )
 /*--------------------------------------------------------------------*/
 #ifdef _Windows
    return 0;
-#else
-#if defined( FAMILYAPI )
+#else /* _Windows */
 #ifdef WIN32
    HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
    INPUT_RECORD Buffer;
@@ -136,21 +135,22 @@ boolean safepeek( void )
    if (nEventsRead != 0 && Buffer.EventType == KEY_EVENT)
       return TRUE;
    return FALSE;
-#else
+#else /* WIN32 */
+#if defined( FAMILYAPI )
     KBDKEYINFO kki;
 
     KbdPeek( &kki, 0 );
     return (kki.fbStatus & FINAL_CHAR_IN);
-#endif /* WIN32 */
-#else
+#else /* FAMILYAPI */
 
 /*--------------------------------------------------------------------*/
 /*                         DOS Keyboard peek                          */
 /*--------------------------------------------------------------------*/
 
     return (_bios_keybrd( _KEYBRD_READY ) & 0xff );
-#endif
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
+#endif /* _Windows */
 
 } /* safepeek */
 
@@ -172,15 +172,14 @@ void safeflush( void )
 /*                         OS/2 keyboard flush                        */
 /*--------------------------------------------------------------------*/
 
-#if defined( FAMILYAPI )
 #ifdef WIN32
    HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
    FlushConsoleInputBuffer(hStdIn);
 #else
+#if defined( FAMILYAPI )
     KbdFlushBuffer( 0 );      /* That's all!  (Makes you love rich
                                  API's, doesn't it?)                 */
 
-#endif /* WIN32 */
 #else
 
 /*--------------------------------------------------------------------*/
@@ -193,7 +192,8 @@ void safeflush( void )
    regs.h.al = 0x00;       /* Don't actually read keyboard           */
    intdos( &regs, &regs ); /* Make it happen                         */
 
-#endif
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
+#endif /* _Windows */
 
 } /* safeflush */
