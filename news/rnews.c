@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.4 1993/03/24 01:57:30 ahd Exp $
+ *       $Id: RNEWS.C 1.5 1993/04/11 00:33:54 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.5  1993/04/11  00:33:54  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.4  1993/03/24  01:57:30  ahd
  * Corrections for short articles
  * Corrections for articles claimed to be zero length
@@ -52,7 +55,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.4 1993/03/24 01:57:30 ahd Exp $";
+         "$Id: RNEWS.C 1.5 1993/04/11 00:33:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -86,7 +89,6 @@ static const char rcsid[] =
 /*                           Global defines                           */
 /*--------------------------------------------------------------------*/
 
-#define MAXGRP 40             /* Max length of a news group name     */
 #define UNCOMPRESS "uncompre"
 
 /*--------------------------------------------------------------------*/
