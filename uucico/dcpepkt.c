@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.2 1993/12/02 03:59:37 dmwatt Exp dmwatt $
+ *    $Id: dcpepkt.c 1.3 1993/12/02 13:49:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ * Revision 1.3  1993/12/02  13:49:58  ahd
+ * 'e' protocol support
+ *
  * Revision 1.2  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
  *
@@ -60,10 +63,6 @@
 #include "ssleep.h"
 #include "modem.h"
 #include "commlib.h"
-
-#ifdef _Windows
-#include "pwinsock.h"
-#endif
 
 static unsigned long efilelength;
 static unsigned long ebytesdone;
