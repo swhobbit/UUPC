@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.21 1994/04/24 20:17:29 dmwatt Exp $
+ *    $Id: fopen.c 1.11 1994/06/05 01:57:26 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: fopen.c $
+ *     Revision 1.11  1994/06/05  01:57:26  ahd
+ *     Correct trap sharing violations under OS/2 32 bit compilers
+ *
  */
 
 #include "uupcmoah.h"
@@ -55,7 +58,7 @@ FILE *FSOPEN(const char *name, const char *mode)
    char fname[FILENAME_MAX];
 
    int share = SH_DENYWR;
-   int maxRetries = !bflag[ F_MULTITASK ] ? 10 : 0;
+   int maxRetries = bflag[ F_MULTITASK ] ? 10 : 0;
    int retries = 0;
 
    strcpy( fname, name );
@@ -125,4 +128,4 @@ FILE *FSOPEN(const char *name, const char *mode)
 
    return results;
 
-} /*FOPEN*/
+} /* FOPEN */
