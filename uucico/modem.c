@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.43 1994/02/19 05:14:10 ahd Exp $
+ *    $Id: modem.c 1.44 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.44  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.43  1994/02/19  05:14:10  ahd
  * Use standard first header
  *
@@ -544,7 +547,6 @@ CONN_STATE callin( const time_t exit_time )
    else {
       if (!sendlist( ring,modemTimeout, offset, noconnect))
       {                          /* Did it ring?                       */
-         interactive_processing = TRUE;
          raised = 0;
          shutDown();
          if ( suspend_processing )        /* Give up modem for another process?  */
