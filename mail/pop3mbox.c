@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: POP3MBOX.C 1.7 1998/03/16 06:41:41 ahd Exp $
+ *       $Id: pop3mbox.c 1.8 1998/04/08 11:35:35 ahd Exp $
  *
  *       Revision History:
- *       $Log: POP3MBOX.C $
+ *       $Log: pop3mbox.c $
+ *       Revision 1.8  1998/04/08 11:35:35  ahd
+ *       Make commenting out of UUCP From line optional
+ *
  *       Revision 1.7  1998/03/16 06:41:41  ahd
  *       Perform better counting of bytes in buffer
  *
@@ -61,7 +64,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: POP3MBOX.C 1.7 1998/03/16 06:41:41 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.8 1998/04/08 11:35:35 ahd Exp $");
 
 currentfile();
 
@@ -200,7 +203,7 @@ popBoxLoad(SMTPClient *client)
       current->octets += bytes;
 
       /* Add extra byte for each line we will transmit */
-      if (client->transmit.data[strlen(client->transmit.data )] == '\n')
+      if (client->transmit.data[bytes - 1] == '\n')
          current->octets ++;        /* UNIX is LF, POP3 is CR/LF  */
 
       /* Make From ... line a comment to prevent Netscape from
