@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.41 1998/04/08 11:36:31 ahd Exp $
+ *    $Id: uutypes.h 1.42 1998/04/27 01:57:29 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.42  1998/04/27 01:57:29  ahd
+ *    Support for setting selected boolean options to enabled
+ *
  *    Revision 1.41  1998/04/08 11:36:31  ahd
  *    Add option to control commenting out of UUCP From lines
  *    by POP3 server
@@ -180,10 +183,10 @@ typedef enum
    F_NNS,                   /* True = Use NNS news delivery          */
    F_NEWSPANIC,             /* True = Panic UUXQT if RNEWS fails     */
    F_ONECASE,               /* True = Remote host is case insensitive*/
+   F_PROMISCUOUSRELAY,      /* True = Allow third-party SMTP relays  */
    F_SENDDEBUG,             /* True = Send -x flag to remote systems */
    F_SHORTFROM,             /* True = Use short From remote header   */
    F_SHOWSPOOL,             /* True = Print files xferred from spool */
-   F_SMTPRELAY,             /* True = Allow third-party SMTP relays  */
    F_SNEWS,                 /* True = Use Simple news delivery       */
    F_SUPPRESSEMPTYPASSWORD, /* True = No prompt for null passwords   */
    F_SUPPRESSFROM,          /* True = Suppress writing UUCP From
