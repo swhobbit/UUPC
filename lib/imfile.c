@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.24 1997/04/24 00:56:54 ahd Exp $
+ *    $Id: imfile.c 1.25 1997/05/03 17:10:18 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.25  1997/05/03 17:10:18  ahd
+ *    Always generate execute input file as text
+ *
  *    Revision 1.24  1997/04/24 00:56:54  ahd
  *    Add free of internal I/O buffer when blasting to disk
  *
@@ -361,7 +364,7 @@ int imclose( IMFILE *imf)
       free( imf->filename );
    }
 
-   memset( imf, 0, sizeof imf );
+   memset( imf, 0, sizeof *imf );
    free( imf );
 
    return result;

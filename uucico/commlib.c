@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.33 1997/05/11 04:28:26 ahd Exp $
+ *    $Id: commlib.c 1.34 1997/05/11 18:15:50 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.34  1997/05/11 18:15:50  ahd
+ *    Allow faster SMTP delivery via fastsmtp flag
+ *    Move TCP/IP dependent code from rmail.c to deliver.c
+ *    Allow building rmail without SMTP or TCP/IP support
+ *
  *    Revision 1.33  1997/05/11 04:28:26  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -166,20 +171,21 @@
 
 typedef struct _COMMSUITE {
         char     *type;
-        ref_activeopenline      activeopenline;
-        ref_passiveopenline     passiveopenline;
-        ref_sread               sread;
-        ref_swrite              swrite;
-        ref_ssendbrk            ssendbrk;
-        ref_closeline           closeline;
-        ref_SIOSpeed            SIOSpeed;
-        ref_flowcontrol         flowcontrol;
-        ref_hangup              hangup;
-        ref_GetSpeed            GetSpeed;
-        ref_CD                  CD;
-        ref_WaitForNetConnect   WaitForNetConnect;
-        ref_GetComHandle        GetComHandle;
-        ref_SetComHandle        SetComHandle;
+        ref_activeopenline              activeopenline;
+        ref_passiveopenline             passiveopenline;
+        ref_sread                       sread;
+        ref_swrite                      swrite;
+        ref_ssendbrk                    ssendbrk;
+        ref_closeline                   closeline;
+        ref_SIOSpeed                    SIOSpeed;
+        ref_flowcontrol                 flowcontrol;
+        ref_hangup                      hangup;
+        ref_GetSpeed                    GetSpeed;
+        ref_CD                          CD;
+        ref_WaitForNetConnect           WaitForNetConnect;
+        ref_GetComHandle                GetComHandle;
+        ref_SetComHandle                SetComHandle;
+        ref_terminateCommunications     terminateCommunications;
         KWBoolean  network;
         KWBoolean  buffered;
         char     *netDevice;           /* Network device name         */
@@ -223,6 +229,7 @@ ref_CD CDp;
 ref_WaitForNetConnect WaitForNetConnectp;
 ref_GetComHandle GetComHandlep;
 ref_SetComHandle SetComHandlep;
+ref_terminateCommunications   terminateCommunicationsp;
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -241,6 +248,8 @@ currentfile();
 int dummyGetComHandle( void );
 
 void dummySetComHandle( const int );
+
+void dummyTerminateCommunications( void );
 
 KWBoolean dummyWaitForNetConnect(const unsigned int timeout);
 
@@ -267,16 +276,19 @@ KWBoolean chooseCommunications( const char *name,
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
           nSetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                  /* Not network based              */
           KWTrue,                   /* Buffered under OS/2 and NT     */
 #elif defined(_Windows)
           dummyGetComHandle,
           dummySetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                  /* Not network based              */
           KWTrue,                   /* Buffered under Windows 3.1 too */
 #else
           dummyGetComHandle,
           dummySetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                  /* Not network based             */
           KWTrue,                   /* Unbuffered for DOS            */
 #endif
@@ -293,6 +305,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWFalse,                     /* Not buffered                */
           NULL                         /* No network device name      */
@@ -307,6 +320,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWTrue,                      /* Buffered                    */
           NULL                         /* No network device name      */
@@ -320,6 +334,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
+          dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWTrue,                      /* Buffered                    */
           NULL                         /* No network device name      */
@@ -338,6 +353,7 @@ KWBoolean chooseCommunications( const char *name,
           pWaitForNetConnect,
           pGetComHandle,
           pSetComHandle,
+          dummyTerminateCommunications,
           KWTrue,                      /* Network oriented            */
           KWTrue,                      /* Uses internal buffer        */
           "pipe",                      /* Network device name         */
@@ -354,6 +370,7 @@ KWBoolean chooseCommunications( const char *name,
           tWaitForNetConnect,
           tGetComHandle,
           tSetComHandle,
+          tTerminateCommunications,
           KWTrue,                      /* Network oriented            */
           KWTrue,                      /* Uses internal buffer        */
           "tcptty",                    /* Network device name         */
@@ -401,6 +418,8 @@ KWBoolean chooseCommunications( const char *name,
    WaitForNetConnectp = suite[subscript].WaitForNetConnect;
    GetComHandlep      = suite[subscript].GetComHandle;
    SetComHandlep      = suite[subscript].SetComHandle;
+   terminateCommunicationsp =
+                        suite[subscript].terminateCommunications;
    network            = suite[subscript].network;
 
    reportModemCarrierDirect = carrierDetectParam;
@@ -528,6 +547,7 @@ void traceData( const char UUFAR *data,
 #if defined(VERBOSE) || !defined(BIT32ENV)
    unsigned subscript;
 #endif
+   short newMode;
 
    if ( ! traceEnabled || ! len )
       return;
@@ -543,10 +563,14 @@ void traceData( const char UUFAR *data,
                output ? "written from" : "read into",
                data);
 
-   if ( traceMode != (short) output )
+   newMode = GetComHandle() << 1 | output;
+   if ( traceMode != newMode )
    {
-      fputs(output ? "\nWrite: " : "\nRead:  ",traceStream );
-      traceMode = (short) output;
+      fprintf( traceStream, "\n%d %s:",
+               GetComHandle(),
+               (const char *) (output ? "Write" : "Read" ));
+
+      traceMode = newMode;
    }
 
 #if defined(VERBOSE)
@@ -602,6 +626,10 @@ void dummySetComHandle( const int foo )
 {
 }
 
+void dummyTerminateCommunications( void )
+{
+}
+
 #if defined(__TURBOC__)
 #pragma argsused
 #endif
@@ -627,3 +655,67 @@ CD( void )
       return KWTrue;
 
 } /* CD */
+
+#ifdef TCPIP
+
+void
+saveConnection( RemoteConnection *connection )
+{
+   static const char mName[] = "saveConnection";
+
+   printmsg(5,"%s: Saving connection with handle %d",
+              mName,
+              GetComHandle() );
+
+   connection->carrierDetect            = carrierDetect;
+   connection->commBufferLength         = commBufferLength;
+   connection->commBufferUsed           = commBufferUsed;
+   connection->handle                   = GetComHandle();
+   connection->network                  = network;
+   connection->portActive               = portActive;
+   connection->traceEnabled             = traceEnabled;
+   connection->reportModemCarrierDirect = reportModemCarrierDirect;
+
+   if ( ! IsNetwork() )
+      connection->serial.speed   = GetSpeed();
+
+   if ((connection->commBuffer == NULL ) && (commBuffer != NULL ))
+   {
+      connection->commBuffer        = commBuffer;
+      commBuffer = malloc( commBufferLength );
+      checkref( commBuffer );
+   }
+
+} /* saveConnection */
+
+void
+restoreConnection( RemoteConnection *connection )
+{
+   static const char mName[] = "restoreConnection";
+
+   printmsg(5,"%s: Restoring connection with handle %d",
+              mName,
+              connection->handle );
+
+   SetComHandle( connection->handle );
+   commBufferLength           = connection->commBufferLength;
+   commBufferUsed             = connection->commBufferUsed;
+   commBuffer                 = connection->commBuffer;
+   carrierDetect              = connection->carrierDetect;
+   traceEnabled               = connection->traceEnabled;
+   network                    = connection->network;
+   portActive                 = connection->portActive;
+   reportModemCarrierDirect   = connection->reportModemCarrierDirect;
+
+   if ( ! IsNetwork() )
+      SIOSpeed( connection->serial.speed );
+}
+
+void
+freeConnection( RemoteConnection *connection )
+{
+   if ( commBuffer )
+      free( commBuffer );
+   free( connection );
+}
+#endif

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.30 1997/05/13 04:10:19 dmwatt Exp $
+ *    $Id: ulibip.c 1.31 1997/05/20 03:55:46 ahd v1-12s $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.31  1997/05/20 03:55:46  ahd
+ *    Correct FAR to UUFAR in setsocketopt
+ *
  *    Revision 1.30  1997/05/13 04:10:19  dmwatt
  *    Allow reuse of addresses to allow repeated fast calls to UUCICO
  *
@@ -124,55 +127,12 @@
 
 #include "uupcmoah.h"
 
-#if defined(__OS2__)
-#define OS2
-#define BSD_SELECT
-#include <types.h>
-#include <sys\select.h>
-#include <sys\socket.h>
-#include <netinet\in.h>
-#include <netdb.h>
-#include <utils.h>
-#include <sys\time.h>
-#include <nerrno.h>
-
-#define WSAGetLastError() sock_errno()
-#define closesocket(s) soclose(s)
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKADDR_IN struct sockaddr_in
-#define LPHOSTENT struct hostent *
-#define LPSERVENT struct servent *
-#define PSOCKADDR struct sockaddr *
-
-#include "psos2err.h"        /* Windows sockets error messages        */
-#include "catcher.h"         /* For norecovery declaration            */
-
-#else /* DOS and Windows */
-#include <windows.h>
-#include "winsock.h"
-
-/*--------------------------------------------------------------------*/
-/*                    UUPC/extended include files                     */
-/*--------------------------------------------------------------------*/
-
+#include "uutcpip.h"
 #include "ulibip.h"
-#include "catcher.h"
-
-#include "pwserr.h"        /* Windows sockets error messages           */
-
-#ifdef WIN32
-#include "pnterr.h"
-#endif
-
-#ifdef _Windows
-#include "pwinsock.h"      /* definitions for 16 bit Winsock functions  */
-#endif
-
-#endif
 
 #include "commlib.h"       /* Trace functions, etc.                    */
 
+#include "catcher.h"
 #define UUCP_SERVICE "uucp"
 #define UUCP_PORT    540
 
@@ -181,10 +141,6 @@
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
-
-#ifdef __OS2__
-typedef int SOCKET;
-#endif
 
 #if !defined(__OS2__)
 void AtWinsockExit(void);
@@ -204,13 +160,15 @@ KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
                                      No need for catcher -- no WSACleanup() of
                                      OS/2 sockets required                  */
 #else
-extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
+extern KWBoolean winsockActive;                 /* Initialized in catcher.c  */
 #endif
 
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
 
-static KWBoolean connectionDied = KWFalse;        /* The current connection failed  */
+static KWBoolean connectionDied = KWFalse;      /* The current connection failed  */
+static KWBoolean multipleConn   = KWFalse;      /* Don't close polling
+                                                   socket automatically */
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -461,13 +419,15 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
    int sockopt = 1;
 
    if (!InitWinsock())           /* Initialize library?               */
-      return KWTrue;              /* No --> Report error               */
+      return KWTrue;             /* No --> Report error               */
 
-   if (portActive)              /* Was the port already active?      */
-      closeline();               /* Yes --> Shutdown it before open  */
+   multipleConn   = direct;
 
-   norecovery = KWFalse;    /* Flag we need a graceful shutdown after */
-                           /* Ctrl-BREAK                             */
+   if (portActive && ! multipleConn)  /* Was port already active?     */
+      closeline();               /* Yes --> Shutdown it before open   */
+
+   norecovery = KWFalse;            /* Flag we need a graceful
+                                       shutdown after Ctrl-BREAK      */
    connectionDied = KWFalse; /* The connection hasn't failed yet      */
 
 /*--------------------------------------------------------------------*/
@@ -909,11 +869,8 @@ void thangup( void )
       connectedSock = INVALID_SOCKET;
    }
 
-   if (pollingSock != INVALID_SOCKET)
-   {
-      closesocket(pollingSock);
-      pollingSock = INVALID_SOCKET;
-   }
+   if ( ! multipleConn )
+      terminateCommunications();
 
 } /* thangup */
 
@@ -1067,10 +1024,8 @@ BOOL AbortNetwork(void)
       connectedSock = INVALID_SOCKET;
    }
 
-   if (pollingSock != INVALID_SOCKET) {
-      closesocket(pollingSock);
-      pollingSock = INVALID_SOCKET;
-   }
+   if ( ! multipleConn )
+      terminateCommunications();
 
    return KWFalse;
 }
@@ -1084,7 +1039,10 @@ BOOL AbortNetwork(void)
 
 int tGetComHandle( void )
 {
-   return (int) connectedSock;
+   if ( multipleConn && (connectedSock == INVALID_SOCKET) )
+      return (int) pollingSock;
+   else
+      return (int) connectedSock;
 }
 
 /*--------------------------------------------------------------------*/
@@ -1097,3 +1055,24 @@ void tSetComHandle( const int sock )
 {
    connectedSock = sock;
 }
+
+/*--------------------------------------------------------------------*/
+/*       t T e r m i n a t e C o m m u n i c a t i o n s              */
+/*                                                                    */
+/*       Shutdown communications processing                           */
+/*--------------------------------------------------------------------*/
+
+void
+tTerminateCommunications( void )
+{
+   if (pollingSock != INVALID_SOCKET) {
+      closesocket(pollingSock);
+      pollingSock = INVALID_SOCKET;
+   }
+
+   if (connectedSock != INVALID_SOCKET) {
+      closesocket(connectedSock);
+      connectedSock = INVALID_SOCKET;
+   }
+
+} /* tTerminateCommunications */

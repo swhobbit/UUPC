@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.56 1997/05/11 04:27:40 ahd Exp $
+ *    $Id: rmail.c 1.57 1997/05/11 18:15:50 ahd v1-12s $
  *
  *    $Log: rmail.c $
+ *    Revision 1.57  1997/05/11 18:15:50  ahd
+ *    Allow faster SMTP delivery via fastsmtp flag
+ *    Move TCP/IP dependent code from rmail.c to deliver.c
+ *    Allow building rmail without SMTP or TCP/IP support
+ *
  *    Revision 1.56  1997/05/11 04:27:40  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -398,7 +403,7 @@ int main(int argc, char **argv)
 
    debuglevel =  0;
 
-   if (!configure(B_MTA))
+   if (!configure(B_RMAIL))
       Terminate(3, imf, datain );
 
    datain = stdin;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.67 1997/04/24 01:34:23 ahd Exp $
+ *    $Id: modem.c 1.68 1997/05/11 04:28:26 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.68  1997/05/11 04:28:26  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.67  1997/04/24 01:34:23  ahd
  *    Annual Copyright Update
  *
@@ -613,7 +616,7 @@ CONN_STATE callin( const time_t exit_time )
 
    if ( IsNetwork() )
    {
-      if (passiveopenline(M_device, M_portNumber, bmodemflag[MODEM_DIRECT]))
+      if (passiveopenline(M_device, M_portNumber, KWFalse ))
          panic();
    }
    else {
@@ -625,7 +628,9 @@ CONN_STATE callin( const time_t exit_time )
          panic();
       } /* if */
 
-      if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
+      if (passiveopenline(M_device,
+                          IsNetwork() ? M_portNumber : inspeed,
+                          IsNetwork() ? KWFalse : bmodemflag[MODEM_DIRECT]))
          panic();
 
       while (sread(&c ,1,0)); /* Discard trailing trash from modem
