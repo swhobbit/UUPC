@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.53 1994/12/31 03:51:01 ahd Exp $
+ *    $Id: configur.c 1.54 1995/01/02 05:03:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.54  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.53  1994/12/31 03:51:01  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -386,6 +389,7 @@ FLAGTABLE configFlags[] = {
  { "expert",                  F_EXPERT,                B_LOCAL},
  { "forwardsave",             F_SAVERESENT,            B_LOCAL},
  { "fromsep",                 F_FROMSEP,               B_LOCAL},
+ { "imfile",                  F_IMFILE,                B_LOCAL},
  { "pager",                   F_PAGER,                 B_LOCAL},
  { "purge",                   F_PURGE,                 B_LOCAL},
  { "save",                    F_SAVE,                  B_LOCAL},
