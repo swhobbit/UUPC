@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.18 1997/12/15 03:54:19 ahd Exp $
+ *    $Id: fopen.c 1.19 1998/03/01 01:23:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.19  1998/03/01 01:23:38  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1997/12/15 03:54:19  ahd
  *    Add missing header for stater
  *
@@ -68,7 +71,7 @@
 #include "ssleep.h"
 #include "stater.h"
 
-RCSID("$Id: fopen.c 1.18 1997/12/15 03:54:19 ahd Exp $");
+RCSID("$Id: fopen.c 1.19 1998/03/01 01:23:38 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */
@@ -100,19 +103,28 @@ FILE *FSOPEN(const char *name, const char *mode)
 
    results = _fsopen(fname, mode, share );
 
+   /* Return if the file opened */
+   if (results != nil(FILE))
+      return results;
+
 /*--------------------------------------------------------------------*/
-/*       Return if the file opened, or if in read mode (no            */
+/*       Return if the file doesn't exist, or if in read mode (no     */
 /*       directories need to be built) and not in multi-tasking       */
 /*       mode (no retries).                                           */
 /*--------------------------------------------------------------------*/
 
-   if (results != nil(FILE))
-      return results;
-
-   if (*mode == 'r')
+   if (mode[0] == 'r')
    {
-      if ((!bflag[ F_MULTITASK ]) || access( fname, 0 ))
+      if ((!bflag[ F_MULTITASK ]) ||
+           access( fname, 0 ) ||
+           mode[1] == '+' )
+      {
+#ifdef UDEBUG
+         if ( debuglevel > 1 )
+            printerr( fname );
+#endif
          return results;
+      }
    }
    else if ((last = strrchr(name, '/')) != nil(char))
    {                                /* Make any needed directories    */
