@@ -15,14 +15,27 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: lib.h 1.2 1992/11/22 21:31:22 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: lib.h $
+ * Revision 1.2  1992/11/22  21:31:22  ahd
+ * Allow strpool() to allocate memory for const strings
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
@@ -174,6 +187,8 @@ typedef enum {
                F_SAVERESENT,  /* TRUE = Save forwarded mail a second time  */
                F_SUPPRESSCOPYRIGHT,
                               /* Skip copyright message                    */
+               F_SPEEDOVERMEMORY,
+                              /* TRUE = Be lazy in strpool()               */
                F_VERBOSE,     /* TRUE = Verbose RMAIL output               */
 
 /*--------------------------------------------------------------------*/

@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: strpool.c 1.1 1992/11/22 20:58:55 ahd Exp ahd $
  *
- *    $Log$
+ *    $Log: strpool.c $
+ * Revision 1.1  1992/11/22  20:58:55  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -43,10 +46,25 @@ typedef struct str_queue {
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-void dump_pool( void );
-
 static STR_QUEUE *anchor = NULL;
 static const size_t pool_size = BUFSIZ;
+static int pools      = 0;
+
+#define _UDEBUG
+#ifdef _UDEBUG
+
+static int strings    = 0;
+static int used       = 0;
+static int duplicates = 0;
+static int saved      = 0;
+
+/*--------------------------------------------------------------------*/
+/*                          Local prototypes                          */
+/*--------------------------------------------------------------------*/
+
+void dump_pool( void );
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    The problem:  UUPC/extended allocates large number of small     */
@@ -76,9 +94,8 @@ static const size_t pool_size = BUFSIZ;
 char *strpool( const char *input , const char *file, size_t line)
 {
    int len  = strlen( input );
+   int best_fit = SHRT_MAX;
    char *result;
-   size_t best_fit = SHRT_MAX;
-   size_t buffers = 0;
 
    STR_QUEUE *current = anchor;
    STR_QUEUE *last    = anchor;
@@ -90,25 +107,36 @@ char *strpool( const char *input , const char *file, size_t line)
 
    while(current != NULL )
    {
-      size_t available;
-      char *target = current->pool;
-      char *bufend = target + current->used;
+      int available;
 
 /*--------------------------------------------------------------------*/
 /*                 Scan current buffer for the string                 */
 /*--------------------------------------------------------------------*/
 
-      while( target < bufend )
+      if ( ! bflag[ F_SPEEDOVERMEMORY ] )
       {
-         int target_len = strlen( target );
-         int diff =  target_len - len;
+         char *target = current->pool;
+         char *bufend = target + current->used;
 
-         if ((diff >= 0 ) && equal( target + diff, input))
-            return target+diff;
+         while( target < bufend )
+         {
+            int target_len = strlen( target );
+            int diff =  target_len - len;
 
-         target += target_len + 1;  /* Step to start of next string  */
+            if ((diff >= 0 ) && equal( target + diff, input))
+            {
 
-      } /* while( offset < current->used ) */
+#ifdef _UDEBUG
+               duplicates ++;
+               saved += len + 1;
+#endif
+               return target+diff;
+            }
+
+            target += target_len + 1;  /* Step to start of next string  */
+
+         } /* while( offset < current->used ) */
+      }  /* if */
 
 /*--------------------------------------------------------------------*/
 /*    No string in this buffer, look for best fit in case we need     */
@@ -125,7 +153,6 @@ char *strpool( const char *input , const char *file, size_t line)
       else
          last =  current;        /* Save last buffer in case we
                                     have to chain new buffer in      */
-      buffers ++;
       current = current->next_link;
    }  /* while */
 
@@ -136,14 +163,18 @@ char *strpool( const char *input , const char *file, size_t line)
 
    if ( save == NULL )           /* We find a buffer?                */
    {                             /* No --> Allocate a new one        */
+      pools ++;
 
       save = malloc( sizeof *save );
       checkptr(save, file, line);
 
       if ( anchor == NULL )
       {
-         if ( debuglevel > 4 )
-            atexit( dump_pool );
+
+#ifdef _UDEBUG
+         atexit( dump_pool );
+#endif
+
          anchor = save;
       }
       else
@@ -152,9 +183,9 @@ char *strpool( const char *input , const char *file, size_t line)
       save->used = 0;
       save->next_link = NULL;
 
-      printmsg( 2,"strpool: Allocated pool %d,"
+      printmsg( 5,"strpool: Allocated pool %d,"
                   " input from %s(%d) is \"%s\"",
-                  buffers + 1, file, line, input );
+                  pools, file, line, input );
    }
 
 /*--------------------------------------------------------------------*/
@@ -164,6 +195,11 @@ char *strpool( const char *input , const char *file, size_t line)
 
    result = strcpy( save->pool + save->used, input );
    save->used += len + 1;
+
+#ifdef _UDEBUG
+   strings ++;
+   used    += len + 1;
+#endif
 
    return result;
 
@@ -200,6 +236,8 @@ void safefree( void *input , const char *file, size_t line)
 
 } /* safefree */
 
+#ifdef _UDEBUG
+
 /*--------------------------------------------------------------------*/
 /*    d u m  p _ p o o l                                              */
 /*                                                                    */
@@ -212,21 +250,28 @@ void dump_pool( void )
    STR_QUEUE *current = anchor;
    int buffers = 0;
 
-   printmsg(0,"Dumping free storage pool ...");
+   printmsg(3,"Allocated %d bytes in %d strings "
+              "requiring %d pools of %d bytes each",
+              used, strings, pools, pool_size );
 
+   if ( duplicates )
+      printmsg(3,"Saved %d bytes in %d redundant strings",
+               saved, duplicates);
+
+   if ( debuglevel > 5 )
    while(current != NULL )
    {
       size_t offset = 0;
       size_t strings = 0;
       buffers ++;
 
-      printmsg(0,"Buffer %d length is %d bytes",buffers, current->used);
+      printmsg(5,"Buffer %d length is %d bytes",buffers, current->used);
 
       while( offset < current->used )
       {
          size_t target_len = strlen( current->pool + offset );
          strings ++;
-         printmsg(0,"[%d,%02d,%02d]=\"%s\"",
+         printmsg(5,"[%d,%02d,%02d]=\"%s\"",
                      buffers,
                      strings,
                      target_len,
@@ -238,5 +283,7 @@ void dump_pool( void )
       current = current->next_link;
 
    }  /* while */
+
 } /* dump_pool */
 
+#endif
