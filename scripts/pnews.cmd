@@ -34,9 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.4 1995/01/02 00:32:29 ahd Exp $
+ *    $Id: pnews.cmd 1.5 1995/01/03 05:36:27 ahd v1-12q $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.5  1995/01/03 05:36:27  ahd
+ *    Allow prompting with a default value
+ *    Prompt for distribution
+ *
  *    Revision 1.4  1995/01/02 00:32:29  ahd
  *    Handle environment without UUPCUSRRC set (use LOGNAME)
  *
@@ -76,7 +80,6 @@ tempdir      = getuupc("TEMPDIR" )
 
 dfile        = SysTempFileName( tempdir || '\POST????.TXT');
 
-call lineout dfile,'Path:' mailbox;
 call lineout dfile,'From:' mailbox || '@' || domain '(' || name || ')';
 
 if organization <> "NOT!" then
