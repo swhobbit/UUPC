@@ -42,6 +42,17 @@
 /*                         past since last poll.  hhmm may be         */
 /*                         0000.                                      */
 /*                                                                    */
+/*                -c hhmm  Run a command at hhmm to clean the UUPC    */
+/*                         spool at this time every day.  Default is  */
+/*                         never.                                     */
+/*                                                                    */
+/*                -C cmd   Run command 'cmd' at the specified by      */
+/*                         -c.  The default is UUCLEAN.               */
+/*                                                                    */
+/*                -B cmd   Run command cmd before each active call    */
+/*                         out to batch up any work.  Default is      */
+/*                         run nothing.                              */
+/*                                                                    */
 /*                In addition, the following flags will be passed     */
 /*                to UUCICO:                                          */
 /*                                                                    */
@@ -58,9 +69,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.8 1993/05/11 03:25:17 ahd Exp $
+ *    $Id: UUPOLL.C 1.9 1993/05/13 01:39:04 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.9  1993/05/13  01:39:04  ahd
+ * Additional fix for correctly handling UUCLEAN once and only once daily
+ *
  * Revision 1.8  1993/05/11  03:25:17  ahd
  * Don't loop when sleeping for autoclean -- get it over with
  *
@@ -94,7 +108,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.8 1993/05/11 03:25:17 ahd Exp $";
+         "$Id: UUPOLL.C 1.9 1993/05/13 01:39:04 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -195,7 +209,8 @@ currentfile();
    char *CleanCommand = "uuclean";
    char *logname = NULL;
    char *modem   = NULL;
-   int returncode = 0;
+   char *batchCommand   = NULL;
+   int returnCode = 0;
 
 #ifndef FAMILYAPI
    boolean cbrk;
@@ -215,7 +230,7 @@ currentfile();
         panic();
     }
 
-   while((option = getopt(argc, argv, "m:a:c:C:d:e:f:l:i:s:r:x:")) != EOF)
+   while((option = getopt(argc, argv, "m:a:B:c:C:d:e:f:l:i:s:r:x:")) != EOF)
    switch(option)
    {
 
@@ -227,6 +242,14 @@ currentfile();
          if (notanumber(optarg))
             usage( argv[0] );
          autowait = (hhmm) hhmm2sec( atoi(optarg) );
+         break;
+
+/*--------------------------------------------------------------------*/
+/*                    Batching command to execute                     */
+/*--------------------------------------------------------------------*/
+
+      case 'B':
+         batchCommand = optarg;
          break;
 
 /*--------------------------------------------------------------------*/
@@ -418,7 +441,7 @@ currentfile();
       time_t next = LONG_MAX;
       time_t autonext  = now + autowait;
       time_t wait = 10;      /* Time to wait after first panic()    */
-      returncode = 0;
+      returnCode = 0;
 
 /*--------------------------------------------------------------------*/
 /*        Determine length of passive poll or wasting of time         */
@@ -461,23 +484,23 @@ currentfile();
             busywork(next < cleannext ? next : cleannext);
          else {
             time_t spin;
-            returncode = passive(next < cleannext ? next : cleannext ,
+            returnCode = passive(next < cleannext ? next : cleannext ,
                                  debuglevel, logname , modem );
 
-            if (returncode == 69 )  /* Error in UUCICO?              */
+            if (returnCode == 69 )  /* Error in UUCICO?              */
             {                       /* Yes --> Allow time to fix it  */
                spin = now + wait;   /* Figure next wait              */
                wait *= 2 ;          /* Double wait for next time     */
                busywork( spin > next ? next : spin );
                                     /* But only wait till next poll  */
-            } /* if (returncode == 69 ) */
+            } /* if (returnCode == 69 ) */
             else {
                wait = 10;
 
-               if ((returncode == 0) && (autowait != -1) &&
+               if ((returnCode == 0) && (autowait != -1) &&
                    (now >= autonext) && (now < next))
                {
-                  returncode = active("any",debuglevel, logname);
+                  returnCode = active("any",debuglevel, logname);
                   autonext = now + autowait;
                } /* if */
 
@@ -485,7 +508,7 @@ currentfile();
 
             if ( (now > exittime) && (now < next))
                done = TRUE;
-            else if ( returncode == 100 )
+            else if ( returnCode == 100 )
                done = TRUE;
 
          } /* else */
@@ -498,9 +521,22 @@ currentfile();
 
       if ( ! done && (first >= 0) )
       {
-         returncode = active(Rmtname,debuglevel,logname);
+         if ( batchCommand != NULL )
+         {
+            returnCode = system( batchCommand );
+            if ( returnCode != 0 )
+            {
+               printmsg(0,
+                        "%s exited with %d status, UUPOLL exiting",
+                        batchCommand,
+                        returnCode);
+               break;
+            }
+         }
 
-         if ( returncode == 100 )
+         returnCode = active(Rmtname,debuglevel,logname);
+
+         if ( returnCode == 100 )
             done = TRUE;
 
       } /* if ( ! done && (first >= 0) ) */
@@ -518,9 +554,9 @@ currentfile();
       setcbrk(0);                /* Restore original Cntrl-Break setting   */
 #endif
 
-   printmsg(2,"UUPOLL exiting with return code %d", returncode );
+   printmsg(2,"UUPOLL exiting with return code %d", returnCode );
 
-   exit(returncode);
+   exit(returnCode);
  } /* main */
 
 /*--------------------------------------------------------------------*/
