@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.73 1996/01/04 04:00:46 ahd Exp $
+ *    $Id: configur.c 1.74 1996/01/07 14:14:40 ahd v1-12r ahd $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.74  1996/01/07 14:14:40  ahd
+ *    Support for external access to configuration table data by NT regsetup
+ *
  *    Revision 1.73  1996/01/04 04:00:46  ahd
  *    Use sorted list of boolean options with binary search and computed
  *    table size.
