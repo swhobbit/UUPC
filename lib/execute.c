@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.32 1994/08/07 21:28:54 ahd Exp $
+ *    $Id: execute.c 1.33 1994/08/08 00:21:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.33  1994/08/08  00:21:00  ahd
+ * Further OS/2 cleanup
+ *
  * Revision 1.32  1994/08/07  21:28:54  ahd
  * Clean up OS/2 processing to not use new sessions, but rather simply user
  * command processor to allow firing off PM programs such as E and EPM.
@@ -808,7 +811,7 @@ static int executeAsync( const char *command,
 /*--------------------------------------------------------------------*/
 
 
-   if ( synchronous && foreground )
+   if ( synchronous )
    {
       int result = spawnl(  P_WAIT,
                             (char *) command,
