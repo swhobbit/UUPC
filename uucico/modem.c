@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.17 1993/07/05 14:47:05 ahd Exp $
+ *    $Id: modem.c 1.18 1993/07/13 01:13:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.18  1993/07/13  01:13:32  ahd
+ * Correct message for systems waiting forever
+ *
  * Revision 1.17  1993/07/05  14:47:05  ahd
  * Drop obsolete  tag from "variablepacket"
  * Set default timeout of 30 seconds for answer timeout
@@ -119,6 +122,7 @@ static char **answer, **initialize, **dropline, **ring, **connect;
 static char **noconnect;
 static char *dialPrefix, *dialSuffix;
 static char *M_suite;
+static char *dummy;
 
 static INTEGER chardelay, dialTimeout, modemTimeout, scriptTimeout;
 static INTEGER answerTimeout, inspeed;
@@ -151,6 +155,7 @@ static CONFIGTABLE modemtable[] = {
    { "biggwindowsize",(char **) &GWindowSize,  B_INTEGER| B_UUCICO },
    { "chardelay",     (char **) &chardelay,    B_INTEGER| B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
+   { "description",   &dummy,                  B_TOKEN  },
    { "device",        &device,  B_TOKEN  | B_UUCICO | B_REQUIRED },
    { "dialprefix",    &dialPrefix, B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
