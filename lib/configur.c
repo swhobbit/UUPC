@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.61 1995/02/12 23:35:59 ahd Exp $
+ *    $Id: configur.c 1.62 1995/02/20 00:38:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.62  1995/02/20 00:38:04  ahd
+ *    news index caching support
+ *
  *    Revision 1.61  1995/02/12 23:35:59  ahd
  *    'compiler
  *
@@ -298,7 +301,6 @@ KEWSHORT E_newsCache = 4;     /* Pages of news index to cache        */
 
 long     E_batchsize = 65536L;
 
-static char *dummy = NULL;
 static char *E_tz = NULL;
 
 /*--------------------------------------------------------------------*/
@@ -352,27 +354,27 @@ CONFIGTABLE envtable[] = {
    {"domain",       &E_domain,       B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"editor",       &E_editor,       B_MUA,     B_STRING },
    {"filesent",     &E_filesent,     B_MUA,     B_TOKEN },
-   {"folders",      &dummy,          B_MUSH,    B_PATH  },
+   {"firstGrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
+   {"folders",      0     ,          B_MUSH,    B_PATH  },
    {"fromdomain",   &E_fdomain,      B_ALL,     B_GLOBAL|B_TOKEN },
    {"home",         &E_homedir,      B_ALL,     B_PATH|B_REQUIRED },
    {"ignore",       &E_ignoreList,   B_MUA,     B_LIST },
-   {"firstGrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
    {"inmodem",      &E_inmodem,      B_UUCICO,  B_GLOBAL|B_TOKEN },
    {"internalcommands", &E_internal, B_ALL,     B_GLOBAL|B_LIST },
    {"localdomain",  &E_localdomain,  B_MAIL,    B_GLOBAL|B_TOKEN   },
    {"mailbox",      &E_mailbox,      B_ALL,     B_REQUIRED|B_TOKEN },
    {"maildir",      &E_maildir,      B_ALL,     B_GLOBAL|B_PATH },
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
+   {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
    {"mailserv",     &E_mailserv,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
-   {"newsgrade",    &E_newsGrade,    B_NEWS,    B_CHAR },
-   {"newscache",    &E_newsCache,    B_NEWS,    B_SHORT },
    {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
    {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
    {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
-   {"mushdir",      &dummy,          B_MUSH,    B_GLOBAL|B_PATH },
+   {"mushdir",      0     ,          B_MUSH,    B_GLOBAL|B_PATH },
    {"name",         &E_name,         B_INEWS|B_MAIL, B_REQUIRED|B_STRING },
-   {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
+   {"newscache",    &E_newsCache,    B_NEWS,    B_SHORT },
    {"newsdir",      &E_newsdir,      B_NEWS,    B_GLOBAL|B_PATH },
+   {"newsgrade",    &E_newsGrade,    B_NEWS,    B_CHAR },
    {"newsserv",     &E_newsserv,     B_NEWS,    B_GLOBAL|B_TOKEN },
    {"nickname",     &E_nickname,     B_MUA,     B_TOKEN },
    {"nodename",     &E_nodename,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
@@ -383,13 +385,13 @@ CONFIGTABLE envtable[] = {
    {"path",         &E_uuxqtpath,    B_UUXQT,   B_STRING|B_GLOBAL },
    {"permissions",  &E_permissions,  B_ALL,     B_GLOBAL|B_PATH },
    {"postmaster",   &E_postmaster,   B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
-   {"priority",     &dummy,          B_OBSOLETE  },
-   {"prioritydelta",&dummy,          B_OBSOLETE  },
+   {"priority",     0     ,          B_OBSOLETE  },
+   {"prioritydelta",0     ,          B_OBSOLETE  },
    {"pubdir",       &E_pubdir,       B_ALL,     B_GLOBAL|B_PATH },
    {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
    {"replytoList",  &E_replyToList,  B_MUA,     B_LIST },
-   {"rmail",        &dummy,          B_OBSOLETE  },
-   {"rnews",        &dummy,          B_OBSOLETE  },
+   {"rmail",        0     ,          B_OBSOLETE  },
+   {"rnews",        0     ,          B_OBSOLETE  },
    {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
    {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
    {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
@@ -445,6 +447,7 @@ FLAGTABLE configFlags[] = {
  { "multiqueue",              F_MULTI,                 B_GLOBAL},
  { "multitask",               F_MULTITASK,             B_GLOBAL},
  { "nns",                     F_NNS,                   B_GLOBAL},
+ { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
  { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
  { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
@@ -626,6 +629,12 @@ KWBoolean processconfig(char *buff,
 
             } /* else */
 
+#ifdef UDEBUG
+            printmsg(10,"Assigning keyword %s numeric value %ld",
+                         tptr->sym,
+                         foo );
+#endif
+
             if (tptr->flag & B_LONG)
                *((long *) tptr->loc) = foo;
             else
@@ -634,10 +643,21 @@ KWBoolean processconfig(char *buff,
          } /* else if (tptr->flag & (B_SHORT|B_LONG)) */
 
 /*--------------------------------------------------------------------*/
-/*                       Handle lists of tokens                       */
+/*       Begin processing character types:  lists, strings,           */
+/*       tokens, and single characters                                */
 /*--------------------------------------------------------------------*/
 
          else {
+#ifdef UDEBUG
+            printmsg(10,"Assigning keyword %s string value \"%s\"",
+                         tptr->sym,
+                         cp );
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                       Handle lists of tokens                       */
+/*--------------------------------------------------------------------*/
+
             if (tptr->flag & (B_LIST | B_CLIST))
             {
                char **list = malloc( (MAXLIST+1) * sizeof (*list));
@@ -896,14 +916,16 @@ KWBoolean configure( CONFIGBITS program)
 
    static ENVNAMES envlist[] =
    {
-      { "EDITOR",   "EDITOR",  },
-      { "HOME",     "HOME",    },
-      { "NAME",     "NAME",    },
-      { "MAILBOX",  "MAILBOX", },
-      { "LOGNAME",  "MAILBOX", },   /* Same as rcs                   */
-      { "USERNAME", "MAILBOX", },   /* Useful for NT                 */
-      { "TEMP",     "TEMPDIR", },
-      { "TMP",      "TEMPDIR", },
+      { "EDITOR",   "EDITOR"   },
+      { "HOME",     "HOME"     },
+      { "NAME",     "NAME"     },
+      { "HOSTNAME", "NODENAME" },   /* Useful for OS/2 TCP/IP        */
+      { "MAILBOX",  "MAILBOX"  },
+      { "LOGNAME",  "MAILBOX"  },   /* Same as RCS                   */
+      { "USER",     "MAILBOX"  },   /* Useful for OS/2 TCP/IP        */
+      { "USERNAME", "MAILBOX"  },   /* Useful for NT                 */
+      { "TEMP",     "TEMPDIR"  },
+      { "TMP",      "TEMPDIR"  },
       { "TZ",       "TZ",      },
       { NULL }
    } ;
