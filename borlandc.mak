@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.12 1993/04/16 02:43:27 ahd Exp $
+#     $Id: makefile 1.13 1993/04/19 13:16:08 ahd Exp ahd $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.13  1993/04/19  13:16:08  ahd
+#         Begin version 1.11z
+#
 #         Revision 1.12  1993/04/16  02:43:27  ahd
 #         Do not archive bad rn source
 #
@@ -461,11 +464,11 @@ $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
 # *                           UUPCSRC.ZIP                              *
 # *--------------------------------------------------------------------*
 
-$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)nmake $(TIMESTMP) $(FMT)
+$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)mscmake $(TIMESTMP) $(FMT)
         - mkdir $:.
         $(FMT) -0 &&!
 $(MAKEFILE)
-nmake
+mscmake
 lib\*.c
 lib\*.h
 lib\*.mak
