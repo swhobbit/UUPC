@@ -33,9 +33,12 @@
 */
 
 /*
- *       $Id: DCPXFER.C 1.5 1992/11/19 03:01:31 ahd Exp $
+ *       $Id: DCPXFER.C 1.6 1992/11/20 12:39:10 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.6  1992/11/20  12:39:10  ahd
+ * Add instead of substracting on the receive buffer!
+ *
  * Revision 1.5  1992/11/19  03:01:31  ahd
  * drop rcsid
  *
@@ -88,7 +91,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static unsigned char *databuf = NULL;
+static char *databuf = NULL;
 static unsigned int xfer_bufsize = 0;
 
 static char fname[FILENAME_MAX], tname[FILENAME_MAX], dname[FILENAME_MAX];
