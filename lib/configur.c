@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.88 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: configur.c 1.89 1999/01/08 02:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.89  1999/01/08 02:20:43  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.88  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -164,7 +167,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.88 1999/01/04 03:52:28 ahd Exp $");
+RCSID("$Id: configur.c 1.89 1999/01/08 02:20:43 ahd Exp $");
 
 #define HOMEDIRLIT "*HOME*"
 
@@ -223,7 +226,7 @@ char E_firstGrade = 'C';       /* First class (and above) UUCICO
 char E_mailGrade = 'C';        /* Class mail is transferred at        */
 char E_newsGrade = 'n';        /* Class news is transferred at        */
 
-KEWSHORT E_timeoutSMTP = 60;   /* SMTP read timeout for rmail         */
+KEWSHORT E_timeoutSMTP = 300;  /* SMTP read timeout for rmail         */
 KEWSHORT E_maxhops = 20;
 KEWSHORT E_maxuuxqt = 0;      /* Max length of remote command line   */
 
@@ -1218,7 +1221,7 @@ KWBoolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stderr,
-"Changes and Compilation Copyright (c) 1989-1999 by Kendra Electronic\n"
+"Changes and Compilation Copyright 1989-1999 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");
