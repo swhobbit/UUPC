@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.11 1998/03/08 04:52:02 ahd Exp $
+ *    $Id: SMTPCLNT.H 1.12 1998/03/08 23:12:28 ahd Exp $
  *
  *    Revision history:
- *    $Log: smtpclnt.h $
+ *    $Log: SMTPCLNT.H $
+ *    Revision 1.12  1998/03/08 23:12:28  ahd
+ *    Better supportfor UUXQT
+ *
  *    Revision 1.11  1998/03/08 04:52:02  ahd
  *    Allowing setting per client timeout explicitly
  *
@@ -176,6 +179,10 @@ KWBoolean getClientQueueRun(const SMTPClient *client);
 /* Mode (state) flag */
 void setClientMode(SMTPClient *client, SMTPMode mode);
 SMTPMode getClientMode(const SMTPClient *client);
+
+/* Socket error flag */
+void setClientSocketError(SMTPClient *client, int error);
+int getClientSocketError(const SMTPClient *client);
 
 /* Client network socket ready for processing */
 void setClientReady(SMTPClient *client, KWBoolean ready);
