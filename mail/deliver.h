@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.19 1997/04/24 01:10:40 ahd Exp $
+ *    $Id: deliver.h 1.20 1997/05/11 04:28:53 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.20  1997/05/11 04:28:53  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.19  1997/04/24 01:10:40  ahd
  *    Annual Copyright Update
  *
@@ -82,24 +85,27 @@
 #define POSTMASTER "postmaster"
 
 size_t Deliver( IMFILE *imf,           /* Input file name            */
-                char *address,         /* Target address             */
+                const char *address,   /* Target address             */
                 KWBoolean validate);   /* Validate/forward local mail*/
 
 size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
                     const char *address,  /* Target address           */
                     const char *path);
 
-#ifdef TCPIP
 size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
                     const char *address,  /* Target address           */
                     const char *path);
-#endif
 
 size_t Bounce( IMFILE *imf,
                const char *text,
                const char *data,
                const char *address,
                const KWBoolean validate );
+
+KWBoolean
+retrySMTPdelivery( IMFILE *imf, const char **address, int addresses );
+
+void flushQueues( IMFILE *imf );
 
 extern KEWSHORT hops;
 

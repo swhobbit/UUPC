@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.36 1996/01/01 21:00:14 ahd v1-12r $
+ *    $Id: uutypes.h 1.37 1997/03/31 07:07:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.37  1997/03/31 07:07:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.36  1996/01/01 21:00:14  ahd
  *    Annual Copyright Update
  *
@@ -198,6 +201,7 @@ typedef enum {
                F_DOT,         /* True = period ends a message         */
                F_EXPERT,      /* True = Let user shoot self in foot
                                         w/o a message.                */
+               F_FASTSMTP,    /* True = Deliver SMTP immediately      */
                F_FROMSEP,     /* True = Allow From to split messages  */
                F_IMFILE,      /* True = Use in memory files           */
                F_PAGER,       /* True = Invert meaning of P/p T/t cmds*/
