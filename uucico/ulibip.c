@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBIP.C 1.12 1993/11/30 04:13:30 dmwatt Exp $
+ *    $Id: ulibip.c 1.13 1993/12/24 05:12:54 ahd Exp $
  *
- *    $Log: ULIBIP.C $
+ *    $Log: ulibip.c $
+ * Revision 1.13  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.12  1993/11/30  04:13:30  dmwatt
  * Optimize port processing
  *
@@ -91,6 +94,10 @@
 #include "commlib.h"       /* Trace functions, etc.                    */
 #include "pwserr.h"        /* Windows sockets error messages           */
 
+#ifdef WIN32
+#include "pnterr.h"
+#endif
+
 #ifdef _Windows
 #include "pwinsock.h"      /* definitions for 16 bit Winsock functions  */
 #endif
@@ -114,6 +121,7 @@ static boolean hangupNeeded = TRUE;
 extern boolean winsockActive;                   /* Initialized in catcher.c  */
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
+
 static boolean connectionDied = FALSE;          /* The current connection failed  */
 
 /*--------------------------------------------------------------------*/
@@ -278,8 +286,8 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
       else
          sin.sin_port = pse->s_port;
    }
-   else
-      sin.sin_port = remotePort;
+   else /* Remember to invert byte order! */
+      sin.sin_port = htons(remotePort);
 
    connectedSock = socket( AF_INET, SOCK_STREAM, 0);
    if (connectedSock == INVALID_SOCKET)
@@ -434,13 +442,25 @@ unsigned int tsread(char UUFAR *output,
                     unsigned int wanted,
                     unsigned int timeout)
 {
-   fd_set readfds;
-   struct timeval tm;
-   int nReady;
    time_t stop_time ;
    time_t now ;
+   int nReady;
+   fd_set readfds;
+   struct timeval tm;
 
    boolean firstPass = TRUE;
+
+/*--------------------------------------------------------------------*/
+/*                           Validate input                           */
+/*--------------------------------------------------------------------*/
+
+   if ( wanted > commBufferLength )
+   {
+      printmsg(0,"tsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -456,7 +476,7 @@ unsigned int tsread(char UUFAR *output,
       return wanted + commBufferUsed;
    } /* if */
 
-   if (connectionDied || connectedSock == INVALID_SOCKET)
+   if (connectionDied || (connectedSock == INVALID_SOCKET) )
    {                             /* Haven't accepted a connection yet?  */
       return 0;
    }
@@ -495,7 +515,7 @@ unsigned int tsread(char UUFAR *output,
          static boolean recurse = FALSE;
          if ( ! recurse )
          {
-            printmsg(2,"sread: User aborted processing");
+            printmsg(2,"tsread: User aborted processing");
             recurse = TRUE;
          }
          return 0;
@@ -506,7 +526,6 @@ unsigned int tsread(char UUFAR *output,
 /*       msec if we have to read at least one character (this         */
 /*       needs to be tuned)                                           */
 /*--------------------------------------------------------------------*/
-
       if ( stop_time <= now )
       {
          tm.tv_usec = 5000;
@@ -829,6 +848,9 @@ boolean tWaitForNetConnect(int timeout)
       return FALSE;
    }
 
+   if (terminate_processing)
+      return FALSE;
+
    connectedSock = accept(pollingSock, NULL, NULL);
    if (connectedSock == INVALID_SOCKET)
    {
@@ -866,3 +888,20 @@ boolean IsFatalSocketError(int err)
        return FALSE;
 
 } /* IsFatalSocketError */
+
+#ifdef WIN32
+BOOL AbortNetwork(void)
+{
+   if (connectedSock != INVALID_SOCKET) {
+      closesocket(connectedSock);
+      connectedSock = INVALID_SOCKET;
+   }
+
+   if (pollingSock != INVALID_SOCKET) {
+      closesocket(pollingSock);
+      pollingSock = INVALID_SOCKET;
+   }
+
+   return FALSE;
+}
+#endif
