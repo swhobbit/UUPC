@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.2 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: suspend2.c 1.3 1993/09/30 03:06:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.3  1993/09/30  03:06:28  ahd
+ * Move suspend signal handler into suspend2
+ *
  * Revision 1.2  1993/09/29  04:49:20  ahd
  * Various clean up, with additional messages to user
  * Use unique signal handler
@@ -56,6 +59,13 @@
  */
 
 /*--------------------------------------------------------------------*/
+/*       Note that the 32 bit API doesn't handle signals like it's    */
+/*       16 bit older cousin.  For now, we support the client of      */
+/*       the of the pipe to suspend a 16 bit UUCICO, but a 32 bit     */
+/*       UUCICO cannot be suspended.                                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
@@ -78,6 +88,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
+#include "hostable.h"
+#include "security.h"
 #include "dcp.h"
 #include "dcpsys.h"
 #include "safeio.h"
@@ -129,6 +141,8 @@ currentfile();
 #pragma check_stack( off )
 #endif
 
+#ifndef __OS2__
+
 /*--------------------------------------------------------------------*/
 /*       S u s p e n d T h r e a d                                    */
 /*                                                                    */
@@ -137,6 +151,7 @@ currentfile();
 
 static VOID FAR SuspendThread(VOID)
 {
+
 
 /*--------------------------------------------------------------------*/
 /*       Process until we get a request to change the status of       */
@@ -247,7 +262,6 @@ static VOID FAR SuspendThread(VOID)
 
 } /* SuspendThread */
 
-#ifndef __OS2__
 /*--------------------------------------------------------------------*/
 /*       S u s p e n d H a n d l e r                                  */
 /*                                                                    */
@@ -279,6 +293,9 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 
 void suspend_init(const char *port )
 {
+
+#ifndef __OS2__
+
   char szPipe[FILENAME_MAX];
   SEL selStack;
   PSZ pStack;
@@ -383,6 +400,8 @@ void suspend_init(const char *port )
       panic();
   }
 
+#endif
+
 } /* suspend_init */
 
 /*--------------------------------------------------------------------*/
@@ -396,7 +415,11 @@ int suspend_other(const boolean suspend,
 {
   char szPipe[FILENAME_MAX];
   HFILE hPipe;
+#ifdef __OS2__
+  ULONG nAction, nBytes;
+#else
   USHORT nAction, nBytes;
+#endif
   UCHAR nChar;
   APIRET rc = 1;
   boolean firstPass = TRUE;
@@ -411,10 +434,10 @@ int suspend_other(const boolean suspend,
 
   while(rc)
   {
-      rc = DosOpen(szPipe,
+      rc = DosOpen((PSZ) szPipe,
                    &hPipe,
                    &nAction,
-                   0,
+                   0L,
                    0,
                    FILE_OPEN,
                    OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE,
@@ -423,17 +446,28 @@ int suspend_other(const boolean suspend,
       if (rc)
       {
         if ( debuglevel >= 4 )          // No error if no passive UUCICO
-           printOS2error( "DosOpen", rc);
+           printOS2error( "DosOpen", rc); // So this is only for info
 
         if ((rc == ERROR_PIPE_BUSY) && firstPass )
         {
            firstPass = FALSE;
+
+#ifdef __OS2__
+           rc = DosWaitNPipe( szPipe, 5000 ); // Wait up to 5 sec for pipe
+           if (rc)
+           {
+             printOS2error( "DosWaitNPipe", rc);
+             return 0;
+           } /* if (rc) */
+#else
            rc = DosWaitNmPipe( szPipe, 5000 ); // Wait up to 5 sec for pipe
            if (rc)
            {
              printOS2error( "DosWaitNmPipe", rc);
              return 0;
            } /* if (rc) */
+#endif
+
         } /* if */
         else
            return 0;
@@ -478,7 +512,7 @@ int suspend_other(const boolean suspend,
    }
    else if ( nBytes != 1 )
    {
-     printmsg(0,"suspend_other: Protocol error with remote UUCICO");
+     printmsg(0,"suspend_other: Error: No data from remote UUCICO");
      result = -2;
    }
    else if ( nChar != 'O' )
@@ -509,6 +543,11 @@ int suspend_other(const boolean suspend,
 
 CONN_STATE suspend_wait(void)
 {
+
+#ifdef __OS2__
+   return CONN_INITIALIZE;
+#else
+
    APIRET rc;
 
    printmsg(0,"suspend_wait: Port %s released, program sleeping",
@@ -540,5 +579,7 @@ CONN_STATE suspend_wait(void)
       return CONN_EXIT;
    else
       return CONN_INITIALIZE;
+
+#endif
 
 } /* suspend_wait */
