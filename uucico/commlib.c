@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.17 1994/01/01 19:17:54 ahd Exp $
+ *    $Id: commlib.c 1.18 1994/01/24 03:03:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.18  1994/01/24  03:03:52  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.17  1994/01/01  19:17:54  ahd
  * Annual Copyright Update
  *
@@ -455,13 +458,18 @@ void traceData( const char UUFAR *data,
    unsigned subscript;
 #endif
 
-
    if ( ! traceEnabled || ! len )
       return;
 
-   printmsg(network ? 4 : 15, "traceData: %u bytes %s",
+   printmsg(network ? 4 : 15, "traceData: %u bytes %s "
+#ifdef BIT32ENV
+               "%p",
+#else
+               "%Fp",
+#endif
                len,
-               output ? "written" : "read" );
+               output ? "written to" : "read from",
+               data);
 
    if ( traceMode != (short) output )
    {
