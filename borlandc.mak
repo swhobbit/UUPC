@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.56 1994/02/20 19:03:21 ahd Exp $
+#     $Id: makefile 1.57 1994/02/23 04:16:05 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.57  1994/02/23  04:16:05  ahd
+#         Delete TC pre-compiled headers at end of build
+#
 #         Revision 1.56  1994/02/20  19:03:21  ahd
 #         IBM C/Set 2 Conversion, memory leak cleanup
 #
@@ -952,13 +955,12 @@ $(WINPROD)\uuxqt.exe: uuxqtw.exe
 # *                           UUPCSRC.ZIP                              *
 # *--------------------------------------------------------------------*
 
-$(SRCZIPV1): $(MAKEFILE) MSCMAKE ICCMAKE \
+$(SRCZIPV1): $(MAKEFILE) NMAKE.MAK \
              $(DOCS)\rmail.pif $(DOCS)\uuxqt.pif $(DOCS)\uuclean.pif \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT1) < &&%
-ICCMAKE
-MSCMAKE
+*.MAK
 LIB\*.C
 LIB\*.H
 LIB\*.MAK
@@ -977,7 +979,7 @@ help@kew.com.
 .
 %
 
-$(SRCZIPV2): $(MAKEFILE) $(SRCSLASH)mscmake \
+$(SRCZIPV2): $(MAKEFILE) $(SRCSLASH)nmake.mak \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT1) < &&%
@@ -997,7 +999,7 @@ help@kew.com.
 .
 %
 
-$(SRCZIPV3): $(MAKEFILE) $(SRCSLASH)mscmake \
+$(SRCZIPV3): $(MAKEFILE) $(SRCSLASH)nmake.mak \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT1) < &&%
