@@ -6,9 +6,15 @@
  * Created: Sun Aug 15 1993
  */
  
-/* $Id$ */
+/* $Id: hdbm.h 1.1 1993/09/05 10:56:49 rommel Exp $ */
 
-/* $Log$ */
+/* $Log: hdbm.h $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ *
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 #ifndef _HDBM_H
 #define _HDBM_H
