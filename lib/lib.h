@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Id$
  *
  *    Revision history:
- *    $Log$
+ *    $Log: LIB.H $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
 
 #ifndef __LIB
@@ -101,6 +104,7 @@
                                   in this variable                    */
 #define B_OBSOLETE 0x00800000L /* Option is obsolete, should be
                                   deleted                             */
+#define B_MALLOC   0x01000000L  /* Use malloc(), not newstr()         */
 #define B_PATH     (B_TOKEN | B_NORMAL)
                                /* DOS Path name                       */
 
@@ -134,7 +138,11 @@
 #endif
 
 #define currentfile()            static char *cfnptr = __FILE__
-#define checkref(a)              (checkptr(a, cfnptr ,__LINE__));    /*ahd */
+#define checkref(a)              (checkptr(a, cfnptr ,__LINE__))     /*ahd */
+#define newstr(a)                (strpool(a, cfnptr ,__LINE__))
+#ifndef NOSAFEFREE
+#define free(a)                  (safefree(a, cfnptr ,__LINE__))
+#endif
 
 #define nil(type)               ((type *)NULL)
 
@@ -341,6 +349,12 @@ boolean processconfig(char *buff,
                   FLAGTABLE *btable);
 
 void bugout( const size_t lineno, const char *fname);
+
+char *strpool( const char *input , const char *file, size_t line);
+
+void safefree( void *input , const char *file, size_t line);
+
+char *normalize( const char *path );
 
 #ifdef __GNUC__
 char *strlwr( char *s );
