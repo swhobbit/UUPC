@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.13 1993/10/12 01:20:43 ahd Exp $
+ *    $Id: ssleep.c 1.14 1993/12/26 16:20:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.14  1993/12/26  16:20:17  ahd
+ *     Reorganize to break out OS dependent functions
+ *
  *     Revision 1.13  1993/10/12  01:20:43  ahd
  *     Normalize comments to PL/I style
  *
@@ -103,7 +106,7 @@
 #include "lib.h"
 #include "ssleep.h"
 
-#if defined(_Windows) || defined(WIN32)
+#if defined(_Windows)
 
 #include "winutil.h"
 
