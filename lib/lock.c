@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.11 1994/02/18 23:10:59 ahd Exp $
+ *    $Id: lock.c 1.12 1994/02/19 03:53:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *     Revision 1.12  1994/02/19  03:53:01  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/18  23:10:59  ahd
  *     Use standard first header
  *
@@ -57,9 +60,9 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <process.h>
 
-#include "uupcmoah.h"
 #include <io.h>
 
 /*--------------------------------------------------------------------*/

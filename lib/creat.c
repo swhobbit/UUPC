@@ -9,11 +9,11 @@
 /*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <fcntl.h>
 
 #ifndef __GNUC__
 
-#include "uupcmoah.h"
 #include <io.h>
 #endif
 

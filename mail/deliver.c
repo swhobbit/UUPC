@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.25 1994/01/01 19:12:17 ahd Exp $
+ *    $Id: deliver.c 1.26 1994/02/14 01:03:56 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.26  1994/02/14  01:03:56  ahd
+ * Trim trailing spaces off forward file lines
+ *
  * Revision 1.25  1994/01/01  19:12:17  ahd
  * Annual Copyright Update
  *
@@ -122,28 +125,23 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "uupcmoah.h"
+
 #include <io.h>
 #include <ctype.h>
-#include <sys/types.h>
-#include <string.h>
 #include <process.h>
 #include <limits.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "address.h"
 #include "deliver.h"
 #include "expath.h"
 #include "execute.h"
 #include "getseq.h"
 #include "kanjicnv.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "import.h"
 #include "pushpop.h"

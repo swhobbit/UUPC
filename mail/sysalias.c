@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.4 1994/01/01 19:13:22 ahd Exp $
+ *    $Id: sysalias.c 1.5 1994/01/24 03:17:36 ahd Exp $
  *
  *    $Log: sysalias.c $
+ * Revision 1.5  1994/01/24  03:17:36  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1994/01/01  19:13:22  ahd
  * Annual Copyright Update
  *
@@ -38,10 +41,8 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include "uupcmoah.h"
+
 #include <limits.h>
 #include <ctype.h>
 
@@ -49,10 +50,8 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "deliver.h"
 #include "sysalias.h"
-#include "hlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.10 1994/02/14 01:03:56 ahd Exp $
+ *    $Id: arpadate.c 1.11 1994/02/18 23:16:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.11  1994/02/18  23:16:55  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/02/14  01:03:56  ahd
  *     Drop unneeded currentfile() macro
  *
@@ -56,13 +59,7 @@
  *
  */
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
-#include "lib.h"
 #include "arpadate.h"
 
 /*--------------------------------------------------------------------*/

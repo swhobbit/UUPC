@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.8 1994/02/18 23:14:21 ahd Exp $
+ *    $Id: safeout.c 1.9 1994/02/19 03:57:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.9  1994/02/19  03:57:28  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/02/18  23:14:21  ahd
  *     Use standard first header
  *
@@ -62,7 +65,6 @@
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
-    #include <string.h>
 
 #else
 

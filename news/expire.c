@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.4 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: expire.c 1.5 1994/01/01 19:14:06 ahd Exp $
  *
  *    $Log: expire.c $
+ * Revision 1.5  1994/01/01  19:14:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -25,10 +28,15 @@
  *
  */
 
-static char *rcsid = "$Id: expire.c 1.4 1993/12/23 03:16:03 rommel Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+#include "uupcmoah.h"
+
+static char *rcsid = "$Id: expire.c 1.5 1994/01/01 19:14:06 ahd Exp $";
+static char *rcsrev = "$Revision: 1.5 $";
 
 /* $Log: expire.c $
+ * Revision 1.5  1994/01/01  19:14:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -46,23 +54,17 @@ static char *rcsrev = "$Revision: 1.4 $";
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <limits.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "active.h"
 #include "dater.h"
 #include "getopt.h"
 #include "history.h"
-#include "hlib.h"
 #include "import.h"
 #include "importng.h"
 #include "logger.h"
@@ -614,7 +616,6 @@ static void ExpireDirectory( struct grp *cur_grp,
 
    return TRUE;
  } /* numeric */
-
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */

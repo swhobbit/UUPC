@@ -8,11 +8,16 @@
 
 /* todo: moderated groups, shadow systems delivery */
 
+#include "uupcmoah.h"
+
 static char *rcsid =
-"$Id: inews.c 1.3 1994/01/18 13:29:22 ahd Exp $";
-static char *rcsrev = "$Revision: 1.3 $";
+"$Id: inews.c 1.4 1994/02/13 04:46:01 ahd Exp $";
+static char *rcsrev = "$Revision: 1.4 $";
 
 /* $Log: inews.c $
+ * Revision 1.4  1994/02/13  04:46:01  ahd
+ * Read input in binary mode
+ *
  * Revision 1.3  1994/01/18  13:29:22  ahd
  * Various fixes from Kai Uwe Rommel
  * Modify error returns to not use comma operator
@@ -29,11 +34,7 @@ static char *rcsrev = "$Revision: 1.3 $";
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <limits.h>
 #include <process.h>
 
@@ -41,8 +42,6 @@ static char *rcsrev = "$Revision: 1.3 $";
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "getopt.h"
 #include "getseq.h"
 #include "import.h"

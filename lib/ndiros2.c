@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.9 1994/02/18 23:12:30 ahd Exp $
+ *    $Id: ndiros2.c 1.10 1994/02/19 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *     Revision 1.10  1994/02/19  03:55:03  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/18  23:12:30  ahd
  *     Use standard first header
  *
@@ -64,9 +67,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <ctype.h>
 
-#include "uupcmoah.h"
 #include <assert.h>
 
 /*--------------------------------------------------------------------*/

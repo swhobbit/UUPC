@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.10 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: alias.c 1.11 1994/01/01 19:12:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.11  1994/01/01  19:12:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.10  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -61,21 +64,17 @@
  *
  */
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
 
 #ifndef __TURBOC__
 #include <search.h>
 #endif
 
-#include "lib.h"
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"
-#include "hlib.h"
 #include "alias.h"
 #include "address.h"
 #include "expath.h"
@@ -232,7 +231,6 @@ void BuildAddress(char *result, const char *input)
          strcpy(result,addr);    /* No name, just use the original    */
 } /* BuildAddress */
 
-
 /*--------------------------------------------------------------------*/
 /*    A l i a s B y N i c k                                           */
 /*                                                                    */
@@ -268,7 +266,6 @@ char *AliasByNick(const char *nick)
    return NULL;
 }
 
-
 /*--------------------------------------------------------------------*/
 /*    A l i a s B y A d d r                                           */
 /*                                                                    */
@@ -300,7 +297,6 @@ char *AliasByAddr(const char *node, const char *user)
 
 }
 
-
 /*--------------------------------------------------------------------*/
 /*    L o a d A l i a s e s                                           */
 /*                                                                    */
@@ -318,7 +314,6 @@ size_t LoadAliases(void)
    size_t   subscript;
    struct AliasTable *hit;           /* temporary pointer for searching */
    struct AliasTable target;
-
 
    checkuser( E_mailbox ); /* Force the table to be loaded            */
    alias = calloc(max_elements, sizeof(*alias));
@@ -439,7 +434,6 @@ size_t LoadAliases(void)
 
    return (elements) ;
 } /*LoadAliases*/
-
 
 /*--------------------------------------------------------------------*/
 /*   n i c k c m p                                                    */

@@ -5,11 +5,16 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  */
- 
-static char *rcsid = "$Id: idx.c 1.2 1993/11/06 17:54:55 rhg Exp rommel $";
-static char *rcsrev = "$Revision: 1.2 $";
+
+#include "uupcmoah.h"
+
+static char *rcsid = "$Id: idx.c 1.3 1993/11/20 13:47:06 rommel Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
 /* $Log: idx.c $
+ * Revision 1.3  1993/11/20  13:47:06  rommel
+ * Truncate keys at 80 characters
+ *
  * Revision 1.2  1993/11/06  17:54:55  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -17,10 +22,7 @@ static char *rcsrev = "$Revision: 1.2 $";
  * Initial revision
  * */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <io.h>
-#include <string.h>
 
 #include "idx.h"
 
@@ -28,16 +30,8 @@ static char *rcsrev = "$Revision: 1.2 $";
 
 static long idx_new_page(IDX *idx)
 {
-  long offset;
-
-  if ((offset = lseek(idx -> file, 0, SEEK_END)) == -1)
-    return -1;
-
-  if (chsize(idx -> file, offset + sizeof(PAGE)) == -1)
-    return -1;
-
   idx -> page_dirty = 0;
-  idx -> page_number = offset / sizeof(PAGE);
+  idx -> page_number = idx -> size++;
 
   return idx -> page_number;
 }
@@ -201,7 +195,7 @@ static int idx_add(IDX *idx, ITEM new)
 
 	new = up;
       }
-  
+
       newpage.child_0 = new.child;
       idx -> page.items = newpage.items = IDX_MINITEM;
 
@@ -279,12 +273,8 @@ IDX *idx_init(int file)
   idx -> size = size / sizeof(PAGE);
 
   if (idx -> size == 0) /* new (empty) index needs initialization */
-  {
     if (idx_new_page(idx) != 0)
       return free(idx), (IDX *) NULL;
-
-    idx -> size++;
-  }
 
   if (lseek(idx -> file, 0, SEEK_SET) == -1)
     return free(idx), (IDX *) NULL;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.9 1994/02/14 01:03:56 ahd Exp $
+ *    $Id: catcher.c 1.10 1994/02/18 23:16:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.10  1994/02/18  23:16:44  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/14  01:03:56  ahd
  *     Use system include syntax for windows.h
  *
@@ -60,12 +63,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <signal.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <signal.h>
 #include <process.h>
-#include <stdlib.h>
 
 #if defined(WIN32) || defined(_Windows)
 #include <windows.h>
@@ -76,7 +77,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "timestmp.h"
 #include "catcher.h"
 #include "safeio.h"

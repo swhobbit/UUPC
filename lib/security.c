@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.16 1994/02/13 04:46:01 ahd Exp $
+ *    $Id: security.c 1.17 1994/02/18 23:17:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.17  1994/02/18  23:17:09  ahd
+ *     Use standard first header
+ *
  *     Revision 1.16  1994/02/13  04:46:01  ahd
  *     Handle expansion of PUBDIR gracefully
  *
@@ -81,27 +84,20 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/types.h>        /* Only really needed for MS C          */
 #include <sys/stat.h>
-#include <time.h>
 #include <direct.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"
 #include "expath.h"
-#include "hlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */

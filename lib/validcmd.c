@@ -11,13 +11,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <sys/stat.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "uupcmoah.h"
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"

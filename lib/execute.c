@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.26 1994/02/18 23:07:43 ahd Exp $
+ *    $Id: execute.c 1.27 1994/02/19 03:47:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.27  1994/02/19  03:47:51  ahd
+ * Use standard first header
+ *
  * Revision 1.26  1994/02/18  23:07:43  ahd
  * Use standard first header
  *
@@ -107,9 +110,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <errno.h>
 
-#include "uupcmoah.h"
 #include <ctype.h>
 #include <process.h>
 #include <io.h>

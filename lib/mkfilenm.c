@@ -1,3 +1,5 @@
+
+#include "uupcmoah.h"
 /*--------------------------------------------------------------------*/
 /*       m k f i l e n a m e . c                                      */
 /*                                                                    */
@@ -18,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.6 1994/02/18 23:11:29 ahd Exp $
+ *    $Id: mkfilenm.c 1.7 1994/02/19 03:53:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *     Revision 1.7  1994/02/19  03:53:42  ahd
+ *     Use standard first header
+ *
  *     Revision 1.6  1994/02/18  23:11:29  ahd
  *     Use standard first header
  *
@@ -43,8 +48,6 @@
  *     drop duplicated slashes (caused by root directory support *sigh*)
  *
  */
-
-#include "uupcmoah.h"
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

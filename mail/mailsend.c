@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.12 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: mailsend.c 1.13 1994/01/01 19:12:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.13  1994/01/01  19:12:56  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.12  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -51,23 +54,18 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-
 #include "arpadate.h"
 #include "expath.h"
 #include "execute.h"
-#include "hlib.h"
 #include "mlib.h"
 #include "alias.h"
 #include "mail.h"
@@ -85,7 +83,6 @@
                       const char *alias,
                       FILE *stream,
                       const boolean resent);
-
 
  static void PutHead( const char *label,
                       const char *operand,
@@ -403,7 +400,6 @@ boolean Send_Mail(FILE *datain,
 /*                  Invoke the mail delivery program                  */
 /*--------------------------------------------------------------------*/
 
-
    sprintf(buf, "-t -f %s", pipename);
    status = execute(RMAIL, buf, NULL, NULL, TRUE, FALSE );
 
@@ -628,7 +624,6 @@ boolean Collect_Mail(FILE *stream,
       fclose(fmailbag);
    } /*else */
 
-
    do {
       fputs("\nAbort, Continue, Edit, List, or Send? ",stdout);
       fflush(stdout);
@@ -707,7 +702,6 @@ boolean Collect_Mail(FILE *stream,
 
    return TRUE;
 } /*Collect_Mail*/
-
 
 /*--------------------------------------------------------------------*/
 /*    P r o m p t _ I n p u t                                         */
@@ -883,7 +877,6 @@ static boolean Subcommand( char *buf,
             fclose( stream );
             fputs("(continue)\n", stdout);
             break;
-
 
 /*--------------------------------------------------------------------*/
 /*                        Change mail subject                         */

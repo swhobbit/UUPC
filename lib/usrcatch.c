@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.5 1994/02/18 23:16:09 ahd Exp $
+ *    $Id: usrcatch.c 1.6 1994/02/19 04:00:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ * Revision 1.6  1994/02/19  04:00:20  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/02/18  23:16:09  ahd
  * Use standard first header
  *
@@ -45,9 +48,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <signal.h>
 
-#include "uupcmoah.h"
 #include <process.h>
 
 /*--------------------------------------------------------------------*/

@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.19 1994/02/18 23:10:28 ahd Exp $
+ *    $Id: import.c 1.20 1994/02/19 03:52:18 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.20  1994/02/19  03:52:18  ahd
+ *     Use standard first header
+ *
  *     Revision 1.19  1994/02/18  23:10:28  ahd
  *     Use standard first header
  *
@@ -80,13 +83,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <ctype.h>
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 #define INCL_NOPM             /* No need to include OS/2 PM info */
 #define INCL_BASE
 
-#include "uupcmoah.h"
 #include <os2.h>
 #elif defined(WIN32)
 #include <windows.h>

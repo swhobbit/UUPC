@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.10 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: maillib.c 1.11 1994/01/01 19:12:47 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.11  1994/01/01  19:12:47  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.10  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -61,18 +64,15 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "address.h"
-#include "hlib.h"
 #include "mlib.h"
 #include "alias.h"
 #include "mail.h"
@@ -205,7 +205,6 @@ boolean Pager(const int msgnum,
 
    return ! exit;
 } /*Pager*/
-
 
 /*--------------------------------------------------------------------*/
 /*    S u b _ P a g e r                                               */

@@ -14,14 +14,20 @@
 /*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
-static char *rcsid = "$Id: hdbm.c 1.2 1993/11/06 17:54:55 rhg Exp $";
-static char *rcsrev = "$Revision: 1.2 $";
+#include "uupcmoah.h"
+
+static char *rcsid = "$Id: hdbm.c 1.3 1994/01/18 13:29:22 ahd Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+ * Revision 1.3  1994/01/18  13:29:22  ahd
+ * Add standard UUPC/extended error logging routines for run time
+ * library errors
+ *
  * Revision 1.2  1993/11/06  17:54:55  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -29,16 +35,11 @@ static char *rcsrev = "$Revision: 1.2 $";
  * Initial revision
  * */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <io.h>
 #include <fcntl.h>
 
 #include "hdbm.h"
 #include "idx.h"
-
-#include "lib.h"        /* For error message support  */
 
 currentfile();
 
@@ -51,7 +52,6 @@ DBM *dbm_open(char *name, int flags, int mode)
 
   db = (DBM *) malloc(sizeof(DBM));
   checkref( db );             /* Panic if malloc() failed      */
-
 
   strcpy(filename, name);
   strcat(filename, DBM_EXT_DBF);

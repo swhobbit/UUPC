@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.9 1994/02/18 23:14:10 ahd Exp $
+ *    $Id: safeio.c 1.10 1994/02/19 03:57:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.10  1994/02/19  03:57:15  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/18  23:14:10  ahd
  *     Use standard first header
  *
@@ -63,7 +66,6 @@
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
-    #include <string.h>
 #else /* FAMILYAPI */
     #include <conio.h>
     #include <dos.h>

@@ -11,9 +11,9 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <ctype.h>
 
-#include "uupcmoah.h"
 #include <dos.h>
 
 /*--------------------------------------------------------------------*/

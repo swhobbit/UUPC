@@ -4,9 +4,9 @@
 /*    Written by Gary Blaine (TeamB) and posted to CompuServe         */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
  #include <dos.h>
 
-#include "uupcmoah.h"
  #include <mem.h>
 
 static int   day_tab[2][12] = {

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.11 1994/02/18 23:16:32 ahd Exp $
+ *    $Id: winutil.c 1.12 1994/02/19 04:00:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.12  1994/02/19  04:00:44  ahd
+ * Use standard first header
+ *
  * Revision 1.11  1994/02/18  23:16:32  ahd
  * Use standard first header
  *
@@ -64,9 +67,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <windows.h>
 
-#include "uupcmoah.h"
 #include <toolhelp.h>
 
 /*--------------------------------------------------------------------*/

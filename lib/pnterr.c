@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.4 1994/02/18 23:13:01 ahd Exp $
+ *    $Id: pnterr.c 1.5 1994/02/19 03:55:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ * Revision 1.5  1994/02/19  03:55:45  ahd
+ * Use standard first header
+ *
  * Revision 1.4  1994/02/18  23:13:01  ahd
  * Use standard first header
  *
@@ -43,9 +46,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <windows.h>
 
-#include "uupcmoah.h"
 #include <io.h>
 #include <errno.h>
 

@@ -27,6 +27,7 @@
 
 #ifdef BSD
 
+#include "uupcmoah.h"
 #include <strings.h>
 #else
 #define  index strchr
@@ -38,7 +39,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "uupcmoah.h"
 #include "getopt.h"
 
 int   optind = 1;

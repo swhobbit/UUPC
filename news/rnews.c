@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $
+ *       $Id: rnews.c 1.26 1993/12/24 05:12:54 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.26  1993/12/24  05:12:54  ahd
+ * Kai Uwe Rommel's fixes for news
+ *
  * Revision 1.25  1993/11/20  13:47:06  rommel
  * Handle duplicate message ids caused by truncating keys at 80 characters
  *
@@ -111,18 +114,16 @@
  *
  */
 
+#include "uupcmoah.h"
+
 static const char rcsid[] =
-         "$Id: rnews.c 1.25 1993/11/20 13:47:06 rommel Exp $";
+         "$Id: rnews.c 1.26 1993/12/24 05:12:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <fcntl.h>
 #include <io.h>
 #include <process.h>
@@ -131,12 +132,10 @@ static const char rcsid[] =
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "active.h"
 #include "getopt.h"
 #include "getseq.h"
 #include "history.h"
-#include "hlib.h"
 #include "import.h"
 #include "importng.h"
 #include "logger.h"
@@ -305,7 +304,6 @@ void main( int argc, char **argv)
          panic();
       } /* else if */
 
-
       E_tempdir = E_newsdir;        /* Generate this file in news    */
       mktempname(filename, "art");  /* Get the file name             */
       E_tempdir = savetemp;         /* Restore true directory name   */
@@ -457,7 +455,6 @@ static int Single( char *filename , FILE *stream )
    unsigned chars_read;
    unsigned chars_written;
    long article_size = 0;
-
 
 /*--------------------------------------------------------------------*/
 /* Make a file name and then open the file to write the article into  */

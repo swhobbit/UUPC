@@ -19,10 +19,15 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-static char *rcsid = "$Id: genhist.c 1.4 1993/12/09 13:24:25 ahd Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+#include "uupcmoah.h"
+
+static char *rcsid = "$Id: genhist.c 1.5 1994/01/01 19:14:13 ahd Exp $";
+static char *rcsrev = "$Revision: 1.5 $";
 
 /* $Log: genhist.c $
+ * Revision 1.5  1994/01/01  19:14:13  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/12/09  13:24:25  ahd
  * Enforce options=history being set to use program
  *
@@ -40,23 +45,17 @@ static char *rcsrev = "$Revision: 1.4 $";
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <limits.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "active.h"
 #include "dater.h"
 #include "getopt.h"
 #include "history.h"
-#include "hlib.h"
 #include "import.h"
 #include "importng.h"
 #include "logger.h"

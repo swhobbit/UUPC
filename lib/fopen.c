@@ -9,9 +9,9 @@
 /*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <fcntl.h>
 
-#include "uupcmoah.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <share.h>

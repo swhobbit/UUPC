@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.38 1994/02/18 23:08:10 ahd Exp $
+ *    $Id: configur.c 1.39 1994/02/19 03:48:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.39  1994/02/19  03:48:35  ahd
+ *     Use standard first header
+ *
  *     Revision 1.38  1994/02/18  23:08:10  ahd
  *     Use standard first header
  *
@@ -145,9 +148,9 @@
  *
  */
 
+#include "uupcmoah.h"
 #include <ctype.h>
 
-#include "uupcmoah.h"
 #include <io.h>
 
 /*--------------------------------------------------------------------*/

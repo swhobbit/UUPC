@@ -11,10 +11,16 @@
  * Created: Sun Aug 15 1993
  */
 
-static char *rcsid = "$Id: history.c 1.3 1993/11/06 17:54:55 rhg Exp $";
-static char *rcsrev = "$Revision: 1.3 $";
+#include "uupcmoah.h"
+
+static char *rcsid = "$Id: history.c 1.4 1994/01/18 13:29:22 ahd Exp $";
+static char *rcsrev = "$Revision: 1.4 $";
 
 /* $Log: history.c $
+ * Revision 1.4  1994/01/18  13:29:22  ahd
+ * Add standard UUPC/extended error logging routines for run time
+ * library errors
+ *
  * Revision 1.3  1993/11/06  17:54:55  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -29,21 +35,14 @@ static char *rcsrev = "$Revision: 1.3 $";
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <fcntl.h>
 #include <io.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "timestmp.h"
 #include "active.h"
 #include "history.h"
@@ -141,7 +140,6 @@ int get_next_histentry(void *hdbm_file, char **messageID, char **histentry)
 {
   return get_entry(hdbm_file, messageID, histentry, dbm_nextkey);
 }
-
 
 /*--------------------------------------------------------------------*/
 /*    a d d _ h i s t e n t r y                                       */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.5 1994/02/18 23:08:59 ahd Exp $
+ *    $Id: export.c 1.6 1994/02/19 03:49:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: export.c $
+ *     Revision 1.6  1994/02/19  03:49:46  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/02/18  23:08:59  ahd
  *     Use standard first header
  *
@@ -39,13 +42,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "uupcmoah.h"
 #include "arbmath.h"
 #include "export.h"
 #include "import.h"

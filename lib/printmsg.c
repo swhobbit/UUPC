@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.9 1994/02/18 23:13:14 ahd Exp $
+ *    $Id: printmsg.c 1.10 1994/02/19 03:56:05 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.10  1994/02/19  03:56:05  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/02/18  23:13:14  ahd
  *     Use standard first header
  *
@@ -52,6 +55,7 @@
  *
  */
 
+#include "uupcmoah.h"
 #include <stdarg.h>
 
 #ifdef __CORE__
@@ -63,7 +67,6 @@
 
 #if defined(__HEAPCHECK__) || defined(__CORELEFT__) || defined(__ENVCHECK__)
 
-#include "uupcmoah.h"
 #include <alloc.h>
 #endif
 
