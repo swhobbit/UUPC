@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.3 1993/06/15 12:18:06 ahd Exp $
+ *    $Id: normaliz.c 1.4 1993/06/16 04:03:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.4  1993/06/16  04:03:25  ahd
+ *     drop duplicated slashes (caused by root directory support *sigh*)
+ *
  *     Revision 1.3  1993/06/15  12:18:06  ahd
  *     Display last known directory name for debugging
  *
@@ -72,7 +75,7 @@ char *normalize( const char *path )
    p = strlwr( save );
 
    while ((p = strstr(p,"//")) != NULL)   // Drop all double slashes
-      memmove(p, p+1, strlen(p+1));
+      memmove(p, p+1, strlen(p));         // Includes trailing NULL
 
    column = strlen( save ) - 1;
    if ((column > 2) && ( save[column] == '/' )) // Zap all but root trailing
