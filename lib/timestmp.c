@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.12 1994/01/01 19:06:26 ahd Exp $
+ *    $Id: timestmp.c 1.13 1994/02/20 19:07:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.13  1994/02/20  19:07:38  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.12  1994/01/01  19:06:26  ahd
  *     Annual Copyright Update
  *
@@ -76,6 +79,8 @@
 #include "winutil.h"
 #include "ssleep.h"
 #endif
+
+#include "title.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -213,16 +218,16 @@ void banner (char **argv)
                   compilet);
 
 #ifdef _Windows
-   sprintf( dummy, "%s  (%s %s)", program, compilep, compilev);
-
    hOurTask = GetCurrentTask();
    if ( hOurTask == NULL )
       panic();
    hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
-   SetWindowText(hOurWindow, dummy);
+
 
    ddelay(0);           /* To insure we yield control at least once;  */
                         /* see comments in winutil.c.                 */
 #endif
+
+   setTitle("%s %s", compilep, compilev );
 
 } /* banner */
