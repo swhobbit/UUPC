@@ -33,9 +33,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.C 1.2 1995/02/20 00:03:07 ahd v1-12n $
+ *       $Id: newsrun.c 1.3 1995/03/06 18:27:23 rommel Exp $
  *
- *       $Log: newsrun.C $
+ *       $Log: newsrun.c $
+ *       Revision 1.3  1995/03/06 18:27:23  rommel
+ *       Correct count messages
+ *       Correct handling of duplicate articles
+ *       Correct cancel message processing
+ *
  *       Revision 1.2  1995/02/20 00:03:07  ahd
  *       Delete improper adding of batching information
  *
@@ -196,7 +201,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.C 1.2 1995/02/20 00:03:07 ahd v1-12n $";
+         "$Id: newsrun.c 1.3 1995/03/06 18:27:23 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1288,7 +1293,7 @@ static KWBoolean copy_file(IMFILE *imf,
 {
    struct grp *cur = find_newsgroup(group);
    char filename[FILENAME_MAX];
-   char buf[BUFSIZ];
+   char buf[LARGEBUF];
    FILE *output;
    KWBoolean header = KWTrue;
 
@@ -1412,10 +1417,13 @@ static KWBoolean deliver_local(IMFILE *imf,
    if (control)
    {
       control_message(control, BIT_BUCKET );
+
       if (get_snum("control", snum))
-	newsgroups_in = "control";
+         newsgroups_in = "control";
+      else if (get_snum("junk", snum))
+         newsgroups_in = "junk";
       else
-	return KWFalse;
+         return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1427,7 +1435,7 @@ static KWBoolean deliver_local(IMFILE *imf,
       duplicates++;
 
       if (control)
-	return KWFalse;
+    return KWFalse;
 
       printmsg(1, "Duplicate article %s", messageID);
 
