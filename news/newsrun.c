@@ -33,9 +33,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.15 1996/03/19 03:29:11 ahd Exp $
+ *       $Id: newsrun.c 1.16 1996/11/18 04:46:49 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.16  1996/11/18 04:46:49  ahd
+ *       Normalize arguments to bugout
+ *       Reset title after exec of sub-modules
+ *       Normalize host status names to use HS_ prefix
+ *
  *       Revision 1.15  1996/03/19 03:29:11  ahd
  *       Correct "junked" message
  *
@@ -237,7 +242,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.15 1996/03/19 03:29:11 ahd Exp $");
+RCSID("$Id: newsrun.c 1.16 1996/11/18 04:46:49 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -984,7 +989,7 @@ static void deliver_article( IMFILE *imf )
 {
 
    struct sys *sysnode = sys_list;
-   char *input = MAKEBUF(LARGEBUF);
+   char input[LARGEBUF];
 
    static HEADERLIST table[] =
    {
@@ -1172,7 +1177,6 @@ static void deliver_article( IMFILE *imf )
    if ( error )
    {
       bad_articles++;
-      FREEBUF( input );
       return;
    }
 
@@ -1233,7 +1237,6 @@ static void deliver_article( IMFILE *imf )
                 getHeader(table, DISTRIBUTION, NULL) );
   }
 
-  FREEBUF( input );
   return;
 
 } /* deliver_article */
