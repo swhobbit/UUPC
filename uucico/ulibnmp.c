@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.2 1993/09/24 03:43:27 ahd Exp $
+ *       $Id: ulibnmp.c 1.3 1993/09/25 03:07:56 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.3  1993/09/25  03:07:56  ahd
+ * Various small bug fixes
+ *
  * Revision 1.2  1993/09/24  03:43:27  ahd
  * General bug fixes to make work
  *
@@ -86,8 +89,10 @@ static boolean passive;
 
 static HPIPE pipeHandle;
 
-static USHORT writeWait = 50;
+static USHORT writeWait = 200;
 static USHORT readWait = 50;
+
+static int writes, reads, writeSpins, readSpins;
 
 /*--------------------------------------------------------------------*/
 /*    p p a s s i v e o p e n l i n e                                 */
@@ -115,13 +120,23 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
 
-   rc =  DosCreateNPipe( "\\pipe\\uucp",
+#ifdef __OS2__
+   rc =  DosCreateNPipe( (PSZ) "\\pipe\\uucp",
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         32 * 1024,
-                         32 * 1024,
-                         60 );
+                         MAXPACK,
+                         MAXPACK,
+                         30000 );
+#else
+   rc =  DosMakeNmPipe(  (PSZ) "\\pipe\\uucp",
+                         &pipeHandle,
+                         NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
+                         NP_NOWAIT | 1,
+                         MAXPACK,
+                         MAXPACK,
+                         30000 );
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    Check the open worked.  We translation the common obvious       */
@@ -170,7 +185,12 @@ boolean pWaitForNetConnect(int timeout)
    stop  = time( NULL ) + timeout;
 
    do {
+
+#ifdef __OS2__
       APIRET rc = DosConnectNPipe( pipeHandle );
+#else
+      APIRET rc = DosConnectNmPipe( pipeHandle );
+#endif
 
       if ( rc == 0 )
       {
@@ -289,6 +309,8 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
    time_t now ;
    boolean firstPass = TRUE;
 
+   reads++;
+
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
 /*--------------------------------------------------------------------*/
@@ -344,8 +366,9 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          return 0;
       }
 
-       if ( !firstPass )
-         ddelay(readWait);
+      readSpins++;
+
+      ddelay(readWait);
 
 /*--------------------------------------------------------------------*/
 /*                 Read the data from the named pipe                  */
@@ -397,9 +420,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
       if (stop_time > 0)
          time( &now );
 
-       if ( firstPass )
-         firstPass = FALSE;
-
    } while (stop_time > now);
 
 /*--------------------------------------------------------------------*/
@@ -431,6 +451,7 @@ int pswrite(const char *input, unsigned int len)
    APIRET rc;
 
    hangupNeeded = TRUE;      /* Flag that the pipe is now dirty  */
+   writes ++;
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
@@ -448,8 +469,8 @@ int pswrite(const char *input, unsigned int len)
 
       left -= bytes;
 
-      if ( left )
-         ddelay( writeWait );
+      ddelay( writeWait );
+      writeSpins ++;
 
    } while( left > 0 );
 
@@ -499,9 +520,16 @@ void pcloseline(void)
    hangupNeeded = FALSE;  /* Don't fiddle with pipe any more  */
 
    printmsg(4,
-         "pcloseline: Average read delay %d ms, average write delay %d ms",
+         "pcloseline: Read delay %d ms, Write delay %d ms",
          (int) readWait,
          (int) writeWait );
+
+   printmsg(4,
+         "pcloseline: %d reads (%d waits), %d writes (%d waits)",
+         (int) reads,
+         (int) readSpins - reads,
+         (int) writes,
+         (int) writeSpins - writes );
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the pipe                       */
@@ -530,7 +558,12 @@ void phangup( void )
 {
    if ( passive && hangupNeeded)
    {
+
+#ifdef __OS2__
       DosDisConnectNPipe( pipeHandle );
+#else
+      DosDisConnectNmPipe( pipeHandle );
+#endif
       hangupNeeded = FALSE;
    }
 
