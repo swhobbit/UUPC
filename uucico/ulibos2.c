@@ -1,27 +1,29 @@
+/*--------------------------------------------------------------------*/
+/*    u l i b o s 2 . c                                               */
+/*                                                                    */
+/*    OS/2 serial port support for UUCICO                             */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
-   ibmpc/ulibos2.c
-
-   DCP OS/2 system-dependent library
-
-   Services provided by ulib.c:
-
-   - UNIX commands simulation
-   - serial I/O
-
-   Updated:
-
-      14May89  - Added hangup() procedure                               ahd
-      21Jan90  - Replaced code for rnews() from Wolfgang Tremmel
-                 <tremmel@garf.ira.uka.de> to correct failure to
-                 properly read compressed news.                         ahd
-   6  Sep 90   - Change logging of line data to printable               ahd
-      8 Sep 90 - Split ulib.c into dcplib.c and ulib.c                  ahd
-      6 Apr 90 - Create libary for OS/2 from ulib.c                     ahd
-*/
-
-/*
- *       $Id: ULIBOS2.C 1.3 1992/11/19 03:00:39 ahd Exp $
+ *       $Id: ULIBOS2.C 1.4 1992/11/29 22:09:10 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.4  1992/11/29  22:09:10  ahd
+ * Add new define for BC++ OS/2 build
+ *
  * Revision 1.3  1992/11/19  03:00:39  ahd
  * drop rcsid
  *
@@ -360,6 +362,9 @@ int openline(char *name, BPS baud, const boolean direct )
 /*   requesting process (e.g. gmachine()) waits for the event flag    */
 /*   to fire processing either a read or a write.  Could be           */
 /*   implemented on VAX/VMS or DG but not MS-DOS.                     */
+/*                                                                    */
+/*    OS/2 we could multitask, but we just let the system provide     */
+/*    a timeout for us with very little CPU usage.                    */
 /*--------------------------------------------------------------------*/
 
 unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
@@ -706,7 +711,7 @@ void closeline(void)
 
    printmsg(3,"Serial port closed");
 
-} /*closeline*/
+} /* closeline */
 
 
 /*--------------------------------------------------------------------*/
@@ -750,7 +755,6 @@ void hangup( void )
    carrierdetect = FALSE;  /* Modem is not connected                 */
    ddelay(500);            /* Really only need 250 milliseconds         */
 
-
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR backup                          */
 /*--------------------------------------------------------------------*/
@@ -767,23 +771,24 @@ void hangup( void )
    else if ( com_error )
          ShowError( com_error );
 
-   ddelay(500);            /* Now wait for the poor thing to recover    */
+   ddelay(2000);           /* Now wait for the poor thing to recover    */
 
-}
+} /* hangup */
 
 
 /*--------------------------------------------------------------------*/
-/* S I O S p e e d                                                    */
+/*    S I O S p e e d                                                 */
 /*                                                                    */
-/* Re-specify the speed of an opened serial port                      */
+/*    Re-specify the speed of an opened serial port                   */
 /*                                                                    */
-/* Dropped the DTR off/on calls because this makes a Hayes drop the   */
-/* line if configured properly, and we don't want the modem to drop   */
-/* the phone on the floor if we are performing autobaud.              */
+/*    Dropped the DTR off/on calls because this makes a Hayes drop    */
+/*    the line if configured properly, and we don't want the modem    */
+/*    to drop the phone on the floor if we are performing             */
+/*    autobaud.                                                       */
 /*                                                                    */
-/* (Configured properly = standard method of making a Hayes hang up   */
-/* the telephone, especially when you can't get it into command state */
-/* because it is at the wrong speed or whatever.)                     */
+/*    (Configured properly = standard method of making a Hayes        */
+/*    hang up the telephone, especially when you can't get it into    */
+/*    command state because it is at the wrong speed or whatever.)    */
 /*--------------------------------------------------------------------*/
 
 void SIOSpeed(BPS baud)
@@ -808,14 +813,14 @@ void SIOSpeed(BPS baud)
 
    current_baud = baud;
 
-} /*SIOSpeed*/
+} /* SIOSpeed */
+
 
 /*--------------------------------------------------------------------*/
 /*    f l o w c o n t r o l                                           */
 /*                                                                    */
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
-
 
 void flowcontrol( boolean flow )
 {
