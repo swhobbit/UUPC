@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.67 1995/02/25 18:21:44 ahd v1-12n $
+ *    $Id: configur.c 1.68 1995/03/08 02:58:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.68  1995/03/08 02:58:08  ahd
+ *    Delete redundant boolean options
+ *
  *    Revision 1.67  1995/02/25 18:21:44  ahd
  *    Correct selected flags for config variables
  *
@@ -385,7 +388,7 @@ CONFIGTABLE envtable[] = {
    {"maildir",      &E_maildir,      B_MAIL,    B_GLOBAL|B_PATH },
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
    {"mailgrade",    &E_mailGrade,    B_MTA,     B_CHAR },
-   {"mailserv",     &E_mailserv,     B_MAIL|B_INEWS,    B_REQUIRED|B_GLOBAL|B_TOKEN },
+   {"mailserv",     &E_mailserv,     B_MAIL|B_NEWS,    B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
    {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
    {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
