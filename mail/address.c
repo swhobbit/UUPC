@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.5 1993/06/21 02:17:31 ahd Exp $
+ *    $Id: address.c 1.6 1993/06/21 04:04:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.6  1993/06/21  04:04:04  ahd
+ * Don't fail routing loops from aliased systems with no route
+ *
  * Revision 1.5  1993/06/21  02:17:31  ahd
  * Correct errors in mail routing via HOSTPATH
  *
@@ -333,6 +336,14 @@ char *HostAlias( char *input)
 /*--------------------------------------------------------------------*/
 
    if (hostp == BADHOST)
+      return input;
+
+/*--------------------------------------------------------------------*/
+/*       If the entry has no alias and is not a real system, it's     */
+/*       a routing entry and we should ignore it.                     */
+/*--------------------------------------------------------------------*/
+
+   if ((hostp->hstatus == phantom) && ( hostp->realname == NULL ))
       return input;
 
 /*--------------------------------------------------------------------*/
