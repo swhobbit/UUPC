@@ -101,7 +101,8 @@ typedef struct {
 } Proto;
 
 
-extern size_t pktsize;             /* packet size for this protocol*/
+extern size_t s_pktsize;        /* send packet size for this protocol   */
+extern size_t r_pktsize;        /* receive packet size for this protocol*/
 extern FILE *syslog;            /* syslog file pointer                  */
 extern char workfile[FILENAME_MAX];
                                 /* name of current workfile             */
