@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.18 1993/09/25 03:07:56 ahd Exp $
+ *       $Id: ulibos2.c 1.19 1993/09/27 04:04:06 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.19  1993/09/27  04:04:06  ahd
+ * Normalize references to modem speed to avoid incorrect displays
+ *
  * Revision 1.18  1993/09/25  03:07:56  ahd
  * Convert to standard OS/2 error message call
  *
@@ -112,6 +115,7 @@ typedef USHORT APIRET ;  // Define older API return type
 #include "pos2err.h"
 
 #include "commlib.h"
+#include "usrcatch.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -124,7 +128,7 @@ static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
 static boolean hangupNeeded = FALSE;
 static boolean console = FALSE;
 
-static currentSpeed = 0;
+static unsigned short currentSpeed = 0;
 
 #define FAR_NULL ((PVOID) 0L)
 
@@ -163,8 +167,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
    USHORT action;
 #endif
 
-   if (portActive)              /* Was the port already active?     ahd   */
-      closeline();               /* Yes --> Shutdown it before open  ahd   */
+   if (portActive)               /* Was the port already active?    */
+      closeline();               /* Yes --> Shutdown it before open */
 
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu", name, baud);
@@ -592,6 +596,9 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*                     Handle an aborted program                      */
 /*--------------------------------------------------------------------*/
 
+      if ( raised )
+         return 0;
+
       if ( terminate_processing )
       {
          static boolean recurse = FALSE;
@@ -858,12 +865,13 @@ void ncloseline(void)
    ULONG DataLengthInOut;
 #endif
 
+   printmsg(4,"ncloseline: Closing serial port" );
+
    if ( ! portActive )
       panic();
 
    portActive = FALSE; /* flag port closed for error handler  */
    hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
-
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -1076,7 +1084,6 @@ void nSIOSpeed(BPS baud)
 
 #endif
 
-
 #ifdef UDEBUG
    printmsg(15,"SIOSpeed: Setting baud rate to %ul",
                (unsigned long) baud);
@@ -1120,7 +1127,7 @@ void nSIOSpeed(BPS baud)
       panic();
    } /*if */
 
-   currentSpeed = baud;
+   currentSpeed = (unsigned short) baud;
 
 } /* nSIOSpeed */
 
