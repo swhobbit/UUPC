@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.2 1992/11/22 21:14:21 ahd Exp $
+ *       $Id: RNEWS.C 1.3 1993/03/06 23:04:54 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.3  1993/03/06  23:04:54  ahd
+ * Do not delete open files
+ *
  * Revision 1.2  1992/11/22  21:14:21  ahd
  * Reformat selected sections of code
  * Check for premature end of articles in batched news
@@ -44,7 +47,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.2 1992/11/22 21:14:21 ahd Exp $";
+         "$Id: RNEWS.C 1.3 1993/03/06 23:04:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -394,7 +397,6 @@ static int Single( char *filename , FILE *stream )
 
 } /* Single */
 
-
 /*--------------------------------------------------------------------*/
 /*    C o m p r e s s e d                                             */
 /*                                                                    */
@@ -607,8 +609,9 @@ static int Batched( char *filename, FILE *stream)
    long article_size;
    int articles = 0;
    int ignored  = 0;
-   unsigned chars_read;
-   unsigned chars_written;
+   boolean gotsize = FALSE;
+   int chars_read;
+   int chars_written;
 
 /*--------------------------------------------------------------------*/
 /*    If we are processing snews input, write it all out to the       */
@@ -626,17 +629,63 @@ static int Batched( char *filename, FILE *stream)
    setmode(fileno(stream), O_BINARY ); /* Don't die on Cntrl Z, etc.  */
    fseek(stream, 0L, SEEK_SET);        /* Back to the beginning       */
 
+   while( ! feof( stream ) && ! ferror( stream ))
+   {
+      long article_left;
+      int  max_read = (long) sizeof buf;
+      long skipped_lines = 0;
+      long skipped_bytes = 0;
+      FILE *tmpf;
+
  /*--------------------------------------------------------------------*/
  /*    Handle next article (articles are separated by the line         */
- /*    indicating their size when they are batched.                    */
+ /*    indicating their size when they are batched.)                   */
  /*--------------------------------------------------------------------*/
 
-   while (fscanf(stream, "#! rnews %ld \n", &article_size) == 1)
-   {
-      long article_left = article_size;
-      long maxread = sizeof buf;
+      while ( ! gotsize )
+      {
+         if (fgets( buf, sizeof buf, stream ) == NULL)
+            break;
 
-      FILE *tmpf = FOPEN(filename, "w", BINARY);
+         if ( equaln( "#! rnews", buf, 8) )
+         {
+            article_size = 0;
+            sscanf(buf, "#! rnews %ld \n", &article_size);
+            gotsize = TRUE;
+         }
+         else {
+            skipped_lines ++;
+            skipped_bytes += strlen( buf );
+         }
+      } /* while */
+
+      if ( skipped_lines )
+         printmsg(0,
+                  "Batched: Skipped %ld bytes in %ld "
+                  "lines after article %d",
+                  skipped_bytes,
+                  skipped_lines,
+                  articles );
+
+/*--------------------------------------------------------------------*/
+/*                          Trap end of file                          */
+/*--------------------------------------------------------------------*/
+
+      if ( ! gotsize )
+      {
+         if ( ferror( stream ))
+            printerr( "stdin" );
+         break;
+      }
+
+      article_left = article_size;
+      gotsize = FALSE;
+
+/*--------------------------------------------------------------------*/
+/*                   Open up our next working file                    */
+/*--------------------------------------------------------------------*/
+
+      tmpf = FOPEN(filename, "w", BINARY);
       if ( tmpf == NULL )
       {
          printerr( filename );
@@ -647,44 +696,86 @@ static int Batched( char *filename, FILE *stream)
  /*   Copy this article to the temp file (except for the last block)   */
  /*--------------------------------------------------------------------*/
 
-      do {
-         if ( article_left < maxread )
-            maxread = article_left;
+      if ( article_size )
+      {
+         do {
+            if ( article_left < max_read )
+               max_read = (int) article_left;
 
-         chars_read = fread(buf,sizeof(char), maxread, stream);
+            chars_read = fread(buf, sizeof(char), max_read, stream);
 
-         if ( (chars_read < maxread) && ferror( stream ))
-         {
-            printerr("STDIN");
-            panic();
-         }
+            if ( (chars_read < max_read) && ferror( stream ))
+            {
+               printerr("STDIN");
+               panic();
+            }
 
-         if ( chars_read == 0)
-            break;
+            if ( chars_read == 0)
+               break;
 
-         fixEOF( buf , chars_read );
+            fixEOF( buf , chars_read );
 
-         chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
-         if (chars_read != chars_written)
-         {
-            printmsg(0,"Read %d bytes, only wrote %d bytes of article %d",
-                  chars_read, chars_written , articles + 1);
-            printerr(filename);
-         }
+            chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
+            if (chars_read != chars_written)
+            {
+               printmsg(0,"Batched: Read %d bytes, only wrote %d bytes of article %d",
+                     chars_read, chars_written , articles + 1);
+               printerr(filename);
+            }
 
-         article_left -= chars_read;
+            article_left -= chars_read;
 
-      } while (article_left > 0);
+         } while (article_left > 0);
 
- /*--------------------------------------------------------------------*/
- /*                   Handle the last block of data                    */
- /*--------------------------------------------------------------------*/
+         if ( article_left )     // Premature EOF?
+            printmsg(0,"Batched: Unexpected EOF for article %d, "
+                     "read %ld bytes of expected %ld",
+                      articles + 1,
+                      article_size - article_left, article_size );
 
-      if ( article_left )
-         printmsg(0,"Unexpected EOF for article %d, "
-                  "read %ld bytes of expected %ld",
-                   articles + 1,
-                   article_size - article_left, article_size );
+      } /* if */
+      else {
+
+         long actual_size = 0;
+
+         do {
+            if (fgets( buf, sizeof buf, stream ) == NULL)
+            {
+               if ( ferror( stream ))
+                  printerr( filename );
+               break;
+            }
+
+            chars_read = strlen( buf );
+
+            if ( equaln( "#! rnews", buf, 8) )
+            {
+               sscanf(buf, "#! rnews %ld \n", &article_size);
+               gotsize = TRUE;
+            }
+            else if ( chars_read > 0 )
+            {
+               actual_size += chars_read;
+
+               chars_written = fwrite(buf,
+                                      sizeof(char),
+                                      chars_read,
+                                      tmpf);
+               if (chars_read != chars_written)
+               {
+                  printmsg(0,
+                       "Batched: Read %d bytes, only wrote %d bytes of article %d",
+                        chars_read, chars_written , articles + 1);
+                  printerr(filename);
+               }
+            } /* else */
+
+         } while( ! gotsize );
+
+         printmsg(2,"Batched: Article %d size %ld",
+                     articles + 1,
+                     actual_size );
+      } /* else */
 
  /*--------------------------------------------------------------------*/
  /*      Close the file, deliver its contents, and get rid of it       */
