@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.12 1998/03/08 04:50:04 ahd Exp $
+ *       $Id: SMTPCLNT.C 1.13 1998/03/08 23:10:20 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtpclnt.c $
+ *       $Log: SMTPCLNT.C $
+ *       Revision 1.13  1998/03/08 23:10:20  ahd
+ *       Improve timeout processing, UUXQT support
+ *
  *       Revision 1.12  1998/03/08 04:50:04  ahd
  *       Allow setting client timeout for specific client
  *
@@ -79,7 +82,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.12 1998/03/08 04:50:04 ahd Exp $");
+RCSID("$Id: SMTPCLNT.C 1.13 1998/03/08 23:10:20 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -374,6 +377,10 @@ isClientValid(const SMTPClient *client)
 
    if (client->mode == SM_DELETE_PENDING)
       result = KWFalse;
+   else if (getClientHandle(client) == INVALID_SOCKET)
+      result = KWFalse;
+   else if (getClientSocketError(client))
+      result = KWFalse;
    else
       result = KWTrue;
 
@@ -604,6 +611,18 @@ void
 setClientHandle(SMTPClient *client, SOCKET handle)
 {
    client->connection.handle = handle;
+}
+
+int
+getClientSocketError(const SMTPClient *client)
+{
+   return client->connection.error;
+}
+
+void
+setClientSocketError(SMTPClient *client, int error )
+{
+   client->connection.error = error;
 }
 
 time_t

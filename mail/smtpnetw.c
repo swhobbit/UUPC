@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.13 1998/03/16 06:42:49 ahd Exp $
+ *    $Id: smtpnetw.c 1.14 1998/03/16 07:49:07 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.14  1998/03/16 07:49:07  ahd
+ *    Make NETSCAPE send CR/LF
+ *
  *    Revision 1.13  1998/03/16 06:42:49  ahd
  *    Allow larger receive buffers
  *
@@ -90,11 +93,11 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.13 1998/03/16 06:42:49 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.14 1998/03/16 07:49:07 ahd Exp $");
 
 currentfile();
 
-#define MINUTE(seconds) (seconds*60)
+#define MINUTE(seconds) ((seconds)*60)
 
 #if defined(__OS2__)
 KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
@@ -140,7 +143,7 @@ SMTPGetLine(SMTPClient *client)
    static const char mName[] = "SMTPGetLine";
    size_t column;
 
-   printmsg(5, "%s: entered for client %d in mode 0x%04x "
+   printmsg(8, "%s: entered for client %d in mode 0x%04x "
                 "with %d bytes available",
                 mName,
                 getClientSequence(client),
@@ -212,7 +215,6 @@ SMTPGetLine(SMTPClient *client)
                   client->receive.used);
       }
 
-#ifdef LAZY_NETSCAPE
       /* Silly hack to handle NETSPACE being lazy about
          terminating QUIT commands                       */
       if ((client->receive.used > 3) &&
@@ -226,7 +228,6 @@ SMTPGetLine(SMTPClient *client)
          strcpy(client->receive.data + 4, crlf);
          client->receive.used = 6;
       }
-#endif
 
    } /* if (getClientMode(client) != SM_DATA) */
 
@@ -303,7 +304,9 @@ SMTPGetLine(SMTPClient *client)
      client->receive.parsed = client->receive.used;
      client->receive.data[ client->receive.used - 1 ] = '\0';
                                     /* Don't run off the buffer      */
+
      setClientMode(client, SM_ABORT);/* Abort client immediately     */
+
      return KWTrue;                 /* Process the abort immediately */
 
    } /* else */
@@ -462,17 +465,12 @@ getModeTimeout(SMTPMode mode)
 
    switch(mode)
    {
-      case SM_DELETE_PENDING:     return 0;
       case SM_MASTER:             return LONG_MAX;
-      case SM_CONNECTED:          return 0;
       case SM_UNGREETED:          return MINUTE(5);
       case SM_IDLE:               return MINUTE(10);
       case SM_ADDR_FIRST:         return MINUTE(5);
       case SM_ADDR_SECOND:        return MINUTE(5);
       case SM_DATA:               return MINUTE(15);
-      case SM_ABORT:              return 0;
-      case SM_TIMEOUT:            return 0;
-      case SM_EXITING:            return 0;
 
       default:                    return MINUTE(1);
 
@@ -721,21 +719,14 @@ SMTPWrite(SMTPClient *client,
 
    if (status == SOCKET_ERROR)
    {
-      int err;
+      int wsErr;
 
-      err = WSAGetLastError();
+      wsErr = WSAGetLastError();
       printmsg(0, "%s: Error sending data to socket", mName);
-      printWSerror("send", err);
+      printWSerror("send", wsErr);
 
-      if (isFatalSocketError(err))
-      {
-         shutdown(getClientHandle(client),
-                  2);               /* Fail both reads and writes   */
-      }
-
-      /* All write errors are treated as fatal, close the socket */
-      closeSocket( getClientHandle(client) );
-      setClientHandle( client, INVALID_SOCKET );
+      /* Flag the error to client and return error */
+      setClientSocketError( client, wsErr );
       return 0;
    }
 
@@ -820,9 +811,13 @@ SMTPRead(SMTPClient *client)
    if (received == 0)
    {
       client->endOfTransmission = KWTrue;
-      printmsg(0, "%s: client %d EOF on recv()",
+      printmsg(0, "%s: client %d EOF on recv(%ld,%p,%d,%d)",
                   mName,
-                  getClientSequence(client));
+                  getClientSequence(client),
+                  (long) getClientHandle(client),
+                  client->receive.data + client->receive.used,
+                  (int) (client->receive.length - client->receive.used),
+                  0);
    }
    else if (received == SOCKET_ERROR)
    {
@@ -833,9 +828,8 @@ SMTPRead(SMTPClient *client)
                   getClientSequence(client));
       printWSerror("recv", wsErr);
 
-      /* All errors are treated as fatal, close the socket */
-      closeSocket( getClientHandle(client) );
-      setClientHandle( client, INVALID_SOCKET );
+      /* Flag the error to client and return error */
+      setClientSocketError( client, wsErr );
       return 0;
 
    }
@@ -999,7 +993,6 @@ selectReadySockets(SMTPClient *master)
 
    do {
 
-
       if (isClientValid(current) &&
            ! isClientIgnored(current) &&
            ! getClientReady(current))
@@ -1012,7 +1005,6 @@ selectReadySockets(SMTPClient *master)
 
             nSelected++;
       }
-
 
       /* If we can better the timeout period, examine current client */
       if ( timeoutPeriod.tv_sec > 0 )
@@ -1040,7 +1032,7 @@ selectReadySockets(SMTPClient *master)
          printmsg(0, "%s: All sockets of %d ignored!",
                      mName,
                      nTotal);
-         ssleep(10);
+         ssleep(1);
       }
       return KWFalse;
    }
@@ -1085,7 +1077,7 @@ selectReadySockets(SMTPClient *master)
 
    do {
       if (isClientValid(current) &&
-           FD_ISSET(((unsigned) getClientHandle(current)), &readfds))
+          FD_ISSET(((unsigned) getClientHandle(current)), &readfds))
       {
          setClientReady(current, KWTrue);
          setClientProcess(current, KWTrue);

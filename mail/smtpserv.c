@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.9 1998/03/01 19:40:48 ahd v1-12v $
+ *    $Id: SMTPSERV.C 1.10 1998/03/08 23:10:20 ahd Exp $
  *
- *    $Log: smtpserv.c $
+ *    $Log: SMTPSERV.C $
+ *    Revision 1.10  1998/03/08 23:10:20  ahd
+ *    Better UUXQT support
+ *
  *    Revision 1.9  1998/03/01 19:40:48  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -54,7 +57,7 @@
 #include "smtpnetw.h"
 #include "execute.h"
 
-RCSID("$Id: smtpserv.c 1.9 1998/03/01 19:40:48 ahd v1-12v $");
+RCSID("$Id: SMTPSERV.C 1.10 1998/03/08 23:10:20 ahd Exp $");
 
 currentfile();
 
@@ -114,13 +117,14 @@ flagReadyClientList(SMTPClient *master)
          printmsg(4, "%s: Client %d invalid",
                       mName,
                       getClientSequence(current));
+         setClientMode( current, SM_DELETE_PENDING );
          setClientProcess(current, KWTrue);
       }
       else if (getClientReady(current))
          setClientProcess(current, KWTrue);
       else if (getClientBufferedData(current))
          setClientProcess(current, KWTrue);
-      else if (getClientHandle(current) < 0)
+      else if (getClientHandle(current) == INVALID_SOCKET)
       {
          printmsg(0, "%s: Client %d has invalid handle %d",
                       mName,
