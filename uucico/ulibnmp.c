@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.4 1993/09/27 00:45:20 ahd Exp $
+ *       $Id: ulibnmp.c 1.5 1993/09/29 04:49:20 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.5  1993/09/29  04:49:20  ahd
+ * Delete obsolete variable
+ *
  * Revision 1.4  1993/09/27  00:45:20  ahd
  * OS/2 16 bit support
  *
@@ -253,17 +256,10 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
                  OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYREADWRITE, 0L );
 
 /*--------------------------------------------------------------------*/
-/*    Check the open worked.  We translation the common obvious       */
-/*    error of file in use to english, for all other errors are we    */
-/*    report the raw error code.                                      */
+/*                       Check the open worked.                       */
 /*--------------------------------------------------------------------*/
 
-   if ( rc == ERROR_SHARING_VIOLATION)
-   {
-      printmsg(0,"Pipe %s already in use", name);
-      return TRUE;
-   }
-   else if ( rc )
+   if ( rc )
    {
       printOS2error("DosOpen", rc );
       return TRUE;
