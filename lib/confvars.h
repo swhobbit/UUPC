@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.32 1999/01/04 03:55:03 ahd Exp $
+ *    $Id: confvars.h 1.33 2000/05/12 12:40:50 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.33  2000/05/12 12:40:50  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.32  1999/01/04 03:55:03  ahd
  *    Annual copyright change
  *
@@ -173,6 +176,10 @@ extern char E_mailGrade;         /* Default grade for mail           */
 extern char E_newsGrade;         /* Default grade for news           */
 extern char *E_tz;               /* Time zone                        */
 extern char *E_logdir;           /* Log directory name               */
+
+
+extern char **E_RelayToDomainList;    /* Domains willing to relay to    */
+extern char **E_RelayFromNetworkList; /* Networks willing to relay from */
 
 extern KEWSHORT E_timeoutSMTP;   /* SMTP read timeout for rmail      */
 extern KEWSHORT E_maxhops;
