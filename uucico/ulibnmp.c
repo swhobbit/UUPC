@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.3 1993/09/25 03:07:56 ahd Exp $
+ *       $Id: ulibnmp.c 1.4 1993/09/27 00:45:20 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.4  1993/09/27  00:45:20  ahd
+ * OS/2 16 bit support
+ *
  * Revision 1.3  1993/09/25  03:07:56  ahd
  * Various small bug fixes
  *
@@ -307,7 +310,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
    static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
-   boolean firstPass = TRUE;
 
    reads++;
 
