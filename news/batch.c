@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.16 1995/03/11 22:28:56 ahd v1-12q $
+ *    $Id: batch.c 1.17 1996/01/01 21:08:00 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.17  1996/01/01 21:08:00  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1995/03/11 22:28:56  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -496,7 +499,7 @@ deleteBatchedFiles( FILE *names, const long lastPosition )
 static void
 saveUnbatchedNames( FILE *streamIn )
 {
-   IMFILE *saveStream = imopen( filelength( fileno( streamIn ) ) );
+   IMFILE *saveStream = imopen( filelength( fileno( streamIn ) ), IMAGE_MODE );
 
    if ( saveStream == NULL )
    {
