@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.52 1998/03/01 01:39:14 ahd v1-13b $
+ *    $Id: dcp.c 1.53 1998/07/27 01:03:54 ahd v1-12d $
  *
  *    $Log: dcp.c $
+ *    Revision 1.53  1998/07/27 01:03:54  ahd
+ *    Disable logging during execute invocation
+ *
  *        Revision 1.52  1998/03/01  01:39:14  ahd
  *        Annual Copyright Update
  *
@@ -749,9 +752,21 @@ static KWBoolean client( const time_t exitTime,
         (hotHandle == -1 ) &&
         ! suspend_init(M_device))
    {
-      printmsg(0,"Unable to set up pipe for suspending; "
-                 "is another UUCICO running?" );
-      panic();
+
+#ifdef WIN32
+      if (!isWinNT())
+      {
+         printmsg(0,"Unable to set up pipe for suspending; "
+                    "may be unsupported in this environment (use NT for modem sharing).");
+      }
+      else
+#endif
+      /* else under WIN32, otherwise unconditional */
+      {
+         printmsg(0,"Unable to set up pipe for suspending; "
+                    "is another UUCICO running?" );
+         panic();
+      }
    }
 
    while (s_state != CONN_EXIT )
