@@ -84,29 +84,37 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
          shiftin = KWFalse;
          buf += 3;
          }
-      else if (shiftin) {
+      else if (shiftin)
+      {
          hi = *buf++;
+
          if ((lo = *buf++) == '\0')
             break;
+
          if (hi & 1)
-            lo += 0x1f;
+            lo += (unsigned) 0x1f;
          else
-            lo += 0x7d;
-         if (lo >= 0x7f) lo++;
+            lo += (unsigned) 0x7d;
+
+         if (lo >= 0x7f)
+            lo++;
+
          hi = (unsigned char) (((hi - 0x21) / 2) + 0x81);
+
          if (hi > 0x9f)
-            hi += 0x40;
-         if (EOF == fputc(hi, fp)) {
+            hi += (unsigned) 0x40;
+
+         if (EOF == fputc(hi, fp))
             return EOF;
-            }
-         if (EOF == fputc(lo, fp)) {
+
+         if (EOF == fputc(lo, fp))
             return EOF;
-            }
+
          }
       else {
-         if (EOF == fputc(*buf, fp)) {
+         if (EOF == fputc(*buf, fp))
             return EOF;
-            }
+
          buf++;
          }
       }
@@ -127,19 +135,27 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
    int written = 0;
 
    while (*buf) {
-      if (iskanji(*buf) && iskanji2(*(buf+1))) {
-         if (kanjiflag == KWFalse) {
+      if (iskanji(*buf) && iskanji2(*(buf+1)))
+      {
+         if (kanjiflag == KWFalse)
+         {
             kanjiflag = KWTrue;
             written = fputs(SEQ_TO_JIS90, fp);
+
             if (ferror(fp))
                return EOF;
+
          } /* if (kanjiflag == KWFalse) */
 
          hi = *buf++;
          if ((lo = *buf++) == '\0')
             break;
+
          hi = (unsigned char) ((hi - ((hi <= 0x9f) ? 0x71 : 0xb1)) * 2 + 1);
-         if (lo > 0x7f) lo -= 1;
+
+         if (lo > 0x7f)
+            lo -= 1;
+
          if (lo >= 0x9e) {
             lo -= 0x7d;
             hi += 1;
@@ -147,27 +163,35 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
          else {
             lo -= 0x1f;
             }
+
          if (EOF == fputc(hi, fp)) {
             return EOF;
             }
+
          if (EOF == fputc(lo, fp)) {
             return EOF;
             }
-         }
+
+      } /* if (iskanji(*buf) && iskanji2(*(buf+1))) */
       else {
+
          if (kanjiflag == KWTrue) {
             kanjiflag = KWFalse;
             written = fputs(SEQ_TO_ASCII, fp);
 
             if (ferror(fp))
                return EOF;
+
             }
 
          if (EOF == fputc(*buf, fp))
             return EOF;
+
          buf++;
-         }
-      } /* else */
+
+         } /* else */
+
+      } /* while */
 
    if (kanjiflag)
       written = fputs(SEQ_TO_ASCII, fp);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.58 1995/01/28 22:08:10 ahd Exp $
+ *    $Id: configur.c 1.59 1995/01/29 14:07:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.59  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.58  1995/01/28 22:08:10  ahd
  *    Correct use of TZ variable from within UUPC configuration file
  *
@@ -539,28 +542,37 @@ KWBoolean processconfig(char *buff,
 
       if (equal(keyword, tptr->sym))
       {
+
 /*--------------------------------------------------------------------*/
 /*            Skip the keyword because of the environment?            */
 /*--------------------------------------------------------------------*/
-        if (!(active_env & target_env) )
+
+        if (!(((unsigned long) active_env) & (unsigned long) target_env) )
             printmsg(2,"%s-environment keyword \"%s\" skipped.",
                         strupr(buff), keyword);
+
 /*--------------------------------------------------------------------*/
 /*                      Handle obsolete options                       */
 /*--------------------------------------------------------------------*/
+
         else if (tptr->bits & B_OBSOLETE)
             printmsg(2,"Obsolete keyword \"%s\" ignored.", keyword);
+
 /*--------------------------------------------------------------------*/
 /*                  Handle mis-placed system options                  */
 /*--------------------------------------------------------------------*/
+
         else if ((tptr->bits & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
             printmsg(0,
                "User specified system keyword \"%s\" ignored.",
                keyword);
+
+         else {
+
 /*--------------------------------------------------------------------*/
 /*                       Handle Boolean options                       */
 /*--------------------------------------------------------------------*/
-         else {
+
             if (tptr->bits & B_BOOLEAN)
                options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
 

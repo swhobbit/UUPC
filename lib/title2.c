@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.6 1995/01/07 16:14:56 ahd Exp $
+ *    $Id: title2.c 1.7 1995/01/29 14:07:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.7  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.6  1995/01/07 16:14:56  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -74,7 +77,7 @@ void setTitle( const char *fmt, ... )
 
    static KWBoolean firstPass = KWTrue;
 
-   hSwitch = WinQuerySwitchHandle(NULL, pid );
+   hSwitch = WinQuerySwitchHandle(NULL, (unsigned long) pid );
    WinQuerySwitchEntry(hSwitch, &swctl);
 
    if ( firstPass )

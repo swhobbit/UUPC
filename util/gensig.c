@@ -11,14 +11,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.7 1994/02/26 15:47:42 ahd Exp $
+ *    $Id: gensig.c 1.8 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.8  1994/12/09 03:42:09  ahd
+ *    Include configuration to allow suppressing beep
+ *
  * Revision 1.7  1994/02/26  15:47:42  ahd
  * Correct fopen() to work with IBM C/Set 2 compiler
  *
@@ -44,7 +55,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.7 1994/02/26 15:47:42 ahd Exp $";
+static char rcsid[] = "$Id: gensig.c 1.8 1994/12/09 03:42:09 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -64,15 +75,15 @@ static char rcsid[] = "$Id: gensig.c 1.7 1994/02/26 15:47:42 ahd Exp $";
 /*                            Local macros                            */
 /*--------------------------------------------------------------------*/
 
-#define bitsper(s) (8 * (sizeof s))
+#define bitsPer(s) (8 * (sizeof s))
 
-#define bitflag(x, s) (1 << ((bitsper(s) - 1) - x))
+#define bitFlag(x, s) (1u << (unsigned) (bitsPer(s) - (1 + (x))))
 
-#define biton( s, offset ) \
-               (( s[ (size_t) (offset / bitsper(*s)) ] ) & \
-                bitflag(offset % bitsper( *s ), *s))
+#define bitOn( s, offset ) \
+               (( s[ (size_t) (offset / bitsPer(*s)) ] ) & \
+                bitFlag(offset % bitsPer( *s ), *s))
 
-#define bitoff( s, offset) (!biton(s, offset))
+#define bitOff( s, offset) (!bitOn(s, offset))
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -92,7 +103,7 @@ static void CopyQuote( const char *fname, long where, FILE *stream);
 
 static void CopyFixed( const char *fname, FILE *stream );
 
-static long chooseavailable( const char *quoteused, long quotes );
+static unsigned long chooseavailable( const char *quoteused, long quotes );
 
 currentfile();
 
@@ -166,7 +177,9 @@ static void usage( void )
    printf("\taddr-file\tFixed portion of signature file\n");
    printf("\tquote-file\tFile of quotes, separated by delimiter lines\n");
    printf("\toutput-file\tOutput file with fixed portion and single quote\n");
+
    exit( 2 );
+
 } /* usage */
 
 /*--------------------------------------------------------------------*/
@@ -253,7 +266,7 @@ static long chooseit( struct stat *current_status,
    FILE *data;
    long where;
    long quotes = 0;
-   long quote;
+   unsigned long quote;
 
    char buf[BUFSIZ];
    char delimiter[BUFSIZ];
@@ -266,8 +279,10 @@ static long chooseit( struct stat *current_status,
    stream = fopen( lookaside , "rb" );
    if ( stream != NULL )
    {
+
       struct stat status;
       fread( &status, sizeof status, 1, stream);
+
       if ((status.st_size == current_status->st_size) &&
           (status.st_mtime == current_status->st_mtime))
       {                       /* Lookaside file up to date, use it   */
@@ -284,7 +299,7 @@ static long chooseit( struct stat *current_status,
 
          quote = chooseavailable( quoteused, quotes);
 
-         fseek( stream, quote * sizeof where , SEEK_CUR );
+         fseek( stream, (long) quote * sizeof where , SEEK_CUR );
                               /* Step required number of quotes
                                  into the file                       */
          fread( &where, sizeof where, 1, stream);
@@ -294,9 +309,11 @@ static long chooseit( struct stat *current_status,
                               /* Announce number of quote of the day */
          fclose( stream );    /* Done with lookaside file, of course */
          return where;        /* Return position in file to caller   */
+
       } /* if */
       else
          fclose( stream );
+
    } /* if ( stream != NULL ) */
    else
       perror( lookaside );
@@ -308,6 +325,7 @@ static long chooseit( struct stat *current_status,
    unlink( quoteused );          /* Make all quotes available        */
 
    data   = fopen( fname, "r");           /* Open data file to scan  */
+
    if ( data == NULL )                    /* Did it open?            */
    {
       perror( fname );                    /* No --> Error            */
@@ -315,6 +333,7 @@ static long chooseit( struct stat *current_status,
    }
 
    stream = fopen( lookaside , "wb" );    /* Open lookaside file     */
+
    if ( stream == NULL )                  /* Did it open?            */
    {
       perror( lookaside );                /* No --> Error            */
@@ -342,6 +361,7 @@ static long chooseit( struct stat *current_status,
 
    while( fgets(buf, BUFSIZ, data ) != NULL )
    {
+
       if ( strcmp( buf, delimiter ))   /* Delimiter line?            */
       {                                /* No --> data line           */
          if ( where != -1L )  /* First line of new quote?            */
@@ -383,14 +403,18 @@ static long chooseit( struct stat *current_status,
 /*    Select a quote from available list                              */
 /*--------------------------------------------------------------------*/
 
-static long chooseavailable( const char *quoteused, long quotes )
+static unsigned long
+chooseavailable( const char *quoteused, long quotes )
 {
    FILE *stream;
-   unsigned char *quotelist;
+   unsigned char *quoteList;
+   unsigned char byte;
 
-   size_t listsize = (size_t) (( quotes + bitsper(*quotelist) - 1 ) /
-                              bitsper(*quotelist));
-   long quote;
+   size_t listsize = (size_t) (( quotes + bitsPer(*quoteList) - 1 ) /
+                              bitsPer(*quoteList));
+
+   size_t subscript;
+   unsigned long quote;
    long available = quotes;
    long select;
 
@@ -398,8 +422,8 @@ static long chooseavailable( const char *quoteused, long quotes )
 /*                 Initialize the bit array of quotes                 */
 /*--------------------------------------------------------------------*/
 
-   quotelist = malloc( listsize );
-   checkref( quotelist );
+   quoteList = malloc( listsize * sizeof quoteList);
+   checkref( quoteList );
 
 /*--------------------------------------------------------------------*/
 /*             Open up the used quoted file, if possible              */
@@ -421,7 +445,7 @@ static long chooseavailable( const char *quoteused, long quotes )
       }
       else if ( quotes <= available )
          available = 0;
-      else if (fread (quotelist, sizeof *quotelist, listsize , stream) <
+      else if (fread (quoteList, sizeof *quoteList, listsize , stream) <
                   listsize)
       {
          available = 0;
@@ -435,7 +459,7 @@ static long chooseavailable( const char *quoteused, long quotes )
 
    if ( available <= ( quotes / 10 ))
    {
-      memset( quotelist, '\0', listsize );
+      memset( quoteList, '\0', listsize * sizeof *quoteList );
       printf("Resetting available quotes list\n");
       available = quotes;
    }
@@ -452,9 +476,10 @@ static long chooseavailable( const char *quoteused, long quotes )
 /*--------------------------------------------------------------------*/
 
    quote = 0;
+
    while( quote < quotes )
    {
-      if ( bitoff( quotelist, quote ))
+      if ( bitOff( quoteList, quote ))
          select--;
 
       if ( select > 0 )
@@ -471,19 +496,21 @@ static long chooseavailable( const char *quoteused, long quotes )
 /*--------------------------------------------------------------------*/
 
    stream = fopen( quoteused, "wb");
+
    if ( stream == NULL )
    {
       perror( quoteused );
       panic();
    }
 
-   quotelist[ (size_t) (quote / bitsper(*quotelist)) ] |=
-               bitflag( quote % bitsper(*quotelist), *quotelist );
+   subscript = (size_t) (quote / bitsPer(*quoteList));
+   byte = (unsigned char) bitFlag( quote % bitsPer(*quoteList), *quoteList );
+   quoteList[ subscript ] = (unsigned char) (quoteList[ subscript ] | byte);
 
    available -= 1;
 
    fwrite(&available, sizeof available, 1 , stream);
-   fwrite(quotelist,  sizeof *quotelist, listsize , stream);
+   fwrite(quoteList,  sizeof *quoteList, listsize , stream);
    fclose( stream );
 
 /*--------------------------------------------------------------------*/
@@ -579,4 +606,5 @@ static void CopyQuote( const char *fname, long where, FILE *stream)
 /*--------------------------------------------------------------------*/
 
    fclose( input );
+
 } /* CopyQuote */

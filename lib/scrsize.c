@@ -2,16 +2,27 @@
 /*    s c r s i z e .  c                                              */
 /*                                                                    */
 /*    Report screen size under MS-DOS                                 */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks.            */
-/*    All rights reserved except those explicitly granted by          */
-/*    the UUPC/extended license.                                      */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize.c 1.12 1994/02/19 04:46:18 ahd v1-12k $
+ *    $Id: scrsize.c 1.13 1995/01/07 16:14:16 ahd Exp $
  *
  *    $Log: scrsize.c $
+ *    Revision 1.13  1995/01/07 16:14:16  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.12  1994/02/19 04:46:18  ahd
  *    Use standard first header
  *
@@ -70,7 +81,7 @@
 /*    Return screen size under MS-DOS 4.0 and 5.0                     */
 /*--------------------------------------------------------------------*/
 
-short scrsize( void )
+unsigned short scrsize( void )
 {
 
 #ifdef __TURBOC__
@@ -108,10 +119,10 @@ short scrsize( void )
 /*--------------------------------------------------------------------*/
 
    if ((*bios_rows < 20 ) || (*bios_rows > 99)) /* Sanity check   */
-      default_rows = 24;
+      default_rows = PAGESIZE;
 
    if ((_osmajor < 4) || error )
-      return (short) (default_rows ? default_rows : *bios_rows);
+      return (unsigned short) (default_rows ? default_rows : *bios_rows);
                                  /* Faster, but not well documented   */
 
 /*--------------------------------------------------------------------*/
@@ -143,10 +154,12 @@ short scrsize( void )
                   (int) regs.x.ax,
                   (short) (default_rows ? default_rows : *bios_rows ));
       error = KWTrue;
-      return (short) (default_rows ? default_rows : *bios_rows);
+
+      return (unsigned short) (default_rows ? default_rows : *bios_rows);
                                  /* Faster, but not well documented   */
-   }
+
+   } /* if ( regs.x.cflag ) */
    else
-      return info.dmRows;
+      return (unsigned short) info.dmRows;
 
 } /* scrsize */

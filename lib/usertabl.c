@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.12 1994/04/24 20:35:08 ahd Exp $
+ *    $Id: usertabl.c 1.13 1994/05/07 21:45:33 ahd v1-12k $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.13  1994/05/07 21:45:33  ahd
+ *    Handle empty passwords different from blocked (asterisk) passwords
+ *
  *     Revision 1.12  1994/04/24  20:35:08  ahd
  *     Change case of userElement
  *
@@ -104,7 +107,7 @@ struct UserTable *checkuser(const char *name)
       userElements = loaduser();        /* No --> load it             */
 
    lower = 0;
-   upper = userElements - 1;
+   upper = (int) userElements - 1;
 
 /*--------------------------------------------------------------------*/
 /*              Peform a binary search on the user table              */
@@ -143,7 +146,7 @@ struct UserTable *checkuser(const char *name)
 struct UserTable *inituser(char *name)
 {
 
-   static int allocUsers = 100;    /* Number of users allocated */
+   static size_t allocUsers = 100;    /* Number of users allocated */
    size_t hit = userElements;
    size_t element = 0;
 

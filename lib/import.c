@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.28 1995/01/03 05:32:26 ahd Exp $
+ *    $Id: import.c 1.29 1995/01/07 16:12:48 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.29  1995/01/07 16:12:48  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.28  1995/01/03 05:32:26  ahd
  *    Reduce, clarify logging in OS/2 Advanced FS function
  *
@@ -320,7 +323,10 @@ void importpath(char *local, const char *canon, const char *remote)
 
       KWBoolean longname;
 
-      longname = bflag[F_LONGNAME] && advancedFS( E_spooldir ) ;
+      if ( bflag[F_LONGNAME] && advancedFS( E_spooldir ) )
+         longname = KWTrue;
+      else
+         longname = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                    Verify we have a remote name                    */
@@ -392,7 +398,7 @@ void importpath(char *local, const char *canon, const char *remote)
       while( (*s != '\0') && (*number == '\0'))
       {
          mult(number, range, MAX_DIGITS); /* Shift the number over    */
-         add(number, *s++  - UNIX_START_C , MAX_DIGITS);
+         add(number, (unsigned) (*s++  - UNIX_START_C) , MAX_DIGITS);
                                           /* Add in new low order     */
       } /* while */
 
@@ -848,7 +854,14 @@ static KWBoolean advancedFS( const char *input )
          break;
    }
 
-   return cache[ (unsigned char) *fdrive ] == 'L' ? KWTrue : KWFalse;
+/*--------------------------------------------------------------------*/
+/*          Report our now cached results back to the caller          */
+/*--------------------------------------------------------------------*/
+
+   if (cache[ (unsigned char) *fdrive ] == 'L')
+      return KWTrue;
+   else
+      return KWFalse;
 
 } /* advancedFS */
 

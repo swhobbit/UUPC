@@ -2,16 +2,27 @@
 /*    s c r s i z e 2 .  c                                            */
 /*                                                                    */
 /*    Report screen size under OS/2                                   */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks.            */
-/*    All rights reserved except those explicitly granted by          */
-/*    the UUPC/extended license.                                      */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.4 1994/02/19 04:46:26 ahd v1-12k $
+ *    $Id: scrsize2.c 1.5 1995/01/07 16:14:22 ahd Exp $
  *
  *    $Log: scrsize2.c $
+ *    Revision 1.5  1995/01/07 16:14:22  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.4  1994/02/19 04:46:26  ahd
  *    Use standard first header
  *
@@ -55,7 +66,7 @@
 /*    Return screen size under OS/2                                   */
 /*--------------------------------------------------------------------*/
 
-short scrsize( void )
+unsigned short scrsize( void )
 {
    VIOMODEINFO info;
    USHORT result;
@@ -76,4 +87,5 @@ short scrsize( void )
    }
 
    return info.row;
+
 } /* scrsize */

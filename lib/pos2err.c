@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.9 1994/12/22 00:10:14 ahd Exp $
+ *    $Id: pos2err.c 1.10 1995/01/07 16:13:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.10  1995/01/07 16:13:42  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.9  1994/12/22 00:10:14  ahd
  *    Annual Copyright Update
  *
@@ -86,15 +89,30 @@ void pOS2Err(const size_t lineno,
 {
    char buf[BUFSIZ];
    static KWBoolean recursion  = KWFalse;
-   int l;
+   size_t l;
    static char sysMsgs[] = "oso001.msg";
-   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+
+   KWBoolean redirect;
 
 #ifdef __OS2__
    ULONG len, xrc;
 #else
    USHORT len, xrc;
 #endif
+
+/*--------------------------------------------------------------------*/
+/*       Determine if we need to echo the error an extra time to      */
+/*       the console.                                                 */
+/*--------------------------------------------------------------------*/
+
+   if ((logfile != stdout) && !isatty(fileno(stdout)))
+      redirect = KWTrue;
+   else
+      redirect = KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*             Override the text for selected error numbers           */
+/*--------------------------------------------------------------------*/
 
    switch( rc )
    {
@@ -154,7 +172,7 @@ void pOS2Err(const size_t lineno,
 
    l = strlen( buf );
 
-   if (( buf[l-1] == '\n') & (l < sizeof buf ))
+   if (( buf[l-1] == '\n') && (l < sizeof buf ))
       buf[l-1] = '\0';          /* Drop extra newline from string     */
 
 /*--------------------------------------------------------------------*/

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.9 1994/03/13 17:22:20 ahd v1-12k $
+ *    $Id: export.c 1.10 1994/12/22 00:08:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: export.c $
+ *    Revision 1.10  1994/12/22 00:08:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/03/13 17:22:20  ahd
  *    Add debugging statement
  *
@@ -176,7 +179,7 @@ void exportpath(char *canon, const char *host, const char *remote)
 /*    to the converted name.  Retrieve that information now           */
 /*--------------------------------------------------------------------*/
 
-      subscript = *out - UNIX_START_C;
+      subscript = (unsigned) (*out - UNIX_START_C);
                               /* Convert back to pure number          */
       token = canon + strlen( canon ); /* Remember end of string      */
       if (subscript > HOSTLEN)

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.8 1994/02/19 04:47:36 ahd v1-12k $
+ *    $Id: usrcatch.c 1.9 1994/12/22 00:12:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ *    Revision 1.9  1994/12/22 00:12:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1994/02/19 04:47:36  ahd
  *    Use standard first header
  *
@@ -86,7 +89,7 @@ __cdecl
 #endif
 usrhandler( int sig )
 {
-   raised = sig;
+   raised = (unsigned long) sig;
 
    if ( raised == 0 )
       abort();

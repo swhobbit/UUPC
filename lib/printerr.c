@@ -1,12 +1,16 @@
 /*--------------------------------------------------------------------*/
 /*    p r i n t e r r . c                                             */
 /*                                                                    */
-/*    Support routines for UUPC/extended                              */
+/*    Run time library error reporting, includes source line of       */
+/*    error via pre-processor generated information.                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Changes Copyright 1989, 1992 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -14,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.10 1995/01/07 16:13:48 ahd Exp $
+ *    $Id: printerr.c 1.11 1995/01/13 14:00:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.11  1995/01/13 14:00:40  ahd
+ *    Print error number as well as location at higher debug levels
+ *
  *    Revision 1.10  1995/01/07 16:13:48  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -77,17 +84,21 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    char buf[50];
    int myErrno = errno;
    char *s = strerror(errno);
-   int l = strlen( s );
+   size_t l = strlen( s );
 
-   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout))) ?
-                           KWTrue : KWFalse;
+   KWBoolean redirect;
+
+   if ((logfile != stdout) && !isatty(fileno(stdout)))
+      redirect = KWTrue;
+   else
+      redirect = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*    Drop extra new from error message if we have room in our        */
 /*    small buffer                                                    */
 /*--------------------------------------------------------------------*/
 
-   if (( s[l-1] == '\n') & (l < sizeof buf ))
+   if (( s[l-1] == '\n') && (l < sizeof buf ))
    {
       s = strcpy( buf, s);    /* Make buf copy of string we use below*/
       s[l-1] = '\0';          /* Drop extra newline from string       */
@@ -97,7 +108,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
 /*           Display the message with option file location            */
 /*--------------------------------------------------------------------*/
 
-   printmsg(2,"Run time library error %d in %s at line %d ...",
+   printmsg(2,"Run time library error %d in %s at line %u ...",
                myErrno,
                fname,
                lineno);

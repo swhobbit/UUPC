@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.24 1994/12/22 00:11:18 ahd Exp $
+ *    $Id: ssleep.c 1.25 1995/01/07 16:14:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.25  1995/01/07 16:14:45  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.24  1994/12/22 00:11:18  ahd
  *    Annual Copyright Update
  *
@@ -166,7 +169,7 @@ currentfile();
 /*    NOTE: Minimum resolution is 54.925 ms.                          */
 /*--------------------------------------------------------------------*/
 
-void ddelay( KEWSHORT milliseconds )
+void ddelay( const KEWSHORT milliseconds )
 {
    MSG msg;
    WORD TimerId = 1;
@@ -235,7 +238,7 @@ void ddelay( KEWSHORT milliseconds )
 /*       Delay function for Windows NT                                */
 /*--------------------------------------------------------------------*/
 
-void ddelay (KEWSHORT interval )
+void ddelay (const KEWSHORT interval )
 {
 
    Sleep(interval);
@@ -250,10 +253,10 @@ void ddelay (KEWSHORT interval )
 /*       Delay function for OS/2                                      */
 /*--------------------------------------------------------------------*/
 
-void   ddelay   (KEWSHORT interval )
+void ddelay (const KEWSHORT interval )
 {
 
-   USHORT result = DosSleep(interval);
+   unsigned int result = DosSleep(interval);
 
    if (result)
       printOS2error( "DosSleep", result );
@@ -424,7 +427,7 @@ static void DVGiveUpTimeSlice(void)
 /*    Delay for an interval of milliseconds under DOS                 */
 /*--------------------------------------------------------------------*/
 
-void   ddelay   (KEWSHORT interval )
+void ddelay (const KEWSHORT interval )
 {
 
    struct timeb start;

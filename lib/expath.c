@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.16 1995/01/07 16:12:21 ahd Exp $
+ *    $Id: expath.c 1.17 1995/01/28 23:13:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.17  1995/01/28 23:13:11  ahd
+ *    Use isAbsolutePath()
+ *
  *    Revision 1.16  1995/01/07 16:12:21  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -129,11 +132,17 @@ char *expand_path(char *input,         /* Input/output path name      */
 
    if (isAbsolutePath( path ))
    {
-      KWBoolean push = (cur_dir != NULL );
+      KWBoolean push;
       strcpy( save, path );
 
-      if (push)
+      if (cur_dir == NULL )
+         push = KWFalse;
+      else {
+
          PushDir( cur_dir );
+         push = KWTrue;
+
+      }
 
       p = _fullpath( path, save, sizeof save );
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.18 1994/12/27 20:49:47 ahd Exp $
+  *      $Id: hostable.c 1.19 1995/01/07 16:12:32 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.19  1995/01/07 16:12:32  ahd
+  *      Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+  *
   *      Revision 1.18  1994/12/27 20:49:47  ahd
   *      Revise confusing local domain message
   *
@@ -123,7 +126,7 @@ static size_t localdomainl;   /* Length of localdomain                */
 /*--------------------------------------------------------------------*/
 
 struct HostTable *checkName(const char *name,
-                            const int line,
+                            const size_t line,
                             const char *function)
 {
    char  hostname[MAXADDR];   /* Local copy of name to process        */
@@ -237,7 +240,7 @@ struct HostTable *checkName(const char *name,
 /*--------------------------------------------------------------------*/
 
 struct HostTable *checkReal(const char *name,
-                            const int line,
+                            const size_t line,
                             const char *function)
 {
    size_t  namel;
@@ -288,7 +291,8 @@ struct HostTable *searchname(const char *name, const size_t namel)
       HostElements = loadhost();        /* No --> load it             */
 
    lower = 0;
-   upper = HostElements - 1;
+   upper = (int) (HostElements - 1);
+
    while ( lower <= upper )
    {
       int midpoint = (lower + upper) / 2;

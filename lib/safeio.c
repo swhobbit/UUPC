@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.14 1994/12/22 00:10:45 ahd Exp $
+ *    $Id: safeio.c 1.15 1995/01/07 16:14:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *    Revision 1.15  1995/01/07 16:14:09  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.14  1994/12/22 00:10:45  ahd
  *    Annual Copyright Update
  *
@@ -68,21 +71,28 @@
 /*    I/O operations outside the signal handler.                      */
 /*--------------------------------------------------------------------*/
 
-
 #if defined( WIN32 )
 
-
     #include <windows.h>
+
 #elif defined( FAMILYAPI ) || defined(__OS2__)
+
     #define INCL_NOCOMMON
     #define INCL_NOPM
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
+
+    #if defined(KBDTRF_FINAL_CHAR_IN)
+      #define FINAL_CHAR_IN KBDTRF_FINAL_CHAR_IN
+    #endif
+
 #else /* FAMILYAPI */
+
     #include <conio.h>
     #include <dos.h>
     #include <bios.h>
+
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -99,14 +109,14 @@
 currentfile();
 #endif
 
+#if defined(WIN32)
+
 /*--------------------------------------------------------------------*/
 /*    s a f e i n                                                     */
 /*                                                                    */
 /*    Inputs a character using system level calls.  From MicroSoft    */
 /*    Programmer's Workbench QuickHelp samples                        */
 /*--------------------------------------------------------------------*/
-
-#if defined(WIN32)
 
 static HANDLE hConsoleIn = INVALID_HANDLE_VALUE;
 
@@ -127,6 +137,7 @@ void InitConsoleInputHandle(void)
       panic();
    }
 }
+
 #endif
 
 int safein( void )
@@ -218,10 +229,10 @@ KWBoolean safepeek( void )
 
     KbdPeek( &kki, 0 );
 
-#if defined(KBDTRF_FINAL_CHAR_IN)
-    #define FINAL_CHAR_IN KBDTRF_FINAL_CHAR_IN
-#endif
-    return (kki.fbStatus & FINAL_CHAR_IN);
+    if ( (unsigned) kki.fbStatus & FINAL_CHAR_IN)
+       return KWTrue;
+    else
+       return KWFalse;
 
 #else /* FAMILYAPI */
 

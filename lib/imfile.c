@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.9 1995/01/14 14:08:59 ahd Exp $
+ *    $Id: imfile.c 1.10 1995/01/28 22:07:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.10  1995/01/28 22:07:13  ahd
+ *    Add chsize function
+ *
  *    Revision 1.9  1995/01/14 14:08:59  ahd
  *    Make sure that 65000 byte limit is processed as long constant
  *
@@ -126,10 +129,10 @@ static void imStatus( IMFILE *imf )
 /*       shortage                                                     */
 /*--------------------------------------------------------------------*/
 
-static int imReserve( IMFILE *imf, const long length )
+static int imReserve( IMFILE *imf, const unsigned long length )
 {
 
-   long newLength = length + imf->position ;
+   unsigned long newLength = length + imf->position ;
 
 /*--------------------------------------------------------------------*/
 /*            If we have the memory allocated, return quietly         */
@@ -234,12 +237,12 @@ IMFILE *imopen( const long length )    /* Longest in memory
       if ( length <= 0 )
          imf->length = IM_MAX_LENGTH / 10;
       else
-         imf->length = length;
+         imf->length = (unsigned long) length;
 
 #ifdef BIT32ENV
-         imf->buffer = malloc( length );
+         imf->buffer = malloc( imf->length );
 #else
-         imf->buffer = _fmalloc( (size_t) length );
+         imf->buffer = _fmalloc( (size_t) imf->length );
 #endif
 
       if ( imf->buffer == NULL )
@@ -248,7 +251,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
    }  /* if ( length <= IM_MAX_LENGTH ) */
    else
       printmsg(2,"imopen: Using disk for %ld byte file (max i-m is %ld)",
-                  length,
+                  imf->length,
                   (long) IM_MAX_LENGTH );
 
 /*--------------------------------------------------------------------*/
@@ -266,7 +269,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
          return NULL;
       } /* if ( imf->stream == NULL ) */
 
-   } /* ( length > IM_MAX_LENGTH ) */
+   } /* if ( imf->buffer == NULL ) */
 
 /*--------------------------------------------------------------------*/
 /*                     Return success to the caller                   */
@@ -321,22 +324,22 @@ int imclose( IMFILE *imf)
 int imchsize( IMFILE *imf, long length )
 {
 
-   if ( length > imf->length )
-      imReserve( imf, length - imf->length );
-
-   if ( imf->buffer == NULL )
-      return chsize( fileno( imf->stream ), length );
-
    if ( length < 0 )
    {
       errno = EINVAL;
       return -1;
    }
 
-   if ( length > imf->inUse )
-      memset( imf + imf->inUse, length - imf->inUse, 0 );
+   if ( ((unsigned long) length) > imf->length )
+      imReserve( imf, (unsigned long) length - imf->length );
 
-   imf->inUse = length;
+   if ( imf->buffer == NULL )
+      return chsize( fileno( imf->stream ), length );
+
+   if ( (unsigned) length > imf->inUse )
+      memset( imf + imf->inUse, (int) (length - (long) imf->inUse), 0 );
+
+   imf->inUse = (unsigned long) length;
 
    if ( imf->position > imf->inUse )
       imf->position = imf->inUse;
@@ -407,8 +410,10 @@ int imerror( IMFILE *imf )
 {
    if ( imf->buffer == NULL )
       return ferror( imf->stream );
+   else if (imf->flag & IM_FLAG_ERROR)
+      return -1;
    else
-      return imf->flag & IM_FLAG_ERROR;
+      return 0;
 
 } /* imerror */
 
@@ -421,7 +426,7 @@ int imerror( IMFILE *imf )
 char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 {
    char UUFAR *p;
-   long stringLength;
+   size_t stringLength;
    size_t subscript = 0;
 
    imStatus( imf );
@@ -444,8 +449,8 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    stringLength = imf->inUse - imf->position;
 
-   if ( stringLength > (userLength - 1 ))
-      stringLength = userLength;
+   if ( stringLength > (size_t) (userLength - 1 ))
+      stringLength = (size_t) userLength;
 
 #ifdef UDEBUG
    printmsg(6,"imgets: Requested up to %ld bytes, "
@@ -498,7 +503,7 @@ int imputc( int in, IMFILE *imf )
 {
    char c = (char) in;
 
-   int result = imwrite( &c, sizeof c, 1, imf );
+   size_t result = imwrite( &c, sizeof c, 1, imf );
 
    if ( result != 1 )
       return EOF;
@@ -515,7 +520,12 @@ int imputc( int in, IMFILE *imf )
 
 int imputs( const char *userString, IMFILE *imf )
 {
-   return imwrite( userString, 1, strlen( userString ), imf );
+   size_t userLength = strlen( userString );
+
+   if (imwrite( userString, 1, userLength, imf ) == userLength )
+      return 1;
+   else
+      return EOF;
 
 } /* imputs */
 
@@ -578,13 +588,13 @@ size_t  imwrite(const void *userBuffer,
                 size_t objectCount,
                 IMFILE *imf )
 {
-   long bytes = objectSize * objectCount;
+   unsigned long bytes = objectSize * objectCount;
 
 /*--------------------------------------------------------------------*/
 /*            Verify we have a reasonable amount to write             */
 /*--------------------------------------------------------------------*/
 
-   if ( bytes <= 0 )
+   if ( bytes == 0 )
    {
       errno = EINVAL;
       return 0;
@@ -650,11 +660,11 @@ int imseek( IMFILE *imf, long int offset, int whence)
          break;
 
       case SEEK_CUR:
-         absoluteOffset = imf->position + offset;
+         absoluteOffset = (long) imf->position + offset;
          break;
 
       case SEEK_END:
-         absoluteOffset = imf->inUse + offset;
+         absoluteOffset = (long) imf->inUse + offset;
          break;
 
       default:
@@ -681,7 +691,7 @@ int imseek( IMFILE *imf, long int offset, int whence)
 /*      Reset the current file pointer and return to the caller       */
 /*--------------------------------------------------------------------*/
 
-   imf->position = absoluteOffset;
+   imf->position = (unsigned long) absoluteOffset;
 
    return 0;
 
@@ -698,7 +708,7 @@ long imtell( IMFILE *imf )
    if ( imf->buffer ==  NULL )
       return ftell( imf->stream );
    else
-      return imf->position;
+      return (long) imf->position;
 
 } /* imtell */
 
@@ -763,7 +773,7 @@ long imlength( IMFILE *imf )
       return filelength( fileno( imf->stream ) );
    }
    else
-      return imf->inUse;
+      return (long) imf->inUse;
 
 }   /* imlength */
 
@@ -777,7 +787,7 @@ long imlength( IMFILE *imf )
 int imunload( FILE *output, IMFILE *imf )
 {
   char *ioBuf    = NULL;
-  int  ioBufSize = (28 * 1024);
+  size_t ioBufSize = (28 * 1024);
 
 /*--------------------------------------------------------------------*/
 /*       We invert our normal logic, because 16 bit allocated in      */

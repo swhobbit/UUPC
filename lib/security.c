@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.23 1995/01/07 16:14:36 ahd Exp $
+ *    $Id: security.c 1.24 1995/01/29 14:07:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.24  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.23  1995/01/07 16:14:36  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -201,7 +204,9 @@ KWBoolean LoadSecurity( void )
 /*--------------------------------------------------------------------*/
 
       *next = '\0';
-      while( fgets( next, sizeof buffer - strlen(next), stream ) != NULL)
+      while( fgets( next,
+                   (int) (sizeof buffer - strlen(next)),
+                   stream ) != NULL)
       {
          if ((*next == '#') || (*next == '\n'))
          {
@@ -210,6 +215,7 @@ KWBoolean LoadSecurity( void )
          }
 
          next = next + strlen( next ) - 1;
+
          if (*next == '\n')
             *next-- = '\0';
          else if (!feof( stream ))  /* Did we hit EOF?                */
@@ -227,6 +233,7 @@ KWBoolean LoadSecurity( void )
             *next = '\0';
          else
             break;
+
       } /* while( fgets( next, sizeof available, stream )) != NULL))  */
 
 /*--------------------------------------------------------------------*/
@@ -244,7 +251,10 @@ KWBoolean LoadSecurity( void )
 /*              Build entries for one permissions entry               */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
       printmsg(10,"Buffer is \"%s\"", buffer );
+#endif
+
       if ((*next != '\0') && !InitEntry( buffer , E_permissions))
       {
          fclose( stream );
@@ -339,17 +349,25 @@ static KWBoolean InitEntry( char *buf, const char *fname)
    while ( (parameter = strtok( token, WHITESPACE )) != NULL)
    {
       token = strtok( NULL, ""); /* Save for next pass                */
+
 #ifdef _DEBUG
+
       printmsg(8,"InitEntry: Parameter is \"%s\"", parameter);
+
       if ( token != NULL )
          printmsg(10,"InitEntry: Buffer remaining is \"%s\"", token);
+
 #endif
+
       if (!processconfig(parameter, SYSTEM_CONFIG,B_UUXQT,securetable,NULL))
       {
-         printmsg(0,
-          "Unknown keyword \"%s\" in %s ignored",parameter, fname);
+         printmsg(0, "Unknown keyword \"%s\" in %s ignored",
+                    parameter,
+                    fname);
          success = KWFalse;
+
       } /* if */
+
    } /* while ( (parameter = strtok( token, WHITESPACE )) != NULL) */
 
    anchor->commands = (char **) commands;
@@ -361,9 +379,11 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
    if ((logname == NULL) && (machine == NULL))
    {
+
       printmsg(0,"InitEntry: No machine or logname given in %s",
                   fname );
       success = KWFalse;
+
    } /* if ((logname == NULL) && (machine == NULL)) */
 
 /*--------------------------------------------------------------------*/
@@ -373,20 +393,27 @@ static KWBoolean InitEntry( char *buf, const char *fname)
    if (logname != NULL)
    {
       printmsg(10,"InitEntry: Processing logname=%s",logname );
+
       userp = checkuser( logname );
+
       if ( userp == BADUSER )
       {
+
          printmsg(0,"InitEntry: Invalid user id in %s, LOGNAME=%s",
                      fname, logname );
          success = KWFalse;
+
       } /* if ( userp == BADUSER ) */
       else if (userp->hsecure == NULL)
          userp->hsecure = anchor;
       else {
+
          printmsg(0,"InitEntry: Duplicate user id in %s, LOGNAME=%s",
                      fname, logname );
          success = KWFalse;
+
       } /* else */
+
    } /* if (logname != NULL) */
 
 /*--------------------------------------------------------------------*/
@@ -394,9 +421,11 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 /*--------------------------------------------------------------------*/
 
    token = machine;
+
    while( token != NULL )
    {
       char *host = strtok( token, ":");
+
       printmsg(10,"InitEntry: Processing machine=%s", host );
 
       token = strtok( NULL, "");
@@ -410,23 +439,32 @@ static KWBoolean InitEntry( char *buf, const char *fname)
                        fname);
             success = KWFalse;
          } /* else */
+
       } /* if ( equal( host , ANY_HOST ) ) */
       else {
+
          hostp = checkreal( host );
+
          if ( hostp == BADUSER )
          {
+
             printmsg(0,"InitEntry: Invalid host id in %s, MACHINE=%s",
                         fname, host );
             success = KWFalse;
+
          } /* if ( hostp == BADUSER ) */
          else if (hostp->hsecure == NULL)
             hostp->hsecure = anchor;
          else {
+
             printmsg(0,"InitEntry: Duplicate host id in %s, MACHINE=%s",
                         fname, token );
             success = KWFalse;
+
          } /* else */
+
       } /* else */
+
    } /* while( token != NULL ) */
 
    if ( machine != NULL )
@@ -446,9 +484,11 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
          if ( hostp == BADUSER )
          {
+
             printmsg(0,"InitEntry: Invalid host id in %s, VALIDATE=%s",
                         fname, *plist);
             success = KWFalse;
+
          } /* if ( hostp == BADUSER ) */
          else
             hostp->anylogin = KWFalse;  /* Flag we must use specific
@@ -466,6 +506,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
    if ( callback != NULL )
    {
+
       if (equal(strlwr(callback),"no"))
          anchor->callback = KWFalse;
       else if (equal(callback,"yes"))
@@ -475,6 +516,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
                      fname, callback );
          success = KWFalse;
       } /* else */
+
    } /* if ( callback != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -483,6 +525,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
    if ( request != NULL )
    {
+
       if (equal(strlwr(request),"no"))
          anchor->request = KWFalse;
       else if (equal(request,"yes"))
@@ -501,15 +544,19 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
    if ( sendfiles != NULL)
    {
+
       if (equal(strlwr(sendfiles),"call"))
          anchor->sendfiles = KWFalse;
       else if (equal(sendfiles,"yes"))
          anchor->sendfiles = KWTrue;
       else {
+
          printmsg(0,"InitEntry: Invalid value in %s, SENDFILES=%s",
                      fname, sendfiles );
          success = KWFalse;
+
       } /* else */
+
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -535,8 +582,10 @@ static KWBoolean InitEntry( char *buf, const char *fname)
    if (xpubdir == NULL)
        anchor->pubdir = E_pubdir;
    else {
+
       char path[FILENAME_MAX];
       strcpy( path, xpubdir );
+
       if ( expand_path( path, E_pubdir, E_pubdir , NULL) == NULL )
       {
          printmsg(0, "Unable to expand path \"%s\"",path );
@@ -545,7 +594,8 @@ static KWBoolean InitEntry( char *buf, const char *fname)
       } /* else */
       else
          anchor->pubdir = newstr(path );
-   }
+
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                      Directory processing                          */
@@ -583,19 +633,26 @@ static KWBoolean InitEntry( char *buf, const char *fname)
       success = KWFalse;
    else {
       size_t subscript;
+
       anchor->dirlist = realloc( anchor->dirlist,
                                  anchor->dirsize * sizeof anchor->dirlist[0]);
       checkref( anchor->dirlist );
-      qsort(anchor->dirlist, anchor->dirsize, sizeof(anchor->dirlist[0]),
-               dircmp);
+
+      qsort(anchor->dirlist,
+            anchor->dirsize,
+            sizeof(anchor->dirlist[0]),
+            dircmp);
+
       if ( debuglevel > 4 )
       for ( subscript = 0; subscript < anchor->dirsize; subscript++ )
+      {
          printmsg(4, "InitEntry: dirlist[%d] %s\t%s\t%s",
                   subscript,
                   anchor->dirlist[subscript].grant ? "grant" : "deny" ,
                   anchor->dirlist[subscript].priv == ALLOW_WRITE ?
                            "WRITE" : "READ" ,
                   anchor->dirlist[subscript].path );
+      }
    } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -637,6 +694,7 @@ static size_t InitDir( char *directories,
    while ( (token = NextField( field )) != NULL)
    {
       char path[FILENAME_MAX];
+
       if ( anchor->dirsize == max_elements )
       {
          max_elements = max_elements * 2;
@@ -650,6 +708,7 @@ static size_t InitDir( char *directories,
 /*--------------------------------------------------------------------*/
 
       strcpy( path, token);
+
       if (isalpha(path[0]) && (path[1] != ':') && (strlen(path) == 2))
          ;                 /* Yup, do nothing for root drive names  */
       else if ( expand_path( path,
@@ -681,6 +740,7 @@ static size_t InitDir( char *directories,
 
       if ( strlen( field ) > 2 ) /* More than just drive/colon? (x:)  */
       {                       /* Yes --> Go check disk for path       */
+
          if (stat(field , &statbuf) != 0)
          {
             printmsg(2,"Warning ... invalid PERMISSIONS file entry %s:",
@@ -694,6 +754,7 @@ static size_t InitDir( char *directories,
                         field);
             return 0;
          }
+
       } /* if ( strlen( field ) > 2 ) */
 
 /*--------------------------------------------------------------------*/
@@ -702,12 +763,14 @@ static size_t InitDir( char *directories,
 
       for (subscript = 0; subscript < anchor->dirsize ; subscript++)
       {
+
          if ( (access == anchor->dirlist[subscript].priv) &&
               equal( field, anchor->dirlist[subscript].path))
          {
             printmsg(0,"InitDir: Duplicate directory %s/", field);
             return 0;
          } /* if */
+
       } /* for */
 
 /*--------------------------------------------------------------------*/
@@ -729,11 +792,11 @@ static size_t InitDir( char *directories,
 /*--------------------------------------------------------------------*/
 
    return max_elements;
+
 } /* InitDir */
 
 /*--------------------------------------------------------------------*/
 /*    d i r c m p                                                     */
-/*                                                                    */
 /*                                                                    */
 /*    Compares two directory structures for sorting                   */
 /*--------------------------------------------------------------------*/
@@ -749,6 +812,7 @@ int dircmp( const void *a , const void *b )
       result = ( x->priv < y->priv ) ? -1 : 1;
 
    return result;
+
 }  /*dircmp*/
 
 /*--------------------------------------------------------------------*/
@@ -875,6 +939,7 @@ KWBoolean ValidateFile( const char *input,  /* Full path name          */
       strcpy( path, input );
    else
       strcat( strcpy( path , drive ), input );
+
    strlwr( path );
 
 /*--------------------------------------------------------------------*/
@@ -884,7 +949,7 @@ KWBoolean ValidateFile( const char *input,  /* Full path name          */
    while( (column = strrchr( path, '/')) != NULL )
    {
       int lower = 0;
-      int upper = securep->dirsize - 1;
+      int upper = (int) securep->dirsize - 1;
 
       *column = '\0';
       printmsg(10,"ValidateFile: Searching for %s", path);
@@ -912,15 +977,17 @@ KWBoolean ValidateFile( const char *input,  /* Full path name          */
                                     "granted" : "denied", input);
             return securep->dirlist[midpoint].grant;
          }
+
       } /* while( lower <= upper ) */
+
    } /* while( (column = strrchr( path, '/')) != NULL ) */
 
 /*--------------------------------------------------------------------*/
 /*          We didn't find the file; reject all access to it          */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"ValidateFile: No %s access definition found for \
-\"%s\", access denied",
+   printmsg(0,"ValidateFile: No %s access definition found for "
+              "\"%s\", access denied",
             needed == ALLOW_READ ? "read" : "write" ,
             input);
    return KWFalse;
@@ -938,9 +1005,12 @@ struct HostSecurity *GetSecurity( struct HostTable *hostp)
 {
    if ((hostp->hsecure == NULL) && (default_security != NULL ))
    {
-      printmsg(2,"GetSecurity: Using security for MACHINE=OTHER for \
-system \"%s\"", hostp->hostname );
+
+      printmsg(2,"GetSecurity: Using security for MACHINE=OTHER for "
+                 "system \"%s\"", hostp->hostname );
+
       hostp->hsecure = default_security;
+
    } /* if  */
 
    return hostp->hsecure;

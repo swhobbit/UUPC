@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.10 1994/12/27 23:36:37 ahd Exp $
+  *   $Id: hostable.h 1.11 1995/01/07 16:15:48 ahd Exp $
   *
   *   $Log: hostable.h $
+  *   Revision 1.11  1995/01/07 16:15:48  ahd
+  *   Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+  *
   *   Revision 1.10  1994/12/27 23:36:37  ahd
   *   Allow hostable.h, usertable.h to be included without others
   *
@@ -150,13 +153,13 @@ struct HostTable *searchname(const char *name, const size_t namel);
 #define checkname(host) checkName(host, __LINE__, cfnptr )
 
 struct HostTable *checkName(const char *name,
-                            const int line,
+                            const size_t line,
                             const char *function);
 
 #define checkreal(host) checkReal(host, __LINE__, cfnptr )
 
 struct HostTable *checkReal(const char *name,
-                            const int line,
+                            const size_t line,
                             const char *function);
 
 struct HostTable *nexthost( const KWBoolean start );

@@ -25,10 +25,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.8 1995/01/22 04:16:52 ahd Exp $
+ *    $Id: batch.c 1.9 1995/01/29 13:57:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.9  1995/01/29 13:57:34  ahd
+ *    Only rewrite list of files to batch at end of processing
+ *    Use imfile for rewrite of list of files
+ *    Break functionality out of process_batch to reduce size
+ *
  *    Revision 1.8  1995/01/22 04:16:52  ahd
  *    Add batching message
  *
@@ -579,7 +584,7 @@ void process_batch(const struct sys *node,
         printmsg(2,"process_batch: Underlength batch "
                    "of %ld bytes in %ld articles deferred for %s",
                    batchLength,
-                   acticleCount,
+                   articleCount,
                    system );
 
 /*--------------------------------------------------------------------*/

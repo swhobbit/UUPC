@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.2 1995/01/08 19:54:01 ahd Exp $
+ *    $Id: imfile.h 1.3 1995/01/28 22:08:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.3  1995/01/28 22:08:30  ahd
+ *    Add chsize function
+ *
  *    Revision 1.2  1995/01/08 19:54:01  ahd
  *    Add in-memory files to RMAIL
  *
@@ -43,10 +46,10 @@ typedef struct _IMFILE
    char UUFAR *buffer;
    FILE *stream;
    char *filename;
-   long length;
-   long inUse;
-   long position;
-   char flag;
+   unsigned long length;
+   unsigned long inUse;
+   unsigned long position;
+   unsigned int  flag;
 
 } IMFILE;
 
