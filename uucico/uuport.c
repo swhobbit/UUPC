@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.1 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: uuport.c 1.2 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
- *    $Log: suspend2.c $
+ *    $Log: uuport.c $
+ * Revision 1.2  1993/09/29  04:49:20  ahd
+ * Use standard port name
+ *
  */
 
 /* see uucico\suspend2.c for description */
@@ -121,9 +124,8 @@ int main(int argc, char **argv)
       return 1;
     }
 
-    *ptr = 0;
+    *ptr++ = '\0';
     strcpy(pipe, name);
-    *ptr++;
     strcat(pipe, SUSPEND_PIPE );
     strcat(pipe, ptr);
   }
