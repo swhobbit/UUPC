@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.11 1994/01/01 19:22:49 ahd Exp $
+ *    $Id: dcp.h 1.12 1994/01/24 03:05:48 ahd Exp $
  *
  *    $Log: dcp.h $
+ * Revision 1.12  1994/01/24  03:05:48  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.11  1994/01/01  19:22:49  ahd
  * Annual Copyright Update
  *
@@ -85,6 +88,8 @@ typedef enum {
       CONN_CLIENT,            /* Process files after being called    */
       CONN_TERMINATE,         /* Terminate procotol                  */
       CONN_DROPLINE,          /* Hangup the telephone                */
+      CONN_CLEANUP,           /* Cleanup after line termination      */
+      CONN_UUXQT,             /* Execute UUXQT                       */
       CONN_WAIT,              /* Wait until told to continue         */
       CONN_EXIT }             /* Exit state machine loop             */
       CONN_STATE ;
