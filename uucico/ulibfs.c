@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.14 1995/03/24 04:17:22 ahd v1-12q $
+ *    $Id: ulibfs.c 1.15 1996/01/01 21:22:49 ahd v1-12r $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.15  1996/01/01 21:22:49  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *
@@ -159,6 +162,7 @@ int fopenline(char *name, BPS baud, const KWBoolean direct)
    traceStart( name );        /* Enable line tracing                  */
 
    getDriverInfo( &fossilData );
+   fossilInfoTrace( "fopenline", &fossilData );
 
    printmsg(4,"fopenline: Driver: %Fs (revision %d)",
                     fossilData.id,
@@ -209,7 +213,7 @@ unsigned int fsread(char UUFAR *buffer,
 
          if ( moved < wanted)                /* Promised data delivered?  */
          {                                   /* NO --> Panic (literally)  */
-            printmsg(0,"fsread: Read failed at %d of %d bytes"
+            printmsg(0,"fsread: Read failed at %d of %d bytes "
                        "(%d bytes available)",
                         moved,
                         wanted,
@@ -246,9 +250,9 @@ unsigned int fsread(char UUFAR *buffer,
 
       }  /* if ( terminate_processing ) */
 
-      if ( fossilData.inputSize < (int) wanted )   /* Sanity check this ...  */
+      if ( fossilData.inputSize < wanted )   /* Sanity check this ...  */
       {                                      /* last for performance reasons.  */
-         printmsg(0,"fsread: FOSSIL queue too small (%d bytes) to"
+         printmsg(0,"fsread: FOSSIL queue too small (%d bytes) to "
                     "satisfy read of %d bytes",
                     fossilData.inputSize , wanted );
          panic();
@@ -300,6 +304,7 @@ int fswrite(const char UUFAR *data, unsigned int queued)
 /*--------------------------------------------------------------------*/
 
    getDriverInfo( &fossilData );
+   fossilInfoTrace( "fswrite", &fossilData );
 
    total = moved;
    queued -= moved;                 /* We only need to still move this  */
@@ -314,9 +319,9 @@ int fswrite(const char UUFAR *data, unsigned int queued)
    while( spin && queued )
    {
       int wait;
-      int needed;
+      size_t needed;
 
-      needed = max(fossilData.outputSize / 2, (int) queued );
+      needed = max(fossilData.outputSize / 2, queued );
                            /* Minimize thrashing by requiring
                               big chunks */
 
@@ -570,27 +575,54 @@ static void showModem( const short status )
 /*       Return current FOSSIL driver information                     */
 /*--------------------------------------------------------------------*/
 
+#ifdef __TURBOC__
+
 static void getDriverInfo( FS_INFO *fossilData)
 {
-   union REGS regs;
+   union REGS regsIn;
+   union REGS regsOut;
    struct SREGS sregs;
 
-   regs.h.ah = FS_DRIVINFO;            /* Get driver information      */
-   regs.x.cx = sizeof *fossilData;     /* Into buffer this long        */
-   sregs.es  = FP_SEG( fossilData );   /* Use segment of buffer        */
-   regs.x.di = FP_OFF( fossilData );   /* Use offset of buffer        */
-   regs.x.dx = portNum;                /* For this port               */
+#ifdef UDEBUG
+   memset( fossilData, 0x00, sizeof *fossilData );
+#endif
 
-   int86x( FS_INTERRUPT, &regs, &regs, &sregs);
+   regsIn.h.ah = FS_DRIVINFO;            /* Get driver information      */
+   regsIn.x.cx = sizeof *fossilData;     /* Into buffer this long       */
+   sregs.es  = FP_SEG( fossilData );   /* Use segment of buffer       */
+   regsIn.x.di = FP_OFF( fossilData );   /* Use offset of buffer        */
+   regsIn.x.dx = portNum;                /* For this port               */
 
-   if ( regs.x.ax != sizeof *fossilData )
+   int86x( FS_INTERRUPT, &regsIn, &regsOut, &sregs);
+
+   if ( regsOut.x.ax != sizeof *fossilData )
    {
       printmsg(0,"getDriverInfo: Read of FOSSIL information failed, "
-                 " %d bytes returned", regs.x.ax  );
+                 " %d bytes returned", regsOut.x.ax  );
       panic();
    }
 
 } /* getDriverInfo */
+
+#else
+static void getDriverInfo( FS_INFO *fossilData)
+{
+   static fossilSize = sizeof *fossilData;
+
+   _asm \
+   {
+      push  es
+      mov   ah,FS_DRIVINFO
+      mov   cx,fossilSize
+      push  ds
+      pop   es
+      mov   di,fossilData
+      mov   dx,portNum
+      int   FS_INTERRUPT   ;
+      pop   es
+   }
+} /* getDriverInfo */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       b l o c k I O                                                */
