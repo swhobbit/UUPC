@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.9 1993/10/31 19:04:03 ahd Exp $
+ *    $Id: mailsend.c 1.10 1993/11/13 17:43:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.10  1993/11/13  17:43:26  ahd
+ * Normalize external command processing
+ *
  * Revision 1.9  1993/10/31  19:04:03  ahd
  * Trap no subject after subject (-s) flag when sending mail
  *
@@ -780,7 +783,7 @@ static boolean Subcommand( char *buf,
          case 'e':
             /* invoke editor with current msg */
             fclose(fmailbag);
-            Invoke(E_editor, tmailbag, bflag[F_NEWPAGERSESSION] );
+            Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
