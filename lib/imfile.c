@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.23 1997/03/31 06:59:57 ahd Exp $
+ *    $Id: imfile.c 1.24 1997/04/24 00:56:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.24  1997/04/24 00:56:54  ahd
+ *    Add free of internal I/O buffer when blasting to disk
+ *
  *    Revision 1.23  1997/03/31 06:59:57  ahd
  *    Annual Copyright Update
  *
@@ -992,14 +995,9 @@ int executeIMFCommand( const char *command,
 
    mktempname( tempName, "TMP" );
 
-   if ( imf->flag & IM_FLAG_TEXT )
-      stream = FOPEN( imf->filename,
-                           "w+",
-                           TEXT_MODE );
-   else
-      stream = FOPEN( imf->filename,
-                           "w+",
-                           IMAGE_MODE );
+   stream = FOPEN( tempName,
+                   "w+",
+                   TEXT_MODE );
 
    if ( stream == NULL )
    {
