@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.29 1995/02/12 23:39:45 ahd Exp $
+ *    $Id: uutypes.h 1.30 1995/02/20 17:30:32 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.30  1995/02/20 17:30:32  ahd
+ *    16 bit compiler warning cleanup
+ *
  *    Revision 1.29  1995/02/12 23:39:45  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -136,6 +139,7 @@
 #define MEMMOVE(t,s,l) memmove(t,s,l)
 #define MALLOC(l)      malloc(l)
 #define REALLOC(p,l)   realloc(p,l)
+#define FREE(p)        free(p)
 #else
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
@@ -143,6 +147,7 @@
 #define MEMMOVE(t,s,l) _fmemmove(t,s,l)
 #define MALLOC(l)      _fmalloc(l)
 #define REALLOC(p,l)   _frealloc(p,l)
+#define FREE(p)        _ffree(p)
 #endif
 
 /*--------------------------------------------------------------------*/
