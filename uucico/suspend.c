@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.7 1994/05/04 02:03:11 ahd Exp $
+ *    $Id: suspend.c 1.8 1994/05/04 18:32:49 kewms Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *        Revision 1.8  1994/05/04  18:32:49  kewms
+ *        Pretend we successfully initialized for suspending
+ *
  *        Revision 1.7  1994/05/04  02:03:11  ahd
  *        Add (fake) error return
  *
@@ -124,3 +127,14 @@ CONN_STATE suspend_wait(void)
 {
   return CONN_EXIT;
 }
+
+/*--------------------------------------------------------------------*/
+/*       s u s p e n d _ r e a d y                                    */
+/*                                                                    */
+/*       Notify pipe we are ready to suspend                          */
+/*--------------------------------------------------------------------*/
+
+void suspend_ready(void)
+{
+   // No operation under DOS or Windows for now
+} /* suspend_ready */

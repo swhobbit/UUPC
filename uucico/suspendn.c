@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.4 1994/05/01 21:59:06 dmwatt Exp $
+ *    $Id: suspendn.c 1.5 1994/10/23 23:29:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *        Revision 1.5  1994/10/23  23:29:44  ahd
+ *        Better control of suspension of processing
+ *
  *        Revision 1.4  1994/05/01  21:59:06  dmwatt
  *        Trap errors from failure of suspend_init to create pipe
  *
@@ -488,4 +491,16 @@ CONN_STATE suspend_wait(void)
    } else {
       return CONN_INITIALIZE;
    }
+
 } /* suspend_wait */
+
+/*--------------------------------------------------------------------*/
+/*       s u s p e n d _ r e a d y                                    */
+/*                                                                    */
+/*       Notify pipe we are ready to suspend                          */
+/*--------------------------------------------------------------------*/
+
+void suspend_ready(void)
+{
+   // No operation under Windows NT for now
+} /* suspend_ready */

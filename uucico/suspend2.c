@@ -23,10 +23,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.14 1994/10/23 23:29:44 ahd Exp Software $
+ *    $Id: suspend2.c 1.15 1994/10/24 23:40:36 rommel Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *        Revision 1.15  1994/10/24  23:40:36  rommel
+ *        Prevent suspend processing hanging from rapid closing and opening
+ *        of the same file.
+ *
  *        Revision 1.14  1994/10/23  23:29:44  ahd
  *        Better control of suspension of processing
  *
@@ -269,20 +273,20 @@ static VOID FAR SuspendThread(VOID)
 #ifdef BIT32ENV
             DosPostEventSem(semWait);
 
-	    rc = DosResetEventSem(semReady, &postCount);
-	    if (rc)
-	      printOS2error( "DosResetEventSem", rc);
+            rc = DosResetEventSem(semReady, &postCount);
+            if (rc)
+              printOS2error( "DosResetEventSem", rc);
 
-	    rc = DosWaitEventSem(semReady, 20000);
-	    if (rc)
-	      printOS2error( "DosWaitEventSem", rc);
+            rc = DosWaitEventSem(semReady, 20000);
+            if (rc)
+              printOS2error( "DosWaitEventSem", rc);
 
 #else
             DosSemClear(&semWait);
 
-	    rc = DosSemSetWait(&semReady, 20000);
-	    if (rc)
-	      printOS2error( "DosSemSetWait", rc);
+            rc = DosSemSetWait(&semReady, 20000);
+            if (rc)
+              printOS2error( "DosSemSetWait", rc);
 #endif
             nChar = SUSPEND_OKAY;
 
@@ -749,7 +753,7 @@ void suspend_ready(void)
 {
    APIRET rc;
 
-   printmsg(1,"suspend_ready: Port %s in use", portName );
+   printmsg(2,"suspend_ready: Port %s in use", portName );
 
 #ifdef BIT32ENV
    rc = DosPostEventSem(semReady);
