@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.21 1994/04/27 00:02:15 ahd Exp $
+ *       $Id: ulibnt.c 1.22 1994/05/02 11:38:04 dmwatt Exp $
  *       $Log: ulibnt.c $
+ *        Revision 1.22  1994/05/02  11:38:04  dmwatt
+ *        Correct compiler error introduced by hot handle support
+ *
  *        Revision 1.21  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -221,19 +224,25 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
+
    hComEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-   if (hComEvent == INVALID_HANDLE_VALUE) {
+
+   if (hComEvent == INVALID_HANDLE_VALUE)
+   {
       printNTerror("CreateEvent", GetLastError());
       panic();
    }
 
-   hCom = CreateFile( name,
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        FILE_FLAG_OVERLAPPED,
-        NULL);
+   if ( hCom == INVALID_HANDLE_VALUE)
+   {
+      hCom = CreateFile( name,
+           GENERIC_READ | GENERIC_WRITE,
+           0,
+           NULL,
+           OPEN_EXISTING,
+           FILE_FLAG_OVERLAPPED,
+           NULL);
+
 
 /*--------------------------------------------------------------------*/
 /*    Check the open worked.  We translation the common obvious       */
@@ -241,11 +250,14 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*    report the raw error code.                                      */
 /*--------------------------------------------------------------------*/
 
-   if (hCom == INVALID_HANDLE_VALUE) {
-       dwError = GetLastError();
-       printmsg(0, "nopenline: OpenFile error on port %s", name);
-       printNTerror("nopenline", dwError);
-       return TRUE;
+      if (hCom == INVALID_HANDLE_VALUE)
+      {
+          dwError = GetLastError();
+          printmsg(0, "nopenline: OpenFile error on port %s", name);
+          printNTerror("nopenline", dwError);
+          return TRUE;
+      }
+
    }
 
 /*--------------------------------------------------------------------*/
@@ -284,7 +296,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                           Set baud rate                            */
 /*--------------------------------------------------------------------*/
 
-   SIOSpeed(baud);
+   if ( baud )
+      SIOSpeed(baud);
 
 /*--------------------------------------------------------------------*/
 /*                        Set line attributes                         */

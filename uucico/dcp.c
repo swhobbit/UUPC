@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.30 1994/05/04 01:56:22 ahd Exp $
+ *    $Id: dcp.c 1.31 1994/05/04 23:36:34 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.31  1994/05/04  23:36:34  ahd
+ *        Trap missing modem file
+ *
  *        Revision 1.30  1994/05/04  01:56:22  ahd
  *        Clean up title messages
  *
@@ -643,7 +646,10 @@ static boolean client( const time_t exitTime,
    if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
       panic();                /* Avoid loop if bad modem name       */
 
-   if ( ! IsNetwork() && ! suspend_init(M_device))
+   if ( ! IsNetwork() &&
+        ( hotUser == NULL ) &&
+        (hotHandle == -1 ) &&
+        ! suspend_init(M_device))
    {
       printmsg(0,"Unable to set up pipe for suspending; "
                  "is another UUCICO running?" );

@@ -17,8 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.39 1994/03/09 04:17:41 ahd Exp $
+ *       $Id: ulibos2.c 1.40 1994/04/27 00:02:15 ahd Exp $
  *       $Log: ulibos2.c $
+ *        Revision 1.40  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.39  1994/03/09  04:17:41  ahd
  * Correct query of port speed under 32 bit API
  *
@@ -252,28 +256,34 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
       panic();
    }
 
+   if ( commHandle == -1 )
+   {
+
 /*--------------------------------------------------------------------*/
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
 
-   rc = DosOpen( name,
-                 &commHandle,
-                 &action,
-                 0L,
-                 0 ,
-                 FILE_OPEN ,
-                 OPEN_FLAGS_FAIL_ON_ERROR |
-                 OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYREADWRITE, 0L );
+      rc = DosOpen( name,
+                    &commHandle,
+                    &action,
+                    0L,
+                    0 ,
+                    FILE_OPEN ,
+                    OPEN_FLAGS_FAIL_ON_ERROR |
+                    OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYREADWRITE,
+                    0L );
 
 /*--------------------------------------------------------------------*/
 /*                       Check the open worked.                       */
 /*--------------------------------------------------------------------*/
 
-   if ( rc )
-   {
-      printOS2error( name, rc );
-      return TRUE;
-   }
+      if ( rc )
+      {
+         printOS2error( name, rc );
+         return TRUE;
+      }
+
+   } /* if ( commHandle == -1 ) */
 
 /*--------------------------------------------------------------------*/
 /*            Reset any errors on the communications port             */
@@ -532,7 +542,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
    ddelay(500);            /* Allow port to stablize          */
    return 0;
 
-} /*nopenline*/
+} /* nopenline */
 
 /*--------------------------------------------------------------------*/
 /*    n s r e a d                                                     */
@@ -1054,6 +1064,7 @@ void ncloseline(void)
 /*--------------------------------------------------------------------*/
 
    rc = DosClose( commHandle );
+   commHandle = -1;
 
    if ( rc != 0 )
       printOS2error( "DosClose", rc );

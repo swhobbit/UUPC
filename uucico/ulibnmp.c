@@ -17,8 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.18 1994/02/19 05:12:04 ahd Exp $
+ *       $Id: ulibnmp.c 1.19 1994/04/27 00:02:15 ahd Exp $
  *       $Log: ulibnmp.c $
+ *        Revision 1.19  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.18  1994/02/19  05:12:04  ahd
  * Use standard first header
  *
@@ -198,7 +202,8 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
          printOS2error(pipeName, rc );
          return TRUE;
       }
-   }
+
+   } /* if ( pipeHandle == -1 ) */
 
 /*--------------------------------------------------------------------*/
 /*                           Set baud rate                            */
