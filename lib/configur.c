@@ -24,10 +24,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.6 1993/03/06 22:48:23 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\CONFIGUR.C 1.7 1993/04/04 04:57:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.7  1993/04/04  04:57:01  ahd
+ *     Default configuration directory from UUPCSYSRC
+ *     Default system directories from Configuration directory
+ *
  *     Revision 1.6  1993/03/06  22:48:23  ahd
  *     Don't fall off end of shorter tables
  *
@@ -67,6 +71,7 @@
 #include "lib.h"
 #include "hlib.h"
 #include "timestmp.h"
+#include "pushpop.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -583,6 +588,25 @@ boolean configure( CONFIGBITS program)
         } ;
 
 /*--------------------------------------------------------------------*/
+/*     In Windows/NT, set the console input mode to non-linebased     */
+/*--------------------------------------------------------------------*/
+
+#ifdef WIN32
+   setstdinmode();
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                         Set our time zone                          */
+/*--------------------------------------------------------------------*/
+
+   if (getenv("TZ") == NULL )
+   {
+      printmsg(0,"Environment variable TZ must be set!");
+      panic();
+   }
+   tzset();                      /* Set up time zone information  */
+
+/*--------------------------------------------------------------------*/
 /*                  Determine the active environment                  */
 /*--------------------------------------------------------------------*/
 
@@ -628,7 +652,6 @@ boolean configure( CONFIGBITS program)
 
    *s = '\0';                          // Terminate for Config Directory
    E_confdir = newstr( E_confdir );    // Save in permanent pool
-   printmsg(5,"Configuration directory is %s", E_confdir );
 
 /*--------------------------------------------------------------------*/
 /*               Process the system configuration file                */
@@ -641,10 +664,16 @@ boolean configure( CONFIGBITS program)
       return FALSE;
    }
 
+   PushDir( E_confdir );
+
    success = getconfig(fp, SYSTEM_CONFIG, program, envtable, configFlags);
+
    fclose(fp);
    if (!success)
+   {
+      PopDir();
       return FALSE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                Process the user configuration value                */
@@ -652,23 +681,23 @@ boolean configure( CONFIGBITS program)
 
    if (usrrc != nil(char))
    {
-      if ((strchr( usrrc , '/' ) == NULL ) &&   // Have a path?
-          (strchr( usrrc , '\\' ) == NULL ))
-      {                                         // No --> Give it one
-         mkfilename( buf, E_confdir , usrrc );  // Default is Config Dir
-         usrrc = buf;               // Point at new (full) User Rc file
-      }
-
+      usrrc = normalize( usrrc );
       if ((fp = FOPEN(usrrc, "r", TEXT)) == nil(FILE))
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
+         PopDir();
          return FALSE;
       }
 
       success = getconfig(fp, USER_CONFIG, program, envtable, configFlags);
       fclose(fp);
+
       if (!success)
+      {
+         PopDir();
          return FALSE;
+      }
+
    }
 
 /*--------------------------------------------------------------------*/
@@ -708,13 +737,12 @@ boolean configure( CONFIGBITS program)
    while( deflist[subscript].value != NULL )
    {
       if ( *(deflist[subscript].value) == NULL )
-      {
-         mkfilename( buf, E_confdir, deflist[subscript].literal);
-         *(deflist[subscript].value) = newstr( buf );
-      }
+         *(deflist[subscript].value) =
+                     newstr( normalize(deflist[subscript].literal ) );
       subscript++;
    }
 
+   PopDir();
    return success;
 
 } /*configure*/
