@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.42 1996/01/01 20:50:52 ahd v1-12r $
+ *    $Id: execute.c 1.43 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.43  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.42  1996/01/01 20:50:52  ahd
  *    Annual Copyright Update
  *
@@ -487,13 +492,11 @@ int execute( const char *command,
          strcat( path, parameters );
       }
 
-      setTitle(path);
       result = system( path );
-      setTitle( NULL);
 
    } /* if (internal(command)) */
    else if ( ! *path )
-      result = -3;            /* Flag we never ran command         */
+      result = -3;                  /* Flag we never ran command     */
    else {
 
 #if defined(WIN32) || defined(__OS2__) || defined(FAMILYAPI)
@@ -518,6 +521,8 @@ int execute( const char *command,
 #endif
 
    } /* else */
+
+   setTitle( NULL);                 /* Restore previous title      */
 
 /*--------------------------------------------------------------------*/
 /*                  Re-open our standard i/o streams                  */
