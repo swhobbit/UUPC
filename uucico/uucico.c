@@ -34,6 +34,10 @@
 #include "timestmp.h"
 #include "catcher.h"
 
+#if defined(_Windows)
+#include "winutil.h"
+#endif
+
 #ifdef WIN32
 #include "win32.h"
 #endif
@@ -55,6 +59,18 @@ void main( int argc, char *argv[])
 /*--------------------------------------------------------------------*/
 
    banner( argv );
+
+#if defined(_Windows)
+
+   //
+   // Find our task handle and TCWIN "EasyWin" window handle
+   //
+   hOurTask = GetCurrentTask();
+   hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
+   SetWindowText(hOurWindow, "uucico");
+   atexit(CloseEasyWin);       // Auto-close EasyWin window on exit
+
+#endif
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
