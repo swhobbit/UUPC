@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.h 1.10 1995/08/27 23:33:26 ahd v1-12q $
+ *    $Id: active.h 1.11 1995/12/12 13:51:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.h $
+ *    Revision 1.11  1995/12/12 13:51:10  ahd
+ *    Use true recursive function to talk active group tree
+ *
  *    Revision 1.10  1995/08/27 23:33:26  ahd
  *    Load and use ACTIVE file as tree structure
  *
