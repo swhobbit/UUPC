@@ -24,10 +24,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.13 1995/02/22 01:32:17 ahd v1-12n $
+ *    $Id: batch.c 1.14 1995/03/11 01:59:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.14  1995/03/11 01:59:57  ahd
+ *    Add batch length debugging information
+ *    Delete uncompressed data before queuing compressed data via UUX
+ *    thus requring less work space.
+ *
  *    Revision 1.13  1995/02/22 01:32:17  ahd
  *    Correct check for non-existant files
  *
@@ -93,6 +98,7 @@
 #include "batch.h"
 #include "execute.h"
 #include "imfile.h"
+#include "stater.h"
 #include "sys.h"
 
 currentfile();
