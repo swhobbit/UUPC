@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.1 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: sys.h 1.2 1995/01/02 05:04:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.2  1995/01/02 05:04:57  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.1  1994/12/31 03:51:25  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -31,6 +34,7 @@
 
 typedef struct sys
 {
+   long        processed;     /* Number of articles processed        */
    long        excl_from;
    long        excl_to;
 
@@ -74,6 +78,6 @@ void    exit_sys(void);
 
 extern struct sys *sys_list;
 
-#define OUTGOING_NEWS "out.go"   /* It would be out.going on UNIX or HPFS  */
+#define OUTGOING_NEWS "going.out"   /* It would be out.going on UNIX or HPFS  */
 
 #endif /* _SYS_H */
