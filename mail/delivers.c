@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.8 1997/12/14 00:43:16 ahd Exp $
+ *       $Id: delivers.c 1.9 1997/12/14 02:46:03 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.9  1997/12/14 02:46:03  ahd
+ *       Correct formatting of delivery message
+ *
  *       Revision 1.8  1997/12/14 00:43:16  ahd
  *       Further cleanup of new sender protocol
  *
@@ -88,7 +91,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.8 1997/12/14 00:43:16 ahd Exp $");
+RCSID("$Id: delivers.c 1.9 1997/12/14 02:46:03 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -615,6 +618,7 @@ ConnectSMTP(
 {
    static const char mName[] = "ConnectSMTP";
    char    buf[BUFSIZ];
+   char    *s;
    int     rep;
    int     subscript = 0;
    size_t  successes = 0;
@@ -669,13 +673,20 @@ ConnectSMTP(
             (sender->relay == NULL) ? "*local*" : sender->relay );
 #endif
 
+   strcpy( buf, "MAIL From: ");
+   s = buf + strlen( buf );
+
    /* Reformat as RFC-822 only if needed */
-   if (strchr( sender->address , '@' ) != NULL )
-      sprintf(buf, "MAIL From: <%s>", sender->address );
+   if (equal( sender->address , "<>" )       ||
+       equali(sender->user, "mailer-daemon") ||
+       equali(sender->user, "uucp" ))
+      strcpy( s, "<>" );            /* Special postmaster address    */
+   else if (strchr( sender->address , '@' ) != NULL )
+      sprintf(s, "<%s>", sender->address );
    else if (strchr(sender->host, '.' ) != NULL)
-      sprintf(buf, "MAIL From: <%s@%s>", sender->user, sender->host );
+      sprintf(s, "<%s@%s>", sender->user, sender->host );
    else
-      sprintf(buf, "MAIL From: <%s@%s>", sender->address, E_domain );
+      sprintf(s, "<%s@%s>", sender->address, E_domain );
 
   if (! SendSMTPCmdCheckReply(buf, 250))
   {
