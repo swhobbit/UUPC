@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.16 1993/09/29 23:29:56 ahd Exp $
+ *    $Id: uuxqt.c 1.17 1993/10/03 20:43:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.17  1993/10/03  20:43:08  ahd
+ * Normalize comments to C++ double slash
+ *
  * Revision 1.16  1993/09/29  23:29:56  ahd
  * Add xqtrootdir for UUXQT
  *
@@ -919,13 +922,14 @@ static int shell(char *command,
       {
 
          boolean firstPass = TRUE;
+         int left = 0;
 
 #if defined(__OS2__) || defined(WIN32)
-         size_t rlen =  254 ;
+         int rlen =  254 ;
 #elif defined(__TURBOC__)
-         size_t rlen =  126 ;
+         int rlen =  126 ;
 #else
-         size_t rlen = (_osmode == DOS_MODE) ? 126 :  254;
+         int rlen = (_osmode == DOS_MODE) ? 126 :  254;
 #endif
 
 #ifdef _Windows
@@ -946,8 +950,9 @@ static int shell(char *command,
 /*                   Copy addresses into the buffer                   */
 /*--------------------------------------------------------------------*/
 
-         while ((parameters != NULL) &&
-                ((rlen - strlen( parameters)) > 0))
+         left = rlen - strlen( parameters );
+
+         while ((parameters != NULL) && (left > 0))
          {
             char *next = strtok( NULL, "");
 
@@ -973,8 +978,13 @@ static int shell(char *command,
 
          if (firstPass)       // Did we process at least one addr?
          {                    // No --> Serious problem!
-            printmsg(0,"shell: address \"%s\" too long to process!",
-                        parameters );
+            printmsg(0,
+                     "Address \"%s\" too long (%d chars)!  %d available, short fall would be %d",
+                      parameters,
+                      strlen(parameters),
+                      rlen,
+                      left );
+
             panic();
          } /* if (*buf = '\0') */
 
