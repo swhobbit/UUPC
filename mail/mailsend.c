@@ -710,6 +710,15 @@ static boolean Subcommand( char *buf,
    {
       switch(buf[1])
       {
+
+/*--------------------------------------------------------------------*/
+/*                     Treat as normal data line                      */
+/*--------------------------------------------------------------------*/
+
+         case '~':
+            memmove( buf, buf + 1, strlen( buf + 1 ));
+            return FALSE;        // Treat as normal line
+
 /*--------------------------------------------------------------------*/
 /*              Put signature file into current message               */
 /*--------------------------------------------------------------------*/
@@ -874,6 +883,7 @@ static boolean Subcommand( char *buf,
    } /* if */
    else
       return FALSE;           /* It wasn't a sub-command             */
+
 } /*SubCommand*/
 
 /*--------------------------------------------------------------------*/
