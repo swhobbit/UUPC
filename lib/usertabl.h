@@ -1,13 +1,26 @@
+/*--------------------------------------------------------------------*/
+/*       u s e r t a b l .h                                           */
+/*                                                                    */
+/*       Routines included in usertabl.c                              */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
-   u s e r t a b l .h
-
-   routines included in usertabl.c
-
-   Copyright (c) 1989, 1990  Andrew H. Derbyshire
-
-   Update History:
-
-   18Mar90     Create from router.c                                  ahd
+ *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
  */
 
 #ifndef __USERTABL
@@ -25,8 +38,8 @@ struct  UserTable {
       struct HostSecurity *hsecure; /* Pointer to security information */
    };
 
-extern struct UserTable *users;         /* Public to allow router.c to use it */
-extern size_t UserElements;            /* Public to allow router.c to use it */
+extern struct UserTable *users;        /* Public to allow alias.c to use it */
+extern size_t userElements;            /* Public to allow alias.c to use it */
 
 struct UserTable *checkuser ( const char *user );
 
