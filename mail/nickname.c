@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.13 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: alias.c 1.14 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.14  1994/02/28  01:02:06  ahd
+ * Cosmetic formatting cleanups
+ *
  * Revision 1.13  1994/02/20  19:07:38  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -148,10 +151,14 @@ void ExtractName(char *result, const char *input)
 
       recursion++;
 
+#ifdef UDEBUG
+   printmsg(15,"ExtractName: Return address is %p", result );
+#endif
+
       printmsg((recursion > 2) ? 1 : 8,
             "ExtractName: Getting name from '%s'",input);
 
-      ExtractAddress(result, input, TRUE);   /* Get the full name     */
+      ExtractAddress(result, input, FULLNAMEONLY);   /* Get the full name     */
 
       if (!strlen(result))       /* Did we get the name?              */
       {                          /* No --> Get the e-mail address     */
@@ -160,7 +167,7 @@ void ExtractName(char *result, const char *input)
          char node[MAXADDR];
          char *fullname;
 
-         ExtractAddress(addr, input, FALSE);
+         ExtractAddress(addr, input, ADDRESSONLY);
 
          user_at_node(addr, path, node, result);
                                  /* Reduce address to basics */

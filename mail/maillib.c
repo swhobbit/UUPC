@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.13 1994/02/25 03:17:43 ahd Exp $
+ *    $Id: maillib.c 1.14 1994/02/28 01:02:06 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.14  1994/02/28  01:02:06  ahd
+ * Cosmetic formatting cleanups
+ *
  * Revision 1.13  1994/02/25  03:17:43  ahd
  * Allow configurable ignore and reply to search lists
  * Insert X-previous- in front of aged resent- headers when doing
@@ -103,8 +106,8 @@ static char *noResentList[] =
        {
          "Message-ID:",
          "Received:",
-         "From " ,
-         "Precedence: " ,
+         "From ",
+         "Precedence: ",
          "Path: ",
          "References: ",
          NULL
@@ -165,7 +168,7 @@ boolean Pager(const int msgnum,
       long nextloc = letters[msgnum + 1].adr;
       boolean exit  = FALSE;        /* Flag for PRE-MATURE exit   ahd   */
 
-      fseek(fmailbox, letters[msgnum].adr , SEEK_SET);
+      fseek(fmailbox, letters[msgnum].adr, SEEK_SET);
 
       if ( reset )
          ClearScreen();
@@ -207,19 +210,21 @@ boolean Pager(const int msgnum,
                   else
                      entry++;
                } /* while */
+
             } /* case ignoresome */
+
          } /* switch */
-         if (received != seperators)
-            if (equal(buf,"\n"))
+
+         if ((received != seperators) && equal(buf,"\n"))
                received = seperators;
 
-         if (print)
-            if (PageLine(buf))         /* Exit if the user hits Q    */
+         if (print && PageLine(buf))   /* Exit if the user hits Q    */
                exit = TRUE;
+
       } /* while */
 
-      if (equal(buf,"\n") && (!exit))                 /* ahd   */
-         putchar('\n');                               /* ahd   */
+      if (equal(buf,"\n") && (!exit))
+         putchar('\n');
 
    } /* else */
 
@@ -404,7 +409,7 @@ boolean CopyMsg(const int msgnum,
 /*              Now position to the front of the letter               */
 /*--------------------------------------------------------------------*/
 
-   fseek(fmailbox, letters[msgnum].adr , SEEK_SET);
+   fseek(fmailbox, letters[msgnum].adr, SEEK_SET);
    nextloc = letters[msgnum + 1].adr;
 
    while (ftell(fmailbox) < nextloc &&
@@ -475,27 +480,27 @@ boolean CopyMsg(const int msgnum,
 
          if ( printX )
          {
-            if ( fputs("X-Previous-" , f ) == EOF )
+            if ( fputs("X-Previous-", f ) == EOF )
             {
                printerr( "CopyMsg" );
                panic();
-            } /* if ( fputs(INDENT , f ) == EOF ) */
+            } /* if ( fputs(INDENT, f ) == EOF ) */
 
          } /* if ( printX ) */
          else if (indent)
          {
-            if ( fputs(INDENT , f ) == EOF )
+            if ( fputs(INDENT, f ) == EOF )
             {
                printerr( "CopyMsg" );
                panic();
-            } /* if ( fputs(INDENT , f ) == EOF ) */
+            } /* if ( fputs(INDENT, f ) == EOF ) */
          } /* if (indent) */
 
-         if ( fputs(buf , f ) == EOF )
+         if ( fputs(buf, f ) == EOF )
          {
             printerr( "CopyMsg" );
             panic();
-         } /* if ( fputs(buf , f ) == EOF ) */
+         } /* if ( fputs(buf, f ) == EOF ) */
 
       } /* if (print) */
 
@@ -546,6 +551,7 @@ boolean RetrieveLine(const long adr,
    size_t count;
 
    *line = '\0';              /* Insure nothing to find              */
+
    if (adr == MISSING)        /* No information to read?             */
       return FALSE;           /* Report this to caller               */
 
@@ -579,7 +585,7 @@ boolean RetrieveLine(const long adr,
 /*    of each line as we go                                           */
 /*--------------------------------------------------------------------*/
 
-   while( (cp = strchr(cp , '\n')) != NULL )
+   while( (cp = strchr(cp, '\n')) != NULL )
    {
       if ((cp[1] == '\n') || !isspace(cp[1]))   /* End of field?     */
          *cp = '\0';          /* Yes --> Terminate string            */
@@ -587,11 +593,12 @@ boolean RetrieveLine(const long adr,
          char *next;
 
          *cp++ = ' ';         /* Convert line break to whitespace    */
-         next = ++cp;         /* Get first position of new line      */
+         next = cp;           /* Get first position of new line      */
+
          while( isspace( *next ) )  /* Ignore leading white space    */
             next++;
 
-         memmove( cp , next , strlen(next) + 1 );
+         memmove( cp, next, strlen(next) + 1 );
                               /* Trim leading white space            */
       } /* else */
    } /* while */
@@ -607,13 +614,21 @@ boolean RetrieveLine(const long adr,
 /*    E-mail address of the user                                      */
 /*--------------------------------------------------------------------*/
 
-void ReturnAddress(char *line, const long adr )
+void ReturnAddress(char *result, const long adr )
 {
-   char buffer[BUFSIZ];
+   char buffer[LSIZE];
+
+#ifdef UDEBUG
+   printmsg(15,"ReturnAddress: Return address is %p", result );
+#endif
 
    if (RetrieveLine(adr, buffer, sizeof buffer))
    {
       char *begin = buffer;
+
+#ifdef UDEBUG
+   printmsg(15,"ReturnAddress: Return address is %p", result );
+#endif
 
       while (isgraph(*begin))    /* Find end of header name          */
          begin++;
@@ -621,13 +636,13 @@ void ReturnAddress(char *line, const long adr )
       printmsg(4,"ReturnAddress: Input buffer: %s",buffer);
 
       if (strlen(begin))
-         ExtractName(line,begin);         /* Yes --> Return name     */
+         ExtractName(result,begin);       /* Yes --> Return name     */
       else
-         strcpy(line,"-- Invalid From: line --");
+         strcpy(result,"-- Invalid From: line --");
 
    } /* else */
    else
-      strcpy(line,"-- Unknown --");       /* No --> Return error     */
+      strcpy(result,"-- Unknown --");     /* No --> Return error     */
 
 } /* ReturnAddress */
 
@@ -668,7 +683,7 @@ void sayoptions( FLAGTABLE *flags)
          } /* if ( subscript > 0 ) */
 
          printf("%s%s",
-               bflag[ flags[subscript].position ] ? "" : "no" ,
+               bflag[ flags[subscript].position ] ? "" : "no",
                flags[subscript].sym );
 
    } /* for */
