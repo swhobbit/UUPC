@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.36 2000/12/29 00:10:08 ahd Exp $
+#       $Id: nmakewnt.mak 1.37 2001/03/12 13:58:31 ahd v1-13j $
 #
 #       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.37  2001/03/12 13:58:31  ahd
+#       Annual copyright update
+#
 #       Revision 1.36  2000/12/29 00:10:08  ahd
 #       Tweak warning level
 #
@@ -174,6 +177,7 @@ LDOPT    = $(COMMOPT) -Fe$@
 OTHERLIBS= ADVAPI32.LIB WSOCK32.LIB tapi32.lib user32.lib gdi32.lib  \
            kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS) $(WIN32APP)
 
+EXTRAZIP=gzip
 EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
 EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe \
        $(PROD)\mail.ico $(PROD)\uucico.ico
