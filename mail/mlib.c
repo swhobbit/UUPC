@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.3 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: mlib.c 1.4 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.4  1993/08/03  03:11:49  ahd
+ * Further Windows 3.x fixes
+ *
  * Revision 1.3  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -109,7 +112,6 @@ int Invoke(const char *ecmd, const char *filename)
 {
    char command[FILENAME_MAX*2 + 1];
    char tempname[FILENAME_MAX];
-   char *p = tempname;
 
    if (ecmd == nil(char))
    {
@@ -118,9 +120,7 @@ int Invoke(const char *ecmd, const char *filename)
    }
 
    strcpy(tempname,filename);
-
-   while( (p = strchr(p,'/')) != NULL )
-      *p++ = '\\';            // Normalize the DOS path name
+   denormalize( tempname );
 
    sprintf(command, ecmd, tempname);
 
