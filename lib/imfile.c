@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.22 1996/01/20 13:09:56 ahd Exp $
+ *    $Id: imfile.c 1.23 1997/03/31 06:59:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.23  1997/03/31 06:59:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1996/01/20 13:09:56  ahd
  *    Allow specifying text/binary mode when processing an in-memory file
  *
@@ -919,6 +922,7 @@ int imunload( FILE *output, IMFILE *imf )
 
    } /* for */
 
+   free( ioBuf );
    return 0;                     /* Return success to caller      */
 
 } /* imunload */
