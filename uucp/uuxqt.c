@@ -14,14 +14,25 @@
 */
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.9 1993/06/26 16:01:48 ahd Exp $
+ *    $Id: uuxqt.c 1.10 1993/07/20 21:45:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.10  1993/07/20  21:45:37  ahd
+ * Don't delete file after -2 abort from UUXQT
+ *
  * Revision 1.9  1993/06/26  16:01:48  ahd
  * Normalize white space used to parse strings
  *
@@ -43,13 +54,6 @@
  *
  * Revision 1.3  1992/11/19  03:03:33  ahd
  * drop rcsid
- *
- * Revision 1.2  1992/11/19  03:03:09  ahd
- * Revision 1.1  1992/11/15  20:16:50  ahd
- * Initial revision
- *
- * Revision 1.1  1992/04/27  02:46:02  ahd
- * Initial revision
  *
  */
 
@@ -443,7 +447,8 @@ static void process( const char *fname, const char *remote )
 /*                         Open the X.* file                          */
 /*--------------------------------------------------------------------*/
 
-   if ( (fxqt = FOPEN(fname, "r", BINARY_MODE)) == NULL) {  /* inbound X.* file */
+   if ( (fxqt = FOPEN(fname, "r", BINARY_MODE)) == NULL)
+   {
       printerr(fname);
       return;
    }
@@ -454,13 +459,14 @@ static void process( const char *fname, const char *remote )
 /*                  Begin loop to read the X.* file                   */
 /*--------------------------------------------------------------------*/
 
-   while (!skip & (fgets(line, BUFSIZ, fxqt) != NULL)) {
+   while (!skip & (fgets(line, BUFSIZ, fxqt) != NULL))
+   {
       char *cp;
 
       if ( (cp = strchr(line, '\n')) != NULL )
          *cp = '\0';
 
-      printmsg(8, "input read: %s", line);
+      printmsg(5, "Input read: %s", line);
 
 /*--------------------------------------------------------------------*/
 /*            Process the input line according to its type            */
@@ -477,11 +483,13 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'U':
-         strtok(line,WHITESPACE);   /* Trim off leading "U"       */
-                                    /* Get the user name          */
-         if ( (cp = strtok(NULL,WHITESPACE)) == NULL ) {
+         if ( (cp = strtok(line + 1,WHITESPACE)) == NULL )
+         {
             printmsg(0,"No user on U line in file \"%s\"", fname );
-         } else {
+            reject = TRUE;
+            break;
+         }
+         else {
              user = strdup(cp);
              checkref(user);
          };
@@ -490,7 +498,9 @@ static void process( const char *fname, const char *remote )
          {                          /* Did we get a string?       */
             printmsg(2,"No node on U line in file \"%s\"", fname );
             cp = (char *) remote;
-         } else if (!equal(cp,remote)) {
+         }
+         else if (!equal(cp,remote))
+         {
             printmsg(2,"Node on U line in file \"%s\" doesn't match remote",
                      fname );
             cp = (char * ) remote;
@@ -503,14 +513,22 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'I':
-         input = strdup( &line[2] );                     /* ahd   */
-         checkref(input);
-         if (!equal(remote, E_nodename))
-            if (!(equaln(input,"D.",2) || ValidateFile( input, ALLOW_READ)))
+         cp = strtok( line + 1, WHITESPACE );
+         if ( cp == NULL )
+         {
+            printmsg(0,"No input file name on I line");
+            reject = TRUE;
+         }
+         else {
+            input = strdup( cp );
+            checkref(input);
+            if (!equal(remote, E_nodename) &&
+                !(equaln(input,"D.",2) || ValidateFile( input, ALLOW_READ)))
             {
                 reject = TRUE;
                 xflag[S_NOREAD] = TRUE;
             }
+         } /* else */
          break;
 
 /*--------------------------------------------------------------------*/
@@ -518,13 +536,12 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'O':
-         strtok(line,WHITESPACE);   /* Trim off leading "O"       */
-                                    /* Get the user name          */
-         if ( (cp = strtok(NULL,WHITESPACE)) != NULL )
+         if ( (cp = strtok(line + 1, WHITESPACE)) != NULL )
          {
              outname = strdup(cp);
              checkref(outname);
              xflag[X_OUTPUT] = TRUE;  /* return output to "outnode" */
+
              if ( (cp = strtok(NULL,WHITESPACE)) != NULL)
              {                /* Did we get a string?                */
                    outnode = strdup(cp);
@@ -547,8 +564,16 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'C':
-         command = strdup( &line[2] );                   /* ahd   */
-         checkref(command);                              /* ahd   */
+         cp = strtok( line + 2, "\r\n" );
+         if ( cp == NULL )
+         {
+            printmsg(0,"No command name on C line");
+            reject = TRUE;
+         }
+         else {
+            command = strdup( cp );
+            checkref(command);
+         }
          break;
 
 /*--------------------------------------------------------------------*/
@@ -556,9 +581,7 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'J':
-         strtok(line,WHITESPACE);   /* Trim off leading "J"       */
-                                    /* Get the job id             */
-         if ( (cp = strtok(NULL,WHITESPACE)) == NULL )
+         if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No job id on J line in file \"%s\"", fname );
             reject = TRUE;
@@ -574,7 +597,7 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'F':
-         token = strtok(&line[1],WHITESPACE);
+         token = strtok(line + 1, WHITESPACE);
          importpath(hostfile, token, remote);
 
          if ( access( hostfile, 0 ))   /* Does the host file exist?  */
@@ -583,7 +606,6 @@ static void process( const char *fname, const char *remote )
                      token, hostfile, fname);
             skip = TRUE;
          }
-
          break;
 
 /*--------------------------------------------------------------------*/
@@ -591,10 +613,11 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'R':
-         strtok(line,WHITESPACE);   /* Trim off leading "R"       */
-                                    /* Get the user name          */
-         if ( (cp = strtok(NULL,WHITESPACE)) == NULL )
+         if ( (cp = strtok(line + 1,WHITESPACE)) == NULL )
+         {
             printmsg(0,"No requestor on R line in file \"%s\"", fname );
+            reject = TRUE;
+         }
          else {
             requestor = strdup(cp);
             checkref(requestor);
@@ -606,14 +629,12 @@ static void process( const char *fname, const char *remote )
 /*--------------------------------------------------------------------*/
 
       case 'M':
-         strtok(line,WHITESPACE);   /* Trim off leading "M"           */
-                                    /* Get the file name              */
-         if ( (cp = strtok(NULL,WHITESPACE)) != NULL ) {
+         if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
+            printmsg(0,"No file name on M line in file \"%s\"", fname);
+         else {
             statfil = strdup(cp);
             checkref(statfil);
             xflag[X_STATFIL] = TRUE;     /* return status to remote file   */
-         } else {
-            printmsg(0,"No file name on M line in file \"%s\"", fname);
          }
          break;
 
