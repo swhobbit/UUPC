@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.70 1995/01/03 05:29:13 ahd Exp $
+#     $Id: makefile 1.71 1995/01/05 01:53:32 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.71  1995/01/05 01:53:32  ahd
+#     Drop unneeded WINDOWSOPT
+#
 #     Revision 1.70  1995/01/03 05:29:13  ahd
 #     Use short source name for faster compiles
 #
@@ -1282,8 +1285,8 @@ rmail$(PSUFFIX).exe: common
 rn$(PSUFFIX).exe: commonm
         $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
-rnews$(PSUFFIX).exe: common
-        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+rnews$(PSUFFIX).exe: commonm
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 sendbats$(PSUFFIX).exe: common
         $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
