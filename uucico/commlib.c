@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMMLIB.C 1.1 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: COMMLIB.C 1.2 1993/05/30 15:25:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: COMMLIB.C $
+ * Revision 1.2  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  * Revision 1.1  1993/05/30  00:01:47  ahd
  * Initial revision
  *
@@ -50,6 +53,8 @@
 #include "ulib14.h"           // ARTISOFT INT14 interface
 #endif
 #endif
+
+#define NATIVE "native"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -84,7 +89,7 @@ boolean chooseCommunications( const char *name )
 {
    static COMMSUITE suite[] =
    {
-        { "native",                    // Default for any opsys
+        { NATIVE,                      // Default for any opsys
           nopenline, nsread, nswrite,
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
@@ -96,7 +101,7 @@ boolean chooseCommunications( const char *name )
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD },
-        { "int14",                     // MS-DOS ARTISOFT INT14 driver
+        { "articomm",                  // MS-DOS ARTISOFT INT14 driver
           iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
@@ -142,6 +147,10 @@ boolean chooseCommunications( const char *name )
    hangupp       = suite[subscript].hangup;
    GetSpeedp     = suite[subscript].GetSpeed;
    CDp           = suite[subscript].CD;
+
+   printmsg(equal(suite[subscript].type, NATIVE) ? 5 : 4,
+            "chooseCommunications: Chose suite %s",
+            name );
 
    return TRUE;
 
