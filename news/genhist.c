@@ -21,10 +21,13 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: GENHIST.C 1.6 1994/02/19 04:21:26 ahd Exp rommel $";
-static char *rcsrev = "$Revision: 1.6 $";
+static const char rcsid[] =
+         "$Id: genhist.c 1.7 1994/03/20 23:35:57 rommel Exp $";
 
-/* $Log: GENHIST.C $
+/* $Log: genhist.c $
+ * Revision 1.7  1994/03/20  23:35:57  rommel
+ * Also update active file with discovered information
+ *
  * Revision 1.6  1994/02/19  04:21:26  ahd
  * Use standard first header
  *

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.10 1994/03/20 14:26:12 ahd Exp $
+ *       $Id: inews.c 1.11 1994/04/27 00:00:29 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.11  1994/04/27  00:00:29  ahd
+ * back to text mode on that input file!
+ *
  * Revision 1.10  1994/03/20  14:26:12  ahd
  * Normalize top of routine comments (add kew copyright)
  * Add missing ? option
@@ -68,7 +71,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.10 1994/03/20 14:26:12 ahd Exp $";
+      "$Id: inews.c 1.11 1994/04/27 00:00:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -77,6 +80,8 @@ const static char rcsid[] =
 #include <ctype.h>
 #include <limits.h>
 #include <process.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -118,6 +123,7 @@ void main( int argc, char **argv)
   char tempname[FILENAME_MAX];  /* temporary input file     */
   char origin[BUFSIZ];
   FILE *article;
+  struct stat st;
 
 /*--------------------------------------------------------------------*/
 /*     Report our version number and date/time compiled               */
@@ -206,7 +212,10 @@ void main( int argc, char **argv)
 /*                     spool for remote delivery                      */
 /*--------------------------------------------------------------------*/
 
-  printmsg(1, "Spooling news from %s via %s", E_mailbox, E_newsserv);
+  if (stat(tempname, &st) == -1)
+    panic();
+  printmsg(1, "Spooling news (%ld bytes) from %s via %s",
+         (long) st.st_size, E_mailbox, E_newsserv);
 
   article = FOPEN(tempname, "r", TEXT_MODE);
   remote_news(article, origin);

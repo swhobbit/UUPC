@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.5 1994/01/01 19:14:06 ahd Exp $
+ *    $Id: expire.c 1.6 1994/02/19 04:21:11 ahd Exp $
  *
  *    $Log: expire.c $
+ * Revision 1.6  1994/02/19  04:21:11  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/01/01  19:14:06  ahd
  * Annual Copyright Update
  *
@@ -24,31 +27,13 @@
  *
  * Revision 1.3  1993/12/09  04:51:21  ahd
  * restore ability to expire without having history database
- *
  *
  */
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: expire.c 1.5 1994/01/01 19:14:06 ahd Exp $";
-static char *rcsrev = "$Revision: 1.5 $";
-
-/* $Log: expire.c $
- * Revision 1.5  1994/01/01  19:14:06  ahd
- * Annual Copyright Update
- *
- * Revision 1.4  1993/12/23  03:16:03  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.3  1993/12/09  04:51:21  ahd
- * restore ability to expire without having history database
- *
- * Revision 1.2  1993/10/31  21:32:55  ahd
- * Delete unreferenced variables
- *
- * Revision 1.1  1993/09/05  10:56:49  rommel
- * Initial revision
- * */
+static const char rcsid[] =
+      "$Id: expire.c 1.6 1994/02/19 04:21:11 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -2,7 +2,6 @@
 /*    h i s t o r y . c                                               */
 /*                                                                    */
 /*    News history file maintenance for UUPC/extended.                */
-/*                                                                    */
 /*--------------------------------------------------------------------*/
 
 /* new version, rewritten for history-based news database
@@ -13,10 +12,16 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: history.c 1.4 1994/01/18 13:29:22 ahd Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+static const char rcsid[] =
+      "$Id: history.c 1.5 1994/02/19 04:21:49 ahd Exp $";
 
 /* $Log: history.c $
+ * Revision 1.5  1994/02/19  04:21:49  ahd
+ * Use standard first header
+ *
+ * Revision 1.5  1994/02/19  04:21:49  ahd
+ * Use standard first header
+ *
  * Revision 1.4  1994/01/18  13:29:22  ahd
  * Add standard UUPC/extended error logging routines for run time
  * library errors
@@ -233,7 +238,7 @@ static int matches(char *group, char **grouplist)
     len2 = strlen(*grouplist);
     subgroups = FALSE;
 
-    if (*grouplist[len2 - 1] == '*')
+    if ((*grouplist)[len2 - 1] == '*')
       len2--, subgroups = TRUE;
 
     if (strnicmp(group, *grouplist, min(len1, len2)) == 0)

@@ -16,14 +16,17 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: hdbm.c 1.4 1994/02/19 04:21:38 ahd Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+static const char rcsid[] =
+      "$Id: hdbm.c 1.5 1994/03/07 06:09:51 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+ * Revision 1.5  1994/03/07  06:09:51  ahd
+ * Add additional error messages to error returns
+ *
  * Revision 1.4  1994/02/19  04:21:38  ahd
  * Use standard first header
  *
