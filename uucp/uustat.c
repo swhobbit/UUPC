@@ -471,7 +471,7 @@ static void poll(const char *callee)
 
          if ( access( msname , 0 ))   /* Does the host file exist?     */
          {
-            stream = FOPEN( msname ,"w", BINARY);
+            stream = FOPEN( msname ,"w", BINARY_MODE);
 
             if ( stream == NULL )
             {
@@ -728,7 +728,7 @@ static CALLTYPE open_call( const char *callname,
 /*--------------------------------------------------------------------*/
 
    printmsg(2,"Scanning call file \"%s\"", callname );
-   stream = FOPEN( callname, "r", TEXT );
+   stream = FOPEN( callname, "r",TEXT_MODE );
 
    if ( stream == NULL )
    {
@@ -880,7 +880,7 @@ static void open_data(const char *file,
    *f_name = '\0';
 
    printmsg(1,"OPENING(%s)",file);
-   data_fp = FOPEN(file, "r", BINARY);
+   data_fp = FOPEN(file, "r", BINARY_MODE);
    if(data_fp ==  NULL){
       printerr( file );
       panic();

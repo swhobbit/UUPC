@@ -15,16 +15,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\UTIL\RCS\GENSIG.C 1.1 1992/11/15 04:29:22 ahd Exp $
+ *    $Id: E:\src\uupc\UTIL\RCS\GENSIG.C 1.2 1993/03/06 23:04:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: GENSIG.C $
+ * Revision 1.2  1993/03/06  23:04:54  ahd
+ * Alter message to include output files
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
  */
 
-static char rcsid[] = "$Id: GENSIG.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+static char rcsid[] = "$Id: GENSIG.C 1.2 1993/03/06 23:04:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */

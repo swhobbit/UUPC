@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SYSALIAS.C 1.1 1992/12/04 01:00:27 ahd Exp $
+ *    $Id: SYSALIAS.C 1.2 1992/12/05 23:38:43 ahd Exp $
  *
  *    $Log: SYSALIAS.C $
+ * Revision 1.2  1992/12/05  23:38:43  ahd
+ * Skip blanks as well as unprintable characters
+ *
  * Revision 1.1  1992/12/04  01:00:27  ahd
  * Initial revision
  *
@@ -112,7 +115,7 @@ static void InitAlias( void )
    mkfilename( buf, E_confdir, "aliases" );
    SysAliases = newstr( buf );
 
-   stream = FOPEN( SysAliases , "r", TEXT );
+   stream = FOPEN( SysAliases , "r",TEXT_MODE );
    if ( stream == NULL )
    {
       if (debuglevel > 1)

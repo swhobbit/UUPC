@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPSTATS.C 1.3 1992/12/30 13:17:12 ahd Exp $
+ *       $Id: DCPSTATS.C 1.4 1993/03/06 23:04:54 ahd Exp $
  *
  *       $Log: DCPSTATS.C $
+ * Revision 1.4  1993/03/06  23:04:54  ahd
+ * Lock host status file before updating
+ *
  * Revision 1.3  1992/12/30  13:17:12  ahd
  * Windows/NT changes
  *
@@ -159,7 +162,7 @@ void dcupdate( void )
 
    filebkup( fname );      /* Rename the file if desired       */
 
-   if ((stream  = FOPEN(fname, "w", BINARY)) == NULL)
+   if ((stream  = FOPEN(fname, "w", BINARY_MODE)) == NULL)
    {
       printerr( fname );
       return;

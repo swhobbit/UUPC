@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.C 1.11 1993/01/23 19:08:09 ahd Exp $
+ *     $Id: DCPSYS.C 1.12 1993/04/05 04:35:40 ahd Exp $
  *
- *     $Log: dcpsys.C $
+ *     $Log: DCPSYS.C $
+ * Revision 1.12  1993/04/05  04:35:40  ahd
+ * Add timestamp, file size to directory information
+ *
  * Revision 1.11  1993/01/23  19:08:09  ahd
  * Don't update system stats in sysend()
  *
@@ -861,7 +864,7 @@ XFER_STATE scandir(char *remote, const char grade )
       if ( HostGrade( workfile, remote ) > grade )
          printmsg(5, "scandir: skipped \"%s\" (grade %c not met)",             workfile,
                       grade );
-      else if ((fwork = FOPEN(workfile, "r", TEXT)) == nil(FILE))
+      else if ((fwork = FOPEN(workfile, "r",TEXT_MODE)) == nil(FILE))
       {
          printmsg(0,"scandir: open failed for %s",workfile);
          SaveRemote = NULL;

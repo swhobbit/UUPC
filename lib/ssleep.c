@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\SSLEEP.C 1.2 1992/12/07 02:43:20 ahd Exp $
+ *    $Id: E:\src\uupc\LIB\RCS\SSLEEP.C 1.3 1992/12/12 16:12:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: SSLEEP.C $
+ * Revision 1.3  1992/12/12  16:12:13  ahd
+ * Correct test for DesqView
+ *
  * Revision 1.2  1992/12/07  02:43:20  ahd
  * Add DesqView support from David M. Watt
  *

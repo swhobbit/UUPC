@@ -11,17 +11,20 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\UTIL\RCS\INSTALL.C 1.1 1992/11/15 04:29:22 ahd Exp $
+ *    $Id: INSTALL.C 1.2 1993/04/04 04:57:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: INSTALL.C $
+ * Revision 1.2  1993/04/04  04:57:01  ahd
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
  */
 
-static char rscid[] =
-      "$Id: INSTALL.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+static char rcsid[] =
+      "$Id: INSTALL.C 1.2 1993/04/04 04:57:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                      Standard C include files                      */

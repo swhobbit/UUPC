@@ -18,9 +18,12 @@
  */
 
  /*
-  *      $Id: HOSTABLE.C 1.3 1992/12/18 12:05:57 ahd Exp $
+  *      $Id: HOSTABLE.C 1.4 1993/04/04 04:57:01 ahd Exp $
   *
   *      $Log: HOSTABLE.C $
+ *     Revision 1.4  1993/04/04  04:57:01  ahd
+ *     Trap existence of local host name in SYSTEMS file
+ *
  *     Revision 1.3  1992/12/18  12:05:57  ahd
  *     Suppress duplicate machine state messages to improving OS/2 scrolling
  *
@@ -417,7 +420,7 @@ static size_t loadhost()
 
    mkfilename(s_systems, E_confdir, SYSTEMS);
 
-   ff = FOPEN(s_systems, "r", TEXT);
+   ff = FOPEN(s_systems, "r",TEXT_MODE);
    if (ff == NULL)
    {
       printerr(s_systems);
@@ -460,7 +463,7 @@ static size_t loadhost()
 
    mkfilename(s_systems, E_confdir, PATHS);
 
-   if ((ff = FOPEN(s_systems, "r", TEXT)) != NULL)
+   if ((ff = FOPEN(s_systems, "r",TEXT_MODE)) != NULL)
    {
 
       while (! feof(ff))

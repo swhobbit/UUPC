@@ -12,13 +12,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
-   $Log: novrstrk.c%v $
+   $Log: NOVRSTRK.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  * Revision 1.1  1992/04/27  00:27:34  ahd
  * Initial revision
  *
  */
 
-static char rscid[] = "$Id: novrstrk.c%v 1.1 1992/04/27 00:27:34 ahd Exp $";
+static char rcsid[] =
+         "$Id: NOVRSTRK.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */

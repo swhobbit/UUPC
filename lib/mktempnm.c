@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\MKTEMPNM.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Id: E:\SRC\UUPC\LIB\RCS\MKTEMPNM.C 1.2 1992/11/19 02:57:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: MKTEMPNM.C $
+ * Revision 1.2  1992/11/19  02:57:07  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *

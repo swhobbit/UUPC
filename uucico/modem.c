@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.10 1993/03/06 23:04:54 ahd Exp $
+ *    $Id: MODEM.C 1.11 1993/04/05 04:35:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.11  1993/04/05  04:35:40  ahd
+ * Set clear abort processing flag (norecover) from ulib.c
+ *
  * Revision 1.10  1993/03/06  23:04:54  ahd
  * make modem connected messages consistent
  *
@@ -485,7 +488,7 @@ your %s file is obsolete.", brand, SYSTEMS);
    }
 
    sprintf(filename,"%s/%s.MDM",E_confdir, brand);
-   if ((fp = FOPEN(filename, "r", TEXT)) == nil(FILE))
+   if ((fp = FOPEN(filename, "r",TEXT_MODE)) == nil(FILE))
    {
       printmsg(0,"getmodem: Unable to locate configuration for %s",
                brand);

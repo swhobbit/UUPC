@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\LOCK.C 1.6 1993/03/06 22:48:23 ahd Exp $
+ *    $Id: E:\src\uupc\LIB\RCS\LOCK.C 1.7 1993/03/24 01:57:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOCK.C $
+ *     Revision 1.7  1993/03/24  01:57:30  ahd
+ *     Add string.h include
+ *
  *     Revision 1.6  1993/03/06  22:48:23  ahd
  *     Allow nested locks
  *
@@ -148,7 +151,7 @@ boolean LockSystem( const char *system , long program )
 /*--------------------------------------------------------------------*/
 
    if ( access( lname, 0 ) || !unlink( lname ))
-      locket = FOPEN( lname, "w", TEXT );
+      locket = FOPEN( lname, "w",TEXT_MODE );
 
    if ( locket == NULL )
    {

@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\strlwr.c 1.2 1992/11/19 02:58:39 ahd Exp ahd $
+ *    $Id: E:\src\uupc\lib\RCS\STRLWR.C 1.3 1992/11/30 03:26:20 ahd Exp $
  *
  *    Revision history:
- *    $Log: strlwr.c $
+ *    $Log: STRLWR.C $
+ * Revision 1.3  1992/11/30  03:26:20  ahd
+ * Much better if strlwr makes the string LOWER case
+ *
  * Revision 1.2  1992/11/19  02:58:39  ahd
  * drop rcsid
  *

@@ -193,7 +193,7 @@ static boolean Append_Signature(FILE *mailbag_fp ,
    if(sig != nil(char)) {
       mkfilename(sigfile, E_homedir, sig);
       printmsg(4, "Append_Signature: signature file %s", sigfile);
-      if ((sigfp = FOPEN(sigfile, "r", TEXT)) != nil(FILE)) {
+      if ((sigfp = FOPEN(sigfile, "r",TEXT_MODE)) != nil(FILE)) {
          fputs("-- \n", mailbag_fp);
          while (fgets(buf, BUFSIZ, sigfp) != nil(char))
             fputs(buf, mailbag_fp);
@@ -226,7 +226,7 @@ boolean Send_Mail(FILE *datain,
    char *CcHeader  = "Cc:";
    char *BccHeader = "Bcc:";
    char *pipename  = mktempname(NULL, "TMP");
-   FILE *stream = FOPEN(pipename , "w", TEXT);
+   FILE *stream = FOPEN(pipename , "w",TEXT_MODE);
    int status;
 
 /*--------------------------------------------------------------------*/
@@ -414,7 +414,7 @@ static void CopyOut( const char* input)
    strcpy( outbox, E_filesent);
    expand_path( outbox, E_homedir, E_homedir, E_mailext );
 
-   datain = FOPEN( input, "r", TEXT);
+   datain = FOPEN( input, "r",TEXT_MODE);
 
    if (datain == NULL )
    {
@@ -422,7 +422,7 @@ static void CopyOut( const char* input)
       panic();
    } /* if */
 
-   dataout = FOPEN( outbox, "a", TEXT);
+   dataout = FOPEN( outbox, "a",TEXT_MODE);
    if (dataout == NULL )
    {
       printerr( outbox );
@@ -554,7 +554,7 @@ boolean Collect_Mail(FILE *stream,
 /*      Copy a message from the original input to temporary file      */
 /*--------------------------------------------------------------------*/
 
-   fmailbag = FOPEN(tmailbag, "w", TEXT);
+   fmailbag = FOPEN(tmailbag, "w",TEXT_MODE);
    if (fmailbag == NULL )
    {
       printerr( tmailbag );
@@ -593,7 +593,7 @@ boolean Collect_Mail(FILE *stream,
       {
          case 'c':
             puts("Continue");
-            fmailbag = FOPEN(tmailbag, "a", TEXT);
+            fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
             fclose(fmailbag);
             break;
@@ -605,7 +605,7 @@ boolean Collect_Mail(FILE *stream,
 
          case 's':
             puts("Send");
-            fmailbag = FOPEN(tmailbag, "r", TEXT);
+            fmailbag = FOPEN(tmailbag, "r",TEXT_MODE);
             if (fmailbag == NULL )
             {
                printerr(tmailbag);
@@ -738,7 +738,7 @@ static boolean Subcommand( char *buf,
             /* invoke editor with current msg */
             fclose(fmailbag);
             Invoke_Editor(E_editor, tmailbag);
-            fmailbag = FOPEN(tmailbag, "a", TEXT);
+            fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
 
@@ -783,7 +783,7 @@ static boolean Subcommand( char *buf,
          case 'P':
             fclose(fmailbag);
             Sub_Pager(tmailbag, islower(buf[1]) );
-            fmailbag = FOPEN(tmailbag, "a", TEXT);
+            fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
 
@@ -801,7 +801,7 @@ static boolean Subcommand( char *buf,
             strcpy( fname, token );
             if ( expand_path( fname, NULL, E_homedir , NULL) == NULL )
                break;
-            stream = FOPEN( fname, "r", TEXT);
+            stream = FOPEN( fname, "r",TEXT_MODE);
             if (stream == NULL )
                printerr(fname);
             else while( fgets( buf, LSIZE, stream ))
@@ -865,7 +865,7 @@ static boolean Subcommand( char *buf,
          case '|':
             fclose( fmailbag );
             filter( tmailbag, &buf[2] );
-            fmailbag = FOPEN(tmailbag, "a", TEXT);
+            fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
 

@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\LOGGER.C 1.5 1993/01/23 19:08:09 ahd Exp $
+ *    $Id: E:\src\uupc\LIB\RCS\LOGGER.C 1.6 1993/03/06 22:48:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOGGER.C $
+ *     Revision 1.6  1993/03/06  22:48:23  ahd
+ *     Drop dashes between log entries
+ *
  *     Revision 1.5  1993/01/23  19:08:09  ahd
  *     Correct sleep.h include
  *
@@ -119,7 +122,7 @@ void openlog( const char *log )
 /*                    Open the temporary log file                     */
 /*--------------------------------------------------------------------*/
 
-   logfile = FOPEN( tempname , "a", TEXT );
+   logfile = FOPEN( tempname , "a",TEXT_MODE );
                               /* We append in case we are not in
                                  multitask mode and we do not want
                                  to clobber the real log!            */
@@ -184,7 +187,7 @@ static void copylog( void )
 /*            We're multitasking; copy the file gracefully            */
 /*--------------------------------------------------------------------*/
 
-   output = FOPEN( logname ,"a", TEXT);
+   output = FOPEN( logname ,"a",TEXT_MODE);
 
    if ( output == NULL )
    {
@@ -199,7 +202,7 @@ static void copylog( void )
    logfile = output;                /* Log directly into real file   */
    full_log_file_name = logname;    /* Tell printerr we switched     */
 
-   input = FOPEN( tempname, "r", TEXT );
+   input = FOPEN( tempname, "r",TEXT_MODE );
 
    if ( input == NULL )
    {

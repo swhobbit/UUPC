@@ -12,16 +12,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: c:/src/uupc/util/RCS/fmt.c%v 1.2 1992/04/27 00:41:11 ahd Exp $
+ *    $Id: E:\SRC\UUPC\UTIL\RCS\FMT.C 1.1 1992/11/15 04:29:22 ahd Exp $
  *
  *    Revision history:
- *    $Log: fmt.c%v $
+ *    $Log: FMT.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  * Revision 1.2  1992/04/27  00:41:11  ahd
  * Add RCS Information
  *
  */
 
-static char rscid[] = "$Id: fmt.c%v 1.2 1992/04/27 00:41:11 ahd Exp $";
+static char rcsid[] = "$Id: FMT.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 #include <stdlib.h>
 #include <ctype.h>

@@ -13,16 +13,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: c:/src/uupc/util/RCS/comm34.c%v 1.2 1992/04/27 00:38:58 ahd Exp $
+ *    $Id: E:\SRC\UUPC\UTIL\RCS\COMM34.C 1.1 1992/11/15 04:29:22 ahd Exp $
  *
  *    Revision history:
- *    $Log: comm34.c%v $
+ *    $Log: COMM34.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  * Revision 1.2  1992/04/27  00:38:58  ahd
  * Add RCS header
  *
  */
 
-static char rscid[] = "$Id: comm34.c%v 1.2 1992/04/27 00:38:58 ahd Exp $";
+static char rcsid[] = "$Id: COMM34.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 /*
  * Compiler: Microsoft C 5.1

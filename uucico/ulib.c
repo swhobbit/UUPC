@@ -6,14 +6,17 @@
 
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.  Changes    */
-/*    Copyright (c) 1990-1992 by Kendra Electronic Wonderworks;       */
+/*    Copyright (c) 1990-1993 by Kendra Electronic Wonderworks;       */
 /*    all rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license.                                          */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.7 1993/01/23 19:08:09 ahd Exp $
+ *    $Id: ULIB.C 1.8 1993/04/05 04:35:40 ahd Exp $
  *    $Log: ULIB.C $
+ * Revision 1.8  1993/04/05  04:35:40  ahd
+ * Set/clear abort processing flags in modem.c
+ *
  * Revision 1.7  1993/01/23  19:08:09  ahd
  * Don't attempt to detect lost carrier in sread()
  *

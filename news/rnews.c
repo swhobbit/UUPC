@@ -34,9 +34,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.3 1993/03/06 23:04:54 ahd Exp $
+ *       $Id: RNEWS.C 1.4 1993/03/24 01:57:30 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.4  1993/03/24  01:57:30  ahd
+ * Corrections for short articles
+ * Corrections for articles claimed to be zero length
+ * Resync gracefully after incorrect length descriptor
+ *
  * Revision 1.3  1993/03/06  23:04:54  ahd
  * Do not delete open files
  *
@@ -47,7 +52,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.3 1993/03/06 23:04:54 ahd Exp $";
+         "$Id: RNEWS.C 1.4 1993/03/24 01:57:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -359,7 +364,7 @@ static int Single( char *filename , FILE *stream )
 /* Make a file name and then open the file to write the article into  */
 /*--------------------------------------------------------------------*/
 
-   tmpf = FOPEN(filename, "w", BINARY);
+   tmpf = FOPEN(filename, "w", BINARY_MODE);
 
    if ( tmpf == NULL )
    {
@@ -448,7 +453,7 @@ static int Compressed( char *filename , FILE *in_stream )
 /*                 Open the file, with error recovery                 */
 /*--------------------------------------------------------------------*/
 
-   if ((work_stream = FOPEN(zfile, "w", BINARY)) == nil(FILE))
+   if ((work_stream = FOPEN(zfile, "w", BINARY_MODE)) == nil(FILE))
    {
       printmsg(0, "Compressed: Can't open %s (%d)", zfile, errno);
       printerr(zfile);
@@ -575,7 +580,7 @@ static int Compressed( char *filename , FILE *in_stream )
 
                               /* Create uncompressed output file name   */
 
-   work_stream = FOPEN( unzfile, "r", BINARY );
+   work_stream = FOPEN( unzfile, "r", BINARY_MODE);
    if ( work_stream == NULL )
    {
       printerr( unzfile );
@@ -685,7 +690,7 @@ static int Batched( char *filename, FILE *stream)
 /*                   Open up our next working file                    */
 /*--------------------------------------------------------------------*/
 
-      tmpf = FOPEN(filename, "w", BINARY);
+      tmpf = FOPEN(filename, "w", BINARY_MODE);
       if ( tmpf == NULL )
       {
          printerr( filename );
@@ -857,7 +862,7 @@ static boolean deliver_article(char *art_fname)
    char message_buf[BUFSIZ];
    char snum[10];
 
-   tfile = FOPEN(art_fname, "r", BINARY);
+   tfile = FOPEN(art_fname, "r", BINARY_MODE);
    if ( tfile == NULL )
    {
       printerr( art_fname );
@@ -1103,7 +1108,7 @@ static void copy_file(FILE *input,
    printmsg(2, "rnews: Saving %s article in %s",
                cur->grp_name, filename);
 
-   if ((output = FOPEN(filename, "w", TEXT)) == nil(FILE))
+   if ((output = FOPEN(filename, "w",TEXT_MODE)) == nil(FILE))
    {
       printerr( filename );
       printmsg(0, "rnews: Unable to save article");
@@ -1213,7 +1218,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    importpath( msname, ixfile, sysname);
    mkfilename( msfile, E_spooldir, msname);
 
-   out_stream = FOPEN(msfile, "w", BINARY);
+   out_stream = FOPEN(msfile, "w", BINARY_MODE);
    if ( out_stream == NULL )
    {
       printmsg(0, "xmit_news: cannot open X file %s", msfile);
@@ -1242,7 +1247,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    importpath(msname, idfile, sysname);
    mkfilename( msfile, E_spooldir, msname);
 
-   out_stream = FOPEN(msfile, "w", BINARY);
+   out_stream = FOPEN(msfile, "w", BINARY_MODE);
    if (out_stream == NULL )
    {
       printerr(msfile);
@@ -1283,7 +1288,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    importpath( msname, tmfile, sysname);
    mkfilename( msfile, E_spooldir, msname);
 
-   out_stream = FOPEN(msfile, "w", TEXT);
+   out_stream = FOPEN(msfile, "w",TEXT_MODE);
    if (out_stream == NULL)
    {
       printerr( msname );
@@ -1310,7 +1315,7 @@ static int copy_snews( char *filename, FILE *stream )
    char buf[BUFSIZ];
    size_t len;
 
-   FILE *out_stream = FOPEN(filename, "w", BINARY);
+   FILE *out_stream = FOPEN(filename, "w", BINARY_MODE);
 
    if ( out_stream == NULL )
    {

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *    $Id: DELIVER.H 1.2 1992/12/04 01:03:49 ahd Exp $
  *
- *    $Log: LIB.H $
+ *    $Log: DELIVER.H $
+ * Revision 1.2  1992/12/04  01:03:49  ahd
+ * Add system alias support
+ *
  */
 
 #define POSTMASTER "postmaster"

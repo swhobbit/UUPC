@@ -251,7 +251,7 @@ static boolean CopyData( const char *input, const char *output)
    boolean  status = TRUE;
    int      len;
 
-   if ( (dataout = FOPEN(output, "w", BINARY)) == NULL ) {
+   if ( (dataout = FOPEN(output, "w", BINARY_MODE)) == NULL ) {
       printerr(output);
       printmsg(0,"uux: Cannot open spool file \"%s\" for output",
                output);
@@ -268,7 +268,7 @@ static boolean CopyData( const char *input, const char *output)
       setmode(fileno(datain), O_BINARY);   /* Don't die on control-Z, etc */
    }
    else
-      datain = FOPEN(input, "r", BINARY);
+      datain = FOPEN(input, "r", BINARY_MODE);
 
    if (datain == NULL) {
       printerr(input);
@@ -469,7 +469,7 @@ static boolean do_uuxqt(char *job_name,
    importpath( msname, ixfile, E_nodename);
    mkfilename( msfile, E_spooldir, msname);
 
-   if ( (stream = FOPEN(msfile, "w", BINARY)) == NULL ) {
+   if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
       return FALSE;
@@ -529,7 +529,7 @@ static boolean do_copy(char *src_syst,
 
          printmsg(1, "uux - from \"%s\" - control = %s", src_syst,
                   tmfile);
-         if ((cfile = FOPEN(icfilename, "a", TEXT)) == NULL)  {
+         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
             printerr( icfilename );
             printmsg(0, "uux: cannot append to %s\n", icfilename);
             return FALSE;
@@ -588,12 +588,12 @@ static boolean do_copy(char *src_syst,
          else
             strcpy(idfile, "D.0");
 
-         if ((cfile = FOPEN(icfilename, "a", TEXT)) == NULL)
+         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)
          {
             printerr( icfilename );
             printf("uux: cannot append to %s\n", icfilename);
             return FALSE;
-         } /* if ((cfile = FOPEN(icfilename, "a", TEXT)) == NULL) */
+         } /* if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL) */
 
          fprintf(cfile, "S %s %s %s -%s %s 0666", src_file, dest_file,
                   E_mailbox, flags[FLG_COPY_SPOOL] ? "c" : " ", idfile);
@@ -756,7 +756,7 @@ static boolean do_remote(int optind, int argc, char **argv)
       importpath( msname, lxfile, dest_system);
       mkfilename( msfile, E_spooldir, msname);
 
-      if ( (stream = FOPEN(msfile, "w", BINARY)) == NULL ) {
+      if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
          printerr(msfile);
          printmsg(0, "uux: cannot open X file %s", msfile);
          return FALSE;
@@ -939,7 +939,7 @@ static boolean do_remote(int optind, int argc, char **argv)
           importpath( msname, tmfile, dest_system);
           mkfilename( msfile, E_spooldir, msname);
 
-          if ( (stream = FOPEN(msfile, "a", TEXT)) == NULL) {
+          if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL) {
              printerr( msname );
              printmsg(0, "uux: cannot write/append to C file %s", msfile);
              return FALSE;

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.9 1993/04/05 04:32:19 ahd Exp $
+ *       $Id: ULIBOS2.C 1.10 1993/04/10 21:25:16 dmwatt Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.10  1993/04/10  21:25:16  dmwatt
+ * Add Windows/NT support
+ *
  * Revision 1.9  1993/04/05  04:32:19  ahd
  * Additional traps for modem dropping out
  *

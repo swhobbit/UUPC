@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\SECURITY.C 1.3 1992/11/22 20:58:55 ahd Exp $
+ *    $Id: E:\src\uupc\LIB\RCS\SECURITY.C 1.4 1993/03/06 22:48:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: SECURITY.C $
+ *     Revision 1.4  1993/03/06  22:48:23  ahd
+ *     Re-do compare of sort to void bug in some qsort() functions
+ *
  * Revision 1.3  1992/11/22  20:58:55  ahd
  * Normalize directories as read
  * Use strpool to allocate const strings
@@ -95,7 +98,7 @@ boolean LoadSecurity( void )
 /*--------------------------------------------------------------------*/
 
    mkfilename(fname, E_confdir, PERMISSIONS);
-   stream  = FOPEN( fname, "r", TEXT);
+   stream  = FOPEN( fname, "r",TEXT_MODE);
 
    if ( stream == NULL )      /* Did the file open?                  */
    {                          /* No --> Report failure to caller     */

@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOCK.C 1.4 1992/11/19 02:58:54 ahd Exp $
+ *    $Id: E:\SRC\UUPC\LIB\RCS\NORMALIZ.C 1.1 1992/11/22 21:06:14 ahd Exp $
  *
  *    Revision history:
- *    $Log: LOCK.C $
+ *    $Log: NORMALIZ.C $
+ * Revision 1.1  1992/11/22  21:06:14  ahd
+ * Initial revision
+ *
  *
  */
 

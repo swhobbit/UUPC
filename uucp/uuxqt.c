@@ -10,7 +10,7 @@
 
       Usage:      uuxqt -xDEBUG -sSYSTEM
 
-      Last Revised: 26-Jan-1992
+      Last Revised: 26-Jan-1993
 */
 
 /*--------------------------------------------------------------------*/
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\UUCP\RCS\UUXQT.C 1.5 1992/11/25 12:59:17 ahd Exp $
+ *    $Id: E:\SRC\UUPC\UUCP\RCS\UUXQT.C 1.6 1993/04/05 04:35:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUXQT.C $
+ * Revision 1.6  1993/04/05  04:35:40  ahd
+ * Use timestamp/file size information returned by directory search
+ *
  * Revision 1.5  1992/11/25  12:59:17  ahd
  * Change NUL to /dev/nul to prevent ImportPath() mangling.
  *
@@ -430,7 +433,7 @@ static void process( const char *fname, const char *remote )
 /*                         Open the X.* file                          */
 /*--------------------------------------------------------------------*/
 
-   if ( (fxqt = FOPEN(fname, "r", BINARY)) == NULL) {  /* inbound X.* file */
+   if ( (fxqt = FOPEN(fname, "r", BINARY_MODE)) == NULL) {  /* inbound X.* file */
       printerr(fname);
       return;
    }
@@ -1121,7 +1124,7 @@ static boolean do_copy(char *localfile,
              return FALSE;
           }
 
-          if ((cfile = FOPEN(icfilename, "a", TEXT)) == NULL)  {
+          if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
              printerr( icfilename );
              printf("cannot append to %s\n", icfilename);
              return FALSE;
@@ -1171,7 +1174,7 @@ static void ReportResults(const int status,
          return;
      }
 
-     if ((mailtmp = FOPEN(tempmail, "w+", BINARY)) == NULL) {
+     if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
          printerr(tempmail);
          return;
      }
@@ -1282,7 +1285,7 @@ static boolean AppendData( const char *input, FILE* dataout)
    if (input == NULL)
       return FALSE;
    else
-      datain = FOPEN(input, "r", TEXT);
+      datain = FOPEN(input, "r",TEXT_MODE);
 
    if (datain == NULL) {
       printerr(input);

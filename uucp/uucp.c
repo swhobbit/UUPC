@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUCP.C 1.2 1992/12/11 12:45:11 ahd Exp $
+ *    $Id: UUCP.C 1.3 1993/04/05 04:35:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUCP.C $
+ * Revision 1.3  1993/04/05  04:35:40  ahd
+ * Use timestamp/file size information returned by directory search
+ *
  * Revision 1.2  1992/12/11  12:45:11  ahd
  * Normalize paths for files read
  *
@@ -291,7 +294,7 @@ int   do_copy(char *src_syst,
          }
          printmsg(1, "uucp - from \"%s\" - control = %s", src_syst,
                   tmfile);
-         if ((cfile = FOPEN(icfilename, "a", TEXT )) == NULL)  {
+         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE )) == NULL)  {
             printerr( icfilename );
             fprintf(stderr, "uucp: cannot append to %s\n", icfilename);
             panic();
@@ -388,7 +391,7 @@ int   do_copy(char *src_syst,
             }
             else
                strcpy(idfile, "D.0");
-            if ((cfile = FOPEN(icfilename, "a", TEXT)) == NULL)  {
+            if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
                printerr( icfilename );
                printf("uucp: cannot append to %s\n", icfilename);
                if (dirp != NULL )

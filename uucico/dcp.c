@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.8 1993/01/23 19:08:09 ahd Exp $
+ *    $Id: DCP.C 1.9 1993/04/05 04:32:19 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.9  1993/04/05  04:32:19  ahd
+ * Allow unique send and receive packet sizes
+ *
  * Revision 1.8  1993/01/23  19:08:09  ahd
  * Don't update host status at sysend() if hostp is not initialized
  *
@@ -260,7 +263,7 @@ int dcpmain(int argc, char *argv[])
 
    if (bflag[F_SYSLOG] && ! bflag[F_MULTITASK])
    {
-      syslog = FOPEN(SYSLOG, "a", TEXT);
+      syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
       if ((syslog == nil(FILE)) || setvbuf( syslog, NULL, _IONBF, 0))
       {
          printerr( SYSLOG );
@@ -303,7 +306,7 @@ int dcpmain(int argc, char *argv[])
 
       printmsg(2, "calling \"%s\", debug=%d", Rmtname, debuglevel);
 
-      if ((fsys = FOPEN(s_systems, "r", TEXT)) == nil(FILE))
+      if ((fsys = FOPEN(s_systems, "r",TEXT_MODE)) == nil(FILE))
          exit(FAILED);
 
       setvbuf( fsys, NULL, _IONBF, 0);

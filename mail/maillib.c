@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    Mail user agent subroutine library for UUPC/extended            */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks; all rights reserved except those explicitly        */
 /*    granted by the UUPC/extended license.                           */
 /*--------------------------------------------------------------------*/
@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: MAILLIB.C 1.2 1992/11/27 14:36:10 ahd Exp $
  *
- *    $Log$
+ *    $Log: MAILLIB.C $
+ * Revision 1.2  1992/11/27  14:36:10  ahd
+ * Use scrsize() for screen size
+ *
  */
 
 #include <ctype.h>
@@ -96,7 +99,7 @@ boolean Pager(const int msgnum,
    {
       browse = mktempname( NULL,"TMP" );/* Get a temporary file name */
 
-      if ((fmailbag = FOPEN(browse, "w", TEXT)) == nil(FILE))
+      if ((fmailbag = FOPEN(browse, "w",TEXT_MODE)) == nil(FILE))
       {
          printerr(browse);
          printmsg(0,"Cannot open browse file %s",browse);
@@ -189,7 +192,7 @@ void Sub_Pager(const char *tinput,
    else {
       FILE *finput;
       char buf[BUFSIZ];
-      finput = FOPEN(tinput, "r", TEXT);
+      finput = FOPEN(tinput, "r",TEXT_MODE);
       if (finput == NULL) {
          printmsg(0,"Cannot open file %s for display",tinput);
          printerr(tinput);

@@ -18,8 +18,8 @@
 #define NAME "NAME"
 #define NODENAME "NODENAME"
 
-#define TEXT    "t"
-#define BINARY  "b"
+#define TEXT_MODE    "t"
+#define BINARY_MODE  "b"
 
 #define MAXADDR   128            /* Max length of address strings      ahd */
 #define MAXLIST   99             /* Max number of entries in arg

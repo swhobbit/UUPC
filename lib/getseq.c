@@ -9,10 +9,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\GETSEQ.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Id: E:\SRC\UUPC\LIB\RCS\GETSEQ.C 1.2 1992/11/19 02:58:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: GETSEQ.C $
+ * Revision 1.2  1992/11/19  02:58:00  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
@@ -50,7 +53,7 @@ long getseq()
 
    mkfilename(seqfile, E_confdir, SFILENAME);
    printmsg(4, "getseq: opening %s", seqfile);
-   if ((seqfile_fp = FOPEN(seqfile, "r", TEXT)) != nil(FILE)) {
+   if ((seqfile_fp = FOPEN(seqfile, "r",TEXT_MODE)) != nil(FILE)) {
       fscanf(seqfile_fp, "%ld", &seq);
       fclose(seqfile_fp);
    } else {
@@ -64,7 +67,7 @@ long getseq()
 
    printmsg(5, "getseq: seq#=%ld", seq);
 
-   if ((seqfile_fp = FOPEN(seqfile, "w", TEXT)) != nil(FILE))
+   if ((seqfile_fp = FOPEN(seqfile, "w",TEXT_MODE)) != nil(FILE))
    {
       fprintf(seqfile_fp, "%ld\n", seq+1);
       fclose(seqfile_fp);

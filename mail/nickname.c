@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: ALIAS.C 1.2 1992/11/22 21:06:14 ahd Exp $
  *
- *    $Log$
+ *    $Log: ALIAS.C $
+ * Revision 1.2  1992/11/22  21:06:14  ahd
+ * Use strpool for memory allocation
+ *
  */
 
 #include <ctype.h>
@@ -296,7 +299,7 @@ size_t LoadAliases(void)
    if (E_aliases != NULL )    /* Did the user specify aliases file?  */
    {
 
-      ff = FOPEN(E_aliases, "r", TEXT);
+      ff = FOPEN(E_aliases, "r",TEXT_MODE);
       if (ff == NULL)
       {
          printerr(E_aliases);

@@ -431,7 +431,7 @@ static void Interactive_Mail( const boolean PrintOnly,
 /*               Open real and temporary mailbox files                */
 /*--------------------------------------------------------------------*/
 
-   if ((rmailbox = FOPEN(mfilename, "r", TEXT)) == nil(FILE)) {
+   if ((rmailbox = FOPEN(mfilename, "r",TEXT_MODE)) == nil(FILE)) {
       printf("No mail in %s\n", mfilename);
       return;
    }
@@ -439,7 +439,7 @@ static void Interactive_Mail( const boolean PrintOnly,
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
-   if ((fmailbox = FOPEN(tmailbox, "w", BINARY)) == nil(FILE)) {
+   if ((fmailbox = FOPEN(tmailbox, "w", BINARY_MODE)) == nil(FILE)) {
       printerr(tmailbox);
       return;
    }
@@ -475,7 +475,7 @@ static void Interactive_Mail( const boolean PrintOnly,
    letters = realloc( letters, (letternum + 1) *  sizeof(letters[0]));
    checkref(letters);
 
-   fmailbox = FOPEN(tmailbox, "r", BINARY);
+   fmailbox = FOPEN(tmailbox, "r", BINARY_MODE);
 
    if (fmailbox == NULL)
    {
@@ -837,7 +837,7 @@ static void IncludeNew( const char *target, const char *user)
 /*      Return semi-quietly if we can't open the system mailbox       */
 /*--------------------------------------------------------------------*/
 
-   stream_in   = FOPEN( sysbox, "r", BINARY );
+   stream_in   = FOPEN( sysbox, "r", BINARY_MODE);
    if ( stream_in == NULL )
    {
       if ( debuglevel > 1 )
@@ -862,7 +862,7 @@ static void IncludeNew( const char *target, const char *user)
 /*                    Now open up the output file                     */
 /*--------------------------------------------------------------------*/
 
-   stream_out  = FOPEN( target, "a+", BINARY );
+   stream_out  = FOPEN( target, "a+", BINARY_MODE);
 
    if ( stream_out == NULL )
    {
@@ -1273,7 +1273,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
 /*                    Begin re-writing the mailbox                    */
 /*--------------------------------------------------------------------*/
 
-   if ((fmailbag = FOPEN(mfilename, "w", TEXT)) == nil(FILE))
+   if ((fmailbag = FOPEN(mfilename, "w",TEXT_MODE)) == nil(FILE))
    {
       printf("UpdateMailbox: can't rewrite %s.\n", mfilename);
       Cleanup();
@@ -1302,7 +1302,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
 
          if ( mbox == NULL )  /* Mailbox already open?               */
          {                    /* No --> Do so now                    */
-            mbox = FOPEN(mboxname, "a", TEXT);
+            mbox = FOPEN(mboxname, "a",TEXT_MODE);
             if (mbox == NULL) /* Open fail?                          */
             {                  /* Yes --> Disable postoffice autosave*/
                printf("\nUpdateMailbox: can't append to %s.\n", mboxname);

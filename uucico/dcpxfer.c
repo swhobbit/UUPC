@@ -9,13 +9,16 @@
 /*    Changes Copyright (c) Stuart Lynne 1987                         */
 /*    Changes Copyright (c) Andrew H. Derbyshire 1989                 */
 /*    Changes Copyright (c) Jordan Brown 1990, 1991                   */
-/*    Changes Copyright (c) Kendra Electronic Wonderworks 1990-1992   */
+/*    Changes Copyright (c) Kendra Electronic Wonderworks 1990-1993   */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.12 1993/04/05 04:35:40 ahd Exp $
+ *       $Id: DCPXFER.C 1.13 1993/04/10 21:25:16 dmwatt Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.13  1993/04/10  21:25:16  dmwatt
+ * Add Windows/NT support
+ *
  * Revision 1.12  1993/04/05  04:35:40  ahd
  * Allow unique send/receive packet sizes
  *
@@ -357,7 +360,7 @@ XFER_STATE seof( const boolean purge_file )
       {
          tmx = localtime(&now.time);
          if ( bflag[F_MULTITASK] )
-            syslog = FOPEN(SYSLOG, "a", TEXT);
+            syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
          if (( syslog == NULL ) ||
              (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
@@ -484,7 +487,7 @@ XFER_STATE ssfile( void )
 /*    way through this job                                            */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN( hostfile, "r", BINARY );
+   xfer_stream = FOPEN( hostfile, "r", BINARY_MODE);
                                     /* Open stream to send           */
    if (xfer_stream == NULL)
    {
@@ -618,7 +621,7 @@ appending filename \"%s\"", hostfile, slash);
 /*    week; we'll just auto-create using FOPEN()                      */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN(hostfile, "w", BINARY);
+   xfer_stream = FOPEN(hostfile, "w", BINARY_MODE);
                            /* Allow auto-create of directory      */
    if (xfer_stream == NULL)
    {
@@ -907,7 +910,7 @@ XFER_STATE rrfile( void )
 #endif
 
    else if (strchr( cmdopts,'d'))
-      xfer_stream = FOPEN( spolname, "w", BINARY );
+      xfer_stream = FOPEN( spolname, "w", BINARY_MODE);
    else
       xfer_stream = fopen( spolname, "wb");
 
@@ -1020,7 +1023,7 @@ XFER_STATE rsfile( void )
 /*            The filename is transformed, try to open it             */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN( hostname, "r" , BINARY);
+   xfer_stream = FOPEN( hostname, "r" , BINARY_MODE);
                               /* Open stream to transmit       */
    if (xfer_stream == NULL)
    {
@@ -1183,7 +1186,7 @@ XFER_STATE reof( void )
       {
          tmx = localtime(&now.time);
          if ( bflag[F_MULTITASK] )
-            syslog = FOPEN(SYSLOG, "a", TEXT);
+            syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
 
          if (( syslog == NULL ) ||
              (bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))

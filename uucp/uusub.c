@@ -3,13 +3,16 @@
 /*                                                                    */
 /*    Report summary of UUPC activity                                 */
 /*                                                                    */
-/*    Copyright (C) 1991-1992, Andrew H. Derbyshire                   */
+/*    Copyright (C) 1991-1993, Andrew H. Derbyshire                   */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: UUSUB.C 1.2 1992/11/19 03:03:24 ahd Exp $
  *
- *    $Log$
+ *    $Log: UUSUB.C $
+ * Revision 1.2  1992/11/19  03:03:24  ahd
+ * drop rcsid
+ *
  */
 
 

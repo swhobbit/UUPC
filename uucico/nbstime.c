@@ -3,11 +3,25 @@
 /*                                                                    */
 /*    Set local system clock from National Bureau of Standards        */
 /*    Standard Time service                                           */
-/*                                                                    */
-/*    Copyright (c) 1991, Andrew H. Derbyshire                        */
-/*    See README.PRN for distribution restrictions and additional     */
-/*    copyrights                                                      */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Copyright (c) 1990-1993 by Kendra Electronic Wonderworks.       */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -21,8 +35,12 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define NONDOS
+
 #else
 #ifdef FAMILYAPI
+#define NONDOS
+
 #define INCL_BASE
 #include <os2.h>
 #else /* FAMILYAPI */
@@ -48,8 +66,9 @@
 #include "ulib.h"
 
 #ifndef __TURBOC__
-      currentfile();
+   currentfile();
 #endif
+
 /*--------------------------------------------------------------------*/
 /*    n b s t i m e                                                   */
 /*                                                                    */
@@ -69,26 +88,30 @@ boolean nbstime( void )
    int dst= 0;
    time_t delta;
    char sync = '?';
+   struct tm *tp;
+
+
 #ifdef WIN32
    SYSTEMTIME DateTime;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
-   struct tm *tp;
    USHORT rc;
-#else
+#endif
+
 #ifdef FAMILYAPI
    DATETIME DateTime;
-   struct tm *tp;
    USHORT rc;
-#else
+#endif
+
+#ifndef NONDOS
 #ifndef __TURBOC__
+
    unsigned short rc;
-   struct tm *tp;
    struct dosdate_t ddate;
    struct dostime_t dtime;
+
 #endif /* __TURBOC__ */
-#endif /* FAMILYAPI */
-#endif /* WIN32 */
+#endif /* NONDOS */
 
    memset( &tx , '\0', sizeof tx);        /* Clear pointers          */
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
@@ -163,12 +186,13 @@ boolean nbstime( void )
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
+   tp = localtime(&today);    /* Get local time as a record          */
+
 #ifdef WIN32
-   tp = localtime(&today);    /* Get local time as a record          */
    GetSystemTime( &DateTime );
-#else
+#endif
+
 #ifdef FAMILYAPI
-   tp = localtime(&today);    /* Get local time as a record          */
    rc = DosGetDateTime( &DateTime );
    if ( rc != 0 )
    {
@@ -177,25 +201,8 @@ boolean nbstime( void )
    }
 
 #endif /* FAMILYAPI */
-#endif /* WIN32 */
 
-#ifdef WIN32
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
-      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
-      (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
-      (int) DateTime.wDayOfWeek );
-
-   DateTime.wYear    = (USHORT) tp->tm_year + 1900;
-   DateTime.wMonth   = (UCHAR) (tp->tm_mon + 1);
-   DateTime.wDay     = (UCHAR) tp->tm_mday;
-   DateTime.wHour    = (UCHAR) tp->tm_hour;
-   DateTime.wMinute  = (UCHAR) tp->tm_min;
-   DateTime.wSecond  = (UCHAR) tp->tm_sec;
-   printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
-      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
-      (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
-      (int) DateTime.wDayOfWeek );
-#else /* WIN32 */
+#ifdef NONDOS
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
@@ -245,7 +252,7 @@ boolean nbstime( void )
    }
 
    tkp.Privileges[0].Attributes = 0;
-   
+
    if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
       (PTOKEN_PRIVILEGES)NULL, 0))
    {
@@ -254,7 +261,9 @@ boolean nbstime( void )
       return FALSE;
    }
 
-#else /* WIN32 */
+#endif /* WIN32 */
+
+#ifdef FAMILY_API
    rc = DosSetDateTime( &DateTime );
    if ( rc != 0 )
    {
@@ -263,9 +272,9 @@ boolean nbstime( void )
    }
 #endif /* WIN32 */
 
-#ifndef FAMILYAPI
-#ifndef WIN32
+#ifndef NONDOS
 #ifdef __TURBOC__
+
 /*--------------------------------------------------------------------*/
 /*    If this timezone uses daylight savings and we are in the        */
 /*    period to spring forward, do so.                                */
@@ -274,6 +283,7 @@ boolean nbstime( void )
    if (daylight && ( dst > 1 ) && ( dst < 52 ))
       today += 3600;          /* This is valid for the USA only      */
    stime( &today );
+
 #else /* __TURBOC__ */
    tp = localtime(&today);    /* Get local time as a record          */
 
@@ -305,8 +315,7 @@ boolean nbstime( void )
    }
 
 #endif /* __TURBOC__ */
-#endif /* WIN32 */
-#endif /* FAMILYAPI */
+#endif /* NONDOS */
 
 /*--------------------------------------------------------------------*/
 /*             Print debugging information, if requested              */

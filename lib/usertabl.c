@@ -12,9 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: USERTABL.C 1.2 1992/11/22 20:58:55 ahd Exp $
  *
- *    $Log$
+ *    $Log: USERTABL.C $
+ * Revision 1.2  1992/11/22  20:58:55  ahd
+ * Use strpool to allocate const strings
+ * Normalize directories as read
+ *
  */
 
 #include <stdio.h>
@@ -185,7 +189,7 @@ static size_t loaduser( void )
 
    mkfilename(s_systems, E_confdir, PASSWD);
 
-   if ((stream = FOPEN(s_systems, "r", TEXT)) == NULL)
+   if ((stream = FOPEN(s_systems, "r",TEXT_MODE)) == NULL)
    {
       printmsg(2,"loaduser: Cannot open password file %s",s_systems);
       users = realloc(users, UserElements *  sizeof(*users));

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.3 1992/12/05 23:38:43 ahd Exp $
+ *    $Id: DELIVER.C 1.4 1992/12/18 13:05:18 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.4  1992/12/18  13:05:18  ahd
+ * Use one token on request line for UUCP
+ *
  * Revision 1.3  1992/12/05  23:38:43  ahd
  * Skip blanks as well as unprintable characters
  *
@@ -401,7 +404,7 @@ static size_t DeliverLocal( const char *input,
    if ( announce )
       trumpet( userp->beep);  /* Local delivery, inform the user     */
 
-   mbox = FOPEN( mboxname , "a", TEXT );
+   mbox = FOPEN( mboxname , "a",TEXT_MODE );
    if (mbox == NULL )
    {
       printerr(mboxname);
@@ -433,7 +436,7 @@ static int DeliverFile( const char *input,
                         const boolean validate )
 {
    char buf[BUFSIZ];
-   FILE *fwrd = FOPEN(fwrdname, "r", TEXT);
+   FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
    int delivered = 0;
 
    if ( fwrd == NULL )
@@ -502,7 +505,7 @@ static int DeliverFile( const char *input,
             system(command);                 /* FIX THIS */
             PopDir();
             delivered += 1;
-            fwrd = FOPEN(fwrdname, "r", TEXT);
+            fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
             fseek( fwrd, here, SEEK_SET);
             break;
          } /* case */
@@ -727,7 +730,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    importpath( msname, ixfile, path);
    mkfilename( msfile, E_spooldir, msname);
 
-   stream = FOPEN(msfile, "w", BINARY);
+   stream = FOPEN(msfile, "w", BINARY_MODE);
    if ( stream == NULL )
    {
       printerr(msfile);
@@ -751,7 +754,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    importpath(msname, idfile, path);
    mkfilename( msfile, E_spooldir, msname);
 
-   stream = FOPEN(msfile, "w", BINARY);
+   stream = FOPEN(msfile, "w", BINARY_MODE);
    if (stream == NULL )
    {
       printerr(msfile);
@@ -774,7 +777,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    importpath( msname, tmfile, path);
    mkfilename( msfile, E_spooldir, msname);
 
-   stream = FOPEN(msfile, "w", TEXT);
+   stream = FOPEN(msfile, "w",TEXT_MODE);
    if (stream == NULL)
    {
       printerr( msname );
@@ -802,7 +805,7 @@ static int CopyData( const boolean remotedelivery,
                      const char *input,
                      FILE *dataout)
 {
-   FILE *datain = FOPEN(input, "r", TEXT);
+   FILE *datain = FOPEN(input, "r",TEXT_MODE);
    char buf[BUFSIZ];
    int column = 0;
    boolean success = TRUE;

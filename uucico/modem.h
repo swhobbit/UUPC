@@ -5,10 +5,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\uucico\RCS\MODEM.H 1.3 1992/11/18 03:50:17 ahd Exp $
+ *    $Id: E:\src\uupc\UUCICO\RCS\MODEM.H 1.4 1992/11/28 19:53:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.H $
+ * Revision 1.4  1992/11/28  19:53:22  ahd
+ * Make callin time parameter const
+ *
  * Revision 1.3  1992/11/18  03:50:17  ahd
  * Move check of call window to avoid premature lock file overhead
  *

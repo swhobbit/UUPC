@@ -80,7 +80,7 @@ void HostStatus( void )
 /*                       Actually open the file                       */
 /*--------------------------------------------------------------------*/
 
-   if ((stream  = FOPEN(fname , "r", BINARY)) == NULL)
+   if ((stream  = FOPEN(fname , "r", BINARY_MODE)) == NULL)
    {
 
       perror( fname );

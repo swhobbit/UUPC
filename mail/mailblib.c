@@ -203,7 +203,7 @@ boolean SaveItem( const int item,
 /*                     Open the mailox to save to                     */
 /*--------------------------------------------------------------------*/
 
-   if ((stream = FOPEN(filename, "a", TEXT)) == nil(FILE))
+   if ((stream = FOPEN(filename, "a",TEXT_MODE)) == nil(FILE))
    {
       printf("Cannot append to %s\n", filename);
       return FALSE;
@@ -415,7 +415,7 @@ boolean ForwardItem( const int item , const char *string )
 /*--------------------------------------------------------------------*/
 
    mktempname(tmailbag, "TMP");
-   stream = FOPEN(tmailbag, "w", TEXT);
+   stream = FOPEN(tmailbag, "w",TEXT_MODE);
    if (stream == NULL )
    {
       printerr(tmailbag);
@@ -430,7 +430,7 @@ boolean ForwardItem( const int item , const char *string )
 /*               mail the content of the temporary file               */
 /*--------------------------------------------------------------------*/
 
-   stream = FOPEN(tmailbag, "r", TEXT);
+   stream = FOPEN(tmailbag, "r",TEXT_MODE);
    if (stream == NULL )
    {
       printerr(tmailbag);
