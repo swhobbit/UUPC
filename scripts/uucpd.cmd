@@ -1,7 +1,7 @@
+start /min /n uucico -h %1 -m tcpip -U
 @echo off
-rem      $Id$
+rem      $Id: uucpd.cmd 1.1 1994/04/26 03:32:25 ahd Exp ahd $
 rem
-rem      $Log$
-rem
-echo on
-start /min /c uuio -h %1 -m tcpip
+rem      $Log: uucpd.cmd $
+rem     Revision 1.1  1994/04/26  03:32:25  ahd
+rem     Initial revision
