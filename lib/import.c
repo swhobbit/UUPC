@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.13 1993/12/06 01:59:07 ahd Exp $
+ *    $Id: import.c 1.14 1993/12/09 04:51:21 ahd Exp rommel $
  *
  *    $Log: import.c $
+ *     Revision 1.14  1993/12/09  04:51:21  ahd
+ *     Suppress file named mapped message below debug 5 if no change made
+ *
  *     Revision 1.13  1993/12/06  01:59:07  ahd
  *     Delete debug message from inner loop for search for internal commands
  *
@@ -97,7 +100,9 @@
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
+#ifndef min
 #define min(x,y) (((x) < (y)) ? (x) : (y))
+#endif
 
 currentfile();
 

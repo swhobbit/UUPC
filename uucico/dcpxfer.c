@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.35 1993/12/02 03:59:37 dmwatt Exp $
+ *       $Id: dcpxfer.c 1.36 1993/12/02 13:49:58 ahd Exp rommel $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.36  1993/12/02  13:49:58  ahd
+ * 'e' protocol support
+ *
  * Revision 1.35  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
  *
@@ -1057,7 +1060,7 @@ XFER_STATE rrfile( void )
       char *savetemp = E_tempdir;   /* Save the real temp directory  */
 
       E_tempdir = E_spooldir;       /* Generate this file in spool   */
-      mktempname(tempName, "TMP");  /* Get the file name             */
+      mktempname(tempName, "tmp");  /* Get the file name             */
       E_tempdir = savetemp;         /* Restore true directory name   */
 
       denormalize( tempName );

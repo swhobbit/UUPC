@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.5 1993/10/12 00:47:04 ahd Exp $
+ *    $Id: printmsg.c 1.6 1993/12/06 01:59:07 ahd Exp rommel $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.6  1993/12/06  01:59:07  ahd
+ *     Add code to compare environment changes
+ *     ./
+ *
  *     Revision 1.5  1993/10/12  00:47:04  ahd
  *     Normalize comments
  *
@@ -70,7 +74,12 @@ currentfile();
 #endif
 
 int debuglevel = 1;
+
+#ifdef __IBMC__
+FILE *logfile;
+#else
 FILE *logfile = stdout;
+#endif
 
 #ifdef __CORE__
 long  *lowcore = NULL;

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: GENSIG.C 1.3 1993/04/11 00:33:54 ahd Exp $
+ *    $Id: gensig.c 1.4 1993/09/27 04:04:06 ahd Exp rommel $
  *
  *    Revision history:
- *    $Log: GENSIG.C $
+ *    $Log: gensig.c $
+ * Revision 1.4  1993/09/27  04:04:06  ahd
+ * Suppress compiler warning message
+ *
  * Revision 1.3  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -30,7 +33,7 @@
  *
  */
 
-static char rcsid[] = "$Id: GENSIG.C 1.3 1993/04/11 00:33:54 ahd Exp $";
+static char rcsid[] = "$Id: gensig.c 1.4 1993/09/27 04:04:06 ahd Exp rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -195,7 +198,7 @@ static long getquote( const char *data, const char *target)
    fnmerge( lookaside, drive, dir, file, ".las");
    fnmerge( quoteused, drive, dir, file, ".qus");
 #else
-   _splitpath( data, drive, dir, file, ext);
+   _splitpath( (char *) data, drive, dir, file, ext);
    _makepath( lookaside, drive, dir, file, ".las");
    _makepath( quoteused, drive, dir, file, ".qus");
 #endif /* __TURBOC__ */

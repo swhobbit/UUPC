@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MKDIR.C 1.3 1993/03/24 01:57:30 ahd Exp $
+ *    $Id: mkdir.c 1.4 1993/04/11 00:31:31 dmwatt Exp rommel $
  *
  *    Revision history:
- *    $Log: MKDIR.C $
+ *    $Log: mkdir.c $
+ *     Revision 1.4  1993/04/11  00:31:31  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.3  1993/03/24  01:57:30  ahd
  *     Delete unneeded currentfile()
  *
@@ -83,6 +86,6 @@ int MKDIR(const char *inpath)
 /*                           Make last dir                            */
 /*--------------------------------------------------------------------*/
 
-   return mkdir(inpath);
+   return mkdir((char *) inpath);
 
 } /*MKDIR*/

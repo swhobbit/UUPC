@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.8 1993/10/31 21:32:55 ahd Exp $
+ *    $Id: mailblib.c 1.9 1993/11/13 17:43:26 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.9  1993/11/13  17:43:26  ahd
+ * Noramalize external command processing
+ *
  * Revision 1.8  1993/10/31  21:32:55  ahd
  * Treat .. as parent directory (actually, DON'T treat it as item number).
  *
@@ -451,7 +454,7 @@ boolean ForwardItem( const int item , const char *string )
 /*              copy current message to a temporary file              */
 /*--------------------------------------------------------------------*/
 
-   mktempname(tmailbag, "TMP");
+   mktempname(tmailbag, "tmp");
    stream = FOPEN(tmailbag, "w",TEXT_MODE);
    if (stream == NULL )
    {

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.11 1993/10/09 22:21:55 rhg Exp $
+ *    $Id: nbstime.c 1.12 1993/10/28 12:19:01 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.12  1993/10/28  12:19:01  ahd
+ * Cosmetic time formatting twiddles and clean ups
+ *
  * Revision 1.11  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -101,6 +104,12 @@
 
 #if defined(WIN32)
 #include "pnterr.h"
+#endif
+
+#ifdef __IBMC__
+#define timezone() _timezone
+#else
+#define timezone() timezone
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -228,7 +237,7 @@ boolean nbstime( void )
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
       (int) DateTime.timezone, (int) DateTime.weekday );
 
-   today -= timezone;
+   today -= timezone();
    tp = localtime(&today);    /* Get local time as a record          */
 
    DateTime.year    = (USHORT) tp->tm_year + 1900;
@@ -374,7 +383,7 @@ boolean nbstime( void )
    printmsg(2,"nbstime: \"%s\"", buf);
    printmsg(2,"nbstime: Time delta is %ld seconds, zone offset %ld, "
               "daylight savings %d",
-                  delta, timezone, dst );
+                  delta, timezone(), dst );
 #endif
 
    if ( sync == '*' )

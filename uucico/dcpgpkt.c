@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.24 1993/12/02 03:59:37 dmwatt Exp $
+ *      $Id: dcpgpkt.c 1.25 1993/12/02 13:49:58 ahd Exp rommel $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.25  1993/12/02  13:49:58  ahd
+ * 'e' protocol support
+ *
  * Revision 1.24  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
  *
@@ -167,7 +170,7 @@
 #define GDEBUG 4
 #endif
 
-#ifdef __OS2__
+#ifdef __BORLANDC__
 #pragma warn -sig
 #endif
 

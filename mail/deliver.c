@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.21 1993/12/09 04:51:21 ahd Exp $
+ *    $Id: deliver.c 1.22 1993/12/09 13:24:25 ahd Exp rommel $
  *
  *    $Log: deliver.c $
+ * Revision 1.22  1993/12/09  13:24:25  ahd
+ * Correct timestamp in UUCP From line
+ *
  * Revision 1.21  1993/12/09  04:51:21  ahd
  * Delete bogus case from CopyData()
  *
@@ -1006,7 +1009,7 @@ size_t Bounce( const char *input,
    if ( ! bounce )
      return Deliver( input, E_postmaster, FALSE, validate );
 
-   mktempname( tname , "TMP");  /* Generate a temp file name           */
+   mktempname( tname , "tmp");  /* Generate a temp file name           */
 
    if ((otherfile = FOPEN(input,"r", TEXT_MODE ))==NULL)
    {

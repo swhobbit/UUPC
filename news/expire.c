@@ -13,16 +13,22 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id$
+ *    $Id: expire.c 1.3 1993/12/09 04:51:21 ahd Exp $
  *
- *    $Log$
+ *    $Log: expire.c $
+ * Revision 1.3  1993/12/09  04:51:21  ahd
+ * restore ability to expire without having history database
+ *
  *
  */
 
-static char *rcsid = "$Id: expire.c 1.2 1993/10/31 21:32:55 ahd Exp ahd $";
-static char *rcsrev = "$Revision: 1.2 $";
+static char *rcsid = "$Id: expire.c 1.3 1993/12/09 04:51:21 ahd Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
 /* $Log: expire.c $
+ * Revision 1.3  1993/12/09  04:51:21  ahd
+ * restore ability to expire without having history database
+ *
  * Revision 1.2  1993/10/31  21:32:55  ahd
  * Delete unreferenced variables
  *
@@ -206,7 +212,6 @@ void main( int argc, char **argv)
    {
       for ( cur_grp = group_list; cur_grp != NULL;
             cur_grp = cur_grp->grp_next )
-         if (stricmp(cur_grp->grp_name, "junk") != 0)
             cur_grp->grp_low = cur_grp->grp_high;
    } /* if */
 

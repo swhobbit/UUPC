@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.29 1993/12/06 23:12:15 ahd Exp $
+ *    $Id: uuxqt.c 1.30 1993/12/23 01:52:33 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.30  1993/12/23  01:52:33  ahd
+ * Security enhancements
+ *
  * Revision 1.29  1993/12/06  23:12:15  ahd
  * Use pair of buffers for setting requestor environment variable
  *
@@ -966,7 +969,7 @@ static void process( const char *fname,
 #endif
          }
 
-         output = mktempname(NULL, "OUT");
+         output = mktempname(NULL, "out");
 
          printmsg(equaln(command,RMAIL,5) ? 2 : 0,
                   "uuxqt: executing \"%s\" for user %s at %s",
@@ -1031,7 +1034,7 @@ static void process( const char *fname,
                status = shell(cmd, input, output, remote, xflag); /* No */
             else
             { /* We currently do pipes by simulating them using files */
-               char *pipefile = mktempname(NULL, "PIP");
+               char *pipefile = mktempname(NULL, "pip");
                char *next_cmd = cmd; /* initialized ONLY to suppress compiler warning */
 
                *pipe = '\0';
@@ -1536,7 +1539,7 @@ static void ReportResults(const int status,
       return;
    }
 
-   tempmail = mktempname(NULL, "TMP");
+   tempmail = mktempname(NULL, "tmp");
 
    if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
       printerr(tempmail);

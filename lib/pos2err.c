@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.2 1993/09/30 03:06:28 ahd Exp $
+ *    $Id: pos2err.c 1.3 1993/10/12 00:47:04 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.3  1993/10/12  00:47:04  ahd
+ * Normalize comments
+ *
  * Revision 1.2  1993/09/30  03:06:28  ahd
  * Handle selected errors with special messages
  *
@@ -90,7 +93,7 @@ void pOS2Err(const size_t lineno,
          break;
 
       default:
-         xrc = DosGetMessage( (PCHAR) NULL,
+         xrc = DosGetMessage( NULL,
                               0,
                               (PCHAR) buf,
                               sizeof buf,

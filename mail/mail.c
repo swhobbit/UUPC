@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.14 1993/10/31 21:32:55 ahd Exp $
+ *    $Id: mail.c 1.15 1993/11/30 04:18:14 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.15  1993/11/30  04:18:14  ahd
+ * Add current time to status command (for testing arpadate())
+ *
  * Revision 1.14  1993/10/31  21:32:55  ahd
  * Don't print current header after headers command
  *
@@ -88,7 +91,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.14 1993/10/31 21:32:55 ahd Exp $";
+      "$Id: mail.c 1.15 1993/11/30 04:18:14 ahd Exp rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -324,7 +327,7 @@ void main(int argc, char **argv)
    if (!InitRouter())
       exit(1);    /* system configuration failed */
 
-   tmailbox = mktempname(NULL, "TMP");
+   tmailbox = mktempname(NULL, "tmp");
    PushDir(".");
 
 /*--------------------------------------------------------------------*/
@@ -1330,6 +1333,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
       printf("WARNING! File %s has changed, data may be lost if updated!\n",
             mfilename);
       fputs("Update anyway? ",stdout);
+      fflush(stdout);
 
       c     = Get_One();
 
@@ -1397,6 +1401,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
       {
          /* No operation */
          fputc('.', stdout);
+         fflush(stdout);
       }
       else if (postoffice && (letters[current].status != M_UNREAD))
       {
@@ -1417,12 +1422,14 @@ void UpdateMailbox(int letternum, boolean postoffice)
          if ( mbox != NULL )
          {
             fputc('+', stdout);
+            fflush(stdout);
             CopyMsg(current, mbox, seperators, FALSE);
             msave++;
          } /* mbox */
       }
       else {
          fputc('*', stdout);
+         fflush(stdout);
          CopyMsg(current, fmailbag, seperators, FALSE);
          psave ++;
       } /* else */

@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.10 1993/08/08 17:39:09 ahd Exp $
+ *    $Id: logger.c 1.11 1993/10/12 00:43:34 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.11  1993/10/12  00:43:34  ahd
+ *     Normalize comments
+ *
  *     Revision 1.10  1993/08/08  17:39:09  ahd
  *     Denormalize path for opening on selected networks
  *
@@ -109,7 +112,7 @@ void openlog( const char *log )
    mkfilename( fname, E_spooldir, logname );
 
    if ( tempname == NULL )
-      strcat( fname, ".LOG" );
+      strcat( fname, ".log" );
    logname = newstr( fname );
 
 /*--------------------------------------------------------------------*/
@@ -126,10 +129,10 @@ void openlog( const char *log )
                                        and/or system crashes          */
       while (( stream == NULL ) && retries-- )
       {
-         mktempname(fname, "LOG");  /* Get a temp log file name       */
+         mktempname(fname, "log");  /* Get a temp log file name       */
 
          denormalize( fname );
-         stream = _fsopen(fname, "at", SH_DENYWR);
+         stream = _fsopen(fname, "a", SH_DENYWR);
 
          if ( stream == NULL )
             printerr( fname );

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.19 1993/11/30 04:16:23 dmwatt Exp $
+ *    $Id: execute.c 1.20 1993/12/06 01:59:07 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.20  1993/12/06  01:59:07  ahd
+ * Delete debug message from inner loop for search for internal commands
+ *
  * Revision 1.19  1993/11/30  04:16:23  dmwatt
  * Add Windows NT executeAsync()
  *
@@ -94,6 +97,7 @@
 #include <time.h>
 #include <process.h>
 #include <io.h>
+#include <fcntl.h>
 
 #if defined(WIN32)
 #include <windows.h>
@@ -307,6 +311,7 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
+   int temp;
    char path[BUFSIZ];
    boolean redirected;
 
@@ -330,18 +335,26 @@ int execute( const char *command,
    else
       redirected = FALSE;
 
-   if ((input != NULL) && (freopen(input , "rb", stdin) == NULL))
+   if (input != NULL)
    {
-      printerr(input);
-      return -2;
+     if ((temp = open(input, O_RDONLY|O_BINARY)) == -1)
+     {
+       printerr(input);
+       return -2;
+     }
+
+     dup2(temp, 0);
+     close(temp);
    }
 
-   if ((output != NULL) && (freopen(output, "wt", stdout) == NULL))
+   if (output != NULL)
    {
-      printerr( output );
-      if ( input != NULL )
-      {
-         FILE *temp = freopen("con", "rt", stdin);
+     if ((temp = open(output, O_RDWR|O_BINARY|O_CREAT|O_TRUNC, 0666)) == -1)
+     {
+       printerr( output );
+       if ( input != NULL )
+       {
+         FILE *temp = freopen("con", "r", stdin);
 
          if ( (temp == NULL) && (errno != 0) )
          {
@@ -353,7 +366,13 @@ int execute( const char *command,
       } /* if ( input != NULL ) */
 
       return -2;
-   }
+
+     }
+
+     dup2(temp, 1);
+     close(temp);
+
+   } /* if (output != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                  Execute the command in question                   */
@@ -405,13 +424,13 @@ int execute( const char *command,
 
    if ( output != NULL )
    {
-      freopen("con", "wt", stdout);
+      freopen("con", "w", stdout);
       setvbuf( stdout, NULL, _IONBF, 0);
    }
 
    if ( input != NULL )
    {
-      FILE *temp = freopen("con", "rt", stdin);
+      FILE *temp = freopen("con", "r", stdin);
 
       if ( (temp == NULL) && (errno != 0) )
       {
@@ -584,7 +603,7 @@ static boolean batch( const char *input, char *output)
 
       } /* if ( gotPath ) */
       else
-         _searchenv( input, "PATH", output );
+         _searchenv( (char *) input, "PATH", output );
 
       if ( ! *output )           /* No file found?                    */
       {

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.6 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: mlib.c 1.7 1993/11/13 17:43:26 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.7  1993/11/13  17:43:26  ahd
+ * Normalize external command processing
+ *
  * Revision 1.6  1993/09/20  04:39:51  ahd
  * OS/2 2.x support
  *
@@ -198,6 +201,7 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
    }
 
    fputs(prompt, stdout);
+   fflush(stdout);
 
    return (fgets(buff, buflen, stdin) != nil(char)) ? TRUE : FALSE;
 
@@ -232,11 +236,13 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
 /*--------------------------------------------------------------------*/
 
    fputs(prompt, stdout);
+   fflush(stdout);
 
    if ( DOSKeyActive() )
       buflen = DOSKeyRead( buff, buflen );
    else
       buflen = DOSRead( buff, buflen );
+      
     putchar('\n');
 
 /*--------------------------------------------------------------------*/
@@ -452,6 +458,7 @@ void ClearScreen()
 
 #else
    fputs("\033[2J", stdout);        /* ANSI Erase screen           */
+   fflush(stdout);
 #endif
 
 } /* ClearScreen */

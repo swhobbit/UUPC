@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.5 1993/11/30 04:18:14 ahd Exp $
+ *    $Id: uuport.c 1.6 1993/12/02 02:25:12 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.6  1993/12/02  02:25:12  ahd
+ * Correct auto-close of window under Windows 3.1
+ *
  * Revision 1.5  1993/11/30  04:18:14  ahd
  * Automatically close program window after execution under Windows
  *
@@ -144,9 +147,10 @@ int main(int argc, char **argv)
       return 1;
     }
 
-    *ptr++ = '\0';
+    *ptr = '\0';
     strcpy(pipe, name);
     strcat(pipe, SUSPEND_PIPE );
+    *ptr++ = '\\';
     strcat(pipe, ptr);
   }
   else
@@ -172,8 +176,11 @@ int main(int argc, char **argv)
   }
 
   if ( cmd != 'Q' )
+  {
     printf("Waiting for uucico on port '%s' to %s ... ",
            name, cmd == 'S' ? "suspend" : "resume");
+    fflush(stdout);
+  }
 
   if ( write(file, &cmd, 1) != 1 )
   {

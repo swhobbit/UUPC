@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uundir.h 1.4 1993/10/12 01:22:27 ahd Exp $
+ *    $Id: uundir.h 1.5 1993/11/06 17:57:46 rhg Exp rommel $
  *
  *    Revision history:
  *    $Log: uundir.h $
+ *     Revision 1.5  1993/11/06  17:57:46  rhg
+ *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  *     Revision 1.4  1993/10/12  01:22:27  ahd
  *     Normalize comments to PL/I style
  *
@@ -66,16 +69,16 @@ struct direct {
 
 typedef struct _FTIME           /* ftime */
         {
-        unsigned short   twosecs : 5;
-        unsigned short   minutes : 6;
-        unsigned short   hours   : 5;
+        unsigned twosecs : 5;
+        unsigned minutes : 6;
+        unsigned hours   : 5;
         } FTIME;
 
 typedef struct _FDATE           /* fdate */
         {
-        unsigned short   day     : 5;
-        unsigned short   month   : 4;
-        unsigned short   year    : 7;
+        unsigned day     : 5;
+        unsigned month   : 4;
+        unsigned year    : 7;
         } FDATE;
 
 #if _MSC_VER >= 800

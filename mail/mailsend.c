@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.10 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: mailsend.c 1.11 1993/11/20 14:48:53 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.11  1993/11/20  14:48:53  ahd
+ * Correct execute() flag to use new editor window option, not pager window
+ *
  * Revision 1.10  1993/11/13  17:43:26  ahd
  * Normalize external command processing
  *
@@ -263,7 +266,7 @@ boolean Send_Mail(FILE *datain,
    char *header    = "To:";
    char *CcHeader  = "Cc:";
    char *BccHeader = "Bcc:";
-   char *pipename  = mktempname(NULL, "TMP");
+   char *pipename  = mktempname(NULL, "tmp");
    FILE *stream = FOPEN(pipename , "w",TEXT_MODE);
    int status;
 
@@ -565,7 +568,7 @@ boolean Collect_Mail(FILE *stream,
 /*--------------------------------------------------------------------*/
 
    *Subuffer = '\0';          /* Assume no subject */
-   tmailbag = mktempname( NULL, "TXT");
+   tmailbag = mktempname( NULL, "txt");
 
 /*--------------------------------------------------------------------*/
 /*         Determine if we should go straight into the editor         */
@@ -625,11 +628,13 @@ boolean Collect_Mail(FILE *stream,
 
    do {
       fputs("\nAbort, Continue, Edit, List, or Send? ",stdout);
+      fflush(stdout);
       c     = Get_One();             /* adaptation for QuickC */  /* pdm */
       switch (tolower( c ))
       {
          case 'c':
             puts("Continue");
+            fflush(stdout);
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
 
@@ -646,11 +651,13 @@ boolean Collect_Mail(FILE *stream,
 
          case 'l':
             puts("List");
+            fflush(stdout);
             Sub_Pager(tmailbag, islower(c) );
             break;
 
          case 's':
             puts("Send");
+            fflush(stdout);
             fmailbag = FOPEN(tmailbag, "r",TEXT_MODE);
             if (fmailbag == NULL )
             {
@@ -665,11 +672,13 @@ boolean Collect_Mail(FILE *stream,
 
          case 'e':
             puts("Edit");
+            fflush(stdout);
             Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
             break;
 
          case 'a':
             fputs("Abort\nAre you sure? ", stdout);
+            fflush(stdout);
             safeflush();
             c = Get_One();             /* for QuickC */          /* pdm */
             switch (tolower(c)) {      /* unravel these two calls */
@@ -684,6 +693,7 @@ boolean Collect_Mail(FILE *stream,
 
          default:
             puts("\n\aEnter A, C, E, L, or S.");
+            fflush(stdout);
             safeflush();
             done = FALSE;
       } /*switch*/
@@ -960,7 +970,7 @@ static void filter( char *tmailbag, char *command)
 /*   Set up our standard input and standard output for the command    */
 /*--------------------------------------------------------------------*/
 
-   mktempname(pipename, "TMP");
+   mktempname(pipename, "tmp");
 
 /*--------------------------------------------------------------------*/
 /*                          Run the command                           */

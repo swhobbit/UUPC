@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.19 1993/12/07 04:57:53 ahd Exp $
+ *    $Id: rmail.c 1.20 1993/12/13 03:09:13 ahd Exp rommel $
  *
  *    $Log: rmail.c $
+ * Revision 1.20  1993/12/13  03:09:13  ahd
+ * Print error before panic() when cannot open temp file
+ *
  * Revision 1.19  1993/12/07  04:57:53  ahd
  * Make ParseFrom perform heroics to pick up from FromUser whenever
  * possible
@@ -216,7 +219,7 @@ static boolean DaemonMail( const char *subject,
  currentfile();               /* Declare file name for checkref()    */
  char *tempname = NULL;       /* Pointer to temporary input file     */
  char *namein = CONSOLE;
- FILE *datain = stdin;        /* Handle for reading input mail       */
+ FILE *datain = NULL;         /* Handle for reading input mail       */
  FILE *dataout = NULL;        /* Handle for the output of mail       */
  char fromUser[MAXADDR] = ""; /* User id of originator               */
  char fromNode[MAXADDR] = ""; /* Node id of originator               */
@@ -275,6 +278,7 @@ void main(int argc, char **argv)
       Terminate(3);
 
    now = arpadate();          /* Set the current date                */
+   datain = stdin;
 
 /*--------------------------------------------------------------------*/
 /*                    Handle control-C interrupts                     */
@@ -384,7 +388,7 @@ void main(int argc, char **argv)
 /*                   Open up the output data stream                   */
 /*--------------------------------------------------------------------*/
 
-   tempname = mktempname( NULL , "TMP");
+   tempname = mktempname( NULL , "tmp");
    dataout = FOPEN(tempname, "w",TEXT_MODE);
 
    if (dataout == NULL)

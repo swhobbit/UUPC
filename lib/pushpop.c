@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.6 1993/10/24 21:45:49 rhg Exp $
+ *    $Id: pushpop.c 1.7 1993/11/06 17:54:55 rhg Exp rommel $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.7  1993/11/06  17:54:55  rhg
+ *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  *     Revision 1.6  1993/10/24  21:45:49  rhg
  *     Save the changed directory of the correct drive!
  *
@@ -104,7 +107,7 @@ void PushDir( const char *directory )
    if (isalpha(*directory) && (directory[1] == ':'))
       _chdrive( toupper(*directory) - 'A' + 1);
 
-   dirstack[depth] = newstr( _getdcwd( 0, cwd, FILENAME_MAX ) );
+   dirstack[depth] = newstr(_getdcwd(drivestack[depth], cwd, FILENAME_MAX));
 #endif
 
    if (dirstack[depth] == NULL )

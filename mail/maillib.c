@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.8 1993/10/12 01:30:23 ahd Exp $
+ *    $Id: maillib.c 1.9 1993/11/13 17:43:26 ahd Exp rommel $
  *
  *    $Log: maillib.c $
+ * Revision 1.9  1993/11/13  17:43:26  ahd
+ * Noramalize external command processing
+ *
  * Revision 1.8  1993/10/12  01:30:23  ahd
  * Normalize comments to PL/I style
  *
@@ -127,7 +130,7 @@ boolean Pager(const int msgnum,
 
    if (external && (E_pager != nil(char)))
    {
-      browse = mktempname( NULL,"TMP" );/* Get a temporary file name */
+      browse = mktempname( NULL,"tmp" );/* Get a temporary file name */
 
       if ((fmailbag = FOPEN(browse, "w",TEXT_MODE)) == nil(FILE))
       {
@@ -270,6 +273,7 @@ boolean PageLine(char *line)
    {
       int c;
       fputs("More?", stdout);
+      fflush(stdout);
       c = Get_One();
 
       switch (tolower(c))

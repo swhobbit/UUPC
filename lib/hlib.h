@@ -18,7 +18,11 @@
 #define NAME "NAME"
 #define NODENAME "NODENAME"
 
+#ifdef __IBMC__
+#define TEXT_MODE    ""
+#else
 #define TEXT_MODE    "t"
+#endif
 #define BINARY_MODE  "b"
 
 #define MAXADDR   128            /* Max length of address strings      ahd */
@@ -39,4 +43,8 @@ char *mkmailbox(char *buf, const char *userid);
         printmsg(0,"Cannot backup %s in GNU C yet ... yell at Drew", x)
 #else
 int filebkup( const char *input );
+#endif
+
+#ifdef __IBMC__
+#define _fsopen(n, m, s) fopen(n, m)
 #endif

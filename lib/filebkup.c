@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FILEBKUP.C 1.3 1993/04/11 00:33:38 dmwatt Exp $
+ *    $Id: filebkup.c 1.4 1993/10/12 00:43:34 ahd Exp rommel $
  *
  *    Revision history:
- *    $Log: FILEBKUP.C $
+ *    $Log: filebkup.c $
+ *     Revision 1.4  1993/10/12  00:43:34  ahd
+ *     Normalize comments
+ *
  *     Revision 1.3  1993/04/11  00:33:38  dmwatt
  *     Global edits for year, TEXT, etc.
  *
@@ -74,7 +77,7 @@ int filebkup( const char *input )
    fnsplit( input, fdrive, fpath, fname, ftype );
 
    if ( E_backup == NULL )
-      strcpy(ftype, ".BAK" );
+      strcpy(ftype, ".bak" );
    else if ( *E_backup == '.' )
       strcpy( ftype, E_backup );
    else {
@@ -86,9 +89,9 @@ int filebkup( const char *input )
 #else
 
    if ( E_backup == NULL )
-      E_backup = ".BAK";
+      E_backup = ".bak";
 
-   _splitpath( input , fdrive, fpath, fname, ftype );
+   _splitpath( (char *) input , fdrive, fpath, fname, ftype );
    _makepath( backup , fdrive, fpath, fname, E_backup );
 #endif /* __TURBOC__ */
 
