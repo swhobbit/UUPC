@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.29 1994/05/01 21:59:06 dmwatt Exp $
+ *    $Id: dcp.c 1.30 1994/05/04 01:56:22 ahd Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.30  1994/05/04  01:56:22  ahd
+ *        Clean up title messages
+ *
  *        Revision 1.29  1994/05/01  21:59:06  dmwatt
  *        Trap errors from failure of suspend_init to create pipe
  *
@@ -626,6 +629,16 @@ static boolean client( const time_t exitTime,
    boolean contacted = FALSE;
 
    char sendgrade = ALL_GRADES;
+
+/*--------------------------------------------------------------------*/
+/*                      Trap missing modem entry                      */
+/*--------------------------------------------------------------------*/
+
+   if ( E_inmodem == NULL )
+   {
+      printmsg(0,"No modem specified in configuration file or command line");
+      panic();
+   }
 
    if (!getmodem(E_inmodem))  /* Initialize modem configuration     */
       panic();                /* Avoid loop if bad modem name       */
