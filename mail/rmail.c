@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.68 1998/03/16 06:39:32 ahd Exp $
+ *    $Id: RMAIL.C 1.69 1998/03/16 07:47:40 ahd Exp $
  *
- *    $Log: rmail.c $
+ *    $Log: RMAIL.C $
+ *    Revision 1.69  1998/03/16 07:47:40  ahd
+ *    Correct definition of LOCAL_BUFSIZ
+ *
  *    Revision 1.68  1998/03/16 06:39:32  ahd
  *    Add trumpet remote user support
  *
@@ -503,14 +506,14 @@ int main(int argc, char **argv)
    {
       printmsg(0,"rmail: Cannot parse sender host (result was %s)",
                  (sender.host == NULL) ? "NULL" : "empty" );
-      Terminate(8, imf, datain);
+      sender.host = "not-for-mail.UUCP";
    }
 
    if ((sender.user == NULL) || !strlen(sender.user))
    {
       printmsg(0,"rmail: Cannot parse sender user (result was %s)",
                  (sender.user == NULL) ? "NULL" : "empty" );
-      Terminate(9, imf, datain);
+      sender.user = "nobody";
    }
 
 #ifdef UDEBUG
