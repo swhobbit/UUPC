@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.44 1995/02/20 17:28:43 ahd Exp $
+ *    $Id: uuxqt.c 1.45 1995/02/20 18:54:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.45  1995/02/20 18:54:08  ahd
+ *    news panic support
+ *
  *    Revision 1.44  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -273,7 +276,7 @@ static void ReportResults(const int   status,
                           const time_t jtime,
                           const char *requestor,
                           const char *outnode,
-                          const char *outname,
+                          const char *rmtOutName,
                           const KWBoolean xflag[],
                           const char *statfil,
                           const char *machine,
@@ -281,7 +284,7 @@ static void ReportResults(const int   status,
 
 static int shell(char *command,
                  const char *inname,
-                 const char *outname,
+                 const char *rmtOutName,
                  const char *remoteName,
                  KWBoolean xflag[]);
 
@@ -570,8 +573,8 @@ static void process( const char *fname,
                      const char *executeDirectory)
 {
    char *command = NULL,
-        *input = NULL,
-        *output = NULL,
+        *inputName = NULL,
+        *outputName = NULL,
         *job_id = NULL;
    char hostfile[FILENAME_MAX];
 
@@ -589,7 +592,7 @@ static void process( const char *fname,
    int status = 0;      /* initialized ONLY to suppress compiler warning */
 
    char *outnode = NULL;
-   char *outname = NULL;
+   char *rmtOutName = NULL;
    char *user = NULL;
    char *requestor = NULL;
    char *statfil = NULL;
@@ -706,8 +709,8 @@ static void process( const char *fname,
                }
          }
 
-         input = strdup(hostfile);
-         checkref(input);
+         inputName = strdup(hostfile);
+         checkref(inputName);
 
          break;
 
@@ -748,8 +751,8 @@ static void process( const char *fname,
                }
          }
 
-         outname = strdup(hostfile);
-         checkref(outname);
+         rmtOutName = strdup(hostfile);
+         checkref(rmtOutName);
          xflag[X_OUTPUT] = KWTrue;  /* return output to "outnode"  */
 
          break;
@@ -924,6 +927,7 @@ static void process( const char *fname,
          break;
 
       } /* switch */
+
    } /* while (!skip & (fgets(line, sizeof line, fxqt) != NULL)) */
 
    if ( fxqt != NULL )
@@ -999,18 +1003,18 @@ static void process( const char *fname,
                reject = xflag[E_NOACC] = KWTrue;
                                  /* Cannot determine true file name
                                     easily, reject it.               */
-            else if (equalni( executeDirectory,
+            else if (!equalni( executeDirectory,
                               hostfile,
                               strlen( executeDirectory )))
             {
-               /* In execute directory, 'tis okay  */
-            }
-            else if (((strchr( token, ':' ) != NULL ) ||  /* drive letter? */
-                 (strchr( token, '/' ) != NULL ) ||  /* path sep? */
-                 (strchr( token, '\\') != NULL )) && /* path sep? */
+
+               if (((strchr( token, ':' ) != NULL ) ||   /* drive letter?  */
+                 (strchr( token, '/' ) != NULL ) ||      /* path sep?      */
+                 (strchr( token, '\\') != NULL )) &&     /* path sep?      */
                  (!ValidateFile( hostfile, ALLOW_WRITE ) ||
                   !ValidateFile( hostfile, ALLOW_READ  )))
                reject = xflag[E_NOACC] = KWTrue;
+            }
 
          } /* while( next && ! reject ) */
 
@@ -1019,10 +1023,11 @@ static void process( const char *fname,
       if ( !reject )
       {
 
-         if (input == NULL)
-            input = strdup(BIT_BUCKET);
+         if (inputName == NULL)
+            inputName = strdup(BIT_BUCKET);
 
-         output = mktempname(NULL, "out");
+         if (xflag[X_OUTPUT])
+            outputName = mktempname(NULL, "tmp");
 
          printmsg(equaln(command,RMAIL,5) ? 2 : 0,
                      "uuxqt: executing \"%s\" for user %s at %s",
@@ -1035,6 +1040,7 @@ static void process( const char *fname,
 /*--------------------------------------------------------------------*/
 
          /* Make sure the directory exists before we copy the files */
+
          PushDir(executeDirectory);
 
 #ifdef RECURSIVE_PURIFY
@@ -1051,15 +1057,18 @@ static void process( const char *fname,
          for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
          {
             if (qPtr->xqtname != NULL)
+
                if (!copyLocal(qPtr->spoolname, qPtr->xqtname))
                {
                   /* Should we try again later in case its a temporary
                      error like execute directory on a full disk?  For
                      now, just reject it completely. */
+
                   printmsg(0, "Copy %s to %s failed",
                               qPtr->spoolname, qPtr->xqtname);
                   reject = xflag[F_NOCOPY] = KWTrue;
                   break;
+
                }
          } /* for ( ;; ) */
 
@@ -1091,32 +1100,34 @@ static void process( const char *fname,
                reject = xflag[F_CORRUPT] = KWTrue;
             }
             else if ((pipe = strchr(cmd, '|')) == NULL) /* Any pipes? */
-               status = shell(cmd, input, output, remote, xflag); /* No */
+               status = shell(cmd, inputName, outputName, remote, xflag); /* No */
             else
             { /* We currently do pipes by simulating them using files */
                char *pipefile = mktempname(NULL, "pip");
                char *next_cmd = cmd; /* initialized ONLY to suppress compiler warning */
 
                *pipe = '\0';
-               status = shell(cmd, input, pipefile, remote, xflag);
+               status = shell(cmd, inputName, pipefile, remote, xflag);
                /* *pipe = '|'; */
 
                while (status == 0
                       && (pipe = strchr(next_cmd = pipe + 1, '|')) != NULL)
                {
                   /* Swap the output and pipe files for the next pass */
-                  char *p = pipefile; pipefile = output; output = p;
+                  char *p = pipefile;
+                  pipefile = outputName;
+                  outputName = p;
 
                   xflag[E_NORMAL] = KWFalse;
                   *pipe = '\0';
-                  status = shell(next_cmd, output, pipefile, remote, xflag);
+                  status = shell(next_cmd, outputName, pipefile, remote, xflag);
                   /* *pipe = '|'; */
                }
 
                if (status == 0)
                {
                   xflag[E_NORMAL] = KWFalse;
-                  status = shell(next_cmd, pipefile, output, remote, xflag);
+                  status = shell(next_cmd, pipefile, outputName, remote, xflag);
                }
 
                unlink(pipefile);
@@ -1142,21 +1153,21 @@ static void process( const char *fname,
          unlink(qPtr->spoolname);
 
       ReportResults( status,
-                     input,
-                     output,
+                     inputName,
+                     outputName,
                      command,
                      job_id,
                      jtime,
                      requestor,
                      outnode,
-                     outname,
+                     rmtOutName,
                      xflag,
                      statfil,
                      machine,
                      user);
 
       if (!reject)
-         unlink(output);
+         unlink(outputName);
 
       unlink(fname);
 
@@ -1180,10 +1191,10 @@ static void process( const char *fname,
    }  /* while (F_list != NULL) */
 
    if (command    != NULL) free(command);
-   if (input      != NULL) free(input);
+   if (inputName  != NULL) free(inputName);
    if (job_id     != NULL) free(job_id);
    if (outnode    != NULL) free(outnode);
-   if (output     != NULL) free(output);
+   if (outputName != NULL) free(outputName);
    if (requestor  != NULL) free(requestor);
    if (statfil    != NULL) free(statfil);
    if (user       != NULL) free(user);
@@ -1198,7 +1209,7 @@ static void process( const char *fname,
 
 static int shell(char *command,
                  const char *inname,
-                 const char *outname,
+                 const char *outputName,
                  const char *remoteName,
                  KWBoolean xflag[])
 {
@@ -1206,10 +1217,10 @@ static int shell(char *command,
 
 #if defined(BIT32ENV)
    char   commandBuf[1024];   /* New OS/2, Windows NT environments   */
-#elif defined(__TURBOC__)
-   char   commandBuf[128];    /* Original DOS environment            */
+#elif defined(FAMILYAPI)
+   char   commandBuf[255];    /* Original OS/2 1.x environment       */
 #else
-   char   commandBuf[255];    /* Maybe MS C DOS, or OS/2 1.x         */
+   char   commandBuf[128];    /* Original DOS environment            */
 #endif
 
    char   *cmdname;
@@ -1271,7 +1282,7 @@ static int shell(char *command,
       result = execute( RNEWS,
                         commandBuf,
                         NULL,
-                        outname,
+                        outputName,
                         KWTrue,
                         KWFalse );
    }
@@ -1290,7 +1301,7 @@ static int shell(char *command,
          KWBoolean firstPass = KWTrue;
          int left;
 
-         size_t rlen = (size_t) (IsDOS() ? 126 : sizeof commandBuf) - 2;
+         size_t rlen = sizeof commandBuf - 2;
 
 #ifdef _Windows
          if ( bflag[F_WINDOWS] )
@@ -1358,7 +1369,7 @@ static int shell(char *command,
       result = execute( RMAIL,
                         commandBuf,
                         bflag[F_WINDOWS] ? NULL : inname,
-                        outname,
+                        outputName,
                         KWTrue,
                         KWFalse );
 
@@ -1374,7 +1385,7 @@ static int shell(char *command,
       result = execute( cmdname,
                         parameters,
                         inname,
-                        outname,
+                        outputName,
                         KWTrue,
                         KWFalse );
 
@@ -1437,17 +1448,26 @@ static KWBoolean copyLocal(const char *from, const char *to)
       {
          close(fd_from);
          return KWFalse;       /* failed                                */
+
          /* NOTE - this assumes all the required directories exist!  */
       }
 
-      while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
-         (nw = write(fd_to, buf, (unsigned) nr)) == nr)
-         ;
+      while ((nr = read(fd_from, buf, sizeof buf)) > 0)
+      {
+         nw = write(fd_to, buf, (unsigned) nr);
+
+         if (nw < nr)
+         {
+            nw = -1;
+            break;
+         }
+
+      } /* while */
 
       close(fd_to);
       close(fd_from);
 
-      if (nr != 0 || nw == -1)
+      if ((nr != 0) || (nw == -1))
          return KWFalse;       /* failed in copy                       */
 
       return KWTrue;
@@ -1568,13 +1588,13 @@ static void     do_copy(const char *localfile,
 
 static void ReportResults(const int status,
                           const char *input,
-                                char *output,
+                                char *outputName,
                           const char *command,
                           const char *job_id,
                           const time_t jtime,
                           const char *requestor,
                           const char *outnode,
-                          const char *outname,
+                          const char *rmtOutName,
                           const KWBoolean xflag[],
                           const char *statfil,
                           const char *machine,
@@ -1644,7 +1664,7 @@ static void ReportResults(const int status,
       fprintf(mailtmp,"exited normally\n");
 
       if (xflag[X_OUTPUT])
-         do_copy(output, outnode, outname, requestor, xflag[X_SUCCESS]);
+         do_copy(outputName, outnode, rmtOutName, requestor, xflag[X_SUCCESS]);
 
       fclose(mailtmp);
 
