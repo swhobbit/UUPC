@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.28 1993/09/29 13:18:06 ahd Exp $
+ *    $Id: modem.c 1.29 1993/10/01 01:17:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.29  1993/10/01  01:17:44  ahd
+ * Use atol() for reading port speed
+ *
  * Revision 1.28  1993/09/29  13:18:06  ahd
  * Clear raise before calling script processor in shutDown
  *
@@ -160,13 +163,14 @@ static char *dialPrefix, *dialSuffix;
 static char *M_suite;
 static char *dummy;
 
-static KEWSHORT chardelay, dialTimeout, modemTimeout, scriptTimeout;
+static KEWSHORT dialTimeout, modemTimeout, scriptTimeout;
 static KEWSHORT answerTimeout;
 static BPS inspeed;
 static KEWSHORT gWindowSize, gPacketSize;
 static KEWSHORT vWindowSize, vPacketSize;
 static KEWSHORT GWindowSize, GPacketSize;
 
+KEWSHORT M_charDelay;
 KEWSHORT M_fPacketSize;
 KEWSHORT M_gPacketTimeout;       /* "g" procotol                  */
 KEWSHORT M_fPacketTimeout;       /* "f" procotol                  */
@@ -194,7 +198,7 @@ static CONFIGTABLE modemtable[] = {
    { "answertimeout", (char **) &answerTimeout,B_SHORT| B_UUCICO },
    { "biggpacketsize",(char **) &GPacketSize,  B_SHORT| B_UUCICO },
    { "biggwindowsize",(char **) &GWindowSize,  B_SHORT| B_UUCICO },
-   { "chardelay",     (char **) &chardelay,    B_SHORT| B_UUCICO },
+   { "chardelay",     (char **) &M_charDelay,  B_SHORT| B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
    { "description",   &dummy,                  B_TOKEN  },
    { "device",        &M_device,               B_TOKEN| B_UUCICO | B_REQUIRED },
@@ -551,7 +555,7 @@ boolean getmodem( const char *brand)
    for (subscript = 0; subscript < MODEM_LAST; subscript++)
       bmodemflag[subscript] = FALSE;
 
-   chardelay = 00;            /* Default is no delay between chars    */
+   M_charDelay = 00;          /* Default is no delay between chars    */
    dialTimeout = 40;          /* Default is 40 seconds to dial phone  */
    gPacketSize = SMALL_PACKET;
    vPacketSize = MAXPACK;
@@ -897,20 +901,6 @@ static boolean sendalt( char *exp, int timeout, char **failure)
    } /*for*/
 
 } /* sendalt */
-
-/*--------------------------------------------------------------------*/
-/*    s l o w w r i t e                                               */
-/*                                                                    */
-/*    Write characters to the serial port at a configurable           */
-/*    snail's pace.                                                   */
-/*--------------------------------------------------------------------*/
-
-void slowwrite( char *s, int len)
-{
-   swrite( s , len );
-   if (chardelay > 0)
-      ddelay(chardelay);
-} /* slowwrite */
 
 /*--------------------------------------------------------------------*/
 /*    G e t G W i n d o w                                             */

@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.7 1993/09/28 01:40:29 ahd Exp $
+ *    $Id: modem.h 1.8 1993/09/29 04:56:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ * Revision 1.8  1993/09/29  04:56:11  ahd
+ * Suspend port by port name, not modem file name
+ *
  * Revision 1.7  1993/09/28  01:40:29  ahd
  * Configurable timeout for conversation start up
  *
@@ -62,8 +65,6 @@ CONN_STATE callin( const time_t exit_time );
 
 CONN_STATE callhot( const BPS speed );
 
-void slowwrite( char *s, int len);
-
 void shutDown( void );
 
 KEWSHORT GetGPacket( KEWSHORT maxvalue, const char protocol );
@@ -86,5 +87,6 @@ extern KEWSHORT M_PortTimeout;
 extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 extern KEWSHORT M_tPacketTimeout;
 extern KEWSHORT M_xfer_bufsize;
+extern KEWSHORT M_charDelay;
 
 #endif
