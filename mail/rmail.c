@@ -513,8 +513,8 @@ static void ParseFrom()
 
       sprintf(buf ,"%s!%s", fromnode, fromuser);
       user_at_node(buf , buf, node, user);
-      ruser = strdup( user );
-      rnode = strdup( node );
+      ruser = newstr( user );
+      rnode = newstr( node );
    }
 
    uuser = "uucp";            /* Effective id is always our daemon   */
@@ -684,7 +684,7 @@ static char **Parse822( boolean *header,
          return NULL;
       } /* if */
       else {
-         addrlist[*count] = strdup( address );
+         addrlist[*count] = newstr( address );
                               /* Save permanent copy of address      */
          checkref( addrlist[*count] ); /* Verify strdup worked       */
          printmsg(4,"address[%d]= \"%s\"",*count, address);

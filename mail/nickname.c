@@ -21,6 +21,12 @@
 /*                alias on local host.                         ahd    */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -333,7 +339,7 @@ size_t LoadAliases(void)
                 checkref(alias);
             }
 
-            alias[elements].anick = strdup(token);
+            alias[elements].anick = newstr(token);
             token = strtok(NULL,"");    /* Get rest of string         */
 
             while ( strlen(token) && isspace(*token))
@@ -345,11 +351,11 @@ size_t LoadAliases(void)
                eos--;
             }
 
-            alias[elements].afull = strdup(token);
+            alias[elements].afull = newstr(token);
             ExtractAddress(addr,alias[elements].afull,FALSE);
             user_at_node(addr,path,node,user);
-            alias[elements].anode = strdup(node);
-            alias[elements].auser = strdup(user);
+            alias[elements].anode = newstr(node);
+            alias[elements].auser = newstr(user);
             elements += 1;
          }
          else
@@ -376,7 +382,7 @@ size_t LoadAliases(void)
       else
          sprintf(buf, "\"%s\" <%s@%s>", users[subscript].realname,
                users[subscript].uid, E_fdomain );
-      alias[elements].afull = strdup(buf);
+      alias[elements].afull = newstr(buf);
       alias[elements].anode = E_nodename;
       alias[elements].auser = users[subscript].uid;
    } /* for */

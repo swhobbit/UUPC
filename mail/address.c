@@ -107,9 +107,6 @@ void user_at_node(const char *raddress,
    if (saveaddr != NULL)         /* Was the data previously allocated?  */
    {                             /* Yes --> Free it                     */
       free(saveaddr);
-      free(savepath);
-      free(saveuser);
-      free(savenode);
    }
 
    saveaddr = strdup(address);   /* Remember address for next pass   */
@@ -235,9 +232,9 @@ void user_at_node(const char *raddress,
 /*   were passed in.  This could save breaking it down again.         */
 /*--------------------------------------------------------------------*/
 
-   savepath = strdup(hispath);
-   savenode = strdup(hisnode);
-   saveuser = strdup(hisuser);
+   savepath = newstr(hispath);
+   savenode = newstr(hisnode);
+   saveuser = newstr(hisuser);
 
    free(address);
 }  /* user_at_node */

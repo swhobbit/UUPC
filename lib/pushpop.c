@@ -3,8 +3,18 @@
 /*                                                                    */
 /*    Directory functions for UUPC/extended                           */
 /*                                                                    */
-/*    Copyright (c) 1989, 1991 Andrew H. Derbyhshire                  */
+/*    Copyright (c) 1989 Andrew H. Derbyshire                         */
+/*                                                                    */
+/*    Changes Copyright (c) 1990 - 1992 by Kendra Electronic          */
+/*    Wonderworkss.  All rights reserved except as explicitly         */
+/*    granted by the UUPC/extended license.                           */
 /*--------------------------------------------------------------------*/
+
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -44,17 +54,18 @@ currentfile();
 
 void PushDir( const char *directory )
 {
+   char cwd[FILENAME_MAX];
    if ( depth >= MAXDEPTH )
       panic();
 
 #ifdef __TURBOC__
-   dirstack[depth] = getcwd( NULL , FILENAME_MAX );
+   dirstack[depth] = newstr( getcwd( cwd  , FILENAME_MAX ));
 #else
 
 #ifdef __GNUC__
-   dirstack[depth] = getcwd( NULL , FILENAME_MAX );
+   dirstack[depth] = newstr( getcwd( cwd , FILENAME_MAX ) );
 #else
-   dirstack[depth] = _getdcwd( 0, NULL , FILENAME_MAX );
+   dirstack[depth] = newstr( _getdcwd( 0, cwd , FILENAME_MAX ) );
 #endif
 
 #endif
@@ -79,7 +90,6 @@ void PopDir( void )
       panic();
 
    CHDIR( dirstack[--depth] );
-   free( dirstack[depth] );
    return;
 
 } /* PopDir */

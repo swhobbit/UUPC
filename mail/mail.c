@@ -767,7 +767,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                printf("Current File:\t%s\tNumber of items: %d\n"
                       "File size:\t%ld bytes\tLast updated:\t%s",
 
-                     mfilename, letters, mboxsize , ctime( & mboxage ) );
+                     mfilename, letternum + 1 , mboxsize , ctime( & mboxage ) );
                break;
 
             case M_WRITE:
