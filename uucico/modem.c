@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.19 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: modem.c 1.20 1993/09/20 04:46:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.20  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.19  1993/08/03  03:11:49  ahd
  * Add Description= line
  *
@@ -680,7 +685,8 @@ static boolean dial(char *number, const BPS speed)
    time( &remote_stats.lconnect );
    remote_stats.calls ++ ;
 
-   autobaud(speed);        /* Reset modem speed, if desired          */
+   if ( !IsNetwork() )
+      autobaud(speed);     /* Reset modem speed, if desired          */
 
 /*--------------------------------------------------------------------*/
 /*                      Report success to caller                      */
