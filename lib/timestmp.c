@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.18 1997/03/31 07:07:06 ahd v1-12t $
+ *    $Id: timestmp.c 1.19 1997/12/13 18:05:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.19  1997/12/13 18:05:06  ahd
+ *    Shorten Windows ID string
+ *
  *    Revision 1.18  1997/03/31 07:07:06  ahd
  *    Annual Copyright Update
  *
@@ -29,39 +32,6 @@
  *
  *    Revision 1.16  1995/08/27 23:30:21  ahd
  *    Add debugging info to hello message
- *
- *    Revision 1.15  1994/12/22 00:11:37  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.14  1994/04/24 20:35:08  ahd
- *    Add title setting
- *
- *     Revision 1.13  1994/02/20  19:07:38  ahd
- *     IBM C/Set 2 Conversion, memory leak cleanup
- *
- *     Revision 1.12  1994/01/01  19:06:26  ahd
- *     Annual Copyright Update
- *
- *     Revision 1.11  1993/11/21  02:45:50  ahd
- *     Change OS/2 id to 16/32 bit
- *
- *     Revision 1.10  1993/10/31  11:58:18  ahd
- *     Don't include version header if version already defined (for BC++)
- *
- *     Revision 1.9  1993/10/12  00:47:57  ahd
- *     Normalize comments
- *
- *     Revision 1.8  1993/08/11  02:31:12  ahd
- *     Always display the banner
- *
- *     Revision 1.7  1993/08/03  03:11:49  ahd
- *     Drop _EasyWinInit
- *
- *     Revision 1.6  1993/08/02  03:24:59  ahd
- *     Further changes in support of Robert Denny's Windows 3.x support
- *
- *     Revision 1.5  1993/07/31  16:22:16  ahd
- *     Changes in support of Robert Denny's Windows 3.x support
  *
  */
 
@@ -100,6 +70,8 @@
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
+
+RCSID("$Id$");
 
 #ifdef _Windows
 currentfile();
