@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.29 1997/05/11 04:28:26 ahd Exp $
+ *    $Id: ulibip.c 1.30 1997/05/13 04:10:19 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.30  1997/05/13 04:10:19  dmwatt
+ *    Allow reuse of addresses to allow repeated fast calls to UUCICO
+ *
  *    Revision 1.29  1997/05/11 04:28:26  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -541,7 +544,7 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
    printmsg(NETDEBUG + 1, "tpassiveopen: doing setsockopt()");
 
    if (setsockopt( pollingSock, SOL_SOCKET, SO_REUSEADDR,
-         (char FAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
+         (char UUFAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
 
