@@ -2,8 +2,12 @@
 #define CONFVARS_H
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*    c o n f v a r s . h                                             */
 /*                                                                    */
+/*    COnfiguration variable information for UUPC/extended            */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
@@ -16,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.17 1994/01/24 03:09:53 ahd Exp $
+ *    $Id: confvars.h 1.18 1994/02/14 00:29:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.18  1994/02/14  00:29:49  ahd
+ *     Use quotes, not angle brackets, for local includes
+ *
  *     Revision 1.17  1994/01/24  03:09:53  ahd
  *     Annual Copyright Update
  *
@@ -74,8 +81,6 @@
  * Initial revision
  *
  */
-
-#include "uutypes.h"
 
 /*--------------------------------------------------------------------*/
 /*      Configuration file strings                                    */

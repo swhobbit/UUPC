@@ -13,7 +13,7 @@ int Position(int absolute, int relative, int letter);
 
 boolean SaveItem( const int letter,
                const boolean delete,
-               const copyopt headers,
+               copyopt headers,
                char *fname,
                const ACTION verb);
 

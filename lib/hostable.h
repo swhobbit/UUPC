@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.5 1994/01/01 19:08:48 ahd Exp $
+  *   $Id: hostable.h 1.6 1994/01/24 03:10:11 ahd Exp $
   *
   *   $Log: hostable.h $
+ *     Revision 1.6  1994/01/24  03:10:11  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1994/01/01  19:08:48  ahd
  *     Annual Copyright Update
  *
@@ -89,7 +92,7 @@ typedef enum
 /*                          Status information                        */
 /*--------------------------------------------------------------------*/
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__OS2__)
 #pragma pack(1)
 #endif
 
@@ -104,10 +107,10 @@ struct HostStats {
       unsigned long breceived;   /* Total bytes received from this host */
       unsigned long errors;      /* Total transmission errors noted    */
       unsigned long packets;     /* Total packets exchanged            */
-      unsigned short save_hstatus;
+      unsigned short hstatus;    /* Status information                 */
    };
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__OS2__)
 #pragma pack()
 #endif
 
@@ -119,14 +122,13 @@ struct  HostTable {
       char  *hostname;           /* Name of the host in question       */
       char  *via;                /* Host hostname is routed via        */
       char  *realname;           /* Alias of this host name            */
-      struct HostStats *hstats;  /* Point to stats for real hosts only */
       struct HostSecurity *hsecure; /* Security Information, real hosts
                                        only                            */
       boolean anylogin;          /* TRUE = Can login with any generic
                                     user id                            */
       boolean  aliased;          /* TRUE = alias has been optimized    */
       boolean  routed;           /* TRUE = route has been optimized    */
-      unsigned short hstatus;          /* host status, as defined by hostatus */
+      struct HostStats status;   /* Status info for real hosts only    */
    };
 
 struct HostTable *searchname(const char *name, const size_t namel);

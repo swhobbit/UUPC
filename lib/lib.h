@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.18 1994/01/01 19:09:08 ahd Exp $
+ *    $Id: lib.h 1.19 1994/02/14 00:29:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.19  1994/02/14  00:29:49  ahd
+ *     Use quotes, not angle brackets, for local includes
+ *
  *     Revision 1.18  1994/01/01  19:09:08  ahd
  *     Annual Copyright Update
  *
@@ -82,20 +85,6 @@
 
 #ifndef __LIB
 #define __LIB
-
-#if _MSC_VER == 700
-#pragma function(strcpy)        /* Get around a MS C7 code-generation bug:
-                                   The C 7.00 compiler uses the wrong register
-                                   for passing the return value of strcpy to
-                                   another function!  The bug appears to be
-                                   only in C7; Visual C fixed the problem. */
-#endif /* _MSC_VER == 700 */
-
-#if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
-#define BIT32ENV
-#endif
-
-#include "confvars.h"
 
 /*--------------------------------------------------------------------*/
 /*     Environment variables set by UUXQT before invoking modules     */
@@ -308,6 +297,10 @@ void bugout( const size_t lineno, const char *fname);
 
 char *strpool( const char *input , const char *file, size_t line);
 
+#ifdef UDEBUG
+void dump_pool( void );          /* Dump our string pool          */
+#endif
+
 void safefree( void *input , const char *file, size_t line);
 
 char *normalize( const char *path );
@@ -340,4 +333,6 @@ extern   long *lowcore;
 #define BREAKPOINT   _asm INT 3
 #endif
 
+#else
+#error "lib.h" was already included once!
 #endif   /* ifndef __LIB */
