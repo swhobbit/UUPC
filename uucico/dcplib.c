@@ -23,9 +23,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.5 1993/07/24 03:40:55 ahd Exp $
+ *    $Id: dcplib.c 1.6 1993/09/20 04:48:25 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.6  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  * Revision 1.5  1993/07/24  03:40:55  ahd
  * Correct #ifif to #ifel
  *
@@ -152,7 +157,7 @@ boolean login(void)
           compilep,
           compilev,
          E_domain,
-         device);           // Print a hello message
+         M_device);           // Print a hello message
 
 #else /* not Windows */
 
@@ -177,7 +182,7 @@ boolean login(void)
             compilep,
             compilev,
             E_domain,
-            device); /* Print a hello message            */
+            M_device); /* Print a hello message            */
 #endif
 
    wmsg(line,0);
