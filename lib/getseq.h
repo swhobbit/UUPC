@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.h 1.6 1995/02/12 23:39:45 ahd v1-12o $
+ *    $Id: getseq.h 1.7 1995/09/24 19:11:38 ahd Exp $
  *
  *    $Log: getseq.h $
+ *    Revision 1.7  1995/09/24 19:11:38  ahd
+ *    Use const parameters where possible
+ *
  *    Revision 1.6  1995/02/12 23:39:45  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -34,8 +37,8 @@
 #define SPOOLFMT "%c.%.8s%c%3.3s"
 #define DATAFFMT "%c.%.7s0%3.3s%c"
 
-long getSeq( void );
+unsigned long getSeq( void );
 
-char *jobNumber( const long sequence,
+char *jobNumber( const unsigned long sequence,
                  const size_t length,
                  const KWBoolean monocase );

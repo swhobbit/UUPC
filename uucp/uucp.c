@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: uucp.c 1.21 1995/02/24 00:38:58 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.21  1995/02/24 00:38:58  ahd
+ *    Reduce memory usage, reformat source
+ *
  *    Revision 1.20  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -397,13 +400,12 @@ int   do_copy(char *src_syst,
       struct direct *dp = NULL;
       KWBoolean makeDirectory = KWTrue;  /* May need to build spool dir  */
 
-      long    int     sequence;
+      unsigned long    sequence = getSeq();
       char    *remote_syst;   /* Non-local system in copy              */
       char    *sequence_s;
       FILE        *cfile;
       static  char    *spool_fmt = SPOOLFMT;
 
-      sequence = getSeq();
       sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
 
       remote_syst =  equal(src_syst, E_nodename) ? dest_syst : src_syst;
@@ -655,10 +657,6 @@ main(int argc, char *argv[])
 
             case 'd':               /* make directories               */
                dir_flag = KWTrue;
-               break;
-
-            case 'e':               /* send uucp command to sys        */
-               /* This one is in Sams but nowhere else - I'm ignoring it */
                break;
 
             case 'f':               /* don't make directories         */

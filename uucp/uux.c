@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.21 1995/03/11 22:31:04 ahd Exp $
+ *    $Id: uux.c 1.22 1995/03/24 04:17:22 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.22  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.21  1995/03/11 22:31:04  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -529,7 +532,6 @@ static KWBoolean do_uuxqt(char *job_name,
                         char *dest_syst,
                         char *dest_file)
 {
-   long seqno = 0;
    char *seq  = NULL;
    FILE *stream;              /* For writing out data                 */
 
@@ -542,8 +544,7 @@ static KWBoolean do_uuxqt(char *job_name,
 /*          Create the UNIX format of the file names we need          */
 /*--------------------------------------------------------------------*/
 
-   seqno = getSeq();
-   seq = jobNumber( seqno, 3, bflag[F_ONECASE] );
+   seq = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
 
    sprintf(ixfile, spool_fmt, 'X', E_nodename, grade , seq);
 
@@ -592,13 +593,11 @@ static KWBoolean do_copy(char *src_syst,
 
       struct  stat    statbuf;
 
-      long    int     sequence;
       char    *remote_syst;    /* Non-local system in copy            */
       char    *sequence_s;
-      FILE        *cfile;
+      FILE    *cfile;
 
-      sequence = getSeq();
-      sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
+      sequence_s = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
 
       remote_syst =  equal(src_syst, E_nodename) ? dest_syst : src_syst;
 
@@ -651,8 +650,10 @@ static KWBoolean do_copy(char *src_syst,
          printmsg(1,"uux - spool %s - execute %s",
                   flags[FLG_COPY_SPOOL] ? "on" : "off",
                   flags[FLG_QUEUE_ONLY] ? "do" : "don't");
-         printmsg(1,"     - dest m/c = %s  sequence = %ld  control = %s",
-                  dest_syst, sequence, tmfile);
+         printmsg(1,"     - dest m/c = %s  sequence = %s  control = %s",
+                  dest_syst,
+                  sequence_s,
+                  tmfile);
 
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
             return KWFalse;
@@ -674,8 +675,11 @@ static KWBoolean do_copy(char *src_syst,
 
          if (flags[FLG_COPY_SPOOL])
          {
-            sprintf(idfile , dataf_fmt, 'D', E_nodename, sequence_s,
-                              subseq());
+            sprintf(idfile , dataf_fmt,
+                             'D',
+                             E_nodename,
+                             sequence_s,
+                             subseq());
             importpath(work, idfile, remote_syst);
             mkfilename(idfilename, E_spooldir, work);
 
@@ -811,8 +815,6 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
    KWBoolean o_remote = KWFalse;
    KWBoolean p_remote = KWFalse;
 
-   long    sequence;
-
    char    src_system[100];
    char    dest_system[100];
    char    src_file[FILENAME_MAX];
@@ -858,8 +860,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
    printmsg(9,"xsys -> %s", dest_system);
    printmsg(9, "system \"%s\", rest \"%s\"", dest_system, command);
 
-   sequence = getSeq();
-   sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
+   sequence_s = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
 
    sprintf(job_id, jobid_fmt, dest_system, grade, sequence_s);
 

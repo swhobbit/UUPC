@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.16 1995/03/08 03:00:20 ahd v1-12o $
+ *    $Id: getseq.c 1.17 1995/09/24 19:07:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.17  1995/09/24 19:07:05  ahd
+ *    Better debugging for funky 32 bit error
+ *
  *    Revision 1.16  1995/03/08 03:00:20  ahd
  *    Always force new sequence number to be reasonable (0 < newseq < 1000000)
  *
@@ -96,11 +99,11 @@ currentfile();
 /*    Return next available sequence number for UUPC processing       */
 /*--------------------------------------------------------------------*/
 
-long getSeq()
+unsigned long getSeq()
 {
    char seqfile[FILENAME_MAX];
    FILE *stream;
-   long seq = 0;
+   unsigned long seq = 0;
 
    mkfilename(seqfile, E_spooldir, SFILENAME);
 
@@ -125,14 +128,10 @@ long getSeq()
 
    if ( ! seq++ )
    {
-      seq = getpid();
+      seq = ((unsigned long) getpid()) % 10000000;
+                                    /* Start number small, semi-unique*/
 
-      if ( seq < 0 )                /* Weird number (under DOS?)     */
-         seq *= -1;                 /* Yes --> Make positve          */
-
-      seq %= 1000000;               /* Also start number small       */
-
-      printmsg(0,"Resetting sequence number to %ld (0x%08lx)",
+      printmsg(0,"Resetting sequence number to %lu (0x%08lx)",
                   seq,
                   seq );
    }
@@ -164,7 +163,7 @@ long getSeq()
 /*       for use in file names                                        */
 /*--------------------------------------------------------------------*/
 
-char *jobNumber( const long sequenceIn,
+char *jobNumber( const unsigned long sequenceIn,
                  const size_t lengthIn,
                  const KWBoolean monocase )
 {
@@ -172,7 +171,7 @@ char *jobNumber( const long sequenceIn,
    static const char set[] =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-   long sequence = sequenceIn;
+   unsigned long sequence = sequenceIn;
    size_t length = lengthIn;
    const int base = (sizeof set - 1) - (monocase ? 26 : 0);
    char *p = buf + sizeof buf - 2;
