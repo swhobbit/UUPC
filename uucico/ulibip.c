@@ -107,6 +107,14 @@
 
 #define WSAGetLastError() sock_errno()
 #define closesocket(s) soclose(s)
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKADDR_IN struct sockaddr_in
+#define LPHOSTENT struct hostent *
+#define LPSERVENT struct servent *
+#define PSOCKADDR struct sockaddr *
+
+
 #include "psos2err.h"        /* Windows sockets error messages        */
 #include "catcher.h"         /* For norecovery declaration            */
 
@@ -327,7 +335,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 
       if ( sin.sin_addr.s_addr == INADDR_NONE )
       {
-         int wsErr = WSAGetLastError();
+         int wsErr = h_errno;
 
          printmsg(0, "tactiveopenline: "
             "Is '%s' listed in the hosts file or a valid IP address?",
