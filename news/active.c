@@ -4,10 +4,25 @@
 /*    Load and write UUPC/extended news active file                   */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
- *    $Id: active.c 1.8 1994/02/19 04:12:59 ahd Exp $
+ *    $Id: active.c 1.9 1994/02/19 04:47:46 ahd Exp $
  *
  *    $Log: active.c $
+ *     Revision 1.9  1994/02/19  04:47:46  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/02/19  04:12:59  ahd
  *     Use standard first header
  *
@@ -75,14 +90,11 @@
 
 */
 
-#ifndef __GNUC__
 
 #include "uupcmoah.h"
 
 #include <io.h>
-
 #include <conio.h>
-#endif
 
 #include <ctype.h>
 #include <sys/stat.h>
