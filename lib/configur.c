@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.60 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: configur.c 1.61 1995/02/12 23:35:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.61  1995/02/12 23:35:59  ahd
+ *    'compiler
+ *
  *    Revision 1.60  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -287,6 +290,12 @@ char E_newsGrade = 'n';        /* Class news is transferred at        */
 KEWSHORT E_maxhops = 20;                                    /* ahd */
 KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
 
+#ifdef BIT32ENV
+KEWSHORT E_newsCache = 128;   /* Pages of news index to cache        */
+#else
+KEWSHORT E_newsCache = 4;     /* Pages of news index to cache        */
+#endif
+
 long     E_batchsize = 65536L;
 
 static char *dummy = NULL;
@@ -356,6 +365,7 @@ CONFIGTABLE envtable[] = {
    {"mailext",      &E_mailext,      B_MAIL,    B_TOKEN },
    {"mailserv",     &E_mailserv,     B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"newsgrade",    &E_newsGrade,    B_NEWS,    B_CHAR },
+   {"newscache",    &E_newsCache,    B_NEWS,    B_SHORT },
    {"maximumhops",  &E_maxhops,      B_MTA,     B_SHORT | B_GLOBAL },
    {"maximumuuxqt", &E_maxuuxqt,     B_MTA,     B_SHORT | B_GLOBAL },
    {"motd",         &E_motd,         B_UUCICO,  B_GLOBAL|B_PATH },
@@ -580,7 +590,7 @@ KWBoolean processconfig(char *buff,
 
          else if (program && !(tptr->program & program))
          {
-                  // No operation if we don't need the keyword
+                  /* No operation if we don't need the keyword    */
          }
 
 /*--------------------------------------------------------------------*/
