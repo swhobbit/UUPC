@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.11 1998/04/08 11:35:35 ahd Exp $
+ *    $Id: smtpserv.c 1.12 1998/04/22 01:19:54 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.12  1998/04/22 01:19:54  ahd
+ *    Performance improvements for SMTPD data mode
+ *
  *    Revision 1.11  1998/04/08 11:35:35  ahd
  *    CHange error processing for bad sockets
  *
@@ -60,7 +63,7 @@
 #include "smtpnetw.h"
 #include "execute.h"
 
-RCSID("$Id: smtpserv.c 1.11 1998/04/08 11:35:35 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.12 1998/04/22 01:19:54 ahd Exp $");
 
 currentfile();
 
@@ -88,19 +91,29 @@ flagReadyClientList(SMTPClient *master)
 /*       not dropping connections on a busy server.                   */
 /*--------------------------------------------------------------------*/
 
+
    do {
 #ifdef UDEBUG
-      printmsg(8,"%s: Processing client %d, handle %d, "
-                  "mode 0x%04x, %s lines buffered (%ld used and %ld parsed bytes) ",
-                  mName,
-                  getClientSequence(current),
-                  getClientHandle(current),
-                  getClientMode(current),
-                  getClientBufferedData(current) ? "at least one" : "no",
-                  current->receive.used,
-                  current->receive.parsed );
+
+      if (debuglevel >= 6)
+         printmsg(6,"%s: Processing client %d, handle %d, "
+                     "mode 0x%04x",
+                     mName,
+                     getClientSequence(current),
+                     getClientHandle(current),
+                     getClientMode(current));
 #endif
 
+
+      if (getClientProcess(current))
+      {
+         /* No operation */
+#ifdef UDEBUG
+         printmsg(9, "%s: Client %d Already eligible for processing",
+                      mName,
+                      getClientSequence(current));
+#endif
+      }
       if (isClientEOF(current))
       {
          printmsg(4, "%s: Client %d has reached EOF",
@@ -122,8 +135,9 @@ flagReadyClientList(SMTPClient *master)
          printmsg(4, "%s: Client %d invalid",
                       mName,
                       getClientSequence(current));
-         setClientMode( current, SM_DELETE_PENDING );
+         setClientMode(current, SM_DELETE_PENDING );
          setClientProcess(current, KWTrue);
+         setClientFlag(current, SF_NO_READ);
       }
       else if (getClientReady(current))
          setClientProcess(current, KWTrue);
@@ -195,12 +209,6 @@ processReadyClientList(SMTPClient *current)
       {
          setClientProcess(current, KWFalse);
          processClient(current);
-
-         /* Special processing for input mode, keep processing
-            until buffer is empty */
-         if ((getClientMode(current) ==  SM_DATA) &&
-             getClientBufferedData(current))
-            setClientProcess(current, KWTrue);
       }
 
       current = current->next;
@@ -249,7 +257,7 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
             freed,
             total);
 
-   if ( needUUXQT && runUUXQT )
+   if (needUUXQT && runUUXQT )
       executeQueue();
 
 } /* dropTerminatedClientList */
@@ -261,13 +269,13 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
 /*--------------------------------------------------------------------*/
 
 void
-executeQueue( void )
+executeQueue(void)
 {
    char buf[100];
 
    printmsg(1,"executeQueue: Spawning UUXQT");
-   sprintf( buf, "-s %s -x %d", E_nodename, debuglevel );
-   execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
+   sprintf(buf, "-s %s -x %d", E_nodename, debuglevel);
+   execute("uuxqt", buf, NULL, NULL, KWFalse, KWFalse);
 }
 
 /*--------------------------------------------------------------------*/

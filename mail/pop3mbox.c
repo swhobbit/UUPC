@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.8 1998/04/08 11:35:35 ahd Exp $
+ *       $Id: pop3mbox.c 1.9 1998/04/19 15:30:08 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.9  1998/04/19 15:30:08  ahd
+ *       Correctly count number of new lines in each message
+ *
  *       Revision 1.8  1998/04/08 11:35:35  ahd
  *       Make commenting out of UUCP From line optional
  *
@@ -64,7 +67,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.8 1998/04/08 11:35:35 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.9 1998/04/19 15:30:08 ahd Exp $");
 
 currentfile();
 
@@ -128,6 +131,7 @@ popBoxLoad(SMTPClient *client)
    static const size_t fromStringLength = sizeof fromString - 1;
    MailMessage *current = NULL;
    KWBoolean firstHeader = KWTrue;
+   char buffer[BUFSIZ];
    long position = -1;
    long length;
 
@@ -170,16 +174,16 @@ popBoxLoad(SMTPClient *client)
 /*              Loop to copy and parse the input mailbox              */
 /*--------------------------------------------------------------------*/
 
-   while (fgets(client->transmit.data,
-                client->transmit.length,
+   while (fgets(buffer,
+                sizeof buffer,
                 client->transaction->mailboxStream) != NULL)
    {
-      size_t bytes = strlen(client->transmit.data);
+      size_t bytes = strlen(buffer);
 
       position = imtell(client->transaction->imf);
 
       /* Handle the delimiter line which flags a new message */
-      if (equaln(client->transmit.data, sep, strlen(sep)))
+      if (equaln(buffer, sep, strlen(sep)))
       {
          /* Add new message into the message queue */
          current = newPopMessage(client, current, position);
@@ -203,14 +207,14 @@ popBoxLoad(SMTPClient *client)
       current->octets += bytes;
 
       /* Add extra byte for each line we will transmit */
-      if (client->transmit.data[bytes - 1] == '\n')
+      if (buffer[bytes - 1] == '\n')
          current->octets ++;        /* UNIX is LF, POP3 is CR/LF  */
 
       /* Make From ... line a comment to prevent Netscape from
          indenting all headers absurdly  */
       if ( firstHeader &&
            bflag[F_COMMENTFROM] &&
-           equaln(client->transmit.data, fromString, fromStringLength))
+           equaln(buffer, fromString, fromStringLength))
       {
          imputs( commentString, client->transaction->imf );
          current->octets += strlen( commentString );
@@ -219,7 +223,7 @@ popBoxLoad(SMTPClient *client)
       firstHeader = KWFalse;
 
       /* Now write input string out, with error checking */
-      if (imwrite(client->transmit.data,
+      if (imwrite(buffer,
                   sizeof(char),
                   bytes,
                   client->transaction->imf) != bytes)
@@ -233,12 +237,12 @@ popBoxLoad(SMTPClient *client)
       /* Perform limited header parsing */
       if (current->startBodyPosition == 0)
       {
-         if (equal(client->transmit.data, "\n"))   /* end of header? */
+         if (equal(buffer, "\n"))   /* end of header? */
             current->startBodyPosition = position; /* y --> remember */
-         else if (equaln(client->transmit.data, uidl, sizeof uidl - 1))
+         else if (equaln(buffer, uidl, sizeof uidl - 1))
          {
             /* Destructively parse the buffer for the UIDL */
-            char *token = strtok(client->transmit.data +
+            char *token = strtok(buffer +
                                     sizeof uidl - 1,
                                  WHITESPACE);
 
@@ -259,7 +263,7 @@ popBoxLoad(SMTPClient *client)
                            uidl,
                            current->sequence);
 
-         } /* else if (equaln(client->transmit.data, ... )) */
+         } /* else if (equaln(buffer, ... )) */
 
       } /* if (current->startBodyPosition == 0) */
 
@@ -319,6 +323,7 @@ popMessageUnload( SMTPClient *client,
    /* Loop for entire input message and copy it */
    for (;;)
    {
+      char buffer[BUFSIZ];
       long position = imtell(client->transaction->imf);
       size_t length;
 
@@ -328,14 +333,14 @@ popMessageUnload( SMTPClient *client,
       if (position >= current->endPosition)
          break;
 
-      if (imgets(client->transmit.data,
-                 client->transmit.length - 2,
+      if (imgets(buffer,
+                 sizeof buffer - 2,
                  client->transaction->imf) == NULL)
          break;
 
       /* If we need to write our UIDL, write at first empty line,
          which defines the end of the header */
-      if (current->fakeUIDL && equal(client->transmit.data, "\n"))
+      if (current->fakeUIDL && equal(buffer, "\n"))
       {
          current->fakeUIDL = KWFalse;  /* Don't write it twice! */
 
@@ -346,9 +351,9 @@ popMessageUnload( SMTPClient *client,
       }
 
       /* Now write out the input line */
-      length = strlen(client->transmit.data);
+      length = strlen(buffer);
 
-      if (fwrite(client->transmit.data,
+      if (fwrite(buffer,
                   sizeof(char),
                   length,
                   client->transaction->mailboxStream) != length)

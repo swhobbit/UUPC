@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.3 1998/03/06 06:51:28 ahd Exp $
+ *       $Id: POP3LWC.C 1.4 1998/03/08 04:50:04 ahd Exp $
  *
  *       Revision History:
- *       $Log: pop3lwc.c $
+ *       $Log: POP3LWC.C $
+ *       Revision 1.4  1998/03/08 04:50:04  ahd
+ *       Drop unneeded header files
+ *
  *       Revision 1.3  1998/03/06 06:51:28  ahd
  *       Add commands to make Netscape happy
  *
@@ -50,7 +53,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.3 1998/03/06 06:51:28 ahd Exp $");
+RCSID("$Id: POP3LWC.C 1.4 1998/03/08 04:50:04 ahd Exp $");
 
 currentfile();
 
@@ -65,8 +68,9 @@ commandInit(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
+   char xmitBuf[XMIT_LENGTH];
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "%s POP3 (%s %s, built %s %s) on-line at %s",
             E_domain,
             compilep,
@@ -75,7 +79,7 @@ commandInit(SMTPClient *client,
             compilet,
             arpadate());
 
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
 
    setClientTimeout( client, 600 );
 
@@ -93,16 +97,17 @@ commandUSER(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
+   char xmitBuf[XMIT_LENGTH];
 
    /* Save off the client name, PASS command needs it */
    client->clientName = strdup( operands[0] );
    checkref( client->clientName );
 
-   sprintf( client->transmit.data,
+   sprintf( xmitBuf,
             "User %s accepted, send password",
             client->clientName );
 
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
    return KWTrue;
 
 } /* commandUSER */
@@ -200,6 +205,7 @@ commandPASS(SMTPClient *client,
    memset(client->transaction, 0, sizeof *client->transaction);
    client->transaction->userp = userp;
 
+   /* Immediately process the load of the mailbox */
    setClientProcess(client, KWTrue );
 
    return KWTrue;
@@ -262,18 +268,19 @@ commandAUTH(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
+   char xmitBuf[XMIT_LENGTH];
 
    if ( operands[0] == NULL )
       SMTPResponse(client,
                    PR_ERROR_WARNING,
                    "AUTH capabilities listing not available" );
    else {
-      sprintf( client->transmit.data,
+      sprintf( xmitBuf,
                "Cannot authenticate with %s method",
                operands[0] );
       SMTPResponse(client,
                    PR_ERROR_GENERIC,
-                   client->transmit.data );
+                   xmitBuf );
    }
 
    return KWFalse;

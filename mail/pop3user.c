@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.9 1998/04/08 11:32:07 ahd Exp $
+ *       $Id: pop3user.c 1.10 1998/04/19 15:30:08 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.10  1998/04/19 15:30:08  ahd
+ *       Correctly handle quoting periods at the start of lines
+ *       Trap network errors when sending messages to remote clients
+ *       Use buffer large enough for sending most messages in one transmit
+ *
  *       Revision 1.9  1998/04/08 11:32:07  ahd
  *       Correct processing of continued lines when sending messages
  *       to POP client
@@ -68,7 +73,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.9 1998/04/08 11:32:07 ahd Exp $");
+RCSID("$Id: pop3user.c 1.10 1998/04/19 15:30:08 ahd Exp $");
 
 currentfile();
 
@@ -81,6 +86,7 @@ currentfile();
 static MailMessage *
 selectPopMessage(SMTPClient *client, const char *number)
 {
+   char xmitBuf[XMIT_LENGTH];
    long sequence = atol(number);
    char *errorText = NULL;
    MailMessage *current;
@@ -101,13 +107,13 @@ selectPopMessage(SMTPClient *client, const char *number)
 /*       We have an error, report it and return NULL to caller        */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "Cannot process message %s of %ld for user %s, error: %s",
             number,
             client->transaction->messageCount,
             client->clientName,
             errorText);
-   SMTPResponse(client, PR_ERROR_GENERIC, client->transmit.data);
+   SMTPResponse(client, PR_ERROR_GENERIC, xmitBuf);
 
    return NULL;
 
@@ -159,23 +165,26 @@ writePopMessage(SMTPClient *client,
    long bufferUsed = 0;
 
    if (imseek(client->transaction->imf,
-               current->startPosition,
-               SEEK_SET) == -1)
+              current->startPosition,
+              SEEK_SET) == -1)
    {
       printerr("imfile");
       SMTPResponse(client, PR_ERROR_GENERIC, "Seek failed");
       return;
    }
 
-   /* Send the header line announcing a message follows */
-   sprintf( client->transmit.data, "%ld Octets", current->octets );
-   if ( !SMTPResponse(client, PR_OK_GENERIC, client->transmit.data ))
-      return;
 
    /* Allocate our buffer for processing */
-   buffer = malloc( bufferLength );
+   buffer = malloc(bufferLength);
    checkref(buffer);
 
+   /* Send the header line announcing a message follows */
+   sprintf(buffer, "%ld Octets", current->octets);
+   if (!SMTPResponse(client, PR_OK_GENERIC, buffer))
+   {
+      free(buffer);
+      return;
+   }
 
    /* Loop for entire header and as many lines of body as required */
    for (;;)
@@ -212,11 +221,11 @@ writePopMessage(SMTPClient *client,
       }
 
       if (((length > 0) && isAllPeriods(linePointer, length)) ||
-          ((length == 0) && wasPeriods ))
+          ((length == 0) && wasPeriods))
       {
          if (incomplete)
          {
-            if ( ! continued )
+            if (! continued)
                wasPeriods = KWTrue;
             /* Otherwise, left we leave it as it was */
          }
@@ -239,15 +248,15 @@ writePopMessage(SMTPClient *client,
                   linePointer,
                   quotedPeriod ? " (quoted period)" : "",
                   continued ? " (continued)" : "",
-                  incomplete ? " (incomplete)" : "" );
+                  incomplete ? " (incomplete)" : "");
 #endif
 
       bufferUsed += length;
 
       /* Terminate the line */
-      if ( ! incomplete )
+      if (! incomplete)
       {
-         strcat( linePointer, crlf );
+         strcat(linePointer, crlf);
 
          /* Update our running total */
          bufferUsed += 2;
@@ -306,7 +315,7 @@ writePopMessage(SMTPClient *client,
                   "because of network error.",
                   mName,
                   current->sequence,
-                  client->clientName );
+                  client->clientName);
    }
    else {
       printmsg(3, "%s: Sent message %ld to %s (%ld of %ld octets)",
@@ -314,7 +323,7 @@ writePopMessage(SMTPClient *client,
                   current->sequence,
                   client->clientName,
                   octets,
-                  current->octets );
+                  current->octets);
    }
 
 } /* writePopMessage */
@@ -330,6 +339,7 @@ commandLoadMailbox(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*                   Create the final mailbox name                    */
@@ -347,11 +357,11 @@ commandLoadMailbox(SMTPClient *client,
                     client->transaction->userp->homedir,
                     E_mailext) == NULL)
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
               "Internal error, cannot determine mailbox location for %s",
               client->clientName);
 
-      SMTPResponse(client, PR_ERROR_GENERIC, client->transmit.data);
+      SMTPResponse(client, PR_ERROR_GENERIC, xmitBuf);
       setClientMode(client, P3_AUTHORIZATION);
       return KWFalse;
    }
@@ -363,11 +373,11 @@ commandLoadMailbox(SMTPClient *client,
    if (! IncludeNew(client->transaction->mailboxName,
                       client->clientName))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
               "Internal error, unable to append new mail to mailbox %s: %s",
               client->transaction->mailboxName,
               strerror(errno));
-      SMTPResponse(client, PR_ERROR_GENERIC, client->transmit.data);
+      SMTPResponse(client, PR_ERROR_GENERIC, xmitBuf);
       setClientMode(client, P3_AUTHORIZATION);
       return KWFalse;
    }
@@ -379,11 +389,11 @@ commandLoadMailbox(SMTPClient *client,
    if (! popBoxLoad(client))
    {
 
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
               "Internal error, unable to load mailbox %s",
               client->transaction->mailboxName);
 
-      SMTPResponse(client, PR_ERROR_GENERIC, client->transmit.data);
+      SMTPResponse(client, PR_ERROR_GENERIC, xmitBuf);
       setClientMode(client, P3_AUTHORIZATION);
       return KWFalse;
 
@@ -393,7 +403,7 @@ commandLoadMailbox(SMTPClient *client,
 /*                     Report our mailbox is open                     */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
            "%s has %ld message(s) (%ld octets)",
            client->clientName,
            client->transaction->messageCount,
@@ -401,7 +411,7 @@ commandLoadMailbox(SMTPClient *client,
 
    SMTPResponse(client,
                 verb->successResponse,
-                client->transmit.data);
+                xmitBuf);
 
    return KWTrue;
 
@@ -447,11 +457,12 @@ listOneMessage(SMTPClient *client,
                 MailMessage *current,
                 int code)
 {
+   char xmitBuf[XMIT_LENGTH];
 
-   sprintf(client->transmit.data, "%ld %ld",
+   sprintf(xmitBuf, "%ld %ld",
            current->sequence,
            current->octets);
-   SMTPResponse(client, code, client->transmit.data);
+   SMTPResponse(client, code, xmitBuf);
 
 } /* listOneMessage */
 
@@ -460,6 +471,7 @@ commandLIST(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
    MailMessage *current;
    long octets;
    long messages;
@@ -474,7 +486,7 @@ commandLIST(SMTPClient *client,
       if (current == NULL)
          return KWFalse;
       listOneMessage(client, current, verb->successResponse);
-      incrementClientMajorTransaction( client );
+      incrementClientMajorTransaction(client);
       return KWTrue;
    }
 
@@ -485,10 +497,10 @@ commandLIST(SMTPClient *client,
    /* Send the header line */
    octets = getMessageOctetCount(client->transaction->top, &messages);
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
            "%ld message(s) (%ld octets)",
            messages, octets);
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
 
    /* Now loop through the actual messages to report on */
    current = client->transaction->top;
@@ -502,7 +514,7 @@ commandLIST(SMTPClient *client,
    SMTPResponse(client, PR_DATA, ".");
 
    /* Report success to caller */
-   incrementClientMajorTransaction( client );
+   incrementClientMajorTransaction(client);
    return KWTrue;
 
 } /* commandLIST */
@@ -518,31 +530,32 @@ commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
    KWBoolean success = KWTrue;
 
    if ((client->transaction == NULL) || !client->transaction->rewrite)
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%s Closing connection, adios",
                E_domain);
    }
-   else if ( ! popBoxUnload( client ))
+   else if (! popBoxUnload( client))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
               "Unable to rewrite mailbox %s, it may be corrupted!",
-              client->transaction->mailboxName );
+              client->transaction->mailboxName);
    }
    else {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
               "Updated mailbox %s, with %ld messages.",
               client->transaction->mailboxName,
-              client->transaction->messageCount );
+              client->transaction->messageCount);
    }
 
    SMTPResponse(client,
                 success ? verb->successResponse :
                           PR_ERROR_GENERIC,
-                client->transmit.data);
+                xmitBuf);
 
    return KWTrue;
 
@@ -565,8 +578,8 @@ commandRETR(SMTPClient *client,
       return KWFalse;
 
    /* Write entire message out */
-   writePopMessage( client, current, LONG_MAX );
-   incrementClientMajorTransaction( client );
+   writePopMessage(client, current, LONG_MAX);
+   incrementClientMajorTransaction(client);
 
    return KWTrue;
 
@@ -601,13 +614,14 @@ commandSTAT(SMTPClient *client,
 {
    long octets;
    long messages;
+   char xmitBuf[XMIT_LENGTH];
 
    octets = getMessageOctetCount(client->transaction->top, &messages);
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
            "%ld %ld",
            messages, octets);
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
 
    /* Report Success to caller */
    return KWTrue;
@@ -630,8 +644,8 @@ commandTOP(SMTPClient *client,
    if (current == NULL)
       return KWFalse;
 
-   incrementClientMajorTransaction( client );
-   writePopMessage( client, current, atol(operands[1]));
+   incrementClientMajorTransaction(client);
+   writePopMessage(client, current, atol(operands[1]));
 
    return KWTrue;
 
@@ -648,11 +662,12 @@ identifyOneMessage(SMTPClient *client,
                     MailMessage *current,
                     int code)
 {
+   char xmitBuf[XMIT_LENGTH];
 
-   sprintf(client->transmit.data, "%ld %s",
+   sprintf(xmitBuf, "%ld %s",
            current->sequence,
            popBoxUIDL(current));
-   SMTPResponse(client, code, client->transmit.data);
+   SMTPResponse(client, code, xmitBuf);
 
    /* Generation of a UIDL means we have to rewrite the mailbox */
    if (popBoxIsUpdated(current))
@@ -684,7 +699,7 @@ commandUIDL(SMTPClient *client,
       if (current == NULL)
          return KWFalse;
       identifyOneMessage(client, current, verb->successResponse);
-      incrementClientMajorTransaction( client );
+      incrementClientMajorTransaction(client);
       return KWTrue;
    }
 
@@ -707,7 +722,7 @@ commandUIDL(SMTPClient *client,
    SMTPResponse(client, PR_DATA, ".");
 
    /* Report success to caller */
-   incrementClientMajorTransaction( client );
+   incrementClientMajorTransaction(client);
    return KWTrue;
 
 } /* commandUIDL */

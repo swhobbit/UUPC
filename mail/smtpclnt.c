@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.14 1998/04/08 11:35:35 ahd Exp $
+ *       $Id: smtpclnt.c 1.15 1998/04/22 01:19:54 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.15  1998/04/22 01:19:54  ahd
+ *       Performance improvements for SMTPD data mode
+ *
  *       Revision 1.14  1998/04/08 11:35:35  ahd
  *       CHange error processing for bad sockets
  *
@@ -74,6 +77,7 @@
 #include "smtpdns.h"
 #include "ssleep.h"
 #include "catcher.h"
+#include "memstr.h"
 
 #include <limits.h>
 #include <ctype.h>
@@ -85,7 +89,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.14 1998/04/08 11:35:35 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.15 1998/04/22 01:19:54 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -105,8 +109,13 @@ initializeClient(SOCKET handle, KWBoolean master)
    memset(client, 0, sizeof *client);
 
    client->sequence = ++clientSequence;
-   setClientProcess(client, KWTrue);
    client->connectTime = client->lastTransactionTime = time(NULL);
+
+   /* Process client immediately */
+   setClientProcess(client, KWTrue);
+
+   /* No data is read previous to first pass through verb processor */
+   setClientFlag(client, SF_NO_READ);
 
    if (terminate_processing)
       setClientMode(client, SM_EXITING);
@@ -148,17 +157,12 @@ initializeClient(SOCKET handle, KWBoolean master)
 /*                  Allocate remaining buffers we need                */
 /*--------------------------------------------------------------------*/
 
-   client->receive.length = 10 * 1024;
-   client->receive.data   = malloc((size_t) client->receive.length);
-   checkref(client->receive.data);
-
-   client->transmit.length = BUFSIZ;
-   client->transmit.data = malloc(client->transmit.length);
-   checkref(client->transmit.data);
+   client->receive.allocated = 10 * 1024;
+   client->receive.buffer   = malloc((size_t) client->receive.allocated);
+   checkref(client->receive.buffer);
 
 #ifdef UDEBUG
-   memset(client->transmit.data, 0, client->transmit.length);
-   memset(client->receive.data, 0, client->receive.length);
+   memset(client->receive.buffer, 0, client->receive.allocated);
 #endif
 
    printmsg(1, "%s: Client %d accepted from %s",
@@ -187,8 +191,13 @@ initializeMaster(const char *portName, time_t exitTime)
    memset(master, 0, sizeof *master);
    master->sequence = ++clientSequence;
 
+
    setClientMode(master, SM_MASTER);
    setClientHandle(master, openMaster(portName));
+
+   /* Master socket never attempts to read data */
+   setClientFlag(master, SF_NO_READ);
+
    master->connectTime = master->lastTransactionTime = time(NULL);
    master->listening   = KWTrue;
 
@@ -279,16 +288,16 @@ freeClient(SMTPClient *client)
       client->clientName = NULL;
    }
 
-   if (client->receive.data)
+   if (client->receive.buffer)
    {
-      free(client->receive.data);
-      client->receive.data = NULL;
+      free(client->receive.buffer);
+      client->receive.buffer = NULL;
    }
 
-   if (client->transmit.data)
+   if (client->transmit.buffer)
    {
-      free(client->transmit.data);
-      client->transmit.data = NULL;
+      free(client->transmit.buffer);
+      client->transmit.buffer = NULL;
    }
 
 /*--------------------------------------------------------------------*/
@@ -325,43 +334,21 @@ processClient(SMTPClient *client)
    client->ignoreUntilTime = 0;     /* If we're called, this out of
                                        date ... short circuit checks */
 
-   switch(getClientMode(client))
+   if (isClientFlag(client, SF_NO_READ))
    {
+      clearClientFlag(client, SF_NO_READ);
 
-      /* First command doesn't read any data before response */
-      case SM_CONNECTED:
-         if (getClientLinesWritten(client) > 0)
-         {
-            printmsg(0, "%s: Client %d "
-                        "returned to initial command state "
-                        "after first message, terminating client.",
-                        mName,
-                        getClientSequence(client));
-            setClientMode(client, SM_ABORT);
-            break;
-         }
-         /* Fall through */
+#ifdef UDEBUG
+      printmsg(5,"%s: No read processing for client %d",
+               mName,
+               getClientSequence(client));
+#endif
 
-      /* Loading data (used by POP only) also never reads data */
-      case SM_LOAD_MBOX:
-      case SM_SEND_DATA:
-         /* Fall through */
-
-      /* Master socket also never reads data */
-      case SM_MASTER:
-         /* Fall through */
-
-      /* Cleanup commands have no data left to read */
-      case SM_ABORT:
-      case SM_EXITING:
-      case SM_TIMEOUT:
-         SMTPInvokeCommand(client);    /* Process command by state   */
-         break;
-
-      default:
-         if (SMTPGetLine(client))
-            SMTPInvokeCommand(client);    /* Process offered cmd     */
-         break;
+      SMTPInvokeCommand(client);       /* Based on state          */
+   }
+   else {
+      if (SMTPGetLine(client))
+         SMTPInvokeCommand(client);    /* Process offered cmd     */
    }
 
 } /* processClient */
@@ -594,33 +581,15 @@ getClientProcess(const SMTPClient *client)
    return client->process;
 } /* getClientProcess */
 
-char *memstr( const char *haystack,
-              const char *needle,
-              size_t len )
-{
-   size_t needleLength = strlen(needle);
-   char *here = memchr(haystack, needle[0], len - needleLength + 1);
-
-   if (here == NULL)
-      return NULL;
-
-   if (!strncmp(here, needle, needleLength))
-      return here;
-
-   if (len > 1)
-      return memstr(here + 1, needle, len - (here - haystack) - 1);
-   else
-      return NULL;
-}
 
 KWBoolean
 getClientBufferedData(const SMTPClient *client)
 {
-   if (client->receive.parsed < client->receive.used)
+   if (client->receive.next != NULL)
    {
-      if (memstr(client->receive.data + client->receive.parsed,
-                 "\r\n",
-                 client->receive.used - client->receive.parsed ) != NULL)
+      size_t length = client->receive.used - (client->receive.next -
+                                              client->receive.buffer);
+      if (memstr(client->receive.next, "\r\n", length) != NULL)
          return KWTrue;
       else
          return KWFalse;

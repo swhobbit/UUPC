@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.5 1998/03/01 19:42:17 ahd Exp $
+ *       $Id: SMTPCMDS.C 1.6 1998/03/03 03:51:53 ahd v1-12v $
  *
- *       $Log: smtpcmds.c $
+ *       $Log: SMTPCMDS.C $
+ *       Revision 1.6  1998/03/03 03:51:53  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.5  1998/03/01 19:42:17  ahd
  *       SMTP verb table
  *
@@ -50,7 +53,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.5 1998/03/01 19:42:17 ahd Exp $");
+RCSID("$Id: SMTPCMDS.C 1.6 1998/03/03 03:51:53 ahd v1-12v $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */
@@ -71,57 +74,57 @@ SMTPVerb verbTable[] =
 {
    /* commandAccept only used by master socket to create clients */
    {
+      VF_NO_READ,
       commandAccept,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_MASTER,
       SM_SAME_MODE,
    },
    {
+      VF_EMPTY_FLAGS,
       commandInit,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_CONNECTED,
       SM_UNGREETED,
 
       SR_OK_CONNECT,
    },
    {
+      VF_NO_READ,
       commandExiting,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_EXITING,
       SM_DELETE_PENDING,
 
       SR_TE_SHUTDOWN,
    },
    {
+      VF_NO_READ,
       commandTimeout,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_TIMEOUT,
       SM_DELETE_PENDING,
 
       SR_TE_SHUTDOWN,
    },
    {
+      VF_NO_READ,
       commandTerminated,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_ABORT,
       SM_DELETE_PENDING,
    },
    /* Period command has priority over generic SM_DATA mode */
    {
+      VF_EMPTY_FLAGS,
       commandPeriod,
       commandSequenceIgnore,
       ".\0",                        /* Only match full line          */
-      KWFalse,
       SM_DATA,
       SM_IDLE,
 
@@ -129,18 +132,18 @@ SMTPVerb verbTable[] =
       SR_PE_NEED_ADDR
    },
    {
+      VF_NO_TOKENIZE,
       commandDataInput,
       commandSequenceIgnore,
       "",
-      KWFalse,
       SM_DATA,
       SM_SAME_MODE,
    },
    {
+      VF_TRIVIAL_CMD,
       commandHELO,
       commandSequenceIgnore,
       "HELO",
-      KWFalse,
       SM_UNGREETED,
       SM_IDLE,
 
@@ -149,10 +152,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_TRIVIAL_CMD,
       commandHELO,
       commandSequenceIgnore,
       "EHLO",
-      KWFalse,
       SM_UNGREETED,
       SM_IDLE,
 
@@ -161,10 +164,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_TRIVIAL_CMD,
       commandRSET,
       commandSequenceIgnore,
       "RSET",
-      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_IDLE,
 
@@ -172,20 +175,20 @@ SMTPVerb verbTable[] =
       SR_PE_DUPLICATE,
    },
    {
+      VF_TRIVIAL_CMD,
       commandNOOP,
       commandSequenceIgnore,
       "EXPN",
-      KWTrue,
       SMTP_MODES_NONE,
       SM_SAME_MODE,
 
       SR_PE_NOT_POLICY
    },
    {
+      VF_TRIVIAL_CMD,
       commandVRFY,
       commandSequenceIgnore,
       "VRFY",
-      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_SAME_MODE,
 
@@ -194,10 +197,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_EMPTY_FLAGS,
       commandMAIL,
       commandSequenceIgnore,
       "MAIL",
-      KWFalse,
       SM_IDLE,
       SM_ADDR_FIRST,
 
@@ -207,10 +210,10 @@ SMTPVerb verbTable[] =
       "FROM:"
    },
    {
+      VF_EMPTY_FLAGS,
       commandRCPT,
       commandSequenceIgnore,
       "RCPT",
-      KWFalse,
       ( SM_ADDR_FIRST | SM_ADDR_SECOND ),
       SM_ADDR_SECOND,
 
@@ -220,20 +223,20 @@ SMTPVerb verbTable[] =
       "TO:"
    },
    {
+      VF_NO_TOKENIZE,
       commandDATA,
       commandSequenceIgnore,
       "DATA",
-      KWFalse,
       SM_ADDR_SECOND,
       SM_DATA,
 
       SR_OK_SEND_DATA,
    },
    {
+      VF_TRIVIAL_CMD,
       commandNOOP,
       commandSequenceIgnore,
       "NOOP",
-      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_SAME_MODE,
 
@@ -241,10 +244,10 @@ SMTPVerb verbTable[] =
       0
    },
    {
+      VF_NO_READ,
       commandQUIT,
       commandSequenceIgnore,
       "QUIT",
-      KWFalse,
       SMTP_MODES_ALL,
       SM_DELETE_PENDING,
 
@@ -253,10 +256,10 @@ SMTPVerb verbTable[] =
    },
    /* Command for syntax errors MUST BE LAST */
    {
+      VF_TRIVIAL_CMD,
       commandSyntax,             /* Fall through for syntax errs  */
       commandSequenceIgnore,
       "",
-      KWTrue,
       SMTP_MODES_ALL,
       SM_SAME_MODE,
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.16 1998/04/19 15:30:08 ahd Exp $
+ *    $Id: smtpnetw.c 1.17 1998/04/22 01:19:54 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.17  1998/04/22 01:19:54  ahd
+ *    Performance improvements for SMTPD data mode
+ *
  *    Revision 1.16  1998/04/19 15:30:08  ahd
  *    Improved error messages for network errors
  *
@@ -92,6 +95,7 @@
 #include "catcher.h"
 #include "ssleep.h"
 #include "smtpverb.h"
+#include "memstr.h"
 
 #define MAX_BUFFER_SIZE (1024 * 64)
 
@@ -99,7 +103,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.16 1998/04/19 15:30:08 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.17 1998/04/22 01:19:54 ahd Exp $");
 
 currentfile();
 
@@ -137,6 +141,40 @@ isFatalSocketError(int err);
 void AtWinsockExit(void);
 #endif
 
+
+/*--------------------------------------------------------------------*/
+/*       g e t L i n e B r e a k                                      */
+/*                                                                    */
+/*       Determine where end of next line is                          */
+/*--------------------------------------------------------------------*/
+
+static char
+*getLineBreak( SMTPBuffer *sb )
+{
+   size_t offset;
+   static const char mName[] = "getLineBreak";
+
+   if ( sb->next == NULL)
+      return NULL;
+
+   offset = sb->next - sb->buffer;
+
+#ifdef UDEBUG
+   if (offset > sb->used)
+   {
+      printmsg(0,"%s: Attempted to scan %ld bytes in a "
+                  "buffer only %ld bytes long",
+                  mName,
+                  (long) offset,
+                  (long) sb->used);
+      panic();
+   }
+#endif
+
+   return memstr(sb->next, crlf, sb->used - offset);
+
+} /* lineBreak */
+
 /*--------------------------------------------------------------------*/
 /*       S M T P G e t L i n e                                        */
 /*                                                                    */
@@ -147,175 +185,192 @@ KWBoolean
 SMTPGetLine(SMTPClient *client)
 {
    static const char mName[] = "SMTPGetLine";
-   size_t column;
+   char *lineBreak;
 
-   printmsg(8, "%s: entered for client %d in mode 0x%04x "
-                "with %d bytes available",
-                mName,
-                getClientSequence(client),
-                getClientMode(client),
-                client->receive.used);
+#ifdef UDEBUG2
 
-   SMTPBurpBuffer(client);
+#define ignoredBytes(x) (((x).next == NULL) ? 0 : (x).next - (x).buffer)
+
+   if ( debuglevel >= 8 )
+      printmsg(8, "%s: Client %d in mode 0x%04x "
+                   "with %d of possible %d bytes buffered (%d ignored)",
+                   mName,
+                   getClientSequence(client),
+                   getClientMode(client),
+                   client->receive.used,
+                   client->receive.allocated,
+                   ignored(client->receive));
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                   Handle previously signaled EOF                   */
 /*--------------------------------------------------------------------*/
 
-   if (isClientEOF(client) && ! client->receive.used)
+   if (isClientEOF(client) && (client->receive.next == NULL))
    {
       printmsg(0, "%s: client %d is out of data (EOF)",
                    mName,
                    getClientSequence(client));
-      client->receive.data[ 0 ] = '\0';
+
+      client->receive.line = client->receive.buffer;
+      client->receive.line[ 0 ] = '\0';
       setClientMode(client, SM_ABORT);
       return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
-/*       Read more data if we have some and need it, need being       */
-/*       defined as we have used 75% of the buffer or no CR/LF        */
-/*       was found during our last pass.                              */
+/*       Read more data if we have some and need it,                  */
 /*--------------------------------------------------------------------*/
 
-   if (getClientReady(client) &&
-       ((client->stalledReads > 0) ||
-       (client->receive.used < (client->receive.length / 4))))
+   lineBreak = getLineBreak(&client->receive);
+
+   if (getClientReady(client) && (lineBreak == NULL))
    {
       if (client->stalledReads)     /* Improve response time ...     */
          client->stalledReads--;
+
+      SMTPBurpBuffer(client);
       SMTPRead(client);
+      lineBreak = getLineBreak(&client->receive);
    }
 
 /*--------------------------------------------------------------------*/
-/*           Locate start of input line if not in data mode           */
+/*              If no data available, return immediately              */
 /*--------------------------------------------------------------------*/
 
-   if (getClientMode(client) != SM_DATA)
+   if (lineBreak == NULL)
    {
-      for(column = 0;
-           column < client->receive.used;
-           column ++)
-      {
-            if (! isspace(client->receive.data[column]))
-               break;
-      }
+       printmsg(0,"%s: No additional data for client after read", mName);
 
-      if (column == client->receive.used)
-      {
-         printmsg(2, "%d <<<   (empty line with %d characters)",
-                      getClientSequence(client),
-                      client->receive.used);
-         client->receive.used = 0;
-         client->receive.data[ 0 ] = '\0';
-         setClientIgnore(client, 2);      /* Make client wait */
-         return KWFalse;                  /* Ignore input line */
-
-      }
-      else if (column > 0)
-      {
-
-         client->receive.used -= column;
-         memmove(client->receive.data,
-                  client->receive.data + column,
-                  client->receive.used);
-      }
-
-      /* Silly hack to handle NETSPACE being lazy about
-         terminating QUIT commands                       */
-      if ((client->receive.used > 3) &&
-           (client->receive.used < 6) &&
-           client->stalledReads &&
-           equalni(client->receive.data, "QUIT", 4))
-      {
-         printmsg(1, "%s: Client %d requires CR/LF after QUIT",
+       if (isClientEOF(client))
+       {
+          printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
                      mName,
                      getClientSequence(client));
-         strcpy(client->receive.data + 4, crlf);
-         client->receive.used = 6;
-      }
+          client->receive.line = NULL;
 
-   } /* if (getClientMode(client) != SM_DATA) */
+          /* Abort client immediately */
+          setClientMode(client, SM_ABORT);
+          return KWTrue;
+       }
 
-/*--------------------------------------------------------------------*/
-/*    Locate the end of the input line; we deliberately parse past    */
-/*    embedded nulls ('\0') lest some idiot sent us binary data       */
-/*--------------------------------------------------------------------*/
-
-   for(column = 0;
-        column < client->receive.used;
-        column ++)
-   {
-      /* After we have at least two characters, check for CR/LF pair */
-      if (column &&
-           ! memcmp(client->receive.data + column - 1,
-                     crlf,
-                     2))
-      {
-         client->receive.data[column-1] = '\0';
-         printmsg((int) ((getClientMode(client) == SM_DATA) ? 8 : 2),
-                      "%d <<< %.75s",
-                      getClientSequence(client),
-                      client->receive.data);
-         incrementClientLinesRead(client);
-         client->receive.parsed = column + 1;
-                                    /* Incr because count, not
-                                       subscript for this            */
-         return KWTrue;
-
-      } /* if */
-
-   } /* for */
-
-   if (isClientEOF(client))
-   {
-      printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
-                 mName,
-                 getClientSequence(client));
-      client->receive.data[ 0 ] = '\0';
-      setClientMode(client, SM_ABORT);/* Abort client immediately     */
-      return KWTrue;                 /* Process the abort immediately */
-   }
+   } /* if (client->receive.next == NULL) */
 
 /*--------------------------------------------------------------------*/
 /*       We did not find the end of the command; this is an error     */
 /*       only if we are also out of buffer space.                     */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.used < client->receive.length)
+   if (lineBreak == NULL)
    {
-      client->receive.parsed = 0;      /* Flag buffer unprocessed    */
-      client->receive.data[ client->receive.used ] = '\0';
+      if (client->receive.used < client->receive.allocated)
+      {
+         printmsg(2, "%s: Client %d Input buffer "
+                      "(%d bytes) waiting for data.",
+                      mName,
+                      getClientSequence(client),
+                      client->receive.used);
 
-      printmsg(4, "%s: Client %d Input buffer "
-                   "(%d bytes) waiting for data.",
-                   mName,
-                   getClientSequence(client),
-                   client->receive.used);
-      setClientIgnore(client, (time_t) ++client->stalledReads);
-                                       /* Sleep client for few secs  */
-      return KWFalse;                  /* Don't process command now  */
+         /* Sleep client for few secs  */
+         setClientIgnore(client, (time_t) ++client->stalledReads);
 
-   } /* if (client->received.used < client->receive.length) */
+         /* Don't process command yet  */
+         return KWFalse;
+
+      } /* if (client->receive.used < client->receive.allocated) */
+      else {
+
+        printmsg(0, "%d <<< %.75s",
+                     getClientSequence(client),
+                     client->receive.next);
+        printmsg(0, "%s: Client %d Input buffer (%d bytes) overrun.",
+                     mName,
+                     getClientSequence(client),
+                     client->receive.used);
+
+        client->receive.lineLength = client->receive.used - 1;
+
+        /* Don't run off end of the buffer */
+        client->receive.buffer[client->receive.used - 1] = '\0';
+
+        /* Abort client immediately     */
+        setClientMode(client, SM_ABORT);
+        return KWTrue;
+
+      } /* else */
+
+   } /* if (lineBreak == NULL) */
+
+   client->receive.line = client->receive.next;
+   client->receive.lineLength = lineBreak - client->receive.line;
+
+   /* Terminate the command line and step past the CR/LF */
+   *(lineBreak++) = '\0';
+   *(lineBreak++) = '\0';
+
+   /* Remember where our next line starts, if any */
+   client->receive.next = lineBreak;
+
+   if (client->receive.next == (client->receive.buffer +
+                                client->receive.used))
+   {
+      client->receive.next = NULL;
+
+#ifdef UDEBUG2
+      if (debuglevel >= 6)
+         printmsg(6,"%s: Last line in buffer %p (%d bytes) at %p: %.75s",
+                  mName,
+                  client->receive.buffer,
+                  client->receive.allocated,
+                  client->receive.line,
+                  client->receive.line );
+#endif
+   }
+
+/*--------------------------------------------------------------------*/
+/*           Locate start of input line if not in data mode           */
+/*--------------------------------------------------------------------*/
+
+   if (isClientFlag(client, SF_NO_TOKENIZE))
+   {
+      clearClientFlag(client, SF_NO_TOKENIZE);
+
+      printmsg(5,"%d <<< %.75s",
+               getClientSequence(client),
+               client->receive.line );
+   }
    else {
 
-     printmsg(0, "%d <<< %.75s",
+      while(isspace(*(client->receive.line)))
+         client->receive.line++;
+
+      if (*(client->receive.line) == '\0')
+      {
+         printmsg(0, "%d <<<   (empty line with %d characters)",
+                      getClientSequence(client),
+                      client->receive.lineLength);
+         client->receive.lineLength= 0;
+         setClientIgnore(client, 2);      /* Make client wait */
+
+         /* Ignore input line */
+         return KWFalse;
+      }
+
+      /* Recompute (perhaps updated) line length */
+      client->receive.lineLength = lineBreak - client->receive.line - 2;
+
+      if ( equalni(client->receive.line, "pass", 4))
+         printmsg(2,"%d <<< %.4s xxxxxxxx",
                   getClientSequence(client),
-                  client->receive.data);
-     printmsg(0, "%s: Client %d Input buffer (%d bytes) overrun.",
-                   mName,
-                   getClientSequence(client),
-                   client->receive.used);
-
-     client->receive.parsed = client->receive.used;
-     client->receive.data[ client->receive.used - 1 ] = '\0';
-                                    /* Don't run off the buffer      */
-
-     setClientMode(client, SM_ABORT);/* Abort client immediately     */
-
-     return KWTrue;                 /* Process the abort immediately */
+                  client->receive.line );
+      else
+         printmsg(2,"%d <<< %.75s",
+                    getClientSequence(client),
+                    client->receive.line );
 
    } /* else */
+
+   return KWTrue;
 
 } /* SMTPGetLine */
 
@@ -383,7 +438,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    } /* switch(code) */
 
-   if (printLevel >= debuglevel)
+   if (printLevel <= debuglevel)
    {
       printmsg(printLevel,"%d >>> %s%.75s",
                           getClientSequence(client),
@@ -680,7 +735,6 @@ openMaster(const char *name)
       return INVALID_SOCKET;
    }
 
-
    return pollingSock;              /* Return success to caller      */
 
 } /* openMaster */
@@ -711,7 +765,7 @@ openSlave(SOCKET pollingSock)
 #ifdef UDEBUG
    if (debuglevel > NETDEBUG)
    {
-      static int option[] = { SO_SNDBUF, SO_RCVBUF, SO_SNDLOWAT, SO_RCVLOWAT };
+      static int option[] = { SO_SNDBUF, SO_RCVBUF };
       static int optionCount = (sizeof option / sizeof option[0]);
       int subscript;
 
@@ -888,40 +942,40 @@ SMTPRead(SMTPClient *client)
 /*                 Make sure our buffer is big enough                 */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.used >= client->receive.length)
+   if (client->receive.used >= client->receive.allocated)
    {
-      if (client->receive.length < MAX_BUFFER_SIZE)
+      if (client->receive.allocated < MAX_BUFFER_SIZE)
       {
          printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
                     mName,
                     getClientSequence(client),
-                    client->receive.length);
-         client->receive.length *= 2;
-         client->receive.data =
-                       realloc(client->receive.data,
-                                 client->receive.length);
-         checkref(client->receive.data);
+                    client->receive.allocated);
+         client->receive.allocated *= 2;
+         client->receive.buffer =
+                       realloc(client->receive.buffer,
+                                 client->receive.allocated);
+         checkref(client->receive.buffer);
 
-      } /* if (client->receive.length < MAX_BUFFER_SIZE) */
+      } /* if (client->receive.allocated < MAX_BUFFER_SIZE) */
       else {
           printmsg(0, "%s: Client %d overran of input buffer %d,"
                       " truncated.",
                       mName,
                       getClientSequence(client),
-                      client->receive.length);
+                      client->receive.allocated);
           return client->receive.used;
 
       } /* else */
 
-   } /* if (client->receive.used >= client->receive.length) */
+   } /* if (client->receive.used >= client->receive.allocated) */
 
 /*--------------------------------------------------------------------*/
 /*                  Actually get our next data read                   */
 /*--------------------------------------------------------------------*/
 
    received = recv(getClientHandle(client),
-                   client->receive.data + client->receive.used,
-                   (int) (client->receive.length - client->receive.used),
+                   client->receive.buffer + client->receive.used,
+                   (int) (client->receive.allocated - client->receive.used),
                    0);
 
    if (received == 0)
@@ -931,8 +985,8 @@ SMTPRead(SMTPClient *client)
                   mName,
                   getClientSequence(client),
                   (long) getClientHandle(client),
-                  client->receive.data + client->receive.used,
-                  (int) (client->receive.length - client->receive.used),
+                  client->receive.buffer + client->receive.used,
+                  (int) (client->receive.allocated - client->receive.used),
                   0);
    }
    else if (received == SOCKET_ERROR)
@@ -952,6 +1006,9 @@ SMTPRead(SMTPClient *client)
    else {
       incrementClientBytesRead(client, (size_t) received);
       client->receive.used += (size_t) received;
+
+      if (client->receive.next == NULL)
+         client->receive.next = client->receive.buffer;
    }
 
    return client->receive.used;
@@ -1027,50 +1084,78 @@ closeSocket(SOCKET handle)
 static void
 SMTPBurpBuffer(SMTPClient *client)
 {
-
    static const char mName[] = "SMTPBurpBuffer";
 
 /*--------------------------------------------------------------------*/
 /*                 Verify the status of the input buffer              */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.length < client->receive.used)
+   if (client->receive.allocated < client->receive.used)
    {
          printmsg(0, "%s: Client has used more bytes (%d) "
                      "than buffer bytes allocated (%d)",
                     mName,
                     getClientSequence(client),
                     client->receive.used,
-                    client->receive.length);
+                    client->receive.allocated);
 
       panic();
    }
 
-   if (client->receive.used < client->receive.parsed)
+   if (client->receive.used < client->receive.lineLength)
    {
          printmsg(0, "%s: Client has parsed more bytes (%d) "
                      "than bytes in use (%d)",
                     mName,
                     getClientSequence(client),
-                    client->receive.parsed,
+                    client->receive.lineLength,
                     client->receive.used);
 
       panic();
    }
 
 /*--------------------------------------------------------------------*/
+/*            Handle simple case of no new data in buffer             */
+/*--------------------------------------------------------------------*/
+
+   if (client->receive.next == NULL)
+   {
+      client->receive.used = 0;
+      client->receive.lineLength = 0;
+      return;
+   }
+
+/*--------------------------------------------------------------------*/
 /*     Discard any data we have already processed from the client     */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.parsed > 0)
+   if (client->receive.next > client->receive.buffer)
    {
-      client->receive.used -= client->receive.parsed;
+#ifdef UDEBUG2
+      printmsg(5,"%s: Burped %ld of %ld bytes from buffer",
+               mName,
+               (long) (client->receive.next - client->receive.buffer),
+               (long) client->receive.used );
+#endif
+
+      client->receive.used -= client->receive.next - client->receive.buffer;
+
+/*--------------------------------------------------------------------*/
+/*       If we still have data in the buffer, move it to front and    */
+/*       reset pointer to it.  Otherwise, clear pointer to next       */
+/*       line completely.                                             */
+/*--------------------------------------------------------------------*/
 
       if (client->receive.used > 0)
-         memmove(client->receive.data,
-                  client->receive.data + client->receive.parsed,
-                  client->receive.used);
-      client->receive.parsed = 0;
+      {
+         memmove(client->receive.buffer,
+                 client->receive.next,
+                 client->receive.used);
+
+         client->receive.next = client->receive.buffer;
+      }
+      else
+         client->receive.next = NULL;
 
    } /* if (client->receive.parsed > 0) */
 

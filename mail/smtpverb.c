@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.9 1998/03/01 19:40:48 ahd Exp $
+ *       $Id: SMTPVERB.C 1.10 1998/03/03 03:54:42 ahd v1-12v $
  *
  *       Revision History:
- *       $Log: smtpverb.c $
+ *       $Log: SMTPVERB.C $
+ *       Revision 1.10  1998/03/03 03:54:42  ahd
+ *       Revamp tokenizer to handle multiple tokens
+ *
  *       Revision 1.9  1998/03/01 19:40:48  ahd
  *       First compiling POP3 server which accepts user id/password
  *
@@ -64,7 +67,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.9 1998/03/01 19:40:48 ahd Exp $");
+RCSID("$Id: SMTPVERB.C 1.10 1998/03/03 03:54:42 ahd v1-12v $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -96,9 +99,9 @@ getOperands(SMTPClient *client, SMTPVerb *verb)
    static const char mName[] = "getOperands";
 
    char **list = NULL;
-   char *token = client->receive.data + strlen(verb->name);
+   char *token = client->receive.line + strlen(verb->name);
    size_t subscript = 0;
-   size_t maxEntries = client->receive.parsed / 2 + 1;
+   size_t maxEntries = client->receive.lineLength / 2 + 1;
 
 /*--------------------------------------------------------------------*/
 /*         Perform limited case insensitive pattern matching          */
@@ -171,6 +174,7 @@ getOperands(SMTPClient *client, SMTPVerb *verb)
 void
 SMTPInvokeCommand(SMTPClient *client)
 {
+   static const char mName[] = "SMTPInvokeCommand";
    SMTPVerb *currentVerb = verbTable;
 
    char **operands = NULL;
@@ -184,16 +188,30 @@ SMTPInvokeCommand(SMTPClient *client)
       if ((getClientMode(client) & currentVerb->validModes) &&
             ! strlen(currentVerb->name))
          break;
-      else if ((*currentVerb->name != '\0') &&
-                equalni(currentVerb->name,
-                         client->receive.data,
-                         max(3, strlen(currentVerb->name))))
+      else if (*currentVerb->name == '\0')
+      {
+         /* No operation */
+      }
+#ifdef UDEBUG
+      else if (client->receive.line == NULL)
+      {
+         printmsg(0,"%s: Client %d Input line is NULL (client flags x%0x4)",
+                     mName,
+                     getClientSequence(client),
+                     client->flag);
+         panic();
+      }
+#endif
+      else if (equalni(currentVerb->name,
+                       client->receive.line,
+                       max(3, strlen(currentVerb->name))))
          break;
-      else
-         currentVerb++;
-   }
 
-   if (currentVerb->trivial)
+      currentVerb++;
+
+   } /* for (;;) */
+
+   if (currentVerb->flag & VF_TRIVIAL_CMD)
       incrementClientTrivialCount(client); /* Track for possible
                                               denial of service
                                               attack               */
@@ -220,15 +238,33 @@ SMTPInvokeCommand(SMTPClient *client)
    {
       if (currentVerb->processor(client, currentVerb, operands))
       {
+         /* Special processing only for commands which succeed */
+
          /* If command worked, update client mode as needed */
          if (currentVerb->newMode != SM_SAME_MODE)
             setClientMode(client, currentVerb->newMode);
+         /* If client has data in same mode, immediately process it */
+         else if ((currentVerb->flag | VF_DATA_REDRIVE) &&
+               (getClientBufferedData(client)))
+               setClientProcess(client, KWTrue);
+
+         /* If next command doesn't require read, set flag */
+         if (currentVerb->flag & VF_NO_READ_SUCCESS)
+            setClientFlag(client, SF_NO_READ);
       }
 
       if (operands != NULL)
          freeOperands(operands);
 
    } /* if */
+
+   /* If next command doesn't require read, set flag */
+   if (currentVerb->flag & VF_NO_READ)
+      setClientFlag(client, SF_NO_READ);
+
+   /* If next command doesn't require tokenize, set flag */
+   if (currentVerb->flag & VF_NO_TOKENIZE)
+      setClientFlag(client, SF_NO_TOKENIZE);
 
    /* Flag this client was active */
    time(&client->lastTransactionTime);

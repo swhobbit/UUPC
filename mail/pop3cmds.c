@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3cmds.c 1.3 1998/03/03 07:36:28 ahd v1-12v $
+ *       $Id: POP3CMDS.C 1.4 1998/03/06 06:51:28 ahd Exp $
  *
- *       $Log: pop3cmds.c $
+ *       $Log: POP3CMDS.C $
+ *       Revision 1.4  1998/03/06 06:51:28  ahd
+ *       Improved POP3 support, including transaction counting
+ *
  *       Revision 1.3  1998/03/03 07:36:28  ahd
  *       Delete unused commands, correct states for others
  *
@@ -55,7 +58,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3cmds.c 1.3 1998/03/03 07:36:28 ahd v1-12v $");
+RCSID("$Id: POP3CMDS.C 1.4 1998/03/06 06:51:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */
@@ -77,28 +80,28 @@ SMTPVerb verbTable[] =
 {
    /* commandAccept only used by master socket to create clients */
    {
+      VF_NO_READ,
       commandAccept,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_MASTER,
       P3_SAME_MODE,
    },
    {
+      VF_EMPTY_FLAGS,
       commandInit,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_CONNECTED,
       P3_AUTHORIZATION,
 
       PR_OK_GENERIC,
    },
    {
+      VF_EMPTY_FLAGS,
       commandLoadMailbox,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_LOAD_MBOX,
       P3_TRANSACTION,
 
@@ -106,20 +109,20 @@ SMTPVerb verbTable[] =
       PR_ERROR_GENERIC,
    },
    {
+      VF_NO_READ,
       commandExiting,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_EXITING,
       P3_DELETE_PENDING,
 
       PR_ERROR_GENERIC,
    },
    {
+      VF_NO_READ,
       commandTimeout,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_TIMEOUT,
       P3_DELETE_PENDING,
 
@@ -127,18 +130,18 @@ SMTPVerb verbTable[] =
       PR_ERROR_GENERIC
    },
    {
+      VF_NO_READ,
       commandTerminated,
       commandSequenceIgnore,
       "",
-      KWFalse,
       P3_ABORT,
       P3_DELETE_PENDING,
    },
    {
+      VF_TRIVIAL_CMD,
       commandAUTH,
       commandSequenceIgnore,
       "AUTH",
-      KWFalse,
       P3_AUTHORIZATION,
       P3_SAME_MODE,
 
@@ -147,10 +150,10 @@ SMTPVerb verbTable[] =
       SV_OPTIONAL_OPERANDS
    },
    {
+      VF_TRIVIAL_CMD,
       commandDELE,
       commandSequenceIgnore,
       "DELE",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -159,10 +162,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_EMPTY_FLAGS,
       commandLIST,
       commandSequenceIgnore,
       "LIST",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -171,10 +174,10 @@ SMTPVerb verbTable[] =
       SV_OPTIONAL_OPERANDS
    },
    {
+      VF_EMPTY_FLAGS,
       commandLIST,
       commandSequenceIgnore,
       "XAUTHLIST",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -183,10 +186,10 @@ SMTPVerb verbTable[] =
       SV_OPTIONAL_OPERANDS
    },
    {
+      VF_TRIVIAL_CMD,
       commandNOOP,
       commandSequenceIgnore,
       "NOOP",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -195,10 +198,10 @@ SMTPVerb verbTable[] =
       0
    },
    {
+      VF_TRIVIAL_CMD | VF_NO_READ_SUCCESS,
       commandPASS,
       commandSequenceIgnore,
       "PASS",
-      KWFalse,
       P3_PASSWORD,
       P3_LOAD_MBOX,
 
@@ -207,10 +210,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_EMPTY_FLAGS | VF_NO_READ,
       commandQUIT,
       commandSequenceIgnore,
       "QUIT",
-      KWFalse,
       POP3_MODES_ALL,
       P3_DELETE_PENDING,
 
@@ -219,10 +222,10 @@ SMTPVerb verbTable[] =
       0
    },
    {
+      VF_EMPTY_FLAGS,
       commandRETR,
       commandSequenceIgnore,
       "RETR",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -231,10 +234,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_EMPTY_FLAGS,
       commandRSET,
       commandSequenceIgnore,
       "RSET",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -243,10 +246,10 @@ SMTPVerb verbTable[] =
       0
    },
    {
+      VF_EMPTY_FLAGS,
       commandSTAT,
       commandSequenceIgnore,
       "STAT",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -255,10 +258,10 @@ SMTPVerb verbTable[] =
       0
    },
    {
+      VF_EMPTY_FLAGS,
       commandTOP,
       commandSequenceIgnore,
       "TOP",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -267,10 +270,10 @@ SMTPVerb verbTable[] =
       2
    },
    {
+      VF_EMPTY_FLAGS,
       commandUIDL,
       commandSequenceIgnore,
       "UIDL",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -279,10 +282,10 @@ SMTPVerb verbTable[] =
       SV_OPTIONAL_OPERANDS
    },
    {
+      VF_TRIVIAL_CMD,
       commandUSER,
       commandSequenceIgnore,
       "USER",
-      KWFalse,
       P3_AUTHORIZATION,
       P3_PASSWORD,
 
@@ -291,10 +294,10 @@ SMTPVerb verbTable[] =
       1
    },
    {
+      VF_EMPTY_FLAGS,
       commandXSENDER,
       commandSequenceIgnore,
       "XSENDER",
-      KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
 
@@ -305,10 +308,10 @@ SMTPVerb verbTable[] =
 
    /* Command for syntax errors MUST BE LAST */
    {
+      VF_EMPTY_FLAGS,
       commandSyntax,             /* Fall through for syntax errs  */
       commandSequenceIgnore,
       "",
-      KWTrue,
       POP3_MODES_ALL,
       P3_SAME_MODE,
 

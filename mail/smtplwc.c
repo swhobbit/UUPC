@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.9 1998/03/01 19:43:33 ahd Exp $
+ *       $Id: SMTPLWC.C 1.10 1998/03/03 03:53:54 ahd v1-12v $
  *
  *       Revision History:
- *       $Log: smtplwc.c $
+ *       $Log: SMTPLWC.C $
+ *       Revision 1.10  1998/03/03 03:53:54  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.9  1998/03/01 19:43:33  ahd
  *       First compiling POP3 server which accepts user id/password
  *
@@ -67,7 +70,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.9 1998/03/01 19:43:33 ahd Exp $");
+RCSID("$Id: SMTPLWC.C 1.10 1998/03/03 03:53:54 ahd v1-12v $");
 
 currentfile();
 
@@ -82,6 +85,7 @@ commandInit(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*       This message encourages E-SMTP processing (EHLO command),    */
@@ -89,7 +93,7 @@ commandInit(SMTPClient *client,
 /*       can say that in response to the EHLO command.                */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "%s ESMTP (%s %s, built %s %s) on-line at %s",
             E_domain,
             compilep,
@@ -98,7 +102,7 @@ commandInit(SMTPClient *client,
             compilet,
             arpadate());
 
-   SMTPResponse(client, SR_OK_CONNECT, client->transmit.data);
+   SMTPResponse(client, SR_OK_CONNECT, xmitBuf);
 
    return KWTrue;
 }
@@ -114,6 +118,7 @@ commandHELO(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*                 Save the name the client claims to be              */
@@ -139,7 +144,7 @@ commandHELO(SMTPClient *client,
 /*            Format our name (and theirs) in the HELO reply.         */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "%s Hello %.64s (%s%s%s), pleased to meet you",
             E_domain,
             operands[0],
@@ -148,7 +153,7 @@ commandHELO(SMTPClient *client,
             client->connection.reverseLookup ? " " : "",
             client->connection.hostAddr);
 
-   SMTPResponse(client, SR_OK_GENERIC, client->transmit.data);
+   SMTPResponse(client, SR_OK_GENERIC, xmitBuf);
 
    return KWTrue;
 }
@@ -181,10 +186,11 @@ commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
-   sprintf(client->transmit.data,
+   char xmitBuf[XMIT_LENGTH];
+   sprintf(xmitBuf,
             "%s Closing connection, adios",
             E_domain);
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
    return KWTrue;
 }
 
@@ -216,6 +222,7 @@ commandSequenceIgnore(SMTPClient *client,
    };
 
    CMD_LKUP *current = table;
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*       If the user skipped the HELO command but otherwise issued    */
@@ -249,15 +256,13 @@ commandSequenceIgnore(SMTPClient *client,
 
    }
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "Command %.4s issued out of sequence, "
             "expected %s command next",
-            client->receive.data,
+            client->receive.buffer,
             current->name);
 
-   SMTPResponse(client,
-                 current->code,
-                 client->transmit.data);
+   SMTPResponse(client, current->code, xmitBuf);
 
    return KWFalse;
 

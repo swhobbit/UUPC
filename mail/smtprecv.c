@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.11 1998/03/08 23:07:12 ahd Exp $
+ *       $Id: SMTPRECV.C 1.12 1998/03/16 06:39:32 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtprecv.c $
+ *       $Log: SMTPRECV.C $
+ *       Revision 1.12  1998/03/16 06:39:32  ahd
+ *       Add trumpet remote user support
+ *
  *       Revision 1.11  1998/03/08 23:07:12  ahd
  *       Better support of remote vs. local delivery
  *
@@ -76,7 +79,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.11 1998/03/08 23:07:12 ahd Exp $");
+RCSID("$Id: SMTPRECV.C 1.12 1998/03/16 06:39:32 ahd Exp $");
 
 currentfile();
 
@@ -92,26 +95,27 @@ commandVRFY(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
+   char xmitBuf[XMIT_LENGTH];
    char response[MAXADDR];
    KWBoolean ourProblem;
 
    if (! stripAddress(operands[0], response))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%.100s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
+      SMTPResponse(client, SR_PE_SYNTAX, xmitBuf);
       return KWFalse;
    }
 
    if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, xmitBuf);
       return KWFalse;
    }
 
@@ -119,8 +123,8 @@ commandVRFY(SMTPClient *client,
 /*      We have a valid address, make it canonical and report it      */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data, "<%s>", operands[0]);
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   sprintf(xmitBuf, "<%s>", operands[0]);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
    return KWTrue;
 
 } /* commandVRFY */
@@ -139,25 +143,26 @@ commandMAIL(SMTPClient *client,
 {
    static const char mName[] = "commandMAIL";
    char response[MAXADDR];
+   char xmitBuf[XMIT_LENGTH];
    KWBoolean ourProblem;
 
    if (! stripAddress(operands[0], response))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%.100s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
+      SMTPResponse(client, SR_PE_SYNTAX, xmitBuf);
       return KWFalse;
    }
 
    if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, xmitBuf);
       return KWFalse;
    }
 
@@ -189,12 +194,12 @@ commandMAIL(SMTPClient *client,
 /*           We're ready for the addressee list, ask for it           */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
            "%s Sender Address okay, specify receiver addresses",
            client->transaction->sender);
    SMTPResponse(client,
                  verb->successResponse,
-                 client->transmit.data );
+                 xmitBuf );
    return KWTrue;
 
 } /* commandMAIL */
@@ -211,6 +216,7 @@ commandRCPT(SMTPClient *client,
             char **operands)
 {
    char response[MAXADDR];
+   char xmitBuf[XMIT_LENGTH];
    KWBoolean ourProblem;
 
    if (client->transaction->addressCount >=
@@ -224,21 +230,21 @@ commandRCPT(SMTPClient *client,
 
    if (! stripAddress(operands[0], response))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%.100s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
+      SMTPResponse(client, SR_PE_SYNTAX, xmitBuf);
       return KWFalse;
    }
 
    if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "%s: %s",
                operands[0],
                response);
-      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, xmitBuf);
       return KWFalse;
    }
 
@@ -250,13 +256,13 @@ commandRCPT(SMTPClient *client,
                         strdup(operands[0]);
    checkref(client->transaction->address[ client->transaction->addressCount ]);
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "<%s>... Okay (%s)",
             client->transaction->address[ client->transaction->addressCount ],
             response);
    client->transaction->addressCount += 1;
 
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
 
    return KWTrue;
 
@@ -276,6 +282,7 @@ commandDATA(SMTPClient *client,
    char *forwho = (char *) ((client->transaction->addressCount > 1) ?
                               "multiple addresses" :
                               client->transaction->address[0]);
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*              Open our data file, with error checking               */
@@ -285,10 +292,10 @@ commandDATA(SMTPClient *client,
 
    if (client->transaction->imf == NULL)
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "Work file IMOpen failed: %s",
                strerror(errno));
-      SMTPResponse(client, SR_TE_SHORTAGE, client->transmit.data);
+      SMTPResponse(client, SR_TE_SHORTAGE, xmitBuf);
       return KWFalse;
    }
 
@@ -333,9 +340,10 @@ commandDataInput(SMTPClient *client,
                  char **operands)
 {
    static const char mName[] = "commandDataInput";
-   char *token = client->receive.data;
+   char xmitBuf[XMIT_LENGTH];
+   char *token = client->receive.line;
    char *first = token;
-   size_t lineLength = (size_t) client->receive.parsed - 2;
+   size_t lineLength = (size_t) client->receive.lineLength;
    size_t stringLength;
 
    int written;
@@ -370,7 +378,7 @@ commandDataInput(SMTPClient *client,
                  lineLength );
       printmsg(0, "%s Line in error begins: \"%s\"",
                  mName,
-                 client->receive.data );
+                 client->receive.line );
 
       /* Flush the receipt of data */
       imclose(client->transaction->imf);
@@ -381,12 +389,12 @@ commandDataInput(SMTPClient *client,
 #ifdef UDEBUG
    if (strlen(token) > lineLength)
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "Internal error: Data line (%d bytes)"
                " longer than expected (%d bytes)",
                strlen(token),
                lineLength);
-      SMTPResponse(client, SR_PE_TEMP_SYNTAX, client->transmit.data);
+      SMTPResponse(client, SR_PE_TEMP_SYNTAX, xmitBuf);
       return KWFalse;
    }
 #endif
@@ -399,10 +407,10 @@ commandDataInput(SMTPClient *client,
 
    if (written < (int) strlen(first))
    {
-      sprintf(client->transmit.data,
+      sprintf(xmitBuf,
                "Work file write failed: %s",
                strerror(errno));
-      SMTPResponse(client, SR_TE_SHORTAGE, client->transmit.data);
+      SMTPResponse(client, SR_TE_SHORTAGE, xmitBuf);
       imclose(client->transaction->imf);
       client->transaction->imf = NULL;
       return KWFalse;
@@ -431,6 +439,7 @@ commandPeriod(SMTPClient *client,
    MAIL_ADDR sender;
    char fUser[MAXADDR];
    char fHost[MAXADDR];
+   char xmitBuf[XMIT_LENGTH];
 
 /*--------------------------------------------------------------------*/
 /*       If we previously had problem and issues error reply, just    */
@@ -477,7 +486,7 @@ commandPeriod(SMTPClient *client,
 /*               Tell the client we delivered the message             */
 /*--------------------------------------------------------------------*/
 
-   sprintf(client->transmit.data,
+   sprintf(xmitBuf,
             "Message accepted for delivery to %d mail boxes",
             delivered);
 
@@ -485,7 +494,7 @@ commandPeriod(SMTPClient *client,
    setClientQueueRun( client, KWTrue );
 
    /* Let client continue on */
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
 
    incrementClientMajorTransaction( client );
    return KWTrue;

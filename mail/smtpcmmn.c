@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmmn.c 1.2 1998/03/03 03:53:54 ahd v1-12v $
+ *       $Id: SMTPCMMN.C 1.3 1998/03/08 23:10:20 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtpcmmn.c $
+ *       $Log: SMTPCMMN.C $
+ *       Revision 1.3  1998/03/08 23:10:20  ahd
+ *       Don't try to write to master (listening) socket
+ *
  *       Revision 1.2  1998/03/03 03:53:54  ahd
  *       Remove RSET and QUIT commands, which really have to be unique to SMTP and POP3
  *
@@ -42,7 +45,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmmn.c 1.2 1998/03/03 03:53:54 ahd v1-12v $");
+RCSID("$Id: SMTPCMMN.C 1.3 1998/03/08 23:10:20 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */
@@ -148,11 +151,17 @@ commandSyntax(SMTPClient *client,
               struct _SMTPVerb* verb,
               char **operands)
 {
-   sprintf(client->transmit.data,
+   char xmitBuf[XMIT_LENGTH];
+   char *command = strtok(client->receive.line, " ");
+
+   if (command == NULL)
+      command = "(null)";
+
+   sprintf(xmitBuf,
             "\"%.10s\" command is not understood (client state 0x%x)",
-            client->receive.data,
+            command,
             getClientMode(client));
-   SMTPResponse(client, verb->successResponse, client->transmit.data);
+   SMTPResponse(client, verb->successResponse, xmitBuf);
    return KWTrue;
 
 }  /* commandSyntax */
