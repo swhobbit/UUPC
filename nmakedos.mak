@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.5 1995/02/20 00:07:07 ahd Exp $
+#       $Id: nmakedos.mak 1.6 1995/02/21 13:01:20 ahd v1-12n $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.6  1995/02/21 13:01:20  ahd
+#       Suppress map file
+#
 #       Revision 1.5  1995/02/20 00:07:07  ahd
 #       Move various common news subroutines into own library
 #       Break common library into two parts to prevent NMAKE failures
@@ -49,9 +52,15 @@ LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj \
 UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
 
+!if "$(MODEL)" == "T"
+STACKSIZE=1a00                  # In hex, because /F below is brain dead
+!else
+STACKSIZE=3000                  # In hex, because /F below is brain dead
+!endif
+
 EXTRAT  = comm34.com
 LINKER  = link
-STACKSIZE=3000                  # In hex, because /F below is brain dead
+
 LINKOPT = /batch /map:nul /far /noig /stack:0x$(STACKSIZE)
 ZIPID   = d
 
