@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3trns.h 1.2 1998/03/03 03:55:26 ahd Exp $
+ *       $Id: POP3TRNS.H 1.3 1998/03/03 07:37:36 ahd v1-12v $
  *
  *       Revision history:
- *       $Log: pop3trns.h $
+ *       $Log: POP3TRNS.H $
+ *       Revision 1.3  1998/03/03 07:37:36  ahd
+ *       Add flags for requiring mbox update
+ *
  *       Revision 1.2  1998/03/03 03:55:26  ahd
  *       First POP3 server to handle most data commands
  *
