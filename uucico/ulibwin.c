@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.4 1993/09/27 00:48:43 ahd Exp $
+ *    $Id: ulibwin.c 1.5 1993/09/29 13:18:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.5  1993/09/29  13:18:06  ahd
+ * Use new dummy setprty function
+ *
  * Revision 1.4  1993/09/27  00:48:43  ahd
  * Add dummy set and reset priority functions
  *
@@ -94,9 +97,8 @@ currentfile();
 
 static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
 
-static boolean hangup_needed = FALSE;
-static boolean console = FALSE;
-static current_baud = 0;
+static boolean hangupNeeded = FALSE;
+static UINT currentSpeed = 0;
 static LPBYTE lpbModemBits;       // --> Modem Status Register bits
 
 #define FAR_NULL ((PVOID) 0L)
@@ -132,45 +134,38 @@ static void ShowError( int status );
 
 int nopenline(char *name, BPS baud, const boolean direct )
 {
-        int rc;
-        int value;
+   int rc;
 
    if (portActive)               /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
+#ifdef UDEBUG
    printmsg(15, "openline: %s, %d", name, baud);
+#endif
 
-   if (!equal(name,"CON") && sscanf(name, "COM%d", &value) != 1)
+   if (!equaln(name, "COM", 3 ))
    {
       printmsg(0,
          "openline: Communications port must be format COMx, was %s",
          name);
-      panic();
+      return TRUE;
    }
 
-        if((nCid = OpenComm(name, IN_QUEUE_SIZE, OUT_QUEUE_SIZE)) < 0)
+   if((nCid = OpenComm(name, IN_QUEUE_SIZE, OUT_QUEUE_SIZE)) < 0)
    {
-                printmsg(0, "openline: Failed to open port %s.", name);
-         printmsg(0, "          OpenComm returned %#04X (%d)", nCid, nCid);
-         panic();
+      printmsg(0, "openline: Failed to open port %s.", name);
+      printmsg(0, "nopenline: %s: OpenComm returned %#04X (%d)",
+                   name,
+                   nCid,
+                   nCid);
+      return TRUE;
    }
-
-        //
-        // Get the pointer to the MSR shadow in COMM.DRV's DEB
-        //
-        lpbModemBits = (LPBYTE)SetCommEventMask(nCid, 0) + COMM_MSRSHADOW;
 
 /*--------------------------------------------------------------------*/
-/*                    Check for special test mode                     */
+/*        Get the pointer to the MSR shadow in COMM.DRV's DEB         */
 /*--------------------------------------------------------------------*/
 
-   if ( equal(name,"CON"))
-   {
-      portActive = TRUE;      /* record status for error handler        */
-      carrierdetect = FALSE;  /* Modem is not connected                 */
-      console = TRUE;
-      return 0;
-   }
+   lpbModemBits = (LPBYTE)SetCommEventMask(nCid, 0) + COMM_MSRSHADOW;
 
 /*--------------------------------------------------------------------*/
 /*            Reset any errors on the communications port             */
@@ -179,7 +174,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if ((rc = GetCommError (nCid, NULL)) != 0)
    {
       printmsg(0, "openline: Error condition reset on port %s.", name);
-               ShowError(rc);
+      ShowError(rc);
    }
 
 /*--------------------------------------------------------------------*/
@@ -193,10 +188,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
    printmsg(15,"openline: Getting attributes");
-        if ((rc = GetCommState(nCid, &dcb)) != 0) {
-      printmsg(0,"openline: Unable to get line attributes for %s",name);
-      printmsg(0,"          returncode from GetCommState was %#04x (%d)",
-                                        rc , rc);
+   if ((rc = GetCommState(nCid, &dcb)) != 0)
+   {
+      printmsg(0,"nopenline: %s: GetCommState was %#04x (%d)",
+                  name,
+                  rc,
+                  rc);
       panic();
    }
 
@@ -208,41 +205,49 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                      Set up for Flow Control                       */
 /*--------------------------------------------------------------------*/
 
-        printmsg(15,"openline: Disabling XON/XOFF flow control");
-        dcb.fOutX = 0;
-        dcb.fInX = 0;
-        if(!direct)                 // nodirect means RTS/CTS flow OK
-        {
-                printmsg(15, "openline: Enabling RTS/CTS flow control");
-                dcb.fOutxCtsFlow = 1;
-                dcb.fRtsflow = 1;
-                dcb.XoffLim = IN_XOFF_LIM;
-                dcb.XonLim = IN_XON_LIM;
-        }
-        else
-        {
-                printmsg(4, "openline: Disabling RTS/CTS flow control");
-                dcb.fOutxCtsFlow = 0;
-                dcb.fRtsflow = 0;
+   printmsg(15,"openline: Disabling XON/XOFF flow control");
+
+   dcb.fOutX = 0;
+   dcb.fInX = 0;
+   if(!direct)                 // nodirect means RTS/CTS flow OK
+   {
+#ifdef UDEBUG
+      printmsg(15, "openline: Enabling RTS/CTS flow control");
+#endif
+      dcb.fOutxCtsFlow = 1;
+      dcb.fRtsflow = 1;
+      dcb.XoffLim = IN_XOFF_LIM;
+      dcb.XonLim = IN_XON_LIM;
+   }
+   else {
+#ifdef UDEBUG
+      printmsg(4, "openline: Disabling RTS/CTS flow control");
+#endif
+      dcb.fOutxCtsFlow = 0;
+      dcb.fRtsflow = 0;
    }
 
 /*--------------------------------------------------------------------*/
 /*                Set up for Modem Control as needed                  */
 /*--------------------------------------------------------------------*/
 
-        dcb.fDtrDisable = 0;
-        dcb.fRtsDisable = 0;
+   dcb.fDtrDisable = 0;
+   dcb.fRtsDisable = 0;
 
 /*--------------------------------------------------------------------*/
 /*              Modify the DCB with the new attributes                */
 /*--------------------------------------------------------------------*/
 
-        printmsg(15,"openline: Setting attributes");
-        if ((rc = SetCommState(&dcb)) != 0)
+#ifdef UDEBUG
+   printmsg(15,"openline: Setting attributes");
+#endif
+
+   if ((rc = SetCommState(&dcb)) != 0)
    {
-                printmsg(0,"openline: Unable to set line attributes for %s", name);
-                printmsg(0,"          return code from SetCommState was %#04X (%d)",
-                        rc, rc);
+      printmsg(0,"nopenline: %s: return code from SetCommState was %#04X (%d)",
+                 name,
+                 rc,
+                 rc);
       panic();
    }
 
@@ -250,16 +255,23 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                 Assure RTS and DTR are asserted                    */
 /*--------------------------------------------------------------------*/
 
-        printmsg(15,"openline: Raising RTS/DTR");
-        if (EscapeCommFunction(nCid, SETRTS) != 0) {
-                printmsg(0, "openline: Failed to raise RTS for %s", name);
-                panic();
-        }
-        if (EscapeCommFunction(nCid, SETDTR) != 0) {
-                printmsg(0, "openline: Unable to raise DTR for %s", name);
-                panic();
-        }
-        ShowModem();
+
+#ifdef UDEBUG
+   printmsg(15,"openline: Raising RTS/DTR");
+#endif
+
+   if (EscapeCommFunction(nCid, SETRTS) != 0)
+   {
+      printmsg(0, "openline: Failed to raise RTS for %s", name);
+      panic();
+   }
+   if (EscapeCommFunction(nCid, SETDTR) != 0)
+   {
+      printmsg(0, "openline: Unable to raise DTR for %s", name);
+      panic();
+   }
+
+   ShowModem();
 
 /*--------------------------------------------------------------------*/
 /*        Log serial line data only if log file already exists        */
@@ -432,7 +444,7 @@ int nswrite(const char *data, unsigned int len)
    int bytes;
    int rc;
 
-   hangup_needed = TRUE;      /* Flag that the port is now dirty  */
+   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
@@ -479,7 +491,11 @@ int nswrite(const char *data, unsigned int len)
 void nssendbrk(unsigned int duration)
 {
 
+
+#ifdef UDEBUG
    printmsg(12, "ssendbrk: %d", duration);
+#endif
+
    SetCommBreak(nCid);
    ddelay(duration == 0 ? 200 : duration);
    ClearCommBreak(nCid);
@@ -499,7 +515,7 @@ void ncloseline(void)
       panic();
 
    portActive = FALSE;     /* flag port closed for error handler  */
-   hangup_needed = FALSE;  /* Don't fiddle with port any more     */
+   hangupNeeded = FALSE;  /* Don't fiddle with port any more     */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -512,8 +528,8 @@ void ncloseline(void)
 /*                      Actually close the port                       */
 /*--------------------------------------------------------------------*/
 
-        if(CloseComm(nCid) != 0)
-                printmsg(0, "closeline: close of serial port failed");
+   if(CloseComm(nCid) != 0)
+      printmsg(0, "closeline: close of serial port failed");
 
 /*--------------------------------------------------------------------*/
 /*                   Stop logging the data to disk                    */
@@ -535,15 +551,13 @@ void ncloseline(void)
 
 void nhangup( void )
 {
-   if (!hangup_needed || console)
-      return;
-   hangup_needed = FALSE;
+   hangupNeeded = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
 /*--------------------------------------------------------------------*/
 
-        if (EscapeCommFunction(nCid, CLRDTR) != 0)
+   if (EscapeCommFunction(nCid, CLRDTR) != 0)
    {
       printmsg(0, "hangup: Unable to lower DTR for comm port");
       panic();
@@ -554,18 +568,18 @@ void nhangup( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"hangup: Dropped DTR");
-        ddelay(1000);            /* Really only need 250 milliseconds (HA) */
+   ddelay(1000);            /* Really only need 250 milliseconds (HA) */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR backup                          */
 /*--------------------------------------------------------------------*/
 
-        if (EscapeCommFunction(nCid, SETDTR) != 0)
+   if (EscapeCommFunction(nCid, SETDTR) != 0)
    {
       printmsg(0, "hangup: Unable to raise DTR for comm port");
       panic();
    }
-        ddelay(500);         /* Now wait for the poor thing to recover    */
+   ddelay(500);         /* Now wait for the poor thing to recover    */
 
 } /* nhangup */
 
@@ -579,19 +593,23 @@ void nSIOSpeed(BPS baud)
 {
    WORD rc;
 
-   printmsg(15,"SIOSpeed: Setting baud rate to %d", (int) baud);
+   currentSpeed = (UINT) baud;
+   printmsg(15,"SIOSpeed: Setting baud rate to %d",
+               (int) currentSpeed);
 
    ShowModem();
    GetCommState (nCid, &dcb);
-   dcb.BaudRate = baud;
+
+   dcb.BaudRate = currentSpeed;
    rc = SetCommState (&dcb);
-   if ((rc != 0) && !console)
+
+   if (rc)
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",baud);
+      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",
+                 (int) currentSpeed);
       panic();
    }
 
-   current_baud = baud;
 
 } /* nSIOSpeed */
 
@@ -605,9 +623,6 @@ void nflowcontrol( boolean flow )
 {
    int rc;
    DCB dcb;
-
-   if (console)
-      return;
 
    GetCommState(nCid, &dcb);
 
@@ -628,8 +643,9 @@ void nflowcontrol( boolean flow )
    if ((rc = SetCommState(&dcb)) != 0)
    {
       printmsg(0,"flowcontrol: Unable to set flow control");
-                printmsg(0,"Return code fromSetCommState was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"Return code fromSetCommState was %#04x (%d)",
+                  (int) rc,
+                  (int) rc);
       panic();
    } /*if */
 
@@ -643,7 +659,7 @@ void nflowcontrol( boolean flow )
 
 BPS nGetSpeed( void )
 {
-   return current_baud;
+   return currentSpeed;
 } /* GetSpeed */
 
 /*--------------------------------------------------------------------*/
@@ -657,11 +673,8 @@ boolean nCD( void )
    boolean online = carrierdetect;
    boolean modem_present;
 
-   if ( console )
-      return feof( stdin ) == 0;
-
-    carrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
-    modem_present = ((*lpbModemBits & MSR_DSR) != 0);
+   carrierdetect = ((*lpbModemBits & MSR_RLSD) != 0);
+   modem_present = ((*lpbModemBits & MSR_DSR) != 0);
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -694,8 +707,8 @@ static void ShowModem( void )
    if ( debuglevel < 4 )
       return;
 
-        if ( (debuglevel < 4) ||            // Silent at lower debuglevels
-                  (modem_bits == old_bits))             // Show only changes in modem signals
+   if ( (debuglevel < 4) ||            // Silent at lower debuglevels
+      (modem_bits == old_bits))        // Show only changes in modem signals
       return;
 
    printmsg(0, "ShowModem: %#02x %s %s %s",
@@ -737,7 +750,8 @@ static void ShowError( int status )
 
 void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 {
-}
+
+} /* setPrty */
 
 /*--------------------------------------------------------------------*/
 /*       r e s e t P r t y                                            */
@@ -745,4 +759,6 @@ void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
 /*       No operation under Windows                                   */
 /*--------------------------------------------------------------------*/
 
-void resetPrty( void ) { }
+void resetPrty( void )
+{
+} /* resetPrty */
