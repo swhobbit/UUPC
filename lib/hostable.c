@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.10 1994/01/24 03:07:52 ahd Exp $
+  *      $Id: hostable.c 1.11 1994/02/18 23:09:55 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.11  1994/02/18  23:09:55  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/01/24  03:07:52  ahd
  *     Annual Copyright Update
  *
@@ -59,17 +62,11 @@
  *
   */
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <ctype.h>
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 
-#include "lib.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "security.h"
 
@@ -293,7 +290,6 @@ struct HostTable *searchname(const char *name, const size_t namel)
 
 }  /* searchname */
 
-
 /*--------------------------------------------------------------------*/
 /*    n e x t h o s t                                                 */
 /*                                                                    */
@@ -323,7 +319,6 @@ struct HostTable *nexthost( const boolean start )
    return BADHOST;
 
 }  /* nexthost */
-
 
 /*--------------------------------------------------------------------*/
 /*    i n i t h o s t                                                 */
@@ -456,7 +451,6 @@ static size_t loadhost()
 /*                  Load names from the systems file                  */
 /*--------------------------------------------------------------------*/
 
-
    ff = FOPEN(E_systems, "r",TEXT_MODE);
    if (ff == NULL)
    {
@@ -582,7 +576,6 @@ static size_t loadhost()
 
          } /* else */
 
-
          if ( ! freeit )
          {
             checkref( token );
@@ -695,7 +688,6 @@ static size_t loadhost()
 
    return (HostElements) ;
 } /*loadhost*/
-
 
 /*--------------------------------------------------------------------*/
 /*    h o s t c m p                                                   */

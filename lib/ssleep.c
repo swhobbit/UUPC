@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.16 1994/01/01 19:05:54 ahd Exp $
+ *    $Id: ssleep.c 1.17 1994/02/18 23:15:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.17  1994/02/18  23:15:19  ahd
+ *     Use standard first header
+ *
  *     Revision 1.16  1994/01/01  19:05:54  ahd
  *     Annual Copyright Update
  *
@@ -79,13 +82,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <limits.h>
 
 #include "uupcmoah.h"
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <signal.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*               MS-DOS and OS/2 specific include files               */
@@ -111,7 +111,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "ssleep.h"
 
 #if defined(_Windows)

@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.18 1994/01/24 03:08:21 ahd Exp $
+ *    $Id: import.c 1.19 1994/02/18 23:10:28 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.19  1994/02/18  23:10:28  ahd
+ *     Use standard first header
+ *
  *     Revision 1.18  1994/01/24  03:08:21  ahd
  *     Annual Copyright Update
  *
@@ -77,17 +80,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
 #include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 #define INCL_NOPM             /* No need to include OS/2 PM info */
 #define INCL_BASE
+
+#include "uupcmoah.h"
 #include <os2.h>
 #elif defined(WIN32)
 #include <windows.h>
@@ -97,7 +96,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "import.h"
 #include "arbmath.h"
 #include "hostable.h"
@@ -802,7 +800,6 @@ static boolean advancedFS( const char *path )
                   (int)  result );
       return FALSE;
    }
-
 
    printmsg(4,"advancedFS: File system %d, name \"%s\", FS name \"%s\"",
                (int) dataBuffer->iType,

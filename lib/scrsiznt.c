@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.6 1994/01/01 19:05:13 ahd Exp $
+ *    $Id: scrsiznt.c 1.7 1994/02/18 23:14:56 ahd Exp $
  *
  *    $Log: scrsiznt.c $
+ *     Revision 1.7  1994/02/18  23:14:56  ahd
+ *     Use standard first header
+ *
  *     Revision 1.6  1994/01/01  19:05:13  ahd
  *     Annual Copyright Update
  *
@@ -35,17 +38,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-
 #include <windows.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "scrsize.h"
 #include "pnterr.h"
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.9 1994/01/01 19:04:18 ahd Exp $
+ *    $Id: pushpop.c 1.10 1994/02/18 23:13:26 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.10  1994/02/18  23:13:26  ahd
+ *     Use standard first header
+ *
  *     Revision 1.9  1994/01/01  19:04:18  ahd
  *     Annual Copyright Update
  *
@@ -50,21 +53,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-
 #include <direct.h>
-#include <string.h>
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pushpop.h"
 
 #define MAXDEPTH 10

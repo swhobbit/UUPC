@@ -11,25 +11,17 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>        /* Only really needed for MS C          */
 #include <sys/stat.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"
 #include "expath.h"
-#include "hlib.h"
 
 currentfile();
 /*--------------------------------------------------------------------*/

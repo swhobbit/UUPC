@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.5 1994/01/24 03:08:53 ahd Exp $
+ *    $Id: mkmbox.c 1.6 1994/02/18 23:11:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *     Revision 1.6  1994/02/18  23:11:39  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/01/24  03:08:53  ahd
  *     Annual Copyright Update
  *
@@ -35,19 +38,11 @@
  *       21Nov1991 Break out of hlib.c                         ahd
  */
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
-#include "hlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.6 1994/01/24 03:07:44 ahd Exp $
+ *    $Id: getseq.c 1.7 1994/02/18 23:09:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *     Revision 1.7  1994/02/18  23:09:45  ahd
+ *     Use standard first header
+ *
  *     Revision 1.6  1994/01/24  03:07:44  ahd
  *     Annual Copyright Update
  *
@@ -48,17 +51,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
 #include <process.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
+#include "uupcmoah.h"
 #include "getseq.h"
 
 currentfile();

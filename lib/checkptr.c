@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.3 1994/01/01 19:00:45 ahd Exp $
+ *    $Id: checkptr.c 1.4 1994/02/18 23:07:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *     Revision 1.4  1994/02/18  23:07:57  ahd
+ *     Use standard first header
+ *
  *     Revision 1.3  1994/01/01  19:00:45  ahd
  *     Annual Copyright Update
  *
@@ -33,18 +36,11 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r                                                 */

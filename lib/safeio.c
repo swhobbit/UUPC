@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.8 1994/01/01 19:04:41 ahd Exp $
+ *    $Id: safeio.c 1.9 1994/02/18 23:14:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.9  1994/02/18  23:14:10  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/01/01  19:04:41  ahd
  *     Annual Copyright Update
  *
@@ -50,13 +53,10 @@
 
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
+#if defined( WIN32 )
 
 #include "uupcmoah.h"
-#include <stdio.h>
-
-#if defined( WIN32 )
     #include <windows.h>
-    #include <string.h>
 #elif defined( FAMILYAPI ) || defined(__OS2__)
     #define INCL_NOCOMMON
     #define INCL_NOPM
@@ -74,7 +74,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "safeio.h"
 
 /*--------------------------------------------------------------------*/
@@ -114,7 +113,6 @@ void InitConsoleInputHandle(void)
    }
 }
 #endif
-
 
 int safein( void )
 {

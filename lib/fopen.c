@@ -9,15 +9,10 @@
 /*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
+#include <fcntl.h>
 
 #include "uupcmoah.h"
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <share.h>
 #include <io.h>
@@ -26,8 +21,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "ssleep.h"
 
 #define SHARE_OPEN

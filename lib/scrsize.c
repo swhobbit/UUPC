@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize.c 1.8 1993/10/12 00:45:27 ahd Exp $
+ *    $Id: scrsize.c 1.9 1994/02/18 23:14:34 ahd Exp $
  *
  *    $Log: scrsize.c $
+ *     Revision 1.9  1994/02/18  23:14:34  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1993/10/12  00:45:27  ahd
  *     Normalize comments
  *
@@ -42,17 +45,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <dos.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "scrsize.h"
 
 /*--------------------------------------------------------------------*/

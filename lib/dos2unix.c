@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.6 1994/01/24 03:07:23 ahd Exp $
+ *    $Id: dos2unix.c 1.7 1994/02/18 23:08:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *     Revision 1.7  1994/02/18  23:08:41  ahd
+ *     Use standard first header
+ *
  *     Revision 1.6  1994/01/24  03:07:23  ahd
  *     Annual Copyright Update
  *
@@ -48,18 +51,14 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
 /*--------------------------------------------------------------------*/
 /*                         OS/2 include files                         */
 /*--------------------------------------------------------------------*/
 
 #ifdef FAMILY_API
 #define INCL_BASE
+
+#include "uupcmoah.h"
 #include <os2.h>
 #endif
 
@@ -75,7 +74,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dos2unix.h"
 
 /*--------------------------------------------------------------------*/

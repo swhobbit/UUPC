@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.3 1994/01/01 19:03:58 ahd Exp $
+ *    $Id: pnterr.c 1.4 1994/02/18 23:13:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ * Revision 1.4  1994/02/18  23:13:01  ahd
+ * Use standard first header
+ *
  * Revision 1.3  1994/01/01  19:03:58  ahd
  * Annual Copyright Update
  *
@@ -40,14 +43,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
 #include <windows.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include "uupcmoah.h"
 #include <io.h>
 #include <errno.h>
 
@@ -55,7 +53,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pnterr.h"
 
 currentfile();

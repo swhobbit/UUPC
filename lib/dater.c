@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dater.c 1.3 1994/01/01 19:01:09 ahd Exp $
+ *    $Id: dater.c 1.4 1994/02/18 23:08:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: dater.c $
+ *     Revision 1.4  1994/02/18  23:08:33  ahd
+ *     Use standard first header
+ *
  *     Revision 1.3  1994/01/01  19:01:09  ahd
  *     Annual Copyright Update
  *
@@ -36,17 +39,11 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "dater.h"
 
 /*--------------------------------------------------------------------*/

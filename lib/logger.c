@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.13 1994/01/06 12:45:33 ahd Exp $
+ *    $Id: logger.c 1.14 1994/02/18 23:11:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.14  1994/02/18  23:11:10  ahd
+ *     Use standard first header
+ *
  *     Revision 1.13  1994/01/06  12:45:33  ahd
  *     Abort if spool directory not initialized
  *
@@ -63,14 +66,9 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include <sys/stat.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
 #include <share.h>
 #include <io.h>
 
@@ -78,11 +76,9 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dater.h"
 #include "expath.h"
 #include "logger.h"
-#include "hlib.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/

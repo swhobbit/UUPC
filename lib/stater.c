@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.5 1994/01/01 19:06:07 ahd Exp $
+ *    $Id: stater.c 1.6 1994/02/18 23:15:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *     Revision 1.6  1994/02/18  23:15:32  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/01/01  19:06:07  ahd
  *     Annual Copyright Update
  *
@@ -42,19 +45,14 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include <fcntl.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <sys/types.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Define current file name                      */

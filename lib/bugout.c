@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.5 1994/01/01 19:00:29 ahd Exp $
+ *    $Id: bugout.c 1.6 1994/02/18 23:07:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *     Revision 1.6  1994/02/18  23:07:33  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/01/01  19:00:29  ahd
  *     Annual Copyright Update
  *
@@ -29,14 +32,9 @@
  *
  */
 
+#ifdef _Windows
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#ifdef _Windows
 #include <windows.h>
 #endif
 
@@ -44,7 +42,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "catcher.h"
 #include "timestmp.h"
 

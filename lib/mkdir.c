@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.7 1994/01/24 03:08:38 ahd Exp $
+ *    $Id: mkdir.c 1.8 1994/02/18 23:11:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *     Revision 1.8  1994/02/18  23:11:20  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/01/24  03:08:38  ahd
  *     Annual Copyright Update
  *
@@ -40,14 +43,9 @@
  *
  */
 
+#ifdef __GNUC__
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#ifdef __GNUC__
 #include <os2.h>
 #else
 #include <direct.h>
@@ -56,8 +54,6 @@
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*    M K D I R                                                       */
@@ -74,7 +70,6 @@ int MKDIR(const char *inpath)
       return 0;
 
    cp = path = normalize(inpath );
-
 
 /*--------------------------------------------------------------------*/
 /*        See if we need to make any intermediate directories         */

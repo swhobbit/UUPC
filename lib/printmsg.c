@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.8 1994/01/01 19:04:11 ahd Exp $
+ *    $Id: printmsg.c 1.9 1994/02/18 23:13:14 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.9  1994/02/18  23:13:14  ahd
+ *     Use standard first header
+ *
  *     Revision 1.8  1994/01/01  19:04:11  ahd
  *     Annual Copyright Update
  *
@@ -49,13 +52,7 @@
  *
  */
 
-
-#include "uupcmoah.h"
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #ifdef __CORE__
 #define __HEAPCHECK__
@@ -65,6 +62,8 @@
 #endif
 
 #if defined(__HEAPCHECK__) || defined(__CORELEFT__) || defined(__ENVCHECK__)
+
+#include "uupcmoah.h"
 #include <alloc.h>
 #endif
 
@@ -72,7 +71,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dater.h"
 #include "logger.h"
 
@@ -263,7 +261,6 @@ void printmsg(int level, char *fmt, ...)
    }
 
 #endif
-
 
 #ifdef __CORELEFT__
    nowfree = coreleft();

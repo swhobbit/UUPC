@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.37 1994/01/01 19:00:55 ahd Exp $
+ *    $Id: configur.c 1.38 1994/02/18 23:08:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.38  1994/02/18  23:08:10  ahd
+ *     Use standard first header
+ *
  *     Revision 1.37  1994/01/01  19:00:55  ahd
  *     Annual Copyright Update
  *
@@ -142,22 +145,15 @@
  *
  */
 
-
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <ctype.h>
 #include <io.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "timestmp.h"
 #include "pushpop.h"
 
@@ -868,7 +864,6 @@ boolean configure( CONFIGBITS program)
 /*--------------------------------------------------------------------*/
 /*                Process the user configuration value                */
 /*--------------------------------------------------------------------*/
-
 
    if (usrrc != nil(char))
    {

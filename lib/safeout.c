@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.7 1994/01/01 19:04:55 ahd Exp $
+ *    $Id: safeout.c 1.8 1994/02/18 23:14:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.8  1994/02/18  23:14:21  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/01/01  19:04:55  ahd
  *     Annual Copyright Update
  *
@@ -47,13 +50,10 @@
 
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
+#ifdef WIN32
 
 #include "uupcmoah.h"
-#include <stdio.h>
-
-#ifdef WIN32
     #include <windows.h>
-    #include <string.h>
 
 #elif defined( FAMILYAPI ) || defined(__OS2__)
 
@@ -76,7 +76,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "safeio.h"
 
 /*--------------------------------------------------------------------*/

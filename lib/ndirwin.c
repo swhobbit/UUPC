@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.3 1994/01/01 19:03:46 ahd Exp $
+ *    $Id: ndirwin.c 1.4 1994/02/18 23:12:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ * Revision 1.4  1994/02/18  23:12:41  ahd
+ * Use standard first header
+ *
  * Revision 1.3  1994/01/01  19:03:46  ahd
  * Annual Copyright Update
  *
@@ -40,22 +43,17 @@
  *
  */
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
 #include <dir.h>
 #include <dos.h>
 #include <errno.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "uundir.h"
 #include "dos2unix.h"
 

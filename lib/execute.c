@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.25 1994/02/14 01:03:56 ahd Exp $
+ *    $Id: execute.c 1.26 1994/02/18 23:07:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.26  1994/02/18  23:07:43  ahd
+ * Use standard first header
+ *
  * Revision 1.25  1994/02/14  01:03:56  ahd
  * Use properly sized buffer for executeCommand processing
  *
@@ -104,14 +107,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <errno.h>
 
 #include "uupcmoah.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <time.h>
 #include <process.h>
 #include <io.h>
 #include <fcntl.h>
@@ -132,8 +131,6 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
-#include "hlib.h"
 #include "execute.h"
 
 #ifdef _Windows

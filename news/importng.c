@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: importng.c 1.3 1993/10/12 00:45:27 ahd Exp $
+ *    $Id: importng.c 1.4 1994/02/18 23:10:40 ahd Exp $
  *
  *    $Log: importng.c $
+ *     Revision 1.4  1994/02/18  23:10:40  ahd
+ *     Use standard first header
+ *
  *     Revision 1.3  1993/10/12  00:45:27  ahd
  *     Normalize comments
  *
@@ -25,19 +28,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "import.h"
-#include "hlib.h"
 #include "importng.h"
 
 /*--------------------------------------------------------------------*/

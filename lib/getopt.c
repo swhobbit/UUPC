@@ -27,13 +27,10 @@
 
 #ifdef BSD
 
-#include "uupcmoah.h"
 #include <strings.h>
 #else
-#include <string.h>
 #define  index strchr
 #endif
-#include <stdio.h>
 
 #define ERR(s,c) fprintf(stderr,"%s%s%c\n", argv[0],s,c)    /* ahd    */
 
@@ -41,7 +38,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "getopt.h"
 
 int   optind = 1;

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.10 1994/01/01 19:03:52 ahd Exp $
+ *    $Id: normaliz.c 1.11 1994/02/18 23:12:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.11  1994/02/18  23:12:51  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/01/01  19:03:52  ahd
  *     Annual Copyright Update
  *
@@ -64,20 +67,12 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 currentfile();
 

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: setstdin.c 1.4 1994/01/01 19:05:42 ahd Exp $
+ *    $Id: setstdin.c 1.5 1994/02/18 23:15:06 ahd Exp $
  *
  *    $Log: setstdin.c $
+ *     Revision 1.5  1994/02/18  23:15:06  ahd
+ *     Use standard first header
+ *
  *     Revision 1.4  1994/01/01  19:05:42  ahd
  *     Annual Copyright Update
  *
@@ -44,16 +47,13 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
-#include <stdio.h>
 #include <windows.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
+#include "uupcmoah.h"
 #include "setstdin.h"
 
 /*--------------------------------------------------------------------*/

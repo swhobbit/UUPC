@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.7 1994/01/24 03:09:04 ahd Exp $
+ *       $Id: ndirnt.c 1.8 1994/02/18 23:12:19 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *     Revision 1.8  1994/02/18  23:12:19  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/01/24  03:09:04  ahd
  *     Annual Copyright Update
  *
@@ -51,12 +54,9 @@
  *
  */
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
 #include <assert.h>
 
 /*--------------------------------------------------------------------*/
@@ -67,12 +67,10 @@
 
 #include <WINDOWS.h>
 
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "uundir.h"
 #include "dos2unix.h"
 
@@ -95,10 +93,8 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    pathname = malloc( strlen( dirname ) + strlen( pattern ) + 2 );
    strcpy(pathname, dirname);
 
-
    if ((*pattern != '\\') || (dirname[ strlen(dirname) - 1] != '\\'))
       strcat(pathname,"\\");
-
 
    strcat(pathname,pattern);
    printmsg(5,"opendir: Opening directory %s", pathname );
@@ -106,7 +102,6 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 /*--------------------------------------------------------------------*/
 /*                Read the first file in the directory                */
 /*--------------------------------------------------------------------*/
-
 
    dirHandle = FindFirstFile(pathname, &dirData);
 
@@ -123,7 +118,6 @@ extern DIR *opendirx( const char *dirname, char *pattern)
       strcpy(dirp->dirid, "DIR");
       return dirp;
    }
-
 
 } /*opendir*/
 

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.5 1994/01/24 03:08:46 ahd Exp $
+ *    $Id: mkfilenm.c 1.6 1994/02/18 23:11:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *     Revision 1.6  1994/02/18  23:11:29  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/01/24  03:08:46  ahd
  *     Annual Copyright Update
  *
@@ -41,19 +44,11 @@
  *
  */
 
-
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "hlib.h"
-#include "lib.h"
 
 /*--------------------------------------------------------------------*/
 /*    m k f i l e n a m e                                             */

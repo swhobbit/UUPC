@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.5 1994/01/01 19:04:24 ahd Exp $
+ *    $Id: pwinsock.c 1.6 1994/02/18 23:13:37 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ * Revision 1.6  1994/02/18  23:13:37  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/01/01  19:04:24  ahd
  * Annual Copyright Update
  *
@@ -45,17 +48,15 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <windows.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <windows.h>
 #include "winsock.h"
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "pwinsock.h"      /* definitions for 16 bit Winsock functions */
 
 /*--------------------------------------------------------------------*/
@@ -152,7 +153,6 @@ boolean pWinSockInit( void )
       printmsg(0,"pWinSockInit: called twice with no termination");
       panic();
    }
-
 
    if (!hWinsock)
    {

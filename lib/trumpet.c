@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.4 1994/01/01 19:06:37 ahd Exp $
+ *    $Id: trumpet.c 1.5 1994/02/18 23:15:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.5  1994/02/18  23:15:56  ahd
+ * Use standard first header
+ *
  * Revision 1.4  1994/01/01  19:06:37  ahd
  * Annual Copyright Update
  *
@@ -53,14 +56,10 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <io.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <io.h>
 #include <ctype.h>
-#include <sys/types.h>
-#include <string.h>
 #include <process.h>
 #include <limits.h>
 
@@ -79,8 +78,6 @@
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
 
 #ifdef SMARTBEEP
 #include "ssleep.h"

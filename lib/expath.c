@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.10 1994/01/01 19:01:38 ahd Exp $
+ *    $Id: expath.c 1.11 1994/02/18 23:08:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.11  1994/02/18  23:08:50  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1994/01/01  19:01:38  ahd
  *     Annual Copyright Update
  *
@@ -42,23 +45,16 @@
 /*                    MS-DOS and OS/2 header files                    */
 /*--------------------------------------------------------------------*/
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-
 #include <direct.h>
 
 /*--------------------------------------------------------------------*/
 /*                     UUPC/extended header files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "expath.h"
-#include "hlib.h"
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"

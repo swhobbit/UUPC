@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.10 1993/11/30 04:18:14 ahd Exp $
+ *    $Id: lock.c 1.11 1994/02/18 23:10:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *     Revision 1.11  1994/02/18  23:10:59  ahd
+ *     Use standard first header
+ *
  *     Revision 1.10  1993/11/30  04:18:14  ahd
  *     Add newline to fprintf()
  *
@@ -50,29 +53,22 @@
  *
  */
 
-
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include <process.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <time.h>
-#include <sys/types.h>
-#include <process.h>
-#include <string.h>
 #include <io.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "dater.h"
 #include "stater.h"
 #include "lock.h"
-#include "hlib.h"
 #include "import.h"
 
 /*--------------------------------------------------------------------*/
@@ -238,7 +234,6 @@ void UnlockSystem( void )
 /*                                                                    */
 /*       Save lock status in order to perform second lock             */
 /*--------------------------------------------------------------------*/
-
 
 void PushLock( LOCKSTACK *top )
 {

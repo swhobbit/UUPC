@@ -9,24 +9,17 @@
 /*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
-
-#include "uupcmoah.h"
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #ifndef __GNUC__
+
+#include "uupcmoah.h"
 #include <io.h>
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
-#include "hlib.h"
 
 /*--------------------------------------------------------------------*/
 /*    C R E A T                                                       */

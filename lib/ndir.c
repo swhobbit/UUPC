@@ -11,20 +11,15 @@
 /*                   Standard library include files                   */
 /*--------------------------------------------------------------------*/
 
+#include <ctype.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include <dos.h>
-#include <stdlib.h>
-#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-#include "lib.h"
 #include "uundir.h"
 #include "getdta.h"
 
@@ -110,7 +105,6 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    return thisDirP;
 
 } /*opendir*/
-
 
 /*--------------------------------------------------------------------*/
 /*    r e a d d i r                                                   */

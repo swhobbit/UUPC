@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.7 1994/01/01 19:03:21 ahd Exp $
+ *    $Id: mktempnm.c 1.8 1994/02/18 23:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *     Revision 1.8  1994/02/18  23:11:49  ahd
+ *     Use standard first header
+ *
  *     Revision 1.7  1994/01/01  19:03:21  ahd
  *     Annual Copyright Update
  *
@@ -49,24 +52,15 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include <limits.h>
 
 #include "uupcmoah.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <time.h>
-
 #include <io.h>
 #include <process.h>
-
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
-
-#include "lib.h"
-#include "hlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.5 1994/02/18 23:04:24 ahd Exp $
+ *    $Id: active.c 1.6 1994/02/18 23:04:47 ahd Exp $
  *
  *    $Log: active.c $
+ *     Revision 1.6  1994/02/18  23:04:47  ahd
+ *     Use standard first header
+ *
  *     Revision 1.5  1994/02/18  23:04:24  ahd
  *     Use standard first header
  *
@@ -66,17 +69,15 @@
 
 */
 
-
 #ifndef __GNUC__
 
 #include <io.h>
 
-#include "uupcmoah.h"
 #include <conio.h>
 #endif
 
+#include "uupcmoah.h"
 #include <ctype.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 #include "timestmp.h"
