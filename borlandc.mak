@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile. 1.74 1995/02/12 23:25:53 ahd Exp $
+#     $Id: makefile 1.75 1995/02/21 02:44:51 ahd Exp $
 #
 #     Revision history:
-#     $Log: makefile. $
+#     $Log: makefile $
+#     Revision 1.75  1995/02/21 02:44:51  ahd
+#     Further updates for renamed news directory
+#
 #     Revision 1.74  1995/02/12 23:25:53  ahd
 #     split rnews into rnews/news, rename rnews dir to news, make inews COM file
 #
@@ -336,7 +339,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12m
+VERS = 1.12n
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
@@ -661,6 +664,8 @@ install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
 !endif
 
 doczip:  $(DOCZIPV)
+
+installw: $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
 
 installx: $(INSTALL) $(REQZIPV) $(OPTZIPV) $(NEWZIPV) \
            regen
