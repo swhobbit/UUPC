@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.49 1994/10/03 01:01:25 ahd Exp $
+ *    $Id: modem.c 1.50 1994/10/23 23:29:44 ahd Exp Software $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.50  1994/10/23  23:29:44  ahd
+ *        Better control of suspension of processing
+ *
  *        Revision 1.49  1994/10/03  01:01:25  ahd
  *        Release port to any sleeping program as soon as port is closed
  *
@@ -543,6 +546,8 @@ CONN_STATE callin( const time_t exit_time )
 /*--------------------------------------------------------------------*/
 /*                   Wait for the telephone to ring                   */
 /*--------------------------------------------------------------------*/
+
+   suspend_ready();
 
    printmsg(1,"Monitoring port %s device %s"
                      " for %d minutes until %s",
