@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.80 1998/01/03 05:27:58 ahd Exp $
+ *    $Id: CONFIGUR.C 1.81 1998/03/01 01:23:02 ahd v1-12v $
  *
  *    Revision history:
- *    $Log: configur.c $
+ *    $Log: CONFIGUR.C $
+ *    Revision 1.81  1998/03/01 01:23:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.80  1998/01/03 05:27:58  ahd
  *    Allow automatic init of home directory
  *
@@ -139,7 +142,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.80 1998/01/03 05:27:58 ahd Exp $");
+RCSID("$Id: CONFIGUR.C 1.81 1998/03/01 01:23:02 ahd v1-12v $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -334,6 +337,7 @@ FLAGTABLE configFlags[] =
  { "bang",                    F_BANG,                  B_GLOBAL},
  { "bounce",                  F_BOUNCE,                B_GLOBAL},
  { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
+ { "commentfrom",             F_COMMENTFROM,           B_GLOBAL },
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "domainfrom",              F_DOMAINFROM,            B_GLOBAL },
  { "doskey",                  F_DOSKEY,                B_LOCAL},
