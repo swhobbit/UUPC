@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.14 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: maillib.c 1.15 1994/03/07 06:09:51 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.15  1994/03/07  06:09:51  ahd
+ * Additional debugging messages controlled by UDEBUG
+ * Shorten ReturnAddress line buffer to correct problem with length
+ *
  * Revision 1.14  1994/02/28  01:02:06  ahd
  * Cosmetic formatting cleanups
  *
@@ -380,7 +384,7 @@ boolean CopyMsg(const int msgnum,
    {
       register char *sp = buf;
       headers = noheader;                 /* Do not print full header */
-      if (RetrieveLine(letters[msgnum].date, buf, LSIZE))
+      if (RetrieveLine(letters[msgnum].date, buf, sizeof buf))
       {
          register char  *sp = buf;
          while (!isspace(*sp))
@@ -569,6 +573,14 @@ boolean RetrieveLine(const long adr,
 /*--------------------------------------------------------------------*/
 
    count = fread(line, sizeof *line, len-1, fmailbox);
+
+   if ( count > (len-1))
+   {
+      printmsg(0,"Zouns!  fread read %d bytes when we only asked for %d",
+                 count,
+                 len - 1 );
+      panic();
+   }
 
    if ((count < (len-1)) && ferror( fmailbox ))
    {
