@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.18 1995/02/21 02:45:44 ahd v1-12q $
+#       $Id: lib.mak 1.19 1996/01/01 21:00:54 ahd v1-12r $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.19  1996/01/01 21:00:54  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.18  1995/02/21 02:45:44  ahd
 #       Move active.c, importng.c to news directory, add news index
 #       cache support, create news subroutine library, and use BCC
@@ -93,7 +96,7 @@ LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
 LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj \
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
          $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
-LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
+LIBLST4= $(OBJ)\makebuf.obj $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
          $(OBJ)\printmsg.obj $(OBJ)\pushpop.obj $(OBJ)\readnext.obj\
          $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
 LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
