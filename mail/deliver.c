@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.47 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: deliver.c 1.48 1996/01/01 21:03:40 ahd v1-12r $
  *
  *    $Log: deliver.c $
+ *    Revision 1.48  1996/01/01 21:03:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.47  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -1016,7 +1019,8 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 /*               Add some self-documenting information                */
 /*--------------------------------------------------------------------*/
 
-   fprintf(stream, "# Generated on %s by %s %s (built on %s %s) at %s\n",
+   fprintf(stream, "# Generated on %s by %s %s (built on %s %s)\n"
+                   "# at %s\n",
                       E_nodename,
                       compilep,
                       compilev,
