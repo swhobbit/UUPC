@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.9 1993/05/06 03:41:48 ahd Exp $
+ *    $Id: DELIVER.C 1.10 1993/05/30 00:01:47 ahd Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.10  1993/05/30  00:01:47  ahd
+ * Expand path of system alias files to allow userid references
+ *
  * Revision 1.9  1993/05/06  03:41:48  ahd
  * Don't rebounce mail to the postmaster
  * Change directories as needed to provide reasonable default drives
@@ -1056,8 +1059,8 @@ size_t Bounce( const char *input,
 
     fputs("\n------ Failed Message Follows -----\n", newfile);
 
-     while (!feof(otherfile))
-        fputs(fgets(buf, sizeof buf, otherfile), newfile);
+    while ( fgets(buf, sizeof buf, otherfile) != NULL)
+      fputs(buf, newfile);
 
     fclose(newfile);
     fclose(otherfile);
@@ -1074,8 +1077,8 @@ size_t Bounce( const char *input,
 
     putenv("LOGNAME=uucp");
     if (spawnlp(P_WAIT,
-            "rmail",
-            "rmail",
+            myProgramName,
+            myProgramName,
             "-w",
             "-F",
             tname,
