@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.16 1993/11/08 04:46:49 ahd Exp $
+ *    $Id: execute.c 1.17 1993/11/13 17:37:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.17  1993/11/13  17:37:02  ahd
+ * Only use system() call for CMD files under OS/2
+ *
  * Revision 1.16  1993/11/08  04:46:49  ahd
  * Add OS/2 specific support for seperate sessions
  *
@@ -88,6 +91,8 @@
 
 #ifdef WIN32
 #include <windows.h>
+#elif defined(WIN32)
+#include <windows.h>
 #include <signal.h>
 #elif defined(__OS2__) || defined(FAMILYAPI)
 #define INCL_DOSSESMGR
@@ -107,6 +112,7 @@
 #include "execute.h"
 
 #ifdef _Windows
+#include <windows.h>
 #include "winutil.h"
 #elif defined(WIN32)
 #include "pnterr.h"
@@ -165,7 +171,8 @@ int execute( const char *command,
 
    if ( ((input != NULL) || (output != NULL)) && ! synchronous )
    {
-      printerr( "execute: Internal error, cannot redirect asynchronous command %s",
+      printmsg(0, "execute: Internal error, cannot redirect asynchronous"
+                  " command %s",
                  command );
       panic();
    }
