@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibpnm.c 1.1 1993/09/23 03:26:51 ahd Exp $
- *       $Log: ulibpnm.c $
+ *       $Id: ulibnmp.c 1.2 1993/09/24 03:43:27 ahd Exp $
+ *       $Log: ulibnmp.c $
+ * Revision 1.2  1993/09/24  03:43:27  ahd
+ * General bug fixes to make work
+ *
  * Revision 1.1  1993/09/23  03:26:51  ahd
  * Initial revision
  *
@@ -83,11 +86,8 @@ static boolean passive;
 
 static HPIPE pipeHandle;
 
-#ifdef __OS2__
-static ULONG usPrevPriority;
-#else
-static USHORT usPrevPriority;
-#endif
+static USHORT writeWait = 50;
+static USHORT readWait = 50;
 
 /*--------------------------------------------------------------------*/
 /*    p p a s s i v e o p e n l i n e                                 */
@@ -119,8 +119,8 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         MAXPACK,
-                         MAXPACK,
+                         32 * 1024,
+                         32 * 1024,
                          60 );
 
 /*--------------------------------------------------------------------*/
@@ -178,7 +178,7 @@ boolean pWaitForNetConnect(int timeout)
          return TRUE;
       }
       else if ( rc == ERROR_PIPE_NOT_CONNECTED )
-         ddelay(10);
+         ssleep(5);
       else {
          printOS2error("DosConnectNPipe", rc );
          return FALSE;
@@ -287,7 +287,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
    static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
-   unsigned short wait = 0;
    boolean firstPass = TRUE;
 
 /*--------------------------------------------------------------------*/
@@ -345,13 +344,8 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          return 0;
       }
 
-       if ( firstPass )
-         firstPass = FALSE;
-       else {
-         ddelay(wait);
-         if ( wait < 1000 )
-            wait ++;
-       }
+       if ( !firstPass )
+         ddelay(readWait);
 
 /*--------------------------------------------------------------------*/
 /*                 Read the data from the named pipe                  */
@@ -360,7 +354,9 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
       rc = DosRead( pipeHandle, &save[bufsize], needed, &received );
 
       if ( rc == ERROR_NO_DATA)
+      {
          received = 0;
+      }
       else if ( rc )
       {
          printmsg(0,"psread: Read from pipe for %d bytes failed.",
@@ -391,9 +387,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
          memmove( output, save, bufsize);
          bufsize = 0;
 
-         if (debuglevel > 14)
-            fwrite(output,1,bufsize,stdout);
-
          return wanted;
       } /* if */
 
@@ -403,6 +396,9 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 
       if (stop_time > 0)
          time( &now );
+
+       if ( firstPass )
+         firstPass = FALSE;
 
    } while (stop_time > now);
 
@@ -452,6 +448,9 @@ int pswrite(const char *input, unsigned int len)
 
       left -= bytes;
 
+      if ( left )
+         ddelay( writeWait );
+
    } while( left > 0 );
 
 /*--------------------------------------------------------------------*/
@@ -499,15 +498,10 @@ void pcloseline(void)
    portActive = FALSE; /* flag pipe closed for error handler  */
    hangupNeeded = FALSE;  /* Don't fiddle with pipe any more  */
 
-/*--------------------------------------------------------------------*/
-/*                           Lower priority                           */
-/*--------------------------------------------------------------------*/
-
-   rc = DosSetPrty(PRTYS_PROCESS,
-                   usPrevPriority >> 8 ,
-                   usPrevPriority & 0xff, 0);
-   if (rc)
-      printOS2error("DosSetPrty", rc );
+   printmsg(4,
+         "pcloseline: Average read delay %d ms, average write delay %d ms",
+         (int) readWait,
+         (int) writeWait );
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the pipe                       */
