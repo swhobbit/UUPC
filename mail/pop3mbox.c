@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.3 1998/03/06 16:07:39 ahd Exp $
+ *       $Id: pop3mbox.c 1.4 1998/03/06 17:35:12 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.4  1998/03/06 17:35:12  ahd
+ *       Correct header from user to system
+ *
  *       Revision 1.3  1998/03/06 16:07:39  ahd
  *       Delete extra new line from delete message
  *
@@ -32,8 +35,6 @@
  *
  *       Revision 1.1  1998/03/01 19:42:17  ahd
  *       Initial revision
- *
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -42,20 +43,16 @@
 
 #include "uupcmoah.h"
 #include <errno.h>
+#include <io.h>
 
 #include "pop3mbox.h"
 #include "mail.h"
-#include "smtpnetw.h"
-
-#include "timestmp.h"
-#include "arpadate.h"
-#include "deliver.h"
 
 /*--------------------------------------------------------------------*/
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.3 1998/03/06 16:07:39 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.4 1998/03/06 17:35:12 ahd Exp $");
 
 currentfile();
 
@@ -132,7 +129,7 @@ popBoxLoad(SMTPClient *client)
          return KWTrue;
    }
 
-   length = fileno(client->transaction->mailboxStream);
+   length = filelength(fileno(client->transaction->mailboxStream));
 
    client->transaction->imf = imopen(length, IMAGE_MODE);
 
