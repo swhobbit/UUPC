@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.24 1998/03/01 19:36:36 ahd v1-12x $
+#       $Id: nmakos22.mak 1.25 1998/04/27 01:54:27 ahd v1-13b ahd $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.25  1998/04/27 01:54:27  ahd
+#       Revise icon source directory
+#
 #       Revision 1.24  1998/03/01 19:36:36  ahd
 #       First compiling POP3 server which accepts user id/password
 #
@@ -54,39 +57,6 @@
 #       Revision 1.10  1995/01/22 04:15:00  ahd
 #       Convert internal zip names to match external names
 #
-#       Revision 1.9  1994/12/22 00:05:44  ahd
-#       Annual Copyright Update
-#
-#       Revision 1.8  1994/06/13 00:08:33  ahd
-#       Add UUHOUR command to build
-#
-#       Revision 1.7  1994/05/25  20:58:34  ahd
-#       Don't enable automatic generation of precompiled headers in
-#       makefile; we can do that via ICC environment variable.
-#
-#       Revision 1.6  1994/05/23  21:40:09  ahd
-#       Add support for non-TCP/IP UUCICO under 32 bit OS/2
-#
-#       Revision 1.5  1994/04/26  02:47:50  ahd
-#       Re-enable automatic preset header generation - kendra's CPU is just
-#       too slow not too.
-#       TCP/IP support for OS/2, including UUCPD.CMD.
-#
-#       Revision 1.4  1994/04/24  20:30:40  ahd
-#       Don't automatically generate pre-compiled headers
-#       Add 32 bit TCP/IP support
-#       Add title altering function
-#
-#       Revision 1.3  1994/03/07  06:04:32  ahd
-#       Additional multi-platform cleanup
-#
-#       Revision 1.2  1994/03/06  12:26:04  ahd
-#       Twiddle compiler options
-#
-#     Revision 1.1  1994/03/05  21:09:21  ahd
-#     Initial revision
-#
-#
 
 ICONS    = icons.os2
 ERASE    = del /f
@@ -102,6 +72,10 @@ MODEL    = 2                    # Really OS/2 version in this case
 
 !ifndef PROD
 PROD     = $(PRODDRIVE)\uupc\os2bin32
+!endif
+
+!ifndef LIBPROG
+LIBPROG=LIBV2R1
 !endif
 
 STACKSIZE= 0x50000
@@ -142,6 +116,7 @@ DBGOPT = -O -Gs -Wtrd- -Wuse- -Wpar-
 DBGOPT  =-Ti -Tx -DUDEBUG # -D__DEBUG_ALLOC__
 !endif
 
-COMMOPT = -Q -Gd
+COMMOPT = -Q -Gd -w2
 CCOPT   = $(COMMOPT) -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wuni- $(DBGOPT) -c -Si -I$(UULIB) -Fo$@
-LDOPT   = $(COMMOPT)  $(DBGOPT) -b"/A:4 /BAT" -Fe $@
+#LDOPT   = $(COMMOPT)  $(DBGOPT) -b"/A:4 /pmtype:vio" -Fe $@
+LDOPT   = $(COMMOPT)  $(DBGOPT) -b"/A:4" -Fe $@
