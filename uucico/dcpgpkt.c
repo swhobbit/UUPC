@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.4 1992/11/17 13:45:37 ahd Exp $
+ *      $Id: DCPGPKT.C 1.5 1992/11/19 03:00:29 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.5  1992/11/19  03:00:29  ahd
+ * drop rcsid
+ *
  * Revision 1.4  1992/11/17  13:45:37  ahd
  * Add comments from Ian Talyor
  *
@@ -367,6 +370,12 @@ static int initialize(const boolean caller, const char protocol )
                case EMPTY:
                   printmsg(GDEBUG, "**got EMPTY");
                   state = I_EMPTY;
+
+                  if (bmodemflag[MODEM_CD] && !CD())
+                  {
+                     printmsg(0,"gopenpk: Modem carrier lost");
+                     return FAILED;
+                  }
                   break;
 
                case CLOSE:
@@ -410,6 +419,7 @@ static int initialize(const boolean caller, const char protocol )
                rwu = nwindows - 1;
             }
             recv_inita = TRUE;
+            sent_initb = recv_initb = sent_initc = recv_initc = FALSE;
             state = sent_inita ? I_INITB_SEND : I_INITA_SEND;
             break;
 
@@ -427,6 +437,7 @@ static int initialize(const boolean caller, const char protocol )
                   pktsize = i;
                recv_initb = TRUE;
                state = sent_initb ? I_INITC_SEND : I_INITB_SEND;
+               recv_inita = sent_inita = FALSE;
             } /* if */
             else
                state = I_RESTART;
@@ -522,7 +533,6 @@ static int initialize(const boolean caller, const char protocol )
       i ++;
 
    } /* while */
-
 
    nerr = 0;
    lazynak = 0;
