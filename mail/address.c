@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.17 1995/01/07 16:18:19 ahd v1-12n $
+ *    $Id: address.c 1.18 1995/03/12 16:42:24 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.18  1995/03/12 16:42:24  ahd
+ *    Don't report a wild card as an alias of a remote system
+ *
  *    Revision 1.17  1995/01/07 16:18:19  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -139,7 +142,8 @@ void user_at_node(const char *raddress,
       strcpy(hisnode, E_nodename);
       strcpy(hispath, E_nodename);
       strcpy(hisuser, raddress);
-      printmsg(5, "user_at_node: Address '%s' is local",raddress);
+      printmsg(5, "user_at_node: Address %s has userid only, no host name",
+               raddress);
       return;
    }
 
