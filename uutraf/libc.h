@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: libc.h 1.3 1994/01/01 19:28:39 ahd v1-12k $
+ *    $Id: libc.h 1.4 1994/12/22 00:46:27 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: libc.h $
+ *    Revision 1.4  1994/12/22 00:46:27  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/01/01 19:28:39  ahd
  *    Annual Copyright Update
  *
@@ -84,6 +87,8 @@
 #include <limits.h>
 
 #define NAME_MAX FILENAME_MAX
+#define KWTrue    1
+#define KWFalse   0
 
 #else
 
