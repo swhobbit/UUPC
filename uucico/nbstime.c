@@ -1,15 +1,17 @@
 /*--------------------------------------------------------------------*/
-/*    n b s t i m e . c                                               */
+/*       n b s t i m e . c                                            */
 /*                                                                    */
-/*    Set local system clock from National Bureau of Standards        */
-/*    Standard Time service                                           */
+/*       Set local system clock from United States's National         */
+/*       Institute of Standards and Technology (formerly National     */
+/*       Bureau of Standards) Standard Time service                   */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1995 by Kendra Electronic Wonderworks.       */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.30 1995/03/24 04:17:22 ahd Exp $
+ *    $Id: nbstime.c 1.31 1995/04/02 00:01:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.31  1995/04/02 00:01:39  ahd
+ *    Correct DOS clock setting to use correct TZ under MS compilers
+ *
  *    Revision 1.30  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *
@@ -167,7 +172,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*--------------------------------------------------------------------*/
 
 static time_t
-setClock( time_t newClock, const int dst )
+setClock( time_t newClock, const KWBoolean daylightSavingsInEffect )
 {
    DATETIME dateTime;
    struct tm *tp;
@@ -195,7 +200,7 @@ setClock( time_t newClock, const int dst )
    newClock -= timezone();
 
 #ifdef __OS2__
-   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+   if (daylight && daylightSavingsInEffect )
       newClock += 3600;             /* Valid for USA only            */
 #endif
 
@@ -218,7 +223,7 @@ setClock( time_t newClock, const int dst )
               (int) dateTime.seconds ,
               (int) dateTime.timezone,
               (int) dateTime.weekday,
-              ( dst > 1 ) && ( dst < 52 ) ? 1 : 0 );
+              daylightSavingsInEffect ? 1 : 0 );
 
    rc = DosSetDateTime( &dateTime );
 
@@ -359,7 +364,7 @@ stime( const time_t *localClock )
    struct tm *tp;
    unsigned rc;
 
-   tp = localtime(localClock);      /* Get time as a recor, NOT
+   tp = localtime(localClock);      /* Get time as a record, do NOT
                                        readjust for TZ offset        */
 
 /*--------------------------------------------------------------------*/
@@ -413,7 +418,7 @@ stime( const time_t *localClock )
 /*--------------------------------------------------------------------*/
 
 static time_t
-setClock( time_t newClock, const int dst )
+setClock( time_t newClock, const KWBoolean daylightSavingsInEffect )
 {
 
 /*--------------------------------------------------------------------*/
@@ -423,13 +428,17 @@ setClock( time_t newClock, const int dst )
 
    newClock -= timezone;
 
+#ifdef __TURBOC__
+
 /*--------------------------------------------------------------------*/
 /*    If this timezone uses daylight savings and we are in the        */
 /*    period to spring forward, do so.                                */
 /*--------------------------------------------------------------------*/
 
-   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+   if (daylight && daylightSavingsInEffect )
       newClock += 3600;             /* Valid for the USA only        */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                        Actually set the clock                      */
@@ -455,17 +464,19 @@ setClock( time_t newClock, const int dst )
 /*                  MJD  YR MO DA  H  M  S ST S UT1 msADV         OTM */
 /*  nbs format-->  47511 88-12-16 06:03:44 00 0 -.1 045.0 UTC(NIST) * */
 /*  @ 1200 baud    47511 88-12-16 06:03:45 00 0 -.1 045.0 UTC(NIST) * */
+/*                 49809 95-04-02 14:15:58 51 0 +.2 045.0 UTC(NIST) * */
 /*--------------------------------------------------------------------*/
 
 KWBoolean nbstime( void )
 {
    static const char model[] =
-         "\r\n##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
+         "\r\n##### ##-##-## ##:##:## ## # +.# ###.# UTC(NIST) *";
    char buf[sizeof model + 1];
    struct tm  tx;
    int cycles = 11;
    KWBoolean firstPass = KWTrue;
    int dst = 0;
+   KWBoolean daylightSavingsInEffect;
    char sync = '?';
    int errors = 0;
 
@@ -512,6 +523,11 @@ KWBoolean nbstime( void )
          switch( model[column] )
          {
             case '?':               /* Any character, ignore it      */
+               break;
+
+            case '+':               /* Sign (+ or -) character?      */
+               if (( buf[column] != '-') && ( buf[column] != '+'))
+                  error = KWTrue;   /* Bad character, throw buf away */
                break;
 
             case '#':               /* Numeric digit expected?       */
@@ -635,6 +651,64 @@ KWBoolean nbstime( void )
 
    nistClock = mktime(&tx);         /* Current UTC (GMT) time in sec */
 
+/*--------------------------------------------------------------------*/
+/*       Determine if US Daylight Savings Time is in effect           */
+/*                                                                    */
+/*       This will be wrong before 0000 GMT on the day clocks are     */
+/*       changed forward/back for time zones more than two/one        */
+/*       hours east of Greenwich Mean Time (i.e.  Asia and much of    */
+/*       Europe).  However, the NIST DST flag is only meaningful      */
+/*       for US time zones anyway.                                    */
+/*--------------------------------------------------------------------*/
+
+   switch( dst )
+   {
+      case 00:
+         daylightSavingsInEffect = KWFalse;
+         break;
+
+      case 50:
+         daylightSavingsInEffect = KWTrue;
+
+      case 51:
+         if ( (tx.tm_hour - timezone() / 3600 ) >= 2 )
+            daylightSavingsInEffect = KWTrue;
+         else
+            daylightSavingsInEffect = KWFalse;
+
+#ifdef UDEBUG
+         printmsg(3,"nbstime: Hour = %d, DST = %sabled" ,
+                     tx.tm_hour - timezone() / 3600,
+                     daylightSavingsInEffect ? "en" : "dis" );
+#endif
+         break;
+
+      case 01:
+         if ( (tx.tm_hour - timezone() / 3600 ) >= 1 )
+            daylightSavingsInEffect = KWFalse;
+         else
+            daylightSavingsInEffect = KWTrue;
+
+#ifdef UDEBUG
+         printmsg(3,"nbstime: Hour = %d, DST = %sabled" ,
+                     tx.tm_hour - timezone() / 3600,
+                     daylightSavingsInEffect ? "en" : "dis" );
+#endif
+         break;
+
+      default:
+         if ( dst > 50 )
+            daylightSavingsInEffect = KWFalse;
+         else
+            daylightSavingsInEffect = KWTrue;
+         break;
+
+   } /* switch( dst ) */
+
+/*--------------------------------------------------------------------*/
+/*                       Report our computed time                     */
+/*--------------------------------------------------------------------*/
+
    if ( debuglevel > 2 )
    {
       printmsg(3,"%02d/%02d/%02d %02d:%02d:%02d %02d %c "
@@ -656,7 +730,7 @@ KWBoolean nbstime( void )
 /*--------------------------------------------------------------------*/
 
 #ifndef WIN32
-   newClock = setClock( nistClock, dst );
+   newClock = setClock( nistClock, daylightSavingsInEffect );
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -666,7 +740,6 @@ KWBoolean nbstime( void )
 
    printmsg(3, "nbstime: \"%s\"", buf + 2);
 
-   printmsg(0, "nbstime: New system time is %s", arpadate() );
 
 /*--------------------------------------------------------------------*/
 /*                Report previous offset of clock to NIST             */
@@ -683,6 +756,8 @@ KWBoolean nbstime( void )
 
    if (sync == '#')
       printmsg(1, "Note: Modem was able to synchronize with NIST." );
+
+   printmsg(0, "nbstime: New system time is %s", arpadate() );
 
 /*--------------------------------------------------------------------*/
 /*                       Return success to caller                     */
