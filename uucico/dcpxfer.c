@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.8 1992/11/28 19:51:16 ahd Exp $
+ *       $Id: DCPXFER.C 1.9 1992/11/29 22:09:10 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.9  1992/11/29  22:09:10  ahd
+ * Change size_t to int to suppress warning message
+ *
  * Revision 1.8  1992/11/28  19:51:16  ahd
  * If in multitask mode, only open syslog on demand basis
  *
@@ -496,7 +499,8 @@ XFER_STATE ssfile( void )
 /*    Okay, we have a file to process; offer it to the other host     */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, hostfile, tname);
+   printmsg( equal(fname,dname) ? 2 : 0,
+            "Sending \"%s\" (%s) as \"%s\"", fname, hostfile, tname);
    if (!pktsendstr( databuf ))   /* Tell them what is coming at them */
    {
       fclose(xfer_stream);
@@ -926,7 +930,7 @@ XFER_STATE rrfile( void )
 /*    Announce we are receiving the file to console and to remote     */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0, "Receiving \"%s\" as \"%s\" (%s)",
+   printmsg(spool ? 2 : 0 , "Receiving \"%s\" as \"%s\" (%s)",
                fname,filename,spolname);
 
    if (spool)
