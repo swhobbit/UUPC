@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.14 1998/05/08 02:42:15 ahd Exp $
+ *       $Id: smtprecv.c 1.15 1998/05/11 01:20:48 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.15  1998/05/11 01:20:48  ahd
+ *       Allow disallowing third-party relaying by default
+ *
  *       Revision 1.14  1998/05/08 02:42:15  ahd
  *       Initialize client transaction data structure after allocation
  *       Free client transaction data structure at cleanup
@@ -92,7 +95,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.14 1998/05/08 02:42:15 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.15 1998/05/11 01:20:48 ahd Exp $");
 
 currentfile();
 
@@ -215,10 +218,10 @@ commandMAIL(SMTPClient *client,
    lenHost = strlen(client->connection.hostName);
    lenDomain  = strlen(E_localdomain);
 
-   if ((lenDomain >= lenHost) &&
-       (equal(client->connection.hostName, "localhost") ||
-        equal(E_localdomain,
-              client->connection.hostName + lenHost - lenDomain)))
+   if (equal(client->connection.hostName, "localhost") ||
+       ((lenDomain <= lenHost) &&
+         equal(E_localdomain,
+               client->connection.hostName + lenHost - lenDomain)))
    {
       client->transaction->localRelay = KWTrue;
       printmsg(8,"%s: Client %s is a considered local relay.",
