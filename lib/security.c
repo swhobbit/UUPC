@@ -12,10 +12,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\security.c 1.2 1992/11/19 02:57:31 ahd Exp ahd $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\SECURITY.C 1.3 1992/11/22 20:58:55 ahd Exp $
  *
  *    Revision history:
- *    $Log: security.c $
+ *    $Log: SECURITY.C $
+ * Revision 1.3  1992/11/22  20:58:55  ahd
+ * Normalize directories as read
+ * Use strpool to allocate const strings
+ *
  * Revision 1.2  1992/11/19  02:57:31  ahd
  * drop rcsid
  *
@@ -648,7 +652,7 @@ int dircmp( const void *a , const void *b )
 
    int result = strcmp(x->path, y->path);
 
-   if (result == 0)
+   if (result == 0 && (x->priv != y->priv))
       result = ( x->priv < y->priv ) ? -1 : 1;
 
    return result;
