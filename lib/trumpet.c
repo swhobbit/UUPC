@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.14 1997/03/31 07:07:25 ahd v1-12u $
+ *    $Id: trumpet.c 1.15 1998/03/01 01:25:50 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.15  1998/03/01 01:25:50  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1997/03/31 07:07:25  ahd
  *    Annual Copyright Update
  *
@@ -32,37 +35,6 @@
  *
  *    Revision 1.11  1995/02/20 17:28:43  ahd
  *    16 bit compiler warning message clean up
- *
- *    Revision 1.10  1994/12/22 04:14:54  ahd
- *    Correct inverted dos beep flag
- *
- *    Revision 1.9  1994/12/09 03:42:09  ahd
- *    All suppressbeep support to allow NOT making any sound
- *
- * Revision 1.8  1994/02/19  04:47:22  ahd
- * Use standard first header
- *
- * Revision 1.7  1994/02/19  04:12:35  ahd
- * Use standard first header
- *
- * Revision 1.6  1994/02/19  03:59:45  ahd
- * Use standard first header
- *
- * Revision 1.5  1994/02/18  23:15:56  ahd
- * Use standard first header
- *
- * Revision 1.4  1994/01/01  19:06:37  ahd
- * Annual Copyright Update
- *
- * Revision 1.3  1993/10/12  00:48:44  ahd
- * Normalize comments
- *
- * Revision 1.2  1993/09/20  04:39:51  ahd
- * OS/2 2.x support
- *
- * Revision 1.1  1993/07/31  16:22:16  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -90,6 +62,7 @@
 #include <ctype.h>
 #include <process.h>
 #include <limits.h>
+#include <time.h>
 
 #ifdef __TURBOC__
 #include <dos.h>
@@ -119,6 +92,9 @@
 
 void trumpet( const char *tune)
 {
+   static char *previousTune = NULL;
+   static time_t previousTime = 0;
+
 #ifdef SMARTBEEP
    char buf[BUFSIZ];
    char *token = buf;
@@ -126,19 +102,52 @@ void trumpet( const char *tune)
    KEWSHORT duration;
 #endif
 
-   if ( bflag[F_SUPPRESSBEEP]  || (tune == NULL) )
+   if (bflag[F_SUPPRESSBEEP] || (tune == NULL))
                               /* Should we announce?                  */
       return;                 /* No --> Return quietly (literally)    */
+
+/*--------------------------------------------------------------------*/
+/*       Don't play same noise more than one in ten seconds Since     */
+/*       we only use address, not pointer, we can compare or perform  */
+/*       shallow copy of tune safely.                                 */
+/*--------------------------------------------------------------------*/
+
+   if ((tune == previousTune) && ((previousTime + 10) > time(NULL)))
+      return;
 
 /*--------------------------------------------------------------------*/
 /*             We are to announce the arrival of the mail             */
 /*--------------------------------------------------------------------*/
 
 #ifdef SMARTBEEP
+
    strcpy(buf,tune);          /* Save the data                        */
 
    while( (token = strtok( token, ",")) != NULL)
    {
+
+/*--------------------------------------------------------------------*/
+/*                     Handle playing a WAV file                      */
+/*--------------------------------------------------------------------*/
+
+      if (strchr(token,'.'))
+      {
+#ifdef WIN32
+         denormalize(token);
+#ifdef UDEBUG
+         printmsg(4,"trumpet: Announcing mail with %s", token );
+#endif
+         PlaySound(token, NULL, (SND_ASYNC |
+                                SND_FILENAME |
+                                0 /* SND_NODEFAULT */ ));
+         break;
+#else
+         /* Ignore it under environments which do not support WAV files */
+         token = NULL;              /* Step to next part of string */
+         continue;
+#endif
+      }
+
       tone = (KEWSHORT) atoi(token);
       token = strtok( NULL, ",");
 
@@ -171,6 +180,7 @@ void trumpet( const char *tune)
 #endif /* __TURBOC__ */
 
       token = NULL;           /* Look at next part of string   */
+
    } /* while */
 
 #else /* SMARTBEEP */
@@ -180,6 +190,14 @@ void trumpet( const char *tune)
 /*--------------------------------------------------------------------*/
 
    fputc('\a', stdout);
+
 #endif /* SMARTBEEP */
+
+/*--------------------------------------------------------------------*/
+/*                     Remember status for next time                  */
+/*--------------------------------------------------------------------*/
+
+   previousTune = tune;
+   time( &previousTime );
 
 } /* trumpet */
