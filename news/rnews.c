@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.21 1993/10/28 00:18:10 ahd Exp rommel $
+ *       $Id: rnews.c 1.22 1993/10/30 22:27:57 rommel Exp rommel $
  *
  *       $Log: rnews.c $
+ * Revision 1.22  1993/10/30  22:27:57  rommel
+ * News history support
+ *
  * Revision 1.21  1993/10/28  00:18:10  ahd
  * Drop unneeded tzset() call
  *
@@ -100,7 +103,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.21 1993/10/28 00:18:10 ahd Exp rommel $";
+         "$Id: rnews.c 1.22 1993/10/30 22:27:57 rommel Exp rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -215,15 +218,13 @@ static int copy_snews( char *filename, FILE *stream );
 
 void main( int argc, char **argv)
 {
-
-   time_t now = time(nil(time_t));
    FILE *f;
    char in_filename[FILENAME_MAX];
    char filename[FILENAME_MAX];
    int c;
    int status;
 
-   now = time(nil(long));
+   now = time(nil(time_t));
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
