@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.11 1993/07/24 03:40:55 ahd Exp $
+ *    $Id: rmail.c 1.12 1993/07/31 16:22:16 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.12  1993/07/31  16:22:16  ahd
+ * Changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.11  1993/07/24  03:40:55  ahd
  * Make usage() return code unique
  *
@@ -235,6 +238,9 @@ void main(int argc, char **argv)
    copywrong = strdup(copyright);
    checkref(copywrong);
 #endif
+
+   logfile = stderr;             // Prevent redirection of error
+                                 // messages during configuration
 
    banner( argv);
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NDIROS2.C 1.4 1993/04/05 12:26:01 ahd Exp $
+ *    $Id: ndiros2.c 1.5 1993/07/20 21:45:37 ahd Exp $
  *
  *    Revision history:
- *    $Log: NDIROS2.C $
+ *    $Log: ndiros2.c $
+ *     Revision 1.5  1993/07/20  21:45:37  ahd
+ *     Clean up header
+ *
  *     Revision 1.4  1993/04/05  12:26:01  ahd
  *     Drop RCSID
  *
@@ -70,7 +73,21 @@
 
 static HDIR dir_handle;
 static char *pathname = NULL;
-static struct _FILEFINDBUF findbuf;
+
+#if defined(__OS2__)
+
+#define FINDFIRST_LEVEL (FIL_STANDARD)    /* OS/2 2.x requires different
+                                             parameters to find first
+                                             file */
+
+static FILEFINDBUF3 findbuf;
+
+#else
+
+#define FINDFIRST_LEVEL (0L)
+static FILEFINDBUF findbuf;
+
+#endif
 
 currentfile();
 
@@ -84,8 +101,14 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 {
 
    DIR *dirp;
+
+#ifdef __OS2__
+   APIRET rc;
+   ULONG count = 1L;
+#else
    USHORT rc;
    USHORT count = 1;
+#endif
 
    pathname = malloc( strlen( dirname ) + strlen( pattern ) + 2 );
    strcpy(pathname, dirname);
@@ -106,7 +129,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
             &findbuf,
             sizeof( findbuf ),
             &count,
-            0L );
+            FINDFIRST_LEVEL );
 
 /*--------------------------------------------------------------------*/
 /*            Process the return code from the first file             */
@@ -137,8 +160,14 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
 struct direct *readdir(DIR *dirp)
 {
-   USHORT rc = 0;
+
+#if defined(__OS2__)
+   ULONG count = 1L;
+   APIRET rc = 0;
+#else
    USHORT count = 1;
+   USHORT rc = 0;
+#endif
 
    if ( ! equal(dirp->dirid, "DIR" ))
    {

@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.12 1993/07/22 23:19:50 ahd Exp $
+ *       $Id: rnews.c 1.13 1993/07/31 16:26:01 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.13  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.12  1993/07/22  23:19:50  ahd
  * First pass for Robert Denny's Windows 3.x support changes
  *
@@ -73,7 +76,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.12 1993/07/22 23:19:50 ahd Exp $";
+         "$Id: rnews.c 1.13 1993/07/31 16:26:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -186,6 +189,9 @@ void main( int argc, char **argv)
    copywrong = strdup(copyright);
    checkref(copywrong);
 #endif
+
+   logfile = stderr;             // Prevent redirection of error
+                                 // messages during configuration
 
    banner( argv );
 
@@ -1116,6 +1122,7 @@ static void copy_file(FILE *input,
    char filename[FILENAME_MAX];
    char buf[BUFSIZ];
    FILE *output;
+   boolean header = TRUE;
 
 /*--------------------------------------------------------------------*/
 /*           Determine if the news has been already posted            */
@@ -1162,7 +1169,11 @@ static void copy_file(FILE *input,
    while (fgets(buf, sizeof buf, input) != NULL)
    {
 
-      if (equalni(buf, "Path:", strlen("Path:")))
+      if ( ! header )
+         ;                 // No operation after end of header
+      if ( *buf == '\n' )
+         header = FALSE;
+      else if (equalni(buf, "Path:", strlen("Path:")))
       {
          fprintf(output, "Path: %s!%s", E_nodename,
                          buf + strlen("Path:") + 1);

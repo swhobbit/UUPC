@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.4 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: mlib.c 1.5 1993/08/11 02:31:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.5  1993/08/11  02:31:12  ahd
+ * Use standard denormalize() macro for slash --> back slashes
+ *
  * Revision 1.4  1993/08/03  03:11:49  ahd
  * Further Windows 3.x fixes
  *
@@ -75,7 +78,7 @@
 /*                    Set up for console services                     */
 /*--------------------------------------------------------------------*/
 
-#if defined(FAMILYAPI) || defined(WIN32) || defined(_Windows)
+#if defined(FAMILYAPI) || defined(BIT32ENV) || defined(_Windows)
 #define SIMPLE_CONSOLE_FGETS
 #else
 

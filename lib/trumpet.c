@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: trumpet.c 1.1 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: trumpet.c $
+ * Revision 1.1  1993/07/31  16:22:16  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -33,7 +36,7 @@
 #define SMARTBEEP
 #endif
 
-#if defined(FAMILYAPI) || defined(WIN32)
+#if defined(FAMILYAPI) || defined(WIN32) || defined(__OS2__)
 #define SMARTBEEP
 #endif
 
@@ -102,30 +105,32 @@ void trumpet( const char *tune)
       token = strtok( NULL, ",");
       duration = (token == NULL) ? 500 : (size_t) atoi(token);
 
-#ifdef __TURBOC__
-      if (tone == 0)
-         nosound();
-      else
-         sound( tone );
-      ddelay( duration );
-#else
+#ifdef WIN32
+      Beep( tone, duration );
+
       if (tone == 0)
          ddelay(duration);
-      else {
-#ifdef WIN32
-         Beep( tone, duration );
+
+#elif defined(FAMILYAPI) || defined(__OS2__)
+
+      DosBeep( tone, duration );
+
+      if (tone == 0)
+         ddelay(duration);
+
 #else
-         DosBeep( tone, duration );
-#endif
-      }
+      if (tone != 0)
+         sound( tone );
+
+      ddelay(duration);
+
+      nosound();
+
 #endif /* __TURBOC__ */
 
       token = NULL;           /* Look at next part of string   */
    } /* while */
 
-#ifdef __TURBOC__
-   nosound();
-#endif
 #else /* SMARTBEEP */
 
 /*--------------------------------------------------------------------*/

@@ -1,14 +1,27 @@
 /*--------------------------------------------------------------------*/
 /*    Program:    uupoll.c              22 September 1989             */
 /*    Author:     Andrew H. Derbyshire                                */
-/*                108 Decatur St                                      */
+/*                Kendra Electronic Wonderworks                       */
+/*                P.O. Box 132                                        */
 /*                Arlington, MA 02174                                 */
 /*    Internet:   help@kew.com                                        */
 /*    Function:   Performs autopoll functions for UUCICO              */
-/*    Language:   Borland C++ 2.0                                     */
+/*    Language:   Borland C++ 3.1                                     */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*    Usage:      uupoll [-r 0] [-f hhmm] [-i hhmm|0400 ]             */
 /*                       [-d hhmm] [-e hhmm]                          */
 /*                       [-a hhmm] [-x debug] [-s systems]            */
+/*                       [-c hhmm] [-C command] [-B command]          */
 /*                                                                    */
 /*                Where:                                              */
 /*                                                                    */
@@ -69,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.11 1993/07/19 02:52:11 ahd Exp $
+ *    $Id: uupoll.c 1.12 1993/07/31 16:26:01 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.12  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.11  1993/07/19  02:52:11  ahd
  * Up memory access room
  *
@@ -114,7 +130,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.11 1993/07/19 02:52:11 ahd Exp $";
+         "$Id: uupoll.c 1.12 1993/07/31 16:26:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -165,12 +181,22 @@ typedef int hhmm;
 /*                  Prototypes and global variables                   */
 /*--------------------------------------------------------------------*/
 
-void   Catcher( void );
- static active(char *Rmtname, int debuglevel, const char *logname);
+ void
+#ifdef __TURBOC__
+__cdecl
+#endif
+ Catcher( int sig );
+
+static active(char *Rmtname, int debuglevel, const char *logname);
+
 static void    busywork( time_t next);
-static int     runCommand( char *command );
+
+static int runCommand( char *command, const boolean sync);
+
 static time_t  nextpoll( hhmm first, hhmm interval );
+
 static boolean     notanumber( char *number);
+
 static void    usage( char *name );
 
  static int passive( time_t next,
@@ -179,7 +205,9 @@ static void    usage( char *name );
                      const char *modem );
 
 static hhmm    firstpoll(hhmm interval);
-static void    uuxqt( int debuglevel);
+
+static void    uuxqt( const int debuglevel, boolean sync);
+
 static time_t LifeSpan( time_t duration, time_t stoptime );
 
 static time_t now;            /* Current time, updated at start of
@@ -383,7 +411,8 @@ currentfile();
    }
 
 /*--------------------------------------------------------------------*/
-/* Terminate if neither active polling nor passive polling requested  */
+/*       Terminate if neither active polling nor passive polling      */
+/*       requested                                                    */
 /*--------------------------------------------------------------------*/
 
    if ( nopassive == 2 && (first < 0))
@@ -478,7 +507,7 @@ currentfile();
          {
             printf("Performing auto-clean with command: %s\n",
                      CleanCommand );
-            if (runCommand( CleanCommand ))
+            if (runCommand( CleanCommand, FALSE ))
                printerr( CleanCommand );
             cleannext = nextpoll(cleanup,  2400);
          }
@@ -500,12 +529,21 @@ currentfile();
             else {
                wait = 10;
 
-               if ((returnCode == 0) && (autowait != -1) &&
-                   (now >= autonext) && (now < next))
+               if (returnCode == 0)
                {
-                  returnCode = active("any",debuglevel, logname);
-                  autonext = now + autowait;
-               } /* if */
+                  boolean poll  =  (autowait != -1) &&
+                                   (now >= autonext) &&
+                                   (now < next);
+
+                  uuxqt( debuglevel, poll );
+
+                  if ( poll )
+                  {
+                     returnCode = active("any", debuglevel, logname);
+                     autonext = now + autowait;
+                  } /* if */
+
+               }  /* if (returnCode == 0) */
 
             } /* else */
 
@@ -526,7 +564,7 @@ currentfile();
       {
          if ( batchCommand != NULL )
          {
-            returnCode = runCommand( batchCommand );
+            returnCode = runCommand( batchCommand, TRUE );
             if ( returnCode != 0 )
             {
                printmsg(0,
@@ -550,7 +588,7 @@ currentfile();
 /*                          End of main loop                          */
 /*--------------------------------------------------------------------*/
 
-   uuxqt( debuglevel );          /* One last call to UUXQT                 */
+   uuxqt( debuglevel, FALSE );   /* One last call to UUXQT                 */
 
 #ifndef NOCBREAK
    if (!cbrk)
@@ -666,10 +704,10 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
 
       if ( logname != NULL )
          strcat( strcat( buf, " -l ") , logname );
-      result = runCommand(buf);
-      if ( result == 0 )
-         uuxqt( debuglevel );
 
+      result = runCommand(buf, TRUE);
+      if ( result == 0 )
+         uuxqt( debuglevel, equal(Rmtname, "all") ? TRUE : FALSE );
 
       printmsg(2,"active: Return code = %d", result );
 
@@ -714,7 +752,7 @@ static void busywork( time_t next)
 /*    not a problem for the intended argv[0]s of UUCICO.              */
 /*--------------------------------------------------------------------*/
 
- static int runCommand( char *command )
+ static int runCommand( char *command, const boolean sync)
  {
    int result;
 
@@ -734,7 +772,7 @@ static void busywork( time_t next)
    fclose(stream);
 #endif /* DEBUG */
 
-   result = executeCommand( command, NULL, NULL, TRUE, FALSE );
+   result = executeCommand( command, NULL, NULL, sync, FALSE );
 
    if ( result < 0 )
    {
@@ -878,9 +916,7 @@ static hhmm firstpoll(hhmm interval)
    if ( modem != NULL )
       strcat( strcat( buf, " -m ") , modem );
 
-   result = runCommand(buf);
-   if ( result == 0 )
-      uuxqt( debuglevel );
+   result = runCommand(buf, TRUE);
 
    printmsg(2,"passive: Return code = %d", result );
    return result;
@@ -893,19 +929,27 @@ static hhmm firstpoll(hhmm interval)
 /*    Execute the UUXQT program to run files received by UUCICO       */
 /*--------------------------------------------------------------------*/
 
- static void uuxqt( int debuglevel)
+ static void uuxqt( const int debuglevel, boolean sync)
  {
    int result;
    char buf[128];             /* Buffer for runCommand() commands       */
 
    sprintf(buf,"uuxqt -x %d", debuglevel);
-   result = runCommand(buf);
+
+#ifdef _Windows
+   sync = sync && bflag[F_WINDOWS];
+#endif
+
+   result = runCommand( buf, sync );
 
    if ( result != 0 )
    {
       printf("UUXQT failed with a return code of %d\n",result);
       panic();
    } /* if ( result != 0 ) */
+
+   if ( ! sync )
+      ssleep(10);
 
  } /* uuxqt */
 
@@ -915,7 +959,15 @@ static hhmm firstpoll(hhmm interval)
 /*    Catch Ctrl-Break                                                */
 /*--------------------------------------------------------------------*/
 
- void Catcher( void )
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+ void
+#ifdef __TURBOC__
+__cdecl
+#endif
+ Catcher( int sig )
  {
 
     safeout("uupoll: Program aborted by user\r\n");
@@ -931,15 +983,17 @@ static hhmm firstpoll(hhmm interval)
 
  static void usage( char *name )
  {
+
    printf("Usage:\t%s"
           "\t[-a hhmm] [-d hhmm | -e hhmm] [-f hhmm] [-i hhmm]\n"
           "\t\t[-l logname] [-c hhmm] [-C command]\n"
           "\t\t[-r 0 | 1] [-s system] [-x n]\n",name);
    exit(4);
- }
 
-#ifndef NOCBREAK
-#ifndef __TURBOC__
+ } /* usage */
+
+#if !defined(NOCBREAK) && !defined(__TURBOC__)
+
 /*--------------------------------------------------------------------*/
 /*    s e t c b r k                                                   */
 /*                                                                    */
@@ -957,6 +1011,7 @@ static int setcbrk(char state)
    intdos(&inregs, &outregs);
 
    return outregs.h.dl;
-}
-#endif
+
+} /* setcbrk */
+
 #endif

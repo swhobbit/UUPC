@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.4 1993/06/13 14:06:00 ahd Exp $
+ *    $Id: maillib.c 1.5 1993/07/31 16:26:01 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.5  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.4  1993/06/13  14:06:00  ahd
  * Add precedence to the standard ignore list
  *
@@ -567,7 +570,7 @@ void sayoptions( FLAGTABLE *flags)
 
    printf("\nThe following options are set:\n");
 
-   for (subscript = 0; (subscript < F_LAST); subscript++)
+   for (subscript = 0; flags[subscript].sym != NULL; subscript++)
    {
          size_t width;
 
@@ -590,8 +593,8 @@ void sayoptions( FLAGTABLE *flags)
          } /* if ( subscript > 0 ) */
 
          printf("%s%s",
-            bflag[ flags[subscript].position ] ? "" : "no" ,
-            flags[subscript].sym );
+               bflag[ flags[subscript].position ] ? "" : "no" ,
+               flags[subscript].sym );
 
    } /* for */
 

@@ -4,10 +4,21 @@
 /*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
 /*
- *       $Id: DCPSTATS.C 1.4 1993/03/06 23:04:54 ahd Exp $
+ *       $Id: DCPSTATS.C 1.5 1993/04/11 00:34:11 ahd Exp $
  *
  *       $Log: DCPSTATS.C $
+ * Revision 1.5  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.4  1993/03/06  23:04:54  ahd
  * Lock host status file before updating
  *

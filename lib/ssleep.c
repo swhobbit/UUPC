@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.6 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: ssleep.c 1.7 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.7  1993/08/02  03:24:59  ahd
+ *     Further changes in support of Robert Denny's Windows 3.x support
+ *
  *     Revision 1.6  1993/07/31  16:22:16  ahd
  *     Changes in support of Robert Denny's Windows 3.x support
  *
@@ -53,7 +56,7 @@
 /*               MS-DOS and OS/2 specific include files               */
 /*--------------------------------------------------------------------*/
 
-#ifdef FAMILYAPI
+#if defined(FAMILYAPI) || defined(__OS2__)
 
 #define INCL_NOPM
 #define INCL_BASE
@@ -87,13 +90,15 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*                     MS-DOS specific functions                      */
 /*--------------------------------------------------------------------*/
 
-#ifndef FAMILYAPI
+#if !defined(FAMILYAPI) && !defined(__OS2__)
+
+currentfile();
+
 #define MULTIPLEX 0x2F
 #define DESQVIEW 0x15
 
@@ -347,15 +352,19 @@ void ssleep(time_t interval)
 /*    Delay for an interval of milliseconds                           */
 /*--------------------------------------------------------------------*/
 
-void   ddelay   (int milliseconds)
+void   ddelay   (KEWSHORT milliseconds)
 {
 
-#ifdef FAMILYAPI
+#if defined(FAMILYAPI) || defined(__OS2__)
+
    USHORT result;
+
 #elif !defined(_Windows)
+
    struct timeb t;
    time_t seconds;
    unsigned last;
+
 #endif
 
 #ifndef _Windows
@@ -406,10 +415,12 @@ void   ddelay   (int milliseconds)
 /*                             OS/2 wait                              */
 /*--------------------------------------------------------------------*/
 
-#elif FAMILYAPI
+#elif defined(FAMILYAPI) || defined(__OS2__)
+
    result = DosSleep(milliseconds);
    if (result != 0)
-      panic();
+      printmsg(0,"ddelay: Sleep for %d milliseconds failed, error %d",
+                 milliseconds, result);
 #else
 
 /*--------------------------------------------------------------------*/

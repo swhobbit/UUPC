@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: DCPGPKT.C 1.13 1993/05/30 00:01:47 ahd Exp $
+ *      $Id: dcpgpkt.c 1.14 1993/07/22 23:22:27 ahd Exp $
  *
- *      $Log: DCPGPKT.C $
+ *      $Log: dcpgpkt.c $
+ * Revision 1.14  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.13  1993/05/30  00:01:47  ahd
  * Move UUFAR into header file
  *
@@ -136,6 +139,10 @@
 #define GDEBUG 4
 #endif
 
+#ifdef __OS2__
+#pragma warn -sig
+#endif
+
 /*--------------------------------------------------------------------*/
 /*    Control whether some buffers are placed outside the default     */
 /*    data segment                                                    */
@@ -193,7 +200,7 @@ typedef enum {
 /*                 Handle 16 bit vs. 32 bit compilers                 */
 /*--------------------------------------------------------------------*/
 
-#if defined(WIN32) || defined(_Windows)
+#if defined(BIT32ENV) || defined(_Windows)
 #define MEMSET(p,c,l)  memset(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
@@ -212,7 +219,7 @@ currentfile();
 static short rwl, swl, swu, rwu, irec, lazynak;
 static unsigned short nbuffers;
 static short rbl, sbl, sbu;
-static INTEGER nerr;
+static KEWSHORT nerr;
 static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
 static boolean arrived[NBUF];
 static size_t nwindows;
@@ -224,7 +231,7 @@ static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
 
-#if !defined(WIN32) && !defined(_Windows)
+#if !defined(BIT32ENV) && !defined(_Windows)
 static char *gspkt = NULL;       // Local buffer dir
 #endif
 
@@ -617,7 +624,7 @@ static short initialize(const boolean caller, const char protocol )
    grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
    checkref( grpkt );
 
-#if !defined(WIN32) && !defined(_Windows)
+#if !defined(BIT32ENV) && !defined(_Windows)
    gspkt = malloc( s_pktsize );
    checkref( gspkt );
 #endif
@@ -626,7 +633,7 @@ static short initialize(const boolean caller, const char protocol )
    lazynak = 0;
 
 
-#if defined(WIN32) || defined(_Windows)
+#if defined(BIT32ENV)|| defined(_Windows)
    printmsg(2,"%s packets, "
               "Window size %d, "
               "Receive packet %d\n, "
@@ -689,7 +696,7 @@ short gclosepk()
    free( grpkt );
    grpkt = NULL;
 
-#if !defined(WIN32) && !defined(_Windows)
+#if !defined(BIT32ENV) && !defined(_Windows)
    free( gspkt );
    gspkt = NULL;
 #endif
@@ -921,7 +928,7 @@ short gsendpkt(char *data, short len)
 
 short geofpkt( void )
 {
-   if (gsendpkt("", 0))          /* Empty packet == EOF              */
+   if ((*sendpkt)("", 0))          /* Empty packet == EOF              */
       return DCP_FAILED;
    else
       return DCP_OK;
@@ -935,13 +942,14 @@ short geofpkt( void )
 
 short gwrmsg( char *s )
 {
-   for(; strlen(s) >= s_pktsize; s += s_pktsize) {
-      short result = gsendpkt(s, s_pktsize);
+   for( ; strlen(s) >= s_pktsize; s += s_pktsize)
+   {
+      short result = (*sendpkt)(s, (short) s_pktsize);
       if (result)
          return result;
    }
 
-   return gsendpkt(s, strlen(s)+1);
+   return (*sendpkt)(s, (short) (strlen(s) + 1));
 } /* gwrmsg */
 
 /*--------------------------------------------------------------------*/
@@ -955,7 +963,7 @@ short grdmsg( char *s)
    for ( ;; )
    {
       short len;
-      short result = ggetpkt( s, &len );
+      short result = (*getpkt)( s, &len );
       if (result || (s[len-1] == '\0'))
          return result;
       s += len;
@@ -1251,7 +1259,7 @@ static void gspack(short type,
                    short xxx,
                    short len,
                    unsigned short xmit,
-#if defined(WIN32) || defined(_Windows)
+#if defined(BIT32ENV)|| defined(_Windows)
                    char *data)
 #else
                    char UUFAR *input)
@@ -1260,7 +1268,7 @@ static void gspack(short type,
    unsigned short check, i;
    unsigned char header[HDRSIZE];
 
-#if !defined(WIN32) && !defined(_Windows)
+#if !defined(WIN32) && !defined(_Windows) &&!defined(__OS2__)
    char *data;                   // Local data buffer address
    if ( input == NULL )
       data = NULL;               // Make consistent with real buffer

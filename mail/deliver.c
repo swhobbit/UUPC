@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.13 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: deliver.c 1.14 1993/08/02 03:24:59 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.14  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.13  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -169,7 +172,7 @@ size_t Bounce( const char *input,
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
 /*--------------------------------------------------------------------*/
 
- INTEGER hops = 0;
+ KEWSHORT hops = 0;
 
  boolean remoteMail = FALSE;
 
@@ -358,7 +361,7 @@ static size_t DeliverLocal( const char *input,
       if ( userp == BADUSER )    /* Invalid user id?                 */
       {                          /* Yes --> Dump in trash bin        */
          return Bounce( input,
-                        "Invalid local user",
+                        "Invalid local address (not defined in PASSWD or ALIASES)",
                         user,
                         user,
                         validate );

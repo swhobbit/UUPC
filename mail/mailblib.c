@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: mailblib.c 1.3 1993/07/31 16:26:01 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mailblib.c $
+ * Revision 1.3  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -1023,7 +1026,7 @@ boolean Get_Operand( int *item,
       if (first_pass)
          rest = *token;
 
-      if ( *rest == (char ) NULL)
+      if ((rest == NULL) || (*rest == (char) NULL))
       {
          *token = NULL;
          return first_pass;
@@ -1045,7 +1048,7 @@ boolean Get_Operand( int *item,
 /*                      Handle integer operands                       */
 /*--------------------------------------------------------------------*/
 
-   if ( bits & INTEGER_OP)
+   if ( bits & KEWSHORT_OP)
    {
       char *p;
       if ( (*token == NULL) || ! first_pass )

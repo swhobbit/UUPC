@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: safeout.c 1.3 1993/07/20 21:42:43 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: safeout.c $
+ *     Revision 1.3  1993/07/20  21:42:43  dmwatt
+ *     Don't rely on standard I/O under Windows/NT
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -37,20 +40,23 @@
 #ifdef WIN32
     #include <windows.h>
     #include <string.h>
-#else
-#if defined( FAMILYAPI )
+
+#elif defined( FAMILYAPI ) || defined(__OS2__)
+
     #define INCL_NOCOMMON
     #define INCL_NOPM
     #define INCL_VIO
     #define INCL_KBD
     #include <os2.h>
     #include <string.h>
+
 #else
+
     #include <dos.h>
     #include <bios.h>
     #include <conio.h>
+
 #endif /* FAMILYAPI */
-#endif /* WIN32 */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -63,7 +69,9 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
+#if !defined(_Windows) && !defined(__OS2__)
 currentfile();
+#endif
 
 #if defined(WIN32)
 static HANDLE hConsoleOut = INVALID_HANDLE_VALUE;
@@ -92,10 +100,12 @@ void safeout( char *str )
 {
 
 #ifdef _Windows
+
    fputs( str , stdout );
    return;
-#else
-#if defined( WIN32 )
+
+#elif defined( WIN32 )
+
    DWORD dwBytesWritten;
 
    if (hConsoleOut == INVALID_HANDLE_VALUE)
@@ -104,9 +114,10 @@ void safeout( char *str )
    WriteFile(hConsoleOut, str, (DWORD)strlen(str), &dwBytesWritten, NULL);
    return;
 
-#else
-#if defined( FAMILYAPI )
+#elif defined( FAMILYAPI ) || defined(__OS2__)
+
    VioWrtTTY( str, strlen( str ), 0 );
+
 #else
     union REGS inregs, outregs;
 
@@ -119,7 +130,5 @@ void safeout( char *str )
 
     safeflush();              /* Flush keyboard                      */
 
-#endif /* FAMILYAPI */
-#endif /* WIN32 */
 #endif /* _Windows */
 } /* safeout */

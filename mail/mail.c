@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.5 1993/07/24 03:40:55 ahd Exp $
+ *    $Id: mail.c 1.6 1993/07/31 16:26:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.6  1993/07/31  16:26:01  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
  * Revision 1.5  1993/07/24  03:40:55  ahd
  * Change description of "-" command, previous command.
  *
@@ -64,7 +67,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.5 1993/07/24 03:40:55 ahd Exp $";
+      "$Id: mail.c 1.6 1993/07/31 16:26:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -206,9 +209,9 @@ static struct CommandTable {
          NULL},
  { "!",           M_SYSTEM,   STRING_OP,
          "Execute DOS command"},
- { "+",           M_DOWN,     INTEGER_OP | AUTOPRINT,
+ { "+",           M_DOWN,     KEWSHORT_OP | AUTOPRINT,
          "Alias for next"},
- { "-",           M_UP,       INTEGER_OP | AUTOPRINT,
+ { "-",           M_UP,       KEWSHORT_OP | AUTOPRINT,
          "Alias for previous"},
  { "?",           M_FASTHELP, NO_OPERANDS,
          "Print this help"},
@@ -218,7 +221,7 @@ static struct CommandTable {
          "Copy item to file"},
  { "delete",      M_DELETE,   LETTER_OP | POSITION | AUTOPRINT ,
          "Delete mail item"},
- { "debug",       M_DEBUG,    INTEGER_OP,
+ { "debug",       M_DEBUG,    KEWSHORT_OP,
          "Enable debug output"},
  { "dquit",       M_DELETEQ,  LETTER_OP ,
          "Delete then quit"},
@@ -236,13 +239,13 @@ static struct CommandTable {
          "Print long help text"},
  { "mail",        M_MAIL,     USER_OP,
          "Compose and send mail"},
- { "next",        M_DOWN,     INTEGER_OP | AUTOPRINT ,
+ { "next",        M_DOWN,     KEWSHORT_OP | AUTOPRINT ,
          "Move to next item"},
   {"print",       M_EXTPRINT, LETTER_OP | POSITION ,
          "Print item (condensed)"},
   {"Print",       M_INTPRINT, LETTER_OP | POSITION ,
          "Print item (condensed)"},
-  {"previous",    M_UP,       INTEGER_OP | AUTOPRINT ,
+  {"previous",    M_UP,       KEWSHORT_OP | AUTOPRINT ,
          "Move to previous item"},
   {"quit",        M_QUIT,     NO_OPERANDS,
          "Update mailbox, exit"},
@@ -264,7 +267,7 @@ static struct CommandTable {
          "Copy item w/o header, delete"},
   {"xit",         M_EXIT,     NO_OPERANDS,
          "alias for exit"},
-  { NUMERIC_CMD,   M_GOTO,     NODISPLAY | INTEGER_OP | AUTOPRINT ,
+  { NUMERIC_CMD,   M_GOTO,     NODISPLAY | KEWSHORT_OP | AUTOPRINT ,
          NULL} ,
   { NULL,          M_INVALID,  NODISPLAY | STRING_OP,
          NULL }
@@ -815,7 +818,10 @@ static void Interactive_Mail( const boolean PrintOnly,
 #ifdef WIN32
                      "Windows NT",
                      _osmajor,
-#elif defined( __TURBOC__ )
+#elif defined(__OS2__)
+                    "OS/2(R)" ,
+                    (int) _osmajor / 10,
+#elif defined(__TURBOC__)
                     "DOS",
                     _osmajor,
 #else

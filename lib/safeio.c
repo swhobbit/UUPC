@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: safeio.c 1.3 1993/07/20 21:42:43 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: safeio.c $
+ *     Revision 1.3  1993/07/20  21:42:43  dmwatt
+ *     Don't rely on standard I/O under Windows/NT
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -37,8 +40,7 @@
 #if defined( WIN32 )
     #include <windows.h>
     #include <string.h>
-#else /* WIN32 */
-#if defined( FAMILYAPI )
+#elif defined( FAMILYAPI ) || defined(__OS2__)
     #define INCL_NOCOMMON
     #define INCL_NOPM
     #define INCL_VIO
@@ -50,7 +52,6 @@
     #include <dos.h>
     #include <bios.h>
 #endif
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -60,38 +61,12 @@
 #include "safeio.h"
 
 /*--------------------------------------------------------------------*/
-/*                    Local Structures and defines                    */
-/*--------------------------------------------------------------------*/
-
-#ifdef FAMILYAPI
-/* KBDKEYINFO structure, for KbdCharIn and KbdPeek */
-
-#ifdef __GNUC__
-typedef struct _KBDKEYINFO {  /* kbci */
-   UCHAR chChar;
-   UCHAR chScan;
-   UCHAR fbStatus;
-   UCHAR bNlsShift;
-   USHORT   fsState;
-   ULONG time;
-}KBDKEYINFO;
-
-#ifndef IO_WAIT
-#define IO_WAIT      0
-#endif
-
-#ifndef FINAL_CHAR_IN
-#define FINAL_CHAR_IN       0x40
-#endif
-
-#endif
-#endif
-
-/*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
+#if !defined(_Windows) && !defined(__OS2__)
 currentfile();
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    s a f e i n                                                     */
@@ -101,7 +76,15 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 #if defined(WIN32)
+
 static HANDLE hConsoleIn = INVALID_HANDLE_VALUE;
+
+/*--------------------------------------------------------------------*/
+/*       I n i t C o n s o l e I n p u t H a n d l e                  */
+/*                                                                    */
+/*       Initialize Window NT console handle allow reading            */
+/*       from console when stdin is redirected.                       */
+/*--------------------------------------------------------------------*/
 
 void InitConsoleInputHandle(void)
 {
@@ -119,9 +102,19 @@ void InitConsoleInputHandle(void)
 int safein( void )
 {
 #ifdef _Windows
+
+/*--------------------------------------------------------------------*/
+/*                       Windows get character                        */
+/*--------------------------------------------------------------------*/
+
    return getchar( );
-#else
-#if defined( WIN32 )
+
+#elif defined( WIN32 )
+
+/*--------------------------------------------------------------------*/
+/*                      Windows NT get character                      */
+/*--------------------------------------------------------------------*/
+
    CHAR ch;
    DWORD dwBytesRead;
 
@@ -131,13 +124,23 @@ int safein( void )
    ReadFile(hConsoleIn, &ch, 1, &dwBytesRead, NULL);
 
    return ch;
-#else /* WIN32 */
-#if defined( FAMILYAPI )
+
+#elif defined( FAMILYAPI ) || defined( __OS2__ )
+
+/*--------------------------------------------------------------------*/
+/*                         OS/2 Get character                         */
+/*--------------------------------------------------------------------*/
+
     KBDKEYINFO kki;
 
     KbdCharIn( &kki, IO_WAIT, 0 );
     return kki.chChar;
+
 #else /* FAMILYAPI */
+
+/*--------------------------------------------------------------------*/
+/*                         DOS get character                          */
+/*--------------------------------------------------------------------*/
 
     int c = (_bios_keybrd( _KEYBRD_READ ) & 0xff );
     union REGS inregs, outregs;
@@ -147,9 +150,8 @@ int safein( void )
     int86( 0x10, &inregs, &outregs );
     return c;
 
-#endif /* FAMILYAPI */
-#endif /* WIN32 */
-#endif /* _Windows */
+#endif
+
 } /* safein */
 
 /*--------------------------------------------------------------------*/
@@ -162,13 +164,12 @@ int safein( void )
 boolean safepeek( void )
 {
 
-/*--------------------------------------------------------------------*/
-/*                         OS/2 keyboard peek                         */
-/*--------------------------------------------------------------------*/
 #ifdef _Windows
+
    return 0;
-#else /* _Windows */
-#ifdef WIN32
+
+#elif defined(WIN32)
+
    INPUT_RECORD Buffer;
    DWORD nEventsRead;
 
@@ -180,12 +181,19 @@ boolean safepeek( void )
    if (nEventsRead != 0 && Buffer.EventType == KEY_EVENT)
       return TRUE;
    return FALSE;
-#else /* WIN32 */
-#if defined( FAMILYAPI )
+
+#elif defined( FAMILYAPI ) || defined(__OS2__)
+
     KBDKEYINFO kki;
 
     KbdPeek( &kki, 0 );
+
+#ifdef __OS2__
+    return (kki.fbStatus & KBDTRF_FINAL_CHAR_IN);
+#else
     return (kki.fbStatus & FINAL_CHAR_IN);
+#endif
+
 #else /* FAMILYAPI */
 
 /*--------------------------------------------------------------------*/
@@ -193,8 +201,7 @@ boolean safepeek( void )
 /*--------------------------------------------------------------------*/
 
     return (_bios_keybrd( _KEYBRD_READY ) & 0xff );
-#endif /* FAMILYAPI */
-#endif /* WIN32 */
+
 #endif /* _Windows */
 
 } /* safepeek */
@@ -210,20 +217,18 @@ void safeflush( void )
 {
 
 #ifdef _Windows
+
    return;
-#else
 
-/*--------------------------------------------------------------------*/
-/*                         OS/2 keyboard flush                        */
-/*--------------------------------------------------------------------*/
+#elif defined(WIN32)
 
-#ifdef WIN32
    if (hConsoleIn == INVALID_HANDLE_VALUE)
       InitConsoleInputHandle();
 
    FlushConsoleInputBuffer(hConsoleIn);
-#else
-#if defined( FAMILYAPI )
+
+#elif defined( FAMILYAPI ) || defined(__OS2__)
+
     KbdFlushBuffer( 0 );      /* That's all!  (Makes you love rich
                                  API's, doesn't it?)                 */
 
@@ -239,8 +244,6 @@ void safeflush( void )
    regs.h.al = 0x00;       /* Don't actually read keyboard           */
    intdos( &regs, &regs ); /* Make it happen                         */
 
-#endif /* FAMILYAPI */
-#endif /* WIN32 */
 #endif /* _Windows */
 
 } /* safeflush */

@@ -1,4 +1,47 @@
 /*--------------------------------------------------------------------*/
+/*       d c p f p k t . c                                            */
+/*                                                                    */
+/*       UUCP 'f' protocol support                                    */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: dcpfpkt.c $
+ * Revision 1.10  1993/07/31  16:27:49  ahd
+ * Changes in support of Robert Denny's Windows support
+ *
+ * Revision 1.9  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
+ * Revision 1.8  1993/05/30  00:01:47  ahd
+ * Multiple communications driver support
+ *
+ * Revision 1.7  1993/04/05  12:26:01  ahd
+ * Correct prototypes to match gpkt
+ *
+ * Revision 1.6  1993/04/05  04:35:40  ahd
+ * Allow unique send/receive packet sizes
+ *
+ * Revision 1.3  1992/11/19  02:36:29  ahd
+ * Revision 1.2  1992/11/15  20:10:47  ahd
+ * Clean up modem file support for different protocols
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Flow control ("f") protocol.                                    */
 /*                                                                    */
 /*    This protocol relies on flow control of the data stream.  It    */
@@ -28,35 +71,9 @@
 /*    Author:  Piet Beertema, CWI, Amsterdam, Sep 1984                */
 /*                                                                    */
 /*    Adapted to uupc 3.0 and THINK C 4.0 by Dave Platt, Jul 1991     */
+/*                                                                    */
+/*    Adapted to UUPC/extended by Drew Derbyshire, 1992               */
 /*--------------------------------------------------------------------*/
-
-/*
- *    $Id: dcpfpkt.c 1.9 1993/07/22 23:22:27 ahd Exp $
- *
- *    $Log: dcpfpkt.c $
- * Revision 1.9  1993/07/22  23:22:27  ahd
- * First pass at changes for Robert Denny's Windows 3.1 support
- *
- * Revision 1.8  1993/05/30  00:01:47  ahd
- * Multiple communications driver support
- *
- * Revision 1.7  1993/04/05  12:26:01  ahd
- * Correct prototypes to match gpkt
- *
- * Revision 1.6  1993/04/05  04:35:40  ahd
- * Allow unique send/receive packet sizes
- *
- * Revision 1.5  1992/11/20  12:38:26  ahd
- * Drop rcsid
- *
- * Revision 1.4  1992/11/19  03:01:13  ahd
- * drop rcsid
- *
- * Revision 1.3  1992/11/19  02:36:29  ahd
- * Revision 1.2  1992/11/15  20:10:47  ahd
- * Clean up modem file support for different protocols
- *
- */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -86,7 +103,7 @@
 
 #ifndef MAXMSGLEN
 #define MAXMSGLEN BUFSIZ
-#endif MAXMSGLEN
+#endif /* MAXMSGLEN */
 
 currentfile();
 
