@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.23 1998/03/01 01:22:09 ahd Exp $
+#       $Id: nmakewnt.mak 1.24 1998/03/01 19:36:36 ahd v1-12v $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.24  1998/03/01 19:36:36  ahd
+#       First compiling POP3 server which accepts user id/password
+#
 #       Revision 1.23  1998/03/01 01:22:09  ahd
 #       Annual Copyright Update
 #
@@ -112,7 +115,7 @@ UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
 
 LDOPT    = $(COMMOPT) -Fe$@
 
-OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
+OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB winmm.lib $(MYUULIBS)
 
 EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
 EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe
