@@ -16,10 +16,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUTYPES.H 1.40 1998/03/01 01:28:21 ahd v1-12v $
+ *    $Id: uutypes.h 1.41 1998/04/08 11:36:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUTYPES.H $
+ *    $Log: uutypes.h $
+ *    Revision 1.41  1998/04/08 11:36:31  ahd
+ *    Add option to control commenting out of UUCP From lines
+ *    by POP3 server
+ *
  *    Revision 1.40  1998/03/01 01:28:21  ahd
  *    Annual Copyright Update
  *
@@ -130,6 +134,7 @@ typedef enum
    F_AUTOSIGN,              /* True = append the signature file      */
    F_BACKUP,                /* True = Backup various files before
                                       rewriting                      */
+   F_DISPLAYCOPYRIGHT,      /* True = Display copyright message      */
    F_DOSKEY,                /* True = Use DOSKEY under DOS when
                                       available                      */
    F_DOT,                   /* True = period ends a message          */
@@ -143,7 +148,6 @@ typedef enum
    F_SAVE,                  /* True = Save read messages in ~/mbox
                                       when reading new mail.         */
    F_SAVERESENT,            /* True = Save forwarded mail 2nd time   */
-   F_SUPPRESSCOPYRIGHT,     /* True = Skip copyright message         */
    F_SUPPRESSBEEP,          /* True = Never beep at the user         */
    F_SPEEDOVERMEMORY,       /* True = Be lazy in strpool()           */
    F_VERBOSE,               /* True = Verbose RMAIL output           */

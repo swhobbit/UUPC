@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: LIB.H 1.42 1998/03/01 01:26:54 ahd v1-12v $
+ *       $Id: lib.h 1.43 1998/04/20 02:48:54 ahd Exp $
  *
  *       Revision history:
- *       $Log: LIB.H $
+ *       $Log: lib.h $
+ *       Revision 1.43  1998/04/20 02:48:54  ahd
+ *       Windows 32 bit GUI environment/TAPI support
+ *
  *    Revision 1.42  1998/03/01 01:26:54  ahd
  *    Annual Copyright Update
  *
@@ -95,63 +98,6 @@
  *
  *     Revision 1.18  1994/01/01  19:09:08  ahd
  *     Annual Copyright Update
- *
- *     Revision 1.17  1993/12/24  05:22:49  ahd
- *     Allow for more generic use of UUFAR type modifier
- *
- *     Revision 1.16  1993/11/06  17:57:46  rhg
- *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- *     Revision 1.15  1993/10/12  01:22:27  ahd
- *     Normalize comments to PL/I style
- *
- *     Revision 1.15  1993/10/12  01:22:27  ahd
- *     Normalize comments to PL/I style
- *
- *     Revision 1.14  1993/10/09  15:48:20  rhg
- *     ANSIfy the source
- *
- *     Revision 1.13  1993/09/29  04:56:11  ahd
- *     Revise B_KEWSHORT to B_SHORT
- *
- *     Revision 1.12  1993/09/20  04:51:31  ahd
- *     1.12OS/2 2.x support
- *
- *     Revision 1.11  1993/08/08  17:39:55  ahd
- *     Define denormalize() macro
- *
- *     Revision 1.10  1993/07/22  23:26:19  ahd
- *     First pass of changes for Robert Denny's Windows 3.1 support
- *
- *     Revision 1.9  1993/07/19  02:53:32  ahd
- *     Update copyright year'
- *
- *     Revision 1.8  1993/06/13  14:12:29  ahd
- *     Changes per Mike McLagan for outbound batched news support
- *
- *     Revision 1.7  1993/05/30  15:27:22  ahd
- *     Drop PASSWD, SYSTEMS definitions
- *
- *     Revision 1.6  1993/05/30  00:11:03  ahd
- *     Drop free() macro
- *     Drop hardcoded PASSWD and SYSTEM file names
- *     Add RCSID macro
- *
- *     Revision 1.5  1993/04/04  21:51:00  ahd
- *     Update copyright
- *
- *     Revision 1.4  1993/03/06  23:09:50  ahd
- *     Break variable names out of master lib.h
- *
- *     Revision 1.3  1992/12/01  04:39:34  ahd
- *     Add SpeedOverMemory
- *
- * Revision 1.2  1992/11/22  21:31:22  ahd
- * Allow strpool() to allocate memory for const strings
- *
- * Revision 1.1  1992/11/16  05:00:26  ahd
- * Initial revision
- *
  */
 
 #ifndef __LIB
@@ -331,6 +277,7 @@ typedef struct FlagTable
       char *sym;
       int position;
       CONFIGBITS bits;
+      KWBoolean initial;
    } FLAGTABLE;
 
 /*--------------------------------------------------------------------*/
@@ -418,6 +365,11 @@ KWBoolean processconfig(char *buff,
                   const size_t TableSize,
                   FLAGTABLE *bTable,
                   const size_t bTableSize );
+
+void
+resetOptions(FLAGTABLE *flags,
+             KWBoolean *barray,
+             const size_t flagSize);
 
 /*--------------------------------------------------------------------*/
 /*                           Abort function                           */
