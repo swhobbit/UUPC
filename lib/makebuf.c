@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.36 1996/03/18 03:48:14 ahd Exp $
+ *    $Id: makebuf.c 1.1 1996/11/18 04:46:49 ahd Exp $
  *
- *    $Log$
+ *    $Log: makebuf.c $
+ *    Revision 1.1  1996/11/18 04:46:49  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -40,7 +43,7 @@
 /*                           RCS signature                            */
 /*--------------------------------------------------------------------*/
 
-RCSID( "$Id$" );
+RCSID( "$Id: makebuf.c 1.1 1996/11/18 04:46:49 ahd Exp $" );
 
 /*--------------------------------------------------------------------*/
 /*                     Local typedefs and defines                     */
@@ -53,12 +56,17 @@ typedef struct _BUFQUEUE
    long signature;
 #ifdef UDEBUG
    unsigned long length;
+   int entry;
 #endif
    void *userBuffer;
    struct _BUFQUEUE *previous;
 } BUFQUEUE;
 
 static BUFQUEUE *top = NULL;
+
+#ifdef UDEBUG
+static int entries = 0;
+#endif
 
 /*--------------------------------------------------------------------*/
 /*       m a k e B u f                                                */
@@ -69,7 +77,7 @@ static BUFQUEUE *top = NULL;
 void
 *makeBuf( const size_t length, const char *file, const size_t line)
 {
-   BUFQUEUE *current = malloc( length + sizeof (BUFQUEUE) );
+   BUFQUEUE *current;
 
    if ( length == 0 )
    {
@@ -77,6 +85,7 @@ void
       bugout( file, line );
    }
 
+   current = malloc( length + sizeof (BUFQUEUE) );
 
 /*--------------------------------------------------------------------*/
 /*              Verify our buffer was properly allocated              */
@@ -90,7 +99,10 @@ void
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
+   entries++;
+
    current->length = length;
+   current->entry = entries;
 #endif
 
    current->signature  = SIGNATURE;
@@ -129,13 +141,19 @@ freeBuf( void *oldBuffer, const char *file, const size_t line )
          done = KWTrue;
 
 #ifdef UDEBUG
-      printmsg(done ? 8 : 2,"%s(%d): freeBuf: %slicit free of %p for %u bytes",
+      printmsg(done ? 8 : 2,"%s(%d): freeBuf: %slicit "
+                  "free of %p (%d,%d) for %u bytes",
                   file,
                   line,
                   done ? "ex" : "im",
                   top,
+                  top->entry,
+                  entries,
                   top->length );
+
+      entries--;
 #endif
+
 
 /*--------------------------------------------------------------------*/
 /*            Pop the current entry off the stack and free it         */

@@ -21,9 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.29 1996/01/01 21:34:25 ahd v1-12r $
+ *    $Id: uustat.c 1.30 1996/11/18 04:46:49 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.30  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.29  1996/01/01 21:34:25  ahd
  *    Annual Copyright Update
  *
@@ -60,7 +65,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.29 1996/01/01 21:34:25 ahd v1-12r $";
+         "$Id: uustat.c 1.30 1996/11/18 04:46:49 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -761,7 +766,7 @@ static void long_stats( const char *system )
                     hostp->hostname,
                     summary,
                     dater( hostp->status.lconnect , NULL ),
-                    hostp->status.hstatus < last_status ?
+                    hostp->status.hstatus < HS_ZZ_LAST ?
                         host_status[ hostp->status.hstatus ] :
                         "*** INVALID/UNDOCUMENTED STATUS ***");
       } /* if (work) */
@@ -819,7 +824,7 @@ static void short_stats( const char *system )
    {
       printmsg(0,"%-10.10s  %s  %s", hostp->hostname,
             dater( hostp->status.lconnect , NULL ),
-            hostp->status.hstatus < last_status ?
+            hostp->status.hstatus < HS_ZZ_LAST ?
                   host_status[ hostp->status.hstatus ] :
                   "*** INVALID/UNDOCUMENTED STATUS ***");
 
