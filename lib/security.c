@@ -12,10 +12,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.7 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: security.c 1.8 1993/09/20 04:38:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.8  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  *     Revision 1.7  1993/08/03  03:11:49  ahd
  *     Make missing directories non-fatal
  *
@@ -615,6 +620,8 @@ static size_t InitDir( char *directories,
                         field);
       } /* if ( strlen( field ) > 2 ) */
 
+      strlwr( field);            // Lower case for compares
+
 /*--------------------------------------------------------------------*/
 /*           Verify this directory not already in the list            */
 /*--------------------------------------------------------------------*/
@@ -622,7 +629,7 @@ static size_t InitDir( char *directories,
       for (subscript = 0; subscript < anchor->dirsize ; subscript++)
       {
          if ( (access == anchor->dirlist[subscript].priv) &&
-              equali( field, anchor->dirlist[subscript].path))
+              equal( field, anchor->dirlist[subscript].path))
          {
             printmsg(0,"InitDir: Duplicate directory %s/", field);
             return 0;
