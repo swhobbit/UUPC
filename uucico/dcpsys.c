@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.47 1995/02/12 23:37:04 ahd v1-12n $
+ *     $Id: dcpsys.c 1.48 1995/03/11 15:49:23 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.48  1995/03/11 15:49:23  ahd
+ *     Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *     Revision 1.47  1995/02/12 23:37:04  ahd
  *     compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -1051,7 +1054,8 @@ char nextGrade( const char grade )
    if ( saveGrade > grade )
       return '\0';
    else {
-      printmsg(2,"nextGrade: Processing grade %c files", saveGrade );
+      printmsg(1,"nextGrade: Processing grade %c call files",
+                 saveGrade );
       return saveGrade;
    }
 

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.45 1995/02/22 12:14:24 ahd v1-12n $
+ *    $Id: dcp.c 1.46 1995/03/11 15:49:23 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.46  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.45  1995/02/22 12:14:24  ahd
  *    Correct 16 bit compiler warning errors
  *
@@ -499,7 +502,7 @@ static KWBoolean master( const char recvGrade,
    CONN_STATE m_state = CONN_INITSTAT;
    CONN_STATE old_state = CONN_EXIT;
 
-   char sendgrade = ALL_GRADES;
+   char sendGrade = ALL_GRADES;
 
    KWBoolean contacted = KWFalse;
    KWBoolean needUUXQT = KWFalse;
@@ -554,12 +557,12 @@ static KWBoolean master( const char recvGrade,
             break;
 
          case CONN_CHECKTIME:
-            sendgrade = checktime(flds[FLD_CCTIME]);
+            sendGrade = checktime(flds[FLD_CCTIME]);
 
-            if ( (overrideGrade && sendgrade) || callnow )
-               sendgrade = recvGrade;
+            if ( (overrideGrade && sendGrade) || callnow )
+               sendGrade = recvGrade;
 
-            if ( !CallWindow( sendgrade ))
+            if ( !CallWindow( sendGrade ))
                m_state = CONN_INITIALIZE;
             else if ( LockSystem( hostp->hostname , B_UUCICO))
             {
@@ -607,7 +610,7 @@ static KWBoolean master( const char recvGrade,
          case CONN_PROTOCOL:
             m_state = startup_server( (char)
                                        (bflag[F_SYMMETRICGRADES] ?
-                                       sendgrade  : recvGrade) );
+                                       sendGrade  : recvGrade) );
             break;
 
          case CONN_SERVER:
@@ -615,7 +618,7 @@ static KWBoolean master( const char recvGrade,
                dcupdate();
 
             setTitle("%s connected to %s", securep->myname, hostp->via );
-            m_state = process( POLL_ACTIVE, recvGrade );
+            m_state = process( POLL_ACTIVE, sendGrade );
             contacted = KWTrue;
             break;
 
@@ -704,7 +707,7 @@ static KWBoolean client( const time_t exitTime,
    KWBoolean contacted = KWFalse;
    KWBoolean needUUXQT = KWFalse;
 
-   char sendgrade = ALL_GRADES;
+   char sendGrade = ALL_GRADES;
 
 /*--------------------------------------------------------------------*/
 /*                      Trap missing modem entry                      */
@@ -788,7 +791,7 @@ static KWBoolean client( const time_t exitTime,
          case CONN_PROTOCOL:
             setTitle("Establishing connection on %s",
                       M_device);
-            s_state = startup_client(&sendgrade);
+            s_state = startup_client(&sendGrade);
             break;
 
          case CONN_CLIENT:
@@ -800,7 +803,7 @@ static KWBoolean client( const time_t exitTime,
                       securep->myname,
                       hostp->via,
                       M_device);
-            s_state = process( POLL_PASSIVE, sendgrade );
+            s_state = process( POLL_PASSIVE, sendGrade );
             break;
 
          case CONN_TERMINATE:
@@ -922,7 +925,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             state = newrequest();
             break;
 
-         case XFER_PUTFILE:   /* Got local tranmit request           */
+         case XFER_PUTFILE:   /* Got local transmit request          */
             state = ssfile();
             break;
 

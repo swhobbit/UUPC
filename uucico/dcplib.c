@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.23 1995/01/07 16:38:26 ahd Exp $
+ *    $Id: dcplib.c 1.24 1995/01/30 04:08:36 ahd v1-12n $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.24  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.23  1995/01/07 16:38:26  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -202,6 +205,10 @@ KWBoolean login(void)
 /*    by displaying a banner.                                         */
 /*--------------------------------------------------------------------*/
 
+
+   if ( ! bflag[F_SUPPRESSLOGININFO] )
+   {
+
 #if defined(_Windows)
     wVersion = LOWORD(GetVersion());
     sprintf(line, "\r\n\nMS-Windows(TM) %d.%02d with %s %s (%s) (%s)\r\n",
@@ -235,10 +242,12 @@ KWBoolean login(void)
             compilep,
             compilev,
             E_domain,
-            M_device); /* Print a hello message            */
+            M_device); /* Format a hello message            */
 #endif
 
-   wmsg(line, KWFalse);
+      wmsg(line, KWFalse);
+
+   } /* if ( ! bflag[F_SUPPRESSLOGININFO] ) */
 
 /*--------------------------------------------------------------------*/
 /*    Display a login prompt until we get a printable character or    */
@@ -322,9 +331,13 @@ KWBoolean login(void)
       {                                /* Yes --> Log the user "in"    */
          time_t now;
                    /*   . . ..+....1....  +....2....+....3....  + .   */
-         sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
-                  E_domain, arpadate());
-         wmsg(line, KWFalse);
+         if ( ! bflag[F_SUPPRESSLOGININFO] )
+         {
+            sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
+                    E_domain,
+                    arpadate());
+            wmsg(line, KWFalse);
+         }
 
          time( &now );
          printmsg(0,"login: login user %s (%s) at %.24s",

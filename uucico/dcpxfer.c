@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.52 1995/03/11 15:49:23 ahd Exp $
+ *       $Id: dcpxfer.c 1.53 1995/03/11 22:29:21 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.53  1995/03/11 22:29:21  ahd
+ *       Use macro for file delete to allow special OS/2 processing
+ *
  *       Revision 1.52  1995/03/11 15:49:23  ahd
  *       Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -372,7 +375,7 @@ static int bufwrite(char *buffer, int len)
 XFER_STATE sbreak( void )
 {
    if (!pktsendstr("H"))      /* Tell slave it can become the master */
-      return XFER_LOST;       /*  Xmit fail?  If so, quit transmitting */
+      return XFER_LOST;       /* Xmit fail?  If so, quit transmitting */
 
    if (!pktgetstr((char *)databuf)) /* Get their response            */
       return XFER_LOST;       /*  Xmit fail?  If so, quit transmitting */
@@ -385,7 +388,8 @@ XFER_STATE sbreak( void )
 
    if (databuf[1] == 'N')     /* "HN" (have work) message from host? */
    {                          /* Yes --> Enter Receive mode          */
-      printmsg( 2, "sbreak: Switch into slave mode" );
+      printmsg( bflag[F_SHOWSPOOL] ? 2 : 1,
+                "sbreak: Switch into slave mode" );
       return XFER_SLAVE;
    }
    else {                     /* No --> Remote host is done as well  */
@@ -904,7 +908,8 @@ XFER_STATE schkdir( const KWBoolean outbound, const char callgrade )
          if (! pktsendstr("HN") )
             return XFER_LOST;
          else {
-            printmsg( 2, "schkdir: Switch into master mode" );
+            printmsg( bflag[F_SHOWSPOOL] ? 2 : 1,
+                      "schkdir: Switch into master mode" );
             return XFER_MASTER;
          }
 
