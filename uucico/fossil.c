@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.8 1994/12/22 00:35:31 ahd v1-12q $
+ *    $Id: fossil.c 1.9 1996/01/01 21:21:42 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: fossil.c $
+ *    Revision 1.9  1996/01/01 21:21:42  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1994/12/22 00:35:31  ahd
  *    Annual Copyright Update
  *
@@ -74,6 +77,35 @@
 
 short portNum;                      /* Must be set by openline()     */
 
+#ifdef UDEBUG
+
+/*--------------------------------------------------------------------*/
+/*       f o s s i l I n f o T r a c e                                */
+/*                                                                    */
+/*       Trace a fossil information buffer                            */
+/*--------------------------------------------------------------------*/
+
+void fossilInfoTrace( const char *prefix, const FS_INFO *debug )
+{
+   char buf[ sizeof (FS_INFO) * 2 + 1 ];
+   char *data = (char *) debug;
+   size_t subscript;
+
+   for ( subscript = 0; subscript < sizeof (FS_INFO); subscript ++ )
+   {
+      sprintf( buf + (subscript * 2 ), "%2.2x", data[subscript] );
+   } /* for */
+
+   printmsg(5, "fosssilInfoTrace: %s: %d bytes at %p: %s",
+               prefix,
+               sizeof (FS_INFO),
+               debug,
+               buf );
+
+} /* fossilInfoTrace */
+
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       F o s s i l C n t l                                          */
 /*                                                                    */
@@ -82,15 +114,16 @@ short portNum;                      /* Must be set by openline()     */
 
  short FossilCntl( const char function, const unsigned char info )
  {
-   union REGS regs;
+   union REGS regsIn;
+   union REGS regsOut;
 
-   regs.x.dx = portNum;
-   regs.h.ah = function;
-   regs.h.al = info;
-   regs.x.bx = 0x00;          /* Insure start function doesn't        */
+   regsIn.x.dx = portNum;
+   regsIn.h.ah = function;
+   regsIn.h.al = info;
+   regsIn.x.bx = 0x00;          /* Insure start function doesn't        */
                               /* cause ES:CX to be twiddled           */
-   int86( FS_INTERRUPT, &regs, &regs );
+   int86( FS_INTERRUPT, &regsIn, &regsOut);
 
-   return (short) regs.x.ax;  /* Return AX to caller                  */
+   return (short) regsOut.x.ax;  /* Return AX to caller               */
 
  } /* FossilCntl */

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.h 1.8 1995/07/21 13:27:43 ahd v1-12q $
+ *    $Id: fossil.h 1.9 1996/01/01 21:25:12 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: fossil.h $
+ *    Revision 1.9  1996/01/01 21:25:12  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1995/07/21 13:27:43  ahd
  *    Correct compiling of FS_INFO under MS C compilers
  *
@@ -104,10 +107,10 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
    char  version;                /* FOSSIL specification version used  */
    char  revision;               /* Driver revision level              */
    char  UUFAR *id;              /* Pointer to ASCII driver id        */
-   short inputSize;              /* Input buffer size                 */
-   short inputFree;              /* Bytes free in input queue         */
-   short outputSize;             /* Bytes queued for output;           */
-   short outputFree;             /* Bytes free in output queue        */
+   unsigned short inputSize;     /* Input buffer size                 */
+   unsigned short inputFree;     /* Bytes free in input queue         */
+   unsigned short outputSize;    /* Bytes queued for output;           */
+   unsigned short outputFree;    /* Bytes free in output queue        */
    char  width;                  /* Screen width in characters        */
    char  height;                 /* Screen height in characters        */
    char  baudmask;               /* Baud rate in format used by FS_SPEED  */
@@ -174,6 +177,12 @@ typedef struct _FS_INFO {        /* Data returned by FS_DRIVINFO      */
 /*--------------------------------------------------------------------*/
 
 extern short portNum;        /* Must be set by openline()              */
+
+#ifdef UDEBUG
+void fossilInfoTrace( const char *prefix, const FS_INFO *debug );
+#else
+#define fossilInfoTrace( x, y )
+#endif
 
 short FossilCntl( const char function, const unsigned char info );
 
