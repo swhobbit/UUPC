@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.10 1995/01/15 19:48:35 ahd Exp $
+ *    $Id: expire.c 1.11 1995/01/29 14:03:29 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.11  1995/01/29 14:03:29  ahd
+ *    Clean up IBM C/Set compiler warnings
+ *
  *    Revision 1.10  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -48,7 +51,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.10 1995/01/15 19:48:35 ahd Exp $";
+      "$Id: expire.c 1.11 1995/01/29 14:03:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -93,12 +96,12 @@ static void HistoryExpireAll( char **groups, const time_t expire_date );
 
 static void usage( void );
 
-long total_articles_purged = 0;
-long total_articles_kept   = 0;
-long total_cross_purged    = 0;
-long total_cross_kept      = 0;
-long total_bytes_purged    = 0;
-long total_bytes_kept      = 0;
+static long total_articles_purged = 0;
+static long total_articles_kept   = 0;
+static long total_cross_purged    = 0;
+static long total_cross_kept      = 0;
+static long total_bytes_purged    = 0;
+static long total_bytes_kept      = 0;
 
 void *history;
 void *new_history;
@@ -109,7 +112,6 @@ void *new_history;
 /*    Main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void
 main( int argc, char **argv)
 {
    int c;
@@ -249,7 +251,7 @@ main( int argc, char **argv)
    printmsg(1,"Total of %ld articles, %ld cross postings (%ld bytes)." ,
             total_articles_kept, total_cross_kept, total_bytes_kept );
 
-   exit(0);
+   return 0;                        /* For brain dead IBM C/Set      */
 
 } /* main */
 

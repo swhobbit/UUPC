@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.26 1994/12/22 00:35:44 ahd Exp $
+ *    $Id: nbstime.c 1.27 1995/01/07 16:39:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.27  1995/01/07 16:39:13  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.26  1994/12/22 00:35:44  ahd
  *    Annual Copyright Update
  *
@@ -392,7 +395,7 @@ KWBoolean nbstime( void )
 
    tp = localtime(&today);    /* Get local time as a record          */
 
-   DateTime.year    = (USHORT) tp->tm_year + 1900;
+   DateTime.year    = (USHORT) (tp->tm_year + 1900);
    DateTime.month   = (UCHAR) (tp->tm_mon + 1);
    DateTime.day     = (UCHAR) tp->tm_mday;
    DateTime.hours   = (UCHAR) tp->tm_hour;

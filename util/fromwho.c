@@ -23,14 +23,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.2 $
+  $Revision: 1.3 $
 
     $Author: ahd $
-      $Date: 1994/12/27 20:47:55 $
+      $Date: 1995/01/03 05:32:26 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.3  1995/01/03 05:32:26  ahd
+  Further SYS file support cleanup
+
   Revision 1.2  1994/12/27 20:47:55  ahd
   Smoother call grading'
 
@@ -87,37 +90,54 @@ typedef struct userinfo {
 } userinfo;
 
 /* translate MAILFILE into a real path */
+
 char *translate(char *mf, char *n, char *h)
 {
-  int len;
+  size_t len;
   char *s, *p, *q;
 
   len = strlen(mf);
+
   if (*mf == '~')
     len += strlen(h) - 1;
+
   p = mf;
-  while (p = strchr(p, '*')) {
+
+  while ((p = strchr(p, '*')) != NULL)
+  {
     p++;
     len += strlen(n)-1;
   }
-  if (s = (char *)malloc(len+1)) {
+
+  s = (char *)malloc(len+1);
+
+  if (s)
+  {
     p = s;
-    if (*mf == '~') {
+    if (*mf == '~')
+    {
       while (*h)
         *(p++) = *(h++);
       mf++;
-    } else
+    }
+    else
       p = s;
+
     while (*mf)
-      if ((*p = *(mf++)) == '*') {
+      if ((*p = *(mf++)) == '*')
+      {
         q = n;
         while (*q)
           *(p++) = *(q++);
-      } else
+      }
+      else
         p++;
+
     *p = '\0';
   }
+
   return(s);
+
 }
 
 mailinfo mailstats(FILE *f, userinfo **ui, int addr)
@@ -130,10 +150,13 @@ mailinfo mailstats(FILE *f, userinfo **ui, int addr)
   mi.msgs = mi.new = 0;
 
   stat = 0;
-  while (fgets(buf, 1024, f)) {
-    if ((!stat) && (!strncmp(buf, "From:", 5))) {
+  while (fgets(buf, 1024, f))
+  {
+    if ((!stat) && (!strncmp(buf, "From:", 5)))
+    {
       offs = 5;
-      if (addr) {
+      if (addr)
+      {
         while (buf[offs] != '<')
           offs++;
         for (offs++, lp=0; buf[lp+offs] != '\n' && buf[lp+offs] != '>'; lp++)
@@ -151,7 +174,8 @@ mailinfo mailstats(FILE *f, userinfo **ui, int addr)
       p = *ui; b = (userinfo *)NULL;
       while (p && (strcmp(buf, p->name) > 0))
         p = (b=p)->next;
-      if (!p || (strcmp(buf, p->name))) {
+      if (!p || (strcmp(buf, p->name)))
+      {
         n = (userinfo *)malloc(sizeof(userinfo));
         n->name = strdup(buf);
         n->info.msgs = n->info.new = 0;
@@ -174,15 +198,19 @@ mailinfo mailstats(FILE *f, userinfo **ui, int addr)
       p->lastsub->next = (subjnode *)NULL;
     }
     if ((stat) && (!strncmp(buf, "Subject:", 8)))
-      if (!p->lastsub->subj) {
+      if (!p->lastsub->subj)
+      {
         buf[strlen(buf)-1] = '\0';
         p->lastsub->subj = strdup(buf+9);
       }
-    if ((stat) && (!strncmp(buf, "Status:", 7))) {
+    if ((stat) && (!strncmp(buf, "Status:", 7)))
+    {
       stat++;
     }
-    if ((stat) && (*buf == '\n')) {
-      if (stat == 1) {
+    if ((stat) && (*buf == '\n'))
+    {
+      if (stat == 1)
+      {
         mi.new++;
         mp->new++;
         p->lastsub->new = 1;
@@ -209,12 +237,13 @@ void usage(char *name)
 
 int main(int argc, char **argv)
 {
+
   mailinfo mi;
   userinfo *ui = (userinfo *)NULL, *p;
   subjnode *sp, *tp;
   FILE *f;
   char mbox[256], *myname, *prog;
-  int c, flag, listflag = 1, subjflag = 1, newflag = 0, addrflag = 0;
+  int c, listflag = 1, subjflag = 1, newflag = 0, addrflag = 0;
 
   banner( argv );
 
@@ -228,8 +257,10 @@ int main(int argc, char **argv)
 
 /* parse arguments */
   prog = *argv;
-  while ((c = getopt(argc, argv, "slnavf:?")) != EOF) {
-    switch (c) {
+  while ((c = getopt(argc, argv, "slnavf:?")) != EOF)
+  {
+    switch (c)
+    {
       case 'f' :  strcpy(mbox, optarg);
                   break;
       case 's' :  subjflag = 0;
@@ -240,7 +271,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.2 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.3 $");
                   exit(0);
       default :   usage(prog);
     }
@@ -248,7 +279,8 @@ int main(int argc, char **argv)
 
 /* open the file */
   f = (FILE *)fopen(mbox, "r");
-  if (f == (FILE *)NULL) {
+  if (f == (FILE *)NULL)
+  {
     perror(mbox);
     exit(errno);
   }
@@ -263,14 +295,17 @@ int main(int argc, char **argv)
     printf("%s contains %d new messages.\n", mbox, mi.new);
   else
     printf("%s contains %d messages, %d new.\n", mbox, mi.msgs, mi.new);
-  while (ui) {
+  while (ui)
+  {
     if (listflag && (!newflag || ui->info.new))
       if (newflag)
         printf("  %-50s:  %d new messages.\n", ui->name, ui->info.new);
       else
         printf("  %-50s:  %d messages, %d new.\n", ui->name, ui->info.msgs, ui->info.new);
-    for (sp = ui->subjs; sp; ) {
-      if (sp->subj) {
+    for (sp = ui->subjs; sp; )
+    {
+      if (sp->subj)
+      {
         if (listflag && subjflag)
           if (sp->new || !newflag)
             printf("    %c %s\n", (sp->new ? '>' : ' '), sp->subj);
@@ -287,5 +322,6 @@ int main(int argc, char **argv)
     free(p);
   }
 
-  exit(0);
-}
+  return 0;
+
+} /* main */

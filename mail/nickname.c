@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.18 1994/12/22 00:18:29 ahd Exp $
+ *    $Id: alias.c 1.19 1995/01/07 16:18:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ *    Revision 1.19  1995/01/07 16:18:27  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.18  1994/12/22 00:18:29  ahd
  *    Annual Copyright Update
  *
@@ -223,11 +226,13 @@ void BuildAddress(char *result, const char *input)
 /*   then see if we know the person by address                        */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(addr, input, KWFalse);  /* Get user e-mail addr     */
-      user_at_node(addr, path, node, user);  /* Break address down       */
+      ExtractAddress(addr, input, ADDRESSONLY);
+                                    /* Get user e-mail addr          */
+      user_at_node(addr, path, node, user);  /* Break address down   */
 
-      fulladdr = AliasByAddr(node, user);  /* Alias for the address?   */
-      if (fulladdr != NULL)            /* Yes --> Use it              */
+      fulladdr = AliasByAddr(node, user);  /* Alias for the address? */
+
+      if (fulladdr != NULL)            /* Yes --> Use it             */
       {
          strcpy(result, fulladdr);
          return;
@@ -238,7 +243,8 @@ void BuildAddress(char *result, const char *input)
 /*   and then normalize the address                                   */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(name, input, KWTrue);   /* Also get their name      */
+      ExtractAddress(name, input, FULLNAMEONLY);
+                                    /* Also get their name           */
 
       if (strlen(name))             /* Did we find a name for user?   */
       {                             /* Yes --> Return it              */
@@ -285,7 +291,7 @@ char *AliasByNick(const char *nick)
    if (!AliasCount)
       AliasCount = LoadAliases();
 
-   upper = AliasCount - 1;
+   upper = (int) AliasCount - 1;
    lower = 0;
 
    while (upper >= lower)
@@ -536,7 +542,7 @@ size_t LoadAliases(void)
 /*     Extract the address components for lookups by host and userid  */
 /*--------------------------------------------------------------------*/
 
-            ExtractAddress(addr, target.afull, KWFalse);
+            ExtractAddress(addr, target.afull, ADDRESSONLY );
 
             user_at_node(addr, path, node, user);
 

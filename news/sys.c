@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.12 1995/01/22 04:16:52 ahd Exp $
+ *    $Id: sys.c 1.13 1995/01/29 14:03:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.13  1995/01/29 14:03:29  ahd
+ *    Clean up IBM C/Set compiler warnings
+ *
  *    Revision 1.12  1995/01/22 04:16:52  ahd
  *    Batching cleanup
  *
@@ -821,8 +824,13 @@ KWBoolean distributions(char *list, const char *distrib)
     else
       bDef  = KWFalse;            /* We had a inclusive distribution  */
 
-    bAll = bAll || (!bNot && equali(listPtr, "all"));
-    bAll = bAll || (!bNot && equali(listPtr, "world"));
+    if ( ! bAll && ! bNot )
+    {
+
+       if ( equali(listPtr, "all") || equali(listPtr, "world") )
+          bAll = KWTrue;
+
+    } /* if ( ! bAll ) */
 
     strncpy( tempDistrib , distrib, sizeof tempDistrib );
     tempDistrib[ sizeof tempDistrib - 1] = '\0';
@@ -990,9 +998,13 @@ KWBoolean newsgroups(char *list, char *groups)
       if (t4 != NULL)
         *t4 = 0;
 
-      bNot = *t3 == '!';
-      if (bNot)
-        t3++;
+      if (*t3 == '!')
+      {
+         bNot = KWTrue;
+         t3++;
+      }
+      else
+         bNot = KWFalse;
 
       if (match(t1, t3, &iSize))
         if (bNot)

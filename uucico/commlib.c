@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.27 1994/12/22 04:13:38 ahd Exp $
+ *    $Id: commlib.c 1.28 1995/01/07 16:37:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.28  1995/01/07 16:37:46  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.27  1994/12/22 04:13:38  ahd
  *    Correct 't' protocol processing to use 512 messages with no header
  *
@@ -585,3 +588,19 @@ KWBoolean dummyWaitForNetConnect(const unsigned int timeout)
 {
    return KWFalse;
 }
+
+/*--------------------------------------------------------------------*/
+/*       C D                                                          */
+/*                                                                    */
+/*       Wrapped script for determining if carrier detect is active   */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+CD( void )
+{
+   if (bmodemflag[MODEM_CARRIERDETECT])
+      return (*CDp)();
+   else
+      return KWTrue;
+
+} /* CD */

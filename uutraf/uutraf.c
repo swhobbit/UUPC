@@ -41,10 +41,10 @@
 #include "version.h" /* uutraf's version stuff */
 
 #ifdef UUPC
-#include "hlib.h"
 #include "uutypes.h"
 #include "confvars.h"
 #include "lib.h"
+#include "hlib.h"
 #include "timestmp.h"
 #include "getopt.h"
 currentfile();

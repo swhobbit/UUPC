@@ -8,11 +8,22 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS information                           */
 /*--------------------------------------------------------------------*/
 
 /*
    $Log: novrstrk.c $
+   Revision 1.4  1994/02/19 05:03:07  ahd
+   Use standard first header
+
  * Revision 1.3  1993/10/24  20:58:55  rhg
  * Clean up for MS C 7.0
  *
@@ -30,7 +41,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-         "$Id: novrstrk.c 1.3 1993/10/24 20:58:55 rhg Exp $";
+         "$Id: novrstrk.c 1.4 1994/02/19 05:03:07 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */
@@ -45,7 +56,7 @@ static char rcsid[] =
 /*    Main program                                                    */
 /*--------------------------------------------------------------------*/
 
- void main( int argc, char *argv[] )
+ main( int argc, char *argv[] )
  {
    char buf[BUFSIZ];       /* Our I/O buffer                         */
    size_t column = 0;
@@ -175,5 +186,6 @@ static char rcsid[] =
    fclose(input);
    fclose(output);
 
-   exit (0);
+   return 0;
+
  } /* main */

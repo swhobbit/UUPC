@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $
+ *    $Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.5  1994/12/09 03:42:09  ahd
+ *    Include configuration to allow suppressing beep
+ *
  * Revision 1.4  1994/02/19  05:01:25  ahd
  * Use standard first header
  *
@@ -35,7 +38,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $";
+static char rcsid[] = "$Id: fmt.c 1.5 1994/12/09 03:42:09 ahd v1-12k $";
 
 #include <ctype.h>
 
@@ -47,7 +50,7 @@ static char rcsid[] = "$Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $";
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
- void main( int argc, char *argv[] )
+ main( int argc, char *argv[] )
  {
    int width = 0;          /* Width of current line                  */
    int maxwidth = 72;      /* Max width of line allowed              */
@@ -160,5 +163,6 @@ static char rcsid[] = "$Id: fmt.c 1.4 1994/02/19 05:01:25 ahd Exp $";
    fclose(input);
    fclose(output);
 
-   exit (0);
+   return 0;
+
  } /* main */

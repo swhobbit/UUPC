@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.12 1995/01/15 19:48:35 ahd Exp $";
+         "$Id: genhist.c 1.13 1995/01/29 14:03:29 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.13  1995/01/29 14:03:29  ahd
+/* Clean up IBM C/Set compiler warnings
+/*
 /* Revision 1.12  1995/01/15 19:48:35  ahd
 /* Allow active file to be optional
 /* Delete fullbatch global option
@@ -114,7 +117,7 @@ void *history;
 /*    Main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char **argv)
+main( int argc, char **argv)
 {
    extern char *optarg;
    char file_old[FILENAME_MAX], file_new[FILENAME_MAX];
@@ -190,7 +193,8 @@ void main( int argc, char **argv)
    put_active();
    printmsg(1,"%s: Processed %ld total articles in %ld files (%ld bytes).",
                   argv[0], total_articles, total_files, total_bytes );
-   exit(0);
+
+   return 0;
 
 } /* main */
 

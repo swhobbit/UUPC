@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.22 1994/12/22 00:35:01 ahd Exp $
+ *    $Id: dcplib.c 1.23 1995/01/07 16:38:26 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.23  1995/01/07 16:38:26  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.22  1994/12/22 00:35:01  ahd
  *    Annual Copyright Update
  *
@@ -235,7 +238,7 @@ KWBoolean login(void)
             M_device); /* Print a hello message            */
 #endif
 
-   wmsg(line,0);
+   wmsg(line, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*    Display a login prompt until we get a printable character or    */
@@ -245,11 +248,12 @@ KWBoolean login(void)
    for ( attempts = 0; attempts < 5 ; attempts++ )
    {
       KWBoolean invalid = KWTrue;
+
       while (invalid)         /* Spin for a user id or timeout       */
       {
          memset(user, 0, sizeof user);
 
-         wmsg("\r\nlogin: ", 0);
+         wmsg("\r\nlogin: ", KWFalse);
 
          if (rmsg(user, 2, M_startupTimeout, sizeof user) == TIMEOUT)
                                     /* Did the user enter data?  */
@@ -259,8 +263,15 @@ KWBoolean login(void)
             return KWFalse;
 
          token = user;
+
          while ((*token != '\0') && invalid) /* Ignore empty lines   */
-            invalid = ! isgraph(*token++);
+         {
+            if ( isgraph(*token++) )
+               invalid = KWFalse;
+            else
+               invalid = KWTrue;
+         }
+
       } /* while */
 
       printmsg(14, "login: login=\"%s\"", user);
@@ -279,7 +290,7 @@ KWBoolean login(void)
            (userp == BADUSER) ||
            (*(userp->password) != '\0'))
       {
-         wmsg("\r\nPassword: ", 0);
+         wmsg("\r\nPassword: ", KWFalse);
          if (rmsg(pswd, 0, M_startupTimeout, sizeof pswd) == TIMEOUT)
             return KWFalse;
 
@@ -296,7 +307,7 @@ KWBoolean login(void)
 
       if (userp == BADUSER)            /* Does user id exist?          */
       {                                /* No --> Notify the user       */
-         wmsg("\r\nlogin failed",0);
+         wmsg("\r\nlogin failed", KWFalse);
 
          token = user;
          while (!isalnum( *token ) && (*token !=  '\0'))
@@ -313,7 +324,7 @@ KWBoolean login(void)
                    /*   . . ..+....1....  +....2....+....3....  + .   */
          sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
                   E_domain, arpadate());
-         wmsg(line, 0);
+         wmsg(line, KWFalse);
 
          time( &now );
          printmsg(0,"login: login user %s (%s) at %.24s",
@@ -336,7 +347,7 @@ KWBoolean login(void)
          }
       }
       else {                        /* Password was wrong.  Report   */
-         wmsg("\r\nlogin failed",0);
+         wmsg("\r\nlogin failed", KWFalse);
          printmsg(0,"login: login user %s (%s) failed, bad password %s",
                   userp->uid,
                   userp->realname,
@@ -374,7 +385,7 @@ KWBoolean loginbypass(const char *user)
 
    if (userp == BADUSER)            /* Does user id exist?           */
    {                                /* No --> Notify the user        */
-      wmsg("\r\nUUCICO login failed",0);
+      wmsg("\r\nUUCICO login failed", KWFalse);
 
       printmsg(0,"loginbypass: login for user %s failed, bad user id",
                user);               /* Log the error for ourselves   */
@@ -385,13 +396,14 @@ KWBoolean loginbypass(const char *user)
                 /*   . . ..+....1....  +....2....+....3....  + .   */
       sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
                E_domain, arpadate());
-      wmsg(line, 0);
+      wmsg(line, KWFalse);
       printmsg(0,"loginbypass: login user %s (%s) at %s",
                   userp->uid, userp->realname, arpadate());
 
       securep = userp->hsecure;
 
       return CD();            /* Yes --> Startup the machine   */
+
    } /* else */
 
 } /*loginbypass*/
@@ -416,7 +428,7 @@ static void LoginShell( const   struct UserTable *userp )
    sprintf(line,
           "LoginShell: special shell %s not supported. Goodbye.\r\n",
            userp->sh);
-   wmsg(line, 0);
+   wmsg(line, KWFalse);
    printmsg(0, "Login with special shell %s, not supported.", userp->sh);
    return;
 
@@ -461,7 +473,7 @@ static void LoginShell( const   struct UserTable *userp )
    while( (s = strchr( s, '%')) != NULL ) /* Get next percent on line */
    {
       char *insert;
-      int len;
+      size_t len;
 
       switch( s[1] )                /* Look at next character        */
       {
@@ -558,15 +570,15 @@ void motd( const char *fname, char *buf, const int bufsiz )
    if ( stream == NULL )
    {
       perror( fname );
-      wmsg( fname,0 );
-      wmsg( ": ", 0);
-      wmsg( strerror( errno ),0);
-      wmsg( "\n\r",0);
+      wmsg( fname, KWFalse);
+      wmsg( ": ", KWFalse);
+      wmsg( strerror( errno ), KWFalse);
+      wmsg( "\n\r", KWFalse);
       return;
    } /* if ( stream == NULL ) */
 
    while(( fgets( buf, bufsiz, stream ) != NULL ) && CD())
-      wmsg( buf, 0 );
+      wmsg( buf, KWFalse);
 
    fclose( stream );
 

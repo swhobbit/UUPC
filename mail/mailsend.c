@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.19 1995/01/07 16:19:08 ahd Exp $
+ *    $Id: mailsend.c 1.20 1995/01/07 16:35:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.20  1995/01/07 16:35:47  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.19  1995/01/07 16:19:08  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -165,7 +168,7 @@ currentfile();                /* Define current file for panic()     */
       char path[MAXADDR];
       char bucket[MAXADDR];
 
-      ExtractAddress(bucket, (char *) alias, KWFalse);
+      ExtractAddress(bucket, (char *) alias, ADDRESSONLY);
       user_at_node(bucket, path, node, user);
       fullname = AliasByAddr( node, user);
 
@@ -186,19 +189,26 @@ currentfile();                /* Define current file for panic()     */
                strcat(node,E_localdomain);
             }
 
-            ExtractAddress(path, (char *) alias, KWTrue);
+            ExtractAddress(path, (char *) alias, FULLNAMEONLY);
+
             if (strlen( path ) == 0)
                sprintf(buffer,"%s@%s", hisuser, node );
             else
                sprintf(buffer,"\"%s\" <%s@%s>", path, hisuser, node);
+
             fullname = buffer;
+
          }
          else
             fullname = (char *) alias; /* Use original information     */
-      }
-   }
+
+      } /* if (fullname == NULL) */
+
+   } /* if (fullname == NULL) */
    else {
-      ExtractAddress(buffer,fullname,KWTrue);
+
+      ExtractAddress(buffer, fullname, FULLNAMEONLY);
+
       if (strlen(buffer) == 0)      /* A list of users?              */
       {                             /* Yes --> Do recursive call     */
          char *current = buffer;    /* Current token being processed */
@@ -253,22 +263,31 @@ static KWBoolean Append_Signature(FILE *mailbag_fp ,
 
    sig = alternate ? E_altsignature : E_signature;
 
-   if(sig != nil(char)) {
+   if (sig != nil(char))
+   {
       mkfilename(sigfile, E_homedir, sig);
       printmsg(4, "Append_Signature: signature file %s", sigfile);
-      if ((sigfp = FOPEN(sigfile, "r",TEXT_MODE)) != nil(FILE)) {
+
+      if ((sigfp = FOPEN(sigfile, "r",TEXT_MODE)) != nil(FILE))
+      {
          fputs("-- \n", mailbag_fp);
+
          while (fgets(buf, BUFSIZ, sigfp) != nil(char))
             fputs(buf, mailbag_fp);
+
          fclose(sigfp);
-         return(0);
+
+         return KWTrue;
       }
       else {
          printmsg(0, "Signature file \"%s\" doesn't exist!\n", sigfile);
-         return(1);
+         return KWTrue;
       }
-   }
-   return(0);
+
+   } /* if (sig != nil(char)) */
+
+   return KWFalse;
+
 }  /* Append_Signature */
 
 /*--------------------------------------------------------------------*/
@@ -447,7 +466,11 @@ KWBoolean Send_Mail(FILE *datain,
 
    remove(pipename);
    free(pipename);
-   return (status == 0 );
+
+   if (status == 0 )
+      return KWTrue;
+   else
+      return KWFalse;
 
 } /*Send_Mail*/
 
@@ -595,7 +618,10 @@ KWBoolean Collect_Mail(FILE *stream,
 /*         Determine if we should go straight into the editor         */
 /*--------------------------------------------------------------------*/
 
-   editonly = bflag[F_AUTOEDIT] && (E_editor != NULL);
+   if (bflag[F_AUTOEDIT] && (E_editor != NULL))
+      editonly = KWTrue;
+   else
+      editonly = KWFalse;
 
    if ( equal(argv[0],"-s"))     /* Any subject specified?           */
    {
@@ -672,7 +698,7 @@ KWBoolean Collect_Mail(FILE *stream,
          case 'l':
             puts("List");
             fflush(stdout);
-            Sub_Pager(tmailbag, islower(c) );
+            Sub_Pager(tmailbag, (KWBoolean) (islower(c) ? KWTrue : KWFalse));
             break;
 
          case 's':
@@ -803,7 +829,9 @@ static KWBoolean Subcommand( char *buf,
 
          case 'a':
          case 'A':
-            Append_Signature(fmailbag, isupper( buf[1] ));
+            Append_Signature(fmailbag,
+                             (KWBoolean) (isupper( buf[1] ) ?
+                                             KWTrue : KWFalse ));
             fputs("(continue)\n", stdout);
             break;
 
@@ -842,11 +870,25 @@ static KWBoolean Subcommand( char *buf,
                if (SelectItems( &token, current_msg, LETTER_OP ))
                while( Get_Operand( &message, &token, LETTER_OP, first_pass))
                {
-                  CopyMsg( message , fmailbag,
-                           islower(buf[1]) ? fromheader : noseperator ,
-                           tolower(buf[1]) != 'f');
+                  copyopt option;
+                  KWBoolean fileMode;
+
+                  if ( islower(buf[1]) )
+                     option = fromheader;
+                  else
+                     option = noseperator;
+
+                  if ( tolower(buf[1]) == 'f' )
+                     fileMode = KWTrue;
+                  else
+                     fileMode = KWFalse;
+
+                  CopyMsg( message , fmailbag, option, fileMode );
+
                   fprintf(stdout, "Message %d included\n", message + 1);
+
                   first_pass = KWFalse;
+
                } /* while */
 
                PopItemList( item_list, next_item );
@@ -860,7 +902,8 @@ static KWBoolean Subcommand( char *buf,
          case 'p':
          case 'P':
             fclose(fmailbag);
-            Sub_Pager(tmailbag, islower(buf[1]) );
+            Sub_Pager(tmailbag,
+                      (KWBoolean) (islower(buf[1]) ? KWTrue : KWFalse) );
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;

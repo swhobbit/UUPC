@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.44 1995/01/09 12:35:15 ahd Exp $
+ *     $Id: dcpsys.c 1.45 1995/01/14 14:08:59 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.45  1995/01/14 14:08:59  ahd
+ *     Change grade processing message
+ *
  *     Revision 1.44  1995/01/09 12:35:15  ahd
  *     Correct VC++ compiler warnings
  *
@@ -489,7 +492,7 @@ void wmsg(const char *msg, const KWBoolean synch)
 /*    read a ^P msg from UUCP                                         */
 /*--------------------------------------------------------------------*/
 
-int rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len)
+int rmsg(char *msg, const char synch, unsigned int msgtime, int max_len)
 {
    int i;
    char ch = '?';       /* Initialize to non-zero value  */    /* ahd  */
@@ -557,7 +560,7 @@ int rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len)
          if ( synch == 2 )
             swrite( &ch, 1);
 
-         ch &= 0x7f;
+         ch &= (unsigned char) 0x7f;
          if (ch == '\r' || ch == '\n')
             ch = '\0';
          msg[i++] = ch;
@@ -568,7 +571,8 @@ int rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len)
    printmsg( 4, "<== %s%s",
                 (synch == 1) ? "^p" : "",
                 msg);
-   return strlen(msg);
+
+   return (int) strlen(msg);
 
 } /* rmsg */
 
@@ -582,7 +586,7 @@ CONN_STATE startup_server(const char recvgrade )
 {
    char msg[80];
    char *s;
-   int hostlen;
+   size_t hostlen;
 
    hostp->status.hstatus = startup_failed;
    hostp->via     = hostp->hostname;   /* Save true hostname           */

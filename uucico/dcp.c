@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.41 1995/01/07 17:40:36 ahd Exp $
+ *    $Id: dcp.c 1.42 1995/01/13 14:02:36 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.42  1995/01/13 14:02:36  ahd
+ *    Correct NT VC++ 2.0 warnings
+ *
  *    Revision 1.41  1995/01/07 17:40:36  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -363,7 +366,7 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 'z':
-         hotBPS = atoi(optarg);
+         hotBPS = (BPS) atoi(optarg);
          pollMode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
@@ -843,9 +846,10 @@ static KWBoolean client( const time_t exitTime,
 
 static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
 {
-   KWBoolean master  = ( pollMode == POLL_ACTIVE );
+   KWBoolean master  = (KWBoolean) ( pollMode == POLL_ACTIVE ?
+                                       KWTrue : KWFalse );
    KWBoolean aborted = KWFalse;
-   XFER_STATE state =  master ? XFER_SENDINIT : XFER_RECVINIT;
+   XFER_STATE state =  (XFER_STATE) (master ? XFER_SENDINIT : XFER_RECVINIT);
    XFER_STATE old_state = XFER_EXIT;
                               /* Initialized to any state but the
                                  original value of "state"           */
@@ -917,7 +921,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             break;
 
          case XFER_FILEDONE:  /* Receive or transmit is complete     */
-            state = master ? XFER_REQUEST : XFER_RECVHDR;
+            state = (XFER_STATE) (master ? XFER_REQUEST : XFER_RECVHDR);
             break;
 
          case XFER_NEXTGRADE: /* Process next grade of local files   */
@@ -934,7 +938,9 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             break;
 
          case XFER_NOREMOTE:  /* No remote work, local have any?     */
-            state = schkdir( pollMode == POLL_ACTIVE, callGrade );
+            state = schkdir( (KWBoolean) (pollMode == POLL_ACTIVE ?
+                                             KWTrue : KWFalse ),
+                              callGrade );
             break;
 
          case XFER_RECVHDR:   /* Receive header from other host      */
