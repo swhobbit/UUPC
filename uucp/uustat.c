@@ -60,7 +60,7 @@ typedef enum {
 
 
 struct data_queue {
-   char name[FILENAME_MAX];
+   char name[BUFSIZ];
    struct data_queue *next_link;
    time_t created;
    long size;
@@ -934,8 +934,8 @@ static void open_data(const char *file,
          case 'C':
             printmsg(1,"Command %s", data_buf);
             token = strchr(data_buf,' ') + 1;
-            strncpy(command, token , FILENAME_MAX - 1);
-            command[ FILENAME_MAX - 1] = '\0';
+            strncpy(command, token , BUFSIZ - 1);
+            command[ BUFSIZ - 1] = '\0';
             break;
          default:
             printmsg(1,"UNKNOWN LINE %s", data_buf);
