@@ -5,8 +5,6 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
 /*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
@@ -15,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.26 1994/06/13 00:14:17 ahd v1-12k $
+ *    $Id: import.c 1.27 1994/12/22 00:09:09 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.27  1994/12/22 00:09:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1994/06/13 00:14:17  ahd
  *    Use Kai Uwe Rommel's dummy file open to check valid file names
  *    rather than file system name under OS/2
@@ -316,8 +317,6 @@ void importpath(char *local, const char *canon, const char *remote)
 
       boolean longname;
 
-      printmsg(6,"importpath: Checking File system for spool directory %s",
-                  E_spooldir );
       longname = bflag[F_LONGNAME] && advancedFS( E_spooldir ) ;
 
 /*--------------------------------------------------------------------*/
@@ -423,8 +422,6 @@ void importpath(char *local, const char *canon, const char *remote)
       char *in = (char *) canon;
       boolean longname ;
 
-      printmsg(4,"importpath: Checking file system for file %s",
-                  canon );
       longname = advancedFS( canon );
 
       if ( ValidDOSName( canon, longname ))
@@ -474,7 +471,7 @@ void importpath(char *local, const char *canon, const char *remote)
 
    } /* else */
 
-   printmsg( equali(canon,local) ? 5 : 3,
+   printmsg( equali(canon,local) ? 8 : 3,
             "ImportPath: Mapped %s to %s", canon, local );
 
 } /*importpath*/
@@ -764,49 +761,6 @@ boolean ValidDOSName( const char *s,
 #if defined(FAMILYAPI) || defined( __OS2__ )
 
 /*--------------------------------------------------------------------*/
-/*       a d v a n c e d F S                       (OS/2 version)     */
-/*                                                                    */
-/*       Determine if a file system is advanced (supports better than */
-/*       8.3 file names)                                              */
-/*--------------------------------------------------------------------*/
-
-static boolean advancedFS( const char *input )
-{
-   static char UUFAR cache[256] = "";  /* Initialize cache to zeroes  */
-
-   char fdrive[_MAX_DRIVE],
-        fpath[_MAX_DIR],
-        fname[_MAX_FNAME],
-        fdummy[_MAX_PATH];
-   int offset;
-
-  _splitpath((char *) input, fdrive, fpath, fdummy, fdummy);
-
-/*--------------------------------------------------------------------*/
-/*       Determine if our cache holds the answer for the drive        */
-/*--------------------------------------------------------------------*/
-
-   switch( cache[ (unsigned char) *fdrive ] )
-   {
-      case 'L':
-      case 'S':
-         break;                        /* Cached answer, report it   */
-
-      default:                         /* No cache, determine answer */
-         strcpy(fname, fdrive);
-         strcat(fname, fpath);
-         strcat(fname, ".DUMB.TEST.NAME");
-
-         cache[ (unsigned char) *fdrive ] =
-                     IsFileNameValid(fname) ? 'L' : 'S';
-         break;
-   }
-
-   return cache[ (unsigned char) *fdrive ] == 'L' ? TRUE : FALSE;
-
-} /* advancedFS */
-
-/*--------------------------------------------------------------------*/
 /*    I s F i l e N a m e V a l i d                                   */
 /*                                                                    */
 /*    Determine if file system supports non-8.3 format names          */
@@ -847,6 +801,53 @@ static int IsFileNameValid(char *name)
 
 } /* IsFileNameValid */
 
+/*--------------------------------------------------------------------*/
+/*       a d v a n c e d F S                       (OS/2 version)     */
+/*                                                                    */
+/*       Determine if a file system is advanced (supports better than */
+/*       8.3 file names)                                              */
+/*--------------------------------------------------------------------*/
+
+static boolean advancedFS( const char *input )
+{
+   static char UUFAR cache[256] = "";  /* Initialize cache to zeroes  */
+
+   char fdrive[_MAX_DRIVE],
+        fpath[_MAX_DIR],
+        fname[_MAX_FNAME],
+        fdummy[_MAX_PATH];
+
+  _splitpath((char *) input, fdrive, fpath, fdummy, fdummy);
+
+/*--------------------------------------------------------------------*/
+/*       Determine if our cache holds the answer for the drive        */
+/*--------------------------------------------------------------------*/
+
+   switch( cache[ (unsigned char) *fdrive ] )
+   {
+      case 'L':
+      case 'S':
+         break;                        /* Cached answer, report it   */
+
+      default:                         /* No cache, determine answer */
+         strcpy(fname, fdrive);
+         strcat(fname, fpath);
+         strcat(fname, ".DUMB.TEST.NAME");
+
+         cache[ (unsigned char) *fdrive ] =
+                     (char) (IsFileNameValid(fname) ? 'L' : 'S');
+
+         printmsg(4, "advancedFS: %s resides on file system supporting %s",
+                     input,
+                     (char *) (cache[ (unsigned char) *fdrive ] == 'S' ?
+                               "only 8.3 names" :
+                               "long file names" ) );
+         break;
+   }
+
+   return cache[ (unsigned char) *fdrive ] == 'L' ? TRUE : FALSE;
+
+} /* advancedFS */
 
 #elif WIN32
 
