@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.78 1995/09/24 19:05:05 ahd v1-12p $
+#     $Id: makefile 1.79 1995/11/08 01:02:37 ahd v1-12p $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.79  1995/11/08 01:02:37  ahd
+#     Use B for Borland DOS executable ZIP files
+#
 #     Revision 1.78  1995/09/24 19:05:05  ahd
 #     Update to 1.12p
 #
@@ -348,7 +351,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12p
+VERS = 1.12q
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
@@ -358,7 +361,7 @@ VERS = 1.12p
 TMP     = \TMP
 !endif
 
-CONF    = \UUPC
+CONF    = $(PRODDRIVE)\UUPC
 DOCS    = $(SRCSLASH)DOCS
 LIB     = $(SRCSLASH)LIB
 MAIL    = $(SRCSLASH)MAIL
@@ -388,14 +391,14 @@ ARCHIVE = $(SRCSLASH)$(VERS)
 
 !if !$d(PROD)
 !if $d(__OS2__)
-PROD    = \UUPC\OS2BIN32
+PROD    = $(PRODDRIVE)\UUPC\OS2BIN32
 !else
-PROD    = \UUPC\BIN
+PROD    = $(PRODDRIVE)\UUPC\BIN
 !endif
 !endif
 
 !if !$d(WINPROD)
-WINPROD = \UUPC\WINBIN
+WINPROD = $(PRODDRIVE)\UUPC\WINBIN
 !endif
 
 !if !$d(BORLANDC)
@@ -446,12 +449,12 @@ WORKFILE = $(TMP)\UUPCTEMP.TMP
 LIVEFILES = $(DOCS)\ACTIVE.KEW $(DOCS)\PERMISSN.KEW $(DOCS)\ALIASES.KEW \
             $(DOCS)\kendra.rc $(DOCS)\ahd.rc $(DOCS)\hostpath.kew
 
-LISTFILES = $(WINWORD)\advanced.prn $(WINWORD)\changes.prn \
-            $(WINWORD)\commands.prn $(WINWORD)\files.prn \
-            $(WINWORD)\howtoget.prn $(WINWORD)\install.prn \
-            $(WINWORD)\license.prn $(WINWORD)\mail.prn \
-            $(WINWORD)\register.prn $(WINWORD)\tilde.prn
-README=     docs\00readme.now   # Can't have full path
+LISTFILES = $(WINWORD)\uupcmstr.prn $(WINWORD)\changes.txt \
+            $(WINWORD)\howtoget.txt \
+            $(WINWORD)\license.txt $(WINWORD)\mail.hlp \
+            $(WINWORD)\register.txt $(WINWORD)\tilde.hlp
+
+README=     docs\00readme.now
 
 REQCOMM = $(PROD)\mail.exe $(PROD)\rmail.exe $(PROD)\uucico.exe\
           $(PROD)\uuxqt.exe
@@ -495,7 +498,7 @@ INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWSPGM) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 
 SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\personal.rc $(DOCS)\uupc.rc \
-          $(DOCS)\personal.sig $(DOCS)\aliases.txt \
+          $(DOCS)\personal.sig $(DOCS)\nickname.txt \
           $(DOCS)\mail.ico $(DOCS)\uucico.ico $(DOCS)\up-pif.dvp
 SAMPLEX = SYSTEMS PASSWD HOSTPATH *.RC *.MDM PERSONAL.SIG ALIASES.TXT *.ICO
 
