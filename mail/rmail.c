@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.76 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: rmail.c 1.78 2001/03/12 13:52:55 ahd v1-13j $
  *
  *    $Log: rmail.c $
+ *    Revision 1.78  2001/03/12 13:52:55  ahd
+ *    Delete debugging code
+ *
  *    Revision 1.76  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -293,7 +296,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rmail.c 1.76 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: rmail.c 1.78 2001/03/12 13:52:55 ahd v1-13j $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;
@@ -455,7 +458,7 @@ int main(int argc, char **argv)
    if (daemonMode)
       bflag[F_FASTSMTP] = KWFalse;
 
-   /* Exception ... always deliver immediatelt if queue mode */
+   /* Exception ... always deliver immediately if queue mode */
    if (queueMode)
       bflag[F_FASTSMTP] = KWTrue;
 
