@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.14 1993/12/09 04:51:21 ahd Exp rommel $
+ *    $Id: import.c 1.15 1993/12/23 03:11:17 rommel Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.15  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
  *     Revision 1.14  1993/12/09  04:51:21  ahd
  *     Suppress file named mapped message below debug 5 if no change made
  *
@@ -813,10 +816,11 @@ static boolean advancedFS( const char *path )
 
 static boolean advancedFS( const char *path )
 {
-   char driveInfo[4];
+   char driveInfo[128];
    char fsType[5];
    BOOL result;
    char *shareNameEnd;
+   int len;
 
    if ( !path || *path == '\0' ) {       /* use CWD                   */
       strncpy( driveInfo, E_cwd, 3);
@@ -830,8 +834,38 @@ static boolean advancedFS( const char *path )
       driveInfo[3] = '\0';          /* Terminate drive string data    */
 
    }
-   else
-      return FALSE;
+   else /* It's a shared drive... parse out the share name and ask */
+   {
+      if (strncmp(path, "//", 2) != 0) /* Just double-checking */
+         return FALSE;  /* Don't know what it is, don't want to know */
+
+      shareNameEnd = strchr(path + 2, '/');
+      if (!shareNameEnd)  /* Probably bad:  server name only */
+         return FALSE;
+
+      shareNameEnd = strchr(shareNameEnd + 1, '/');
+      if (shareNameEnd)
+      {
+         /* Copy the server and share name, including the trailing slash */
+         len = shareNameEnd - path + 1;   
+         memcpy(driveInfo, path, len);
+         driveInfo[len] = '\0';
+         shareNameEnd = driveInfo;
+
+/*--------------------------------------------------------------------*/
+/* On network drives, the GetVolumeInformation call fails unless      */
+/* we use back slashes.                                               */
+/*--------------------------------------------------------------------*/
+
+         while (*shareNameEnd != '\0')
+         {
+            if (*shareNameEnd == '/')
+               *shareNameEnd = '\\';
+            shareNameEnd++;
+         }
+      } else
+         return FALSE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*            We've got the drive letter, query its status            */
