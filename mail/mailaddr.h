@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailaddr.h 1.5 1998/10/28 03:20:00 ahd v1-13f ahd $
+ *    $Id: mailaddr.h 1.6 1999/01/04 03:56:09 ahd Exp $
  *
  *    $Log: mailaddr.h $
+ *    Revision 1.6  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.5  1998/10/28 03:20:00  ahd
  *    Add flag for received line already in message
  *
@@ -51,7 +54,6 @@ typedef struct _MAIL_ADDR
    char *activeUser;             /* Local user executing program     */
    KWBoolean remote;             /* Address is non-local             */
    KWBoolean daemon;             /* Delivery by long running daemon  */
-   KWBoolean received;           /* Received line already in msg     */
 }  MAIL_ADDR;
 
 #endif /* _MAILADDR_H */
