@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.13 1993/07/11 14:38:32 ahd Exp $
+ *    $Id: ulibip.c 1.1 1993/09/20 04:48:25 ahd Exp $
  *
- *    $Log: ulib.c $
+ *    $Log: ulibip.c $
+ * Revision 1.1  1993/09/20  04:48:25  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -360,7 +363,7 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
    fd_set readfds;
    struct timeval tm;
    int nReady;
-   static char save[2048];
+   static char save[MAXPACK];
    static unsigned short bufsize = 0;
    time_t stop_time ;
    time_t now ;

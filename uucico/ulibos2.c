@@ -17,8 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.14 1993/05/30 15:25:50 ahd Exp $
- *       $Log: ULIBOS2.C $
+ *       $Id: ulibos2.c 1.15 1993/09/20 04:46:34 ahd Exp $
+ *       $Log: ulibos2.c $
+ * Revision 1.15  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.14  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -534,7 +539,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
    APIRET rc;
-   static char save[BUFSIZ];
+   static char save[MAXPACK];
    static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;

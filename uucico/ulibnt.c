@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.14 1993/05/30 15:25:50 ahd Exp $
- *       $Log: ULIBOS2.C $
+ *       $Id: ulibnt.c 1.2 1993/09/20 04:50:57 ahd Exp $
+ *       $Log: ulibnt.c $
+ * Revision 1.2  1993/09/20  04:50:57  ahd
+ * Break out of ULIBOS2.C
+ *
  * Revision 1.14  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -351,7 +354,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    static LPVOID psave;
    DWORD Error;
    BOOL rc;
-   static char save[BUFSIZ];
+   static char save[MAXPACK];
    static USHORT bufsize = 0;
    time_t stop_time ;
    time_t now ;
