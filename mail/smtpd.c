@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.7 1997/11/29 13:03:13 ahd Exp $
+ *    $Id: smtpd.c 1.8 1997/12/13 18:05:06 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.8  1997/12/13 18:05:06  ahd
+ *    Change parsing and passing of sender address information
+ *
  *    Revision 1.7  1997/11/29 13:03:13  ahd
  *    Clean up single client (hot handle) mode for OS/2, including correct
  *    network initialization, use unique client id (pid), and invoke all
@@ -64,6 +67,7 @@
 #include "catcher.h"
 
 #include "smtpserv.h"
+#include "deliver.h"
 #include "getopt.h"
 #include "logger.h"
 
@@ -71,7 +75,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.7 1997/11/29 13:03:13 ahd Exp $");
+RCSID("$Id: smtpd.c 1.8 1997/12/13 18:05:06 ahd Exp $");
 
 currentfile();
 
@@ -183,7 +187,6 @@ main( int argc, char ** argv )
    time_t exitTime = LONG_MAX;
    KWBoolean runUUXQT = KWFalse;
    int  hotHandle = -1;
-   char grade;                      /* Need to copy to deliver       */
 
    logfile = stderr;
 
@@ -201,7 +204,7 @@ main( int argc, char ** argv )
    if (!configure( B_UUSMTPD ))
       panic();
 
-   grade = E_mailGrade;
+   setDeliveryGrade( E_mailGrade );
 
 /*--------------------------------------------------------------------*/
 /*       Parse our options, which will dictate how we process user    */
@@ -223,7 +226,7 @@ main( int argc, char ** argv )
 
          case 'g':
             if ( isalnum(*optarg) && ( strlen( optarg) == 1 ))
-               grade = *optarg;
+               setDeliveryGrade(*optarg);
             else {
                printmsg(0,"Invalid grade for mail: %s", optarg );
                usage();
