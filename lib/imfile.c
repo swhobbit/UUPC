@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.7 1995/01/09 12:35:15 ahd Exp $
+ *    $Id: imfile.c 1.8 1995/01/14 01:40:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.8  1995/01/14 01:40:50  ahd
+ *    Correct test for maximum file length under 16 bit compilers
+ *
  *    Revision 1.7  1995/01/09 12:35:15  ahd
  *    Correct VC++ compiler warnings
  *
@@ -70,7 +73,7 @@
 #ifdef BIT32ENV
 #define IM_MAX_LENGTH 1000000
 #else
-#define IM_MAX_LENGTH 65000         /* Under 64K, avoid silly ptr
+#define IM_MAX_LENGTH 65000L        /* Under 64K, avoid silly ptr
                                        wrap around                   */
 #endif
 
