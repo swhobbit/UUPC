@@ -6,8 +6,6 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
 /*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
@@ -20,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.14 1995/01/08 19:54:01 ahd Exp $
+ *    $Id: deliver.h 1.15 1995/01/09 01:43:38 ahd v1-12o $
  *
  *    $Log: deliver.h $
+ *    Revision 1.15  1995/01/09 01:43:38  ahd
+ *    Optimize UUCP remote queuing
+ *
  *    Revision 1.14  1995/01/08 19:54:01  ahd
  *    Add in-memory files to RMAIL
  *
@@ -80,14 +81,12 @@ extern KEWSHORT hops;
 
 extern KWBoolean remoteMail;
 
-extern char *now;
-
 extern char fromUser[];
 extern char fromNode[];
 
-extern  char *ruser;
-extern  char *rnode;
-extern  char *uuser;
+extern char *ruser;
+extern char *rnode;
+extern char *uuser;
 extern char grade;
 
-extern  char *myProgramName;
+extern char *myProgramName;
