@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SECURITY.C 1.5 1993/04/11 00:31:04 ahd Exp $
+ *    $Id: SECURITY.C 1.6 1993/05/06 03:41:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: SECURITY.C $
+ *     Revision 1.6  1993/05/06  03:41:48  ahd
+ *     Use NULL to denote current directory, not "."
+ *
  *     Revision 1.5  1993/04/11  00:31:04  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -599,14 +602,13 @@ static size_t InitDir( char *directories,
       {                       /* Yes --> Go check disk for path      */
          if (stat(field , &statbuf) != 0)
          {
+            printmsg(0,"Warning ... invalid PERMISSIONS file entry %s:",
+                       token );
             printerr(field);
-            return 0;            /* Path is invalid, give up         */
          }
          else if ((statbuf.st_mode & S_IFDIR) == 0)
-         {
-            printmsg(0,"InitDir: \"%s\" is a file, not a directory",field);
-            return 0;            /* Path is invalid, give up         */
-         }
+            printmsg(0,"InitDir: \"%s\" is a file, not a directory",
+                        field);
       } /* if ( strlen( field ) > 2 ) */
 
 /*--------------------------------------------------------------------*/
