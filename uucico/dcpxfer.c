@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.55 1996/01/01 21:22:21 ahd v1-12r $
+ *       $Id: dcpxfer.c 1.56 1996/01/20 12:55:34 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.56  1996/01/20 12:55:34  ahd
+ *       After rejected transfer from spool directory, delete temp copy of file
+ *
  *       Revision 1.55  1996/01/01 21:22:21  ahd
  *       Annual Copyright Update
  *
@@ -400,7 +403,7 @@ XFER_STATE sbreak( void )
    }
    else {                     /* No --> Remote host is done as well  */
       pktsendstr("HY");       /* Tell the host we are done as well   */
-      hostp->status.hstatus = called;/* Update host status flags     */
+      hostp->status.hstatus = HS_CALLED;/* Update host status flags  */
       return XFER_ENDP;       /* Terminate the protocol              */
    } /* else */
 
@@ -893,7 +896,7 @@ XFER_STATE schkdir( const KWBoolean outbound, const char callgrade )
       scandir( NULL,callgrade ); /* Reset directory search pointers   */
    }
    else {
-      hostp->status.hstatus = called;/* Update host status flags     */
+      hostp->status.hstatus = HS_CALLED;/* Update host status flags  */
       c = XFER_NOLOCAL;       /* Do not send data on inbound call    */
    }
 
@@ -910,7 +913,7 @@ XFER_STATE schkdir( const KWBoolean outbound, const char callgrade )
          if (!pktgetstr((char *)databuf))
             return XFER_LOST; /* Didn't get response, die quietly    */
          else {
-            hostp->status.hstatus = called;/* Update host status     */
+            hostp->status.hstatus = HS_CALLED;/* Update host status  */
             return XFER_ENDP; /* Got response, we're out of here     */
          }
 

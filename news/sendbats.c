@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.7 1995/02/12 23:37:04 ahd v1-12q $
+ *    $Id: sendbats.c 1.8 1996/01/01 21:06:31 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.8  1996/01/01 21:06:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -50,8 +53,7 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-            "$Id: sendbats.c 1.7 1995/02/12 23:37:04 ahd v1-12q $";
+RCSID("$Id: sendbats.c 1.8 1996/01/01 21:06:31 ahd v1-12r $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

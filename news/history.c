@@ -22,13 +22,14 @@
  * Created: Sun Aug 15 1993
  */
 
-#include "uupcmoah.h"
 
-static const char rcsid[] =
-      "$Id: history.c 1.15 1995/12/12 13:55:40 ahd Exp $";
+
 
 /*
  * $Log: history.c $
+ * Revision 1.16  1996/01/01 21:08:58  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.15  1995/12/12 13:55:40  ahd
  * Clean up log format
  *
@@ -81,10 +82,13 @@ static const char rcsid[] =
  * Initial revision
  * */
 
+
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
 #include <fcntl.h>
 #include <io.h>
 #include <sys/stat.h>
@@ -98,6 +102,9 @@ static const char rcsid[] =
 #include "history.h"
 #include "importng.h"
 #include "hdbm.h"
+#include "makebuf.h"
+
+RCSID("$Id: history.c 1.16 1996/01/01 21:08:58 ahd v1-12r $" );
 
 currentfile();
 
@@ -107,9 +114,9 @@ currentfile();
 /*    Open the history file.                                          */
 /*--------------------------------------------------------------------*/
 
-void *open_history(char *name)
+DBM *open_history(char *name)
 {
-   char hfile_name[FILENAME_MAX];
+   char hfile_name[ FILENAME_MAX ];
    DBM *hdbm_file = NULL;
 
    mkfilename(hfile_name, E_newsdir, name);
@@ -129,7 +136,7 @@ void *open_history(char *name)
 /*    Close the history file.                                         */
 /*--------------------------------------------------------------------*/
 
-void close_history(void *hdbm_file)
+void close_history(DBM *hdbm_file)
 {
   if (hdbm_file != NULL)
     dbm_close(hdbm_file);
@@ -141,7 +148,7 @@ void close_history(void *hdbm_file)
 /*    Check whether messageID is already in the history file.         */
 /*--------------------------------------------------------------------*/
 
-char *get_histentry(void *hdbm_file, const char *messageID)
+char *get_histentry(DBM *hdbm_file, const char *messageID)
 {
   datum key, val;
 
@@ -162,7 +169,7 @@ char *get_histentry(void *hdbm_file, const char *messageID)
 /*    Retrieve all entries from the history file in order.            */
 /*--------------------------------------------------------------------*/
 
-static int get_entry(void *hdbm_file, char **messageID, char **histentry,
+static int get_entry(DBM *hdbm_file, char **messageID, char **histentry,
                      datum (*dbm_getkey)(DBM *hdbm_file))
 {
   datum key, val;
@@ -183,12 +190,12 @@ static int get_entry(void *hdbm_file, char **messageID, char **histentry,
   return KWTrue;
 }
 
-int get_first_histentry(void *hdbm_file, char **messageID, char **histentry)
+int get_first_histentry(DBM *hdbm_file, char **messageID, char **histentry)
 {
   return get_entry(hdbm_file, messageID, histentry, dbm_firstkey);
 }
 
-int get_next_histentry(void *hdbm_file, char **messageID, char **histentry)
+int get_next_histentry(DBM *hdbm_file, char **messageID, char **histentry)
 {
   return get_entry(hdbm_file, messageID, histentry, dbm_nextkey);
 }
@@ -199,7 +206,7 @@ int get_next_histentry(void *hdbm_file, char **messageID, char **histentry)
 /*    Add messageID to the history file.                              */
 /*--------------------------------------------------------------------*/
 
-int add_histentry(void *hdbm_file,
+int add_histentry(DBM *hdbm_file,
                   const char *messageID,
                   const char *hist_record)
 {
@@ -246,7 +253,7 @@ int add_histentry(void *hdbm_file,
 /*    Delete messageID from the history file.                         */
 /*--------------------------------------------------------------------*/
 
-int delete_histentry(void *hdbm_file, const char *messageID)
+int delete_histentry(DBM *hdbm_file, const char *messageID)
 {
   datum key;
 
@@ -270,7 +277,8 @@ int delete_histentry(void *hdbm_file, const char *messageID)
 
 int count_postings(char *histentry)
 {
-  char value[DBM_BUFSIZ], *ptr, *num;
+  char *value = (char *) MAKEBUF( strlen( histentry + 1 ));
+  char *ptr, *num;
   int count;
 
   strcpy(value, histentry);
@@ -286,6 +294,7 @@ int count_postings(char *histentry)
       count++;
   }
 
+  FREEBUF( value );
   return count;
 }
 
@@ -337,14 +346,15 @@ static int matches(const char *group, char **grouplist)
 char *purge_article(char *histentry, char **groups)
 {
   static char *remain = NULL;
-  char value[DBM_BUFSIZ];
-  char filename[FILENAME_MAX];
+  size_t len  = strlen( histentry ) + 1;
+  char *value = (char *) MAKEBUF( len );
+  char filename[ FILENAME_MAX ];
   char *group, *num;
   long article, remaining;
 
   if ( remain == NULL )
   {
-      remain = malloc( DBM_BUFSIZ );
+      remain = (char *) malloc( DBM_BUFSIZ );
       checkref( remain );
   }
 
@@ -394,6 +404,7 @@ char *purge_article(char *histentry, char **groups)
       remain = NULL;
   }
 
+  FREEBUF( value );
   return remain;
 
 } /* purge_article */
@@ -405,7 +416,7 @@ char *purge_article(char *histentry, char **groups)
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-cancel_article(void *hdbm_file, const char *messageID)
+cancel_article(DBM *hdbm_file, const char *messageID)
 {
   datum key, val;
   char *groups;

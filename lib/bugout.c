@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.12 1995/02/24 00:37:28 ahd v1-12q $
+ *    $Id: bugout.c 1.13 1996/01/01 20:49:48 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.13  1996/01/01 20:49:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/02/24 00:37:28  ahd
  *    Move panic_rc from catcher.c into bugout.c, keeps catcher from
  *    being included into every module.
@@ -86,7 +89,7 @@ int panic_rc = 69;                  /* Actually defined in catcher.h,
 /*    Perform a panic() exit from UUPC/extended                       */
 /*--------------------------------------------------------------------*/
 
-void bugout( const size_t lineno, const char *fname )
+void bugout(  const char *fname, const size_t lineno )
 {
 
 #ifdef _Windows

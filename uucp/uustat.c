@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.28 1995/07/21 13:18:16 ahd v1-12q $
+ *    $Id: uustat.c 1.29 1996/01/01 21:34:25 ahd v1-12r $
  *
  *    $Log: uustat.c $
+ *    Revision 1.29  1996/01/01 21:34:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.28  1995/07/21 13:18:16  ahd
  *    Improved time reporting for queued files
  *
@@ -57,7 +60,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.28 1995/07/21 13:18:16 ahd v1-12q $";
+         "$Id: uustat.c 1.29 1996/01/01 21:34:25 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -159,6 +162,7 @@ static const char *host_status[] = {
       "(invalid - entry not properly initialized)",
       "(local host system)",
       "(host for gateway purposes only)",
+      "(host for SMTP relay only)",
       "Never called",
       "Dialing now",
       "Invalid device/speed in SYSTEMS file",

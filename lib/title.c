@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title.c 1.5 1995/02/20 00:40:12 ahd v1-12q $
+ *    $Id: title.c 1.6 1996/01/01 20:52:47 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: title.c $
+ *    Revision 1.6  1996/01/01 20:52:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -69,17 +72,20 @@ void setTitle( const char *fmt, ... )
 
 #ifdef _Windows
    va_list arg_ptr;
-   char buf[BUFSIZ];
+   static char buf[BUFSIZ];
 
-   va_start(arg_ptr,fmt);
+   if ( fmt )
+   {
+      va_start(arg_ptr,fmt);
 
-   sprintf( buf, "%s: ", compilen );
+      sprintf( buf, "%s: ", compilen );
 
-   vsprintf(buf + strlen(buf),
-            fmt,
-            arg_ptr);
+      vsprintf(buf + strlen(buf),
+               fmt,
+               arg_ptr);
 
-   va_end( arg_ptr );
+      va_end( arg_ptr );
+   }
 
    SetWindowText(hOurWindow, buf);
 #else
@@ -87,6 +93,10 @@ void setTitle( const char *fmt, ... )
 #ifdef DOSTITLE
    va_list arg_ptr;
    static char escape = 0x1b;
+
+   if ( fmt == NULL )               /* Use previous format string?   */
+        return;                     /* Not saved in DOS, just return */
+
    fprintf( stderr, "\n\n\n\n");    /* Insure three empty lines      */
    fprintf( stderr, "%c[3A", escape );
                                     /* Up three lines                */

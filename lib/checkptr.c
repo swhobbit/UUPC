@@ -1,9 +1,9 @@
-#include "uupcmoah.h"
 
 /*--------------------------------------------------------------------*/
-/*    c h e c k p t r . c                                             */
+/*       c h e c k p t r . c                                          */
 /*                                                                    */
-/*    Support routines for UUPC/extended                              */
+/*       Print standard error message and panic; called when a        */
+/*       null pointer is detected in-line by checkref macro.          */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.9 1995/01/29 14:07:59 ahd v1-12q $
+ *    $Id: checkptr.c 1.10 1996/01/01 20:50:21 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.10  1996/01/01 20:50:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1995/01/29 14:07:59  ahd
  *    Clean up most IBM C/Set Compiler Warnings
  *
@@ -53,9 +56,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------------*/
-/*                    UUPC/extended include files                     */
-/*--------------------------------------------------------------------*/
+#include "uupcmoah.h"
+
+RCSID( "$Id$" );
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r                                                 */
@@ -67,5 +70,7 @@ void checkptr( const char *file, const size_t line)
 {
    printmsg(0,"Storage allocation failure; possible cause: "
                " memory shortage.");
-   bugout( line, file);
+
+   bugout( file, line);
+
 } /* checkptr */

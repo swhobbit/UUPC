@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.15 1996/01/01 21:21:10 ahd v1-12r $
+ *       $Id: dcpstats.c 1.16 1996/03/18 03:55:08 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.16  1996/03/18 03:55:08  ahd
+ *       Use character which doesn't need mapping lock name
+ *
  *       Revision 1.15  1996/01/01 21:21:10  ahd
  *       Annual Copyright Update
  *
@@ -224,8 +227,8 @@ void dcupdate( void )
       fwrite( &len2, sizeof len2, 1, stream );
       fwrite( host->hostname , sizeof hostp->hostname[0], len1, stream);
 
-      if ( host->status.hstatus == called )
-         host->status.hstatus = succeeded;
+      if ( host->status.hstatus == HS_CALLED )
+         host->status.hstatus = HS_SUCCEEDED;
 
       fwrite( &host->status, len2, 1,  stream);
 

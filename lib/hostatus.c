@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.16 1994/12/22 00:08:57 ahd v1-12q $
+ *    $Id: hostatus.c 1.17 1996/01/01 20:52:29 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.17  1996/01/01 20:52:29  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1994/12/22 00:08:57  ahd
  *    Annual Copyright Update
  *
@@ -212,8 +215,8 @@ void HostStatus( void )
             stats.ltime = host->status.ltime;
          else if ( host->status.lconnect > stats.ltime )
             ; /* No operation */
-         else if (( stats.hstatus >= nocall ) &&
-                  ( stats.hstatus < last_status ))
+         else if (( stats.hstatus >= HS_NOCALL ) &&
+                  ( stats.hstatus < HS_ZZ_LAST ))
             host->status.hstatus = stats.hstatus;
          else
             printmsg(0,"HostStatus: Invalid status (%d) ignored for \"%s\"",

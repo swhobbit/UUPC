@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.48 1995/07/21 13:27:00 ahd v1-12q $
+ *    $Id: dcp.c 1.49 1996/01/01 21:19:54 ahd v1-12r $
  *
  *    $Log: dcp.c $
+ *    Revision 1.49  1996/01/01 21:19:54  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.48  1995/07/21 13:27:00  ahd
  *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
  *
@@ -451,7 +454,7 @@ int dcpmain(int argc, char *argv[])
 #endif
 
    atexit( shutDown );        /* Insure port is closed by panic()    */
-   remote_stats.hstatus = nocall;
+   remote_stats.hstatus = HS_NOCALL;
                               /* Known state for automatic status
                                  update                              */
 
@@ -575,7 +578,7 @@ static KWBoolean master( const char recvGrade,
                dialed = KWTrue;
                time(&hostp->status.ltime);
                               /* Save time of last attempt to call  */
-               hostp->status.hstatus = autodial;
+               hostp->status.hstatus = HS_AUTODIAL;
                m_state = CONN_MODEM;
             }
             else
@@ -592,7 +595,7 @@ static KWBoolean master( const char recvGrade,
             if (getmodem(flds[FLD_TYPE]))
                m_state = CONN_DIALOUT;
             else {
-               hostp->status.hstatus = invalid_device;
+               hostp->status.hstatus = HS_INVALID_DEVICE;
                m_state = CONN_INITIALIZE;
             }
             break;
@@ -603,7 +606,7 @@ static KWBoolean master( const char recvGrade,
                setTitle( "Allocating modem on %s", M_device);
                if (suspend_other(KWTrue, M_device ) < 0 )
                {
-                  hostp->status.hstatus =  nodevice;
+                  hostp->status.hstatus = HS_NODEVICE;
                   suspend_other(KWFalse, M_device );  /* Resume modem   */
                   m_state = CONN_INITIALIZE;    /* Try next system      */
                   break;
@@ -634,8 +637,8 @@ static KWBoolean master( const char recvGrade,
 
             if ( hostp != NULL )
             {
-               if (hostp->status.hstatus == inprogress)
-                  hostp->status.hstatus = call_failed;
+               if (hostp->status.hstatus == HS_INPROGRESS)
+                  hostp->status.hstatus = HS_CALL_FAILED;
                dcstats();
                needUUXQT = KWTrue;
             }
@@ -997,7 +1000,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             printmsg(0,"process: Connection lost to %s, "
                        "previous system state = %c",
                        rmtname, save_state );
-            hostp->status.hstatus = call_failed;
+            hostp->status.hstatus = HS_CALL_FAILED;
             state = XFER_EXIT;
             break;
 
@@ -1005,7 +1008,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             printmsg(0,"process: Aborting connection to %s, "
                        "previous system state = %c",
                        rmtname, save_state );
-            hostp->status.hstatus = call_failed;
+            hostp->status.hstatus = HS_CALL_FAILED;
             state = XFER_ENDP;
             break;
 

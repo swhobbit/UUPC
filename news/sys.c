@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.22 1996/01/01 21:07:31 ahd Exp $
+ *    $Id: sys.c 1.23 1996/01/07 14:14:40 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.23  1996/01/07 14:14:40  ahd
+ *    Correct error messages referencing non-existent 'J' flag
+ *
  *    Revision 1.22  1996/01/01 21:07:31  ahd
  *    Annual Copyright Update
  *
@@ -171,6 +174,7 @@
 #include "sys.h"
 #include "stater.h"
 #include "arpadate.h"
+#include "makebuf.h"
 
 currentfile();
 
@@ -180,6 +184,8 @@ static char *cache = NULL;       /* Parsing string cache             */
 static size_t cacheLength = 0;
 
 #define ME "ME"
+#define LINESIZ      BUFSIZ
+#define INITSIZ      (BUFSIZ * 8)
 
 static void bootStrap( const char *fileName );
 
@@ -245,9 +251,9 @@ setBooleanOption( char *s, const char flag)
 KWBoolean
 process_sys( char *buf)
 {
-  static struct sys *previous = NULL;
+  static NEWS_SYS *previous = NULL;
 
-  struct sys *node = malloc(sizeof(struct sys));
+  NEWS_SYS *node = (NEWS_SYS *) malloc(sizeof(NEWS_SYS));
   char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
   size_t tempLen;
 
@@ -255,7 +261,7 @@ process_sys( char *buf)
   int batchOptions = 0;
 
   checkref( node );
-  memset(node, 0, sizeof(struct sys));
+  memset(node, 0, sizeof(NEWS_SYS));
 
 /*--------------------------------------------------------------------*/
 /*               Check this entry to the previous entry               */
@@ -504,13 +510,15 @@ process_sys( char *buf)
 
    if (( node->command == NULL ) && ! node->flag.local)
    {
-      char command[ FILENAME_MAX * 4 ];
+      char *commandP = (char *) MAKEBUF(  FILENAME_MAX * 4  );
 
-      sprintf(command, "uux -anews -p -g%c -n -x %d -C %%s!rnews",
+      sprintf(commandP, "uux -anews -p -g%c -n -x %d -C %%s!rnews",
               E_newsGrade,
               debuglevel );
 
-      node->command = newstr( command );
+      node->command = newstr( commandP );
+
+      FREEBUF( commandP );
 
    }
 
@@ -612,35 +620,35 @@ init_sys( void )
 {
 
   FILE       *sysFileStream = NULL;
-  char       sysFileName[FILENAME_MAX];
-  char       line[BUFSIZ];
+  char *      sysFileNameP = (char *) MAKEBUF( FILENAME_MAX );
+  char *      lineP = (char *) MAKEBUF( LINESIZ );
   char       *t;
-  char       buf[BUFSIZ * 8];
+  char *      bufP = (char *) MAKEBUF( INITSIZ );
   KWBoolean   wantMore = KWTrue;
   KWBoolean   success  = KWTrue;
 
-  mkfilename(sysFileName, E_confdir, "SYS");
+  mkfilename(sysFileNameP, E_confdir, "SYS");
 
 /*--------------------------------------------------------------------*/
 /*               Generate a new SYS file if we need to                */
 /*--------------------------------------------------------------------*/
 
-   if ( stater( sysFileName, 0 ) == -1 )
-      bootStrap( sysFileName );
+   if ( stater( sysFileNameP, 0 ) == -1 )
+      bootStrap( sysFileNameP );
 
-  sysFileStream = fopen(sysFileName, "rb");
+  sysFileStream = fopen(sysFileNameP, "rb");
 
   if ( sysFileStream == NULL )
   {
-     printerr(sysFileName);
+     printerr(sysFileNameP);
      panic();
   }
 
-  printmsg(3, "init_sys: reading system file %s", sysFileName);
+  printmsg(3, "init_sys: reading system file %s", sysFileNameP);
 
-  memset(buf, 0, sizeof buf);
+  memset(bufP, 0, INITSIZ);
 
-   while (fgets(line, sizeof line, sysFileStream) != NULL)
+   while (fgets(lineP, LINESIZ, sysFileStream) != NULL)
    {
 
 /*--------------------------------------------------------------------*/
@@ -648,16 +656,16 @@ init_sys( void )
 /*       the log file).                                               */
 /*--------------------------------------------------------------------*/
 
-      t = line + strlen(line) - 1;
+      t = lineP + strlen(lineP) - 1;
 
-      while ((t >= line) && isspace(*t))
+      while ((t >= lineP) && isspace(*t))
          *t-- = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                      Also trim leading spaces                      */
 /*--------------------------------------------------------------------*/
 
-      t = line;
+      t = lineP;
 
       while (t && isspace(*t))
          t++;
@@ -671,13 +679,13 @@ init_sys( void )
 /*       terminates the entry)                                        */
 /*--------------------------------------------------------------------*/
 
-      if ( *buf && (! strlen(t) || ! wantMore ))
+      if ( *bufP && (! strlen(t) || ! wantMore ))
                                     /* Previous entry complete?      */
       {
-         if (! process_sys( buf ))  /* Yes --> end of entry, process */
+         if (! process_sys( bufP )) /* Yes --> end of entry, process */
             success = KWFalse;
 
-         *buf = '\0';               /* Also, reset buffer to empty   */
+         *bufP = '\0';              /* Also, reset buffer to empty   */
       }
 
 /*--------------------------------------------------------------------*/
@@ -691,20 +699,28 @@ init_sys( void )
             wantMore = KWTrue;
          else
             wantMore = KWFalse;
-         strcat(buf, t);
+         strcat(bufP, t);
 
       }  /* else if (*t != '#') */
 
-   } /* while (fgets(line, sizeof line, sysFileStream) != NULL) */
+   } /* while (fgets(lineP, LINESIZ, sysFileStream) != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                Process the final system entry, if any              */
 /*--------------------------------------------------------------------*/
 
-   if (( *buf ) && ! process_sys( buf ) )
+   if (( *bufP ) && ! process_sys( bufP ) )
       success = KWFalse;
 
    fclose( sysFileStream );
+
+/*--------------------------------------------------------------------*/
+/*                       Free our work buffers                        */
+/*--------------------------------------------------------------------*/
+
+   FREEBUF( bufP );
+   FREEBUF( lineP );
+   FREEBUF( sysFileNameP );
 
 /*--------------------------------------------------------------------*/
 /*              Create a cache buffer for use by check_sys            */
@@ -712,7 +728,7 @@ init_sys( void )
 
    if ( cacheLength )
    {
-      cache = malloc( cacheLength );
+      cache = (char *) malloc( cacheLength );
       checkref( cache );
    }
 
@@ -720,6 +736,7 @@ init_sys( void )
 /*       Report if we had any problems processing the SYS file to     */
 /*       our caller                                                   */
 /*--------------------------------------------------------------------*/
+
 
    return success;
 
@@ -804,6 +821,9 @@ KWBoolean distributions(char *list, const char *distrib)
   KWBoolean bDef  = KWTrue;     /* We have yet to see anything but
                                  negations                           */
 
+  size_t distribLength = strlen( distrib +1 );
+  char * tempDistribP  = (char *) MAKEBUF( distribLength );
+
   while (isspace(*distrib))
     distrib++;
 
@@ -817,14 +837,11 @@ KWBoolean distributions(char *list, const char *distrib)
   while ((listPtr = strtok(list, ", ")) != NULL)
   {
 
-    char  tempDistrib[BUFSIZ];
-    char  *distribPtr = tempDistrib;
-    char  *nextDistrib = tempDistrib;
+    char  *distribPtr = tempDistribP;
+    char  *nextDistrib = tempDistribP;
 
     const KWBoolean bNot = (KWBoolean) ((*listPtr == '!') ?
                                           KWTrue : KWFalse);
-
-    strcpy( tempDistrib, distrib );
 
     list = strtok( NULL, "" );      /* Save rest of list             */
 
@@ -841,8 +858,7 @@ KWBoolean distributions(char *list, const char *distrib)
 
     } /* if ( ! bAll ) */
 
-    strncpy( tempDistrib , distrib, sizeof tempDistrib );
-    tempDistrib[ sizeof tempDistrib - 1] = '\0';
+    strcpy( tempDistribP , distrib );
 
 /*--------------------------------------------------------------------*/
 /*       Scan the article's distribution list against this entry      */
@@ -900,6 +916,7 @@ KWBoolean distributions(char *list, const char *distrib)
 
   printmsg(5, "distributions: results %s", bRet ? "True" : "False");
 
+  FREEBUF( tempDistribP );
   return bRet;
 
 } /* distributions */
@@ -1138,7 +1155,7 @@ hops( const char *path )
 /*       Process posting criteria for a given article                 */
 /*--------------------------------------------------------------------*/
 
-KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
+KWBoolean check_sys(NEWS_SYS *entry, char *groups, char *distrib, char *path)
 {
 
   printmsg(5, "check_sys: node: %s", entry->sysname);
@@ -1220,10 +1237,10 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 /*       Returns NULL on system not found or error.                   */
 /*--------------------------------------------------------------------*/
 
-struct sys *
+NEWS_SYS *
 get_sys( const char *name )
 {
-   struct sys *current = sys_list;
+   NEWS_SYS *current = sys_list;
 
    while( current != NULL )
    {
@@ -1246,7 +1263,7 @@ get_sys( const char *name )
 void exit_sys(void)
 {
 
-  struct sys *sys_entry;
+  NEWS_SYS *sys_entry;
 
   while (sys_list != NULL)
   {

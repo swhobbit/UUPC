@@ -20,11 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
-/* Revision 1.18  1995/12/12 13:48:54  ahd
-/* Use binary tree for news group active file
-/* Use large buffers in news programs to avoid overflow of hist db recs
-/* Use true recursive function to walk entire active file
-/*
+ * Revision 1.19  1996/01/01 21:08:50  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.18  1995/12/12 13:48:54  ahd
+ * Use binary tree for news group active file
+ * Use large buffers in news programs to avoid overflow of hist db recs
+ * Use true recursive function to walk entire active file
+ *
  * Revision 1.17  1995/12/03 13:51:44  ahd
  * Additional debugging cleanup
  *
@@ -81,9 +84,9 @@
  * */
 
 #include "uupcmoah.h"
+#include <direct.h>
 
-static const char rcsid[] =
-         "$Id: genhist.c 1.18 1995/12/12 13:48:54 ahd Exp $";
+RCSID("$Id: genhist.c 1.19 1996/01/01 21:08:50 ahd v1-12r $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -440,6 +443,18 @@ static void IndexDirectory( const char *groupName,
                   files - articles,
                   files,
                   bytes);
+
+   if ((bflag[F_PURGE] && ( files == 0 )) )
+   {
+      CHDIR( E_newsdir );           /* Can't delete directory if CWD  */
+      if ( rmdir( directory ))
+         printerr( directory );
+      else {
+         printmsg(1,"Deleted directory for empty group %s (directory %s)",
+                     groupName,
+                     directory );
+      }
+   }
 
    total_articles += articles;
    total_files += files;

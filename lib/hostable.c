@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.25 1995/07/21 13:23:19 ahd v1-12q $
+  *      $Id: hostable.c 1.26 1996/01/01 20:52:21 ahd v1-12r $
   *
   *      $Log: hostable.c $
+  *      Revision 1.26  1996/01/01 20:52:21  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.25  1995/07/21 13:23:19  ahd
   *      Clean up OS/2 compiler warnings
   *
@@ -165,7 +168,7 @@ struct HostTable *checkName(const char *name,
    if ((name == NULL) || (*name == '\0'))
    {
       printmsg(0,"checkName: Invalid (missing) hostname passed");
-      bugout(line, function);
+      bugout(function, line);
    }
 
    namel = strlen(name);
@@ -282,7 +285,7 @@ struct HostTable *checkReal(const char *name,
    if ((name == NULL) || ((namel = strlen(name)) == 0))
    {
       printmsg(0,"checkReal: Invalid (missing) hostname passed");
-      bugout(line, function);
+      bugout(function, line);
    }
 
    namel = max( strlen(name), HOSTLEN);
@@ -292,7 +295,7 @@ struct HostTable *checkReal(const char *name,
 /*             If we didn't find the host, return failure             */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp == BADHOST) || (hostp->status.hstatus >= nocall))
+   if ((hostp == BADHOST) || (hostp->status.hstatus >= HS_NOCALL))
       return hostp;           /* Return raw information               */
    else
       return BADHOST;         /* Not a real host, invalid for our
@@ -391,7 +394,7 @@ struct HostTable *nexthost( const KWBoolean start )
 
    while ( current < HostElements )
    {
-      if (hosts[current].status.hstatus >= nocall)
+      if (hosts[current].status.hstatus >= HS_NOCALL)
          return &hosts[current];
       else
          current++;
@@ -491,7 +494,7 @@ static size_t loadhost()
 /*--------------------------------------------------------------------*/
 
    hostp = inithost(E_nodename);
-   hostp->status.hstatus  = localhost;
+   hostp->status.hstatus  = HS_LOCALHOST;
    hostp->realname = E_nodename; /* Don't let user alias our system
                                     name                              */
 
@@ -535,7 +538,7 @@ static size_t loadhost()
    if ( E_anonymous != NULL )
    {
       hostp = inithost( ANONYMOUS_HOST );
-      hostp->status.hstatus = nocall;
+      hostp->status.hstatus = HS_NOCALL;
       hostp->via     = E_nodename;
    } /* if */
 
@@ -575,9 +578,9 @@ static size_t loadhost()
 
       hostp = inithost(token);
 
-      if (hostp->status.hstatus == phantom)
+      if (hostp->status.hstatus == HS_PHANTOM)
       {
-         hostp->status.hstatus = nocall;
+         hostp->status.hstatus = HS_NOCALL;
       }
 
    } /* while */
@@ -625,14 +628,17 @@ static size_t loadhost()
 /*                              Gate way                              */
 /*--------------------------------------------------------------------*/
 
-         else if (equal(token,"|"))
+         else if ((equal(token,"|") || equal(token,"@")))
          {
             token = strtok(NULL,"\n");
 
             if (( hostp->via != NULL ) || ( token == NULL ))
                freeit = KWTrue;
             else {
-               hostp->status.hstatus = gatewayed;
+               if ( *token == '@' )
+                  hostp->status.hstatus = HS_GATEWAYED;
+               else
+                  hostp->status.hstatus = HS_SMTP;
 
                while(isspace( *token ))   /* Drop leading white space only */
                   token++;
@@ -704,7 +710,7 @@ static size_t loadhost()
 
          if ( freeit )
          {
-            if ( hostp->status.hstatus == phantom )
+            if ( hostp->status.hstatus == HS_PHANTOM )
                HostElements--;            /* Ignore the routing entry */
          }
 

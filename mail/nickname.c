@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.22 1996/01/01 21:04:06 ahd Exp $
+ *    $Id: nickname.c 1.23 1996/01/01 23:50:26 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.23  1996/01/01 23:50:26  ahd
+ *    Don't scan nickname table for duplicate nicknames in linear fashion,
+ *    merely check entire table for duplicates after sorting.
+ *    Rename user functions previously known as 'user alias' to 'nickname',
+ *    consistent with newer documentation.
+ *
  *    Revision 1.22  1996/01/01 21:04:06  ahd
  *    Annual Copyright Update
  *
@@ -160,7 +166,7 @@ KWBoolean InitRouter()
          E_mailserv);
       success = KWFalse;
    }
-   else if (Hptr->status.hstatus == localhost)  /* local system?     */
+   else if (Hptr->status.hstatus == HS_LOCALHOST)  /* local system?     */
    {
       printmsg(0, "'%s' is name of this host and cannot be mail server",
             E_mailserv);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.41 1995/03/11 22:33:46 ahd v1-12q $
+ *    $Id: execute.c 1.42 1996/01/01 20:50:52 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.42  1996/01/01 20:50:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.41  1995/03/11 22:33:46  ahd
  *    Blow off undelete processing if so configured under OS/2
  *
@@ -181,6 +184,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "execute.h"
+#include "title.h"
 
 #ifdef _Windows
 #include <windows.h>
@@ -483,7 +487,9 @@ int execute( const char *command,
          strcat( path, parameters );
       }
 
+      setTitle(path);
       result = system( path );
+      setTitle( NULL);
 
    } /* if (internal(command)) */
    else if ( ! *path )

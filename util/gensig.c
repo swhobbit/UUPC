@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.13 1995/03/24 04:17:22 ahd v1-12q $
+ *    $Id: gensig.c 1.14 1996/01/01 21:17:50 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.14  1996/01/01 21:17:50  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *
@@ -71,7 +74,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.13 1995/03/24 04:17:22 ahd v1-12q $";
+      "$Id: gensig.c 1.14 1996/01/01 21:17:50 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -131,7 +134,7 @@ currentfile();
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char **argv)
+main( int argc, char **argv)
 {
 
    long where;

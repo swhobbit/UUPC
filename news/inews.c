@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.28 1996/01/01 21:08:20 ahd v1-12r $
+ *       $Id: inews.c 1.29 1996/01/20 13:09:56 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.29  1996/01/20 13:09:56  ahd
+ * Allow specifying text/binary mode when processing an in-memory file
+ *
  * Revision 1.28  1996/01/01 21:08:20  ahd
  * Annual Copyright Update
  *
@@ -123,8 +126,7 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-      "$Id: inews.c 1.28 1996/01/01 21:08:20 ahd v1-12r $";
+RCSID("$Id: inews.c 1.29 1996/01/20 13:09:56 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

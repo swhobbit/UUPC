@@ -16,17 +16,19 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-      "$Id: hdbm.c 1.13 1995/12/02 14:18:33 ahd Exp $";
+RCSID("$Id: hdbm.c 1.14 1996/01/01 21:06:57 ahd v1-12r $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.13 1995/12/02 14:18:33 ahd Exp $
+ * $Id: hdbm.c 1.14 1996/01/01 21:06:57 ahd v1-12r $
  *
  * $Log: hdbm.c $
+ * Revision 1.14  1996/01/01 21:06:57  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.13  1995/12/02 14:18:33  ahd
  * New debugging messages
  *
@@ -77,6 +79,7 @@ static const char rcsid[] =
 
 #include "hdbm.h"
 #include "idx.h"
+#include "makebuf.h"
 
 currentfile();
 
@@ -85,7 +88,7 @@ datum nullitem = {NULL, 0};
 DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
 {
   DBM *db;
-  char filename[FILENAME_MAX];
+  char filename[ FILENAME_MAX ];
 
   db = (DBM *) malloc(sizeof(DBM));
   checkref( db );             /* Panic if malloc() failed      */
@@ -123,7 +126,8 @@ DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
   db -> magic = DBM_MAGIC;
 
   return db;
-}
+
+} /* dbm_open */
 
 void dbm_close(DBM *db)
 {
@@ -146,7 +150,7 @@ void dbm_close(DBM *db)
 
 int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 {
-  char buffer[DBM_BUFSIZ];
+  char *buffer = (char *) MAKEBUF( DBM_BUFSIZ );
   long offset;
   size_t size;
 
@@ -156,6 +160,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
   if ((offset = lseek(db -> dbffile, 0, SEEK_END)) == -1L)
   {
      printerr( "dbm_store");
+     FREEBUF( buffer );
      return -1;
   }
 
@@ -172,12 +177,14 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
      printmsg(10,"dbm_store: idx_addkey failed for key %s", key.dptr );
 #endif
 
+    FREEBUF( buffer );
     return -1;
   }
 
   if (write(db -> dbffile, buffer, size) != (int) size)
   {
     printerr( "dbm_store" );
+    FREEBUF( buffer );
     return -1;
   }
 
@@ -191,7 +198,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 
 int dbm_delete(DBM *db, const datum key)
 {
-  char buffer[DBM_BUFSIZ];
+  char *buffer = (char *) MAKEBUF( DBM_BUFSIZ );
   long offset;
   size_t size;
 
@@ -201,15 +208,22 @@ int dbm_delete(DBM *db, const datum key)
   if (idx_delkey(db -> idx, key.dptr, &offset, &size) != -1)
   {
     if ((offset = lseek(db -> dbffile, offset, SEEK_SET)) == -1L)
-      return -1;
+    {
+       FREEBUF( buffer );
+       return -1;
+    }
 
     memset(buffer, ' ', size - 1);
     buffer[size - 1] = '\n';
 
     if (write(db -> dbffile, buffer, size) != (int) size)
-      return -1;
+    {
+       FREEBUF( buffer );
+       return -1;
+    }
   }
 
+  FREEBUF( buffer );
   return 0;
 
 } /* dbm_delete */

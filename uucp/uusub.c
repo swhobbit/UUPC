@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.15 1995/07/21 13:18:16 ahd v1-12q $
+ *    $Id: uusub.c 1.16 1996/01/01 21:34:31 ahd v1-12r $
  *
  *    $Log: uusub.c $
+ *    Revision 1.16  1996/01/01 21:34:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1995/07/21 13:18:16  ahd
  *    Change hostatus type to HOSTSTATUS
  *
@@ -145,10 +148,10 @@ main( int argc , char **argv)
 
    while ((option = getopt(argc, argv, "cs:x:")) != EOF)  {
       switch(option)  {
-         case 'c':               /* clear stats                       */
+         case 'c':               /* clear stats                      */
             clear_stats = KWTrue;
             break;
-         case 's':               /* only named host                    */
+         case 's':               /* only named host                  */
             name = optarg;
             break;
          case 'x':
@@ -285,67 +288,70 @@ static char *status( HOSTSTATUS current_status )
       default:
        return "??????";
 
-      case  phantom:          /* Entry not fully initialized           */
+      case HS_PHANTOM:        /* Entry not fully initialized         */
             return "noinit";
 
-      case  localhost:        /* This entry is for ourselves           */
+      case HS_LOCALHOST:      /* This entry is for ourselves         */
             return "local";
 
-      case  gatewayed:        /* This entry is delivered to via        */
-                              /* an external program on local sys     */
+      case HS_GATEWAYED:      /* This entry is delivered to via      */
+                              /* an external program on local sys    */
             return "gatway";
 
-      case  nocall:           /* real host: never called              */
+      case HS_SMTP:           /* SMTP gateway host                   */
+            return "SMTP-G";
+
+      case HS_NOCALL:         /* real host: never called             */
          return "NEVER";
 
-      case autodial:          /* Calling now                          */
+      case HS_AUTODIAL:       /* Calling now                         */
          return "DIALNG";
 
-      case nodevice:          /* Device open failed                    */
+      case HS_NODEVICE:       /* Device open failed                  */
          return "NODEV";
 
-      case startup_failed:
+      case HS_STARTUP_FAILED:
          return "NSTART";
 
-      case  inprogress:       /* Call now active                       */
+      case HS_INPROGRESS:     /* Call now active                     */
          return "INPROG";
 
-      case invalid_device:    /* Bad systems file entry               */
+      case HS_INVALID_DEVICE: /* Bad systems file entry              */
          return "INVDEV";
 
-      case  callback_req:     /* System must call us back              */
+      case HS_CALLBACK_REQ:   /* System must call us back            */
           return "CALLBK";
 
-      case  dial_script_failed:
-                              /* Hardcoded auto-dial failed           */
+      case HS_DIAL_SCRIPT_FAILED:
+                              /* Hardcoded auto-dial failed          */
          return "NDIALS";
 
-      case  dial_failed:      /* Hardcoded auto-dial failed           */
+      case HS_DIAL_FAILED:    /* Hardcoded auto-dial failed          */
          return "NODIAL";
 
-      case  script_failed:    /* script in L.SYS failed               */
+      case HS_SCRIPT_FAILED:  /* script in L.SYS failed              */
          return "NSCRPT";
 
-      case  max_retry:        /* Have given up calling this sys        */
+      case HS_MAX_RETRY:      /* Have given up calling this sys      */
          return "MAXTRY";
 
-      case  too_soon:         /* In retry mode: too soon to call      */
+      case HS_TOO_SOON:       /* In retry mode: too soon to call     */
          return "TOSOON";
 
-      case  succeeded:        /* self-explanatory                     */
-      case  called:           /* self-explanatory                     */
+      case HS_SUCCEEDED:      /* self-explanatory                    */
+      case HS_CALLED:         /* self-explanatory                    */
          return "SUCESS";
 
-      case  wrong_host:       /* Call out failed: wrong system        */
+      case HS_WRONG_HOST:     /* Call out failed: wrong system       */
          return "WRGHST";
 
-      case  unknown_host:     /* Call in cailed: unknown system        */
+      case HS_UNKNOWN_HOST:   /* Call in cailed: unknown system      */
          return "UNKNWN";
 
-      case  wrong_time:       /* Unable to call because of time        */
+      case HS_WRONG_TIME:     /* Unable to call because of time      */
          return "WRGTIM";
 
-      case  call_failed:      /* Connection dropped in mid-call        */
+      case HS_CALL_FAILED:    /* Connection dropped in mid-call      */
          return "FAILED";
    } /* switch */
 

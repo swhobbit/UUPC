@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.12 1995/02/20 00:40:12 ahd v1-12q $
+ *    $Id: strpool.c 1.13 1996/01/01 20:53:36 ahd v1-12r $
  *
  *    $Log: strpool.c $
+ *    Revision 1.13  1996/01/01 20:53:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -138,7 +141,7 @@ char *strpool( const char *input , const char *file, size_t line)
    if ( input == NULL )
    {
       printmsg(0,"strpool: NULL pointer passed to newstr()");
-      bugout( line, file );      /* Become Info Highway Roadkill     */
+      bugout( file, line );      /* Become Info Highway Roadkill     */
    }
 
    len  = strlen( input );
@@ -282,7 +285,7 @@ void safefree( void *input , const char *file, size_t line)
          printmsg(0,"Attempt to free string \"%s\" allocated via newstr() in pool %d",
                   input , buffers );
 
-         bugout( line, file);
+         bugout( file, line);
       }
 
       current = current->next_link;

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.48 1996/01/01 21:03:40 ahd v1-12r $
+ *    $Id: deliver.c 1.49 1996/01/20 12:58:08 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.49  1996/01/20 12:58:08  ahd
+ *    Specify text/binary when opening in-memory files
+ *
  *    Revision 1.48  1996/01/01 21:03:40  ahd
  *    Annual Copyright Update
  *
@@ -279,12 +282,6 @@ static KWBoolean CopyData(   const KWBoolean remotedelivery,
 
 static char *stats( IMFILE *imf );
 
-size_t Bounce( IMFILE *imf,
-               const char *text,
-               const char *data,
-               const char *address,
-               const KWBoolean validate );
-
 /*--------------------------------------------------------------------*/
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
 /*--------------------------------------------------------------------*/
@@ -335,7 +332,7 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
 
    hostp = checkname( path );
 
-   if ( (hostp != BADHOST) && (hostp->status.hstatus == gatewayed))
+   if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_GATEWAYED))
       return DeliverGateway( imf, user, node, hostp, validate );
 
 /*--------------------------------------------------------------------*/
@@ -685,7 +682,7 @@ static size_t DeliverFile( IMFILE *imf,
 
          case '/':               /* Save in absolute path name */
          case '~':
-            if (expand_path(s, NULL, cwd, E_mailext) == NULL )
+            if (expand_path(s, E_confdir, cwd, E_mailext) == NULL )
             {
                return Bounce(imf,
                              "Invalid path in forwarding file name",

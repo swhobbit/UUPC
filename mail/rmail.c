@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.51 1996/01/20 13:00:29 ahd Exp $
+ *    $Id: rmail.c 1.52 1996/03/19 03:37:44 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.52  1996/03/19 03:37:44  ahd
+ *    Pass in previous state of header parsing (header vs. body)
+ *    when copying remainder of file to holding tank.
+ *
  *    Revision 1.51  1996/01/20 13:00:29  ahd
  *    Specify text/binary mode when opening in-memory files
  *    Correctly trap incomplete From line on mail in rmail mode
@@ -1156,7 +1160,7 @@ static char **Parse822( KWBoolean *header,
       strcpy(fromNode, E_nodename);/* Yes --> Declare as local system */
 
    if (!equal(fromUser,E_mailbox) ||
-       (hostp == BADHOST) || (hostp->status.hstatus != localhost))
+       (hostp == BADHOST) || (hostp->status.hstatus != HS_LOCALHOST))
    {
       sprintf(buf, "%s <%s@%s>", E_name, E_mailbox, E_fdomain );
       PutHead("Sender:", buf, imf , (KWBoolean) offset );
@@ -1175,7 +1179,7 @@ static char **Parse822( KWBoolean *header,
 /*      Set UUCP requestor name while we've got the information       */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp != BADHOST) && (hostp->status.hstatus == localhost))
+   if ((hostp != BADHOST) && (hostp->status.hstatus == HS_LOCALHOST))
       rnode = bflag[F_BANG] ? E_nodename : E_fdomain;
                               /* Use full domain address, if possible */
    else

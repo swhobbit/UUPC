@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.32 1995/12/12 13:48:54 ahd Exp $
+ *    $Id: import.c 1.33 1996/01/01 20:55:48 ahd v1-12r $
  *
  *    $Log: import.c $
+ *    Revision 1.33  1996/01/01 20:55:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.32  1995/12/12 13:48:54  ahd
  *    restrict issuing importPath messages to higher verbosity levels
  *
@@ -897,7 +900,7 @@ static KWBoolean advancedFS( const char *input )
 static KWBoolean advancedFS( const char *path )
 {
    char driveInfo[128];
-   char fsType[5];
+   char fsType[128];
    BOOL result;
    char *shareNameEnd;
    int len;
@@ -952,7 +955,7 @@ static KWBoolean advancedFS( const char *path )
 /*--------------------------------------------------------------------*/
 
    result = GetVolumeInformation(driveInfo, NULL, 0, NULL, NULL,
-         NULL, fsType, 5);
+         NULL, fsType, sizeof fsType);
 
    if ( !result )
    {

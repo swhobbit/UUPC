@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.32 1996/01/07 14:14:40 ahd v1-12r $
+ *    $Id: active.c 1.33 1996/01/27 16:49:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.33  1996/01/27 16:49:22  ahd
+ *    Correct display moderation for duplicate groups
+ *
  *    Revision 1.32  1996/01/07 14:14:40  ahd
  *    Dynamically allocate space for news group name trailing rest of
  *    active tree node, eliminating multiple level names entirely.
@@ -246,7 +249,7 @@ createNode( const char *groupName,
 
    if ( freeBytes < (sizeof (GROUP) + length ))
    {
-      anchor = MALLOC( BLOCK_SIZE );
+      anchor = (char UUFAR *) MALLOC( BLOCK_SIZE );
       checkref( anchor );
       freeBytes = BLOCK_SIZE;
 
@@ -860,13 +863,13 @@ getArticleNewest( const char *name )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-setArticleNewest( const char *name, const long new )
+setArticleNewest( const char *name, const long newSequence )
 {
    GROUP UUFAR *group = findGroup( name );
 
    if (( group != NULL ) && IS_GROUP( group ))
    {
-      group->high = new;
+      group->high = newSequence;
       return KWTrue;
    }
    else
@@ -902,13 +905,13 @@ getArticleOldest( const char *name )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-setArticleOldest( const char *name, const long new )
+setArticleOldest( const char *name, const long newSequence )
 {
    GROUP UUFAR *group = findGroup( name );
 
    if (( group != NULL ) && IS_GROUP( group ))
    {
-      group->low = new;
+      group->low = newSequence;
       return KWTrue;
    }
    else

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.64 1996/01/04 04:00:46 ahd v1-12r $
+ *    $Id: modem.c 1.65 1996/03/18 03:52:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.65  1996/03/18 03:52:46  ahd
+ *    Don't suspend/resume network ports
+ *
  *    Revision 1.64  1996/01/04 04:00:46  ahd
  *    Use sorted list of boolean options with binary search and computed
  *    table size.
@@ -413,7 +416,7 @@ CONN_STATE callup( void )
       {
          printmsg(0,"callup: Modem speed %s is invalid.",
                      flds[FLD_SPEED]);
-         hostp->status.hstatus = invalid_device;
+         hostp->status.hstatus = HS_INVALID_DEVICE;
          return CONN_INITIALIZE;
 
       } /* if (speed < 300) */
@@ -452,7 +455,7 @@ CONN_STATE callup( void )
       if (!sendalt( exp, scriptTimeout , noconnect))
       {
          printmsg(0, "SCRIPT FAILED");
-         hostp->status.hstatus =  script_failed;
+         hostp->status.hstatus = HS_SCRIPT_FAILED;
          return CONN_DROPLINE;
       } /* if */
 
@@ -880,7 +883,7 @@ static KWBoolean dial(char *number, const BPS speed)
    {
       if (activeopenline(number, speed, bmodemflag[MODEM_DIRECT]))
       {
-         hostp->status.hstatus =  nodevice;
+         hostp->status.hstatus = HS_NODEVICE;
          return KWFalse;
       }
    }
@@ -889,7 +892,7 @@ static KWBoolean dial(char *number, const BPS speed)
       if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
       {
 
-         hostp->status.hstatus =  nodevice;
+         hostp->status.hstatus = HS_NODEVICE;
          return KWFalse;
       }
 
@@ -904,7 +907,7 @@ static KWBoolean dial(char *number, const BPS speed)
       {
          printmsg(0,"dial: Modem failed to initialize");
          shutDown();
-         hostp->status.hstatus =  dial_script_failed;
+         hostp->status.hstatus = HS_DIAL_SCRIPT_FAILED;
          return KWFalse;
       }
 
@@ -923,7 +926,7 @@ static KWBoolean dial(char *number, const BPS speed)
 
       if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
       {
-         hostp->status.hstatus =  dial_failed;
+         hostp->status.hstatus = HS_DIAL_FAILED;
          return KWFalse;
       }
 

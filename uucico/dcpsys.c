@@ -37,9 +37,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.50 1996/01/01 21:21:23 ahd v1-12r $
+ *     $Id: dcpsys.c 1.51 1996/03/18 03:52:46 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.51  1996/03/18 03:52:46  ahd
+ *     Allow binary rmsg() processing without translation of CR/LF into \0
+ *     Use enumerated list for synch types on rmsg() call
+ *
  *     Revision 1.50  1996/01/01 21:21:23  ahd
  *     Annual Copyright Update
  *
@@ -410,7 +414,7 @@ CONN_STATE getsystem( const char sendGrade )
 /*       then call this host                                          */
 /*--------------------------------------------------------------------*/
 
-   if (hostp->status.hstatus == called)
+   if (hostp->status.hstatus == HS_CALLED)
       nextState = CONN_INITIALIZE;
    else if (equal(Rmtname, "all") || equal(Rmtname, rmtname))
       nextState = CONN_CHECKTIME;
@@ -646,7 +650,7 @@ CONN_STATE startup_server(const char recvgrade )
    char *s;
    size_t hostlen;
 
-   hostp->status.hstatus = startup_failed;
+   hostp->status.hstatus= HS_STARTUP_FAILED;
    hostp->via     = hostp->hostname;   /* Save true hostname           */
 
 /*--------------------------------------------------------------------*/
@@ -658,7 +662,7 @@ CONN_STATE startup_server(const char recvgrade )
    {
       if (nbstime())
       {
-         hostp->status.hstatus = called;
+         hostp->status.hstatus = HS_CALLED;
          time( &hostp->status.lconnect );
          return CONN_TIMESET;
       }
@@ -700,7 +704,7 @@ CONN_STATE startup_server(const char recvgrade )
    {
       printmsg(0,"Startup: Wrong host %s, expected %s",
                &msg[6], rmtname);
-      hostp->status.hstatus = wrong_host;
+      hostp->status.hstatus= HS_WRONG_HOST;
       return CONN_TERMINATE; /* wrong host */              /* ahd */
    }
 
@@ -765,7 +769,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*       While the remote is waiting for us, update our status        */
 /*--------------------------------------------------------------------*/
 
-   hostp->status.hstatus = inprogress;
+   hostp->status.hstatus= HS_INPROGRESS;
    hostp->status.lconnect = time( &remote_stats.lconnect );
 
 /*--------------------------------------------------------------------*/
@@ -929,7 +933,7 @@ CONN_STATE startup_client( char *sendGrade )
    {                                      /* Yes --> Abort        */
       wmsg("RLOGIN",KWTrue);
       printmsg(0,"startup: Access rejected for host \"%s\"", sysname);
-      hostp->status.hstatus = wrong_host;
+      hostp->status.hstatus= HS_WRONG_HOST;
       return CONN_TERMINATE;
    } /* if */
 
@@ -943,7 +947,7 @@ CONN_STATE startup_client( char *sendGrade )
    if (securep->callback)
    {
       wmsg("RCB",KWTrue);
-      hostp->status.hstatus = callback_req;
+      hostp->status.hstatus= HS_CALLBACK_REQ;
       return CONN_TERMINATE;  /* Really more complex than this       */
    }
 
@@ -1018,7 +1022,7 @@ CONN_STATE startup_client( char *sendGrade )
    if ( hostp == BADHOST )
       panic();
 
-   hostp->status.hstatus = inprogress;
+   hostp->status.hstatus = HS_INPROGRESS;
    hostp->status.lconnect = time( &remote_stats.lconnect );
 
    return CONN_CLIENT;
@@ -1246,7 +1250,7 @@ KWBoolean CallWindow( const char callgrade )
 
    if ( !callgrade && equal(flds[FLD_CCTIME],"Never" ))
    {
-      hostp->status.hstatus = wrong_time;
+      hostp->status.hstatus = HS_WRONG_TIME;
       return KWFalse;
    }
 
@@ -1265,7 +1269,7 @@ KWBoolean CallWindow( const char callgrade )
           ((hostp->status.ltime >  630720000L )))
                                              /* Clock okay?          */
       {                                      /* Yes--> Return        */
-         hostp->status.hstatus = wrong_time;
+         hostp->status.hstatus = HS_WRONG_TIME;
          time(&hostp->status.ltime);  /* Save time of last attempt to call  */
          return KWFalse;
       }

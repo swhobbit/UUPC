@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.24 1996/01/01 21:01:42 ahd Exp $
+ *    $Id: mailblib.c 1.25 1996/01/01 23:50:26 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.25  1996/01/01 23:50:26  ahd
+ *    Don't scan nickname table for duplicate nicknames in linear fashion,
+ *    merely check entire table for duplicates after sorting.
+ *    Rename user functions previously known as 'user alias' to 'nickname',
+ *    consistent with newer documentation.
+ *
  *    Revision 1.24  1996/01/01 21:01:42  ahd
  *    Annual Copyright Update
  *
@@ -236,7 +242,7 @@ void ShowAlias( const char *alias)
 /*--------------------------------------------------------------------*/
 
 KWBoolean SaveItem( const int item,
-               const KWBoolean delete,
+               const KWBoolean remove,
                copyopt headers,
                char *fname,
                const ACTION verb)
@@ -323,7 +329,7 @@ KWBoolean SaveItem( const int item,
 /*--------------------------------------------------------------------*/
 
    if (letters[item].status < M_DELETED)
-      letters[item].status = (MSTATUS) (delete ? M_DELETED : M_SAVED);
+      letters[item].status = (MSTATUS) (remove ? M_DELETED : M_SAVED);
 
    return KWTrue;
 } /* SaveItem */

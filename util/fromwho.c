@@ -1,3 +1,9 @@
+/*--------------------------------------------------------------------*/
+/*       f r o m w h o . C                                            */
+/*                                                                    */
+/*       Summarize mailbox contents                                   */
+/*--------------------------------------------------------------------*/
+
 /* modified for UUPC/extended by Kai Uwe Rommel, rommel@ars.muc.de */
 
 /*
@@ -23,14 +29,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.3 $
+  $Revision: 1.4 $
 
     $Author: ahd $
-      $Date: 1995/01/03 05:32:26 $
+      $Date: 1995/01/30 04:08:36 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.4  1995/01/30 04:08:36  ahd
+  Additional compiler warning fixes
+
   Revision 1.3  1995/01/03 05:32:26  ahd
   Further SYS file support cleanup
 
@@ -56,7 +65,17 @@
 
 */
 
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
 #include "uupcmoah.h"      /* Must be first, includes #pragmas       */
+
+RCSID("$Id");
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -250,7 +269,7 @@ int main(int argc, char **argv)
   if (!configure( B_MAIL ))
     panic();
 
-  if (!(myname = getenv("LOGNAME")))
+  if ((myname = getenv("LOGNAME")) == NULL)
     myname = E_mailbox;
 
   sprintf(mbox, "%s/%s", E_maildir, myname);
@@ -271,7 +290,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.3 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.4 $");
                   exit(0);
       default :   usage(prog);
     }

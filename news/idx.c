@@ -16,11 +16,13 @@
 
 #include "uupcmoah.h"
 
-static const char *rcsid =
-      "$Id: idx.c 1.11 1995/09/24 19:10:36 ahd v1-12q $";
+RCSID("$Id: idx.c 1.12 1996/01/01 21:07:15 ahd v1-12r $");
 
 /*
  * $Log: idx.c $
+ * Revision 1.12  1996/01/01 21:07:15  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.11  1995/09/24 19:10:36  ahd
  * Use standard buffer length for processing in all environments
  *
@@ -159,7 +161,7 @@ static int idx_search(IDX *idx, const char *key)
 
 } /* idx_search */
 
-static int idx_add(IDX *idx, ITEM new)
+static int idx_add(IDX *idx, ITEM object)
 {
   int i, n;
 
@@ -169,7 +171,7 @@ static int idx_add(IDX *idx, ITEM new)
     for (n = idx -> page.items; n > 0; n--)
     {
 
-      if ( strcmp(new.key, idx -> page.item[n - 1].key) > 0 )
+      if ( strcmp(object.key, idx -> page.item[n - 1].key) > 0 )
         break;
 
     } /* for (n = idx -> page.items; n > 0; n--) */
@@ -185,7 +187,7 @@ static int idx_add(IDX *idx, ITEM new)
       }
 
       idx -> page.items++;
-      idx -> page.item[n] = new;
+      idx -> page.item[n] = object;
       idx -> page_dirty = 1;
 
       idx_flush_page(idx);
@@ -208,8 +210,8 @@ static int idx_add(IDX *idx, ITEM new)
           for (i = IDX_MINITEM - 1; i > n; i--)
             idx -> page.item[i] = idx -> page.item[i - 1];
 
-          idx -> page.item[n] = new;
-          new = up;
+          idx -> page.item[n] = object;
+          object = up;
         }
 
         for (i = 0; i < IDX_MINITEM; i++)
@@ -222,16 +224,16 @@ static int idx_add(IDX *idx, ITEM new)
         for (i = 0; i < n - 1; i++)
           newpage.item[i] = idx -> page.item[IDX_MINITEM + i + 1];
 
-        newpage.item[n - 1] = new;
+        newpage.item[n - 1] = object;
 
         for (i = n; i < IDX_MINITEM; i++)
           newpage.item[i] = idx -> page.item[IDX_MINITEM + i];
 
-        new = up;
+        object = up;
 
       } /* else */
 
-      newpage.child_0 = new.child;
+      newpage.child_0 = object.child;
       idx -> page.items = newpage.items = IDX_MINITEM;
 
       if (idx -> page_stacksize == 0)
@@ -245,7 +247,7 @@ static int idx_add(IDX *idx, ITEM new)
         idx -> page_dirty = 1;
         idx_flush_page(idx);
 
-        new.child = idx_new_page(idx);
+        object.child = idx_new_page(idx);
         memcpy(&idx -> page, &newpage, sizeof(PAGE));
 
         idx -> page_dirty = 1;
@@ -254,7 +256,7 @@ static int idx_add(IDX *idx, ITEM new)
         /* and keep the root on page zero */
 
         idx -> page.items = 1;
-        idx -> page.item[0] = new;
+        idx -> page.item[0] = object;
         idx -> page.child_0 = child_0;
 
         idx -> page_number = 0;
@@ -271,7 +273,7 @@ static int idx_add(IDX *idx, ITEM new)
 
         /* and upper one onto new one */
 
-        new.child = idx_new_page(idx);
+        object.child = idx_new_page(idx);
         memcpy(&idx -> page, &newpage, sizeof(PAGE));
 
         idx -> page_dirty = 1;
@@ -375,7 +377,7 @@ int idx_addkey(IDX *idx,
                const long offset,
                const size_t size)
 {
-  ITEM new;
+  ITEM object;
 
   if (idx == NULL || idx -> magic != IDX_MAGIC)
     return -1;
@@ -386,13 +388,13 @@ int idx_addkey(IDX *idx,
   if (idx_search(idx, key) != -1)
     return -1;
 
-  strncpy(new.key, key, IDX_MAXKEY - 1);
-  new.key[IDX_MAXKEY - 1] = 0;
-  new.offset = offset;
-  new.size   = (unsigned short) size;
-  new.child  = 0;
+  strncpy(object.key, key, IDX_MAXKEY - 1);
+  object.key[IDX_MAXKEY - 1] = 0;
+  object.offset = offset;
+  object.size   = (unsigned short) size;
+  object.child  = 0;
 
-  if (idx_add(idx, new) == -1)
+  if (idx_add(idx, object) == -1)
     return -1;
 
   return 0;

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.4 1995/12/12 13:48:54 ahd Exp $
+ *    $Id: cache.c 1.5 1996/01/01 21:06:09 ahd v1-12r $
  *
  * $Log: cache.c $
+ * Revision 1.5  1996/01/01 21:06:09  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1995/12/12 13:48:54  ahd
  * Use binary tree for news group active file
  * Use large buffers in news programs to avoid overflow of hist db recs
@@ -43,13 +46,14 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-   "$Id: cache.c 1.4 1995/12/12 13:48:54 ahd Exp $";
+RCSID("$Id: cache.c 1.5 1996/01/01 21:06:09 ahd v1-12r $");
 
 #include <io.h>
 #include <memory.h>
+#include <malloc.h>
 
 #include "cache.h"
+#include "makebuf.h"
 
 currentfile();
 
@@ -92,40 +96,41 @@ static int cache_write(CACHE *cache, long index, void *buffer)
   cache->writes++;
 
   return 0;
+
 } /* cache_write */
 
 /* cache maintenance functions */
 
 static void cache_alloc(CACHE *cache)
 {
-  CACHEITEM *new;
-  int i;
+  CACHEITEM UUFAR *newItem;
+  long i;
 
   if (cache->head != NULL)
     return;
 
   for (i = 0; i < cache->items; i++)
   {
-    new = malloc(sizeof(CACHEITEM));
-    checkref(new);
+    newItem = (CACHEITEM UUFAR *) MALLOC(sizeof(CACHEITEM));
+    checkref(newItem);
 
-    new->buffer = malloc(cache->itemsize);
-    checkref(new->buffer);
+    newItem->buffer = MALLOC(cache->itemsize);
+    checkref(newItem->buffer);
 
-    new->index = -1;
-    new->dirty = 0;
+    newItem->index = -1;
+    newItem->dirty = 0;
 
     if (cache->head == NULL)
     {
-      cache->head = cache->tail = new;
-      new->prev = new->next = NULL;
+      cache->head = cache->tail = newItem;
+      newItem->prev = newItem->next = NULL;
     }
     else
     {
-      new->prev = NULL;
-      new->next = cache->head;
-      cache->head->prev = new;
-      cache->head = new;
+      newItem->prev = NULL;
+      newItem->next = cache->head;
+      cache->head->prev = newItem;
+      cache->head = newItem;
     }
 
   } /* for (i = 0; i < cache->items; i++) */
@@ -140,7 +145,7 @@ static void cache_alloc(CACHE *cache)
 
 static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
 {
-  CACHEITEM *item;
+  CACHEITEM UUFAR *item;
 
   if (cache->items > 0 && cache->head == NULL)
     cache_alloc(cache); /* delayed until here in case it is never actually used */
@@ -149,15 +154,27 @@ static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
     return dirty ? cache_write(cache, index, buffer) : 0;
 
   if (item->dirty)
-    if (cache_write(cache, item->index, item->buffer) != 0)
-      return -1;
+  {
+    int rc;
+
+    char *tempBuffer = (char *) MAKEBUF( cache->itemsize );
+
+    checkref( tempBuffer );
+    MEMCPY( tempBuffer, item->buffer, cache->itemsize );
+    rc = cache_write(cache, item->index, tempBuffer);
+    FREEBUF( tempBuffer );
+
+    if (rc != 0)
+       return -1;
+
+  } /* if (item->dirty) */
 
   cache->tail = item->prev;
   cache->tail->next = NULL;
 
   item->index = index;
   item->dirty = dirty;
-  memcpy(item->buffer, buffer, cache->itemsize);
+  MEMCPY(item->buffer, buffer, cache->itemsize);
 
   item->prev = NULL;
   item->next = cache->head;
@@ -168,9 +185,9 @@ static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
 
 } /* cache_add */
 
-static CACHEITEM *cache_find(CACHE *cache, long index)
+static CACHEITEM UUFAR *cache_find(CACHE *cache, long index)
 {
-  CACHEITEM *item;
+  CACHEITEM UUFAR *item;
 
   for (item = cache->head; item != NULL; item = item->next)
   {
@@ -207,11 +224,10 @@ static CACHEITEM *cache_find(CACHE *cache, long index)
 
 /* interface functions */
 
-CACHE *cache_init(int file, const long items, const size_t itemsize)
+CACHE UUFAR *cache_init(int file, const long items, const size_t itemsize)
 {
-  CACHE *cache;
+  CACHE UUFAR *cache = (CACHE UUFAR *) MALLOC(sizeof(CACHE));
 
-  cache = (CACHE *) malloc(sizeof(CACHE));
   checkref(cache);
 
   cache->magic    = CACHE_MAGIC;
@@ -238,15 +254,20 @@ CACHE *cache_init(int file, const long items, const size_t itemsize)
 
 void cache_flush(CACHE *cache)
 {
-  CACHEITEM *item;
+  CACHEITEM UUFAR *item;
+  char *tempBuffer;
 
   if (cache == NULL || cache->magic != CACHE_MAGIC)
     return;
 
+  tempBuffer = (char *) MAKEBUF( cache->itemsize );
+  checkref( tempBuffer );
+
   for (item = cache->head; item != NULL; item = item->next)
     if (item->dirty)
     {
-      if ( cache_write(cache, item->index, item->buffer) == -1 )
+      MEMCPY( tempBuffer, item->buffer, cache->itemsize );
+      if ( cache_write(cache, item->index, tempBuffer) == -1 )
       {
          printmsg(0,"cache_flush: Unable to flush record %ld", item->index );
       }
@@ -262,7 +283,8 @@ void cache_flush(CACHE *cache)
 
 void cache_exit(CACHE *cache)
 {
-  CACHEITEM *item, *next;
+  CACHEITEM UUFAR *item;
+  CACHEITEM UUFAR *next;
   long percent;
 
   if (cache == NULL || cache->magic != CACHE_MAGIC)
@@ -280,17 +302,17 @@ void cache_exit(CACHE *cache)
   for (item = cache->head; item != NULL; item = next)
   {
     next = item->next;
-    free(item->buffer);
-    free(item);
+    FREE(item->buffer);
+    FREE(item);
   }
 
-  free(cache);
+  FREE(cache);
 
 } /* cache_exit */
 
 int cache_get(CACHE *cache, long index, void *buffer)
 {
-  CACHEITEM *item;
+  CACHEITEM UUFAR *item;
   int rc;
 
   if (cache == NULL || cache->magic != CACHE_MAGIC)
@@ -305,7 +327,7 @@ int cache_get(CACHE *cache, long index, void *buffer)
     printmsg(10, "cache_get: record %d found in cache", index);
 #endif
 
-    memcpy(buffer, item->buffer, cache->itemsize);
+    MEMCPY(buffer, item->buffer, cache->itemsize);
     return 0;
   }
 
@@ -321,7 +343,7 @@ int cache_get(CACHE *cache, long index, void *buffer)
 
 int cache_put(CACHE *cache, long index, void *buffer)
 {
-  CACHEITEM *item;
+  CACHEITEM UUFAR *item;
 
   if (cache == NULL || cache->magic != CACHE_MAGIC)
     return -1;
@@ -334,7 +356,7 @@ int cache_put(CACHE *cache, long index, void *buffer)
     printmsg(10, "cache_put: record %ld found in cache", index);
 #endif
 
-    memcpy(item->buffer, buffer, cache->itemsize);
+    MEMCPY(item->buffer, buffer, cache->itemsize);
     item->dirty = 1;
     return 0;
   }

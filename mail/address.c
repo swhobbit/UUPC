@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.21 1996/01/01 21:02:07 ahd v1-12r $
+ *    $Id: address.c 1.22 1996/03/19 03:36:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.22  1996/03/19 03:36:02  ahd
+ *    Normalize case of selected variables
+ *    Modify trap for doubled delimiters (%% @@ !!) to handle mixed
+ *    doubled delimiters as well (!@ %@ %!).
+ *
  *    Revision 1.21  1996/01/01 21:02:07  ahd
  *    Annual Copyright Update
  *
@@ -479,7 +484,7 @@ char *HostAlias( char *input)
 /*       a routing entry and we should ignore it.                     */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp->status.hstatus == phantom) && ( hostp->realname == NULL ))
+   if ((hostp->status.hstatus == HS_PHANTOM) && ( hostp->realname == NULL ))
       return input;
 
 /*--------------------------------------------------------------------*/
@@ -539,7 +544,7 @@ char *HostPath( char *input, char *best)
    if (hostp == BADHOST)
       return best;
 
-   if (hostp->status.hstatus == gatewayed)  /* Gatewayed?             */
+   if (hostp->status.hstatus == HS_GATEWAYED)  /* Gatewayed?             */
       return hostp->hostname;      /* Yes --> Use name for path       */
 
 /*--------------------------------------------------------------------*/
@@ -577,7 +582,7 @@ char *HostPath( char *input, char *best)
 
       if (equal(hostp->hostname, alias))
       {
-         if (hostp->status.hstatus == localhost) /* Ourself?          */
+         if (hostp->status.hstatus == HS_LOCALHOST) /* Ourself?          */
             hostp->via = E_nodename;      /* Yes --> Deliver local    */
          else if ( checkreal( hostp->hostname ) == BADHOST )
                                           /* Unknown system?          */

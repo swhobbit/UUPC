@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.41 1996/01/04 04:00:46 ahd v1-12r $
+ *    $Id: mail.c 1.42 1996/01/20 12:58:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.42  1996/01/20 12:58:08  ahd
+ *    Specify test/binary when opening in-memory files
+ *
  *    Revision 1.41  1996/01/04 04:00:46  ahd
  *    Use sorted list of boolean options with binary search and computed
  *    table size.
@@ -179,7 +182,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.41 1996/01/04 04:00:46 ahd v1-12r $";
+      "$Id: mail.c 1.42 1996/01/20 12:58:08 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -250,7 +253,7 @@ static size_t maxLetters = 1000;    /* Initial value only            */
 static size_t maxLetters = 100;     /* Initial value only            */
 #endif
 
-struct ldesc UUFAR  *letters;
+LDESC UUFAR  *letters;
 
 /*--------------------------------------------------------------------*/
 /*                       Local procedure names                        */
@@ -739,7 +742,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
       return;
    }
 
-   letters = MALLOC( maxLetters * sizeof *letters);
+   letters = (LDESC UUFAR*) MALLOC( maxLetters * sizeof *letters);
 
    checkref(letters);
 
@@ -762,7 +765,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
 /*        Shrink mailbox status array to what we actually need        */
 /*--------------------------------------------------------------------*/
 
-   letters = REALLOC( letters, (size_t) (letternum + 1) * sizeof *letters);
+   letters = (LDESC UUFAR *) REALLOC( letters, (size_t) (letternum + 1) * sizeof *letters);
 
    checkref(letters);
 
@@ -1244,13 +1247,17 @@ int CreateBox(FILE *rmailbox )
              position = imtell(imBox);
              if ( letternum == (int) maxLetters )
              {
-               maxLetters = (size_t) max(((maxLetters * mboxsize) / position),
-                                          (letternum * 11) / 10 );
+               maxLetters = (maxLetters * mboxsize) / position;
+
+               if ( maxLetters < (size_t) (letternum * 11) / 10 )
+                  maxLetters = (size_t) (letternum * 11) / 10;
+
                printmsg(2,"\nReallocating mailbox array from %d to %d entries",
                      current,
                      maxLetters );
 
-               letters = REALLOC( letters, maxLetters * sizeof *letters);
+               letters = (LDESC UUFAR *) REALLOC( letters,
+                                                  maxLetters * sizeof *letters);
                checkref( letters );
              }
 

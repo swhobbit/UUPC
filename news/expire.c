@@ -13,9 +13,14 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.19 1995/12/03 13:51:44 ahd Exp $
+ *    $Id: expire.c 1.20 1995/12/12 13:48:54 ahd v1-12r $
  *
  *    $Log: expire.c $
+ *    Revision 1.20  1995/12/12 13:48:54  ahd
+ *    Use binary tree for news group active file
+ *    Use large buffers in news programs to avoid overflow of hist db recs
+ *    Use true recursive function to walk entire active file
+ *
  *    Revision 1.19  1995/12/03 13:51:44  ahd
  *    Additional debugging cleanup
  *
@@ -71,8 +76,7 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-      "$Id: expire.c 1.19 1995/12/03 13:51:44 ahd Exp $";
+RCSID("$Id: expire.c 1.20 1995/12/12 13:48:54 ahd v1-12r $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -97,6 +101,7 @@ static const char rcsid[] =
 #include "stater.h"
 #include "timestmp.h"
 #include "hdbm.h"
+#include "makebuf.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global Variables                          */
@@ -121,8 +126,8 @@ static long total_cross_kept      = 0;
 static long total_bytes_purged    = 0;
 static long total_bytes_kept      = 0;
 
-void *history;
-void *new_history;
+static DBM *history;
+static DBM *new_history;
 
 /*--------------------------------------------------------------------*/
 /*       b a c k u p N e w s F i l e                                  */
@@ -132,9 +137,10 @@ void *new_history;
 /*--------------------------------------------------------------------*/
 
 static void
-backupNewsFile(  const char *new, const char *previous )
+backupNewsFile(  const char *nextGeneration, const char *previous )
 {
-   char file_previous[FILENAME_MAX], file_new[FILENAME_MAX];
+   char file_previous[FILENAME_MAX];
+   char file_new[FILENAME_MAX];
 
    mkfilename(file_previous, E_newsdir, previous);
 
@@ -144,14 +150,14 @@ backupNewsFile(  const char *new, const char *previous )
 
    REMOVE(file_previous);
 
-   if ( new == NULL )
+   if ( nextGeneration == NULL )
       return;
 
 /*--------------------------------------------------------------------*/
 /*         Build the new file name and move into the old name         */
 /*--------------------------------------------------------------------*/
 
-   mkfilename(file_new, E_newsdir, new);
+   mkfilename(file_new, E_newsdir, nextGeneration);
 
    if ( rename(file_new, file_previous) )
    {
@@ -302,8 +308,8 @@ main( int argc, char **argv)
    backupNewsFile( "history.dir", "oldhist.dir" );
    backupNewsFile( "history.pag", "oldhist.pag" );
 
-   backupNewsFile( "newhist.dir","history.dir" );
-   backupNewsFile( "newhist.pag","history.pag" );
+   backupNewsFile( "newhist.dir", "history.dir" );
+   backupNewsFile( "newhist.pag", "history.pag" );
 
 /*--------------------------------------------------------------------*/
 /*                         Clean up and exit                          */
@@ -332,7 +338,7 @@ main( int argc, char **argv)
 static void
 SetGroupLower(char *histentry)
 {
-  char value[DBM_BUFSIZ];
+  char *value = (char *) MAKEBUF( strlen( histentry + 1) );
   char *group, *num;
   long article;
 
@@ -355,6 +361,8 @@ SetGroupLower(char *histentry)
       setArticleOldest( group, article );
 
   } /* while ((group = strtok(NULL, "," WHITESPACE )) != NULL) */
+
+  FREEBUF( value );
 
 } /* SetGroupLower */
 

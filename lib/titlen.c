@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.4 1994/12/22 00:11:58 ahd v1-12q $
+ *    $Id: titlen.c 1.5 1996/01/01 20:54:43 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: titlen.c $
+ *    Revision 1.5  1996/01/01 20:54:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/12/22 00:11:58  ahd
  *    Annual Copyright Update
  *
@@ -54,14 +57,22 @@
 void setTitle( const char *fmt, ... )
 {
    va_list arg_ptr;
-   char buf[BUFSIZ];
+   static char buf[BUFSIZ];
 
-   va_start(arg_ptr,fmt);
+/*--------------------------------------------------------------------*/
+/*       If a new title was supplied, format it.  (Otherwise, we use  */
+/*       the previous contents of the title buffer.)                  */
+/*--------------------------------------------------------------------*/
 
-   sprintf(buf, "%s: ", compilen);
-   vsprintf(buf + strlen(buf), fmt, arg_ptr);
+   if ( fmt )
+   {
+      va_start(arg_ptr,fmt);
 
-   va_end( arg_ptr );
+      sprintf(buf, "%s: ", compilen);
+      vsprintf(buf + strlen(buf), fmt, arg_ptr);
+
+      va_end( arg_ptr );
+   }
 
    SetConsoleTitle(buf);
 
