@@ -16,6 +16,7 @@
 #include <string.h>
 #include <dos.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -25,9 +26,7 @@
 #include "uundir.h"
 #include "getdta.h"
 
-#ifndef __TURBOC__
 #include "dos2unix.h"
-#endif
 
 #ifndef __TURBOC__
 #include "getdta.h"           /* Custom versions of Disk Xfer Addr
@@ -162,8 +161,9 @@ struct direct *readdir(DIR *dirp)
    dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
       ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
 
-   dirp->dirent.d_modified = dostounix( dirp->dirdta.filedate,
+   dirp->dirent.d_modified = dos2unix( dirp->dirdta.filedate,
                                         dirp->dirdta.filetime );
+   dirp->dirent.d_size     = dirp->dirdta.filesize;
 
    return &(dirp->dirent);
 

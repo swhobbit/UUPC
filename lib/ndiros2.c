@@ -11,14 +11,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.4 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: NDIROS2.C 1.2 1993/04/04 19:35:14 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: NDIROS2.C $
+ *     Revision 1.2  1993/04/04  19:35:14  ahd
+ *     Include time_t timestamp
+ *
  */
 
 static const char rcsid[] =
-            "$Id$";
+            "$Id: NDIROS2.C 1.2 1993/04/04 19:35:14 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    ndir.c for MS-DOS by Samuel Lam <skl@van-bc.UUCP>, June/87      */
@@ -154,6 +157,7 @@ struct direct *readdir(DIR *dirp)
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
       dirp->dirent.d_modified = dos2unix( findbuf.fdateLastWrite,
                                          findbuf.ftimeLastWrite );
+      dirp->dirent.d_size     = findbuf.cbFile;
 
       printmsg(4,"readdir: Returning \"%s\"", dirp->dirent.d_name);
       return &(dirp->dirent);

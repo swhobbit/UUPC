@@ -2,14 +2,27 @@
 /*    r e a d n e x t . c                                             */
 /*                                                                    */
 /*    Reads a spooling directory with optional pattern matching       */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
 /*                                                                    */
-/*    Copyright 1991 (C), Andrew H. Derbyshire                        */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: readnext.c 1.3 1992/11/22 20:58:55 ahd Exp ahd $
  *
- *    $Log$
+ *    $Log: readnext.c $
+ *     Revision 1.3  1992/11/22  20:58:55  ahd
+ *     Use strpool to allocate const strings
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -27,7 +40,7 @@
 
 #include "lib.h"
 #include "readnext.h"
-#include "ndir.h"
+#include "uundir.h"
 #include "hostable.h"
 #include "security.h"
 
@@ -40,9 +53,11 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 char     *readnext(char *xname,
-          const char *remote,
-          const char *subdir,
-          char *pattern )
+                   const char *remote,
+                   const char *subdir,
+                   char *pattern,
+                   time_t *modified,
+                   long   *size )
 {
    static DIR *dirp;
    static char *SaveRemote = NULL;
@@ -88,6 +103,13 @@ char     *readnext(char *xname,
    {
       sprintf(xname, "%s/%s", remotedir, dp->d_name);
       printmsg(5, "readnext: matched \"%s\"",xname);
+
+      if ( modified != NULL )
+         *modified = dp->d_modified;
+
+      if ( size != NULL )
+         *size = dp->d_size;
+
       return xname;
    }
 
