@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.34 1995/02/20 17:28:43 ahd Exp $
+ *    $Id: mail.c 1.35 1995/02/20 17:38:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.35  1995/02/20 17:38:19  ahd
+ *    Determine OS/2 16 bit at compile time
+ *
  *    Revision 1.34  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -154,7 +157,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.34 1995/02/20 17:28:43 ahd Exp $";
+      "$Id: mail.c 1.35 1995/02/20 17:38:19 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -674,7 +677,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
    char resp[LSIZE];
    int current = 0;
    KWBoolean done     = KWFalse;
-   KWBoolean modified;
+   KWBoolean modified = KWFalse;
    FILE *rmailbox;
 
 /*--------------------------------------------------------------------*/
@@ -740,7 +743,6 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
    letters = REALLOC( letters, (size_t) (letternum + 1) * sizeof *letters);
 
    checkref(letters);
-
 
    if ( postoffice && (!PrintOnly))
       modified = KWTrue;

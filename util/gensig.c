@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.9 1995/01/29 16:43:03 ahd Exp ahd $
+ *    $Id: gensig.c 1.10 1995/02/20 00:40:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.10  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.9  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -58,7 +61,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.9 1995/01/29 16:43:03 ahd Exp ahd $";
+static char rcsid[] = "$Id: gensig.c 1.10 1995/02/20 00:40:12 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -106,7 +109,7 @@ static void CopyQuote( const char *fname, long where, FILE *stream);
 
 static void CopyFixed( const char *fname, FILE *stream );
 
-static unsigned long chooseavailable( const char *quoteused, long quotes );
+static long chooseavailable( const char *quoteused, long quotes );
 
 currentfile();
 
@@ -269,7 +272,7 @@ static long chooseit( struct stat *current_status,
    FILE *data;
    long where;
    long quotes = 0;
-   unsigned long quote;
+   long quote;
 
    char buf[BUFSIZ];
    char delimiter[BUFSIZ];
@@ -406,7 +409,7 @@ static long chooseit( struct stat *current_status,
 /*    Select a quote from available list                              */
 /*--------------------------------------------------------------------*/
 
-static unsigned long
+static long
 chooseavailable( const char *quoteused, long quotes )
 {
    FILE *stream;
@@ -480,7 +483,7 @@ chooseavailable( const char *quoteused, long quotes )
 
    quote = 0;
 
-   while( quote < quotes )
+   while( (long) quote < quotes )
    {
       if ( bitOff( quoteList, quote ))
          select--;
@@ -520,7 +523,7 @@ chooseavailable( const char *quoteused, long quotes )
 /*                   Return the quote to the caller                   */
 /*--------------------------------------------------------------------*/
 
-   return quote;
+   return (long) quote;
 
 } /* chooseavailable */
 

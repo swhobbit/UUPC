@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.12 1994/12/22 00:36:04 ahd Exp $
+ *    $Id: script.c 1.13 1995/01/07 16:39:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.13  1995/01/07 16:39:42  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.12  1994/12/22 00:36:04  ahd
  *    Annual Copyright Update
  *
@@ -343,7 +346,7 @@ static KWBoolean Match( char *Search,
                       char *scriptBuffer,
                       size_t *SearchPos)
 {
-   int BufInd;             /* Index to input string buffer for string
+   size_t BufInd;          /* Index to input string buffer for string
                               compare */
    char *SearchInd;        /* Index to search string for string
                               compare */

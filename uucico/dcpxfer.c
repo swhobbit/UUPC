@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.49 1995/01/07 16:38:55 ahd Exp $
+ *       $Id: dcpxfer.c 1.50 1995/02/14 04:38:42 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.50  1995/02/14 04:38:42  ahd
+ *       Correct problems with directory processing under NT
+ *
  *       Revision 1.49  1995/01/07 16:38:55  ahd
  *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -1518,10 +1521,13 @@ static KWBoolean pktgetstr( char *s)
 
 static void buf_init( void )
 {
-   unsigned int newXferBufSize =
-               (unsigned int) ((MAXPACK >= M_xfer_bufsize) ?
-                                       (unsigned int) MAXPACK :
-                                       (unsigned int) M_xfer_bufsize);
+
+   size_t newXferBufSize;
+
+   if (MAXPACK >= (size_t) M_xfer_bufsize)
+      newXferBufSize = (size_t) MAXPACK;
+   else
+      newXferBufSize = (size_t) M_xfer_bufsize;
 
    if (databuf == NULL)
       databuf = malloc( newXferBufSize );

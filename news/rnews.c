@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.57 1995/02/15 02:03:39 ahd Exp $
+ *       $Id: rnews.c 1.58 1995/02/20 17:28:43 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.58  1995/02/20 17:28:43  ahd
+ *       in-memory file support, 16 bit compiler clean up
+ *
  *       Revision 1.57  1995/02/15 02:03:39  ahd
  *       Insure snews/nns support generates SYS file if needed for shadow
  *       systems.
@@ -40,7 +43,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.57 1995/02/15 02:03:39 ahd Exp $";
+         "$Id: rnews.c 1.58 1995/02/20 17:28:43 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -357,7 +360,6 @@ main( int argc, char **argv)
    KWBoolean deleteInput = KWFalse;
    KWBoolean useSYSFile  = KWTrue;
    int c;
-   int status;
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
@@ -586,7 +588,7 @@ main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
 
-   if ( deleteInput && (status == 0 ) && unlink( inputName ))
+   if ( deleteInput && unlink( inputName ))
       printerr( inputName );
 
    return 0;
