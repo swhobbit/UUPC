@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.11 1994/01/01 19:12:39 ahd Exp $
+ *    $Id: mailblib.c 1.12 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.12  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.11  1994/01/01  19:12:39  ahd
  * Annual Copyright Update
  *
@@ -471,7 +474,7 @@ boolean ForwardItem( const int item , const char *string )
       return FALSE;
    } /* if */
 
-   CopyMsg(item, stream, noreceived,FALSE);
+   CopyMsg(item, stream, autoresent,FALSE);
 
    fclose(stream);
 
