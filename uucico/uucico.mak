@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: e:\src\uupc\lib\RCS\lib.mak 1.7 1993/07/22 23:19:01 ahd Exp $
+#     $Id: uucico.mak 1.6 1993/07/31 16:21:21 ahd Exp $
 #
 #     Revision history:
-#     $Log: lib.mak $
+#     $Log: uucico.mak $
+# Revision 1.6  1993/07/31  16:21:21  ahd
+# Windows 3.x support
+#
 
 !include $(UUPCDEFS)
 
@@ -34,10 +37,12 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
             $(OBJ)\dcpxfer.obj $(OBJ)\dcpstats.obj $(OBJ)\modem.obj\
             $(OBJ)\nbstime.obj $(OBJ)\script.obj $(OBJ)\uucico.obj
 
+!if $d(WINDOWS)
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibwin.obj
+!else
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj $(OBJ)\fossil.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj
-
-UUCICOWOBJ = $(UUCICOCOM) $(OBJ)\ulibwin.obj
+!endif
 
 # *--------------------------------------------------------------------*
 # *                Begin rules for building modules.                   *
@@ -45,23 +50,14 @@ UUCICOWOBJ = $(UUCICOCOM) $(OBJ)\ulibwin.obj
 # *        The first definition is the one built by default.           *
 # *--------------------------------------------------------------------*
 
-uucico.exe: $(COMMON) $(UUCICOOBJ) $(LIBRARIES)
+uucico$(PSUFFIX).exe: $(COMMON) $(UUCICOOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(UUCICOOBJ)
 $<
 $(MAP)
 $(LIBRARY)
-|
-        tdstrip -s $<
-
-uucicow.exe: $(COMMON) $(UUCICOWOBJ) $(LIBRARIES)
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(UUCICOWOBJ)
-$<
-$(MAP)
-$(LIBRARY)
+$(DEFFILE)
 |
         tdstrip -s $<
 
