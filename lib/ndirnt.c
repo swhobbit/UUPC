@@ -1,27 +1,32 @@
 /*--------------------------------------------------------------------*/
-/*    ndir.c for MS-DOS by Samuel Lam <skl@van-bc.UUCP>, June/87      */
-/*    ndir.c for MS-OS2 by Drew Derbyshire (help@kendra.kew.com>,     */
-/*           April/91                                                 */
-/*    ndir.c for Windows/NT by Tom Loebach (loebach@mips.com),        */
-/*           April/92                                                 */
-/*    ndir.c for NT extended to include timestamp information by      */
-/*           Dave Watt, April/93                                      */
+/*       n d i r n t . c                                              */
 /*                                                                    */
-/*         Berkeley-style directory reading routine on Windows NT     */
+/*       Berkeley-style directory reading routine on Windows NT       */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Copyright (c) 1993-1994 David M.  Watt                       */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.16 1996/01/01 20:54:09 ahd v1-12r $
+ *       $Id: ndirnt.c 1.17 1997/03/31 07:05:09 ahd v1-12t $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.17  1997/03/31 07:05:09  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.16  1996/01/01 20:54:09  ahd
  *       Annual Copyright Update
  *
@@ -102,6 +107,8 @@
 static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
+
+RCSID("$Id$");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -134,6 +141,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
    if ((int)dirHandle == -1) {
       printmsg(2,"opendir: Error on directory %s",pathname );
+      free( pathname );
       return NULL;
    }
    else {
