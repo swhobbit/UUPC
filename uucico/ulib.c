@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.2 1992/11/21 06:17:42 ahd Exp ahd $
+ *    $Id: ULIB.C 1.3 1992/11/29 22:09:10 ahd Exp $
  *
- *    $Log: ulib.c $
+ *    $Log: ULIB.C $
+ * Revision 1.3  1992/11/29  22:09:10  ahd
+ * Use sopen() rather than FOPEN() to avoid retries on comm port
+ *
  * Revision 1.2  1992/11/21  06:17:42  ahd
  * Delete old (pre-COMMFIFO) autobaud function
  *
@@ -127,7 +130,14 @@ int openline(char *name, BPS bps, const boolean direct)
 
    if (!install_com())
    {
-      printmsg(0,"Commuications handler install failed!");
+      printmsg(0,"Commuications handler install failed; "
+                  "probable cause ... memory shortage.");
+
+#ifdef __TURBOC__
+      printmsg(0,"FAR DOS Memory free = %ld bytes",
+                  farcoreleft() );
+#endif
+
       return 1;
    }
 
