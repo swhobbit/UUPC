@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.73 1995/01/14 14:07:57 ahd Exp $
+#     $Id: makefile. 1.74 1995/02/12 23:25:53 ahd Exp $
 #
 #     Revision history:
-#     $Log: makefile $
+#     $Log: makefile. $
+#     Revision 1.74  1995/02/12 23:25:53  ahd
+#     split rnews into rnews/news, rename rnews dir to news, make inews COM file
+#
 #     Revision 1.73  1995/01/14 14:07:57  ahd
 #     Add sentbats.exe to prod build list
 #
@@ -1209,7 +1212,7 @@ help@kew.com.
 # *                 UUPC/extended - NEWS executables                   *
 # *--------------------------------------------------------------------*
 
-$(NEWZIPV):  $(NEWS) $(README)
+$(NEWZIPV):  $(NEWSPGM) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT2) < &&%
 $?
