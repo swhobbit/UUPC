@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: psos2err.h 1.1 1994/01/01 19:23:58 ahd Exp $
+ *    $Id: psos2err.h 1.1 1994/04/26 03:34:33 ahd Exp $
  *
  *    Revision history:
- *    $Log: pwserr.h $
+ *    $Log: psos2err.h $
+ * Revision 1.1  1994/04/26  03:34:33  ahd
+ * Initial revision
+ *
  * Revision 1.1  1994/01/01  19:23:58  ahd
  * Initial revision
  *
@@ -37,9 +40,4 @@ void pSOS2Err(const size_t lineno,
 
 #define printWSerror( x, rc )  pSOS2Err( __LINE__, cfnptr, x, rc)
 
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKADDR_IN struct sockaddr_in
-#define LPHOSTENT struct hostent *
-#define LPSERVENT struct servent *
-#define PSOCKADDR struct sockaddr *
+extern int h_errno;
