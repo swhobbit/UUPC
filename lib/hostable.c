@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.34 1999/01/08 02:20:43 ahd Exp $
+  *      $Id: hostable.c 1.35 2000/05/12 12:29:45 ahd v1-13g $
   *
   *      $Log: hostable.c $
+  *      Revision 1.35  2000/05/12 12:29:45  ahd
+  *      Annual copyright update
+  *
   *      Revision 1.34  1999/01/08 02:20:43  ahd
   *      Convert currentfile() to RCSID()
   *
@@ -132,7 +135,7 @@
 #include "hostable.h"
 #include "security.h"
 
-RCSID("$Id: hostable.c 1.34 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: hostable.c 1.35 2000/05/12 12:29:45 ahd v1-13g $");
 
 static struct HostTable *hosts = NULL;
 
