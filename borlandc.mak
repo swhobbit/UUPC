@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.71 1995/01/05 01:53:32 ahd Exp $
+#     $Id: makefile 1.72 1995/01/08 21:00:31 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.72  1995/01/08 21:00:31  ahd
+#     Make RNEWS use medium model -- it doesn't fit in small model any more
+#
 #     Revision 1.71  1995/01/05 01:53:32  ahd
 #     Drop unneeded WINDOWSOPT
 #
@@ -466,7 +469,7 @@ WNEWS     = #   No modules for news
 !endif
 
 NEWS    = $(PROD)\EXPIRE.EXE $(PROD)\GENHIST.EXE $(PROD)\INEWS.EXE \
-          $(PROD)\RNEWS.EXE $(PROD)\UUTRAF.EXE
+          $(PROD)\RNEWS.EXE $(PROD)\SENDBATS.EXE $(PROD)\UUTRAF.EXE
 #         $(PROD)\rn.exe $(PROD)\newsetup.exe
 
 INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWS) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
@@ -765,7 +768,6 @@ $(PROD)\sendbats.exe: sendbats$(PSUFFIX).exe
 !if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
 !endif
-
 
 $(PROD)\uucico.exe: uucico$(PSUFFIX).exe
         - $(ERASE) $<
