@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h,v 1.1 1995/02/19 19:18:12 rommel Exp rommel $ */
+/* $Id: cache.h 1.1 1995/02/20 00:05:26 ahd v1-12q $ */
 
 /*
- * $Log: cache.h,v $
+ * $Log: cache.h $
+ * Revision 1.1  1995/02/20 00:05:26  ahd
+ * Initial revision
+ *
  * Revision 1.1  1995/02/19 19:18:12  rommel
  * Initial revision
  *
@@ -62,8 +65,8 @@ extern void cache_flush(CACHE *cache);
 
 extern void cache_exit(CACHE *cache);
 
-extern int cache_get(CACHE *cache, int item, void *buffer);
-extern int cache_put(CACHE *cache, int item, void *buffer);
+extern int cache_get(CACHE *cache, long item, void *buffer);
+extern int cache_put(CACHE *cache, long item, void *buffer);
 
 #endif /* _CACHE_H */
 
