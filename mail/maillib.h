@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.4 1994/12/22 00:20:22 ahd Exp $
+ *    $Id: maillib.h 1.5 1995/01/07 16:19:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.5  1995/01/07 16:19:44  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.4  1994/12/22 00:20:22  ahd
  *    Annual Copyright Update
  *
@@ -31,6 +34,8 @@
  * Revamp header copyrights, line buffer lengths
  *
  */
+
+#include "imfile.h"
 
 /*--------------------------------------------------------------------*/
 /*                        Function prototypes                         */
@@ -70,7 +75,7 @@ void sayoptions( FLAGTABLE *flags);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-extern FILE* fmailbox;
+extern IMFILE *imBox;
 
 extern struct ldesc UUFAR *letters;
 

@@ -23,14 +23,14 @@ void subshell( char *command );
 
 KWBoolean SetItem( int item );
 
-KWBoolean SelectItems( char **input, int current , int bits);
+KWBoolean SelectItems( char **input, int current , unsigned int bits);
 
 KWBoolean Get_Operand( int *item,
                            char **token,
-                           int bits,
+                           unsigned int bits,
                            KWBoolean first_pass );
 
-KWBoolean SetTrailing( char **input, int bits );
+KWBoolean SetTrailing( char **input, unsigned int bits );
 
 int PushItemList( int **save_list );
 

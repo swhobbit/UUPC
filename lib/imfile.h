@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.3 1995/01/28 22:08:30 ahd Exp $
+ *    $Id: imfile.h 1.4 1995/01/29 16:43:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.4  1995/01/29 16:43:42  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.3  1995/01/28 22:08:30  ahd
  *    Add chsize function
  *
@@ -95,5 +98,7 @@ typedef struct _IMFILE
                               const char *output,
                               const KWBoolean synchronous,
                               const KWBoolean foreground );
+
+#define imInMemory( imf ) ((imf)->buffer != NULL )
 
 #endif /* _IMIMFILE_H */

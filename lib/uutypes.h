@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.28 1995/01/15 19:50:02 ahd Exp $
+ *    $Id: uutypes.h 1.29 1995/02/12 23:39:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.29  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.28  1995/01/15 19:50:02  ahd
  *    Delete global fullbatch option
  *    Add "local", "batch" options to SYS structure
@@ -131,11 +134,15 @@
 #define MEMCHR(p,c,l)  memchr(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
+#define MALLOC(l)      malloc(l)
+#define REALLOC(p,l)   realloc(p,l)
 #else
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
 #define MEMCHR(t,s,l)  _fmemchr(t,s,l)
 #define MEMMOVE(t,s,l) _fmemmove(t,s,l)
+#define MALLOC(l)      _fmalloc(l)
+#define REALLOC(p,l)   _frealloc(p,l)
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -196,6 +203,7 @@ typedef enum {
                                         for race conditions            */
                F_NEWSRUN,     /* True = Run NEWSRUN from RNEWS        */
                F_NNS,         /* True = Use NNS  news delivery        */
+               F_NEWSPANIC,   /* True = Panic UUXQT if RNEWS fails    */
                F_ONECASE,     /* True = Remote host is case insensitive*/
                F_SENDDEBUG,   /* True = Send -x flag to remote systems */
                F_SHORTFROM,   /* True = Use short From remote header  */
