@@ -1,27 +1,18 @@
 /*
- *    $Id: scrsiznt.c 1.10 1994/12/22 00:10:58 ahd Exp $
+ *    $Id: scrsiznt.c 1.11 1995/01/07 16:14:28 ahd v1-12n $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.11  1995/01/07 16:14:28  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.10  1994/12/22 00:10:58  ahd
  *    Annual Copyright Update
  *
  *    Revision 1.9  1994/02/19 04:46:33  ahd
  *    Use standard first header
  *
- *     Revision 1.8  1994/02/19  03:58:07  ahd
- *     Use standard first header
- *
- *     Revision 1.8  1994/02/19  03:58:07  ahd
- *     Use standard first header
- *
- *     Revision 1.7  1994/02/18  23:14:56  ahd
- *     Use standard first header
- *
  *     Revision 1.6  1994/01/01  19:05:13  ahd
  *     Annual Copyright Update
- *
- *     Revision 1.5  1993/09/26  03:32:27  dmwatt
- *     Use Standard Windows NT error message module
  *
  *     Revision 1.5  1993/09/26  03:32:27  dmwatt
  *     Use Standard Windows NT error message module
@@ -73,7 +64,7 @@ currentfile();
 /*    Return screen size under Windows/NT                             */
 /*--------------------------------------------------------------------*/
 
-short scrsize( void )
+unsigned short scrsize( void )
 {
    CONSOLE_SCREEN_BUFFER_INFO info;
    BOOL result;
@@ -89,6 +80,7 @@ short scrsize( void )
       return PAGESIZE;
    }
 
-   return info.dwSize.Y;
+   return (unsigned short) info.dwSize.Y;
+
 } /* scrsize */
 
