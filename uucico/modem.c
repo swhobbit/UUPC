@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.69 1997/06/03 03:25:31 ahd v1-12u $
+ *    $Id: modem.c 1.70 1998/03/01 01:39:53 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.70  1998/03/01 01:39:53  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.69  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *
@@ -123,134 +126,6 @@
  * Revision 1.40  1994/01/01  19:20:13  ahd
  * Annual Copyright Update
  *
- * Revision 1.39  1993/12/30  03:26:21  ahd
- * Add timeout parameter for 'e' protocol
- *
- * Revision 1.38  1993/12/24  05:12:54  ahd
- * Support for checking echoing of transmitted characters
- *
- * Revision 1.37  1993/11/15  05:43:29  ahd
- * Drop BPS rate from connect messages
- *
- * Revision 1.37  1993/11/15  05:43:29  ahd
- * Drop BPS rate from connect messages
- *
- * Revision 1.36  1993/11/14  20:51:37  ahd
- * Drop modem speed from network dialing/connection messages
- * Normalize internal speed for network links to 115200 (a large number)
- *
- * Revision 1.35  1993/10/28  12:19:01  ahd
- * Cosmetic time formatting twiddles and clean ups
- *
- * Revision 1.35  1993/10/28  12:19:01  ahd
- * Cosmetic time formatting twiddles and clean ups
- *
- * Revision 1.34  1993/10/12  01:32:46  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.33  1993/10/09  22:21:55  rhg
- * ANSIfy source
- *
- * Revision 1.31  1993/10/03  22:34:33  ahd
- * Insure priority values are reset when loading modem information
- *
- * Revision 1.30  1993/10/03  20:43:08  ahd
- * Move slowWrite to script.c
- *
- * Revision 1.29  1993/10/01  01:17:44  ahd
- * Use atol() for reading port speed
- *
- * Revision 1.28  1993/09/29  13:18:06  ahd
- * Clear raise before calling script processor in shutDown
- *
- * Revision 1.28  1993/09/29  13:18:06  ahd
- * Clear raise before calling script processor in shutDown
- *
- * Revision 1.27  1993/09/29  05:25:21  ahd
- * Correct resetting of raised flag
- *
- * Revision 1.26  1993/09/29  04:49:20  ahd
- * Allow unique signal handler for suspend port processing
- *
- * Revision 1.25  1993/09/28  01:38:19  ahd
- * Add configurable timeout for conversation start up phase
- *
- * Revision 1.24  1993/09/27  04:04:06  ahd
- * Normalize references to modem speed to avoid incorrect displays
- *
- * Revision 1.23  1993/09/27  00:45:20  ahd
- * Add suspend of serial port processing from K. Rommel
- *
- * Revision 1.22  1993/09/25  03:07:56  ahd
- * Invoke set priority functions
- *
- * Revision 1.21  1993/09/23  03:26:51  ahd
- * Never try to autobaud a network connection
- *
- * Revision 1.20  1993/09/20  04:46:34  ahd
- * OS/2 2.x support (BC++ 1.0 support)
- * TCP/IP support from Dave Watt
- * 't' protocol support
- *
- * Revision 1.19  1993/08/03  03:11:49  ahd
- * Add Description= line
- *
- * Revision 1.18  1993/07/13  01:13:32  ahd
- * Correct message for systems waiting forever
- *
- * Revision 1.17  1993/07/05  14:47:05  ahd
- * Drop obsolete  tag from "variablepacket"
- * Set default timeout of 30 seconds for answer timeout
- *
- * Revision 1.16  1993/06/16  04:03:25  ahd
- * Lower max wait time for NT
- *
- * Revision 1.15  1993/05/30  15:25:50  ahd
- * Multiple driver support
- *
- * Revision 1.14  1993/05/30  00:04:53  ahd
- * Multiple communications drivers support
- *
- * Revision 1.13  1993/04/15  03:21:06  ahd
- * Add CD() call to hot login procedure
- *
- * Revision 1.12  1993/04/11  00:34:11  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.11  1993/04/05  04:35:40  ahd
- * Set clear abort processing flag (norecover) from ulib.c
- *
- * Revision 1.10  1993/03/06  23:04:54  ahd
- * make modem connected messages consistent
- *
- * Revision 1.9  1993/01/23  19:08:09  ahd
- * Add additional shutDown() commands even when modem does not init
- *
- * Revision 1.8  1992/12/30  13:11:44  dmwatt
- * Check for NULL brand pointer before comparing
- *
- * Revision 1.7  1992/12/18  12:05:57  ahd
- * Flag variable packet as obsolete
- *
- * Revision 1.6  1992/11/28  19:51:16  ahd
- * Add program exit time to waiting for callin message
- * Make time parameter to callin() const
- *
- * Revision 1.5  1992/11/22  21:20:45  ahd
- * Use strpool for const string allocation
- *
- * Revision 1.4  1992/11/19  03:01:21  ahd
- * drop rcsid
- *
- * Revision 1.3  1992/11/18  03:48:24  ahd
- * Move check of call window to avoid premature lock file overhead
- *
- * Revision 1.2  1992/11/15  20:12:17  ahd
- * Clean up modem file support for different protocols
- *
- * Revision 1.1  1992/11/12  12:32:18  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -281,6 +156,10 @@
 #include "suspend.h"
 #include "usrcatch.h"
 #include "title.h"
+
+#ifdef TAPI_SUPPORT
+#include "uutapi.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -390,11 +269,18 @@ static KWBoolean sendalt( char *string,
 
 static void autobaud( const BPS speed);
 
+
+
+#ifdef TAPI_SUPPORT
+static CONN_STATE answerTAPI(time_t offset);
+#endif
+
 /*--------------------------------------------------------------------*/
 /*              Define current file name for references               */
 /*--------------------------------------------------------------------*/
 
 currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */
@@ -636,19 +522,24 @@ CONN_STATE callin( const time_t exit_time )
                           IsNetwork() ? KWFalse : bmodemflag[MODEM_DIRECT]))
          panic();
 
-      while (sread(&c ,1,0)); /* Discard trailing trash from modem
+
+      if (!IsTAPI())
+      {
+         while (sread(&c ,1,0)); /* Discard trailing trash from modem
                                  connect message                     */
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the modem                        */
 /*--------------------------------------------------------------------*/
 
-      if (!sendlist( initialize, modemTimeout, modemTimeout, NULL))
-      {
-         printmsg(0,"callin: Modem failed to initialize");
-         shutDown();
-         panic();
-      }
+         if (!sendlist( initialize, modemTimeout, modemTimeout, NULL))
+         {
+            printmsg(0,"callin: Modem failed to initialize");
+            shutDown();
+            panic();
+         }
+
+      } /* if (!IsTAPI()) */
 
       suspend_ready();
 
@@ -657,8 +548,6 @@ CONN_STATE callin( const time_t exit_time )
 /*--------------------------------------------------------------------*/
 /*                   Wait for the telephone to ring                   */
 /*--------------------------------------------------------------------*/
-
-
 
    printmsg(1,"Monitoring port %s device %s"
                      " for %d minutes until %s",
@@ -684,6 +573,15 @@ CONN_STATE callin( const time_t exit_time )
       printmsg(14, "callin: Network reports connected");
 
    }
+#ifdef TAPI_SUPPORT
+   else if (IsTAPI())
+   {
+      CONN_STATE state = answerTAPI(offset);
+
+      if (state != CONN_NO_RETURN)
+         return state;
+   } /* if (IsTAPI()) */
+#endif
    else {
 
       if (!sendlist( ring, modemTimeout, offset, noconnect))
@@ -910,6 +808,7 @@ static KWBoolean dial(char *number, const BPS speed)
    }
    else {
 
+
       if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
       {
 
@@ -917,39 +816,64 @@ static KWBoolean dial(char *number, const BPS speed)
          return KWFalse;
       }
 
-      while (sread(buf,1,0)); /* Discard trailing trash from modem
-                                 connect message                     */
-
-/*--------------------------------------------------------------------*/
-/*                        Initialize the modem                        */
-/*--------------------------------------------------------------------*/
-
-      if (!sendlist( initialize, modemTimeout, modemTimeout, noconnect))
-      {
-         printmsg(0,"dial: Modem failed to initialize");
-         shutDown();
-         hostp->status.hstatus = HS_DIAL_SCRIPT_FAILED;
-         return KWFalse;
-      }
-
-/*--------------------------------------------------------------------*/
-/*           Setup the dial string and then dial the modem            */
-/*--------------------------------------------------------------------*/
-
+      /* Set up the number to dial */
       strcpy(buf, dialPrefix);
       strcat(buf, number);
+
       if (dialSuffix != NULL)
          strcat(buf, dialSuffix);
 
-      if (!sendstr( buf, modemTimeout, noconnect ))
-         return KWFalse;
-                              /* Send the dial command to the modem  */
-
-      if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
+      /* Handle dialing for TAPI and normal cases */
+      if (IsTAPI())
       {
-         hostp->status.hstatus = HS_DIAL_FAILED;
-         return KWFalse;
+#ifdef TAPI_SUPPORT
+
+         SetComHandle(Tapi_DialCall(M_device, number, dialTimeout));
+
+         if (GetComHandle() == INVALID_HANDLE_VALUE)
+         {
+             if (TapiMsg)
+                printmsg(0,"Tapi: Dial Failed: %s",TapiMsg);
+             hostp->status.hstatus =  HS_DIAL_FAILED;
+             return KWFalse;
+         }
+
+         if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
+            panic();                /* tapi port open 2nd phase      */
+
+#else
+
+      printmsg(0,"dial: No compiled TAPI support");
+      panic();
+
+#endif /*  TAPI_SUPPORT */
+
       }
+      else {
+         char c;
+
+         while (sread(&c,1,0));     /* Discard trailing trash from
+                                       modem connect message         */
+
+         /* Initialize the modem */
+         if (!sendlist( initialize, modemTimeout, modemTimeout, noconnect))
+         {
+            printmsg(0,"dial: Modem failed to initialize");
+            shutDown();
+            hostp->status.hstatus = HS_DIAL_SCRIPT_FAILED;
+            return KWFalse;
+         }
+
+         /* Send the dial command to the modem  */
+         if (!sendstr( buf, modemTimeout, noconnect ))
+            return KWFalse;
+
+         if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
+         {
+            hostp->status.hstatus = HS_DIAL_FAILED;
+            return KWFalse;
+         }
+      } /* else */
 
    }  /* if ( !IsNetwork() ) */
 
@@ -1268,3 +1192,60 @@ KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
       return ourPacketSize;
 
 } /* GetGPacket */
+
+#ifdef TAPI_SUPPORT
+
+/*--------------------------------------------------------------------*/
+/*    a n s w e r T A P I                                             */
+/*                                                                    */
+/*    Answer a TAPI telephone call                                    */
+/*--------------------------------------------------------------------*/
+
+static CONN_STATE
+answerTAPI(time_t offset)
+{
+
+   time_t stop_time = time(NULL) + offset;
+
+/*--------------------------------------------------------------------*/
+/*       Every 5 secs AnswerCall returns to allow us to decr          */
+/*       timeout and check for user aborts.                           */
+/*--------------------------------------------------------------------*/
+
+   for (;;)
+   {
+      long TapiShutdown = 0;
+      long h = Tapi_AnswerCall(M_device, 5000, &TapiShutdown);
+
+      /* If the handle opens, we 're done */
+      if ( h != INVALID_HANDLE_VALUE)
+      {
+         SetComHandle(h);
+         printmsg(2, "Tapi line connected");
+
+         // do the inits to the port
+         if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
+             panic();
+
+         return CONN_NO_RETURN;
+      }
+
+      if (TapiShutdown || (time(NULL) < stop_time) || terminate_processing)
+      {
+         if (TapiShutdown && TapiMsg)
+             printmsg(0,"Tapi: %s",TapiMsg);
+         shutDown();
+         return CONN_INITIALIZE;
+      }
+
+      if (suspend_processing)
+      {
+         shutDown();
+         return CONN_WAIT;
+      }
+
+   } /* for (;;) */
+
+} /* answerTAPI() */
+
+#endif /* TAPI_SUPPORT */

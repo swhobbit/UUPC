@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.31 1997/04/24 01:36:05 ahd v1-12u $
+ *       $Id: ulibnt.c 1.32 1998/03/01 01:40:52 ahd v1-12v $
  *       $Log: ulibnt.c $
+ *       Revision 1.32  1998/03/01 01:40:52  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.31  1997/04/24 01:36:05  ahd
  *       Annual Copyright Update
  *
@@ -72,85 +75,6 @@
  * Revision 1.16  1994/01/01  19:22:00  ahd
  * Annual Copyright Update
  *
- * Revision 1.15  1993/12/29  03:34:37  dmwatt
- * Restructure to use overlapped I/O
- *
- * Revision 1.13  1993/12/06  02:29:32  ahd
- * Make bit twiddles of modem status bit AND and bit OR's, not logical!
- *
- * Revision 1.12  1993/12/06  01:59:07  ahd
- * Add missing handle retrieval function
- *
- * Revision 1.11  1993/11/30  04:13:30  dmwatt
- * Optimize port processing
- *
- * Revision 1.11  1993/11/30  04:13:30  dmwatt
- * Optimize port processing
- *
- * Revision 1.9  1993/11/06  17:57:09  rhg
- * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- * Revision 1.8  1993/10/12  01:33:23  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.7  1993/10/07  22:56:45  ahd
- * Use dynamically allocated buffer
- *
- * Revision 1.6  1993/10/03  22:09:09  ahd
- * Use unsigned long to display speed
- *
- * Revision 1.5  1993/09/26  03:32:27  dmwatt
- * Use Standard Windows NT error message module
- *
- * Revision 1.4  1993/09/25  03:07:56  ahd
- * Add standard Windows NT error message calls
- *
- * Revision 1.3  1993/09/21  01:42:13  ahd
- * Use standard MAXPACK limit for save buffer size
- *
- * Revision 1.2  1993/09/20  04:50:57  ahd
- * Break out of ULIBOS2.C
- *
- * Revision 1.14  1993/05/30  15:25:50  ahd
- * Multiple driver support
- *
- * Revision 1.13  1993/05/30  00:08:03  ahd
- * Multiple communications driver support
- * Delete trace functions
- *
- * Revision 1.12  1993/05/09  03:41:47  ahd
- * Make swrite accept constant input strings
- *
- * Revision 1.11  1993/04/11  00:34:11  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.10  1993/04/10  21:25:16  dmwatt
- * Add Windows NT support
- *
- * Revision 1.9  1993/04/05  04:32:19  ahd
- * Additional traps for modem dropping out
- *
- * Revision 1.8  1993/04/04  04:57:01  ahd
- * Add configurable OS/2 priority values
- *
- * Revision 1.7  1992/12/30  13:02:55  dmwatt
- * Dual path for Windows NT and OS/2
- *
- * Revision 1.6  1992/12/11  12:45:11  ahd
- * Correct RTS handshake
- *
- * Revision 1.5  1992/12/04  01:00:27  ahd
- * Add copyright message, reblock other comments
- *
- * Revision 1.4  1992/11/29  22:09:10  ahd
- * Add new define for BC++ OS/2 build
- *
- * Revision 1.3  1992/11/19  03:00:39  ahd
- * drop rcsid
- *
- * Revision 1.2  1992/11/15  20:11:48  ahd
- * Add English display of modem status and error bits
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -181,6 +105,10 @@
 #include "commlib.h"
 #include "pnterr.h"
 #include "suspend.h"
+
+#ifdef TAPI_SUPPORT
+#include "uutapi.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -225,8 +153,10 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    BOOL rc;
    SECURITY_ATTRIBUTES sa;
 
-   if (portActive)              /* Was the port already active?     ahd  */
-      closeline();               /* Yes --> Shutdown it before open  ahd  */
+   if (!IsTAPI() && portActive)  /* Was the port already active?     */
+      closeline();               /* Yes --> Shutdown it before open  */
+
+
 
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu",
@@ -248,6 +178,30 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*--------------------------------------------------------------------*/
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
+
+#ifdef TAPI_SUPPORT
+
+/*--------------------------------------------------------------------*/
+/*                 Handle actual open when using TAPI                 */
+/*--------------------------------------------------------------------*/
+
+   if (IsTAPI())
+   {
+      if (Tapi_Init(name) == 0)
+      {
+         printmsg(0,"nopenline: Cant init TAPI port");
+         if (TapiMsg)
+            printmsg(0,"TAPI: %s",TapiMsg);
+         panic ();
+      }
+
+      portActive = KWTrue;
+      if (hCom == INVALID_HANDLE_VALUE)
+      {
+         return 0; // we'll be back
+      }
+   }
+#endif /* TAPI_SUPPORT */
 
    hComEvent = CreateEvent(NULL, KWFalse, FALSE, NULL);
 
@@ -373,8 +327,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
       panic();
    }
 
-/* Get communications timeout information */
-
+   /* Get communications timeout information */
    rc = GetCommTimeouts(hCom, &CommTimeout);
    if (!rc) {
       dwError = GetLastError();
@@ -392,12 +345,10 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    dcb.fRtsControl = RTS_CONTROL_ENABLE;
 
    rc = SetCommState(hCom, &dcb);
-   if (!rc) {
-      printmsg(0,
-
-            "nopenline: Unable to raise DTR/RTS for %s",
+   if (!rc)
+   {
+      printmsg(0, "nopenline: Unable to raise DTR/RTS for %s",
                   name);
-
       panic();
    }
 
@@ -410,9 +361,14 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*--------------------------------------------------------------------*/
 
    ddelay(500);            /* Allow port to stablize          */
+
+   if (IsTAPI())
+      PurgeComm(hCom, PURGE_TXABORT | PURGE_RXABORT);
+                           /* needed if passed from winfax           */
+
    return 0;
 
-} /*openline*/
+} /* nopenline */
 
 /*--------------------------------------------------------------------*/
 /*    n s r e a d                                                     */
@@ -445,6 +401,13 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */
+
+
+   if (hCom == INVALID_HANDLE_VALUE)
+   {
+      printmsg(0,"nsread: warning serial port handle not set yet");
+      return 0;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                           Validate input                           */
@@ -560,8 +523,9 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       }
 
 #ifdef UDEBUG
-      printmsg(15,"sread: Port time out is %ud seconds/100",
-               portTimeout);
+      printmsg(15,"sread: Port time out is %ud seconds/100, needed = %ld",
+               portTimeout,
+               (long) needed);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -603,6 +567,17 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          if (dwError != ERROR_OPERATION_ABORTED)
             printNTerror("GetOverlappedResult", GetLastError());
       }
+
+#ifdef TAPI_SUPPORT
+    /* Tapi may have been disconnected */
+    if (IsTAPI() && !Tapi_MsgCheck())
+    {
+       hCom = INVALID_HANDLE_VALUE;
+       if (TapiMsg)
+          printmsg(0,"Tapi: %s",TapiMsg);
+       panic();
+    }
+#endif
 
 #ifdef UDEBUG
       printmsg(15,"sread: Want %d characters, received %d, total %d in buffer",
@@ -669,9 +644,16 @@ int nswrite(const char *input, unsigned int len)
    BOOL rc;
    hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
 
+   if (IsTAPI() && (hCom == INVALID_HANDLE_VALUE))
+   {
+      printmsg(0,"nswrite: Communications port has been shutdown");
+      panic();
+   }
+
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
 /*--------------------------------------------------------------------*/
+
    rc = ResetEvent(hComEvent);
 
    if (!rc)
@@ -805,6 +787,52 @@ void ncloseline(void)
 
 } /* ncloseline */
 
+#ifdef TAPI_SUPPORT
+
+/*--------------------------------------------------------------------*/
+/*       m c l o s e l i n e                                          */
+/*                                                                    */
+/*       Close the serial port down for TAPI                          */
+/*--------------------------------------------------------------------*/
+
+void mcloseline(void)
+{
+   DWORD dwError;
+
+   if ( ! portActive )
+      panic();
+
+   portActive = KWFalse; /* flag port closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with port any more  */
+
+/*--------------------------------------------------------------------*/
+/*                             Lower DTR                              */
+/*--------------------------------------------------------------------*/
+
+   Tapi_Shutdown(); // this closes hCom as well
+   if (hComEvent == INVALID_HANDLE_VALUE)
+      return;
+
+   if(!CloseHandle(hComEvent))
+   {
+      dwError = GetLastError();
+      printmsg(0, "ncloseline: close of event failed");
+      printNTerror("ncloseline", dwError);
+   }
+
+   hCom = INVALID_HANDLE_VALUE;
+   hComEvent = INVALID_HANDLE_VALUE;
+
+/*--------------------------------------------------------------------*/
+/*                   Stop logging the data to disk                    */
+/*--------------------------------------------------------------------*/
+
+   traceStop();
+
+} /* mcloseline */
+
+#endif
+
 /*--------------------------------------------------------------------*/
 /*    n h a n g u p                                                   */
 /*                                                                    */
@@ -819,6 +847,9 @@ void nhangup( void )
       return;
 
    hangupNeeded = KWFalse;
+
+   if (IsTAPI())
+      return;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.25 1998/03/08 23:06:49 ahd Exp $
+#       $Id: nmakewnt.mak 1.26 1998/04/08 11:30:10 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.26  1998/04/08 11:30:10  ahd
+#       Build with shared libraries
+#
 #       Revision 1.25  1998/03/08 23:06:49  ahd
 #       Add Windows multi-media library
 #
@@ -95,30 +98,43 @@ UDEBUGFLAG=-DUDEBUG
 !endif
 
 WIN32ENV=1
-COMMOPT = -nologo  -MD $(cdebug)
+COMMOPT = -nologo  -MT $(cdebug)
 CCOPT   = $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
 !ifndef PROD
 PROD    = $(PRODDRIVE)\uupc\ntbin
 !endif
 ZIPID   = n
 ERASE   = del
-MODEL   = t                          # Really NT version in this case
 SMTP    = 1
 
+
+!ifdef GUI
+CCOPT   = -DUUGUI $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
+
+WINSTDIO = $(OBJ)\winstdio.obj
+TAPIOBJ  = $(OBJ)\uutapi.obj
+WIN32APP =  user32.lib gdi32.lib tapi32.lib \
+            /link /nodefaultlib:libcd /subsystem:windows
+
+MODEL    = g                         # Model = GUI
+!else
+MODEL    = c                         # Model = Console
+!endif
+
 LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
-            $(OBJ)\pnterr.obj $(OBJ)\titlen.obj
+            $(OBJ)\pnterr.obj $(OBJ)\titlen.obj $(WINSTDIO)
 
 RMAIL_DELIVERS_SUPPORT=$(OBJ)\pwserr.obj
 UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
              $(OBJ)\prtynt.obj $(OBJ)\suspendn.obj \
-             $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj
+             $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj $(OBJ)\pwserr.obj $(TAPIOBJ)
 
 #       You need to add MYUULIBS=OLDNAMES.LIB to your environment
 #       or NMAKE.MAK include file to build under NT's Visual C++
 
 LDOPT    = $(COMMOPT) -Fe$@
 
-OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS)
+OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS) $(WIN32APP)
 
 EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
 EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe

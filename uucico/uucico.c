@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.15 1997/04/24 01:36:23 ahd v1-12u $
+ *    $Id: uucico.c 1.16 1998/03/01 01:41:01 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.16  1998/03/01 01:41:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1997/04/24 01:36:23  ahd
  *    Annual Copyright Update
  *
@@ -93,6 +96,7 @@
 #include "catcher.h"
 
 currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -100,7 +104,7 @@ currentfile();
 /*    Main program for UUCICO                                         */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char *argv[])
+main( int argc, char *argv[])
 {
    int status;
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.7 1997/03/31 07:07:22 ahd v1-12u $
+ *    $Id: TITLEN.C 1.8 1998/03/01 01:25:47 ahd v1-12v $
  *
  *    Revision history:
- *    $Log: titlen.c $
+ *    $Log: TITLEN.C $
+ *    Revision 1.8  1998/03/01 01:25:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1997/03/31 07:07:22  ahd
  *    Annual Copyright Update
  *
@@ -62,6 +65,8 @@
 /*       Set console window title under Windows NT                    */
 /*--------------------------------------------------------------------*/
 
+#ifdef TAPI_SUPPORT
+#else
 void setTitle( const char *fmt, ... )
 {
    va_list arg_ptr;
@@ -82,6 +87,10 @@ void setTitle( const char *fmt, ... )
       va_end( arg_ptr );
    }
 
+#if defined(WIN32) && defined(UUGUI)
+   win_setTitle(buf);
+#else
    SetConsoleTitle(buf);
+#endif
 
 } /* setTitle */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.36 1997/11/21 18:10:59 ahd v1-12u $
+ *    $Id: commlib.c 1.37 1998/03/01 01:39:04 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.37  1998/03/01 01:39:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.36  1997/11/21 18:10:59  ahd
  *    Remove multiple port support for SMTP server
  *
@@ -84,63 +87,6 @@
  * Revision 1.18  1994/01/24  03:03:52  ahd
  * Annual Copyright Update
  *
- * Revision 1.17  1994/01/01  19:17:54  ahd
- * Annual Copyright Update
- *
- * Revision 1.16  1993/12/26  16:20:17  ahd
- * Build int14 version by default under DOS, not articomm
- * Buffer int14 and articomm
- *
- * Revision 1.15  1993/12/24  05:12:54  ahd
- * Use far buffer for master communications buffer
- *
- * Revision 1.14  1993/11/20  14:48:53  ahd
- * Add support for passing port name/port handle/port speed/user id to child
- *
- * Revision 1.14  1993/11/20  14:48:53  ahd
- * Add support for passing port name/port handle/port speed/user id to child
- *
- * Revision 1.13  1993/11/16  05:37:01  ahd
- * Up 16 bit buffer size
- *
- * Revision 1.12  1993/11/06  17:56:09  rhg
- * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- * Revision 1.11  1993/10/12  01:32:46  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.10  1993/10/07  22:51:00  ahd
- * Allocate communications input buffer for selected suites
- *
- * Revision 1.9  1993/10/02  23:13:29  ahd
- * Allow suppressing TCPIP support
- *
- * Revision 1.8  1993/09/27  00:45:20  ahd
- * Allow named pipes under OS/2 16 bit
- *
- * Revision 1.7  1993/09/24  03:43:27  ahd
- * Add os/2 named pipes
- *
- * Revision 1.6  1993/09/20  04:46:34  ahd
- * OS/2 2.x support (BC++ 1.0 support)
- * TCP/IP support from Dave Watt
- * 't' protocol support
- *
- * Revision 1.5  1993/07/22  23:22:27  ahd
- * First pass at changes for Robert Denny's Windows 3.1 support
- *
- * Revision 1.4  1993/07/13  01:13:32  ahd
- * Don't print NULL communications suite name!
- *
- * Revision 1.3  1993/07/11  14:38:32  ahd
- * Display chosen suite
- *
- * Revision 1.2  1993/05/30  15:25:50  ahd
- * Multiple driver support
- *
- * Revision 1.1  1993/05/30  00:01:47  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -194,6 +140,7 @@ typedef struct _COMMSUITE {
         ref_terminateCommunications     terminateCommunications;
         KWBoolean  network;
         KWBoolean  buffered;
+        KWBoolean  tapi;
         char     *netDevice;           /* Network device name         */
 } COMMSUITE;
 
@@ -249,6 +196,9 @@ static short   traceMode;    /* Flag for last data (input/output)     */
 static KWBoolean network = KWFalse;  /* Current communications suite is  */
                                  /* network oriented                  */
 
+static KWBoolean tapi = KWFalse; /* Current communications suite is  */
+                                 /* based on MS Windows TAPI         */
+
 currentfile();
 
 int dummyGetComHandle( void );
@@ -298,8 +248,27 @@ KWBoolean chooseCommunications( const char *name,
           KWFalse,                  /* Not network based             */
           KWTrue,                   /* Unbuffered for DOS            */
 #endif
+          KWFalse,                  /* Not MS-Windows TAPI           */
           NULL                      /* No network device name        */
         },
+
+#ifdef TAPI_SUPPORT
+        { "tapi",                 /* Win32 Telephone interface       */
+          nopenline, nopenline, nsread, nswrite,
+          /* Note that mcloseline is unique! */
+          nssendbrk, mcloseline, nSIOSpeed, nflowcontrol, nhangup,
+          nGetSpeed,
+          nCD,
+          dummyWaitForNetConnect,
+          nGetComHandle,
+          nSetComHandle,
+          dummyTerminateCommunications,
+          KWFalse,                  /* Not network based              */
+          KWTrue,                   /* Buffered under OS/2 and NT     */
+          KWTrue,                   /* Is MS-Windows TAPI             */
+          NULL                      /* No network device name         */
+        },
+#endif
 
 #if !defined(BIT32ENV) && !defined(_Windows) && !defined(FAMILYAPI)
 
@@ -314,6 +283,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWFalse,                     /* Not buffered                */
+          KWFalse,                  /* Not MS-Windows TAPI           */
           NULL                         /* No network device name      */
         },
 
@@ -329,6 +299,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWTrue,                      /* Buffered                    */
+          KWFalse,                  /* Not MS-Windows TAPI           */
           NULL                         /* No network device name      */
         },
 #else
@@ -343,6 +314,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyTerminateCommunications,
           KWFalse,                     /* Not network oriented        */
           KWTrue,                      /* Buffered                    */
+          KWFalse,                  /* Not MS-Windows TAPI           */
           NULL                         /* No network device name      */
         },
 
@@ -362,6 +334,7 @@ KWBoolean chooseCommunications( const char *name,
           dummyTerminateCommunications,
           KWTrue,                      /* Network oriented            */
           KWTrue,                      /* Uses internal buffer        */
+          KWFalse,                  /* Not MS-Windows TAPI           */
           "pipe",                      /* Network device name         */
         },
 #endif
@@ -379,9 +352,11 @@ KWBoolean chooseCommunications( const char *name,
           tTerminateCommunications,
           KWTrue,                      /* Network oriented            */
           KWTrue,                      /* Uses internal buffer        */
+          KWFalse,                  /* Not MS-Windows TAPI           */
           "tcptty",                    /* Network device name         */
         },
 #endif
+
         { NULL }                       /* End of list                 */
    };
 
@@ -427,6 +402,7 @@ KWBoolean chooseCommunications( const char *name,
    terminateCommunicationsp =
                         suite[subscript].terminateCommunications;
    network            = suite[subscript].network;
+   tapi               = suite[subscript].tapi;
 
    reportModemCarrierDirect = carrierDetectParam;
 
@@ -610,6 +586,18 @@ void traceData( const char UUFAR *data,
 KWBoolean IsNetwork(void)
 {
    return network;         /* Preset when suite initialized           */
+}
+
+/*--------------------------------------------------------------------*/
+/*       I s T A P I                                                  */
+/*                                                                    */
+/*       Report if current communications suite is TAPI oriented      */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+IsTAPI(void)
+{
+   return tapi;            /* Preset when suite initialized           */
 }
 
 /*--------------------------------------------------------------------*/
