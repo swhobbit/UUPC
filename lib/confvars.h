@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.29 1997/05/11 04:28:53 ahd v1-12u $
+ *    $Id: confvars.h 1.30 1998/03/01 01:26:14 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.30  1998/03/01 01:26:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.29  1997/05/11 04:28:53  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -163,6 +166,7 @@ extern char E_firstGrade;        /* First class searched by UUCICO   */
 extern char E_mailGrade;         /* Default grade for mail           */
 extern char E_newsGrade;         /* Default grade for news           */
 extern char *E_tz;               /* Time zone                        */
+extern char *E_logdir;           /* Log directory name               */
 
 extern KEWSHORT E_timeoutSMTP;   /* SMTP read timeout for rmail      */
 extern KEWSHORT E_maxhops;
