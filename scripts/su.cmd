@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.6 1994/05/23 23:16:48 ahd v1-12k $
+ *       $Id: su.cmd 1.7 1994/12/22 00:29:29 ahd Exp $
  *
  *       $Log: su.cmd $
+ *       Revision 1.7  1994/12/22 00:29:29  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.6  1994/05/23 23:16:48  ahd
  *       Correct copyright
  *       Normalize to only one trailing backslash in name
@@ -98,7 +101,7 @@ do;
    prompt = value( 'PROMPT',prompt,'OS2ENVIRONMENT'); /* Restore prompt   */
 end;
 else
-   what;
+   value( 'COMSPEC',, 'OS2ENVIRONMENT') "/C" what
 
 uupcusrc = value( 'UUPCUSRRC',uupcusrc,'OS2ENVIRONMENT');
                                  /* Restore original value           */
