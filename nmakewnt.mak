@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.3 1994/03/20 00:52:26 dmwatt Exp $
+#       $Id: nmakewnt.mak 1.4 1994/04/24 20:32:52 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.4  1994/04/24  20:32:52  ahd
+#       Add titlen.obj to library list
+#
 #       Revision 1.3  1994/03/20  00:52:26  dmwatt
 #       Suppress copyirght message from compile to allow more warnings to
 #       display at once.
@@ -38,3 +41,7 @@ UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
 LDOPT    = $(COMMOPT) -MT -D_MT $(cdebug) -Fe$@
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib $(MYUULIBS)
+
+EXTRAT=regsetup.exe uupcdll.dll
+EXTRA3=regsetup.exe
+EXTRA4=uupcdll.dll
