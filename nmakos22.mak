@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.2 1994/03/06 12:26:04 ahd Exp $
+#       $Id: nmakos22.mak 1.3 1994/03/07 06:04:32 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.3  1994/03/07  06:04:32  ahd
+#       Additional multi-platform cleanup
+#
 #       Revision 1.2  1994/03/06  12:26:04  ahd
 #       Twiddle compiler options
 #
@@ -16,7 +19,8 @@
 ERASE    = del /f
 EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
-LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj
+LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
+           $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case
 OS2      = 1
 !ifndef PROD
@@ -39,15 +43,17 @@ DLLNAME  = UPCR$(VERS:1.=).dll
 
 !ifdef NODEBUG
 #       Use this for production
-DBGOPT = -O
+DBGOPT = -O -Gs
 !else
 #       Use this for debugging
 DBGOPT  = -Ti -DUDEBUG -Tx # -D__DEBUG_ALLOC__ -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wuni-
 !endif
 
-COMMOPT = -Sv -Q $(DBGOPT) -Gs -Gd
-CCOPT   = $(COMMOPT) -Ss -c -Fi -Si -I$(UULIB) -Fo$@
+COMMOPT = -Sv -Q $(DBGOPT) -Gd
+CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@ # -Fi
 LDOPT   = -b"/A:4 /BAT" $(COMMOPT) -Fe $@
 UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
-             $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
+             $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
+             $(OBJ)\ulibip2.obj $(OBJ)\psos2err.obj
 
+OTHERLIBS=   so32dll.lib tcp32dll.lib
