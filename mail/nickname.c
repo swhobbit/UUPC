@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.6 1993/07/21 01:19:16 ahd Exp $
+ *    $Id: alias.c 1.8 1993/10/12 01:32:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.8  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.6  1993/07/21  01:19:16  ahd
  * Incr elements after filling info from passwd, not before!
  *
@@ -318,11 +321,11 @@ size_t LoadAliases(void)
 /*                   Actually load the alias table                    */
 /*--------------------------------------------------------------------*/
 
-   if (E_aliases != NULL )    /* Did the user specify aliases file?   */
+   if (E_nickname != NULL )   /* Did the user specify aliases file?   */
    {
       char fname[FILENAME_MAX];
 
-      strcpy( fname, E_aliases);
+      strcpy( fname, E_nickname);
       expand_path( fname, E_homedir, E_homedir , NULL );
       ff = FOPEN(fname , "r",TEXT_MODE);
 
@@ -391,7 +394,7 @@ size_t LoadAliases(void)
             printmsg(0,"LoadAliases: Duplicate alias '%s' in table",token);
       }
       fclose(ff);
-   } /* if (E_aliases != NULL ) */
+   } /* if (E_nickname != NULL ) */
 
 /*--------------------------------------------------------------------*/
 /*           Add the local users as final aliases in table            */
