@@ -6,10 +6,13 @@
  * Created: Sun Aug 15 1993
  */
  
-static char *rcsid = "$Id: IDX.C 1.1 1993/09/05 10:56:49 rommel Exp $";
-static char *rcsrev = "$Revision: 1.1 $";
+static char *rcsid = "$Id: idx.c 1.2 1993/11/06 17:54:55 rhg Exp rommel $";
+static char *rcsrev = "$Revision: 1.2 $";
 
-/* $Log: IDX.C $
+/* $Log: idx.c $
+ * Revision 1.2  1993/11/06  17:54:55  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -268,23 +271,23 @@ IDX *idx_init(int file)
   idx -> file = file;
 
   if ((size = lseek(idx -> file, 0, SEEK_END)) == -1)
-    return free(idx), NULL;
+    return free(idx), (IDX *) NULL;
 
   if (size % sizeof(PAGE) != 0)
-    return free(idx), NULL; /* consistency check */
+    return free(idx), (IDX *) NULL; /* consistency check */
 
   idx -> size = size / sizeof(PAGE);
 
   if (idx -> size == 0) /* new (empty) index needs initialization */
   {
     if (idx_new_page(idx) != 0)
-      return free(idx), NULL;
+      return free(idx), (IDX *) NULL;
 
     idx -> size++;
   }
 
   if (lseek(idx -> file, 0, SEEK_SET) == -1)
-    return free(idx), NULL;
+    return free(idx), (IDX *) NULL;
 
   memset(&idx -> page, 0, sizeof(PAGE));
   idx -> page_number = -1;
@@ -317,7 +320,8 @@ int idx_addkey(IDX *idx, char *key, long offset, int size)
   if ((pos = idx_search(idx, key)) != -1)
     return -1;
 
-  strcpy(new.key, key);
+  strncpy(new.key, key, IDX_MAXKEY - 1);
+  new.key[IDX_MAXKEY - 1] = 0;
   new.offset = offset;
   new.size   = (short) size;
   new.child  = 0;
