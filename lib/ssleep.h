@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.h 1.4 1994/12/22 00:13:53 ahd Exp $
+ *    $Id: ssleep.h 1.5 1995/02/22 12:15:00 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: ssleep.h $
+ *    Revision 1.5  1995/02/22 12:15:00  ahd
+ *    Correct 16 bit compiler warning errors
+ *
  *    Revision 1.4  1994/12/22 00:13:53  ahd
  *    Annual Copyright Update
  *
@@ -37,3 +40,5 @@
 void ssleep(const time_t interval);
 
 void ddelay(const KEWSHORT milliseconds);
+
+void checkForBreak( void );
