@@ -1,17 +1,28 @@
 /*--------------------------------------------------------------------*/
 /*    p u s h p o p . c                                               */
 /*                                                                    */
-/*    Directory functions for UUPC/extended                           */
+/*    Directory save/restore functions for UUPC/extended              */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Changes Copyright (c) 1989 - 1993 by Kendra Electronic          */
-/*    Wonderworks.   All rights reserved except as explicitly         */
-/*    granted by the UUPC/extended license.                           */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.4 1993/06/15 12:18:06 ahd Exp $
+ *    $Id: pushpop.c 1.5 1993/06/15 12:37:16 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.5  1993/06/15  12:37:16  ahd
+ *     Correct compile warning message about const assignment
+ *
  *     Revision 1.4  1993/06/15  12:18:06  ahd
  *     Save pushed directory name for debugging
  *
@@ -33,6 +44,7 @@
 
 #include <direct.h>
 #include <string.h>
+#include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -48,45 +60,62 @@
 /*--------------------------------------------------------------------*/
 
 static char *dirstack[MAXDEPTH];
+static int drivestack[MAXDEPTH];
 static depth = 0;
 
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*            Change to a directory and push on our stack             */
+/*        Change to a directory and push old one on our stack         */
 /*--------------------------------------------------------------------*/
 
 void PushDir( const char *directory )
 {
    char cwd[FILENAME_MAX];
+
    if ( depth >= MAXDEPTH )
       panic();
 
+/*--------------------------------------------------------------------*/
+/*       Unlike Unix, DOS has a CWD per drive.  We must,              */
+/*       therefore, change to the new drive before we save the        */
+/*       CWD.  Otherwise we will lose the old CWD for the new         */
+/*       drive.  For straight PushDir/PopDir pairing, we need not     */
+/*       save the CWD on the old drive because we won't be changing   */
+/*       it.  Note, however, that the sequence PushDir/CHDIR/         */
+/*       PopDir (as opposed to just PushDir/PopDir pairs) could       */
+/*       lose information if the CHDIR changes back to the drive      */
+/*       from which PushDir changed away.  If any UUPC/extended       */
+/*       code really did this, then drivestack would have to be       */
+/*       changed to a full pathname like dirstack.  Lucky for us,     */
+/*       it doesn't do in any sequences.  --RHG                       */
+/*--------------------------------------------------------------------*/
+
 #ifdef __TURBOC__
-   dirstack[depth] = newstr( getcwd( cwd  , FILENAME_MAX ));
+   drivestack[depth] = getdisk();
+   if (isalpha(*directory) && (directory[1] == ':'))
+      setdisk(toupper(*directory) - 'A');
+   dirstack[depth] = newstr( getcwd( cwd, FILENAME_MAX ) );
 #else
+   drivestack[depth] = _getdrive();
+   if (isalpha(*directory) && (directory[1] == ':'))
+      _chdrive( toupper(*directory) - 'A' + 1);
 
-#ifdef __GNUC__
-   dirstack[depth] = newstr( getcwd( cwd , FILENAME_MAX ) );
-#else
-   dirstack[depth] = newstr( _getdcwd( 0, cwd , FILENAME_MAX ) );
+   dirstack[depth] = newstr( _getdcwd( 0, cwd, FILENAME_MAX ) );
 #endif
-
-#endif
-
 
    if (dirstack[depth] == NULL )
    {
-      printerr("getcwd");
+      printerr("PushDir");
       panic();
    }
 
-   CHDIR( directory );
-
-   E_cwd = equal(directory,".") ? dirstack[depth] : (char *) directory;
-
    depth++;
-   return;
+
+   if (equal(directory,"."))
+      E_cwd = dirstack[depth - 1];
+   else
+      CHDIR( directory );        /* CHDIR sets E_cwd                 */
 
 } /* PushDir */
 
@@ -96,11 +125,21 @@ void PushDir( const char *directory )
 
 void PopDir( void )
 {
+   char cwd[FILENAME_MAX];
+
    if ( depth == 0 )
       panic();
 
    CHDIR( dirstack[--depth] );
-   E_cwd = dirstack[depth];
-   return;
+
+#ifdef __TURBOC__
+   setdisk(drivestack[depth]);
+
+   E_cwd = newstr( getcwd( cwd, FILENAME_MAX ) );
+#else
+   _chdrive(drivestack[depth]);
+
+   E_cwd = newstr( _getdcwd( 0, cwd, FILENAME_MAX ) );
+#endif
 
 } /* PopDir */
