@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.40 1995/03/11 02:04:36 ahd Exp $
+ *    $Id: deliver.c 1.41 1995/03/11 22:27:34 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.41  1995/03/11 22:27:34  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.40  1995/03/11 02:04:36  ahd
  *    Correct gateway processing for local system
  *    If copydate always returns KWTrue/KWFalse, it ought to be KWBoolean
@@ -672,7 +675,18 @@ static size_t DeliverFile( IMFILE *imf,
 
    fclose( fwrd );
 
-   return delivered;
+/*--------------------------------------------------------------------*/
+/*            Report if we could not deliver to any users             */
+/*--------------------------------------------------------------------*/
+
+   if ( ! delivered )
+      return Bounce(imf,
+                    "No addresses to forward to",
+                    fwrdname,
+                    user,
+                    validate );
+   else
+      return delivered;             /* Report success to caller      */
 
 } /* DeliverFile */
 
