@@ -56,7 +56,11 @@ static boolean Match( char *Search,
 
 static size_t MatchInit( const char *MatchStr );
 
-static boolean writestr(register char *s);
+static void writestr(register char *s);
+
+static void flushScriptBuffer( void );
+
+static void slowWrite( char *s, size_t len);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -64,30 +68,35 @@ static boolean writestr(register char *s);
 
 currentfile();
 
-/*
- *       e x p e c t s t r
- *
- *       wait for a pattern on input
- *
- *
- *       expectstr reads characters from input using sread, and
- *       compares them to a search string.  It reads characters until
- *       either the search string has been seen on the input or a
- *       specified timeout interval has passed without any characters
- *       being read.
- *
- *      Global variables: none.
- *
- *      Input parameters:
- *      Search is the string that is searched for on the input.
- *      Timeout is the timeout interval passed to sread.
- *
- *      Output parameters: none.
- *
- *      Return value:
- *      TRUE is returned if the search string is found on input.
- *      FALSE is returned if sread times out.
- */
+static char scriptBuffer[40];    // Can be shorter then longest send
+                                 // string, as longer strings are
+                                 // send without buffering
+
+static size_t scriptBufferLen = 0;
+
+/*--------------------------------------------------------------------*/
+/*       e x p e c t s t r                                            */
+/*                                                                    */
+/*       wait for a pattern on input                                  */
+/*                                                                    */
+/*       expectstr reads characters from input using sread, and       */
+/*       compares them to a search string.  It reads characters       */
+/*       until either the search string has been seen on the input    */
+/*       or a specified timeout interval has passed without any       */
+/*       characters being read.                                       */
+/*                                                                    */
+/*      Global variables: none.                                       */
+/*                                                                    */
+/*      Input parameters:                                             */
+/*      Search is the string that is searched for on the input.       */
+/*      Timeout is the timeout interval passed to sread.              */
+/*                                                                    */
+/*      Output parameters: none.                                      */
+/*                                                                    */
+/*      Return value:                                                 */
+/*      TRUE is returned if the search string is found on input.      */
+/*      FALSE is returned if sread times out.                         */
+/*--------------------------------------------------------------------*/
 
 int expectstr(char *Search, unsigned int Timeout, char **failure)
 {
@@ -145,7 +154,6 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
 
 } /*expectstr*/
 
-
 /*
  *      StrMatch: Incrementally search for a string.
  *      John H. DuBois III  3/31/90
@@ -178,7 +186,6 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
  *          > 1 is returned if a failure string has been found.
  *          Otherwise 0 is returned.
  */
-
 
 static int StrMatch(char *MatchStr, char C, char **failure)
 {
@@ -313,57 +320,56 @@ static size_t MatchInit( const char *MatchStr )
 /*    Send a string to the port during login                          */
 /*--------------------------------------------------------------------*/
 
-static boolean writestr(register char *s)
+static void writestr(register char *s)
 {
    register char last = '\0';
-   boolean nocr  = FALSE;
+   boolean writeCR = TRUE;
    unsigned char digit;
 
-   if equal(s,"BREAK")
+   while (*s)
    {
-      ssendbrk(0);
-      return TRUE;               /* Don't bother with a CR after this   */
-   }
-   while (*s) {
       if (last == '\\') {
          last = *s;
          switch (*s) {
          case 'd':   /* delay */
          case 'D':
+            flushScriptBuffer();
             ssleep(2);
             break;
          case 'c':   /* don't output CR at end of string */
          case 'C':
-            nocr = TRUE;
+            writeCR = FALSE;
             break;
          case 'r':   /* carriage return */
          case 'R':
          case 'm':
          case 'M':
-            slowwrite("\r", 1);
+            slowWrite("\r", 1);
             break;
          case 'n':   /* new line */
          case 'N':
-            slowwrite("\n", 1);
+            slowWrite("\n", 1);
             break;
          case 'p':   /* delay */
          case 'P':
+            flushScriptBuffer();
             ddelay(400);
             break;
          case 'b':   /* backspace */
          case 'B':
-            slowwrite("\b", 1);
+            slowWrite("\b", 1);
             break;
          case 't':   /* tab */
          case 'T':
-            slowwrite("\t", 1);
+            slowWrite("\t", 1);
             break;
          case 's':   /* space */
          case 'S':
-            slowwrite(" ", 1);
+            slowWrite(" ", 1);
             break;
          case 'z':   /* set serial port speed */
          case 'Z':
+            flushScriptBuffer();
             SIOSpeed(atoi(++s));
             while (isdigit(*(s+1)))
                s++;
@@ -381,37 +387,41 @@ static boolean writestr(register char *s)
             while( (*s >= '0') && (*s < '8'))
                digit = (unsigned char) (digit * 8 + *s++ - '0');
             s--;              /* Backup before non-numeric char      */
-            slowwrite((char *) &digit,1);
+            slowWrite((char *) &digit,1);
             break;
 
          default: /* ordinary character */
-            slowwrite(s, 1);
+            slowWrite(s, 1);
             last = '\0';      /* Zap any repeated backslash (\)      */
          }
       }
       else if (*s != '\\') /* backslash */
-         slowwrite(s, 1);
+         slowWrite(s, 1);
       else
          last = *s;
       s++;
-   }
 
-   return nocr;
+   }  /* while */
 
-} /*writestr*/
+   if ( writeCR )
+      slowWrite( "\r", 1 );
 
+   flushScriptBuffer();             // Handle any queued data on net
 
-/*
-   s e n d s t r
+} /* writestr */
 
-   Send line of login sequence
-*/
+/*--------------------------------------------------------------------*/
+/*       s e n d s t r                                                */
+/*                                                                    */
+/*       Send line of login sequence                                  */
+/*--------------------------------------------------------------------*/
 
 void sendstr(char *str)
 {
    printmsg(2, "sending \"%s\"", str);
 
-   if (equaln(str, "BREAK", 5)) {
+   if (equaln(str, "BREAK", 5))
+   {
       int   nulls;
       nulls = atoi(&str[5]);
       if (nulls <= 0 || nulls > 10)
@@ -420,20 +430,64 @@ void sendstr(char *str)
       return;
    }
 
-   if (equal(str, "EOT")) {
-      slowwrite(EOTMSG, strlen(EOTMSG));
+   if (equal(str, "EOT"))
+   {
+      slowWrite(EOTMSG, strlen(EOTMSG));
+      flushScriptBuffer();
       return;
    }
 
    if (equal(str, "\"\""))
       *str = '\0';
 
-   if (!equal(str,"")) {
-      if (!writestr(str)) {
-         slowwrite("\r", 1);
-      }
-   } else
-      slowwrite("\r", 1);
-   return;
+   writestr(str);
 
 } /*sendstr*/
+
+/*--------------------------------------------------------------------*/
+/*    s l o w w r i t e                                               */
+/*                                                                    */
+/*    Write characters to the serial port at a configurable           */
+/*    snail's pace.                                                   */
+/*--------------------------------------------------------------------*/
+
+static void slowWrite( char *s, size_t len)
+{
+   if ( M_charDelay )
+   {
+      swrite( s , len );
+      ddelay(M_charDelay);
+   }
+   else {
+
+      if ( (scriptBufferLen + len) > sizeof scriptBuffer )
+         flushScriptBuffer();
+
+      if ( len == 1 )
+         scriptBuffer[ scriptBufferLen++ ] = *s;
+      else if ( len >= sizeof scriptBuffer )
+         swrite( s , len );
+      else {
+         memcpy( scriptBuffer + scriptBufferLen, s, len );
+         scriptBufferLen += len;
+      } /* else */
+
+   } /* else */
+
+} /* slowWrite */
+
+/*--------------------------------------------------------------------*/
+/*       f l u s h S c r i p t B u f f e r                            */
+/*                                                                    */
+/*       Flush queued network I/O                                     */
+/*--------------------------------------------------------------------*/
+
+static void flushScriptBuffer( void )
+{
+   if ( scriptBufferLen )
+   {
+      swrite( scriptBuffer, scriptBufferLen );
+      scriptBufferLen = 0;
+   }
+
+} /* flushScriptBuffer */
