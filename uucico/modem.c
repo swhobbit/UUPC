@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.8 1992/12/30 13:11:44 dmwatt Exp $
+ *    $Id: MODEM.C 1.9 1993/01/23 19:08:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.9  1993/01/23  19:08:09  ahd
+ * Add additional shutdown() commands even when modem does not init
+ *
  * Revision 1.8  1992/12/30  13:11:44  dmwatt
  * Check for NULL brand pointer before comparing
  *
@@ -395,7 +398,7 @@ configuration file.");
 /*           The modem is connected; now try to autobaud it           */
 /*--------------------------------------------------------------------*/
 
-   printmsg(14, "callin: got CONNECT");
+   printmsg(14, "callin: Modem reports connected");
 
    if (bmodemflag[MODEM_CD])
       CD();                   /* Set the carrier detect flags        */
