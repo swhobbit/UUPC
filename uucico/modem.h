@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.13 1994/01/01 19:23:47 ahd Exp $
+ *    $Id: modem.h 1.14 1994/04/26 03:34:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ *        Revision 1.14  1994/04/26  03:34:33  ahd
+ *        hot (previously opened) handle support
+ *
  * Revision 1.13  1994/01/01  19:23:47  ahd
  * Annual Copyright Update
  *
@@ -69,7 +72,7 @@ typedef enum {
    MODEM_VARIABLEPACKET,
    MODEM_LARGEPACKET,
    MODEM_DIRECT,
-   MODEM_CD,
+   MODEM_CARRIERDETECT,
    MODEM_LAST
    } MODEM_FLAGS;
 

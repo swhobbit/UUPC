@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.14 1994/01/24 03:05:37 ahd Exp $
+ *    $Id: commlib.h 1.15 1994/04/26 03:34:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *        Revision 1.15  1994/04/26  03:34:33  ahd
+ *        hot (previously opened) handle support
+ *
  * Revision 1.14  1994/01/24  03:05:37  ahd
  * Annual Copyright Update
  *
@@ -164,7 +167,8 @@ extern ref_SetComHandle SetComHandlep;
 #define SIOSpeed(baud)                 (*SIOSpeedp)(baud)
 #define hangup()                       (*hangupp)()
 #define GetSpeed()                     (*GetSpeedp)()
-#define CD()                           (*CDp)()
+#define CD()                           (!bmodemflag[MODEM_CARRIERDETECT] || \
+                                        (*CDp)())
 #define WaitForNetConnect(timeout)     (*WaitForNetConnectp)(timeout)
 #define GetComHandle()                 (*GetComHandlep)()
 #define SetComHandle(newHandle)        (*SetComHandlep)(newHandle)
@@ -174,7 +178,8 @@ extern size_t commBufferUsed;
 extern char UUFAR *commBuffer;
 
 extern boolean portActive;          /* Port active flag for error handler  */
-extern boolean traceEnabled;        /* Enable comm port trace         */
+extern boolean traceEnabled;        /* Enable comm port trace          */
+extern boolean carrierDetect;       /* Modem is connected  flag        */
 
 boolean IsNetwork(void);
 
