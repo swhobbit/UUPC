@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.29 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: uucp.c 1.30 1999/01/08 02:21:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.30  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.29  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -182,7 +185,7 @@ static char           *callSystem;          /* System to we need to
 
 static char  flags[16];
 
-RCSID("$Id$");
+RCSID("$Id: uucp.c 1.30 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */
@@ -461,6 +464,15 @@ int   do_copy(char *src_syst,
       importpath(work, tmfile, remote_syst);
       mkfilename(icfilename, E_spooldir, work);
 
+#ifdef UDEBUG
+      printmsg(4,"do_copy: %s:%s to %s:%s",
+                src_syst,
+                src_file,
+                dest_syst,
+                dest_file);
+#endif
+
+
       if (!equal(src_syst, E_nodename))
       {
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
@@ -498,18 +510,13 @@ int   do_copy(char *src_syst,
             exit(1);
 
          normalize( src_file );
-
-         p  = dest_file;
-
-         while (*p)
-         {
-            if (*p ==  '\\')
-               *p = '/';
-            p++;
-         }
+         renormalize(dest_file);
 
          if (strcspn(src_file, "*?") == strlen(src_file))
          {
+#if UDEBUG
+            printmsg(4,"Not wild: %s", src_file);
+#endif
             wild_flag = KWFalse;
 
             if (stat(src_file, &statbuf) != 0)
@@ -527,6 +534,9 @@ int   do_copy(char *src_syst,
 
          } /* if (strcspn(src_file, "*?") == strlen(src_file))  */
          else  {
+#if UDEBUG
+            printmsg(4,"Wildcard: %s", src_file);
+#endif
 
             wild_flag = KWTrue;
 
