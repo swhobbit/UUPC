@@ -29,10 +29,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.94 2000/05/12 12:08:51 ahd v1-13g $
+#     $Id: borlandc.mak 1.95 2001/03/12 13:58:31 ahd Exp $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.95  2001/03/12 13:58:31  ahd
+#     Annual copyright update
+#
 #     Revision 1.94  2000/05/12 12:08:51  ahd
 #     Annual copyright update
 #
@@ -262,8 +265,8 @@ OPTCOMM = $(PROD)\uucp.exe $(PROD)\uuname.com $(PROD)\uupoll.exe\
           $(PROD)\uux.com $(PROD)\fmt.com $(PROD)\gensig.com \
           $(PROD)\novrstrk.com $(PROD)\fromwho.com
 
-OPTIONAL= $(OPTCOMM) $(PROD)\comm34.com $(SCRIPTS) $(PROD)\uuclean.pif
-REQUIRED  = $(REQCOMM) $(PROD)\rmail.pif $(PROD)\uuxqt.pif
+OPTIONAL= $(OPTCOMM) $(PROD)\comm34.com $(SCRIPTS)
+REQUIRED  = $(REQCOMM)
 
 # *--------------------------------------------------------------------*
 # *      Of the "required" modules, we only build UUCICO under         *
@@ -285,7 +288,7 @@ INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWSPGM) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\personal.rc $(DOCS)\uupc.rc \
           $(DOCS)\personal.sig $(DOCS)\nickname.txt \
-          $(ICONS)\mail.ico $(ICONS)\uucico.ico $(DOCS)\up-pif.dvp
+          $(ICONS)\mail.ico $(ICONS)\uucico.ico
 SAMPLEX = SYSTEMS PASSWD HOSTPATH *.RC *.MDM PERSONAL.SIG ALIASES.TXT *.ICO
 
 MAKEFILE = BORLANDC.MAK
@@ -650,15 +653,6 @@ $(PROD)\uuclean.bat: $(SCRIPT)\uuclean.bat
 $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
         copy $? $<
 
-$(PROD)\uuclean.pif: $(DOCS)\uuclean.pif
-        copy $? $<
-
-$(PROD)\uuxqt.pif: $(DOCS)\uuxqt.pif
-        copy $? $<
-
-$(PROD)\rmail.pif: $(DOCS)\rmail.pif
-        copy $? $<
-
 # *--------------------------------------------------------------------*
 # *                       Windows executables                          *
 # *--------------------------------------------------------------------*
@@ -761,7 +755,6 @@ $(WINPROD)\uuxqt.exe: uuxqtw.exe
 
 $(SRCZIPV1):  $(MAKEFILE) NMAKE.MAK NMAKEDOS.MAK NMAKEWNT.MAK \
              NMAKOS21.MAK NMAKOS22.MAK \
-             $(DOCS)\rmail.pif $(DOCS)\uuxqt.pif $(DOCS)\uuclean.pif \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
        -18 $(ZIP) $(ZIPOPT1) < &&%
@@ -772,7 +765,6 @@ LIB\*.MAK
 WINSOCK\*.H
 $(README)
 $(MAKEFILE)
-DOCS\*.pif
 %
        zip -z $< <  &&%
 UUPC/extended $(VERS) source files (1 of 4)

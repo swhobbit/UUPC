@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.23 2000/05/12 12:08:51 ahd v1-13g $
+#       $Id: nmakedos.mak 1.24 2001/03/12 13:58:31 ahd Exp $
 #
 #       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.24  2001/03/12 13:58:31  ahd
+#       Annual copyright update
+#
 #       Revision 1.23  2000/05/12 12:08:51  ahd
 #       Annual copyright update
 #
@@ -119,9 +122,8 @@ STACKSIZE=2000                  # In hex, because /F below is brain dead
 !endif
 
 EXTRAT  = comm34.$(COMEXE)            # Include in test build ...
-EXTRA1  = $(PROD)\rmail.pif $(PROD)\uuxqt.pif\
-          $(PROD)\comm34.$(COMEXE)    # ... and ship it off to users as well
-EXTRA2  = $(PROD)\uuclean.pif
+EXTRA1  = $(PROD)\comm34.$(COMEXE)    # ... and ship it off to users as well
+EXTRA2  =
 LINKER  = link
 
 ZIPID   = d
