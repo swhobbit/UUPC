@@ -5,10 +5,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $
+ *    $Header: E:\src\uupc\uucico\RCS\MODEM.H 1.3 1992/11/18 03:50:17 ahd Exp $
  *
  *    Revision history:
- *    $Log: MODEM.C $
+ *    $Log: MODEM.H $
+ * Revision 1.3  1992/11/18  03:50:17  ahd
+ * Move check of call window to avoid premature lock file overhead
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -30,7 +33,7 @@ typedef enum {
 
 CONN_STATE callup(void );
 
-CONN_STATE callin( time_t exit_time );
+CONN_STATE callin( const time_t exit_time );
 
 CONN_STATE callhot( const BPS speed );
 
