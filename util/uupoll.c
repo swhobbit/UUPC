@@ -58,16 +58,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: UUPOLL.C 1.1 1992/11/15 04:29:22 ahd Exp $
  *
- *    $Log: uupoll.c%v $
+ *    $Log: UUPOLL.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  * Revision 1.1  1992/04/27  00:30:13  ahd
  * Initial revision
  *
  */
 
 static const char rscid[] =
-         "$Id: uupoll.c%v 1.1 1992/04/27 00:30:13 ahd Exp $";
+         "$Id: UUPOLL.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -709,6 +712,7 @@ static time_t nextpoll( hhmm first, hhmm interval )
    time_record->tm_hour = 23;   /* Advance to midnight     */
    time_record->tm_min  = 59;
    tomorrow = mktime(time_record) + 60;   /* Add a minute to 23:59   */
+
    sfirst = today + hhmm2sec(first);
 
    while (sfirst < now)
@@ -718,7 +722,7 @@ static time_t nextpoll( hhmm first, hhmm interval )
 /*    Since we restart the polling of each day anew, reset the        */
 /*    next poll time based if it is after midnight.  Note the         */
 /*    funny double compare, which handles the stricter of the two     */
-/*    tests for "tomorrow"; yes, this can cause us to skip a poll.    */
+/*    tests for "tomorrow".                                           */
 /*--------------------------------------------------------------------*/
 
    if ((sfirst > tomorrow) || (sfirst > (today + hhmm2sec(2400))))
