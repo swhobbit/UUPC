@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.13 1994/01/01 19:22:43 ahd Exp $
+ *    $Id: commlib.h 1.14 1994/01/24 03:05:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.14  1994/01/24  03:05:37  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.13  1994/01/01  19:22:43  ahd
  * Annual Copyright Update
  *
@@ -104,6 +107,8 @@ typedef boolean (*ref_WaitForNetConnect)(const unsigned int timeout);
 
 typedef int (*ref_GetComHandle)( void );
 
+typedef void (*ref_SetComHandle)( const int );
+
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
 /*       returns TRUE on success.                                     */
@@ -142,6 +147,7 @@ extern ref_GetSpeed GetSpeedp;
 extern ref_CD CDp;
 extern ref_WaitForNetConnect WaitForNetConnectp;
 extern ref_GetComHandle GetComHandlep;
+extern ref_SetComHandle SetComHandlep;
 
 /*--------------------------------------------------------------------*/
 /*       Declare macros which define the prev-generic driver names    */
@@ -161,6 +167,7 @@ extern ref_GetComHandle GetComHandlep;
 #define CD()                           (*CDp)()
 #define WaitForNetConnect(timeout)     (*WaitForNetConnectp)(timeout)
 #define GetComHandle()                 (*GetComHandlep)()
+#define SetComHandle(newHandle)        (*SetComHandlep)(newHandle)
 
 extern size_t commBufferLength;
 extern size_t commBufferUsed;
