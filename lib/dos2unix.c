@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dos2unix.c 1.12 1995/07/21 13:23:19 ahd Exp $
+ *    $Id: dos2unix.c 1.13 1995/09/04 19:37:49 dmwatt v1-12o $
  *
  *    Revision history:
  *    $Log: dos2unix.c $
+ *    Revision 1.13  1995/09/04 19:37:49  dmwatt
+ *    Correct time zone conversion when converting NT timestamp to UNIX format
+ *
  *    Revision 1.12  1995/07/21 13:23:19  ahd
  *    Clean up OS/2 compiler warnings
  *
@@ -70,16 +73,6 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
-
-/*--------------------------------------------------------------------*/
-/*                         OS/2 include files                         */
-/*--------------------------------------------------------------------*/
-
-#if defined(FAMILYAPI) || defined(__OS2__)
-#define INCL_BASE
-
-#include <os2.h>
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                      Windows/NT include files                      */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.14 1994/12/22 00:09:52 ahd v1-12n $
+ *    $Id: ndiros2.c 1.15 1995/07/21 13:23:19 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *    Revision 1.15  1995/07/21 13:23:19  ahd
+ *    Clean up OS/2 compiler warnings
+ *
  *    Revision 1.14  1994/12/22 00:09:52  ahd
  *    Annual Copyright Update
  *
@@ -82,13 +85,6 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
-
-/*--------------------------------------------------------------------*/
-/*                         OS/2 include files                         */
-/*--------------------------------------------------------------------*/
-
-#define INCL_BASE
-#include <os2.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

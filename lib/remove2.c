@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: remove2.c 1.1 1995/03/12 16:42:24 ahd Exp $
+ *    $Id: remove2.c 1.2 1995/04/02 00:01:39 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: remove2.c $
+ *    Revision 1.2  1995/04/02 00:01:39  ahd
+ *    Don't be quite so agressive about reporting reasonable errors
+ *    (like file not found)
+ *
  *    Revision 1.1  1995/03/12 16:42:24  ahd
  *    Initial revision
  *
@@ -29,7 +33,7 @@
 #include "uupcmoah.h"
 #include "pos2err.h"
 
-#include "errno.h"
+#include <errno.h>
 
 #define INCL_DOS
 #define INCL_ERRORS
