@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.40 1995/01/09 01:39:22 ahd Exp $
+ *    $Id: rmail.c 1.41 1995/01/15 19:48:35 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.41  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.40  1995/01/09 01:39:22  ahd
  *    Optimize UUCP processing for remote mail, break out logical
  *    queuing from actually writing the files, and don't write call
@@ -745,7 +750,7 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
       char node[MAXADDR];
       char user[MAXADDR];
 
-      if (( fromNode != '\0' ) && (fromUser != '\0' ))
+      if (( *fromNode != '\0' ) && ( *fromUser != '\0' ))
       {
          sprintf(buf ,"%s!%s", fromNode, fromUser);
          user_at_node(buf , buf, node, user);
