@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.12 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: uupoll.c 1.13 1993/09/20 04:41:54 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.13  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.12  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -130,7 +133,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.12 1993/07/31 16:26:01 ahd Exp $";
+         "$Id: uupoll.c 1.13 1993/09/20 04:41:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -901,8 +904,8 @@ static hhmm firstpoll(hhmm interval)
    time_t minutes;
    int result;
 
-   if ( seconds > INT_MAX)
-      seconds = (INT_MAX / 3600) * 3600;
+   if ( seconds > SHRT_MAX)
+      seconds = (SHRT_MAX / 3600) * 3600;
 
    minutes = seconds / 60;
 
@@ -938,6 +941,8 @@ static hhmm firstpoll(hhmm interval)
 
 #ifdef _Windows
    sync = sync && bflag[F_WINDOWS];
+#else
+   sync = TRUE;               // Silly hack
 #endif
 
    result = runCommand( buf, sync );
