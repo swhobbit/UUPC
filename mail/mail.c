@@ -1,40 +1,57 @@
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989, 1991 Andrew H. Derbyshire           */
+/*       m a i l . c                                                  */
+/*                                                                    */
+/*       Mailer User-Agent (UA)                                       */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
-   mail.c - Mailer User-Agent (UA)
-
-   version  1.0   Stuart Lynne
-   version 1.5 Samuel Lam <skl@van-bc.UUCP>  August/87
-
-   version 1.6 Drew Derbyshire   May/89
-               Support for single user aliases, -u option for reading
-               alternate mailboxes, parsing addresses via external routine,
-               parsing Resent- fields, suppressing Received: fields,
-               automatic positioning to next message.                   ahd
-   23 Sep 89   Version 1.07a
-               Support lists in aliases                                 ahd
-
-   29 Sep 89   Version 1.07b
-               Add prompting for subject in outgoing mail.              ahd
-   01 Oct 89   Add additional function prototypes to catch bad calls    ahd
-   02 Oct 89   Alter large strings/structures to use malloc()/free()    ahd
-   12 Oct 89   Version 1.07d
-               Correct free() of line in Send_Mail
-   12 Dec 89   Version 1.07g
-               Various spelling corrections
-   18 Mar 90   Version 1.07i
-               Add ~user support for save/write command
-               Add ignore list for user
-               Shorten lines printed by aborting from a print command   ahd
-   30 Apr  90  Add autoedit support for sending mail                    ahd
-    2 May  90  Add support for options= flags                           ahd
-    3 May  90  Split selected subroutines into maillib.c                ahd
-    4 May  90  Add 'save' option.                                       ahd
-    8 May  90  Add 'pager' option                                       ahd
-   10 May  90  Add 'purge' option                                       ahd
-   13 May  90  Alter logging so that no numbers are printed on console  ahd
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ *
+ * version  1.0   Stuart Lynne
+ * version 1.5 Samuel Lam <skl@van-bc.UUCP>  August/87
+ *
+ * version 1.6 Drew Derbyshire   May/89
+ *             Support for single user aliases, -u option for reading
+ *             alternate mailboxes, parsing addresses via external routine,
+ *             parsing Resent- fields, suppressing Received: fields,
+ *             automatic positioning to next message.                   ahd
+ * 23 Sep 89   Version 1.07a
+ *             Support lists in aliases                                 ahd
+ *
+ * 29 Sep 89   Version 1.07b
+ *             Add prompting for subject in outgoing mail.              ahd
+ * 01 Oct 89   Add additional function prototypes to catch bad calls    ahd
+ * 02 Oct 89   Alter large strings/structures to use malloc()/free()    ahd
+ * 12 Oct 89   Version 1.07d
+ *             Correct free() of line in Send_Mail
+ * 12 Dec 89   Version 1.07g
+ *             Various spelling corrections
+ * 18 Mar 90   Version 1.07i
+ *             Add ~user support for save/write command
+ *             Add ignore list for user
+ *             Shorten lines printed by aborting from a print command   ahd
+ * 30 Apr  90  Add autoedit support for sending mail                    ahd
+ *  2 May  90  Add support for options= flags                           ahd
+ *  3 May  90  Split selected subroutines into maillib.c                ahd
+ *  4 May  90  Add 'save' option.                                       ahd
+ *  8 May  90  Add 'pager' option                                       ahd
+ * 10 May  90  Add 'purge' option                                       ahd
+ * 13 May  90  Alter logging so that no numbers are printed on console  ahd
  * Additions for unofficial version 1.07k, Philip David Meese June 1990
  * 16 June 90
  *            -added mail command: Copy current (without delete)        pdm
@@ -43,6 +60,13 @@
  *                directory" for BSD like mail users.                   pdm
  * 12 Feb 91 rewrite parser a for more BSD like syntax
 */
+
+ static const char rcsid[] =
+      "$Id$";
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <ctype.h>
 #include <stdio.h>
@@ -53,6 +77,10 @@
 #include <time.h>
 #include <dos.h>
 #include <direct.h>
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "address.h"
@@ -161,7 +189,7 @@ static struct CommandTable {
  { "+",           M_DOWN,     INTEGER_OP | AUTOPRINT,
          "Alias for next"},
  { "-",           M_UP,       INTEGER_OP | AUTOPRINT,
-         "Alias for up"},
+         "Alias for previous"},
  { "?",           M_FASTHELP, NO_OPERANDS,
          "Print this help"},
  { "alias",       M_ALIAS,    TOKEN_OP,
@@ -195,7 +223,7 @@ static struct CommandTable {
   {"Print",       M_INTPRINT, LETTER_OP | POSITION ,
          "Print item (condensed)"},
   {"previous",    M_UP,       INTEGER_OP | AUTOPRINT ,
-         "Alias for up"},
+         "Move to previous item"},
   {"quit",        M_QUIT,     NO_OPERANDS,
          "Update mailbox, exit"},
   {"reply",       M_REPLY,    LETTER_OP | POSITION ,
@@ -747,17 +775,19 @@ static void Interactive_Mail( const boolean PrintOnly,
                break;
 
             case M_STATUS:
-               printf("%s:\t%s created %s %s running under %s(R) %d.%02d\n",
+               printf("%s:\t%s created %s %s running under %s %d.%02d\n",
                        compilep, compilev, compiled, compilet,
-#ifdef __TURBOC__
-                     "MS-DOS",
-                     _osmajor,
-#else
-                     (_osmode == DOS_MODE) ? "MS-DOS" : "OS/2" ,
-                     (_osmode == DOS_MODE) ? _osmajor :
-                                             ((int) _osmajor / 10 ),
-#endif
 
+#ifdef WIN32
+                     "Windows",
+                     _osmajor,
+#elif defined( __TURBOC__ )
+                    "DOS",
+                    _osmajor,
+#else
+                    (_osmode == DOS_MODE) ? "DOS" : "OS/2(R)" ,
+                    (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
+#endif
                       _osminor);
                printf("Magic Word:\t%s\n","flarp");
                printf("Return address:\t\"%s\" <%s@%s>\n"
