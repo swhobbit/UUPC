@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.28 1994/05/04 02:03:11 ahd Exp $
+ *    $Id: mail.c 1.29 1994/06/05 01:57:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.29  1994/06/05  01:57:26  ahd
+ * Add debugging message
+ * Make success dependent on command actual working
+ *
  * Revision 1.28  1994/05/04  02:03:11  ahd
  * Include title.h to correctly invoke setTitle()
  *
@@ -134,7 +138,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.28 1994/05/04 02:03:11 ahd Exp $";
+      "$Id: mail.c 1.29 1994/06/05 01:57:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -200,7 +204,11 @@ static boolean useto = FALSE;
 
 FILE *fmailbox;
 
+#ifdef BIT32ENV
+static int maxLetters = 1000;    /* Initial value only            */
+#else
 static int maxLetters = 100;     /* Initial value only            */
+#endif
 
 struct ldesc UUFAR  *letters;
 
@@ -965,10 +973,16 @@ static void Interactive_Mail( const boolean PrintOnly,
                      arpadate() );
                printf("Return address:\t\"%s\" <%s@%s>\n"
                       "Domain name:\t%s\tNodename:\t%s\n",
-                        E_name, E_mailbox, E_fdomain, E_domain, E_nodename );
+                        E_name,
+                        E_mailbox,
+                        E_fdomain,
+                        E_domain,
+                        E_nodename );
                printf("Current File:\t%s\tNumber of items: %d\n"
                       "File size:\t%ld bytes\tLast updated:\t%s",
-                        mfilename, letternum + 1 , mboxsize ,
+                        mfilename,
+                        letternum ,
+                        mboxsize ,
                         ctime( & mboxage ) );
                break;
 
