@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.6 1993/10/12 00:48:44 ahd Exp $
+ *    $Id: winutil.c 1.7 1993/10/12 01:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.7  1993/10/12  01:20:43  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.6  1993/10/12  00:48:44  ahd
  * Normalize comments
  *
@@ -87,8 +90,8 @@ static HINSTANCE hChildInst;            /* Instance of child proc     */
 static HWND hTheWindow;                 /* Used by WindCatcher()
                                            during enumeration         */
 
-BOOL CALLBACK WindCatcher(HWND hWnd, LPARAM lparam);
-BOOL CALLBACK NotifyCatcher(WORD wID, DWORD dwData);
+BOOL CALLBACK _export WindCatcher(HWND hWnd, LPARAM lparam);
+BOOL CALLBACK _export NotifyCatcher(WORD wID, DWORD dwData);
 
 static LPFNNOTIFYCALLBACK lpfnNotifyCB;
 static FARPROC lpfnEnumWinCB;
@@ -255,7 +258,7 @@ int SpawnWait( const char *command,
 #pragma argsused
 #endif
 
-BOOL CALLBACK NotifyCatcher (WORD wID, DWORD dwData)
+BOOL CALLBACK _export NotifyCatcher (WORD wID, DWORD dwData)
 {
    HTASK hCurTask;                     /* handle of the task that     */
                                        /* called notification call    */
@@ -337,7 +340,7 @@ HWND FindTaskWindow (HTASK hTask, LPSTR lpszClassName)
 /*--------------------------------------------------------------------*/
 
 #define BUF_LEN 32
-BOOL CALLBACK WindCatcher (HWND hWnd, LPARAM lparam)
+BOOL CALLBACK _export WindCatcher (HWND hWnd, LPARAM lparam)
 {
     char buf[BUF_LEN+1];
     int i;
