@@ -1,13 +1,19 @@
 /*--------------------------------------------------------------------*/
-/*    s s l e e p . c                                                 */
+/*       s s l e e p . c                                              */
 /*                                                                    */
-/*    Smart sleep routines for UUPC/extended                          */
+/*       Smart sleep routines for UUPC/extended                       */
 /*                                                                    */
-/*    Written by Dave Watt, modified by Drew Derbyshire               */
+/*       DOS and Windows NT support by Dave Watt, Windows 3.x         */
+/*       support by Robert Denny, and OS/2 support by Drew            */
+/*       Derbyshire                                                   */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Generates DOS specific code with Windows support by default,    */
-/*    generates call to OS/2 family API if FAMILYAPI is defined       */
-/*    generates calls to Windows/NT if WIN32 is defined               */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -15,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.12 1993/10/12 00:41:51 ahd Exp $
+ *    $Id: ssleep.c 1.13 1993/10/12 01:20:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.13  1993/10/12  01:20:43  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.12  1993/10/12  00:41:51  ahd
  *     Normalize comments
  *
@@ -77,15 +86,14 @@
 #define INCL_BASE
 #include <os2.h>
 
+#elif defined(WIN32) || defined(_Windows)
+
+#include <windows.h>
 #else
 
 #include <dos.h>
 #include <sys/timeb.h>
 
-#endif
-
-#if defined(WIN32) || defined(_Windows)
-#include <windows.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -94,51 +102,39 @@
 
 #include "lib.h"
 #include "ssleep.h"
+
+#if defined(_Windows) || defined(WIN32)
+
+#include "winutil.h"
+
+#elif defined(FAMILYAPI) || defined(__OS2__)
+
+#include "pos2err.h"
+
+#else
+
 #include "safeio.h"
 #include "catcher.h"
 
-#if defined(_Windows)
-#include "winutil.h"
-#endif
-
-
-#if defined(FAMILYAPI) || defined(__OS2__)
-#include "pos2err.h"
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-#if defined(FAMILYAPI) || defined(__OS2__)
 currentfile();
-#endif
-
-
-/*--------------------------------------------------------------------*/
-/*                     MS-DOS specific functions                      */
-/*--------------------------------------------------------------------*/
-
-#if !defined(FAMILYAPI) && !defined(__OS2__)
-
-currentfile();
-
-#define MULTIPLEX 0x2F
-#define DESQVIEW 0x15
 
 #ifdef _Windows
 
-static void WindowsDelay( const int milliseconds );
-
 /*--------------------------------------------------------------------*/
-/*    W i n d o w s D e l a y                                         */
+/*    d d e l a y                                                     */
 /*                                                                    */
 /*    Delay processing under Windows                                  */
 /*                                                                    */
 /*    NOTE: Minimum resolution is 54.925 ms.                          */
 /*--------------------------------------------------------------------*/
 
-static void WindowsDelay( const int milliseconds )
+void ddelay( KEWSHORT milliseconds )
 {
    MSG msg;
    WORD TimerId = 1;
@@ -153,6 +149,7 @@ static void WindowsDelay( const int milliseconds )
       while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
       {
          TranslateMessage(&msg);
+
          DispatchMessage(&msg);
       }
       return;
@@ -178,20 +175,69 @@ static void WindowsDelay( const int milliseconds )
    while(!bTimerDone && GetMessage(&msg, NULL, NULL, NULL))
    {
       TranslateMessage(&msg);
-      DispatchMessage(&msg);
-      if (msg.message == WM_TIMER)
-         bTimerDone = TRUE;
-   }
+
+      switch( msg.message )
+      {
+         case WM_TIMER:
+            bTimerDone = TRUE;
+            /* Fall through and dispatch message   */
+
+         default:
+            DispatchMessage(&msg);
+            break;
+
+      } /* switch( msg.message ) */
+   } /* while */
 
    if (KillTimer( hOurWindow, TimerId ) == 0)
       printmsg(0, "WindowsDelay: Unable to kill Windows Timer %d",
                   (int) TimerId );
 
-} /* WindowsDelay */
+} /* ddelay */
+
+#elif defined(WIN32)
+
+/*--------------------------------------------------------------------*/
+/*       d d e l a y                                                  */
+/*                                                                    */
+/*       Delay function for Windows NT                                */
+/*--------------------------------------------------------------------*/
+
+void ddelay (KEWSHORT interval )
+{
+
+   Sleep(interval);
+
+} /* ddelay */
+
+#elif defined(FAMILYAPI) || defined(__OS2__)
+
+/*--------------------------------------------------------------------*/
+/*       d d e l a y                                                  */
+/*                                                                    */
+/*       Delay function for OS/2                                      */
+/*--------------------------------------------------------------------*/
+
+void   ddelay   (KEWSHORT interval )
+{
+
+   USHORT result = DosSleep(interval);
+
+   if (result)
+      printOS2error( "DosSleep", result );
+
+} /* ddelay */
 
 #else
 
-#ifndef WIN32
+/*--------------------------------------------------------------------*/
+/*       DOS wait functions.  Bizarre variations to cover DOS         */
+/*       programs under Windows and both MS C and Borland C++         */
+/*       compilers                                                    */
+/*--------------------------------------------------------------------*/
+
+#define MULTIPLEX 0x2F
+#define DESQVIEW 0x15
 
 /*--------------------------------------------------------------------*/
 /*                      Local function declares                       */
@@ -247,6 +293,7 @@ static int RunningUnderWindows(void)
 
    inregs.x.ax = 0x1600;
    int86(irq, &inregs, &outregs);
+
    if ( (outregs.h.al & 0x7f) == 0)
       result = 0;
    else
@@ -270,10 +317,12 @@ static void WinGiveUpTimeSlice(void)
 
    inregs.x.ax = 0x1680;
    int86(irq, &inregs, &outregs);
+
    if (outregs.h.al != 0) {
       printmsg(0,"Problem giving up timeslice:  %u\n", outregs.h.al);
       panic();
    }
+
 } /* WinGiveUpTimeSlice */
 
 /*--------------------------------------------------------------------*/
@@ -295,6 +344,7 @@ static int RunningUnderDesqview(void)
    inregs.x.dx = 0x5351;
 
    intdos(&inregs, &outregs);
+
    if (outregs.h.al == 0xff) {
       result = 0;
    } else {
@@ -336,61 +386,16 @@ static void DVGiveUpTimeSlice(void)
 
 } /* DVGiveUpTimeSlice */
 
-#endif /* _Windows */
-#endif /* WIN32 */
-#endif
-
-
-/*--------------------------------------------------------------------*/
-/*    ssleep() - wait n seconds                                       */
-/*                                                                    */
-/*    Simply delay until n seconds have passed.                       */
-/*--------------------------------------------------------------------*/
-
-void ssleep(time_t interval)
-{
-   time_t quit = time((time_t *)NULL) + interval;
-   long left = (long) interval;
-
-/*--------------------------------------------------------------------*/
-/*            Break the spin into chunks ddelay can handle            */
-/*--------------------------------------------------------------------*/
-
-   while ( left > SHRT_MAX / 1000 )
-   {
-      ddelay( 5000 );         /* Five seconds per pass                */
-      if ((left = (long) quit - (long) time( NULL )) <= 0)
-         return;
-   } /* while */
-
-/*--------------------------------------------------------------------*/
-/*                 Final delay for the time remaining                 */
-/*--------------------------------------------------------------------*/
-
-   ddelay( (KEWSHORT) ((short) left * 1000) );
-
-} /*ssleep*/
-
 /*--------------------------------------------------------------------*/
 /*    d d e l a y                                                     */
 /*                                                                    */
-/*    Delay for an interval of milliseconds                           */
+/*    Delay for an interval of milliseconds under DOS                 */
 /*--------------------------------------------------------------------*/
 
 void   ddelay   (KEWSHORT interval )
 {
 
-#if defined(FAMILYAPI) || defined(__OS2__)
-
-   USHORT result;
-
-#elif !defined(_Windows)
-
    struct timeb start;
-
-#endif
-
-#ifndef _Windows
 
 /*--------------------------------------------------------------------*/
 /*           Check for user aborts via the ESC (escape) key           */
@@ -414,41 +419,6 @@ void   ddelay   (KEWSHORT interval )
 
    } /* if (bflag[F_ESCAPE]) */
 
-#endif /* _Windows */
-
-/*--------------------------------------------------------------------*/
-/*                          Now do the wait                           */
-/*--------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------*/
-/*                          Windows/NT wait                           */
-/*--------------------------------------------------------------------*/
-
-#ifdef WIN32
-   Sleep(interval);
-
-/*--------------------------------------------------------------------*/
-/*                           Windows wait                             */
-/*--------------------------------------------------------------------*/
-
-#elif defined(_Windows)
-   WindowsDelay(interval);
-
-/*--------------------------------------------------------------------*/
-/*                             OS/2 wait                              */
-/*--------------------------------------------------------------------*/
-
-#elif defined(FAMILYAPI) || defined(__OS2__)
-
-   result = DosSleep(interval);
-   if (result)
-      printOS2error( "DosSleep", result );
-#else
-
-/*--------------------------------------------------------------------*/
-/*                            MS-DOS wait                             */
-/*--------------------------------------------------------------------*/
-
 #ifdef __TURBOC__
    enable();
 #else
@@ -470,6 +440,10 @@ void   ddelay   (KEWSHORT interval )
 
       return;
    } /* if */
+
+/*--------------------------------------------------------------------*/
+/*                 Actual spin loop to perform the delay              */
+/*--------------------------------------------------------------------*/
 
    ftime(&start);             /* Get a starting time                  */
 
@@ -506,6 +480,36 @@ void   ddelay   (KEWSHORT interval )
       } /* else */
    } /* while */
 
-#endif /* FAMILYAPI */
-
 } /* ddelay */
+
+#endif
+
+/*--------------------------------------------------------------------*/
+/*    ssleep() - wait n seconds                                       */
+/*                                                                    */
+/*    Common routine to delay until n seconds have passed.            */
+/*--------------------------------------------------------------------*/
+
+void ssleep(time_t interval)
+{
+   time_t quit = time((time_t *)NULL) + interval;
+   long left = (long) interval;
+
+/*--------------------------------------------------------------------*/
+/*            Break the spin into chunks ddelay can handle            */
+/*--------------------------------------------------------------------*/
+
+   while ( left > SHRT_MAX / 1000 )
+   {
+      ddelay( 5000 );         /* Five seconds per pass                */
+      if ((left = (long) quit - (long) time( NULL )) <= 0)
+         return;
+   } /* while */
+
+/*--------------------------------------------------------------------*/
+/*                 Final delay for the time remaining                 */
+/*--------------------------------------------------------------------*/
+
+   ddelay( (KEWSHORT) ((short) left * 1000) );
+
+} /* ssleep */
