@@ -1,10 +1,14 @@
-#       $Id: nmakedos.mak 1.18 1998/03/01 01:22:00 ahd v1-13a $
+#       $Id: nmakedos.mak 1.19 1998/05/17 21:11:20 ahd v1-12d $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.19  1998/05/17 21:11:20  ahd
+#       Allow building line-length limited DOS modules in
+#       different directory
+#
 #       Revision 1.18  1998/03/01 01:22:00  ahd
 #       Annual Copyright Update
 #
