@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.12 1994/02/19 04:45:23 ahd Exp $
+ *    $Id: printmsg.c 1.13 1994/02/20 19:05:02 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.13  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.12  1994/02/19  04:45:23  ahd
  *     Use standard first header
  *
@@ -115,7 +118,7 @@ char  *copywrong = NULL;
 
 #ifdef __TURBOC__
 #pragma -N
-#else
+#elif !defined(__IBMC__)
 #pragma check_stack( on )
 #endif
 
