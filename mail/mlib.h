@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.h 1.4 1993/11/13 17:52:31 ahd Exp $
+ *    $Id: mlib.h 1.5 1994/01/01 19:13:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.h $
+ * Revision 1.5  1994/01/01  19:13:40  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/11/13  17:52:31  ahd
  * Normalize external command processing
  *
@@ -44,8 +47,7 @@ extern boolean Console_fgets(char *buff,
                               int buflen, char *prompt);          /* ahd  */
 
 int Invoke(const char *ecmd,
-           const char *filename,
-           const boolean unique );
+           const char *filename );
 
 extern boolean Is_Console(FILE *stream);                          /* ahd  */
 
