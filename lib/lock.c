@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\LOCK.C 1.5 1992/11/28 19:51:16 ahd Exp $
+ *    $Header: E:\src\uupc\LIB\RCS\LOCK.C 1.6 1993/03/06 22:48:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOCK.C $
+ *     Revision 1.6  1993/03/06  22:48:23  ahd
+ *     Allow nested locks
+ *
  * Revision 1.5  1992/11/28  19:51:16  ahd
  * Issue lock based on lock file existence to avoid FOPEN retry loop
  *
@@ -41,6 +44,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <process.h>
+#include <string.h>
 #include <io.h>
 
 /*--------------------------------------------------------------------*/
