@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.19 1993/09/27 04:04:06 ahd Exp $
+ *       $Id: ulibos2.c 1.20 1993/09/29 04:52:03 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.20  1993/09/29  04:52:03  ahd
+ * Use unique handler for port suspending
+ *
  * Revision 1.19  1993/09/27  04:04:06  ahd
  * Normalize references to modem speed to avoid incorrect displays
  *
@@ -126,7 +129,6 @@ currentfile();
 static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
 
 static boolean hangupNeeded = FALSE;
-static boolean console = FALSE;
 
 static unsigned short currentSpeed = 0;
 
@@ -178,7 +180,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                      Validate the port format                      */
 /*--------------------------------------------------------------------*/
 
-   if (!equal(name,"CON") && !equaln(name, "COM", 3 ))
+   if (!equaln(name, "COM", 3 ))
    {
       printmsg(0,"nopenline: Communications port begin with COM, was %s",
          name);
@@ -214,20 +216,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
       printOS2error( name, rc );
       return TRUE;
    }
-
-/*--------------------------------------------------------------------*/
-/*                    Check for special test mode                     */
-/*--------------------------------------------------------------------*/
-
-   if ( equal(name,"CON"))
-   {
-      portActive = TRUE;     /* record status for error handler        */
-      carrierDetect = FALSE;  /* Modem is not connected                 */
-      console = TRUE;
-      return 0;
-   }
-
-   console = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*            Reset any errors on the communications port             */
@@ -555,7 +543,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
 #endif
 
-   if (rc && ! console )
+   if (rc )
    {
       printmsg(0,"nsread: Unable to read port errors");
       printOS2error( "DosDevIOCtl", rc );
@@ -623,7 +611,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       else
          port_timeout = 0;
 
-      if (( port_timeout != com_dcbinfo.usReadTimeout ) && ! console )
+      if ( port_timeout != com_dcbinfo.usReadTimeout )
       {
          com_dcbinfo.usReadTimeout = port_timeout;
 
@@ -865,10 +853,12 @@ void ncloseline(void)
    ULONG DataLengthInOut;
 #endif
 
-   printmsg(4,"ncloseline: Closing serial port" );
 
    if ( ! portActive )
-      panic();
+   {
+      printmsg(0,"ncloseline: Internal error, port already closed");
+      return;
+   }
 
    portActive = FALSE; /* flag port closed for error handler  */
    hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
@@ -953,9 +943,6 @@ void nhangup( void )
       return;
 
    hangupNeeded = FALSE;
-
-   if ( console )
-      return;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -1119,7 +1106,7 @@ void nSIOSpeed(BPS baud)
                      com_handle);
 #endif
 
-   if (rc && ! console )
+   if (rc)
    {
       printmsg(0,"SIOSPeed: Unable to set baud rate for port to %ul",
                baud);
@@ -1145,9 +1132,6 @@ void nflowcontrol( boolean flow )
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
 #endif
-
-   if ( console )
-      return;
 
    if ( flow )
        com_dcbinfo.fbFlowReplace = (char)
@@ -1220,9 +1204,6 @@ boolean nCD( void )
 
    BYTE status;
    static BYTE oldstatus = (BYTE) 0xDEAD;
-
-   if ( console )
-      return feof( stdin ) == 0;
 
 #ifdef __OS2__
    ParmLengthInOut = 0;
