@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.11 1993/10/12 01:21:25 ahd Exp $
+ *    $Id: confvars.h 1.12 1993/10/25 01:23:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.12  1993/10/25  01:23:25  ahd
+ *     Rename E_aliases to E_nickname
+ *
  *     Revision 1.11  1993/10/12  01:21:25  ahd
  *     Normalize comments to PL/I style
  *
@@ -63,34 +66,35 @@
 /*      Configuration file strings                                    */
 /*--------------------------------------------------------------------*/
 
-extern char *E_name, *E_mailbox, *E_homedir;
+extern char **E_internal;
+extern char *E_altsignature;                                   /* pdm  */
+extern char *E_anonymous;
 extern char *E_archivedir, *E_newsserv;                        /* news */
+extern char *E_banner;
+extern char *E_charset;
+extern char *E_compress;         /* GMM - Outbound batched news support  */
+extern char *E_cwd;              /* Never set by user, only program   */
+extern char *E_editor, *E_pager;
+extern char *E_fdomain;       /* Domain used in From: lines            */
+extern char *E_filesent, *E_signature;
+extern char *E_inmodem;
+extern char *E_localdomain;                                    /* ahd  */
 extern char *E_mailbox, *E_homedir;
 extern char *E_maildir, *E_newsdir, *E_spooldir, *E_confdir;
-extern char *E_pubdir, *E_tempdir;
-extern char *E_nodename, *E_domain, *E_mailserv;
-extern char *E_fdomain;       /* Domain used in From: lines            */
-extern char *E_inmodem;
-extern char *E_editor, *E_pager;
 extern char *E_mailext, *E_backup;
-extern char *E_filesent, *E_signature;
-extern char *E_altsignature;                                   /* pdm  */
-extern char *E_nickname;      /* Nickname (user alias) file          */
-extern char *E_organization, *E_replyto;                       /* ahd  */
-extern char *E_localdomain;                                    /* ahd  */
-extern char *E_postmaster;                                     /* ahd  */
-extern char *E_uuxqtpath;
-extern char **E_internal;
-extern char *E_charset;
-extern char *E_anonymous;
-extern char *E_version;
-extern char *E_uncompress;
-extern char *E_compress;         /* GMM - Outbound batched news support  */
-extern char *E_banner;
 extern char *E_motd;
-extern char *E_systems;
+extern char *E_name, *E_mailbox, *E_homedir;
+extern char *E_nickname;      /* Nickname (user alias) file          */
+extern char *E_nodename, *E_domain, *E_mailserv;
+extern char *E_organization, *E_replyto;
 extern char *E_passwd;
-extern char *E_cwd;              /* Never set by user, only program   */
+extern char *E_permissions;         /* Name of permissions file   */
+extern char *E_postmaster;
+extern char *E_pubdir, *E_tempdir;
+extern char *E_systems;
+extern char *E_uncompress;
+extern char *E_uuxqtpath;
+extern char *E_version;
 extern char *E_xqtRootDir;
 extern KEWSHORT E_maxhops;
 
