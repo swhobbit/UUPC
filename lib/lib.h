@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: lib.h 1.21 1994/04/24 20:17:29 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.21  1994/04/24  20:17:29  dmwatt
+ *     Add Windows registry for configuration retrieval
+ *
  *     Revision 1.20  1994/02/20  19:16:21  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -142,6 +145,7 @@
 #define B_GLOBAL   0x00000004L /* Must not appear in PERSONAL.RC      */
 #define B_LOCAL    0x00000008L /* The opposite of B_GLOBAL, sort of   */
 
+#define B_GENERIC  0x00000000L /* Generic utilties with no spec vars  */
 #define B_MTA      0x00000010L /* Used by Mail Delivery (RMAIL)       */
 #define B_MUA      0x00000020L /* Used by Mail User Agent (MAIL)      */
 #define B_MUSH     0x00000040L /* Used by MUSH - Not used by UUPC     */
