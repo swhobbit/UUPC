@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.42 1998/04/27 01:57:29 ahd v1-13a $
+ *    $Id: uutypes.h 1.43 1998/05/11 01:25:40 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.43  1998/05/11  01:25:40  ahd
+ *     Change name of SMTP relay boolean
+ *
  *    Revision 1.42  1998/04/27 01:57:29  ahd
  *    Support for setting selected boolean options to enabled
  *
@@ -130,6 +133,7 @@ typedef enum
 /*--------------------------------------------------------------------*/
 
    F_ASKCC,                 /* True = ask for Carbon copies          */
+   F_AUTOCALL,              /* True = automatically invoke UUCICO    */
    F_AUTOEDIT,              /* True = no line prompt, always edit    */
    F_AUTOINCLUDE,           /* True = Perform automatic INCLUDE cmd  */
    F_AUTOPRINT,             /* True = print next msg automatically   */
