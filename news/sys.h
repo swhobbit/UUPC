@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.10 1995/02/12 23:39:45 ahd v1-12q $
+ *    $Id: sys.h 1.11 1996/01/01 21:10:39 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.11  1996/01/01 21:10:39  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1995/02/12 23:39:45  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -96,13 +99,13 @@ typedef struct sys
 
 KWBoolean init_sys( void );
 
-KWBoolean check_sys(struct sys *entry, char *group, char *distrib, char *path);
+KWBoolean check_sys(NEWS_SYS *entry, char *group, char *distrib, char *path);
 
-struct sys *get_sys( const char *name );
+NEWS_SYS *get_sys( const char *name );
 
 void    exit_sys(void);
 
-extern struct sys *sys_list;
+extern NEWS_SYS *sys_list;
 
 #define OUTGOING_NEWS "going.out"   /* It could be out.going on UNIX or HPFS,
                                        but isn't for DOS compatibility        */

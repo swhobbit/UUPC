@@ -18,9 +18,12 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: idx.h 1.6 1995/09/24 19:11:38 ahd v1-12q $ */
+/* $Id: idx.h 1.7 1996/01/01 21:09:54 ahd v1-12r $ */
 
 /* $Log: idx.h $
+/* Revision 1.7  1996/01/01 21:09:54  ahd
+/* Annual Copyright Update
+/*
 /* Revision 1.6  1995/09/24 19:11:38  ahd
 /* Use standard length buffer
 /*
@@ -39,6 +42,8 @@
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
+
+#include "cache.h"
 
 #ifndef _IDX_H
 #define _IDX_H
@@ -74,7 +79,7 @@ typedef struct
   int magic;
   int file;
   unsigned long size;
-  void *cache;
+  CACHE UUFAR *cache;
   PAGE page;
   long page_number;
   int page_dirty;

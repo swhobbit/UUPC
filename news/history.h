@@ -1,3 +1,6 @@
+#ifndef _HISTORY_H
+#define _HISTORY_H
+
 /*--------------------------------------------------------------------*/
 /*    h i s t o r y . h                                               */
 /*                                                                    */
@@ -21,39 +24,53 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: history.h 1.4 1995/03/11 02:02:28 ahd v1-12q $ */
-
-/* $Log: history.h $
-/* Revision 1.4  1995/03/11 02:02:28  ahd
-/* Return success of cancel to allow caller to report
-/*
-/* Revision 1.3  1995/01/03 05:33:54  ahd
-/* Make as many parameters CONST as possible
-/*
-/* Revision 1.2  1994/06/14 01:20:12  ahd
-/* Clean up RCS information
-/*
+/* $Id: history.h 1.5 1996/01/01 21:09:45 ahd v1-12r $
+ *
+ * $Log: history.h $
+ * Revision 1.5  1996/01/01 21:09:45  ahd
+ * Annual Copyright Update
+ *
+ * Revision 1.4  1995/03/11 02:02:28  ahd
+ * Return success of cancel to allow caller to report
+ *
+ * Revision 1.3  1995/01/03 05:33:54  ahd
+ * Make as many parameters CONST as possible
+ *
+ * Revision 1.2  1994/06/14 01:20:12  ahd
+ * Clean up RCS information
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
- * */
+ *
+ */
 
-void *open_history(char *name);
-void close_history(void *hdbm_file);
+#include "hdbm.h"
 
-int add_histentry(void *hdbm_file,
+typedef DBM NEWS_HISTORY;
+
+DBM *open_history(char *name);
+
+void close_history(DBM *hdbm_file);
+
+int add_histentry(DBM *hdbm_file,
                   const char *messageID,
                   const char *hist_record);
-int delete_histentry(void *hdbm_file, const char *messageID);
+int delete_histentry(DBM *hdbm_file, const char *messageID);
 
-char *get_histentry(void *hdbm_file,
+char *get_histentry(DBM *hdbm_file,
                     const char *messageID);
 
-int get_first_histentry(void *hdbm_file, char **messageID, char **histentry);
-int get_next_histentry(void *hdbm_file, char **messageID, char **histentry);
+int get_first_histentry(DBM *hdbm_file, char **messageID, char **histentry);
+
+int get_next_histentry(DBM *hdbm_file, char **messageID, char **histentry);
 
 int count_postings(char *histentry);
+
 char *purge_article(char *histentry, char **groups);
-KWBoolean cancel_article(void *hdbm_file, const char *messageID);
+
+KWBoolean cancel_article(DBM *hdbm_file, const char *messageID);
+
+#endif

@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h 1.2 1995/12/03 13:52:32 ahd Exp $ */
+/* $Id: cache.h 1.3 1996/01/01 21:10:08 ahd v1-12r $ */
 
 /*
  * $Log: cache.h $
+ * Revision 1.3  1996/01/01 21:10:08  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1995/12/03 13:52:32  ahd
  * Use longs for processing cashe items
  *
@@ -40,11 +43,11 @@
 
 typedef struct _CACHEITEM
 {
-  struct _CACHEITEM *next;
-  struct _CACHEITEM *prev;
+  struct _CACHEITEM UUFAR *next;
+  struct _CACHEITEM UUFAR *prev;
   long index;
   int dirty;
-  void *buffer;
+  void UUFAR *buffer;
 }
 CACHEITEM;
 
@@ -57,12 +60,14 @@ typedef struct
   long reads;
   long writes;
   long total;
-  CACHEITEM *head;
-  CACHEITEM *tail;
+  CACHEITEM UUFAR *head;
+  CACHEITEM UUFAR *tail;
 }
 CACHE;
 
-extern CACHE *cache_init(int file, const long items, const size_t itemsize);
+extern CACHE UUFAR *cache_init(int file,
+                                const long items,
+                                const size_t itemsize);
 
 extern void cache_flush(CACHE *cache);
 

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.h 1.8 1995/09/24 19:11:38 ahd v1-12q $
+ * $Id: hdbm.h 1.9 1996/01/01 21:10:25 ahd v1-12r $
  *
  * $Log: hdbm.h $
+ * Revision 1.9  1996/01/01 21:10:25  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1995/09/24 19:11:38  ahd
  * Use standard length buffer
  *
@@ -49,7 +52,7 @@
  * Initial revision
  * */
 
-#define DBM_BUFSIZ      4096
+#define DBM_BUFSIZ      2048
 
 #define DBM_MAGIC       4711
 
@@ -59,12 +62,14 @@
 #define DBM_INSERT      0
 #define DBM_REPLACE     1
 
+#include "idx.h"
+
 typedef struct _DBM
 {
   int magic;
   int dbffile;
   int idxfile;
-  void *idx;
+  IDX *idx;
   FILE *stream;
   char buffer[DBM_BUFSIZ];
   char *value;
