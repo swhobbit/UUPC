@@ -1,12 +1,33 @@
 /*--------------------------------------------------------------------*/
-/*    Program:    rmail.c        16 September 1990                    */
-/*    Author:     Andrew H. Derbyshire                                */
-/*                108 Decatur Street, Apt 9                           */
-/*                Arlington, MA 02174                                 */
-/*    Internet:   help@kendra.kew.com                                 */
+/*       r m a i l . c                                                */
+/*                                                                    */
+/*       Delivery agent for UUPC/extended                             */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *
+ *    $Log: LIB.H $
+ */
+
+/*--------------------------------------------------------------------*/
 /*    Function:   Stand alone mail delivery module for                */
 /*                UUPC/extended                                       */
-/*    Language:   Borland C++ 2.0 (ANSI C mode) or Microsoft C 6.0.   */
+/*    Language:   Borland C++ 3.1 (ANSI C mode) or Microsoft C 6.0.   */
 /*    Arguments:  One or more addresses to deliver mail to            */
 /*                or "-t" to direct rmail to read the addresses       */
 /*                from the RFC-822 header.                            */
@@ -354,7 +375,7 @@ void main(int argc, char **argv)
          if ( *address[count] == '-')
             delivered ++;     /* Ignore option flags on delivery     */
          else
-            delivered += Deliver(tempname, address[count], TRUE);
+            delivered += Deliver(tempname, address[count], FALSE, TRUE);
 
 /*--------------------------------------------------------------------*/
 /*                       Terminate the program                        */
