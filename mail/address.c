@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.27 1997/05/14 05:06:51 ahd v1-12t $
+ *    $Id: address.c 1.28 1997/12/13 18:05:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.28  1997/12/13 18:05:06  ahd
+ *    Cleanup parsing of user/host without path
+ *
  *    Revision 1.27  1997/05/14 05:06:51  ahd
  *    Correct compiler warning
  *
@@ -119,7 +122,7 @@
 
 currentfile();
 
-RCSID("$Id: address.c 1.27 1997/05/14 05:06:51 ahd v1-12t $");
+RCSID("$Id: address.c 1.28 1997/12/13 18:05:06 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -494,8 +497,6 @@ tokenizeAddress(const char *raddress,
    savePath = newstr(hisPath);
    saveNode = newstr(hisNode);
    saveUser = newstr(hisUser);
-
-   free(address);
 
    return KWTrue;
 
