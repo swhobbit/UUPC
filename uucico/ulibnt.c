@@ -21,8 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.20 1994/02/28 00:55:12 dmwatt Exp $
+ *       $Id: ulibnt.c 1.21 1994/04/27 00:02:15 ahd Exp $
  *       $Log: ulibnt.c $
+ *        Revision 1.21  1994/04/27  00:02:15  ahd
+ *        Pick one: Hot handles support, OS/2 TCP/IP support,
+ *                  title bar support
+ *
  * Revision 1.20  1994/02/28  00:55:12  dmwatt
  * Flush serial port before changing to speed to insure data is
  * delivered at correct speed.
@@ -962,7 +966,7 @@ static void ShowModem( const DWORD status )
       mannounce(MS_RLSD_ON,  status, "  Carrier Detect"),
       mannounce(MS_RING_ON,  status, "  Ring Indicator"),
       mannounce(MS_DSR_ON,   status, "  Data Set Ready"),
-      mannounce(MS_CTS_ON,   status, "  Clear to Send");
+      mannounce(MS_CTS_ON,   status, "  Clear to Send"));
 
 } /* ShowModem */
 
