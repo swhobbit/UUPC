@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.43 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: execute.c 1.44 1997/03/31 07:12:17 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.44  1997/03/31 07:12:17  ahd
+ *    COpyright update
+ *    Restore previous title of window
+ *
  *    Revision 1.43  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -408,6 +412,9 @@ int execute( const char *command,
 /*               Redirect STDIN and STDOUT as required                */
 /*--------------------------------------------------------------------*/
 
+   fflush( stderr );
+   fflush( stdout );
+
    if ( (input != NULL) || (output != NULL) )
    {
       if ( ! synchronous )
@@ -505,6 +512,8 @@ int execute( const char *command,
 
 #else
 
+      fflush( stderr );
+      fflush( stdout );
       result = spawnl(  P_WAIT,
                         (char *) path,
 #ifdef __IBMC__
