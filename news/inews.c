@@ -19,9 +19,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: inews.c 1.10 1994/03/20 14:26:12 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.10  1994/03/20  14:26:12  ahd
+ * Normalize top of routine comments (add kew copyright)
+ * Add missing ? option
+ *
+ * Revision 1.10  1994/03/20  14:26:12  ahd
+ * Normalize top of routine comments (add kew copyright)
+ * Add missing ? option
+ *
  * Revision 1.9  1994/03/20  14:22:01  rommel
  * Add grade option to allow different call grades
  *
@@ -60,7 +68,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.9 1994/03/20 14:22:01 rommel Exp $";
+      "$Id: inews.c 1.10 1994/03/20 14:26:12 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -170,7 +178,7 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
   if (optind == argc - 1)
-    if (freopen(argv[optind], "rb", stdin) == NULL)
+    if (freopen(argv[optind], "r", stdin) == NULL)
     {
       printmsg(0, "inews: cannot open article file %s", argv[optind]);
       printerr( argv[optind] );
