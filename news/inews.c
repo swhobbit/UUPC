@@ -9,10 +9,15 @@
 /* todo: moderated groups, shadow systems delivery */
 
 static char *rcsid =
-"$Id: inews.c 1.2 1993/10/31 11:58:18 ahd Exp $";
-static char *rcsrev = "$Revision: 1.2 $";
+"$Id: inews.c 1.3 1994/01/18 13:29:22 ahd Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
 /* $Log: inews.c $
+ * Revision 1.3  1994/01/18  13:29:22  ahd
+ * Various fixes from Kai Uwe Rommel
+ * Modify error returns to not use comma operator
+ * Use E_newsserv over E_mailserv
+ *
  * Revision 1.2  1993/10/31  11:58:18  ahd
  * Delete unneeded tzset()
  *
@@ -123,7 +128,7 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
   if (optind == argc - 1)
-    if (freopen(argv[optind], "r", stdin) == NULL) {
+    if (freopen(argv[optind], "rb", stdin) == NULL) {
       printmsg(0, "inews: cannot open article file %s", argv[optind]);
       panic();
     }
