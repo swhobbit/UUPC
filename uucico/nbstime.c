@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.12 1993/10/28 12:19:01 ahd Exp rommel $
+ *    $Id: nbstime.c 1.13 1993/12/23 03:17:55 rommel Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.13  1993/12/23  03:17:55  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.12  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *
@@ -125,13 +128,16 @@
 boolean nbstime( void )
 {
    char buf[BUFSIZ];
-   time_t today;
    struct tm  tx;
    int cycles = 15;
    int dst= 0;
-   time_t delta;
    char sync = '?';
    unsigned rc;
+
+#if !defined(WIN32)
+   time_t delta;
+   time_t today;
+#endif
 
 #ifdef WIN32
 
