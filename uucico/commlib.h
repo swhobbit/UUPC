@@ -20,10 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.6 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: commlib.h 1.7 1993/10/02 23:51:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.7  1993/10/02  23:51:15  ahd
+ * Reduce MAXPACK for 32 bit environments to 1024 bytes because
+ * of NT aborts  with 4096
+ *
  * Revision 1.6  1993/09/29  04:56:11  ahd
  * Suspend port by port name, not modem file name
  *
@@ -57,22 +61,6 @@ typedef void    (*commrefv)();
 typedef boolean (*commrefb)();
 typedef BPS     (*commrefB)();
 
-/*--------------------------------------------------------------------*/
-/*         Define table for looking up communications functions       */
-/*--------------------------------------------------------------------*/
-
-typedef struct _COMMSUITE {
-        char     *type;
-        commrefi activeopenline;
-        commrefi passiveopenline;
-        commrefu sread;
-        commrefi swrite;
-        commrefv ssendbrk, closeline, SIOSpeed, flowcontrol, hangup;
-        commrefB GetSpeed;
-        commrefb CD;
-        commrefb WaitForNetConnect;
-        boolean  network;
-} COMMSUITE;
 
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
@@ -143,6 +131,10 @@ extern boolean (*WaitForNetConnectp)( const unsigned int timeout);
 #define CD()                           (*CDp)()
 #define WaitForNetConnect(timeout)     (*WaitForNetConnectp)(timeout)
 
+extern size_t commBufferLength;
+extern size_t commBufferUsed;
+extern char *commBuffer;
+
 extern boolean portActive;          // Port active flag for error handler
 extern boolean traceEnabled;        // Enable comm port trace
 
@@ -160,12 +152,6 @@ void resetPrty( void );
 /*                    Declare network buffer size                     */
 /*--------------------------------------------------------------------*/
 
-#if defined(__OS2__) || defined(WIN32) // 32 bit compiler?
-#define MAXPACK 1024          /* Max packet size we can handle       */
-#elif defined(_Windows)
 #define MAXPACK 1024          /* Needed for 't' protocol blocks      */
-#else
-#define MAXPACK 512           /* Max packet size we can handle       */
-#endif
 
 #endif
