@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.22 1994/02/19 04:42:53 ahd Exp $
+ *    $Id: import.c 1.23 1994/02/28 04:10:29 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.23  1994/02/28  04:10:29  ahd
+ *     Correct spelling of longname flag
+ *
  *     Revision 1.22  1994/02/19  04:42:53  ahd
  *     Use standard first header
  *
@@ -818,8 +821,17 @@ static boolean advancedFS( const char *path )
 
    if (equal( fileSystem, "FAT"))
       return FALSE;
-   else
+
+   if (equal( fileSystem, "VINES"))
+      return FALSE;
+
+   if (equal( fileSystem, "HPFS"))
       return TRUE;
+
+   printmsg(1,"Unknown file system \"%s\", assuming supports long names",
+               dataBuffer->szName);
+
+   return TRUE;
 
 } /* advancedFS */
 
