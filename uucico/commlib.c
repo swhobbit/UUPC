@@ -17,14 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: COMMLIB.C 1.1 1993/05/30 00:01:47 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: COMMLIB.C $
+ * Revision 1.1  1993/05/30  00:01:47  ahd
+ * Initial revision
+ *
  */
-
- static const char rcsid[] =
-               "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -47,6 +47,7 @@
 #ifndef WIN32
 #ifndef FAMILYAPI
 #include "ulibfs.h"           // FOSSIL interface
+#include "ulib14.h"           // ARTISOFT INT14 interface
 #endif
 #endif
 
@@ -54,7 +55,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-boolean port_active;         /* Port active flag for error handler   */
+boolean portActive;         /* Port active flag for error handler   */
 boolean traceEnabled;        // Trace active flag
 
 commrefi openlinep, swritep;
@@ -95,6 +96,11 @@ boolean chooseCommunications( const char *name )
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD },
+        { "int14",                     // MS-DOS ARTISOFT INT14 driver
+          iopenline, isread, iswrite,
+          issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
+          iGetSpeed,
+          iCD },
 #endif
 #endif
         { NULL }                       // End of list
@@ -198,6 +204,8 @@ void traceStop( void )
 {
    if ( traceStream != NULL )
    {
+      time_t now = time( NULL );
+      fprintf(traceStream,"\nTrace complete at %s",  ctime( &now ));
       fclose( traceStream );
       traceStream = NULL;
    }

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.13 1993/04/15 03:21:06 ahd Exp ahd $
+ *    $Id: MODEM.C 1.14 1993/05/30 00:04:53 ahd Exp $
  *
  *    Revision history:
- *    $Log: modem.c $
+ *    $Log: MODEM.C $
+ * Revision 1.14  1993/05/30  00:04:53  ahd
+ * Multiple communications drivers support
+ *
  * Revision 1.13  1993/04/15  03:21:06  ahd
  * Add CD() call to hot login procedure
  *
@@ -686,7 +689,7 @@ void shutdown( void )
 {
    static boolean recurse = FALSE;
 
-   if ( ! port_active )          /* Allowed for Ctrl-Break           */
+   if ( ! portActive )          /* Allowed for Ctrl-Break           */
       return;
 
    if ( !recurse )

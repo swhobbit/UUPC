@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFIGUR.C 1.11 1993/05/09 03:49:21 ahd Exp $
+ *    $Id: CONFIGUR.C 1.12 1993/05/29 15:19:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.12  1993/05/29  15:19:59  ahd
+ *     Add systems file, passwd files
+ *
  *     Revision 1.11  1993/05/09  03:49:21  ahd
  *     Support banner, motd strings
  *     Support longname, honordebug, senddebug options
@@ -602,8 +605,8 @@ boolean configure( CONFIGBITS program)
         {&E_pubdir,       "public"  },
         {&E_spooldir,     "spool"   },
         {&E_tempdir,      "tmp"     },
-        {&E_systems,      SYSNAME   },
-        {&E_passwd,       PASSNAME  },
+        {&E_systems,      "systems" },
+        {&E_passwd,       "passwd"  },
         { NULL  }
         } ;
 

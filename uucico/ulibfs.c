@@ -18,13 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.10 1993/05/09 03:41:47 ahd Exp $
+ *    $Id: ULIBFS.C 1.1 1993/05/30 00:01:47 ahd Exp $
  *
  *    History:
- *    $Log: ULIB.C $
+ *    $Log: ULIBFS.C $
+ * Revision 1.1  1993/05/30  00:01:47  ahd
+ * Initial revision
+ *
  */
-
- // RCSID( "$Id$" );
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -85,14 +86,14 @@ int fopenline(char *name, BPS baud, const boolean direct)
 /*                       Determine the port number                    */
 /*--------------------------------------------------------------------*/
 
-   if (sscanf(name, "COM%d", &port) != 1)
+   if (sscanf(name, "COM%d", &portNum) != 1)
    {
       printmsg(0,"Communications port must be format COMx, was %s",
                 name);
       panic();
    }
 
-   port--;                    // FOSSIL uses offset, nor ordinal number
+   portNum--;                 // FOSSIL uses offset, not ordinal number
 
 /*--------------------------------------------------------------------*/
 /*                   Attempt to initialize the driver                 */
@@ -129,6 +130,7 @@ int fopenline(char *name, BPS baud, const boolean direct)
               (int) fossilData.inputSize,
               (int) fossilData.outputSize );
 
+   portActive = TRUE;         // Flag port is open
    return FALSE;              // Report success to caller
 
 } /* fopenLine */
@@ -162,7 +164,7 @@ unsigned int fsread(char *buffer,
 
       if ( pending >= wanted )
       {
-         int moved = blockIO( buffer, wanted, FS_READBLOK );
+         unsigned int moved = blockIO( buffer, wanted, FS_READBLOK );
                                              // Get the data
          traceData( buffer, moved, FALSE );  // Trace the data
 
@@ -345,10 +347,10 @@ void fssendbrk(unsigned int duration)
 
 void fcloseline(void)
 {
-   if (!port_active)
+   if (!portActive)
       panic();
 
-   port_active = FALSE;       // Flag port closed for error handler
+   portActive = FALSE;        // Flag port closed for error handler
 
    FSFlushXmit();             // Drop XMIT queue if not empty
    FSFlushRecv();             // Drop Recv queue as well
@@ -357,6 +359,7 @@ void fcloseline(void)
    ddelay(500);               // Required for V.24
 
    FSClose();
+   traceStop();
 
 } /* fcloseline */
 
@@ -377,9 +380,9 @@ void fSIOSpeed(BPS bps)
 
    short best = 3;
 
-   while( (rates[speed] > 0) && ((long) rates[speed] != bps ))
+   while( (rates[speed] > 0) && (rates[speed] != (long) bps ))
    {
-      if ( (rates[speed] / 100) == (bps / 100) )
+      if ( (rates[speed] / 100) == ((long) bps / 100) )
          best = speed;
 
       speed++;
@@ -504,11 +507,12 @@ static void showModem( const short status )
 
    printmsg(0, "showModem: %#04x%s%s%s%s%s",
       status,
-      mannounce(FS_STAT_OUTPEMPT,   status, "\tXBuffer Empty"),
-      mannounce(FS_STAT_OUTPROOM,   status, "\tXBuffer Not Full"),
-      mannounce(FS_STAT_OVERRUN,    status, "\tRBuffer Overrun"),
-      mannounce(FS_STAT_INQUEUED,   status, "\tRData Queued"),
-      mannounce(FS_STAT_DCD,        status, "\tCarrier Detect"));
+      mannounce(FS_STAT_DCD,        status, "\tCarrier Detect"),
+      mannounce(FS_STAT_OVERRUN,    status, "\tR-Overrun"),
+      mannounce(FS_STAT_INQUEUED,   status, "\tR-Pending"),
+      mannounce(FS_STAT_OUTPROOM,   status, "\tX-Free"),
+      mannounce(FS_STAT_OUTPEMPT,   status, "\tX-Empty")
+      );
 
    old_status = status;
 
@@ -525,13 +529,11 @@ static void getDriverInfo( FS_INFO *fossilData)
    union REGS regs;
    struct SREGS sregs;
 
-   memset( fossilData, 0xDEAD, sizeof *fossilData );
-
    regs.h.ah = FS_DRIVINFO;            // Get driver information
    regs.x.cx = sizeof *fossilData;     // Into buffer this long
    sregs.es  = FP_SEG( fossilData );   // Use segment of buffer
    regs.x.di = FP_OFF( fossilData );   // Use offset of buffer
-   regs.x.dx = port;                   // For this port
+   regs.x.dx = portNum;                // For this port
 
    int86x( FS_INTERRUPT, &regs, &regs, &sregs);
 
@@ -556,7 +558,7 @@ static short blockIO( char *buffer, const short len, const char function)
    union REGS regs;
    struct SREGS sregs;
 
-   regs.x.dx = port;                   // Perform function against port
+   regs.x.dx = portNum;                // Perform function against port
 
    regs.h.ah = FS_STATPORT;            // First, set up to get status
    int86( FS_INTERRUPT, &regs, &regs); // ... get the info ...

@@ -19,8 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.12 1993/05/09 03:41:47 ahd Exp $
+ *       $Id: ULIBOS2.C 1.13 1993/05/30 00:08:03 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.13  1993/05/30  00:08:03  ahd
+ * Multiple communications driver support
+ * Delete trace functions
+ *
  * Revision 1.12  1993/05/09  03:41:47  ahd
  * Make swrite accept constant input strings
  *
@@ -169,7 +173,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                            0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
 #endif
 
-   if (port_active)              /* Was the port already active?     ahd   */
+   if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
@@ -249,7 +253,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( equal(name,"CON"))
    {
-      port_active = TRUE;     /* record status for error handler        */
+      portActive = TRUE;     /* record status for error handler        */
       carrierdetect = FALSE;  /* Modem is not connected                 */
       console = TRUE;
       return 0;
@@ -481,7 +485,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    traceStart( name );     // Enable logging
 
-   port_active = TRUE;     /* record status for error handler        */
+   portActive = TRUE;     /* record status for error handler        */
    carrierdetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
@@ -925,10 +929,10 @@ void ncloseline(void)
    HANDLE hProcess;
 #endif
 
-   if ( ! port_active )
+   if ( ! portActive )
       panic();
 
-   port_active = FALSE; /* flag port closed for error handler  */
+   portActive = FALSE; /* flag port closed for error handler  */
    hangup_needed = FALSE;  /* Don't fiddle with port any more  */
 
 /*--------------------------------------------------------------------*/

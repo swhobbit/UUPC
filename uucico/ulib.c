@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.10 1993/05/09 03:41:47 ahd Exp $
+ *    $Id: ULIB.C 1.11 1993/05/30 00:08:03 ahd Exp $
  *
  *    $Log: ULIB.C $
+ * Revision 1.11  1993/05/30  00:08:03  ahd
+ * Multiple communications drivers support
+ * Don't lock port if not in multi-task mode
+ * Break trace functions out of ulib.c into commlib.c
+ *
  * Revision 1.10  1993/05/09  03:41:47  ahd
  * Make swrite accept constant input strings
  *
@@ -123,7 +128,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
 {
    int   value;
 
-   if (port_active)              /* Was the port already active?     ahd   */
+   if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
    printmsg(15, "openline: %s, %d", name, bps);
@@ -172,7 +177,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
 
    traceStart( name );
 
-   port_active = TRUE;     /* record status for error handler */
+   portActive = TRUE;     /* record status for error handler */
 
    return 0;
 
@@ -392,10 +397,10 @@ void ncloseline(void)
 {
    int far *stats;
 
-   if (!port_active)
+   if (!portActive)
       panic();
 
-   port_active = FALSE; /* flag port closed for error handler  */
+   portActive = FALSE;        /* Flag port closed for error handler  */
 
    dtr_off();
    ddelay(500);               /* Required for V.24             */
