@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.25 1995/02/23 04:27:54 ahd v1-12q $
+ *    $Id: ulibip.c 1.26 1996/01/01 21:22:56 ahd v1-12r $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.26  1996/01/01 21:22:56  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1995/02/23 04:27:54  ahd
  *    Explicitly report timeouts, compiler warning cleanup
  *
@@ -154,7 +157,13 @@
 #endif
 
 #endif
+
 #include "commlib.h"       /* Trace functions, etc.                    */
+
+#define UUCP_SERVICE "uucp"
+#define UUCP_PORT    540
+
+#define NETDEBUG 4
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -167,6 +176,7 @@ typedef int SOCKET;
 #if !defined(__OS2__)
 void AtWinsockExit(void);
 #endif
+
 KWBoolean IsFatalSocketError(int err);
 
 /*--------------------------------------------------------------------*/
@@ -183,6 +193,8 @@ KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
 #else
 extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 #endif
+
+#define NETDEBUG 4
 
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
@@ -205,9 +217,11 @@ static KWBoolean connectionDied = KWFalse;        /* The current connection fail
 
 KWBoolean InitWinsock(void)
 {
+
 #if !defined(__OS2__)
    WSADATA WSAData;
 #endif
+
    int status;
    static KWBoolean firstPass = KWTrue;
 
@@ -295,34 +309,39 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
    char *portStr;
 
    if (!InitWinsock())           /* Initialize library?               */
-      return KWTrue;              /* No --> Report error               */
+      return KWTrue;             /* No --> Report error               */
 
-   if (portActive)              /* Was the port already active?      */
-      closeline();               /* Yes --> Shutdown it before open  */
+   if (portActive)               /* Was the port already active?      */
+      closeline();               /* Yes --> Shutdown it before open   */
 
-   printmsg(15, "tactiveopenline: %s", name);
+   printmsg(NETDEBUG + 1, "tactiveopenline: %s", name);
 
    norecovery = KWFalse;    /* Flag we need a graceful shutdown after  */
-                           /* Ctrl-BREAK                              */
+                            /* Ctrl-BREAK                              */
 
    connectionDied = KWFalse; /* The connection hasn't failed yet */
 
 /*--------------------------------------------------------------------*/
 /*                        Parse out port address                      */
 /*--------------------------------------------------------------------*/
+
    remotePort = 0;
    portStr = strchr(name, ':');
+
    if (portStr)
    {
          *portStr = '\0';
          portStr++;
 
          pse = getservbyname(portStr, "tcp");
+
          if (pse == NULL)
          {
             remotePort = (u_short)atoi(portStr);
-            printmsg(4, "tactiveopenline: connecting to remote port %d",
-               (int)remotePort);
+
+            printmsg(NETDEBUG + 1,
+                     "tactiveopenline: Using user specified remote port %d",
+                    (int)remotePort);
 
             /* Remember to invert byte order! */
 
@@ -364,14 +383,17 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
 
    if (remotePort == 0)
    {
-      pse = getservbyname("uucp", "tcp");
+      pse = getservbyname(UUCP_SERVICE, "tcp");
+
       if (pse == NULL)
       {
          int wsErr = WSAGetLastError();
 
-         sin.sin_port = htons(540);
+         sin.sin_port = htons(UUCP_PORT);
          printWSerror("getservbyname", wsErr);
-         printmsg(0, "tactiveopenline: using port %d", (int)htons(sin.sin_port));
+         printmsg(0, "tactiveopenline: cannot locate service %s, using port %d",
+                     UUCP_SERVICE,
+                     (int)ntohs(sin.sin_port));
       }
       else
          sin.sin_port = pse->s_port;
@@ -380,13 +402,19 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
       sin.sin_port = remotePort;
 
    connectedSock = socket( AF_INET, SOCK_STREAM, 0);
+
    if (connectedSock == INVALID_SOCKET)
    {
       printmsg(0, "tactiveopenline: socket() failed");
       return KWTrue;
    }
 
-   if (connect( connectedSock, (PSOCKADDR) &sin, sizeof(sin)) < 0)
+   printmsg( 1, "Connecting to host %s [%s] port %d",
+                     name,
+                     inet_ntoa( sin.sin_addr ),
+                     ntohs( sin.sin_port ));
+
+   if (connect( connectedSock, (PSOCKADDR) (void *) &sin, sizeof(sin)) < 0)
    {
       int wsErr = WSAGetLastError();
 
@@ -427,8 +455,6 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
-   printmsg(15, "tpassiveopenline: opening passive connection");
-
    norecovery = KWFalse;    /* Flag we need a graceful shutdown after */
                            /* Ctrl-BREAK                             */
    connectionDied = KWFalse; /* The connection hasn't failed yet      */
@@ -454,16 +480,17 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 /*                Fill in service information for tcp                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(15, "tpassiveopenline: doing getservbyname");
-   pse = getservbyname("uucp", "tcp");
+   printmsg(NETDEBUG, "tpassiveopenline: doing getservbyname");
+   pse = getservbyname(UUCP_SERVICE, "tcp");
 
    if (pse == NULL)
    {
       int wsErr = WSAGetLastError();
 
-      sin.sin_port = htons(540);
+      sin.sin_port = htons(UUCP_PORT);
       printWSerror("getservbyname", wsErr);
-      printmsg(0, "tpassiveopenline: using port %d",
+      printmsg(0, "tpassiveopenline: cannot locate service %s, using port %d",
+                  UUCP_SERVICE,
                   (int)ntohs(sin.sin_port));
    }
    else
@@ -471,14 +498,12 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 
    sin.sin_addr.s_addr = 0;
 
-   printmsg(5, "tpassiveopenline: waiting on port %d",
-               (int)ntohs(sin.sin_port));
-
 /*--------------------------------------------------------------------*/
 /*                     Create and bind TCP socket                     */
 /*--------------------------------------------------------------------*/
 
-   printmsg(15, "tpassiveopen: doing socket()");
+   printmsg(NETDEBUG + 1, "tpassiveopen: doing socket()" );
+
    pollingSock = socket( AF_INET, SOCK_STREAM, 0);
 
    if (pollingSock == INVALID_SOCKET)
@@ -490,10 +515,11 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
       return KWTrue;
    }
 
-   printmsg(15, "tpassiveopen: doing bind()");
+   printmsg(NETDEBUG, "tpassiveopen: doing bind() on socket %d port %d",
+                      (int)ntohs(sin.sin_port));
 
    if (bind(pollingSock,
-           (struct sockaddr UUFAR *) &sin,
+           (struct sockaddr UUFAR *) (void *) &sin,
            sizeof(sin)) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
@@ -503,7 +529,8 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
       return KWTrue;                     /* report failure              */
    }
 
-   printmsg(15, "tpassiveopen: doing listen()");
+   printmsg(NETDEBUG, "tpassiveopen: doing listen()");
+
    if (listen(pollingSock, 2) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
@@ -589,12 +616,12 @@ unsigned int tsread(char UUFAR *output,
    }
    else {
       time( & now );
-      stop_time = now + timeout;
+      stop_time = (unsigned long) now + timeout;
    }
 
    do {
       int received;
-      int needed = wanted - commBufferUsed;
+      int needed = (int) (wanted - commBufferUsed);
 
 /*--------------------------------------------------------------------*/
 /*          Initialize fd_set structure for select() call             */
@@ -630,7 +657,7 @@ unsigned int tsread(char UUFAR *output,
          tm.tv_sec = 0;
       }
       else {
-         tm.tv_sec = stop_time - now;
+         tm.tv_sec = (unsigned long) (stop_time - now);
          tm.tv_usec = 0;
 
       }
@@ -664,8 +691,8 @@ unsigned int tsread(char UUFAR *output,
       else {
          received = recv(connectedSock,
                          commBuffer + commBufferUsed,
-                         firstPass ?
-                            commBufferLength - commBufferUsed : needed,
+                         (int) (firstPass ?
+                            commBufferLength - commBufferUsed : needed),
                          0);
 
          firstPass = KWFalse;
@@ -749,11 +776,12 @@ int tswrite(const char UUFAR *data, unsigned int len)
 {
    int status;
 
-/* Has connection died? */
+   /* Has connection died? */
+
    if (connectionDied || connectedSock == INVALID_SOCKET)
       return 0;
 
-   status = send(connectedSock, (char UUFAR *)data, len, 0);
+   status = send(connectedSock, (char UUFAR *)data, (int) len, 0);
 
    if (status == SOCKET_ERROR)
    {
@@ -787,7 +815,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
 /*              Return byte count transmitted to caller               */
 /*--------------------------------------------------------------------*/
 
-   return len;
+   return (int) len;
 
 } /* tswrite */
 
@@ -916,7 +944,7 @@ BPS tGetSpeed( void )
 KWBoolean tCD( void )
 {
 
-   return connectionDied ? KWFalse : KWTrue;
+   return (KWBoolean) (connectionDied ? KWFalse : KWTrue);
 
 } /* tCD */
 
@@ -958,6 +986,7 @@ KWBoolean tWaitForNetConnect(const unsigned int timeout)
       return KWFalse;
 
    connectedSock = accept(pollingSock, NULL, NULL);
+
    if (connectedSock == INVALID_SOCKET)
    {
       int wsErr = WSAGetLastError();
@@ -978,6 +1007,7 @@ KWBoolean tWaitForNetConnect(const unsigned int timeout)
 
 KWBoolean IsFatalSocketError(int err)
 {
+
 #if defined(__OS2__)
    if (err == ENOTSOCK     ||
        err == ENETDOWN     ||
