@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.12 1995/04/02 00:01:39 ahd v1-12q $
+ *    $Id: sysalias.c 1.13 1996/01/01 21:04:20 ahd v1-12r $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.13  1996/01/01 21:04:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/04/02 00:01:39  ahd
  *    Properly handle case of comment immediately before new alias;
  *    previously, starting location of alias was saved wrong
@@ -264,6 +267,10 @@ static void InitAlias( void )
       free( aliasTable );
    else
       aliasTable = realloc( aliasTable, aliases * sizeof *aliasTable );
+
+   printmsg(2,"InitAlias: Loaded %d system aliases from %s",
+               aliases,
+               SysAliases);
 
    fclose( stream );
 
