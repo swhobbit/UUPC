@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.13 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: address.c 1.14 1994/03/07 06:09:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.14  1994/03/07  06:09:51  ahd
+ * Add additional debugging messages controlled by UDEBUG
+ *
  * Revision 1.13  1994/02/28  01:02:06  ahd
  * Cosmetic formatting clean ups
  *
@@ -205,9 +208,25 @@ void user_at_node(const char *raddress,
 
    if (( wptr > tptr ) && ( strchr("!:",*(wptr-1)) == NULL))
    {
+
       uptr  = tptr;               /* Get user part of userid @node    */
       *wptr++ = '\0';             /* Terminate user portion           */
-      tptr  = wptr;               /* Get node part of userid @node    */
+
+      if ( *wptr == '\0' )        /* Host MISSING?                   */
+      {                           /* Yes --> Throw error, treat addr
+                                             as local                */
+         printmsg(0,"Invalid RFC-822 address, missing host name: %s",
+                    saveaddr );
+         tptr = "???????";
+      }
+      else
+         tptr  = wptr;           /* Get node part of userid @node    */
+
+#ifdef UDEBUG
+      printmsg(4,"user_at_node: parsed user as \"%s\", node as \"%s\"",
+                 uptr,
+                 tptr );
+#endif
    }
 
    if (tptr != NULL)           /* Did we get a node?                  */
@@ -217,9 +236,9 @@ void user_at_node(const char *raddress,
    } /* if */
 
 /*--------------------------------------------------------------------*/
-/*   Now, we will try stripping off any uucp path that the address    */
-/*   may have acquired; we'll assume the last node is the addressee's */
-/*   node.                                                            */
+/*       Now, we will try stripping off any uucp path that the        */
+/*       address may have acquired; we'll assume the last node is     */
+/*       the addressee's node.                                        */
 /*--------------------------------------------------------------------*/
 
    uptr = strtok(uptr,"!");
@@ -228,6 +247,7 @@ void user_at_node(const char *raddress,
    while ( tptr != NULL )
    {
       nptr = uptr;                  /* First token is node            */
+
       if (*tptr == '@')             /* Explicit RFC-822 route?        */
       {                             /* Yes --> Examine in detail      */
          uptr = strtok( rfc_route( tptr, &nptr, &pptr ), "!");
@@ -240,6 +260,7 @@ void user_at_node(const char *raddress,
          tptr = strtok(NULL,"");    /* Save rest of string            */
          pptr = HostPath( nptr, pptr);
       } /* else */
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -262,6 +283,7 @@ void user_at_node(const char *raddress,
 /*--------------------------------------------------------------------*/
 
    nptr = HostAlias( nptr );
+
    if (equali(pptr,E_nodename))
                               /* Is mail routed via our local system? */
    {                          /* Yes --> Determine if destined for us */
