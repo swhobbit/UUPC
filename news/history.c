@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -27,6 +27,11 @@
 
 /*
  * $Log: history.c $
+ * Revision 1.17  1996/11/18 04:46:49  ahd
+ * Normalize arguments to bugout
+ * Reset title after exec of sub-modules
+ * Normalize host status names to use HS_ prefix
+ *
  * Revision 1.16  1996/01/01 21:08:58  ahd
  * Annual Copyright Update
  *
@@ -102,9 +107,8 @@
 #include "history.h"
 #include "importng.h"
 #include "hdbm.h"
-#include "makebuf.h"
 
-RCSID("$Id: history.c 1.16 1996/01/01 21:08:58 ahd v1-12r $" );
+RCSID("$Id: history.c 1.17 1996/11/18 04:46:49 ahd Exp $" );
 
 currentfile();
 
@@ -277,10 +281,11 @@ int delete_histentry(DBM *hdbm_file, const char *messageID)
 
 int count_postings(char *histentry)
 {
-  char *value = (char *) MAKEBUF( strlen( histentry + 1 ));
+  char *value = (char *) malloc( strlen( histentry + 1 ));
   char *ptr, *num;
   int count;
 
+  checkref( value );
   strcpy(value, histentry);
   strtok(value, " ");   /* strip off date */
   strtok(NULL, " ");    /* strip off size */
@@ -294,7 +299,7 @@ int count_postings(char *histentry)
       count++;
   }
 
-  FREEBUF( value );
+  free( value );
   return count;
 }
 
@@ -347,7 +352,7 @@ char *purge_article(char *histentry, char **groups)
 {
   static char *remain = NULL;
   size_t len  = strlen( histentry ) + 1;
-  char *value = (char *) MAKEBUF( len );
+  char value[ DBM_BUFSIZ ];
   char filename[ FILENAME_MAX ];
   char *group, *num;
   long article, remaining;
@@ -404,7 +409,6 @@ char *purge_article(char *histentry, char **groups)
       remain = NULL;
   }
 
-  FREEBUF( value );
   return remain;
 
 } /* purge_article */

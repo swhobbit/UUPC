@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.16 1996/11/18 04:46:49 ahd Exp $
+ *       $Id: newsrun.c 1.17 1996/11/22 03:12:25 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.17  1996/11/22 03:12:25  ahd
+ *       Don't use length of pointer for buffer read, use buffer length
+ *
  *       Revision 1.16  1996/11/18 04:46:49  ahd
  *       Normalize arguments to bugout
  *       Reset title after exec of sub-modules
@@ -242,7 +245,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.16 1996/11/18 04:46:49 ahd Exp $");
+RCSID("$Id: newsrun.c 1.17 1996/11/22 03:12:25 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -271,7 +274,6 @@ RCSID("$Id: newsrun.c 1.16 1996/11/18 04:46:49 ahd Exp $");
 #include "stater.h"
 
 #include "execute.h"
-#include "makebuf.h"
 
 #include "batch.h"
 #include "sys.h"
@@ -1484,20 +1486,24 @@ static KWBoolean deliver_local(IMFILE *imf,
                              const char *control)
 {
 
-  char *newsgroups = NULL;
-  char *msgID = (char *) messageID;
+  char newsgroups[ LARGEBUF ];
+  char msgID[FILENAME_MAX];
   size_t newsgroups_len;
   int  groups_found;
   long snum;
 
-  char *historyRecordP = NULL;
-  char *groupyP = NULL;
+  char historyRecord[ LARGEBUF ];
+  char groupy[ MAXGRP ];
 
   char *gc_ptr;
   char *gc_ptr1;
 
   KWBoolean b_xref;               /* Xref line if multiple groups     */
   KWBoolean posted = KWFalse;
+
+  strncpy( msgID, messageID, sizeof msgID );
+  msgID[ sizeof msgID - 1] = '\0';
+
 
   loc_articles++;
 
@@ -1514,14 +1520,6 @@ static KWBoolean deliver_local(IMFILE *imf,
    }
 
 /*--------------------------------------------------------------------*/
-/*                        Acquire work buffers                        */
-/*--------------------------------------------------------------------*/
-
-  historyRecordP = MAKEBUF( LARGEBUF );
-  groupyP = MAKEBUF( MAXGRP );
-
-
-/*--------------------------------------------------------------------*/
 /*           Check whether article has been received before           */
 /*--------------------------------------------------------------------*/
 
@@ -1531,7 +1529,6 @@ static KWBoolean deliver_local(IMFILE *imf,
 
       if (control)               /* Don't save control message twice */
       {
-         FREEBUF( historyRecordP );
          return KWFalse;
       }
 
@@ -1542,7 +1539,6 @@ static KWBoolean deliver_local(IMFILE *imf,
       if ( snum )
       {
          newsgroups_in = "duplicates";
-         msgID = MAKEBUF( FILENAME_MAX );
 
          sprintf(msgID, "<%ld.duplicate.%.10s@%.50s>",
                  snum + 1,
@@ -1551,7 +1547,6 @@ static KWBoolean deliver_local(IMFILE *imf,
 
       }
       else {
-         FREEBUF( historyRecordP );
          return KWFalse;
       }
 
@@ -1565,7 +1560,6 @@ static KWBoolean deliver_local(IMFILE *imf,
    b_xref = (KWBoolean) ((strchr(newsgroups_in,',') == NULL) ?
                                                         KWFalse : KWTrue);
 
-   newsgroups = MAKEBUF( newsgroups_len + 1 );
    memcpy( newsgroups, newsgroups_in, newsgroups_len );
    newsgroups[newsgroups_len] = '\0';     /* Terminate for rescan    */
 
@@ -1573,7 +1567,7 @@ static KWBoolean deliver_local(IMFILE *imf,
 /*             Build the history record for this article              */
 /*--------------------------------------------------------------------*/
 
-   sprintf(historyRecordP, "%ld %ld ", now, imlength( imf ));
+   sprintf(historyRecord, "%ld %ld ", now, imlength( imf ));
    groups_found = 0;
 
    for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
@@ -1589,18 +1583,18 @@ static KWBoolean deliver_local(IMFILE *imf,
          continue; /* Punt the newsgroup history record */
       }
 
-      strcpy(groupyP, gc_ptr);
+      strcpy(groupy, gc_ptr);
 
-      snum = getArticleNewest( groupyP );
+      snum = getArticleNewest( groupy );
 
       if ( snum )
       {
         if (groups_found)
-           strcat(historyRecordP, ", ");
+           strcat(historyRecord, ", ");
 
-        sprintf( historyRecordP + strlen( historyRecordP ),
+        sprintf( historyRecord + strlen( historyRecord ),
                  "%s:%ld",
-                 groupyP,
+                 groupy,
                  snum + 1);
 
         groups_found++;
@@ -1631,11 +1625,10 @@ static KWBoolean deliver_local(IMFILE *imf,
 
      if (snum == 0 )                   /* Do we maintain junk group? */
      {                                 /* No --> Throw article away  */
-       FREEBUF( historyRecordP );
        return KWFalse;
      }
 
-     sprintf(historyRecordP, "%ld %ld junk:%ld",
+     sprintf(historyRecord, "%ld %ld junk:%ld",
              now,
              imlength( imf ),
              snum + 1);
@@ -1646,7 +1639,7 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    /* Post the history record */
 
-   add_histentry(history, msgID, historyRecordP);
+   add_histentry(history, msgID, historyRecord);
 
 /*--------------------------------------------------------------------*/
 /*              Now build the Xref: line (if we need to)              */
@@ -1654,8 +1647,8 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    if (b_xref)
    {
-      strcpy(historyRecordP, "Xref: ");
-      strcat(historyRecordP, canonical_news_name());
+      strcpy(historyRecord, "Xref: ");
+      strcat(historyRecord, canonical_news_name());
 
       for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
       {
@@ -1669,21 +1662,21 @@ static KWBoolean deliver_local(IMFILE *imf,
             continue; /* Punt the newsgroup history record */
          }
 
-         strcpy(groupyP, gc_ptr);
+         strcpy(groupy, gc_ptr);
 
-         snum = getArticleNewest( groupyP );
+         snum = getArticleNewest( groupy );
 
          if (snum)
          {
-            sprintf( historyRecordP + strlen(historyRecordP),
+            sprintf( historyRecord + strlen(historyRecord),
                      " %s:%ld",
-                     groupyP,
+                     groupy,
                      snum + 1);
          }
 
       } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
-      strcat(historyRecordP, "\n");
+      strcat(historyRecord, "\n");
 
       /* Restore the newsgroups line */
 
@@ -1701,14 +1694,13 @@ static KWBoolean deliver_local(IMFILE *imf,
       if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
          *gc_ptr1++ = '\0';
 
-      strcpy(groupyP, gc_ptr);
+      strcpy(groupy, gc_ptr);
 
-      if ( copy_file( imf, groupyP, b_xref ? historyRecordP : NULL))
+      if ( copy_file( imf, groupy, b_xref ? historyRecord : NULL))
          posted = KWTrue;
 
    } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
-   FREEBUF( historyRecordP );
    return posted;
 
 } /* deliver_local */
@@ -1725,7 +1717,7 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
 
   FILE *output;
 
-  char *bufP = MAKEBUF( LARGEBUF );
+  char buf[LARGEBUF];
 
   KWBoolean skipHeader   = KWFalse;
   KWBoolean searchHeaders   = KWTrue;
@@ -1748,23 +1740,23 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
 /*                     Main loop to process the data                  */
 /*--------------------------------------------------------------------*/
 
-  while (imgets(bufP, LARGEBUF, imf) != NULL)
+  while (imgets(buf, sizeof buf, imf) != NULL)
   {
 
      if ( searchHeaders )
      {
 
-         if ( *bufP == '\n' )        /* End of header?                */
+         if ( *buf == '\n' )        /* End of header?                */
             searchHeaders = KWFalse;
-         else if ( equal( bufP, "\r\n" ))  /* End of DOS header?      */
+         else if ( equal( buf, "\r\n" ))  /* End of DOS header?      */
             searchHeaders = KWFalse;
-         else if (equalni(bufP, PATH, strlen(PATH)))
+         else if (equalni(buf, PATH, strlen(PATH)))
          {
            fprintf(output,
                    "%s %s!%s\n",
                    PATH,
                    canonical_news_name(),
-                   strtok( bufP + strlen(PATH) + 1, WHITESPACE ));
+                   strtok( buf + strlen(PATH) + 1, WHITESPACE ));
 
             searchHeaders = KWFalse;
             skipHeader = KWTrue;
@@ -1772,7 +1764,7 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
       }
 
      if (!skipHeader)
-       fputs(bufP, output);
+       fputs(buf, output);
 
      skipHeader = KWFalse;
 
@@ -1790,8 +1782,6 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
      panic();
   }
 
-
-  FREEBUF( bufP );
 
 } /* copy_rmt_article */
 

@@ -16,16 +16,19 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.15 1996/11/18 04:46:49 ahd Exp $");
+RCSID("$Id: hdbm.c 1.16 1997/03/31 06:56:40 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.15 1996/11/18 04:46:49 ahd Exp $
+ * $Id: hdbm.c 1.16 1997/03/31 06:56:40 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.16  1997/03/31 06:56:40  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.15  1996/11/18 04:46:49  ahd
  * Normalize arguments to bugout
  * Reset title after exec of sub-modules
@@ -84,7 +87,6 @@ RCSID("$Id: hdbm.c 1.15 1996/11/18 04:46:49 ahd Exp $");
 
 #include "hdbm.h"
 #include "idx.h"
-#include "makebuf.h"
 
 currentfile();
 
@@ -155,7 +157,7 @@ void dbm_close(DBM *db)
 
 int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 {
-  char *buffer = (char *) MAKEBUF( DBM_BUFSIZ );
+  char buffer[ DBM_BUFSIZ ];
   long offset;
   size_t size;
 
@@ -165,7 +167,6 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
   if ((offset = lseek(db -> dbffile, 0, SEEK_END)) == -1L)
   {
      printerr( "dbm_store");
-     FREEBUF( buffer );
      return -1;
   }
 
@@ -182,14 +183,12 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
      printmsg(10,"dbm_store: idx_addkey failed for key %s", key.dptr );
 #endif
 
-    FREEBUF( buffer );
     return -1;
   }
 
   if (write(db -> dbffile, buffer, size) != (int) size)
   {
     printerr( "dbm_store" );
-    FREEBUF( buffer );
     return -1;
   }
 
@@ -203,7 +202,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 
 int dbm_delete(DBM *db, const datum key)
 {
-  char *buffer = (char *) MAKEBUF( DBM_BUFSIZ );
+  char buffer[ DBM_BUFSIZ ];
   long offset;
   size_t size;
 
@@ -214,7 +213,6 @@ int dbm_delete(DBM *db, const datum key)
   {
     if ((offset = lseek(db -> dbffile, offset, SEEK_SET)) == -1L)
     {
-       FREEBUF( buffer );
        return -1;
     }
 
@@ -223,12 +221,10 @@ int dbm_delete(DBM *db, const datum key)
 
     if (write(db -> dbffile, buffer, size) != (int) size)
     {
-       FREEBUF( buffer );
        return -1;
     }
   }
 
-  FREEBUF( buffer );
   return 0;
 
 } /* dbm_delete */

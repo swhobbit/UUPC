@@ -72,10 +72,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.23 1996/01/07 14:14:40 ahd v1-12r $
+ *    $Id: sys.c 1.24 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.24  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.23  1996/01/07 14:14:40  ahd
  *    Correct error messages referencing non-existent 'J' flag
  *
@@ -174,7 +179,6 @@
 #include "sys.h"
 #include "stater.h"
 #include "arpadate.h"
-#include "makebuf.h"
 
 currentfile();
 
@@ -510,15 +514,14 @@ process_sys( char *buf)
 
    if (( node->command == NULL ) && ! node->flag.local)
    {
-      char *commandP = (char *) MAKEBUF(  FILENAME_MAX * 4  );
+      static const char format[] = "uux -anews -p -g%c -n -x %d -C %%s!rnews";
+      char command[ sizeof format + FILENAME_MAX ];
 
-      sprintf(commandP, "uux -anews -p -g%c -n -x %d -C %%s!rnews",
+      sprintf(command, format ,
               E_newsGrade,
               debuglevel );
 
-      node->command = newstr( commandP );
-
-      FREEBUF( commandP );
+      node->command = newstr( command );
 
    }
 
@@ -620,35 +623,35 @@ init_sys( void )
 {
 
   FILE       *sysFileStream = NULL;
-  char *      sysFileNameP = (char *) MAKEBUF( FILENAME_MAX );
-  char *      lineP = (char *) MAKEBUF( LINESIZ );
+  char        sysFileName[ FILENAME_MAX ];
+  char        line[ LINESIZ ];
   char       *t;
-  char *      bufP = (char *) MAKEBUF( INITSIZ );
+  char        buf[ INITSIZ ];
   KWBoolean   wantMore = KWTrue;
   KWBoolean   success  = KWTrue;
 
-  mkfilename(sysFileNameP, E_confdir, "SYS");
+  mkfilename(sysFileName, E_confdir, "SYS");
 
 /*--------------------------------------------------------------------*/
 /*               Generate a new SYS file if we need to                */
 /*--------------------------------------------------------------------*/
 
-   if ( stater( sysFileNameP, 0 ) == -1 )
-      bootStrap( sysFileNameP );
+   if ( stater( sysFileName, 0 ) == -1 )
+      bootStrap( sysFileName );
 
-  sysFileStream = fopen(sysFileNameP, "rb");
+  sysFileStream = fopen(sysFileName, "rb");
 
   if ( sysFileStream == NULL )
   {
-     printerr(sysFileNameP);
+     printerr(sysFileName);
      panic();
   }
 
-  printmsg(3, "init_sys: reading system file %s", sysFileNameP);
+  printmsg(3, "init_sys: reading system file %s", sysFileName);
 
-  memset(bufP, 0, INITSIZ);
+  memset(buf, 0, INITSIZ);
 
-   while (fgets(lineP, LINESIZ, sysFileStream) != NULL)
+   while (fgets(line, LINESIZ, sysFileStream) != NULL)
    {
 
 /*--------------------------------------------------------------------*/
@@ -656,16 +659,16 @@ init_sys( void )
 /*       the log file).                                               */
 /*--------------------------------------------------------------------*/
 
-      t = lineP + strlen(lineP) - 1;
+      t = line + strlen(line) - 1;
 
-      while ((t >= lineP) && isspace(*t))
+      while ((t >= line) && isspace(*t))
          *t-- = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                      Also trim leading spaces                      */
 /*--------------------------------------------------------------------*/
 
-      t = lineP;
+      t = line;
 
       while (t && isspace(*t))
          t++;
@@ -679,13 +682,13 @@ init_sys( void )
 /*       terminates the entry)                                        */
 /*--------------------------------------------------------------------*/
 
-      if ( *bufP && (! strlen(t) || ! wantMore ))
+      if ( *buf && (! strlen(t) || ! wantMore ))
                                     /* Previous entry complete?      */
       {
-         if (! process_sys( bufP )) /* Yes --> end of entry, process */
+         if (! process_sys( buf ))  /* Yes --> end of entry, process */
             success = KWFalse;
 
-         *bufP = '\0';              /* Also, reset buffer to empty   */
+         *buf = '\0';               /* Also, reset buffer to empty   */
       }
 
 /*--------------------------------------------------------------------*/
@@ -699,28 +702,20 @@ init_sys( void )
             wantMore = KWTrue;
          else
             wantMore = KWFalse;
-         strcat(bufP, t);
+         strcat(buf, t);
 
       }  /* else if (*t != '#') */
 
-   } /* while (fgets(lineP, LINESIZ, sysFileStream) != NULL) */
+   } /* while (fgets(line, LINESIZ, sysFileStream) != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                Process the final system entry, if any              */
 /*--------------------------------------------------------------------*/
 
-   if (( *bufP ) && ! process_sys( bufP ) )
+   if (( *buf ) && ! process_sys( buf ) )
       success = KWFalse;
 
    fclose( sysFileStream );
-
-/*--------------------------------------------------------------------*/
-/*                       Free our work buffers                        */
-/*--------------------------------------------------------------------*/
-
-   FREEBUF( bufP );
-   FREEBUF( lineP );
-   FREEBUF( sysFileNameP );
 
 /*--------------------------------------------------------------------*/
 /*              Create a cache buffer for use by check_sys            */
@@ -822,7 +817,7 @@ KWBoolean distributions(char *list, const char *distrib)
                                  negations                           */
 
   size_t distribLength = strlen( distrib +1 );
-  char * tempDistribP  = (char *) MAKEBUF( distribLength );
+  char * tempDistribP  = malloc( distribLength );
 
   while (isspace(*distrib))
     distrib++;
@@ -916,7 +911,7 @@ KWBoolean distributions(char *list, const char *distrib)
 
   printmsg(5, "distributions: results %s", bRet ? "True" : "False");
 
-  FREEBUF( tempDistribP );
+  free( tempDistribP );
   return bRet;
 
 } /* distributions */

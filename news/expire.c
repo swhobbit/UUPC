@@ -13,9 +13,14 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.20 1995/12/12 13:48:54 ahd v1-12r $
+ *    $Id: EXPIRE.C 1.21 1996/11/18 04:46:49 ahd Exp $
  *
- *    $Log: expire.c $
+ *    $Log: EXPIRE.C $
+ *    Revision 1.21  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.20  1995/12/12 13:48:54  ahd
  *    Use binary tree for news group active file
  *    Use large buffers in news programs to avoid overflow of hist db recs
@@ -76,7 +81,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.20 1995/12/12 13:48:54 ahd v1-12r $");
+RCSID("$Id: EXPIRE.C 1.21 1996/11/18 04:46:49 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -101,7 +106,6 @@ RCSID("$Id: expire.c 1.20 1995/12/12 13:48:54 ahd v1-12r $");
 #include "stater.h"
 #include "timestmp.h"
 #include "hdbm.h"
-#include "makebuf.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global Variables                          */
@@ -338,10 +342,11 @@ main( int argc, char **argv)
 static void
 SetGroupLower(char *histentry)
 {
-  char *value = (char *) MAKEBUF( strlen( histentry + 1) );
+  char *value = (char *) malloc( strlen( histentry + 1) );
   char *group, *num;
   long article;
 
+  checkref( value );
   strcpy(value, histentry);
   strtok(value, " ");   /* strip off date */
   strtok(NULL, " ");    /* strip off size */
@@ -362,7 +367,7 @@ SetGroupLower(char *histentry)
 
   } /* while ((group = strtok(NULL, "," WHITESPACE )) != NULL) */
 
-  FREEBUF( value );
+  free( value );
 
 } /* SetGroupLower */
 
