@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.5 1992/11/28 19:51:16 ahd Exp $
+ *    $Id: DCP.C 1.6 1992/12/01 04:37:03 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.6  1992/12/01  04:37:03  ahd
+ * Add standard comment block for header
+ *
  * Revision 1.5  1992/11/28  19:51:16  ahd
  * If in multitask mode, only open syslog on demand basis
  *
@@ -150,6 +153,7 @@ int dcpmain(int argc, char *argv[])
 
    char *logfile_name = NULL;
    boolean  Contacted = FALSE;
+
    int option;
    int poll_mode = POLL_ACTIVE;   /* Default = dial out to system     */
    time_t exit_time = LONG_MAX;
@@ -285,16 +289,20 @@ int dcpmain(int argc, char *argv[])
    if (poll_mode == POLL_ACTIVE) {
 
       CONN_STATE m_state = CONN_INITSTAT;
+      CONN_STATE old_state = CONN_EXIT;
 
       printmsg(2, "calling \"%s\", debug=%d", Rmtname, debuglevel);
 
       if ((fsys = FOPEN(s_systems, "r", TEXT)) == nil(FILE))
          exit(FAILED);
+
       setvbuf( fsys, NULL, _IONBF, 0);
 
       while (m_state != CONN_EXIT )
       {
-         printmsg(4, "M state = %c", m_state);
+         printmsg(old_state == m_state ? 10 : 4 ,
+                  "M state = %c", m_state);
+         old_state = m_state;
 
          if (bflag[F_MULTITASK] &&
               (hostp != NULL ) &&
@@ -390,10 +398,13 @@ int dcpmain(int argc, char *argv[])
    else { /* client mode */
 
       CONN_STATE s_state = CONN_INITIALIZE;
+      CONN_STATE old_state = CONN_EXIT;
 
       while (s_state != CONN_EXIT )
       {
-         printmsg(4, "S state = %c", s_state);
+         printmsg(s_state == old_state ? 10 : 4 ,
+                  "S state = %c", s_state);
+         old_state = s_state;
 
          if (bflag[F_MULTITASK] &&
               (hostp != NULL ) &&
