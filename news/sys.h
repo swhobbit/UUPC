@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.2 1995/01/02 05:04:57 ahd Exp $
+ *    $Id: sys.h 1.3 1995/01/03 05:33:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.3  1995/01/03 05:33:54  ahd
+ *    Add process count to struct
+ *
  *    Revision 1.2  1995/01/02 05:04:57  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -35,14 +38,9 @@
 typedef struct sys
 {
    long        processed;     /* Number of articles processed        */
-   long        excl_from;
-   long        excl_to;
-
-   long        grp_from;
-   long        grp_to;
-
-   long        dist_from;
-   long        dist_to;
+   char        *exclude;
+   char        *groups;
+   char        *distribution;
 
    size_t      maximumHops;
 
@@ -63,10 +61,6 @@ typedef struct sys
       boolean m;              /* Only batch moderated articles       */
       boolean u;              /* Only batch unmoderated articles     */
    }  flag;
-
-   boolean     bExclude;
-   boolean     bGroups;
-   boolean     bDistrib;
 
 } NEWS_SYS;
 
