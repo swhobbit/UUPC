@@ -31,11 +31,15 @@ void far dtr_off(void);    /* clear DTR */
 
 void far dtr_on(void);     /* set DTR */
 
+void far rts_off(void);    /* clear DTR */
+
+void far rts_on(void);     /* set DTR */
+
 long far r_count(void);    /* receive counts */
    /* high word = total size of receive buffer */
    /* low word = number of pending chars */
 #define r_count_size() ((int)(r_count() >> 16))
-#define r_count_pending() ((int)r_count())
+#define r_count_pending() ((int)(r_count() & 0xffff))
 
 int far receive_com(void); /* get one character */
    /* return -1 if none available */
@@ -44,7 +48,7 @@ long far s_count(void);    /* send counts */
    /* high word = total size of transmit buffer */
    /* low word = number of bytes free in transmit buffer */
 #define s_count_size() ((int)(s_count() >> 16))
-#define s_count_free() ((int)s_count())
+#define s_count_free() ((int)(s_count() & 0xffff))
 
 void far send_com(int);    /* send a character */
 
