@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.39 1997/12/13 18:11:33 ahd v1-12u $
+ *    $Id: UUTYPES.H 1.40 1998/03/01 01:28:21 ahd v1-12v $
  *
  *    Revision history:
- *    $Log: uutypes.h $
+ *    $Log: UUTYPES.H $
+ *    Revision 1.40  1998/03/01 01:28:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.39  1997/12/13 18:11:33  ahd
  *    Add new delivery options
  *
@@ -152,8 +155,11 @@ typedef enum
 
    F_BANG,                  /* True = write addrs in bang (!) form   */
    F_BOUNCE,                /* True = Bounce bad mail to sender      */
+
    F_COLLECTSTATS,          /* True = Report additional information
                                       in various logs                */
+   F_COMMENTFROM,           /* True = Insert Comment: before UUCP
+                                      "From lines" in POP3 server    */
    F_DIRECT,                /* True = Deliver to subdirectories,
                                       not files                      */
    F_DOMAINFROM,            /* True = Use FQDN From remote header    */
