@@ -21,14 +21,8 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.8 1993/10/12 01:33:23 ahd Exp $
+ *       $Id: ulibnt.c 1.6 1993/10/03 22:09:09 ahd Exp $
  *       $Log: ulibnt.c $
- * Revision 1.8  1993/10/12  01:33:23  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.7  1993/10/07  22:56:45  ahd
- * Use dynamically allocated buffer
- *
  * Revision 1.6  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -122,7 +116,7 @@
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
+static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
 
 static boolean hangupNeeded = FALSE;
 static boolean console = FALSE;
@@ -138,6 +132,7 @@ static currentSpeed = 0;
 static HANDLE hCom;
 static COMMTIMEOUTS CommTimeout;
 static DCB dcb;
+static DCB save_dcb;
 
 static BYTE com_status;
 static USHORT com_error;
@@ -159,8 +154,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
    DWORD dwError;
    BOOL rc;
 
-   if (portActive)              /* Was the port already active?     ahd  */
-      closeline();               /* Yes --> Shutdown it before open  ahd  */
+   if (portActive)              /* Was the port already active?     ahd   */
+      closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu",
@@ -210,8 +205,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( equal(name,"CON"))
    {
-      portActive = TRUE;     /* record status for error handler       */
-      carrierdetect = FALSE;  /* Modem is not connected                */
+      portActive = TRUE;     /* record status for error handler        */
+      carrierdetect = FALSE;  /* Modem is not connected                 */
       console = TRUE;
       return 0;
    }
@@ -232,13 +227,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    }
 
 /*--------------------------------------------------------------------*/
-/*                           Set baud rate                            */
-/*--------------------------------------------------------------------*/
-
-   SIOSpeed(baud);
-
-/*--------------------------------------------------------------------*/
-/*                        Set line attributes                         */
+/*          Get and save line attributes and baud rate                */
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
@@ -253,6 +242,18 @@ int nopenline(char *name, BPS baud, const boolean direct )
       printNTerror("nopenline", dwError);
       panic();
    }
+
+   memcpy(&save_dcb, &dcb, sizeof(dcb));
+
+/*--------------------------------------------------------------------*/
+/*                           Set baud rate                            */
+/*--------------------------------------------------------------------*/
+
+   SIOSpeed(baud);
+
+/*--------------------------------------------------------------------*/
+/*                        Set line attributes                         */
+/*--------------------------------------------------------------------*/
 
    dcb.StopBits = ONESTOPBIT;
    dcb.Parity = NOPARITY;
@@ -358,11 +359,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
-   static LPVOID psave;
    DWORD dwError;
    BOOL rc;
    time_t stop_time ;
    time_t now ;
+
+   boolean firstPass = TRUE;
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -412,7 +414,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    do {
       DWORD received;
       DWORD needed = wanted - commBufferUsed;
-      DWORD port_timeout;
+      DWORD portTimeout;
 
 /*--------------------------------------------------------------------*/
 /*                     Handle an aborted program                      */
@@ -433,22 +435,26 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*           Compute a new timeout for the read, if needed            */
 /*--------------------------------------------------------------------*/
 
-      if (stop_time > now )
+      if ((stop_time <= now ) || firstPass )
       {
-         port_timeout = (USHORT) (stop_time - now) / needed * 100;
-         if (port_timeout < 100)
-            port_timeout = 100;
+         portTimeout = 0;
+         firstPass = FALSE;
       }
-      else
-         port_timeout = 0;
+      else {
+         portTimeout = (USHORT) (stop_time - now) / needed * 100;
+         if (portTimeout < 100)
+            portTimeout = 100;
+      } /* else */
 
       if (!console)
       {
-          port_timeout *= 10; /* OS/2 is in hundredths; NT in msec */
-          CommTimeout.ReadTotalTimeoutConstant = 0;
+          portTimeout *= 10; /* OS/2 is in hundredths; NT in msec */
+          CommTimeout.ReadTotalTimeoutConstant =
+             (portTimeout == 0 ? 0 : 1);
           CommTimeout.WriteTotalTimeoutConstant = 0;
-          CommTimeout.ReadIntervalTimeout = port_timeout;
-          CommTimeout.ReadTotalTimeoutMultiplier = 1;
+          CommTimeout.ReadIntervalTimeout =
+             (portTimeout == 0 ? MAXDWORD : portTimeout);
+          CommTimeout.ReadTotalTimeoutMultiplier = 0;
           CommTimeout.WriteTotalTimeoutMultiplier = 0;
           rc = SetCommTimeouts(hCom, &CommTimeout);
 
@@ -463,7 +469,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
 #ifdef UDEBUG
       printmsg(15,"sread: Port time out is %ud seconds/100",
-               port_timeout);
+               portTimeout);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -472,7 +478,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
       rc = ReadFile (hCom,
                      commBuffer + commBufferUsed,
-                     needed,
+                     portTimeout ? needed : commBufferLength - commBufferUsed,
                      &received,
                      NULL);
 
@@ -504,10 +510,12 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       commBufferUsed += received;
-      if ( commBufferUsed == wanted )
+      if ( commBufferUsed >= wanted )
       {
-         memcpy( output, commBuffer, commBufferUsed);
-         commBufferUsed = 0;
+         memcpy( output, commBuffer, wanted );
+         commBufferUsed -= wanted;
+         if ( commBufferUsed )   /* Any data left over?              */
+            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
 
          return wanted;
 
@@ -601,6 +609,7 @@ void nssendbrk(unsigned int duration)
 void ncloseline(void)
 {
    DWORD dwError;
+   BOOL rc;
 
    if ( ! portActive )
       panic();
@@ -615,6 +624,18 @@ void ncloseline(void)
    if (!EscapeCommFunction(hCom, CLRDTR | CLRRTS))
    {
       printmsg(0,"ncloseline: Unable to lower DTR/RTS");
+   }
+
+/*--------------------------------------------------------------------*/
+/*                   Restore the original port settings               */
+/*--------------------------------------------------------------------*/
+
+   rc = SetCommState(hCom, &save_dcb);
+   if (!rc) {
+      dwError = GetLastError();
+
+      printmsg(0,"ncloseline: Unable to restore line attributes");
+      printNTerror("ncloseline", dwError);
    }
 
 /*--------------------------------------------------------------------*/
@@ -670,7 +691,7 @@ void nhangup( void )
 
    printmsg(3,"hangup: Dropped DTR");
    carrierdetect = FALSE;  /* Modem is not connected                 */
-   ddelay(500);            /* Really only need 250 milliseconds        */
+   ddelay(500);            /* Really only need 250 milliseconds         */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR back up                         */
@@ -682,7 +703,7 @@ void nhangup( void )
       panic();
    }
 
-   ddelay(2000);           /* Now wait for the poor thing to recover   */
+   ddelay(2000);           /* Now wait for the poor thing to recover    */
 
 } /* nhangup */
 
