@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.32 1997/04/24 01:41:10 ahd v1-12s $
+ *    $Id: uustat.c 1.33 1997/11/24 02:58:14 ahd v1-12u $
  *
  *    $Log: uustat.c $
+ *    Revision 1.33  1997/11/24 02:58:14  ahd
+ *    Don't allow non-mail programs to call checkname(), which could use
+ *    uninitialized local domain name.
+ *
  *    Revision 1.32  1997/04/24 01:41:10  ahd
  *    Annual Copyright Update
  *
@@ -71,7 +75,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.32 1997/04/24 01:41:10 ahd v1-12s $";
+         "$Id: uustat.c 1.33 1997/11/24 02:58:14 ahd v1-12u $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */

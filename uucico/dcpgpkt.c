@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.39 1996/01/01 21:20:39 ahd v1-12r $
+ *      $Id: dcpgpkt.c 1.40 1997/04/24 01:33:32 ahd v1-12u $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.40  1997/04/24 01:33:32  ahd
+ *      Annual Copyright Update
+ *
  *      Revision 1.39  1996/01/01 21:20:39  ahd
  *      Annual Copyright Update
  *

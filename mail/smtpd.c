@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.8 1997/12/13 18:05:06 ahd Exp $
+ *    $Id: smtpd.c 1.9 1997/12/14 02:41:14 ahd v1-12u $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.9  1997/12/14 02:41:14  ahd
+ *    restore proper support for UUCP grades during delivery
+ *
  *    Revision 1.8  1997/12/13 18:05:06  ahd
  *    Change parsing and passing of sender address information
  *
@@ -75,7 +78,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.8 1997/12/13 18:05:06 ahd Exp $");
+RCSID("$Id: smtpd.c 1.9 1997/12/14 02:41:14 ahd v1-12u $");
 
 currentfile();
 

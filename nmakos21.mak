@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.10 1996/01/01 23:54:01 ahd v1-12r $
+#       $Id: nmakos21.mak 1.11 1997/04/24 01:01:43 ahd v1-12u $
 #
-#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.11  1997/04/24 01:01:43  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.10  1996/01/01 23:54:01  ahd
 #       Use larger stack under OS/2 16 bit
 #       Annual copyright update

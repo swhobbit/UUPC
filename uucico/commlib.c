@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: COMMLIB.C 1.35 1997/06/03 03:25:31 ahd Exp $
+ *    $Id: commlib.c 1.36 1997/11/21 18:10:59 ahd v1-12u $
  *
  *    Revision history:
- *    $Log: COMMLIB.C $
+ *    $Log: commlib.c $
+ *    Revision 1.36  1997/11/21 18:10:59  ahd
+ *    Remove multiple port support for SMTP server
+ *
  *    Revision 1.35  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.13 1996/01/01 20:53:43 ahd v1-12r $
+ *    $Id: mkdir.c 1.14 1997/03/31 07:04:53 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *    Revision 1.14  1997/03/31 07:04:53  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1996/01/01 20:53:43  ahd
  *    Annual Copyright Update
  *

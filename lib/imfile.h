@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.8 1997/03/31 07:00:01 ahd v1-12s $
+ *    $Id: imfile.h 1.9 1997/11/24 02:59:06 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.9  1997/11/24 02:59:06  ahd
+ *    *** empty log message ***
+ *
  *    Revision 1.8  1997/03/31 07:00:01  ahd
  *    Annual Copyright Update
  *

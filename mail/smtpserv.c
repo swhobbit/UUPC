@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.6 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpserv.c 1.7 1997/11/28 23:11:38 ahd v1-12u $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.7  1997/11/28 23:11:38  ahd
+ *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *    Revision 1.6  1997/11/28 04:52:10  ahd
  *    Initial UUSMTPD OS/2 support
  *
@@ -44,7 +47,7 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.6 1997/11/28 04:52:10 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.7 1997/11/28 23:11:38 ahd v1-12u $");
 
 currentfile();
 

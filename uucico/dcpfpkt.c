@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.23 1997/04/24 01:33:24 ahd Exp $
+ *    $Id: dcpfpkt.c 1.24 1997/05/11 04:28:26 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.24  1997/05/11 04:28:26  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.23  1997/04/24 01:33:24  ahd
  *    Annual Copyright Update
  *

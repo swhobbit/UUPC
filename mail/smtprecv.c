@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.6 1997/12/13 18:05:06 ahd Exp $
+ *       $Id: smtprecv.c 1.7 1997/12/14 02:41:14 ahd v1-12u $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.7  1997/12/14 02:41:14  ahd
+ *       Change allocation of SMTP sender address
+ *
  *       Revision 1.6  1997/12/13 18:05:06  ahd
  *       Change parsing and passing of sender address information
  *
@@ -61,7 +64,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.6 1997/12/13 18:05:06 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.7 1997/12/14 02:41:14 ahd v1-12u $");
 
 currentfile();
 

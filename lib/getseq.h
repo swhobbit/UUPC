@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.h 1.9 1996/01/01 20:57:09 ahd v1-12r $
+ *    $Id: getseq.h 1.10 1997/03/31 06:59:32 ahd v1-12u $
  *
  *    $Log: getseq.h $
+ *    Revision 1.10  1997/03/31 06:59:32  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1996/01/01 20:57:09  ahd
  *    Annual Copyright Update
  *

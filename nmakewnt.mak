@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.21 1997/05/11 18:14:54 ahd v1-12s $
+#       $Id: nmakewnt.mak 1.22 1997/11/26 03:33:57 ahd v1-12u $
 #
-#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.22  1997/11/26 03:33:57  ahd
+#       Correct SMTP timeouts, break out protocol from rest of daemon
+#
 #       Revision 1.21  1997/05/11 18:14:54  ahd
 #       Allow co-existence of SMTP and non-SMTP rmail/rmailn modules
 #

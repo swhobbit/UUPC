@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.25 1996/01/01 20:51:27 ahd v1-12r $
+ *    $Id: logger.c 1.26 1997/03/31 07:00:21 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.26  1997/03/31 07:00:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1996/01/01 20:51:27  ahd
  *    Annual Copyright Update
  *

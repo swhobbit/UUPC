@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.18 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: hostatus.c 1.19 1997/03/31 06:59:47 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.19  1997/03/31 06:59:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules

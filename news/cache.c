@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.7 1997/04/24 00:56:54 ahd v1-12t $
+ *    $Id: cache.c 1.8 1997/12/14 21:17:03 ahd v1-12u $
  *
  * $Log: cache.c $
+ * Revision 1.8  1997/12/14 21:17:03  ahd
+ * Consistently use UUFAR for cache pointers
+ *
  * Revision 1.7  1997/04/24 00:56:54  ahd
  * correct if ferror() to if ( ferror() )
  *
@@ -54,7 +57,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.7 1997/04/24 00:56:54 ahd v1-12t $");
+RCSID("$Id: cache.c 1.8 1997/12/14 21:17:03 ahd v1-12u $");
 
 #include <io.h>
 #include <memory.h>

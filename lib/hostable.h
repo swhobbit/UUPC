@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.16 1997/03/31 06:59:43 ahd v1-12s $
+  *   $Id: hostable.h 1.17 1997/11/24 02:59:06 ahd v1-12u $
   *
   *   $Log: hostable.h $
+  *   Revision 1.17  1997/11/24 02:59:06  ahd
+  *   Add macro to allow program to look up local host name without checkname
+  *
   *   Revision 1.16  1997/03/31 06:59:43  ahd
   *   Annual Copyright Update
   *

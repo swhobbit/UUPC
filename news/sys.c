@@ -60,7 +60,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -72,10 +72,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.26 1997/04/24 01:39:48 ahd v1-12u $
+ *    $Id: sys.c 1.27 1997/12/22 14:12:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.27  1997/12/22 14:12:44  ahd
+ *    Correct off-by-2 error in computing length of string to allocate
+ *    Add debugging information for failure to backup/rename files
+ *
  *    Revision 1.26  1997/04/24 01:39:48  ahd
  *    Annual Copyright Update
  *

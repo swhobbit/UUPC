@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1997 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-1998 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.17 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: uusub.c 1.18 1997/04/24 01:41:18 ahd v1-12u $
  *
  *    $Log: uusub.c $
+ *    Revision 1.18  1997/04/24 01:41:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules

@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h 1.5 1997/04/24 01:40:06 ahd v1-12t $ */
+/* $Id: cache.h 1.6 1997/12/14 21:19:04 ahd v1-12u $ */
 
 /*
  * $Log: cache.h $
+ * Revision 1.6  1997/12/14 21:19:04  ahd
+ * Consistently use UUFAR for references to CACHE pointers
+ *
  * Revision 1.5  1997/04/24 01:40:06  ahd
  * Annual Copyright Update
  *

@@ -2,7 +2,7 @@
 #define _MAILADDR_H
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.22 1997/11/24 02:53:26 ahd v1-12t $
+ *    $Id: mailaddr.h 1.1 1997/12/13 18:11:33 ahd v1-12u $
  *
- *    $Log: deliver.h $
+ *    $Log: mailaddr.h $
+ *    Revision 1.1  1997/12/13 18:11:33  ahd
+ *    Initial revision
+ *
  */
 
 typedef struct _MAIL_ADDR

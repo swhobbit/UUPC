@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dater.c 1.8 1996/01/01 20:50:36 ahd v1-12r $
+ *    $Id: dater.c 1.9 1997/03/31 06:58:39 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: dater.c $
+ *    Revision 1.9  1997/03/31 06:58:39  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1996/01/01 20:50:36  ahd
  *    Annual Copyright Update
  *

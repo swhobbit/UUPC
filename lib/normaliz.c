@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.17 1996/01/01 20:54:25 ahd v1-12r $
+ *    $Id: normaliz.c 1.18 1997/03/31 07:05:20 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.18  1997/03/31 07:05:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1996/01/01 20:54:25  ahd
  *    Annual Copyright Update
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.22 1997/11/24 02:53:26 ahd v1-12t $
+ *    $Id: deliver.h 1.23 1997/12/13 18:11:33 ahd v1-12u $
  *
  *    $Log: deliver.h $
+ *    Revision 1.23  1997/12/13 18:11:33  ahd
+ *    Change parsing and passing of sender address information
+ *
  *    Revision 1.22  1997/11/24 02:53:26  ahd
  *    First working SMTP daemon which delivers mail
  *

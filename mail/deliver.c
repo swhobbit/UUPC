@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.57 1997/12/13 18:11:01 ahd Exp $
+ *    $Id: deliver.c 1.58 1997/12/14 00:43:16 ahd v1-12u $
  *
  *    $Log: deliver.c $
+ *    Revision 1.58  1997/12/14 00:43:16  ahd
+ *    Further cleanup of new sender protocol
+ *
  *    Revision 1.57  1997/12/13 18:11:01  ahd
  *    Change parsing and passing of sender address information
  *

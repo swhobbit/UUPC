@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *       $Id: smtprecv.h 1.1 1997/11/21 18:16:32 ahd v1-12u $
  *
  *       Revision History:
- *       $Log$
+ *       $Log: smtprecv.h $
+ *       Revision 1.1  1997/11/21 18:16:32  ahd
+ *       Command processing stub SMTP daemon
+ *
  */
 
 #include "smtpverb.h"

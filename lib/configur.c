@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.79 1997/12/13 18:06:38 ahd v1-12u $
+ *    $Id: configur.c 1.80 1998/01/03 05:27:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.80  1998/01/03 05:27:58  ahd
+ *    Allow automatic init of home directory
+ *
  *    Revision 1.79  1997/12/13 18:06:38  ahd
  *    Add new delivery options
  *
@@ -136,7 +139,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: configur.c 1.80 1998/01/03 05:27:58 ahd Exp $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -1128,7 +1131,7 @@ KWBoolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");

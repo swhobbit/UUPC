@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.10 1996/01/20 12:53:59 ahd Exp $
+ *    $Id: fossil.c 1.11 1997/04/24 01:34:16 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: fossil.c $
+ *    Revision 1.11  1997/04/24 01:34:16  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1996/01/20 12:53:59  ahd
  *    Add debugging output for FOSSIL driver information retrieve
  *

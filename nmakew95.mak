@@ -2,7 +2,7 @@
 #
 #       UUPC/extended MAKE rules for Windows 95 environments
 #
-#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 

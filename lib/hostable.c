@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.30 1997/11/24 02:58:14 ahd v1-12t ahd $
+  *      $Id: hostable.c 1.31 1997/11/28 23:11:38 ahd v1-12u $
   *
   *      $Log: hostable.c $
+  *      Revision 1.31  1997/11/28 23:11:38  ahd
+  *      Initial host table is initialized before domain name paranoia check
+  *
   *      Revision 1.30  1997/11/24 02:58:14  ahd
   *      Don't allow non-mail programs to call checkname(), which could use
   *      uninitialized local domain name.

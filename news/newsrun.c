@@ -21,7 +21,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.18 1997/04/24 00:56:54 ahd Exp $
+ *       $Id: newsrun.c 1.19 1997/04/24 01:39:24 ahd v1-12u $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.19  1997/04/24 01:39:24  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.18  1997/04/24 00:56:54  ahd
  *       Delete MAKEBUF/FREEBUF support
  *
@@ -248,7 +251,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.18 1997/04/24 00:56:54 ahd Exp $");
+RCSID("$Id: newsrun.c 1.19 1997/04/24 01:39:24 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

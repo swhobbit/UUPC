@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.6 1996/11/19 00:25:20 ahd Exp $
+ *    $Id: uupcmoah.h 1.7 1997/03/31 07:07:48 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.7  1997/03/31 07:07:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1996/11/19 00:25:20  ahd
  *    Correct C++ scoping
  *

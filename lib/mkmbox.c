@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.13 1996/01/01 20:54:03 ahd v1-12r $
+ *    $Id: mkmbox.c 1.14 1997/03/31 07:05:00 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *    Revision 1.14  1997/03/31 07:05:00  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1996/01/01 20:54:03  ahd
  *    Annual Copyright Update
  *

@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.16 1997/03/31 06:58:04 ahd v1-12u $
+ *    $Id: arpadate.c 1.17 1997/12/20 22:26:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *    Revision 1.17  1997/12/20 22:26:06  ahd
+ *    Support whacko compilers that think time_t is unsigned
+ *
  *    Revision 1.16  1997/03/31 06:58:04  ahd
  *    Annual Copyright Update
  *
@@ -37,7 +40,7 @@
 #include "uupcmoah.h"
 #include "arpadate.h"
 
-RCSID("$Id$");
+RCSID("$Id: arpadate.c 1.17 1997/12/20 22:26:06 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       a r p a d a t e                                              */

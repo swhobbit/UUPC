@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.21 1997/05/20 05:55:41 ahd v1-12t $
+#       $Id: nmakos22.mak 1.22 1997/11/28 04:51:14 ahd v1-12u $
 #
-#       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.22  1997/11/28 04:51:14  ahd
+#       SMTPD initial OS/2 support
+#
 #       Revision 1.21  1997/05/20 05:55:41  ahd
 #       Support for TCP/IP RMAIL
 #

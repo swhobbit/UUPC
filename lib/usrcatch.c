@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.11 1996/01/01 20:53:22 ahd v1-12r $
+ *    $Id: usrcatch.c 1.12 1997/03/31 07:07:38 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ *    Revision 1.12  1997/03/31 07:07:38  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1996/01/01 20:53:22  ahd
  *    Annual Copyright Update
  *

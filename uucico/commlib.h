@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cOMMLIB.H 1.23 1997/06/03 03:26:38 ahd Exp $
+ *    $Id: commlib.h 1.24 1997/11/21 18:11:31 ahd v1-12u $
  *
  *    Revision history:
- *    $Log: cOMMLIB.H $
+ *    $Log: commlib.h $
+ *    Revision 1.24  1997/11/21 18:11:31  ahd
+ *    Remove multiple port support for SMTP server
+ *
  *    Revision 1.23  1997/06/03 03:26:38  ahd
  *    First compiling SMTP daemon
  *

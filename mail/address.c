@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.28 1997/12/13 18:05:06 ahd Exp $
+ *    $Id: address.c 1.29 1997/12/14 21:17:03 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.29  1997/12/14 21:17:03  ahd
+ *    Don't free buffer we are saving input address in between calls
+ *
  *    Revision 1.28  1997/12/13 18:05:06  ahd
  *    Cleanup parsing of user/host without path
  *
@@ -122,7 +125,7 @@
 
 currentfile();
 
-RCSID("$Id: address.c 1.28 1997/12/13 18:05:06 ahd Exp $");
+RCSID("$Id: address.c 1.29 1997/12/14 21:17:03 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.23 1997/12/22 14:12:44 ahd Exp $
+ *    $Id: expire.c 1.24 1997/12/22 18:29:49 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.24  1997/12/22 18:29:49  ahd
+ *    Don't issue stater() when file may not exist for backup
+ *
  *    Revision 1.23  1997/12/22 14:12:44  ahd
  *    Correct off-by-2 error in computing length of string to allocate
  *    Add debugging information for failure to backup/rename files
@@ -96,7 +99,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.23 1997/12/22 14:12:44 ahd Exp $");
+RCSID("$Id: expire.c 1.24 1997/12/22 18:29:49 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

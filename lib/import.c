@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.36 1997/12/14 21:13:45 ahd v1-12u $
+ *    $Id: import.c 1.37 1998/02/18 06:17:28 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.37  1998/02/18 06:17:28  ahd
+ *    Don't remap uppercase names
+ *
  *    Revision 1.36  1997/12/14 21:13:45  ahd
  *    Correct corrupted buffer when short name with invalid characters
  *    is mapped.
@@ -100,7 +103,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id: import.c 1.36 1997/12/14 21:13:45 ahd v1-12u $");
+RCSID("$Id: import.c 1.37 1998/02/18 06:17:28 ahd Exp $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

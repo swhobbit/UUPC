@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.64 1997/12/14 00:43:16 ahd v1-12u $
+ *    $Id: rmail.c 1.65 1997/12/15 02:33:58 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.65  1997/12/15 02:33:58  ahd
+ *    Cleanup OS/2 compiler errors
+ *
  *    Revision 1.64  1997/12/14 00:43:16  ahd
  *    Further cleanup of new sender protocol
  *

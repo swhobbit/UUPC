@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.25 1996/01/20 13:09:10 ahd Exp $
+ *    $Id: uux.c 1.26 1997/04/24 01:41:25 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.26  1997/04/24 01:41:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1996/01/20 13:09:10  ahd
  *    Don't just copy stdin in binary mode, open a new file stream
  *    in binary mode if needed.

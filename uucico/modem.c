@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.68 1997/05/11 04:28:26 ahd v1-12s $
+ *    $Id: modem.c 1.69 1997/06/03 03:25:31 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.69  1997/06/03 03:25:31  ahd
+ *    First compiling SMTPD
+ *
  *    Revision 1.68  1997/05/11 04:28:26  ahd
  *    SMTP client support for RMAIL/UUXQT
  *

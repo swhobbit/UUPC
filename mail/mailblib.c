@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.26 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: mailblib.c 1.27 1997/04/24 01:09:16 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.27  1997/04/24 01:09:16  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules

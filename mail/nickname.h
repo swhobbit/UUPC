@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.h 1.6 1996/01/01 23:52:34 ahd v1-12r $
+ *    $Id: nickname.h 1.7 1997/04/24 01:11:02 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: nickname.h $
+ *    Revision 1.7  1997/04/24 01:11:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1996/01/01 23:52:34  ahd
  *    Rename former "user alias" functions to "nickname" prefixes, consistent
  *    with external references.

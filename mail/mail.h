@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.10 1997/04/24 01:10:45 ahd v1-12s $
+ *    $Id: mail.h 1.11 1997/11/21 18:16:32 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.11  1997/11/21 18:16:32  ahd
+ *    Command processing stub SMTP daemon
+ *
  *    Revision 1.10  1997/04/24 01:10:45  ahd
  *    Annual Copyright Update
  *

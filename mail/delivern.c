@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.4 1997/04/24 01:33:05 ahd Exp $
+ *    $Id: delivern.c 1.1 1997/05/11 18:15:50 ahd v1-12u $
  *
  *    Revision history:
- *    $Log: commlibn.c $
+ *    $Log: delivern.c $
+ *    Revision 1.1  1997/05/11 18:15:50  ahd
+ *    Initial revision
+ *
  */
 
 #define NOTCPIP            /* Don't include the TCP/IP suite      */

@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.58 1997/11/24 02:58:14 ahd v1-12t $
+ *    $Id: uuxqt.c 1.59 1997/11/29 12:49:01 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.59  1997/11/29 12:49:01  ahd
+ *    Don't dereference NULL pointer if missing operands when
+ *    parsing RMAIL operands before RMAIL invocation
+ *
  *    Revision 1.58  1997/11/24 02:58:14  ahd
  *    Don't allow non-mail programs to call checkname(), which could use
  *    uninitialized local domain name.

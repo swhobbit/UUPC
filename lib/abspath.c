@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: abspath.c 1.2 1996/01/01 20:50:58 ahd v1-12r $
+ *    $Id: abspath.c 1.3 1997/03/31 06:57:56 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: abspath.c $
+ *    Revision 1.3  1997/03/31 06:57:56  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.2  1996/01/01 20:50:58  ahd
  *    Annual Copyright Update
  *

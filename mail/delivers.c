@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -50,9 +50,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.9 1997/12/14 02:46:03 ahd Exp $
+ *       $Id: delivers.c 1.10 1997/12/14 21:17:03 ahd v1-12u $
  *
  *       $Log: delivers.c $
+ *       Revision 1.10  1997/12/14 21:17:03  ahd
+ *       Transform selected well-known addresses into the error-response
+ *       empty (<>) address.
+ *
  *       Revision 1.9  1997/12/14 02:46:03  ahd
  *       Correct formatting of delivery message
  *
@@ -91,7 +95,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.9 1997/12/14 02:46:03 ahd Exp $");
+RCSID("$Id: delivers.c 1.10 1997/12/14 21:17:03 ahd v1-12u $");
 
 #define SMTP_PORT_NUMBER 25
 

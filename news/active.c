@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.34 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: active.c 1.35 1997/04/24 01:38:46 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.35  1997/04/24 01:38:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.34  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules

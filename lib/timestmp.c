@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.19 1997/12/13 18:05:06 ahd Exp $
+ *    $Id: timestmp.c 1.20 1997/12/13 18:29:47 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.20  1997/12/13 18:29:47  ahd
+ *    Add RCSID to our master timestamp module
+ *
  *    Revision 1.19  1997/12/13 18:05:06  ahd
  *    Shorten Windows ID string
  *
@@ -71,7 +74,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: timestmp.c 1.20 1997/12/13 18:29:47 ahd v1-12u $");
 
 #ifdef _Windows
 currentfile();

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.1 1997/11/24 02:52:26 ahd Exp $
+ *       $Id: smtputil.c 1.2 1997/11/25 05:05:06 ahd v1-12u $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.2  1997/11/25 05:05:06  ahd
+ *       More robust SMTP daemon
+ *
  *       Revision 1.1  1997/11/24 02:52:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -42,7 +45,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.1 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtputil.c 1.2 1997/11/25 05:05:06 ahd v1-12u $");
 
 currentfile();
 

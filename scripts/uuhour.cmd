@@ -15,15 +15,18 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1997 by Kendra Electronic Wonderworks, all   */
+/*    Copyright (c) 1989-1998 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those granted by the UUPC/extended       */
 /*    license.                                                        */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuhour.cmd 1.3 1996/01/01 21:16:20 ahd v1-12r $
+ *       $Id: uuhour.cmd 1.4 1997/04/24 01:30:18 ahd v1-12u $
  *
  *       $Log: uuhour.cmd $
+ *       Revision 1.4  1997/04/24 01:30:18  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.3  1996/01/01 21:16:20  ahd
  *       Annual Copyright Update
  *

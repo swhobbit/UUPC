@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.18 1996/01/20 13:06:19 ahd Exp $
+ *    $Id: batch.c 1.19 1997/04/24 01:38:53 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.19  1997/04/24 01:38:53  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1996/01/20 13:06:19  ahd
  *    Specify text/binary mode when using in-memory files
  *

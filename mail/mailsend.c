@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.28 1997/04/24 00:56:54 ahd Exp $
+ *    $Id: mailsend.c 1.29 1997/04/24 01:09:54 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.29  1997/04/24 01:09:54  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.28  1997/04/24 00:56:54  ahd
  *    correct if ferror() to if ( ferror() )
  *

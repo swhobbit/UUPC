@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.18 1996/01/01 20:52:53 ahd v1-12r $
+ *    $Id: pushpop.c 1.19 1997/03/31 07:05:43 ahd v1-12u $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.19  1997/03/31 07:05:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1996/01/01 20:52:53  ahd
  *    Annual Copyright Update
  *

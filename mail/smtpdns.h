@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpdns.h 1.1 1997/11/28 23:13:35 ahd v1-12u $
  *
- *    $Log: smtpnetw.c $
+ *    $Log: smtpdns.h $
+ *    Revision 1.1  1997/11/28 23:13:35  ahd
+ *    Initial revision
+ *
  */
 
 #include "smtpconn.h"

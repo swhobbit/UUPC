@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.h 1.6 1996/01/01 21:23:24 ahd v1-12r $
+ *    $Id: dcplib.h 1.7 1997/04/24 01:37:05 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: dcplib.h $
+ *    Revision 1.7  1997/04/24 01:37:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1996/01/01 21:23:24  ahd
  *    Annual Copyright Update
  *

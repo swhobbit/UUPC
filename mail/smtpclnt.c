@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.7 1997/11/28 23:11:38 ahd Exp $
+ *       $Id: smtpclnt.c 1.8 1997/11/29 13:03:13 ahd v1-12u $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.8  1997/11/29 13:03:13  ahd
+ *       Clean up single client (hot handle) mode for OS/2, including correct
+ *       network initialization, use unique client id (pid), and invoke all
+ *       routines needed in main client loop.
+ *
  *       Revision 1.7  1997/11/28 23:11:38  ahd
  *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -62,7 +67,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.7 1997/11/28 23:11:38 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.8 1997/11/29 13:03:13 ahd v1-12u $");
 
 static size_t clientSequence = 0;
 

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivers.h 1.2 1997/11/29 13:06:52 ahd Exp $
+ *    $Id: deliverm.h 1.1 1997/12/13 18:11:33 ahd v1-12u $
  *
  *    Revision history:
- *    $Log: delivers.h $
+ *    $Log: deliverm.h $
+ *    Revision 1.1  1997/12/13 18:11:33  ahd
+ *    Initial revision
+ *
  */
 
 #include "mailaddr.h"

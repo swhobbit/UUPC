@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtptrns.h 1.1 1997/11/26 03:34:44 ahd v1-12t $
+ *       $Id: smtptrns.h 1.2 1997/12/14 02:42:06 ahd v1-12u $
  *
  *       Revision history:
  *       $Log: smtptrns.h $
+ *       Revision 1.2  1997/12/14 02:42:06  ahd
+ *       Don't use sender address as pointer, just alloc room for it
+ *
  *       Revision 1.1  1997/11/26 03:34:44  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *

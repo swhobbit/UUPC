@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.13 1996/01/01 20:55:00 ahd v1-12r $
+ *    $Id: scrsiznt.c 1.14 1997/03/31 07:06:29 ahd v1-12u $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.14  1997/03/31 07:06:29  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1996/01/01 20:55:00  ahd
  *    Annual Copyright Update
  *
@@ -36,7 +39,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */

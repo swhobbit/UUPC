@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcheru.c 1.3 1996/01/01 21:23:12 ahd v1-12r $
+ *    $Id: catcheru.c 1.4 1997/04/24 01:32:47 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: catcheru.c $
+ *    Revision 1.4  1997/04/24 01:32:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1996/01/01 21:23:12  ahd
  *    Annual Copyright Update
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.2 1997/12/20 22:26:06 ahd Exp $
+ *    $Id: deliverm.c 1.3 1997/12/22 14:12:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.3  1997/12/22 14:12:44  ahd
+ *    Correct OS/2 compile warning
+ *
  *    Revision 1.2  1997/12/20 22:26:06  ahd
  *    Let's try initializing remoteMail BEFORE using it, shall we ...
  *
@@ -64,7 +67,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.2 1997/12/20 22:26:06 ahd Exp $");
+RCSID("$Id: deliverm.c 1.3 1997/12/22 14:12:44 ahd Exp $");
 currentfile();
 
 /*--------------------------------------------------------------------*/

@@ -14,7 +14,7 @@
 # *                                     directories)                   *
 # *                     Input source files.                            *
 # *                                                                    *
-# *   Changes Copyright (c) 1989-1997 by Kendra Electronic             *
+# *   Changes Copyright (c) 1989-1998 by Kendra Electronic             *
 # *   Wonderworks.                                                     *
 # *                                                                    *
 # *   All rights reserved except those explicitly granted by the       *
@@ -31,10 +31,14 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.85 1997/12/22 16:46:45 ahd Exp $
+#     $Id: borlandc.mak 1.86 1998/01/03 05:26:26 ahd Exp $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.86  1998/01/03 05:26:26  ahd
+#     Support current aux files in release process better
+#     Move to version 1.12v
+#
 #     Revision 1.85  1997/12/22 16:46:45  ahd
 #     Delete BC++ OS/2 support (the compiler stank)
 #     Move to 1.12u
@@ -756,7 +760,7 @@ DOCS\*.pif
        zip -z $< <  &&%
 UUPC/extended $(VERS) source files (1 of 4)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -776,7 +780,7 @@ $(README)
        zip -z $< <  &&%
 UUPC/extended $(VERS) source files (2 of 4)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -798,7 +802,7 @@ $(README)
        zip -z $< <  &&%
 UUPC/extended $(VERS) source files (3 of 4)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -829,7 +833,7 @@ $(README)
        zip -z $< <  &&%
 UUPC/extended $(VERS) source files (4 of 4)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -850,7 +854,7 @@ $?
        zip -z $< < &&%
 UUPC/extended $(VERS) Word for Windows Document Source
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -869,7 +873,7 @@ $(README)
        zip -z $< <  &&%
 UUPC/extended $(VERS) $(ENVIRONMENT) executables (1 of 3)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -887,7 +891,7 @@ $?
        zip -z $< <  &&%
 UUPC/extended $(VERS) $(ENVIRONMENT) executables (2 of 3)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -905,7 +909,7 @@ $?
        zip -z $< <  &&%
 UUPC/extended $(VERS) $(ENVIRONMENT) executables (3 of 3)
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -931,7 +935,7 @@ $(DOCS)\*.spb
        zip -z $< < &&%
 UUPC/extended $(VERS) documents and sample files
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -945,7 +949,7 @@ $?
        zip -z $< < &&%
 UUPC/extended $(VERS) documents in PostScript format
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -1139,7 +1143,7 @@ UUPC/extended $(VERS) Windows 3.x executables (1 of 3)
 
 Special thanks to Robert B. Denny for performing the Windows 3.x port.
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -1159,7 +1163,7 @@ UUPC/extended $(VERS) Windows 3.x executables (2 of 3)
 
 Special thanks to Robert B. Denny for performing the Windows 3.x port.
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -1180,7 +1184,7 @@ UUPC/extended $(VERS) Windows 3.x executables (3 of 3)
 
 Special thanks to Robert B. Denny for performing the Windows 3.x port.
 
-Changes and Compilation Copyright (c) 1989-1997 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1998 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -1354,6 +1358,6 @@ EXETYPE WINDOWS
 DATA MOVABLE MULTIPLE
 STACKSIZE 8182
 HEAPSIZE  12288
-Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1997 Kendra Electronic Wonderworks, All Rights Reserved'
+Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1998 Kendra Electronic Wonderworks, All Rights Reserved'
 | $<
 !endif

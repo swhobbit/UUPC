@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.38 1997/05/11 18:17:27 ahd v1-12t $
+ *    $Id: uutypes.h 1.39 1997/12/13 18:11:33 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.39  1997/12/13 18:11:33  ahd
+ *    Add new delivery options
+ *
  *    Revision 1.38  1997/05/11 18:17:27  ahd
  *    Add flag for fastsmtp delivery
  *    Move TCP/IP dependent delivery code from rmail to deliver

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.26 1997/06/03 03:25:31 ahd v1-12t $
+ *    $Id: imfile.c 1.27 1997/12/13 18:06:38 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.27  1997/12/13 18:06:38  ahd
+ *    Correct reopening of disk based file to use append mode,
+ *    not write mode, to prevent clobbering contents.
+ *
  *    Revision 1.26  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.14 1997/05/13 04:16:04 dmwatt v1-12u $
+ *    $Id: pwinsock.c 1.15 1997/12/22 16:48:38 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.15  1997/12/22 16:48:38  ahd
+ *    Add support for 16 bit inet_ntoa for Borland C++ Windows UUCICO
+ *
  *    Revision 1.14  1997/05/13 04:16:04  dmwatt
  *    Support setsockopt
  *

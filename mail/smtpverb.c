@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.6 1997/11/28 23:11:38 ahd Exp $
+ *       $Id: smtpverb.c 1.7 1997/11/30 04:21:39 ahd v1-12u $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.7  1997/11/30 04:21:39  ahd
+ *       Always compare up to four characters of input to
+ *       avoid accidently tripping on a leading period
+ *
  *       Revision 1.6  1997/11/28 23:11:38  ahd
  *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -53,7 +57,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.6 1997/11/28 23:11:38 ahd Exp $");
+RCSID("$Id: smtpverb.c 1.7 1997/11/30 04:21:39 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.17 1997/12/14 21:12:18 ahd v1-12u $
+ *    $Id: fopen.c 1.18 1997/12/15 03:54:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.18  1997/12/15 03:54:19  ahd
+ *    Add missing header for stater
+ *
  *    Revision 1.17  1997/12/14 21:12:18  ahd
  *    Don't loop if error is trying to open directory under NT
  *
@@ -65,7 +68,7 @@
 #include "ssleep.h"
 #include "stater.h"
 
-RCSID("$Id$");
+RCSID("$Id: fopen.c 1.18 1997/12/15 03:54:19 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */

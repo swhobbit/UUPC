@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -16,16 +16,19 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.18 1997/12/22 14:12:44 ahd Exp $");
+RCSID("$Id: hdbm.c 1.19 1997/12/22 14:15:29 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.18 1997/12/22 14:12:44 ahd Exp $
+ * $Id: hdbm.c 1.19 1997/12/22 14:15:29 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.19  1997/12/22 14:15:29  ahd
+ * Correct subroutine name
+ *
  * Revision 1.18  1997/12/22 14:12:44  ahd
  * Correct off-by-2 error in computing length of string to allocate
  * Add debugging information for failure to backup/rename files

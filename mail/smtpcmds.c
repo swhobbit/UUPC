@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.2 1997/11/28 23:11:38 ahd v1-12u $
+ *       $Id: smtpcmds.c 1.3 1998/01/03 05:24:17 ahd Exp $
  *
  *       $Log: smtpcmds.c $
+ *       Revision 1.3  1998/01/03 05:24:17  ahd
+ *       Correct name in header
+ *
  *       Revision 1.2  1997/11/28 23:11:38  ahd
  *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -40,7 +43,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.2 1997/11/28 23:11:38 ahd v1-12u $");
+RCSID("$Id: smtpcmds.c 1.3 1998/01/03 05:24:17 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       Master command verb table for SMTP                           */

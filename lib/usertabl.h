@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.h 1.7 1996/01/01 20:58:43 ahd v1-12r $
+ *    $Id: usertabl.h 1.8 1997/03/31 07:07:33 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: usertabl.h $
+ *    Revision 1.8  1997/03/31 07:07:33  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1996/01/01 20:58:43  ahd
  *    Annual Copyright Update
  *

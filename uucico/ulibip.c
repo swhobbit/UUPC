@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.34 1997/12/22 17:39:43 ahd Exp $
+ *    $Id: ulibip.c 1.35 1997/12/22 18:29:06 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.35  1997/12/22 18:29:06  ahd
+ *    Close polling socket as soon as original socket is available
+ *
  *    Revision 1.34  1997/12/22 17:39:43  ahd
  *    Correct formatting of host name in connect
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpdns.c 1.1 1997/11/28 23:11:38 ahd v1-12u $
  *
- *    $Log: smtpnetw.c $
+ *    $Log: smtpdns.c $
+ *    Revision 1.1  1997/11/28 23:11:38  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -33,7 +36,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: smtpdns.c 1.1 1997/11/28 23:11:38 ahd v1-12u $");
 
 currentfile();
 

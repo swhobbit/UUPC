@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.15 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: gensig.c 1.16 1997/04/24 01:31:09 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.16  1997/04/24 01:31:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -79,7 +82,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.15 1996/11/18 04:46:49 ahd Exp $";
+      "$Id: gensig.c 1.16 1997/04/24 01:31:09 ahd v1-12u $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.3 1997/11/24 02:53:26 ahd Exp $
+ *    $Id: smtpserv.h 1.4 1997/11/25 05:05:36 ahd v1-12u $
  *
  *    $Log: smtpserv.h $
+ *    Revision 1.4  1997/11/25 05:05:36  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.3  1997/11/24 02:53:26  ahd
  *    First working SMTP daemon which delivers mail
  *

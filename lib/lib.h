@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.40 1997/06/03 03:26:38 ahd v1-12u $
+ *    $Id: lib.h 1.41 1997/12/15 03:54:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.41  1997/12/15 03:54:46  ahd
+ *    Only define RCSID() to be useful (and use memory) in 32 bit environments
+ *
  *    Revision 1.40  1997/06/03 03:26:38  ahd
  *    First compiling SMTP daemon
  *
