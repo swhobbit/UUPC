@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.h 1.1 1993/09/25 03:02:55 ahd Exp $
+ *    $Id: pnterr.h 1.2 1993/09/26 03:34:48 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: pnterr.h $
+ * Revision 1.2  1993/09/26  03:34:48  dmwatt
+ * Update copyright
+ *
  * Revision 1.1  1993/09/25  03:02:55  ahd
  * Initial revision
  *

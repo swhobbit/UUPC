@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.2 1993/07/13 01:13:32 ahd Exp $
+ *    $Id: mkmbox.c 1.3 1993/10/12 00:46:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *     Revision 1.3  1993/10/12  00:46:16  ahd
+ *     Normalize comments
+ *
  *     Revision 1.2  1993/07/13  01:13:32  ahd
  *     Limit directory names for users to eight characters
  *

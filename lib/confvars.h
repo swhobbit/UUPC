@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.14 1993/12/02 01:37:33 ahd Exp $
+ *    $Id: confvars.h 1.15 1993/12/29 02:48:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.15  1993/12/29  02:48:21  ahd
+ *     Add V-mail queuing support
+ *
  *     Revision 1.14  1993/12/02  01:37:33  ahd
  *     Add maximum length of UUXQT command lines
  *

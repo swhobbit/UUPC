@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.7 1993/06/22 00:55:45 ahd Exp $
+ *    $Id: address.c 1.8 1993/10/12 01:30:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.8  1993/10/12  01:30:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/06/22  00:55:45  ahd
  * Trap routing entries when aliasing systems
  *

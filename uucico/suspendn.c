@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SUSPENDN.C 1.1 1993/12/11 19:09:56 dmwatt Exp $
+ *    $Id: suspendn.c 1.1 1993/12/29 03:34:37 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: SUSPENDN.C $
+ *    $Log: suspendn.c $
+ * Revision 1.1  1993/12/29  03:34:37  dmwatt
+ * Initial revision
+ *
  *
  * Revision 1.1  1993/09/27  00:45:20  dmwatt
  * Initial revision. Split from suspend2.c.

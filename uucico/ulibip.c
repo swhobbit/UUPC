@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.14 1993/12/29 03:34:37 dmwatt Exp $
+ *    $Id: ulibip.c 1.15 1993/12/30 02:56:28 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.15  1993/12/30  02:56:28  dmwatt
+ * Correct compile warnings
+ *
  * Revision 1.14  1993/12/29  03:34:37  dmwatt
  * Corrected host to network short conversion
  *

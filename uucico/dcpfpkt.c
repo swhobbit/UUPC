@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.16 1993/12/02 13:49:58 ahd Exp $
+ *    $Id: dcpfpkt.c 1.17 1993/12/29 03:54:30 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.17  1993/12/29  03:54:30  dmwatt
+ * Suppress compiler warnings for unused args
+ *
  * Revision 1.16  1993/12/02  13:49:58  ahd
  * 'e' protocol support
  *

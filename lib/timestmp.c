@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.10 1993/10/31 11:58:18 ahd Exp $
+ *    $Id: timestmp.c 1.11 1993/11/21 02:45:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.11  1993/11/21  02:45:50  ahd
+ *     Change OS/2 id to 16/32 bit
+ *
  *     Revision 1.10  1993/10/31  11:58:18  ahd
  *     Don't include version header if version already defined (for BC++)
  *

@@ -7,7 +7,7 @@
 #include <sccsid.h>
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: libc.h 1.2 1993/12/23 03:20:05 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: libc.h $
+ * Revision 1.2  1993/12/23  03:20:05  ahd
+ * Add proper defines for DOS compilers
+ *
  */
 
 /*

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.8 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: normaliz.c 1.9 1993/10/12 00:46:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.9  1993/10/12  00:46:16  ahd
+ *     Normalize comments
+ *
  *     Revision 1.8  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support

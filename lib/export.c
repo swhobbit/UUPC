@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.2 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: export.c 1.3 1993/10/12 00:41:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: export.c $
+ *     Revision 1.3  1993/10/12  00:41:51  ahd
+ *     Normalize comments
+ *
  *     Revision 1.2  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *

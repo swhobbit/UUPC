@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.7 1993/11/06 17:54:55 rhg Exp rommel $
+ *    $Id: pushpop.c 1.8 1993/12/23 03:11:17 rommel Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.8  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
  *     Revision 1.7  1993/11/06  17:54:55  rhg
  *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *

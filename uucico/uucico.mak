@@ -1,17 +1,23 @@
 # *--------------------------------------------------------------------*
 # *     u u c i c o . m a k                                            *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.15 1993/10/03 20:36:50 ahd Exp $
+#     $Id: uucico.mak 1.17 1993/12/02 13:47:46 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.17  1993/12/02  13:47:46  ahd
+# 'e' protocol support
+#
+# Revision 1.16  1993/10/28  00:51:58  ahd
+# Add icon to UUCICOW.EXE
+#
 # Revision 1.15  1993/10/03  20:36:50  ahd
 # Use real suspend module under OS/2
 #
@@ -72,15 +78,18 @@ LINKOPT=$(LINKOPTD)
 .path.asm = $(UUCICO)
 .path.c   = $(UUCICO)
 
-UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
-            $(OBJ)\dcpfpkt.obj \
-            $(OBJ)\dcpgpkt.obj $(OBJ)\dcplib.obj $(OBJ)\dcpsys.obj\
-            $(OBJ)\dcpxfer.obj $(OBJ)\dcpstats.obj $(OBJ)\modem.obj\
-            $(OBJ)\nbstime.obj $(OBJ)\script.obj $(OBJ)\uucico.obj
+UUCICOCOM = \
+         $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
+         $(OBJ)\dcpfpkt.obj $(OBJ)\dcpgpkt.obj $(OBJ)\dcplib.obj \
+         $(OBJ)\dcpstats.obj $(OBJ)\dcpsys.obj $(OBJ)\dcpxfer.obj \
+         $(OBJ)\modem.obj $(OBJ)\nbstime.obj $(OBJ)\script.obj \
+         $(OBJ)\uucico.obj
 
 !if $d(__OS2__)
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
-            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
+UUCICOOBJ = $(UUCICOCOM) \
+         $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj \
+         $(OBJ)\suspend2.obj $(OBJ)\ulibnmp.obj $(OBJ)\ulibos2.obj
+
 !elif $d(WINDOWS)
 
 # *--------------------------------------------------------------------*
@@ -89,13 +98,15 @@ UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
 # *      try to include the suite's definition.                        *
 # *--------------------------------------------------------------------*
 
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
-            $(OBJ)\ulibwin.obj $(OBJ)\suspend.obj \
-            $(OBJ)\ulibip.obj $(OBJ)\pwserr.obj
+UUCICOOBJ = $(UUCICOCOM) \
+         $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\pwserr.obj \
+         $(OBJ)\suspend.obj $(OBJ)\ulibip.obj $(OBJ)\ulibwin.obj
+
 !else
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj $(OBJ)\fossil.obj \
-            $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj \
-            $(OBJ)\suspend.obj
+UUCICOOBJ = $(UUCICOCOM) \
+         $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
+         $(OBJ)\ulib.obj $(OBJ)\ulib14.obj $(OBJ)\ulibfs.obj
+
 !endif
 
 # *--------------------------------------------------------------------*

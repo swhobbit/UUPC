@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.6 1993/09/20 04:39:51 ahd Exp ahd $
+ *    $Id: ndiros2.c 1.7 1993/10/03 20:37:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *     Revision 1.7  1993/10/03  20:37:34  ahd
+ *     Delete debugging message of returned value to make consistent with
+ *     other environment messages from ndir()
+ *
+ *     Revision 1.7  1993/10/03  20:37:34  ahd
+ *     Delete debugging message of returned value to make consistent with
+ *     other environment messages from ndir()
+ *
  *     Revision 1.6  1993/09/20  04:39:51  ahd
  *     OS/2 2.x support
  *

@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *      u u t r a f  . m a k                                          *
 # *                                                                    *
-# *      Changes Copyright (c) 1989-1993 by Kendra Electronic          *
+# *      Changes Copyright (c) 1989-1994 by Kendra Electronic          *
 # *      Wonderworks.                                                  *
 # *                                                                    *
 # *      All rights reserved except those explicitly granted by        *
 # *      the UUPC/extended license agreement.                          *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.4 1993/09/27 00:44:27 ahd Exp $
+#     $Id: uutraf.mak 1.1 1993/11/21 04:46:03 ahd Exp $
 #
 #     Revision history:
-#     $Log: util.mak $
+#     $Log: uutraf.mak $
+# Revision 1.1  1993/11/21  04:46:03  ahd
+# Initial revision
+#
 
 !include $(UUPCDEFS)
 

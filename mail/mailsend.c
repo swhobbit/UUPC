@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.11 1993/11/20 14:48:53 ahd Exp rommel $
+ *    $Id: mailsend.c 1.12 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.12  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.11  1993/11/20  14:48:53  ahd
  * Correct execute() flag to use new editor window option, not pager window
  *

@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.32 1993/12/02 03:59:37 dmwatt Exp $
+ *     $Id: dcpsys.c 1.33 1993/12/02 13:49:58 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.33  1993/12/02  13:49:58  ahd
+ * 'e' protocol support
+ *
  * Revision 1.32  1993/12/02  03:59:37  dmwatt
  * 'e' protocol support
  *

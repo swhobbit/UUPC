@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.38 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: modem.c 1.39 1993/12/30 03:26:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.39  1993/12/30  03:26:21  ahd
+ * Add timeout parameter for 'e' protocol
+ *
  * Revision 1.38  1993/12/24  05:12:54  ahd
  * Support for checking echoing of transmitted characters
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.8 1993/10/16 15:13:17 ahd Exp $
+ *    $Id: winutil.c 1.9 1993/12/26 16:20:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.9  1993/12/26  16:20:17  ahd
+ * Allow intercepting messages (none actually intercepted at this time)
+ *
  * Revision 1.8  1993/10/16  15:13:17  ahd
  * Add _export keywords per Paul Steckler to fix system crashes
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.H 1.11 1993/10/12 01:35:12 ahd Exp $
+ *    $Id: modem.h 1.12 1993/12/30 03:26:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: MODEM.H $
+ *    $Log: modem.h $
+ * Revision 1.12  1993/12/30  03:26:49  ahd
+ * Add timeout parameter for 'e' procotol
+ *
  * Revision 1.11  1993/10/12  01:35:12  ahd
  * Normalize comments to PL/I style
  *

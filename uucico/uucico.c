@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.5 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: UUCICO.C 1.6 1993/09/29 04:52:03 ahd Exp $
  *
  *    Revision history:
- *    $Log: uucico.c $
+ *    $Log: UUCICO.C $
+ * Revision 1.6  1993/09/29  04:52:03  ahd
+ * Cosmetic cleanup
+ *
+ * Revision 1.6  1993/09/29  04:52:03  ahd
+ * Cosmetic cleanup
+ *
  * Revision 1.5  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.9 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: suspend2.c 1.10 1993/12/26 16:20:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.10  1993/12/26  16:20:17  ahd
+ * Use enumerated type for command verbs and responses
+ *
  * Revision 1.9  1993/12/24  05:12:54  ahd
  * 32 bit support for suspending UUCICO
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.23 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: deliver.c 1.24 1993/12/29 02:46:47 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.24  1993/12/29  02:46:47  ahd
+ * Add Vmail queuing support
+ *
  * Revision 1.23  1993/12/23  03:11:17  rommel
  * OS/2 32 bit support for additional compilers
  *

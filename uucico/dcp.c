@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.23 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: dcp.c 1.24 1993/12/02 13:48:35 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.24  1993/12/02  13:48:35  ahd
+ * Don't release network ports after use
+ *
  * Revision 1.23  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *

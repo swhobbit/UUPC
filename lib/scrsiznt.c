@@ -1,7 +1,13 @@
 /*
- *    $Id: SCRSIZNT.C 1.4 1993/04/10 21:22:29 dmwatt Exp $
+ *    $Id: scrsiznt.c 1.5 1993/09/26 03:32:27 dmwatt Exp $
  *
- *    $Log: SCRSIZNT.C $
+ *    $Log: scrsiznt.c $
+ *     Revision 1.5  1993/09/26  03:32:27  dmwatt
+ *     Use Standard Windows NT error message module
+ *
+ *     Revision 1.5  1993/09/26  03:32:27  dmwatt
+ *     Use Standard Windows NT error message module
+ *
  *     Revision 1.4  1993/04/10  21:22:29  dmwatt
  *     Windows/NT fixes
  *
@@ -15,7 +21,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.2 1993/09/29 13:18:06 ahd Exp $
+ *    $Id: usrcatch.c 1.3 1993/09/30 03:06:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ * Revision 1.3  1993/09/30  03:06:28  ahd
+ * Use straight signal value as flag
+ *
+ * Revision 1.3  1993/09/30  03:06:28  ahd
+ * Use straight signal value as flag
+ *
  * Revision 1.2  1993/09/29  13:18:06  ahd
  * Drop unneeded OS/2 ifdef
  *

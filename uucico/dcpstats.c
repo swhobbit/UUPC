@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.6 1993/09/20 04:41:54 ahd Exp $
+ *       $Id: DCPSTATS.C 1.7 1993/10/09 22:21:55 rhg Exp $
  *
- *       $Log: dcpstats.c $
+ *       $Log: DCPSTATS.C $
+ * Revision 1.7  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
+ * Revision 1.7  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.6  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *

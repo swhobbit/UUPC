@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.14 1993/11/14 20:55:00 ahd Exp $
+ *    $Id: uutypes.h 1.15 1993/12/24 05:22:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.15  1993/12/24  05:22:49  ahd
+ *     Allow for more generic use of UUFAR type modifier
+ *
  *     Revision 1.14  1993/11/14  20:55:00  ahd
  *     Add showspool option
  *

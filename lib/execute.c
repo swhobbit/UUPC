@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.21 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: execute.c 1.22 1993/12/29 02:46:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.22  1993/12/29  02:46:47  ahd
+ * Trap errors from dup2() calls
+ *
  * Revision 1.21  1993/12/23  03:11:17  rommel
  * OS/2 32 bit support for additional compilers
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.15 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: import.c 1.16 1993/12/29 03:34:37 dmwatt Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.16  1993/12/29  03:34:37  dmwatt
+ *     Improve remote Windows NT drive support detection
+ *
  *     Revision 1.15  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *
@@ -847,7 +850,7 @@ static boolean advancedFS( const char *path )
       if (shareNameEnd)
       {
          /* Copy the server and share name, including the trailing slash */
-         len = shareNameEnd - path + 1;   
+         len = shareNameEnd - path + 1;
          memcpy(driveInfo, path, len);
          driveInfo[len] = '\0';
          shareNameEnd = driveInfo;

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.5 1993/10/12 00:45:27 ahd Exp $
+ *    $Id: mktempnm.c 1.6 1993/10/30 02:29:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *     Revision 1.6  1993/10/30  02:29:46  ahd
+ *     Trim trailing slash from root directories
+ *
  *     Revision 1.5  1993/10/12  00:45:27  ahd
  *     Normalize comments
  *

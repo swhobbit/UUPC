@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcptpkt.h 1.2 1993/12/02 04:00:19 dmwatt Exp $
+  *      $Id: dcptpkt.h 1.3 1993/12/02 13:50:40 ahd Exp $
   *
   *      $Log: dcptpkt.h $
+ * Revision 1.3  1993/12/02  13:50:40  ahd
+ * 'e' protocol support
+ *
  * Revision 1.2  1993/12/02  04:00:19  dmwatt
  * 'e' protocol support
  *

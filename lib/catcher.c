@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.3 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: catcher.c 1.7 1993/12/29 03:34:37 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.7  1993/12/29  03:34:37  dmwatt
+ *     Add special multi-threaded abort code for Windows NT UUCICO
+ *
+ *     Revision 1.6  1993/12/26  16:20:17  ahd
+ *     Dummy code for MessageBox under Windows
+ *
+ *     Revision 1.5  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
+ *     Revision 1.4  1993/10/12  00:49:39  ahd
+ *     Normalize comments
+ *
  *     Revision 1.3  1993/09/29  04:49:20  ahd
  *     Use actual signal handler number for resetting handler
  *
@@ -48,6 +60,7 @@
 #include <stdlib.h>
 
 #if defined(WIN32) || defined(_Windows)
+#include "windows.h"
 #include "winsock.h"
 #endif
 
@@ -62,6 +75,13 @@
 
 #if defined(_Windows)
 #include "pwinsock.h"
+#include "winutil.h"
+#endif
+
+#if defined(WIN32) && defined(UUCICO)
+BOOL AbortComm(void);
+boolean IsNetwork(void);
+BOOL AbortNetwork(void);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -74,6 +94,8 @@ boolean norecovery = TRUE;
 
 #if defined(WIN32) || defined(_Windows)
 boolean winsockActive = FALSE;      /* Set/reset in ulibip.c          */
+
+currentfile();
 #endif
 
 int panic_rc = 69;
@@ -132,14 +154,63 @@ ctrlchandler( int sig )
       } /* if (winsockActive) */
 #endif
 
-#ifdef __OS2__
+#if defined(__OS2__) && defined(__BORLANDC__)
       signal( sig, (void (__cdecl *)(int))ctrlchandler );
 #else
       signal( sig, ctrlchandler );
 #endif
 
+#if defined(WIN32) && defined(UUCICO)
+   printmsg(9, "catcher:  calling AbortComm()");
+   if (IsNetwork())
+      AbortNetwork();
+   else
+      AbortComm();
+#endif
+
       return;
     }
+
+#if 0 /* defined(_Windows) || defined(WIN32) */
+
+      if ( terminate_processing )
+         ch = MessageBox( hOurWindow,
+                          "Termination already in progess; "
+                              "select OK for immediate abort or CANCEL to "
+                              "continue orderly shutdown" ,
+                           compilen,
+                           MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2 );
+      else
+         ch = MessageBox( hOurWindow,
+                          "Select OK to terminate processing",
+                           compilen,
+                           MB_ICONQUESTION | MB_OKCANCEL );
+
+      switch( ch )
+      {
+         case 0:
+            printmsg(0,"Could not create message box");
+            panic();
+            break;
+
+         case IDOK:
+            if ( terminate_processing || norecovery )
+               _exit(100);
+
+            terminate_processing = TRUE;  /* Controlled shutdown  */
+            panic_rc = 100;
+            break;
+
+         case IDCANCEL:
+            break;
+
+         default:
+            panic();
+            break;
+
+      } /* switch( ch ) */
+
+#else
 
     if ( terminate_processing )
       safeout( "Termination already in progress ... answer Y to SCRAM program");
@@ -170,17 +241,12 @@ ctrlchandler( int sig )
             terminate_processing = TRUE;  /* Controlled shutdown  */
             panic_rc = 100;
             safeout("\n\r*** Termination in progress ***\r\n");
-#if 0
-#ifdef WIN32
-            if (IsNetwork()) {
-               if (WSAIsBlocking()) {
-                  printmsg(15, "catcher:  sockets are blocking");
-                  WSACancelBlockingCall();
-               } else {
-                   printmsg(15, "catcher:  sockets are not blocking");
-               }
-            }
-#endif
+#if defined(WIN32) && defined(UUCICO)
+            printmsg(9, "catcher:  calling AbortComm()");
+            if (IsNetwork())
+               AbortNetwork();
+            else
+               AbortComm();
 #endif
             break;
 
@@ -197,12 +263,14 @@ ctrlchandler( int sig )
       } /* switch  */
    } /* for */
 
+#endif
+
 /*--------------------------------------------------------------------*/
 /*    The CTRL+C interrupt must be reset to our handler since by      */
 /*    default it is reset to the system handler.                      */
 /*--------------------------------------------------------------------*/
 
-#ifdef __OS2__
+#if defined(__OS2__) && defined(__BORLANDC__)
       signal( sig, (void (__cdecl *)(int))ctrlchandler );
 #else
       signal( sig, ctrlchandler );

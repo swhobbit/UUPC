@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.4 1993/04/11 00:33:38 dmwatt Exp $
+ *       $Id: ndirnt.c 1.5 1993/10/31 22:07:05 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *     Revision 1.5  1993/10/31  22:07:05  ahd
+ *     GRACEFULLY trap argument to closedir being NULL
+ *
+ *     Revision 1.5  1993/10/31  22:07:05  ahd
+ *     GRACEFULLY trap argument to closedir being NULL
+ *
  *     Revision 1.4  1993/04/11  00:33:38  dmwatt
  *     Global edits for year, TEXT, etc.
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.7 1993/06/21 02:17:31 ahd Exp $
+  *      $Id: hostable.c 1.8 1993/10/12 00:45:27 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.8  1993/10/12  00:45:27  ahd
+ *     Normalize comments
+ *
  *     Revision 1.7  1993/06/21  02:17:31  ahd
  *     Correct errors in mail routing via HOSTPATH
  *

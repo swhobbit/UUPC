@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.2 1993/06/16 04:03:25 ahd Exp $
+ *    $Id: mkfilenm.c 1.3 1993/10/03 20:37:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *     Revision 1.3  1993/10/03  20:37:34  ahd
+ *     Don't formally normalize paths, invalid file names cause normalize()
+ *     to panic() in BCC for OS/2
+ *
+ *     Revision 1.3  1993/10/03  20:37:34  ahd
+ *     Don't formally normalize paths, invalid file names cause normalize()
+ *     to panic() in BCC for OS/2
+ *
  *     Revision 1.2  1993/06/16  04:03:25  ahd
  *     drop duplicated slashes (caused by root directory support *sigh*)
  *

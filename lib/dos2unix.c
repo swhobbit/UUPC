@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DOS2UNIX.C 1.3 1993/04/05 12:26:01 ahd Exp $
+ *    $Id: dos2unix.c 1.4 1993/04/10 21:22:29 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: DOS2UNIX.C $
+ *    $Log: dos2unix.c $
+ *     Revision 1.4  1993/04/10  21:22:29  dmwatt
+ *     Windows/NT fixes
+ *
+ * Revision 1.4  1993/04/10  21:22:29  dmwatt
+ * Windows/NT fixes
+ *
  * Revision 1.3  1993/04/05  12:26:01  ahd
  * Correct headers to match gpkt
  *

@@ -1,17 +1,27 @@
 # *--------------------------------------------------------------------*
 # *     u u c p . m a k                                                *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucp.mak 1.3 1993/08/02 03:22:25 ahd Exp $
+#     $Id: uucp.mak 1.4 1993/09/20 04:36:42 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucp.mak $
+# Revision 1.4  1993/09/20  04:36:42  ahd
+# TCP/IP support from Dave Watt
+# 't' protocol support
+# BC++ 1.0 for OS/2 support
+#
+# Revision 1.4  1993/09/20  04:36:42  ahd
+# TCP/IP support from Dave Watt
+# 't' protocol support
+# BC++ 1.0 for OS/2 support
+#
 # Revision 1.3  1993/08/02  03:22:25  ahd
 # Chaanges in support of Robert Denny's Windows 3.x support
 #

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.3 1993/10/09 15:47:51 rhg Exp $
+ *    $Id: stater.c 1.4 1993/10/28 12:19:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *     Revision 1.4  1993/10/28  12:19:01  ahd
+ *     Cosmetic time formatting twiddles and clean ups
+ *
  *     Revision 1.3  1993/10/09  15:47:51  rhg
  *     ANSIify the source
  *

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.38 1993/12/26 16:20:17 ahd Exp $
+ *       $Id: dcpxfer.c 1.39 1993/12/29 02:46:47 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.39  1993/12/29  02:46:47  ahd
+ * Correct assignment of transfer buffer size.  (set it, not reset it)
+ *
  * Revision 1.38  1993/12/26  16:20:17  ahd
  * Use standard miminum buffer size to avoid excessive realloc() calls
  * and not over allocate for large (1K) buffer sizes

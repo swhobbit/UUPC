@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.h 1.1 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: usrcatch.h 1.2 1993/09/29 13:20:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.h $
+ * Revision 1.2  1993/09/29  13:20:49  ahd
+ * Provide default values for user signals
+ *
  * Revision 1.1  1993/09/29  04:56:11  ahd
  * Initial revision
  *

@@ -2,15 +2,10 @@
 /*    c o n f i g u r . c                                             */
 /*                                                                    */
 /*    Support routines for UUPC/extended                              */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -22,10 +17,25 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.31 1993/11/14 20:51:37 ahd Exp $
+ *    $Id: configur.c 1.36 1993/12/29 02:46:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.36  1993/12/29  02:46:47  ahd
+ *     Add Vmail queuing support
+ *
+ *     Revision 1.35  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
+ *     Revision 1.34  1993/12/02  02:25:12  ahd
+ *     Add max generated UUXQT command line length
+ *
+ *     Revision 1.33  1993/11/30  04:18:14  ahd
+ *     Correct spelling error in message
+ *
+ *     Revision 1.32  1993/11/21  02:47:07  ahd
+ *     Allow UUPCUSRRC to be set from environment variables
+ *
  *     Revision 1.31  1993/11/14  20:51:37  ahd
  *     Add showspool
  *
@@ -199,7 +209,10 @@ char *E_uuxqtpath = NULL;
 char *E_version = NULL;
 char *E_cwd = NULL;
 char *E_xqtRootDir = NULL;
+char *E_vmsQueueDir = NULL;
+char *E_vmail = NULL;
 KEWSHORT E_maxhops = 20;                                    /* ahd */
+KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
 static char *dummy = NULL;
 static char *E_tz = NULL;
 
@@ -259,6 +272,7 @@ static CONFIGTABLE envtable[] = {
    {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"maximumhops",  (char **) &E_maxhops, B_MTA | B_SHORT | B_GLOBAL},
+   {"maximumuuxqt", (char **) &E_maxuuxqt, B_MTA | B_SHORT | B_GLOBAL},
    {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
@@ -273,6 +287,7 @@ static CONFIGTABLE envtable[] = {
    {"permissions",  &E_permissions,  B_GLOBAL|B_PATH|B_ALL},
    {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"priority",     &dummy,          B_OBSOLETE },
+   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
@@ -281,11 +296,12 @@ static CONFIGTABLE envtable[] = {
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
    {"spooldir",     &E_spooldir,     B_GLOBAL|B_PATH|B_ALL},
    {"systems",      &E_systems,      B_GLOBAL|B_PATH|B_ALL},
-   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
    {"tz",           &E_tz,           B_TOKEN|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
+   {"vmail",        &E_vmail,        B_MTA|B_PATH|B_ALL},
+   {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA|B_PATH|B_ALL},
    {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT|B_PATH|B_ALL},
    { nil(char) }
 }; /* table */
@@ -749,6 +765,10 @@ boolean configure( CONFIGBITS program)
    setstdinmode();
 #endif
 
+#ifdef __IBMC__
+   logfile = stdout;
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                  Determine the active environment                  */
 /*--------------------------------------------------------------------*/
@@ -797,7 +817,7 @@ boolean configure( CONFIGBITS program)
       strcpy( buf, E_mailbox );
       strcat( buf, ".rc" );
       usrrc = newstr( buf );
-      printmsg(2,"Using UUPCUSRC=%s", usrrc );
+      printmsg(2,"Using UUPCUSRRC=%s", usrrc );
    }
 
 /*--------------------------------------------------------------------*/
@@ -874,7 +894,7 @@ boolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1994 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed if original documentation and\n"
 "source is included.\n" );
 

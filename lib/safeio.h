@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: safeio.h 1.4 1993/07/20 21:41:51 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: safeio.h $
+ *     Revision 1.4  1993/07/20  21:41:51  dmwatt
+ *     Don't rely on standard I/O under Windows/NT
+ *
  */
 
 #include "uutypes.h"        /* Include UUPC/extended types           */

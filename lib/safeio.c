@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.6 1993/10/12 00:49:39 ahd Exp rommel $
+ *    $Id: safeio.c 1.7 1993/10/30 22:27:57 rommel Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.7  1993/10/30  22:27:57  rommel
+ *     Handle missing define
+ *
  *     Revision 1.6  1993/10/12  00:49:39  ahd
  *     Normalize comments
  *

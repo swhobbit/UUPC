@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.20 1993/12/13 03:09:13 ahd Exp rommel $
+ *    $Id: rmail.c 1.21 1993/12/23 03:16:03 rommel Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.21  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.20  1993/12/13  03:09:13  ahd
  * Print error before panic() when cannot open temp file
  *

@@ -15,15 +15,18 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1992-1993 by Kendra Electronic Wonderworks, all   */
+/*    Copyright (c) 1992-1994 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those granted by the UUPC/extended       */
 /*    license.                                                        */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.9 1993/07/19 02:53:49 ahd Exp $
+ *       $Id: uuclean.cmd 1.10 1993/11/14 18:16:11 ahd Exp $
  *
  *       $Log: uuclean.cmd $
+ *      Revision 1.10  1993/11/14  18:16:11  ahd
+ *      Use del /f to nuke files dead
+ *
  *      Revision 1.9  1993/07/19  02:53:49  ahd
  *      Correct aging of small files
  *

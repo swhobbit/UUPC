@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.3 1993/10/03 22:34:33 ahd Exp $
+ *    $Id: PRTYOS2.C 1.4 1993/10/12 01:33:23 ahd Exp $
  *
  *    Revision history:
- *    $Log: prtyos2.c $
+ *    $Log: PRTYOS2.C $
+ * Revision 1.4  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.4  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.3  1993/10/03  22:34:33  ahd
  * Alter format of numbers printed
  *

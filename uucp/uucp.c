@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.12 1993/10/30 17:19:50 rhg Exp $
+ *    $Id: uucp.c 1.13 1993/10/31 22:07:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.13  1993/10/31  22:07:05  ahd
+ * Issue messages if opens during copies fail
+ * Don't close directory after copy failure if never open
+ * Automatically build spool data directory as required
+ *
  * Revision 1.12  1993/10/30  17:19:50  rhg
  * Additional clean-up for UUX support
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: getseq.h 1.2 1993/12/02 01:37:33 ahd Exp $
  */
 
 #define SPOOLFMT "%c.%.8s%c%3.3s"

@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.11 1993/11/30 04:18:14 ahd Exp rommel $
+ *    $Id: dcplib.c 1.12 1993/12/09 12:48:33 rommel Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.12  1993/12/09  12:48:33  rommel
+ * Move extra terminating character when inserting substitution strings
+ *
+ * Revision 1.12  1993/12/09  12:48:33  rommel
+ * Move extra terminating character when inserting substitution strings
+ *
  * Revision 1.11  1993/11/30  04:18:14  ahd
  * Correct spelling error in comment
  *

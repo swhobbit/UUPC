@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.17 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: script.h 1.3 1993/12/24 05:26:43 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: script.h $
+ * Revision 1.3  1993/12/24  05:26:43  ahd
+ * Add RCS header
+ *
  */
 
 int expectstr(char *Search, unsigned int Timeout, char **failure);

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.15 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: commlib.c 1.16 1993/12/26 16:20:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.16  1993/12/26  16:20:17  ahd
+ * Build int14 version by default under DOS, not articomm
+ * Buffer int14 and articomm
+ *
  * Revision 1.15  1993/12/24  05:12:54  ahd
  * Use far buffer for master communications buffer
  *

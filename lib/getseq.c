@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: GETSEQ.C 1.3 1993/04/11 00:32:05 ahd Exp $
+ *    $Id: getseq.c 1.4 1993/06/21 02:17:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: GETSEQ.C $
+ *    $Log: getseq.c $
+ *     Revision 1.4  1993/06/21  02:17:31  ahd
+ *     Reset after missing file to PID
+ *
+ *     Revision 1.4  1993/06/21  02:17:31  ahd
+ *     Reset after missing file to PID
+ *
  *     Revision 1.3  1993/04/11  00:32:05  ahd
  *     Global edits for year, TEXT, etc.
  *

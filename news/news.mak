@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     r n e w s . m a k                                              *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: RNEWS.MAK 1.4 1993/09/20 04:36:42 ahd Exp $
+#     $Id: rnews.mak 1.5 1993/10/31 11:57:13 ahd Exp $
 #
 #     Revision history:
-#     $Log: RNEWS.MAK $
+#     $Log: rnews.mak $
+# Revision 1.5  1993/10/31  11:57:13  ahd
+# Add inews, genhist, and history support from Kai Uwe Rommel
+#
 # Revision 1.4  1993/09/20  04:36:42  ahd
 # TCP/IP support from Dave Watt
 # 't' protocol support

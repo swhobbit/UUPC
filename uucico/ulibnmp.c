@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.15 1993/12/24 05:12:54 ahd Exp $
+ *       $Id: ulibnmp.c 1.16 1993/12/26 16:20:17 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.16  1993/12/26  16:20:17  ahd
+ * Add missing cast to far pointer
+ *
  * Revision 1.15  1993/12/24  05:12:54  ahd
  * Use far buffer for master communications buffer
  *

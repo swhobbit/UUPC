@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.5 1993/11/13 17:37:02 ahd Exp $
+ *    $Id: arpadate.c 1.7 1993/11/30 04:18:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.7  1993/11/30  04:18:14  ahd
+ *     Correct for TZ computations crossing day boundaries
+ *
+ *     Revision 1.7  1993/11/30  04:18:14  ahd
+ *     Correct for TZ computations crossing day boundaries
+ *
+ *     Revision 1.6  1993/11/15  05:43:29  ahd
+ *     Twiddle, twiddle ...
+ *
  *     Revision 1.5  1993/11/13  17:37:02  ahd
  *     More date twiddling
  *
@@ -45,11 +54,7 @@
 #include "lib.h"
 #include "arpadate.h"
 
-/*--------------------------------------------------------------------*/
-/*              Macro to return sign of a signed number               */
-/*--------------------------------------------------------------------*/
-
-#define sign(x) ((x < 0) ? -1 : 1 )
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*       a r p a d a t e                                              */
@@ -80,6 +85,46 @@ char *arpadate( void )
                                     guess what ... the BC library
                                     doesn't either.  AST doesn't
                                     work, so what?                   */
+
+/*--------------------------------------------------------------------*/
+/*         Correct offset if time zones are in different days         */
+/*--------------------------------------------------------------------*/
+
+      switch( gm.tm_year - lt.tm_year )
+      {
+         case -1:
+            offset += 2400;   /* New year in local zone, GMT behind  */
+            break;
+
+         case  1:
+            offset -= 2400;   /* New year in GMT, local zone behind  */
+            break;
+
+         case 0:
+            switch( gm.tm_yday - lt.tm_yday )
+            {
+               case -1:
+                  offset += 2400;   /* New day in local zone, GMT behind  */
+                  break;
+
+               case  1:
+                  offset -= 2400;   /* New day in GMT, local zone behind  */
+                  break;
+
+               case 0:
+                  break;
+
+               default:
+                  panic();
+                  break;
+            } /* switch( gm.tm_yday - lt.tm_yday ) */
+            break;
+
+         default:
+            panic();
+            break;
+
+      } /* switch( gm.tm_year - lt.tm_year ) */
 
       sprintf(zone, " %+05d", offset );
    }

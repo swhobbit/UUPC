@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.14 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: ssleep.c 1.15 1993/12/29 03:39:15 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.15  1993/12/29  03:39:15  dmwatt
+ *     Do not include winutil under Windows NT
+ *
  *     Revision 1.14  1993/12/26  16:20:17  ahd
  *     Reorganize to break out OS dependent functions
  *

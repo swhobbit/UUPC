@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.15 1993/11/30 04:18:14 ahd Exp rommel $
+ *    $Id: mail.c 1.16 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.16  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.15  1993/11/30  04:18:14  ahd
  * Add current time to status command (for testing arpadate())
  *
@@ -91,7 +94,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.15 1993/11/30 04:18:14 ahd Exp rommel $";
+      "$Id: mail.c 1.16 1993/12/23 03:16:03 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

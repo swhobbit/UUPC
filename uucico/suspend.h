@@ -14,7 +14,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.h 1.2 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: suspend.h 1.3 1993/12/26 16:28:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.h $
+ * Revision 1.3  1993/12/26  16:28:56  ahd
+ * Use enumerated types for command verbs and responses
+ *
  * Revision 1.2  1993/09/29  04:56:11  ahd
  * Suspend port by port name, not modem file name
  *

@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.9 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: DCP.H 1.10 1993/10/12 01:35:12 ahd Exp $
  *
- *    $Log: dcp.h $
+ *    $Log: DCP.H $
+ * Revision 1.10  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.10  1993/10/12  01:35:12  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.9  1993/09/29  04:56:11  ahd
  * Suspend port by port name, not modem file name
  *

@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SU.CMD 1.2 1993/05/04 00:25:58 ahd Exp $
+ *       $Id: SU.CMD 1.3 1993/05/09 03:51:26 ahd Exp $
  *
  *       $Log: SU.CMD $
+ *      Revision 1.3  1993/05/09  03:51:26  ahd
+ *      Don't uppercase the input
+ *
  *      Revision 1.2  1993/05/04  00:25:58  ahd
  *      COnvert to REXX
  *
@@ -46,7 +49,7 @@ Call 'SysLoadFuncs'
 parse arg who what;
 if words(who) = 0 then
 do;
-   say 'SU.CMD Copyright 1989-1993 Kendra Electronic Wonderworks';
+   say 'SU.CMD Copyright 1989-1994 Kendra Electronic Wonderworks';
    say 'No user specified to SU to';
    exit 1;
 end;

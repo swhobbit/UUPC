@@ -5,15 +5,18 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1992-1993 by Kendra Electronic Wonderworks, all   */
+/*    Copyright (c) 1992-1994 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those granted by the UUPC/extended       */
 /*    license.                                                        */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: GETUUPC.CMD 1.3 1993/05/09 14:10:26 ahd Exp $
+ *       $Id: GETUUPC.CMD 1.4 1993/05/10 11:35:05 ahd Exp $
  *
  *       $Log: GETUUPC.CMD $
+ *      Revision 1.4  1993/05/10  11:35:05  ahd
+ *      Drop extra parse command which broken selected sewarches
+ *
  *      Revision 1.3  1993/05/09  14:10:26  ahd
  *      Don't perform user level lookup unless asked
  *

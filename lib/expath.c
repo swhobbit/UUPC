@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.8 1993/10/30 17:10:40 rhg Exp $
+ *    $Id: expath.c 1.9 1993/11/06 17:54:55 rhg Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.9  1993/11/06  17:54:55  rhg
+ *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  *     Revision 1.8  1993/10/30  17:10:40  rhg
  *     Be more conservative about the need to push to new directory
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: setstdin.c 1.2 1993/10/12 00:47:57 ahd Exp $
+ *    $Id: setstdin.c 1.3 1993/10/26 12:45:46 ahd Exp $
  *
  *    $Log: setstdin.c $
+ *     Revision 1.3  1993/10/26  12:45:46  ahd
+ *     Add include of own header file
+ *
  *     Revision 1.2  1993/10/12  00:47:57  ahd
  *     Normalize comments
  *

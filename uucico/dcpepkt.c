@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.4 1993/12/06 01:59:07 ahd Exp $
+ *    $Id: dcpepkt.c 1.5 1993/12/30 03:11:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ * Revision 1.5  1993/12/30  03:11:05  ahd
+ * Use unique packet timeout variable for 'e' protocol
+ *
  * Revision 1.4  1993/12/06  01:59:07  ahd
  * Delete unneeded pwinsock header
  *

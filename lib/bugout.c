@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.14 1993/10/09 15:48:20 rhg Exp $
+ *    $Id: bugout.c 1.4 1993/10/12 00:49:39 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: bugout.c $
+ *     Revision 1.4  1993/10/12  00:49:39  ahd
+ *     Normalize comments
+ *
  */
 
 #include <stdio.h>

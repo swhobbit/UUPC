@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBWIN.C 1.8 1993/10/12 01:33:23 ahd Exp $
+ *    $Id: ulibwin.c 1.9 1993/12/24 05:12:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIBWIN.C $
+ *    $Log: ulibwin.c $
+ * Revision 1.9  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.8  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -94,7 +97,7 @@
 // is in the Developer's Knowledge Base:
 //
 // Title: INF: Accessing the Modem Status Register (MSR) in Windows
-// Document Number: Q101417           Publ Date: 15-JUL-1993
+// Document Number: Q101417           Publ Date: 15-JUL-1994
 // Product Name: Microsoft Windows Software Development Kit
 // Product Version:  3.10
 // Operating System: WINDOWS

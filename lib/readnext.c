@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: READNEXT.C 1.4 1993/04/05 04:32:19 ahd Exp $
+ *    $Id: readnext.c 1.5 1993/08/26 05:00:25 ahd Exp $
  *
- *    $Log: READNEXT.C $
+ *    $Log: readnext.c $
+ *     Revision 1.5  1993/08/26  05:00:25  ahd
+ *     Debugging code for odd failures on J. McBride's network
+ *
+ *     Revision 1.5  1993/08/26  05:00:25  ahd
+ *     Debugging code for odd failures on J. McBride's network
+ *
  *     Revision 1.4  1993/04/05  04:32:19  ahd
  *     Add timestamp, size to information returned by directory searches
  *

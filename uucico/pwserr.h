@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.h 1.1 1993/09/24 03:46:07 dmwatt Exp $
+ *    $Id: pwserr.h 1.1 1993/10/02 23:13:51 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: pwserr.h $
+ * Revision 1.1  1993/10/02  23:13:51  dmwatt
+ * Initial revision
+ *
+ * Revision 1.1  1993/10/02  23:13:51  dmwatt
+ * Initial revision
+ *
  * Revision 1.1  1993/09/24  03:46:07  dmwatt
  * Initial revision
  *

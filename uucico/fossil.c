@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.3 1993/10/12 01:33:59 ahd Exp $
+ *    $Id: FOSSIL.C 1.4 1993/11/06 17:56:09 rhg Exp $
  *
  *    Revision history:
- *    $Log: fossil.c $
+ *    $Log: FOSSIL.C $
+ * Revision 1.4  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
+ * Revision 1.4  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.3  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *

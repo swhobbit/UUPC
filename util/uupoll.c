@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.17 1993/10/28 00:18:10 ahd Exp $
+ *    $Id: uupoll.c 1.18 1993/11/06 17:56:09 rhg Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.18  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.17  1993/10/28  00:18:10  ahd
  * Drop unneeded tzset() call
  *
@@ -148,7 +151,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.17 1993/10/28 00:18:10 ahd Exp $";
+         "$Id: uupoll.c 1.18 1993/11/06 17:56:09 rhg Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

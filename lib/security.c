@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.13 1993/12/13 03:08:00 ahd Exp $
+ *    $Id: security.c 1.14 1993/12/23 03:13:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.14  1993/12/23  03:13:18  ahd
+ *     Add type of access definition not found to message
+ *
  *     Revision 1.13  1993/12/13  03:08:00  ahd
  *     Print an error before panic() when securep is not initialized
  *

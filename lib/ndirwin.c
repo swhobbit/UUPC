@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -22,10 +22,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.1 1993/07/22 23:19:50 ahd Exp $
+ *    $Id: ndirwin.c 1.2 1993/07/31 16:22:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ * Revision 1.2  1993/07/31  16:22:16  ahd
+ * Changes in support of Robert Denny's Windows 3.x support
+ *
+ * Revision 1.2  1993/07/31  16:22:16  ahd
+ * Changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.1  1993/07/22  23:19:50  ahd
  * Initial revision
  *

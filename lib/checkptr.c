@@ -2,11 +2,32 @@
 /*    c h e c k p t r . c                                             */
 /*                                                                    */
 /*    Support routines for UUPC/extended                              */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: checkptr.c 1.2 1993/12/24 05:12:54 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: checkptr.c $
+ *     Revision 1.2  1993/12/24  05:12:54  ahd
+ *     With check in-lined, always abort if called
+ *
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -23,15 +44,12 @@
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r                                                 */
 /*                                                                    */
-/*    Verfiy that a pointer is not null                               */
+/*    Report that a pointer is NULL                                   */
 /*--------------------------------------------------------------------*/
 
-void checkptr(const void *block, const char *file, const int line)
+void checkptr( const char *file, const int line)
 {
-   if (block == NULL)
-   {
-      printmsg(0,"Storage allocation failure; possible cause:\
- memory shortage.");
-      bugout( line, file);
-   }
+   printmsg(0,"Storage allocation failure; possible cause: "
+               " memory shortage.");
+   bugout( line, file);
 } /* checkptr */

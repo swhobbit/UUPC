@@ -3,7 +3,7 @@
 /*                                                                    */
 /*       UUPC/extended file backup routines                           */
 /*                                                                    */
-/*       Copyright (c) 1991-1993 by Andrew H. Derbyshire;             */
+/*       Copyright (c) 1991-1994 by Andrew H. Derbyshire;             */
 /*       all rights reserved except as granted by UUPC/extended       */
 /*       license included with documention.                           */
 /*--------------------------------------------------------------------*/
@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.4 1993/10/12 00:43:34 ahd Exp rommel $
+ *    $Id: filebkup.c 1.5 1993/12/23 03:11:17 rommel Exp $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *     Revision 1.5  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
  *     Revision 1.4  1993/10/12  00:43:34  ahd
  *     Normalize comments
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.5 1993/11/20 14:50:25 ahd Exp $
+ *    $Id: ULIB.H 1.6 1993/12/24 05:22:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: ulib.h $
+ *    $Log: ULIB.H $
+ * Revision 1.6  1993/12/24  05:22:49  ahd
+ * Use UUFAR pointer for comm buffers
+ *
  * Revision 1.5  1993/11/20  14:50:25  ahd
  * Add prototype for GetComHandle
  *

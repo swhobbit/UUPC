@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: arbmath.c 1.2 1993/10/09 15:46:15 rhg Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: arbmath.c $
+ *     Revision 1.2  1993/10/09  15:46:15  rhg
+ *     ANSIify the source
+ *
  */
 
 /*--------------------------------------------------------------------*/

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.5 1993/10/03 00:05:32 ahd Exp $
+ *    $Id: safeout.c 1.6 1993/10/12 00:49:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.6  1993/10/12  00:49:39  ahd
+ *     Normalize comments
+ *
  *     Revision 1.5  1993/10/03  00:05:32  ahd
  *     Only define currentfile() under Windows NT
  *

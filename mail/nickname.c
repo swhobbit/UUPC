@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.9 1993/10/25 01:21:22 ahd Exp rommel $
+ *    $Id: alias.c 1.10 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.10  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.9  1993/10/25  01:21:22  ahd
  * Rename Aliases to Nickname to make more unique for end users; allow
  * Aliases as obsolete alias for now.
@@ -358,7 +361,7 @@ size_t LoadAliases(void)
 
          target.anick = token;
 
-         hit = (void *) lfind((void *) &target, (void *) alias, 
+         hit = (void *) lfind((void *) &target, (void *) alias,
 			      &elements , sizeof(alias[0]), nickcmp);
          if (hit == NULL)
          {

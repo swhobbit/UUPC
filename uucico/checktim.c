@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.2 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: CHECKTIM.C 1.3 1993/10/12 01:32:46 ahd Exp $
  *
  *    Revision history:
- *    $Log: checktim.c $
+ *    $Log: CHECKTIM.C $
+ * Revision 1.3  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.3  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.2  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt

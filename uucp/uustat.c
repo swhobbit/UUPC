@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,11 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.14 1993/12/06 01:59:07 ahd Exp $
+ *    $Id: uustat.c 1.15 1993/12/09 04:51:21 ahd Exp $
  */
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.14 1993/12/06 01:59:07 ahd Exp $";
+         "$Id: uustat.c 1.15 1993/12/09 04:51:21 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */

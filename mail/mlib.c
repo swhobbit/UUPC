@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.7 1993/11/13 17:43:26 ahd Exp rommel $
+ *    $Id: mlib.c 1.8 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.8  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.7  1993/11/13  17:43:26  ahd
  * Normalize external command processing
  *
@@ -242,7 +245,7 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
       buflen = DOSKeyRead( buff, buflen );
    else
       buflen = DOSRead( buff, buflen );
-      
+
     putchar('\n');
 
 /*--------------------------------------------------------------------*/

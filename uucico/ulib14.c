@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.7 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: ulib14.c 1.8 1993/12/26 16:20:17 ahd Exp $
  *
  *    $Log: ulib14.c $
+ * Revision 1.8  1993/12/26  16:20:17  ahd
+ * Use common buffering
+ *
  * Revision 1.7  1993/12/24  05:12:54  ahd
  * Use far buffer in 16 bit compilers
  *

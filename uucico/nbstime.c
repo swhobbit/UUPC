@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1990-1993 by Kendra Electronic Wonderworks.       */
+/*    Copyright (c) 1990-1994 by Kendra Electronic Wonderworks.       */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.13 1993/12/23 03:17:55 rommel Exp $
+ *    $Id: nbstime.c 1.14 1993/12/30 02:56:56 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.14  1993/12/30  02:56:56  dmwatt
+ * Suppress NT compiler warnings
+ *
  * Revision 1.13  1993/12/23  03:17:55  rommel
  * OS/2 32 bit support for additional compilers
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: setstdin.c 1.2 1993/10/12 00:47:57 ahd Exp $
+ *    $Id: setstdin.h 1.1 1993/10/26 12:45:13 ahd Exp $
  *
- *    $Log: setstdin.c $
+ *    $Log: setstdin.h $
+ * Revision 1.1  1993/10/26  12:45:13  ahd
+ * Initial revision
+ *
  */
 
 void setstdinmode( void );

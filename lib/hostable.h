@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.3 1993/07/06 10:57:42 ahd Exp $
+  *   $Id: hostable.h 1.4 1993/10/12 01:21:25 ahd Exp $
   *
   *   $Log: hostable.h $
+ *     Revision 1.4  1993/10/12  01:21:25  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.3  1993/07/06  10:57:42  ahd
  *     Under Windows/NT pack structure to insure proper alignment
  *

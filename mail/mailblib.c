@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.9 1993/11/13 17:43:26 ahd Exp rommel $
+ *    $Id: mailblib.c 1.10 1993/12/23 03:16:03 rommel Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.10  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.9  1993/11/13  17:43:26  ahd
  * Noramalize external command processing
  *

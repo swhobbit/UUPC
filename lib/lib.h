@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *    $Id: lib.h 1.17 1993/12/24 05:22:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.17  1993/12/24  05:22:49  ahd
+ *     Allow for more generic use of UUFAR type modifier
+ *
  *     Revision 1.16  1993/11/06  17:57:46  rhg
  *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *

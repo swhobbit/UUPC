@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.3 1993/09/29 04:52:03 ahd Exp $
+ *    $Id: SUSPEND.C 1.4 1993/11/06 17:57:09 rhg Exp $
  *
  *    Revision history:
- *    $Log: suspend.c $
+ *    $Log: SUSPEND.C $
+ * Revision 1.4  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
+ * Revision 1.4  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.3  1993/09/29  04:52:03  ahd
  * General clean up to be compatible with suspend2.c
  *

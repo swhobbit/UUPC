@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.7 1993/12/23 03:17:55 rommel Exp $
+ *    $Id: uuport.c 1.8 1993/12/26 16:20:17 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.8  1993/12/26  16:20:17  ahd
+ * Windows NT support
+ * Use enumerated type for command verbs and responses
+ * Add -e flag to command line
+ *
  * Revision 1.7  1993/12/23  03:17:55  rommel
  * OS/2 32 bit support for additional compilers
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.2 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: trumpet.c 1.3 1993/10/12 00:48:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.3  1993/10/12  00:48:44  ahd
+ * Normalize comments
+ *
  * Revision 1.2  1993/09/20  04:39:51  ahd
  * OS/2 2.x support
  *

@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.h 1.3 1993/10/09 15:48:20 rhg Exp $
+ *    $Id: import.h 1.4 1993/10/12 01:21:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: import.h $
+ *     Revision 1.4  1993/10/12  01:21:25  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.3  1993/10/09  15:48:20  rhg
  *     ANSIfy the source
  *

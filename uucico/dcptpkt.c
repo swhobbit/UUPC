@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.6 1993/11/08 04:46:49 ahd Exp $
+ *    $Id: dcptpkt.c 1.7 1993/11/13 17:43:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.7  1993/11/13  17:43:26  ahd
+ * Correct debug level on sending empty packet message
+ *
+ * Revision 1.7  1993/11/13  17:43:26  ahd
+ * Correct debug level on sending empty packet message
+ *
  * Revision 1.6  1993/11/08  04:46:49  ahd
  * Correct bug which prevented proper EOF being handled
  *

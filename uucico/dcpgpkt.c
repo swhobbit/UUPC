@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.27 1993/12/24 05:12:54 ahd Exp $
+ *      $Id: dcpgpkt.c 1.28 1993/12/26 16:20:17 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.28  1993/12/26  16:20:17  ahd
+ * Suppress compile warning
+ *
  * Revision 1.27  1993/12/24  05:12:54  ahd
  * Use far buffer for master communications buffer
  *

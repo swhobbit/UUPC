@@ -8,7 +8,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-static char *rcsid = "$Id: genhist.c 1.3 1993/11/06 13:04:13 ahd Exp $";
-static char *rcsrev = "$Revision: 1.3 $";
+static char *rcsid = "$Id: genhist.c 1.4 1993/12/09 13:24:25 ahd Exp $";
+static char *rcsrev = "$Revision: 1.4 $";
 
 /* $Log: genhist.c $
+ * Revision 1.4  1993/12/09  13:24:25  ahd
+ * Enforce options=history being set to use program
+ *
  * Revision 1.3  1993/11/06  13:04:13  ahd
  * Update usage message
  *

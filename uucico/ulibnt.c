@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.13 1993/12/06 02:29:32 ahd Exp $
+ *       $Id: ulibnt.c 1.15 1993/12/29 03:34:37 dmwatt Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.15  1993/12/29  03:34:37  dmwatt
+ * Restructure to use overlapped I/O
+ *
  * Revision 1.13  1993/12/06  02:29:32  ahd
  * Make bit twiddles of modem status bit AND and bit OR's, not logical!
  *
@@ -519,7 +522,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       if (!rc)
       {
          dwError = GetLastError();
-         
+
          if (dwError != ERROR_IO_PENDING)
          {
             printmsg(0,

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.3 1993/10/12 00:47:04 ahd Exp rommel $
+ *    $Id: pos2err.c 1.4 1993/12/23 03:11:17 rommel Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.4  1993/12/23  03:11:17  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.3  1993/10/12  00:47:04  ahd
  * Normalize comments
  *

@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     l i b . m a k                                                  *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1993 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1994 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.11 1993/09/29 04:48:23 ahd Exp $
+#       $Id: lib.mak 1.12 1993/10/13 01:47:19 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#    Revision 1.12  1993/10/13  01:47:19  ahd
+#    Don't try to recreate version header file
+#
 #    Revision 1.11  1993/09/29  04:48:23  ahd
 #    Add usr signal handler
 #    Use one long tlib command to build library

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.21 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: ulib.c 1.22 1993/12/30 03:11:05 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.22  1993/12/30  03:11:05  ahd
+ * Correct pointer to UUFAR
+ *
  * Revision 1.21  1993/12/24  05:12:54  ahd
  * Use far buffer in 16 bit compilers
  *

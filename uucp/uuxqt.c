@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.30 1993/12/23 01:52:33 ahd Exp rommel $
+ *    $Id: uuxqt.c 1.31 1993/12/23 03:17:55 rommel Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.31  1993/12/23  03:17:55  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.30  1993/12/23  01:52:33  ahd
  * Security enhancements
  *

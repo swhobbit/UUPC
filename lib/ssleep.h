@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: ssleep.h 1.2 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: ssleep.h $
+ *     Revision 1.2  1993/09/20  04:51:31  ahd
+ *     TCP Support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  */
 
 void ssleep(time_t interval);

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.7 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: script.c 1.8 1993/12/30 03:26:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ * Revision 1.8  1993/12/30  03:26:21  ahd
+ * Trap empty failure strings
+ *
  * Revision 1.7  1993/12/24  05:12:54  ahd
  * Support for checking echoing of transmitted characters
  *

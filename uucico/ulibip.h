@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBIP.H 1.2 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: ulibip.h 1.3 1993/12/30 02:56:28 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: ULIBIP.H $
+ *    $Log: ulibip.h $
+ * Revision 1.3  1993/12/30  02:56:28  dmwatt
+ * Correct compile warnings
+ *
  * Revision 1.2  1993/12/24  05:22:49  ahd
  * Use UUFAR pointer for comm buffers
  *

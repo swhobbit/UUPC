@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.4 1993/10/12 01:32:08 ahd Exp $
+ *    $Id: PWSERR.C 1.5 1993/10/30 22:07:19 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: pwserr.c $
+ *    $Log: PWSERR.C $
+ * Revision 1.5  1993/10/30  22:07:19  dmwatt
+ * Host byte ordering and far/near pointer corrections
+ *
+ * Revision 1.5  1993/10/30  22:07:19  dmwatt
+ * Host byte ordering and far/near pointer corrections
+ *
  * Revision 1.4  1993/10/12  01:32:08  ahd
  * Normalize comments to PL/I style
  *

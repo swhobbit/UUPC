@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.6 1993/12/06 01:59:07 ahd Exp rommel $
+ *    $Id: printmsg.c 1.7 1993/12/23 03:11:17 rommel Exp $
  *
  *    $Log: printmsg.c $
+ *     Revision 1.7  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
+ *     Revision 1.7  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
  *     Revision 1.6  1993/12/06  01:59:07  ahd
  *     Add code to compare environment changes
  *     ./

@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    Expire old news articles for UUPC/extended                      */
 /*                                                                    */
-/*    Copyright (c) 1992-1993 by Kendra Electronic Wonderworks, all   */
+/*    Copyright (c) 1992-1994 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those explicitly granted by the UUPC/    */
 /*    extended license.                                               */
 /*--------------------------------------------------------------------*/
@@ -13,19 +13,25 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.3 1993/12/09 04:51:21 ahd Exp $
+ *    $Id: expire.c 1.4 1993/12/23 03:16:03 rommel Exp $
  *
  *    $Log: expire.c $
+ * Revision 1.4  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.3  1993/12/09  04:51:21  ahd
  * restore ability to expire without having history database
  *
  *
  */
 
-static char *rcsid = "$Id: expire.c 1.3 1993/12/09 04:51:21 ahd Exp $";
-static char *rcsrev = "$Revision: 1.3 $";
+static char *rcsid = "$Id: expire.c 1.4 1993/12/23 03:16:03 rommel Exp $";
+static char *rcsrev = "$Revision: 1.4 $";
 
 /* $Log: expire.c $
+ * Revision 1.4  1993/12/23  03:16:03  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.3  1993/12/09  04:51:21  ahd
  * restore ability to expire without having history database
  *

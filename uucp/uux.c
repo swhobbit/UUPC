@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.11 1993/11/30 04:18:14 ahd Exp $
+ *    $Id: uux.c 1.12 1993/12/06 01:59:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.12  1993/12/06  01:59:07  ahd
+ * Correct support of commands for local system reading from STDIN
+ *
  * Revision 1.11  1993/11/30  04:18:14  ahd
  * Normalize filename string lengths
  *
