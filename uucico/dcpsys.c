@@ -34,7 +34,17 @@
       21Sep92  - Insure system system name and time do not crash
                  UUCICO - from the original fix by Eugene Nesterenko,
                  Moscow, Russia
+
+
 */
+
+/*
+ *     $Id$
+ *     $Log$
+ */
+
+ const static char rcsid[] =
+      "$Id";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -611,7 +621,7 @@ CONN_STATE startup_client( char *sendgrade )
          hostp->via = strdup( sysname );
          sysname = ANONYMOUS_HOST;
 
-         if (xdebug > 3)
+         if ((xdebug > 3)  && (xdebug > debuglevel))
          {
             wmsg("RDebug (-x) level too high for anonymous UUCP - rejected",
                   TRUE);

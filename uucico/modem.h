@@ -33,7 +33,7 @@ void shutdown( void );
 
 INTEGER  GetGPacket( INTEGER maxvalue, const char protocol );
 
-INTEGER  GetGWindow( INTEGER maxvalue );
+INTEGER  GetGWindow( INTEGER maxvalue, const char protocol );
 
 
 /*--------------------------------------------------------------------*/

@@ -1,6 +1,3 @@
-/* $Header: fio.c,v 1.20 85/04/30 12:57:32 rick Exp $ */
-/* %M%   %I%   %E%   (Mathematisch Centrum)  */
-
 /*--------------------------------------------------------------------*/
 /*    Flow control ("f") protocol.                                    */
 /*                                                                    */
@@ -32,6 +29,15 @@
 /*                                                                    */
 /*    Adapted to uupc 3.0 and THINK C 4.0 by Dave Platt, Jul 1991     */
 /*--------------------------------------------------------------------*/
+
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
+static const char rcsid[] =
+         "$Id";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -83,7 +89,7 @@ static int chksum;
 /*    Open "f" protocol to other system                               */
 /*--------------------------------------------------------------------*/
 
-int fopenpk()
+int fopenpk(const boolean master)
 {
    flowcontrol(TRUE);
 

@@ -9,9 +9,15 @@
       08 Sep 90   -  Create via Microsoft C compiler /Zg          ahd
  */
 
-int  vopenpk(void);
-int  Gopenpk(void);
-int  gopenpk(void);
+ /*
+  *      $Id$
+  *
+  *      $Log$
+  */
+
+int  vopenpk(const boolean master);
+int  Gopenpk(const boolean master);
+int  gopenpk(const boolean master);
 int  gclosepk(void);
 int  ggetpkt(char  *data,int  *len);
 int  gsendpkt(char  *data,int  len);

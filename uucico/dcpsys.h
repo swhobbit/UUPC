@@ -43,7 +43,7 @@ void  wmsg(char *msg, const boolean synch);
 
 extern int (*sendpkt)(char *data, int len);
 extern int (*getpkt)(char *data, int *len);
-extern int (*openpk)(void);
+extern int (*openpk)(const boolean caller);
 extern int (*closepk)(void);
 extern int (*wrmsg)(char *data);
 extern int (*rdmsg)(char *data);

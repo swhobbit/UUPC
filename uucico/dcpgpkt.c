@@ -81,7 +81,7 @@
 #define HDRSIZE   6
 #define MAXTRY 4
 
-#ifdef GDEBUG
+#ifndef GDEBUG
 #define GDEBUG 4
 #endif
 
@@ -141,12 +141,13 @@ static time_t ftimer[NBUF];
 static int timeouts, outsequence, naksin, naksout, screwups;
 static int reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
-static char protocol = 'g';   /* "G" for smart procotocol            */
-static boolean variablepacket;  /* "G" or in modem file              */
+static boolean variablepacket;  /* "v" or in modem file              */
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
+
+static int initialize(const boolean caller, const char protocol );
 
 static int  gmachine(const int timeout);
 
@@ -175,10 +176,9 @@ static unsigned int checksum(char *data, int len);
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int Gopenpk()
+int Gopenpk(const boolean caller)
 {
-   protocol = 'G';
-   return gopenpk();
+   return initialize(caller , 'G');
 } /* Gopenpk */
 
 /*--------------------------------------------------------------------*/
@@ -187,11 +187,10 @@ int Gopenpk()
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int vopenpk()
+int vopenpk(const boolean caller)
 {
-   protocol = 'v';
-   return gopenpk();
-} /* Gopenpk */
+   return initialize(caller, 'v');
+} /* vopenpk */
 
 /*--------------------------------------------------------------------*/
 /*    g o p e n p k                                                   */
@@ -199,7 +198,18 @@ int vopenpk()
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-int gopenpk()
+int gopenpk(const boolean caller)
+{
+   return initialize(caller, 'g');
+} /* vopenpk */
+
+/*--------------------------------------------------------------------*/
+/*    i n i t i a l i z e                                             */
+/*                                                                    */
+/*    Initialize processing for protocol                              */
+/*--------------------------------------------------------------------*/
+
+static int initialize(const boolean caller, const char protocol )
 {
    int i, xxx, yyy, len, maxwindows;
 
@@ -207,12 +217,12 @@ int gopenpk()
 /* Read modem file values for the number of windows and packet sizes  */
 /*--------------------------------------------------------------------*/
 
-   pktsize = GetGPacket( PKTSIZE, protocol );
+   pktsize = GetGPacket( MAXPACK, protocol );
    maxwindows = GetGWindow(
-                     min( MAXWINDOW, RECV_BUF / (pktsize+HDRSIZE)));
+                     min( MAXWINDOW, RECV_BUF / (pktsize+HDRSIZE)),
+                     protocol);
 
-   variablepacket = bmodemflag[MODEM_VARIABLEPACKET] | (protocol != 'g');
-   protocol = 'g';         /* Reset for next pass                    */
+   variablepacket = bmodemflag[MODEM_VARIABLEPACKET] | (protocol == 'v');
 
    grpkt = malloc( pktsize + HDRSIZE );
 
@@ -243,7 +253,25 @@ int gopenpk()
 /*                          3-way handshake                           */
 /*--------------------------------------------------------------------*/
 
-   gspack(INITA, 0, 0, 0, pktsize, NULL);
+/*--------------------------------------------------------------------*/
+/*    The three-way handshake should be independent of who            */
+/*    initializes it, but it seems that some versions of uucico       */
+/*    assume that the caller sends first and the callee responds.     */
+/*    This only matters if we are the callee and the first packet     */
+/*    is garbled.  If we send a packet, the other side will assume    */
+/*    that we must have seen the packet they sent and will never      */
+/*    time out and send it again.  Therefore, if we are the callee    */
+/*    we don't send a packet the first time through the loop.         */
+/*    This can still fail, but should usually work, and, after        */
+/*    all, if the initialization packets are received correctly       */
+/*    there will be no problem no matter what we do.                  */
+/*                                        - Ian Taylor                */
+/*--------------------------------------------------------------------*/
+
+
+   if ( caller )
+      gspack(INITA, 0, 0, 0, pktsize, NULL);
+
 rsrt:
    if (nerr >= M_MaxErr)
    {
@@ -269,6 +297,7 @@ rsrt:
       }
       gspack(INITB, 0, 0, 0, pktsize, NULL);  /* data segment (packet) size */
       goto rsrt;
+
    case INITB:
       printmsg(5, "**got INITB");
       i = (int) 8 * (2 << (yyy+1));
@@ -330,7 +359,7 @@ rsrt:
    lazynak = 0;
 
 #ifdef WIN32
-   printmsg(2,"Smart packets %sabled, "
+   printmsg(2,"Short packets %sabled, "
               "Window size %d, "
               "Packet size %d\n",
             variablepacket ? "en" : "dis", nwindows, pktsize );
@@ -345,7 +374,7 @@ rsrt:
 
    return(OK); /* channel open */
 
-} /*gopenpk*/
+} /*initialize*/
 
 /*--------------------------------------------------------------------*/
 /*    g f i l e p k t                                                 */

@@ -15,16 +15,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: c:/src/uupc/uucico/RCS/modem.c%v 1.1 1992/05/02 13:06:48 ahd Exp ahd $
+ *    $Header: E:\SRC\UUPC\UUCICO\RCS\modem.c 1.1 1992/11/12 12:32:18 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: modem.c%v $
+ *    $Log: modem.c $
+ * Revision 1.1  1992/11/12  12:32:18  ahd
+ * Initial revision
+ *
  * Revision 1.1  1992/05/02  13:06:48  ahd
  * Initial revision
  *
  */
 
-static char rcsid[] = "$Id: modem.c%v 1.1 1992/05/02 13:06:48 ahd Exp ahd $";
+static char rcsid[] = "$Id: modem.c 1.1 1992/11/12 12:32:18 ahd Exp ahd $";
 
 #include <limits.h>
 #include <stdio.h>
@@ -59,7 +62,9 @@ static char *dialPrefix, *dialSuffix;
 
 static INTEGER chardelay, dialTimeout, modemTimeout, scriptTimeout;
 static INTEGER answerTimeout, inspeed;
-static INTEGER gWindow, gPacketSize;
+static INTEGER gWindowSize, gPacketSize;
+static INTEGER vWindowSize, vPacketSize;
+static INTEGER GWindowSize, GPacketSize;
 
 INTEGER M_fPacketSize;
 INTEGER M_gPacketTimeout;        /* "g" procotol                  */
@@ -75,26 +80,26 @@ static FLAGTABLE modemFlags[] = {
    { "direct",         MODEM_DIRECT,      B_LOCAL },
    { "fixedspeed",     MODEM_FIXEDSPEED,  B_LOCAL },
    { "variablepacket", MODEM_VARIABLEPACKET, B_LOCAL },
-   { "largepacket",    MODEM_LARGEPACKET, B_LOCAL },
+   { "largepacket",    MODEM_LARGEPACKET, B_LOCAL | B_OBSOLETE },
    { nil(char) }
 }           ;
 
 static CONFIGTABLE modemtable[] = {
    { "answer",        (char **) &answer,       B_LIST   | B_UUCICO },
    { "answertimeout", (char **) &answerTimeout,B_INTEGER| B_UUCICO },
+   { "biggpacketsize",(char **) &GPacketSize,  B_INTEGER| B_UUCICO },
+   { "biggwindowsize",(char **) &GWindowSize,  B_INTEGER| B_UUCICO },
    { "chardelay",     (char **) &chardelay,    B_INTEGER| B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
-   { "device",        &device,
-                        B_TOKEN  | B_UUCICO | B_REQUIRED },
-   { "dialprefix",    &dialPrefix,
-                        B_STRING | B_UUCICO | B_REQUIRED },
+   { "device",        &device,  B_TOKEN  | B_UUCICO | B_REQUIRED },
+   { "dialprefix",    &dialPrefix, B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
    { "dialtimeout",   (char **) &dialTimeout,  B_INTEGER| B_UUCICO },
    { "fpacketsize",   (char **) &M_fPacketSize,B_INTEGER| B_UUCICO },
    { "fpackettimeout",(char **) &M_fPacketTimeout, B_INTEGER | B_UUCICO },
    { "gpacketsize",   (char **) &gPacketSize,  B_INTEGER| B_UUCICO },
    { "gpackettimeout",(char **) &M_gPacketTimeout, B_INTEGER | B_UUCICO },
-   { "gwindowsize",   (char **) &gWindow,      B_INTEGER| B_UUCICO },
+   { "gwindowsize",   (char **) &gWindowSize,  B_INTEGER| B_UUCICO },
    { "hangup",        (char **) &dropline,     B_LIST   | B_UUCICO },
    { "initialize",    (char **) &initialize,   B_LIST   | B_UUCICO },
    { "inspeed",       (char **) &inspeed,      B_INTEGER| B_UUCICO },
@@ -106,6 +111,8 @@ static CONFIGTABLE modemtable[] = {
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
    { "scripttimeout", (char **) &scriptTimeout,B_INTEGER| B_UUCICO },
    { "transferbuffer",(char **) &M_xfer_bufsize, B_INTEGER| B_UUCICO },
+   { "vpacketsize",   (char **) &vPacketSize,  B_INTEGER| B_UUCICO },
+   { "vwindowsize",   (char **) &vWindowSize,  B_INTEGER| B_UUCICO },
    { nil(char) }
 }; /* modemtable */
 
@@ -451,8 +458,12 @@ static boolean getmodem( const char *brand)
 
    chardelay = 00;            /* Default is no delay between chars    */
    dialTimeout = 40;          /* Default is 40 seconds to dial phone  */
-   gPacketSize = 0;           /* Handle default in dcpgpkt            */
-   gWindow = 0;               /* Handle default in dcpgpkt            */
+   gPacketSize = SMALL_PACKET;
+   vPacketSize = MAXPACK;
+   GPacketSize = MAXPACK;
+   gWindowSize = 0;
+   vWindowSize = 0;
+   GWindowSize = 0;
    M_fPacketSize = MAXPACK;
    M_fPacketTimeout = 20;
    M_gPacketTimeout = 10;
@@ -769,12 +780,34 @@ void slowwrite( char *s, int len)
 /*    Report the size of the allowed window for the "g" protocol      */
 /*--------------------------------------------------------------------*/
 
-INTEGER  GetGWindow( INTEGER maxvalue )
+INTEGER  GetGWindow(  INTEGER maxvalue , const char protocol )
 {
-   if ( (gWindow < 1 ) || (gWindow > maxvalue))
+   INTEGER ourWindowSize = 0;
+
+   switch( protocol )
+   {
+      case 'g':
+         ourWindowSize = gWindowSize;
+         break;
+
+      case 'G':
+         ourWindowSize = GWindowSize;
+         break;
+
+      case 'v':
+         ourWindowSize = vWindowSize;
+         break;
+
+      default:
+         printmsg(0,"GetGWindow: Invalid protocol %c",protocol);
+         panic();
+   }
+
+   if ( (ourWindowSize < 1 ) || (ourWindowSize > maxvalue))
       return maxvalue;
    else
-      return gWindow;
+      return ourWindowSize;
+
 } /* GetGWindow */
 
 /*--------------------------------------------------------------------*/
@@ -785,39 +818,52 @@ INTEGER  GetGWindow( INTEGER maxvalue )
 
 INTEGER  GetGPacket( INTEGER maxvalue , const char protocol)
 {
-   INTEGER PacketSize = gPacketSize;
+   INTEGER savePacketSize ;
+   INTEGER ourPacketSize = 0;
    int bits = 6;              /* Minimum Packet Size is 64 bytes     */
+
+   switch( protocol )
+   {
+      case 'g':
+         ourPacketSize = gPacketSize;
+         break;
+
+      case 'G':
+         ourPacketSize = GPacketSize;
+         break;
+
+      case 'v':
+         ourPacketSize = vPacketSize;
+         break;
+
+      default:
+         printmsg(0,"GetGPacket: Invalid protocol %c",protocol);
+         panic();
+   }
+
+   savePacketSize = ourPacketSize;
 
 /*--------------------------------------------------------------------*/
 /*                 Insure the value is a power of two                 */
 /*--------------------------------------------------------------------*/
 
-   while( (gPacketSize >> (bits+1)) > 0 )
+   while( (ourPacketSize >> (bits+1)) > 0 )
       bits++;
 
-   gPacketSize = (gPacketSize >> bits) << bits;
-   if ( PacketSize != gPacketSize )
-      printmsg(0,"gPacketSize rounded down from %d to %d",
-               (int) PacketSize, (int) gPacketSize );
-
-/*--------------------------------------------------------------------*/
-/*    We don't enable large packets by default unless the user        */
-/*    specifically authorizes it in the modem file or system file.    */
-/*--------------------------------------------------------------------*/
-
-   if (!bmodemflag[MODEM_LARGEPACKET] && (protocol == 'g'))
-      gPacketSize = max( gPacketSize, SMALL_PACKET);
+   ourPacketSize = (ourPacketSize >> bits) << bits;
+   if ( savePacketSize != ourPacketSize )
+      printmsg(0,"packetsize for %c protocol rounded down from %d to %d",
+               protocol,
+               (int) savePacketSize, (int) ourPacketSize );
 
 /*--------------------------------------------------------------------*/
 /*    Return the smaller of the argument (the largest packet size     */
 /*    the packet driver supports) or what the modem file allows.      */
-/*    Note that by default (no packet size and novariablepacket) the  */
-/*    modem file only supports 64 byte packets.                       */
 /*--------------------------------------------------------------------*/
 
-   if ( (gPacketSize < 1 ) || (gPacketSize > maxvalue))
+   if ( (ourPacketSize < 1 ) || (ourPacketSize > maxvalue))
       return maxvalue;
    else
-      return gPacketSize;
+      return ourPacketSize;
 
 } /* GetGPacket */
