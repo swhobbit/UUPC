@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.59 1998/03/01 01:39:46 ahd v1-13f ahd $
+ *       $Id: dcpxfer.c 1.60 1999/01/04 03:53:57 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.60  1999/01/04 03:53:57  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.59  1998/03/01 01:39:46  ahd
  *       Annual Copyright Update
  *
@@ -84,133 +87,6 @@
  *
  * Revision 1.40  1994/01/01  19:19:51  ahd
  * Annual Copyright Update
- *
- * Revision 1.39  1993/12/29  02:46:47  ahd
- * Correct assignment of transfer buffer size.  (set it, not reset it)
- *
- * Revision 1.38  1993/12/26  16:20:17  ahd
- * Use standard miminum buffer size to avoid excessive realloc() calls
- * and not over allocate for large (1K) buffer sizes
- *
- * Revision 1.37  1993/12/23  03:16:03  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.36  1993/12/02  13:49:58  ahd
- * 'e' protocol support
- *
- * Revision 1.35  1993/12/02  03:59:37  dmwatt
- * 'e' protocol support
- *
- * Revision 1.34  1993/11/14  20:51:37  ahd
- * Add showspool option to show xfers of spool files
- *
- * Revision 1.33  1993/11/06  17:56:09  rhg
- * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- * Revision 1.32  1993/11/06  13:04:13  ahd
- * Make sequence unqiue in session
- *
- * Revision 1.31  1993/10/31  12:01:35  ahd
- * Make buffering for flexible for under OS/2 32 bit
- *
- * Revision 1.30  1993/10/30  22:27:57  rommel
- * Make SYSLOG more UNIX like
- *
- * Revision 1.29  1993/10/30  03:03:46  ahd
- * Correct validation of files in ssfile()
- *
- * Revision 1.28  1993/10/30  02:29:46  ahd
- * Validate transfers for file queued locally
- *
- * Revision 1.27  1993/10/12  01:33:59  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.26  1993/10/09  22:21:55  rhg
- * ANSIfy source
- *
- * Revision 1.24  1993/10/02  22:56:59  ahd
- * Suppress compile warning
- *
- * Revision 1.23  1993/09/23  03:26:51  ahd
- * Don't allow remote sites to send call files!
- *
- * Revision 1.22  1993/09/20  04:46:34  ahd
- * OS/2 2.x support (BC++ 1.0 support)
- * TCP/IP support from Dave Watt
- * 't' protocol support
- *
- * Revision 1.21  1993/09/02  12:08:17  ahd
- * HPFS Support
- *
- * Revision 1.20  1993/08/08  17:39:09  ahd
- * Denormalize path for opening on selected networks
- *
- * Revision 1.19  1993/07/22  23:22:27  ahd
- * First pass at changes for Robert Denny's Windows 3.1 support
- *
- * Revision 1.17  1993/05/30  00:04:53  ahd
- * Multiple communications drivers support
- *
- * Revision 1.16  1993/05/09  03:41:47  ahd
- * Don't expand path of files destined for UUCP spool
- * Correct syslog processing to not close when not multitasking
- *
- * Revision 1.15  1993/05/06  03:41:48  ahd
- * Reformat syslog output into readable format
- * parse userids off incoming commands again
- *
- * Revision 1.14  1993/04/11  00:34:11  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.13  1993/04/10  21:25:16  dmwatt
- * Add Windows/NT support
- *
- * Revision 1.12  1993/04/05  04:35:40  ahd
- * Allow unique send/receive packet sizes
- *
- * Revision 1.11  1993/01/23  19:08:09  ahd
- * Don't enable unbuffered I/O twice if not multitask mode
- *
- * Revision 1.10  1992/12/01  04:37:03  ahd
- * Suppress routine names transfered from debug level 0 and 1
- *
- * Revision 1.9  1992/11/29  22:09:10  ahd
- * Change size_t to int to suppress warning message
- *
- * Revision 1.8  1992/11/28  19:51:16  ahd
- * If in multitask mode, only open syslog on demand basis
- *
- * Revision 1.7  1992/11/22  21:20:45  ahd
- * Make databuf char rather than unsigned char
- *
- * Revision 1.6  1992/11/20  12:39:10  ahd
- * Add instead of substracting on the receive buffer!
- *
- * Revision 1.5  1992/11/19  03:01:31  ahd
- * drop rcsid
- *
- * Revision 1.4  1992/11/19  02:36:12  ahd
- * Insure log file is flushed
- *
- * Revision 1.3  1992/11/17  13:44:24  ahd
- * Drop command[BUFSIZ], using databuf instead.
- *
- * Revision 1.2  1992/11/15  20:09:50  ahd
- * Use unbuffered files to eliminate extra data copy
- * Clean up modem file support for different protocols
- *
-   Additional maintenance Notes:
-
-   01Nov87 - that strncpy should be a memcpy! - Jal
-   22Jul90 - Add check for existence of the file before writing
-             it.                                                  ahd
-   09Apr91 - Add numerous changes from H.A.E.Broomhall and Cliff
-             Stanford for bidirectional support                   ahd
-   05Jul91 - Merged various changes from Jordan Brown's (HJB)
-             version of UUPC/extended to clean up transmission
-             of commands, etc.                                    ahd
-   09Jul91 - Rewrite to use unique routines for all four kinds of
-             transfers to allow for testing and security          ahd
  */
 
 /*--------------------------------------------------------------------*/
@@ -251,6 +127,7 @@ static unsigned int xferBufSize = 0;
 static char fName[FILENAME_MAX], tName[FILENAME_MAX], dName[FILENAME_MAX];
 static char *lName;           /* Name to report in syslog             */
 static char type, cmdopts[16];
+static char *syslogName = NULL;
 
 static long bytes;
 static unsigned long fileSize;
@@ -269,7 +146,7 @@ static int seq = 0;           /* Number of files transfered this
 static int pid;
 static size_t vbufsize;       /* Amount to buffer in std library     */
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -509,13 +386,13 @@ XFER_STATE seof( const KWBoolean purge_file )
          tmx = localtime(&now.time);
          seq++;
          if ( bflag[F_MULTITASK] )
-            syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
+            syslog = FOPEN(syslogName, "a",TEXT_MODE);
 
          if ( syslog == NULL )
-            printerr(SYSLOG);
+            printerr(syslogName);
 #ifndef _Windows
          else if ((bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
-            printerr(SYSLOG);
+            printerr(syslogName);
 #endif
          else {
             fprintf( syslog,
@@ -876,7 +753,6 @@ appending file name \"%s\"", spolName, slash);
 
 XFER_STATE sinit( void )
 {
-
 
    if ((*openpk)( KWTrue ))    /* Initialize in caller mode           */
       return XFER_ABORT;
@@ -1460,13 +1336,13 @@ XFER_STATE reof( void )
          tmx = localtime(&now.time);
          seq++;
          if ( bflag[F_MULTITASK] )
-            syslog = FOPEN(SYSLOG, "a",TEXT_MODE);
+            syslog = FOPEN(syslogName, "a",TEXT_MODE);
 
          if ( syslog == NULL )
-            printerr(SYSLOG);
+            printerr(syslogName);
 #ifndef _Windows
          else if ((bflag[F_MULTITASK] && setvbuf( syslog, NULL, _IONBF, 0)))
-            printerr(SYSLOG);
+            printerr(syslogName);
 #endif
          else {
             fprintf( syslog,
@@ -1595,5 +1471,12 @@ static void buf_init( void )
 
    pid = (int) getpid();
    seq = (( seq + 99 ) / 100) * 100;
+
+
+   if ((syslogName == NULL) && bflag[F_SYSLOG])
+   {
+      mkfilename(tempName, E_logdir, SYSLOG);
+      syslogName = newstr(tempName);
+   }
 
 } /* buf_init */
