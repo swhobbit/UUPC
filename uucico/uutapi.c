@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.42 1998/03/01 01:26:54 ahd v1-12v $
+ *    $Id: uutapi.c 1.1 1998/04/19 23:55:58 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: uutapi.c $
+ *    Revision 1.1  1998/04/19 23:55:58  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -58,7 +61,7 @@
 #include "pnterr.h"
 #include "uutapi.h"
 
-RCSID("$Id$");
+RCSID("$Id: uutapi.c 1.1 1998/04/19 23:55:58 ahd Exp $");
 
 extern HWND     hFrame;             /* handle of main window */
 extern HANDLE   hInst;              /* our instance */
@@ -186,6 +189,8 @@ Tapi_Init(char *szDeviceName)
 
    bInitializing = TRUE;
 
+   printmsg(6,"Tapi_Init: Initializing for %s", szDeviceName );
+
    win_atexit(Tapi_Shutdown);
    WinAbort = uucico_tapi_abort;
 
@@ -199,6 +204,7 @@ Tapi_Init(char *szDeviceName)
       bInitializing = FALSE;
       return FALSE;
    }
+
    if (dwNumDevs == 0)
    {
       TapiMsg = "There are no telephony devices installed";
@@ -206,6 +212,7 @@ Tapi_Init(char *szDeviceName)
       Tapi_Shutdown();
       return FALSE;
    }
+
 /*--------------------------------------------------------------------*/
 /*       Find a line based on name.                                   */
 /*       IF name = "tapi" and line in use, try next line              */
@@ -287,7 +294,7 @@ Tapi_DialCall(char *szDeviceName, char *szPhoneNumber, int Timeout)
    {
 
 /*--------------------------------------------------------------------*/
-/*       Number has been dailed wait for connect                      */
+/*       Number has been dialed wait for connect                      */
 /*                                                                    */
 /*       We only wait for the connected state, but if the call        */
 /*       fails the reply function calls shutdown which will cause     */
@@ -304,7 +311,9 @@ Tapi_DialCall(char *szDeviceName, char *szPhoneNumber, int Timeout)
          }
       }
    }
+
    Tapi_Shutdown();
+
    return hCommFile;                /* will be INVALID_HANDLE_VALUE */
 
 } /* Tapi_DialCall */
@@ -353,6 +362,13 @@ Tapi_MsgCheck()
    return (bTapiInUse);
 
 }  /* Tapi_MsgCheck */
+
+
+/*--------------------------------------------------------------------*/
+/*       T a p i _ L i n e S t a t u s                                */
+/*                                                                    */
+/*       Report the current line status                               */
+/*--------------------------------------------------------------------*/
 
 static BOOL
 Tapi_LineStatus(HLINE hLine)
@@ -1612,6 +1628,7 @@ Tapi_Shutdown(void)
    hCall = NULL;
    hLine = NULL;
    bShuttingDown = FALSE;
+   hCommFile = INVALID_HANDLE_VALUE;
 
    printmsg(4, "Tapi: Shutdown complete");
    return;

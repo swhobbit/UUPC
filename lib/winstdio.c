@@ -30,11 +30,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: LIB.H 1.42 1998/03/01 01:26:54 ahd v1-12v $
+ *       $Id: winstdio.c 1.1 1998/04/19 23:55:58 ahd Exp $
  *
  *       Revision history:
- *       $Log: LIB.H $
+ *       $Log: winstdio.c $
+ *       Revision 1.1  1998/04/19 23:55:58  ahd
+ *       Initial revision
+ *
  */
+
+
+#define NO_UUIO_REDEFINES        /* Don't redefine functions we use */
+#include "uupcmoah.h"
 
 #include <windows.h>
 #include <string.h>
@@ -45,6 +52,8 @@
 
 #define MAX_LINE_LENGTH 256
 #define MAX_LINES 1000
+
+RCSID("$Id$");
 
 HWND hFrame;                        /* handle of main window */
 HANDLE hInst;                       /* our instance */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.70 1998/03/01 01:39:53 ahd v1-12v $
+ *    $Id: modem.c 1.71 1998/04/19 23:55:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.71  1998/04/19 23:55:58  ahd
+ *    *** empty log message ***
+ *
  *    Revision 1.70  1998/03/01 01:39:53  ahd
  *    Annual Copyright Update
  *
@@ -280,7 +283,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id$");
+RCSID("$Id: modem.c 1.71 1998/04/19 23:55:58 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */
@@ -828,7 +831,7 @@ static KWBoolean dial(char *number, const BPS speed)
       {
 #ifdef TAPI_SUPPORT
 
-         SetComHandle(Tapi_DialCall(M_device, number, dialTimeout));
+         SetComHandle((int) Tapi_DialCall(M_device, number, dialTimeout));
 
          if (GetComHandle() == INVALID_HANDLE_VALUE)
          {
@@ -966,7 +969,9 @@ void shutDown( void )
       raised = 0;
       hangup();
       resetPrty();               /* Drop out of hyperspace            */
-      sendlist( dropline, modemTimeout, modemTimeout, NULL);
+
+      if (!IsTAPI())
+         sendlist( dropline, modemTimeout, modemTimeout, NULL);
       recurse = KWFalse;
 
       if ( aborted )
@@ -1230,7 +1235,7 @@ answerTAPI(time_t offset)
          return CONN_NO_RETURN;
       }
 
-      if (TapiShutdown || (time(NULL) < stop_time) || terminate_processing)
+      if (TapiShutdown || (time(NULL) > stop_time) || terminate_processing)
       {
          if (TapiShutdown && TapiMsg)
              printmsg(0,"Tapi: %s",TapiMsg);

@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.32 1998/03/01 01:40:52 ahd v1-12v $
+ *       $Id: ulibnt.c 1.33 1998/04/19 23:55:58 ahd Exp $
  *       $Log: ulibnt.c $
+ *       Revision 1.33  1998/04/19 23:55:58  ahd
+ *       *** empty log message ***
+ *
  *       Revision 1.32  1998/03/01 01:40:52  ahd
  *       Annual Copyright Update
  *
@@ -156,8 +159,6 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    if (!IsTAPI() && portActive)  /* Was the port already active?     */
       closeline();               /* Yes --> Shutdown it before open  */
 
-
-
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu",
                  name,
@@ -168,9 +169,10 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
 /*                      Validate the port format                      */
 /*--------------------------------------------------------------------*/
 
-   if (!equal(name,"CON") && !equaln(name, "COM", 3 ))
+   if (!IsTAPI() && !equal(name,"CON") && !equaln(name, "COM", 3))
    {
-      printmsg(0,"nopenline: Communications port begin with COM, was %s",
+      printmsg(0,"nopenline: Communications port does "
+                 "not begin with COM, was %s",
          name);
       panic();
    }
@@ -189,7 +191,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
    {
       if (Tapi_Init(name) == 0)
       {
-         printmsg(0,"nopenline: Cant init TAPI port");
+         printmsg(0,"nopenline: Cannot init TAPI port");
          if (TapiMsg)
             printmsg(0,"TAPI: %s",TapiMsg);
          panic ();
@@ -198,9 +200,11 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
       portActive = KWTrue;
       if (hCom == INVALID_HANDLE_VALUE)
       {
+         printmsg(6,"nopenline: Returning first pass from TAPI open");
          return 0; // we'll be back
       }
    }
+
 #endif /* TAPI_SUPPORT */
 
    hComEvent = CreateEvent(NULL, KWFalse, FALSE, NULL);
@@ -211,7 +215,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
       panic();
    }
 
-   if ( hCom == INVALID_HANDLE_VALUE)
+   if (hCom == INVALID_HANDLE_VALUE)
    {
       sa.nLength = sizeof(SECURITY_ATTRIBUTES);
       sa.bInheritHandle = KWTrue;
@@ -224,7 +228,6 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
            OPEN_EXISTING,
            FILE_FLAG_OVERLAPPED,
            NULL);
-
 
 /*--------------------------------------------------------------------*/
 /*    Check the open worked.  We translation the common obvious       */
@@ -251,7 +254,7 @@ int nopenline(char *name, BPS baud, const KWBoolean direct )
         NULL);
 
    if (!rc) {
-      printmsg(0, "nopenline: Error in ClearCommError() call\n");
+      printmsg(0, "nopenline: Error in ClearCommError() call");
       printNTerror("nopenline", dwError);
    }
 
@@ -401,7 +404,6 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */
-
 
    if (hCom == INVALID_HANDLE_VALUE)
    {
@@ -1064,6 +1066,11 @@ int nGetComHandle( void )
 
 void nSetComHandle( const int handle )
 {
+#ifdef UDEBUG
+   printmsg(6,"nSetComHandle: Setting handle to %ld",
+              (long) handle );
+#endif
+
    hCom = (HANDLE) handle;
 }
 
@@ -1088,4 +1095,3 @@ BOOL AbortComm(void)
 
    return retval;
 }
-

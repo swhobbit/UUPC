@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.26 1997/03/31 07:00:21 ahd v1-12u $
+ *    $Id: LOGGER.C 1.27 1998/03/01 01:24:11 ahd v1-12v $
  *
  *    Revision history:
- *    $Log: logger.c $
+ *    $Log: LOGGER.C $
+ *    Revision 1.27  1998/03/01 01:24:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.26  1997/03/31 07:00:21  ahd
  *    Annual Copyright Update
  *
@@ -297,7 +300,6 @@ static void copylog( void )
    if ( input == NULL )
    {
       printerr( tempname );
-      fclose( input );
       fclose( output );
       logfile = stdout;
    }

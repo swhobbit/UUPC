@@ -65,8 +65,6 @@
 /*       Set console window title under Windows NT                    */
 /*--------------------------------------------------------------------*/
 
-#ifdef TAPI_SUPPORT
-#else
 void setTitle( const char *fmt, ... )
 {
    va_list arg_ptr;
