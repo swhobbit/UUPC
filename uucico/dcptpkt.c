@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.1 1993/09/18 19:47:24 ahd Exp ahd $
+ *    $Id: dcptpkt.c 1.2 1993/09/20 04:48:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.2  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  * Revision 1.1  1993/09/18  19:47:24  ahd
  * Initial revision
  *
@@ -35,6 +40,11 @@
 /*       length of the packet in network byte order (big-endian)      */
 /*       followed by the packet data itself.  No padding is           */
 /*       performed.                                                   */
+/*                                                                    */
+/*       Note:  Many of the functions (msg write, msg read, start     */
+/*       of file, file eof) for this protocol are as the same as      */
+/*       the functions for 'g' protocol, and we use the actual 'g'    */
+/*       protocol copies as defined in dcpsys.c.                      */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -67,11 +77,11 @@
 #include "pwinsock.h"
 #endif
 
+#ifndef _WINSOCKAPI_
+
 /*--------------------------------------------------------------------*/
 /*     Network functions needed when no winsock functions available   */
 /*--------------------------------------------------------------------*/
-
-#ifndef _WINSOCKAPI_
 
 static unsigned long htonl( const unsigned long input );
 static unsigned long ntohl( const unsigned long input );
@@ -128,7 +138,7 @@ static unsigned long ntohl( const unsigned long input )
 
 short topenpk(const boolean master)
 {
-   s_pktsize = r_pktsize = 1024;
+   s_pktsize = r_pktsize = 1024;    // Fixed for 't' procotol
 
    return DCP_OK;
 
@@ -156,7 +166,7 @@ short tgetpkt(char *packet, short *bytes)
    if ( recv > r_pktsize )
    {
       printmsg(0,"tgetpkt: Buffer overrun!  Wanted %d bytes, %d queued",
-                  (int) *bytes,
+                  (int) r_pktsize,
                   (int) recv );
       return -1;
    }
@@ -209,73 +219,3 @@ short tclosepk()
 {
    return DCP_OK;
 } /* tclosepk */
-
-#ifdef EXTRA_STUFF
-
-/*--------------------------------------------------------------------*/
-/*    t w r m s g                                                     */
-/*                                                                    */
-/*    Send a control message to remote system with "t" procotol       */
-/*--------------------------------------------------------------------*/
-
-short twrmsg(char *s)
-{
-   for( ; strlen(s) >= s_pktsize; s += s_pktsize)
-   {
-      short result = tsendpkt(s, (short) s_pktsize);
-      if (result)
-         return result;
-   }
-
-   return tsendpkt(s, (short) (strlen(s) + 1));
-
-} /* twrmsg */
-
-/*--------------------------------------------------------------------*/
-/*    t r d m s g                                                     */
-/*                                                                    */
-/*    Read a control message from remote host with "t" protocol       */
-/*--------------------------------------------------------------------*/
-
-short trdmsg(char *s)
-{
-   for ( ;; )
-   {
-      short len;
-      short result = tgetpkt( s, &len );
-      if (result || (s[len-1] == '\0'))
-         return result;
-      s += len;
-   } /* for */
-
-} /* trdmsg */
-
-
-/*--------------------------------------------------------------------*/
-/*    t f i l e p k t                                                 */
-/*                                                                    */
-/*    Prepare for processing an "t" procotol file transfer            */
-/*--------------------------------------------------------------------*/
-
-short tfilepkt( void)
-{
-
-   return DCP_OK;
-
-} /* tfilepkt */
-
-/*--------------------------------------------------------------------*/
-/*    t e o f                                                         */
-/*                                                                    */
-/*    Transmit "t" protocol end of file to the other system           */
-/*--------------------------------------------------------------------*/
-
-short teofpkt( void )
-{
-   if (tsendpkt("", 0))          /* Empty packet == EOF              */
-      return DCP_FAILED;
-   else
-      return DCP_OK;
-} /* teofpkt */
-
-#endif
