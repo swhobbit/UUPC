@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.14 1998/04/27 01:45:15 ahd v1-13a $
+ *    $Id: smtpserv.c 1.15 1998/05/11 01:20:48 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.15  1998/05/11 01:20:48  ahd
+ *    Spin off log on regular basis
+ *
  *    Revision 1.14  1998/04/27 01:45:15  ahd
  *    *** empty log message ***
  *
@@ -76,7 +79,7 @@
 #include "execute.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.14 1998/04/27 01:45:15 ahd v1-13a $");
+RCSID("$Id: smtpserv.c 1.15 1998/05/11 01:20:48 ahd Exp $");
 
 currentfile();
 
@@ -149,8 +152,8 @@ flagReadyClientList(SMTPClient *top)
                       mName,
                       getClientSequence(current));
          setClientMode(current, SM_DELETE_PENDING );
-         setClientProcess(current, KWTrue);
          setClientFlag(current, SF_NO_READ);
+         setClientProcess(current, KWTrue);
       }
       else if (getClientReady(current))
          setClientProcess(current, KWTrue);
@@ -197,6 +200,7 @@ timeoutClientList(SMTPClient *current)
                   mName,
                   getClientSequence(current));
          setClientMode(current, SM_TIMEOUT);
+         setClientFlag(client, SF_NO_READ);
          setClientProcess(current, KWTrue);
 
       } /* if (isClientTimedOut(current)) */
@@ -351,6 +355,7 @@ dropAllClientList(SMTPClient *top, KWBoolean runUUXQT)
       if (isClientValid(current))
       {
          setClientMode(current, SM_EXITING);
+         setClientFlag(client, SF_NO_READ);
          processClient(current);
          count ++;
       }
