@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.34 1993/11/14 20:51:37 ahd Exp $
+ *       $Id: dcpxfer.c 1.35 1993/12/02 03:59:37 dmwatt Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.35  1993/12/02  03:59:37  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.34  1993/11/14  20:51:37  ahd
  * Add showspool option to show xfers of spool files
  *
@@ -68,7 +71,6 @@
  *
  * Revision 1.19  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
- *
  *
  * Revision 1.17  1993/05/30  00:04:53  ahd
  * Multiple communications drivers support
@@ -179,6 +181,7 @@ static char *lName;           /* Name to report in syslog             */
 static char type, cmdopts[16];
 
 static long bytes;
+static unsigned long fileSize;
 static struct timeb startTime;
 
 static boolean spool = FALSE; /* Received file is into spool dir     */
@@ -365,7 +368,8 @@ XFER_STATE seof( const boolean purge_file )
          printmsg(0, "Remote system asks that the file be resent");
          fseek(xfer_stream, 0L, SEEK_SET);
          bytes = 0;
-         (*filepkt)(TRUE);           /* warmstart file-transfer protocol */
+         (*filepkt)(TRUE, fileSize);
+                                 /* Warmstart file-transfer protocol */
          return XFER_SENDDATA;   /* stay in data phase */
 
       case DCP_FAILED:
@@ -540,19 +544,14 @@ XFER_STATE newrequest( void )
    switch( type )
    {
       case 'R':
-      {
-         (*filepkt)(FALSE);    /* Init for file transfer */
          return XFER_GETFILE;
-      }
 
       case 'S':
-      {
-         (*filepkt)(TRUE);     /* Init for file transfer */
          return XFER_PUTFILE;
-      }
 
       default:
          return XFER_FILEDONE;   /* Ignore the line                  */
+
    } /* switch */
 
 } /* newrequest */
@@ -657,6 +656,9 @@ XFER_STATE ssfile( void )
       xfer_stream = NULL;
       return XFER_FILEDONE;
    }
+
+   fileSize = filelength( fileno( xfer_stream ) );
+   (*filepkt)(TRUE, fileSize);/* Init for file transfer              */
 
    return XFER_SENDDATA;      /* Enter data transmission mode        */
 
@@ -770,6 +772,9 @@ appending file name \"%s\"", spolName, slash);
 
    spool = FALSE;             /* Do not rename file at completion */
    lName = spolName;          /* Use full name for local logging      */
+
+   (*filepkt)(FALSE, 0);      /* Init for file transfer              */
+
    return XFER_RECVDATA;      /* Now start receiving the data     */
 
 } /*srfile*/
@@ -940,17 +945,10 @@ XFER_STATE rheader( void )
    switch (type)
    {
       case 'R':
-      {
-         (*filepkt)(TRUE);              /* Init for file transfer */
-
          return XFER_GIVEFILE;
-      }
-      case 'S':
-      {
-         (*filepkt)(FALSE);             /* Init for file transfer */
 
+      case 'S':
          return XFER_TAKEFILE;
-      }
 
       default:
          printmsg(0,"rheader: Unsupported verb \"%c\" rejected",type);
@@ -958,6 +956,7 @@ XFER_STATE rheader( void )
             return XFER_LOST;    /* Die if reponse fails             */
          else
             return XFER_FILEDONE;   /* Process next request          */
+
    } /* switch */
 
 } /* rheader */
@@ -1122,6 +1121,8 @@ XFER_STATE rrfile( void )
 
    lName = spool ? tName : spolName;   /* choose name to log          */
 
+   (*filepkt)(FALSE, 0);      /* Init for file transfer              */
+
    return XFER_RECVDATA;   /* Switch to data state                */
 
 } /*rrfile*/
@@ -1223,6 +1224,10 @@ XFER_STATE rsfile( void )
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fName, spolName, tName);
 
    lName = spolName;       /* Remember name of file to log            */
+
+
+   fileSize = filelength( fileno( xfer_stream ) );
+   (*filepkt)(TRUE, fileSize);   /* Init for file transfer            */
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 

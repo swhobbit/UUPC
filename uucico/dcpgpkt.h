@@ -1,13 +1,9 @@
-/*
-      dcpgpkt.h
-
-      "g" protocol packet driver for dcp (UUPC/extended data
-      communications)
-
-      Change History:
-
-      08 Sep 90   -  Create via Microsoft C compiler /Zg          ahd
- */
+/*--------------------------------------------------------------------*/
+/*       d c p g p k t . h                                            */
+/*                                                                    */
+/*       "g" protocol packet driver for dcp (UUPC/extended data       */
+/*       communications)                                              */
+/*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
@@ -18,9 +14,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: DCPGPKT.H 1.3 1993/04/05 12:27:31 ahd Exp $
+  *      $Id: dcpgpkt.h 1.4 1993/12/02 04:00:19 dmwatt Exp $
   *
-  *      $Log: DCPGPKT.H $
+  *      $Log: dcpgpkt.h $
+ * Revision 1.4  1993/12/02  04:00:19  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.3  1993/04/05  12:27:31  ahd
  * Correct protypes to match gpkt
  *
@@ -38,4 +37,4 @@ short  gsendpkt(char  *data,short  len);
 short  gwrmsg(char *str);
 short  grdmsg(register char *str);
 short  geofpkt( void );
-short  gfilepkt( const boolean master );
+short  gfilepkt( const boolean master, const unsigned long bytes );

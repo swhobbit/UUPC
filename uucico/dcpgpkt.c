@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.23 1993/10/24 12:48:56 ahd Exp $
+ *      $Id: dcpgpkt.c 1.24 1993/12/02 03:59:37 dmwatt Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.24  1993/12/02  03:59:37  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.23  1993/10/24  12:48:56  ahd
  * Correct timeouts to user specified, rather than double user specified
  *
@@ -694,7 +697,7 @@ static short initialize(const boolean caller, const char protocol )
 /*    Begin a file transfer (not used by "g" protocol)                */
 /*--------------------------------------------------------------------*/
 
-short gfilepkt( const boolean MASTER )
+short gfilepkt( const boolean transmit, const unsigned long bytes)
 {
 
    return DCP_OK;

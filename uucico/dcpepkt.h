@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: DCPEPKT.h 1.1 1993/09/18 19:47:42 ahd Exp $
+  *      $Id: dcpepkt.h 1.1 1993/12/02 04:00:19 dmwatt Exp $
   *
-  *      $Log: DCPEPKT.h $
+  *      $Log: dcpepkt.h $
+ * Revision 1.1  1993/12/02  04:00:19  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.1  1993/09/18  19:47:42  ahd
  * Initial revision
  *
@@ -46,6 +49,6 @@ short  erdmsg(char *str);
 
 short  eeofpkt( void );
 
-short  efilepkt( const boolean master );
+short  efilepkt( const boolean master, const unsigned long bytes );
 
 #endif

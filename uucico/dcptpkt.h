@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcptpkt.h 1.1 1993/09/18 19:47:42 ahd Exp $
+  *      $Id: dcptpkt.h 1.2 1993/12/02 04:00:19 dmwatt Exp $
   *
   *      $Log: dcptpkt.h $
+ * Revision 1.2  1993/12/02  04:00:19  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.1  1993/09/18  19:47:42  ahd
  * Initial revision
  *
@@ -46,6 +49,6 @@ short  trdmsg(char *str);
 
 short  teofpkt( void );
 
-short  tfilepkt( void );
+short  tfilepkt( const boolean master, const unsigned long bytes );
 
 #endif

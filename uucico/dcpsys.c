@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.31 1993/11/14 20:51:37 ahd Exp $
+ *     $Id: dcpsys.c 1.32 1993/12/02 03:59:37 dmwatt Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.32  1993/12/02  03:59:37  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.31  1993/11/14  20:51:37  ahd
  * Normalize internal speed for network links to 115200 (a large number)
  *
@@ -193,7 +196,7 @@ typedef struct {
         short (*rdmsg)(char *data);
         short (*wrmsg)(char *data);
         short (*eofpkt)(void);
-        short (*filepkt)(const boolean master);
+        short (*filepkt)(const boolean master, const unsigned long fileSize);
         boolean network;
 } Proto;
 
@@ -218,12 +221,12 @@ Proto Protolst[] = {
               FALSE,
        } ,
 #if defined(_Windows) || defined(BIT32ENV) || defined(FAMILYAPI)
-       { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt, /* Yup, same as 'g'  */
+       { 'e', egetpkt, esendpkt, eopenpk, eclosepk,
+              erdmsg,  ewrmsg,   eeofpkt, efilepkt,
               TRUE,
        } ,
-       { 'e', egetpkt, esendpkt, eopenpk, eclosepk,
-              grdmsg,  gwrmsg,   geofpkt, efilepkt,
+       { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt, /* Yup, same as 'g'  */
               TRUE,
        } ,
 #endif
@@ -237,7 +240,7 @@ short (*closepk)(void);
 short (*wrmsg)(char *data);
 short (*rdmsg)(char *data);
 short (*eofpkt)(void);
-short (*filepkt)(const boolean master);
+short (*filepkt)(const boolean master, const unsigned long bytes);
 
 char *flds[60];
 int kflds;
@@ -468,6 +471,7 @@ int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
 /*--------------------------------------------------------------------*/
 
       if ((synch != 1) &&
+          (synch != 4) &&
           (ch != '\r') &&
           (ch != '\n') &&
           (ch != '\0') &&

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpfpkt.h 1.4 1993/09/20 04:53:57 ahd Exp $
+  *      $Id: dcpfpkt.h 1.5 1993/12/02 04:00:19 dmwatt Exp $
   *
   *      $Log: dcpfpkt.h $
+ * Revision 1.5  1993/12/02  04:00:19  dmwatt
+ * 'e' protocol support
+ *
  * Revision 1.4  1993/09/20  04:53:57  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -54,6 +57,6 @@ short  frdmsg(char *str);
 
 short  feofpkt( void );
 
-short  ffilepkt( const boolean master );
+short  ffilepkt( const boolean master, const unsigned long bytes );
 
 #endif

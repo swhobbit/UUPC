@@ -17,35 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.7 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: dcpepkt.c 1.2 1993/12/02 03:59:37 dmwatt Exp dmwatt $
  *
  *    Revision history:
- *    $Log: dcptpkt.c $
- * Revision 1.7  1993/11/13  17:43:26  ahd
- * Correct debug level on sending empty packet message
- *
- * Revision 1.6  1993/11/08  04:46:49  ahd
- * Correct bug which prevented proper EOF being handled
- *
- * Revision 1.5  1993/10/12  01:32:46  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.4  1993/09/24  03:43:27  ahd
- * Correct byte reordering functions
- *
- * Revision 1.4  1993/09/24  03:43:27  ahd
- * Correct byte reordering functions
- *
- * Revision 1.3  1993/09/21  01:42:13  ahd
- * Delete functions duplicated from dcpgpkt.c
- *
- * Revision 1.2  1993/09/20  04:48:25  ahd
- * TCP/IP support from Dave Watt
- * 't' protocol support
- * OS/2 2.x support (BC++ 1.0 for OS/2)
- *
- * Revision 1.1  1993/09/18  19:47:24  ahd
- * Initial revision
+ *    $Log: dcpepkt.c $
+ * Revision 1.2  1993/12/02  03:59:37  dmwatt
+ * 'e' protocol support
  *
  */
 
@@ -70,21 +47,13 @@
 #include <time.h>
 #include <string.h>
 
-#if defined(WIN32) || defined(_Windows)
-#include "winsock.h"       /* Needed for byte ordering                 */
-#endif
-
-#ifdef WIN32
-#include <io.h>
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "dcp.h"
-#include "dcptpkt.h"
+#include "dcpepkt.h"
 #include "dcpsys.h"
 #include "hostable.h"
 #include "security.h"
@@ -98,7 +67,6 @@
 
 static unsigned long efilelength;
 static unsigned long ebytesdone;
-static boolean counting;
 
 /*--------------------------------------------------------------------*/
 /*    e o p e n p k                                                   */
@@ -112,7 +80,7 @@ static boolean counting;
 
 short eopenpk(const boolean master)
 {
-   s_pktsize = r_pktsize = 1024;    /* Fixed for 'e' procotol         */
+   s_pktsize = r_pktsize = MAXPACK;    /* Fixed for 'e' procotol     */
 
    printmsg(5, "eopenpk:  called, master = %d", master);
 
@@ -131,37 +99,24 @@ short egetpkt(char *packet, short *bytes)
    unsigned short recv;
    printmsg(5, "egetpkt: called");
 
-   if (counting) {
-      if (ebytesdone > efilelength)
-      {
-         printmsg(0, "egetpkt:  received more bytes than file length!");
-         printmsg(0, "egetpkt:  done = %lu, length = %lu", ebytesdone,
-            efilelength);
-         return -1;
-      }
-
-      recv = min(efilelength - ebytesdone, r_pktsize);
-   } else {
-      recv = 1;
-   }
-
-   if ( recv > r_pktsize )
+   if (ebytesdone == efilelength )
    {
-      printmsg(0,"tgetpkt: Buffer overrun!  Wanted %d bytes, %d queued",
-                  (int) r_pktsize,
-                  (int) recv );
+      *bytes = 0;                /* Report EOF to caller          */
+      printmsg(4,"egetpkt: File complete");
+      return 0;                  /* Return success to caller      */
+   }
+   if (ebytesdone > efilelength)
+   {
+      printmsg(0, "egetpkt:  received more bytes than file length!");
+      printmsg(0, "egetpkt:  done = %lu, length = %lu", ebytesdone,
+         efilelength);
       return -1;
    }
+   else
+      recv = (short) min(efilelength - ebytesdone, r_pktsize);
 
-   if ( ! recv )
-      printmsg(4,"tgetpkt: Received empty packet");
-   else {
-   {
-      do {
-         len = sread( packet, recv, M_tPacketTimeout);
-         if (len < 0)
-            printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
-   }
+   if ( sread( packet, recv, M_tPacketTimeout) < recv )
+      printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
 
    remote_stats.packets++;
 
@@ -183,7 +138,7 @@ short esendpkt(char *ip, short len)
    printmsg(5, "egetpkt: called");
 
    if ( ! len )
-      printmsg(4,"esendpkt: Sending empty packet");
+      printmsg(4,"esendpkt: EOF reached");
    else if ( swrite( ip , len ) != len )
       return -1;
 
@@ -193,7 +148,6 @@ short esendpkt(char *ip, short len)
    return 0;
 
 } /* esendpkt */
-
 
 /*--------------------------------------------------------------------*/
 /*    e c l o s e p k                                                 */
@@ -206,9 +160,15 @@ short eclosepk()
    printmsg(5, "eclosepk: called");
 
    return DCP_OK;
-} /* tclosepk */
+} /* eclosepk */
 
-short efilepkt(const boolean master)
+/*--------------------------------------------------------------------*/
+/*    e f i l e p k t                                                 */
+/*                                                                    */
+/*    Transmit/receive file length                                    */
+/*--------------------------------------------------------------------*/
+
+short efilepkt(const boolean xmit, const unsigned long bytes)
 {
    char startbuf[20];
 
@@ -217,20 +177,24 @@ short efilepkt(const boolean master)
 
    printmsg(5, "efilepkt: called");
 
-/* If we're the master, then send our file length, otherwise receive it */
+/*--------------------------------------------------------------------*/
+/*       If we're the master, then send our file length, otherwise    */
+/*       receive it                                                   */
+/*--------------------------------------------------------------------*/
 
-   if (master) {
-      efilelength = _filelength(xfer_stream->_file);
-
-      printmsg(0, "estartpacket: sending file length is %lu", efilelength);
+   if (xmit) {
+      efilelength = bytes;
 
       memset(startbuf, 0, sizeof startbuf);
       sprintf(startbuf, "%ld", efilelength);
+
+      printmsg(4, "efilepkt: File length is %s", startbuf);
+
       if (swrite( startbuf, sizeof startbuf ) <
          sizeof startbuf)
       {
          printmsg(0, "efilepkt: Length write failed");
-         return DCP_OK;  /* What's the right error return? */
+         return DCP_FAILED;
       }
 
    } else {
@@ -239,24 +203,28 @@ short efilepkt(const boolean master)
          sizeof startbuf)
       {
          printmsg(0,"efilepkt: Length read failed");
-         return DCP_OK; /* What's the right error return? */
+         return DCP_FAILED;
       }
 
-/* Read the file length */
+      /* Read the file length */
 
       efilelength = strtol(startbuf, NULL, 10);
-      printmsg(0, "estartpacket: received file length %lu", efilelength);
+      printmsg(4, "efilepkt: received file length %lu", efilelength);
    }
 
-   counting = TRUE;
    return DCP_OK;
-}
+
+} /* efilepkt */
+
+/*--------------------------------------------------------------------*/
+/*       e e o f p k t                                                */
+/*                                                                    */
+/*       Handle end-of-file for processed file                        */
+/*--------------------------------------------------------------------*/
 
 short eeofpkt(void)
 {
    printmsg(5, "eeofpkt: called");
-
-   counting = FALSE;
 
    if (ebytesdone != efilelength)
    {
@@ -267,5 +235,37 @@ short eeofpkt(void)
    }
 
    return DCP_OK;
-}
 
+} /* eeofpkt */
+
+/*--------------------------------------------------------------------*/
+/*    e w r m s g                                                     */
+/*                                                                    */
+/*    Send a message to remote system                                 */
+/*--------------------------------------------------------------------*/
+
+short ewrmsg( char *s )
+{
+   if (swrite( s, strlen(s) + 1 ) < (int) strlen(s) + 1 )
+   {
+      printmsg(0, "ewrmsg: message write failed");
+      return -1;
+   }
+
+   return(0);
+
+} /* ewrmsg */
+
+/*--------------------------------------------------------------------*/
+/*    e r d m s g                                                     */
+/*                                                                    */
+/*    Read a message from the remote system                           */
+/*--------------------------------------------------------------------*/
+
+short erdmsg( char *s)
+{
+   if (rmsg( s, 4, M_tPacketTimeout, r_pktsize ))
+      return(0);
+   else
+      return -1;
+} /* erdmsg */
