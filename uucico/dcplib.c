@@ -23,9 +23,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.18 1994/05/04 23:36:34 ahd Exp $
+ *    $Id: dcplib.c 1.19 1994/05/06 03:55:50 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *        Revision 1.19  1994/05/06  03:55:50  ahd
+ *        Force hot logins to always be UUCICO (internal) shell -- why else
+ *        would we be called, and otherwise UUCICO can't call itself
+ *        for testing.
+ *
  *        Revision 1.18  1994/05/04  23:36:34  ahd
  *        Trap NULL Passwords
  *
@@ -233,13 +238,15 @@ boolean login(void)
       boolean invalid = TRUE;
       while (invalid)         /* Spin for a user id or timeout       */
       {
+         memset(user, 0, sizeof user);
+
          wmsg("\r\nlogin: ", 0);
-         strcpy(user,"");
-         if (rmsg(user, 2, 30, sizeof user) == TIMEOUT)
+
+         if (rmsg(user, 2, M_startupTimeout, sizeof user) == TIMEOUT)
                                     /* Did the user enter data?  */
             return FALSE;   /* No --> Give up                */
 
-         if (equal(user,"NO CARRIER"))
+         if (! CD() )
             return FALSE;
 
          token = user;
@@ -247,28 +254,36 @@ boolean login(void)
             invalid = ! isgraph(*token++);
       } /* while */
 
-      printmsg(14, "login: login=%s", user);
+      printmsg(14, "login: login=\"%s\"", user);
 
 /*--------------------------------------------------------------------*/
-/*               We have a user id, now get a password                */
+/*       We have a user id token, now get a password unless its a     */
+/*       valid user with an empty password and we don't prompt for    */
+/*       such passwords.                                              */
 /*--------------------------------------------------------------------*/
 
-      wmsg("\r\nPassword: ", 0);
-      strcpy(pswd,"");
-      if (rmsg(pswd, 0, 30, sizeof pswd) == TIMEOUT)
-         return FALSE;
+      userp = checkuser(user);      /* Locate user id in host table  */
 
-/*--------------------------------------------------------------------*/
-/*       Zap unprintable characters before we log the password        */
-/*--------------------------------------------------------------------*/
+      memset(pswd, 0, sizeof pswd );/* Initialize to nice default    */
 
-      printmsg(14, "login: password=%s", pswd);
+      if ( (! bflag[F_SUPPRESSEMPTYPASSWORD]) ||
+           (userp == BADUSER) ||
+           (*(userp->password) != '\0'))
+      {
+         wmsg("\r\nPassword: ", 0);
+         if (rmsg(pswd, 0, M_startupTimeout, sizeof pswd) == TIMEOUT)
+            return FALSE;
+
+      }
+
+      printmsg(14, "login: password=\"%s\"", pswd);
+
+      if ( ! CD() )
+         return;
 
 /*--------------------------------------------------------------------*/
 /*                 Validate the user id and passowrd                  */
 /*--------------------------------------------------------------------*/
-
-      userp = checkuser(user);         /* Locate user id in host table */
 
       if (userp == BADUSER)            /* Does user id exist?          */
       {                                /* No --> Notify the user       */
@@ -282,7 +297,7 @@ boolean login(void)
             printmsg(0,"login: login for user %s failed, bad user id",
                   user);               /* Log the error for ourselves  */
       }
-      else if ( equal(pswd, userp->password ? userp->password : "" ))
+      else if ( userp->password && equal(pswd, userp->password ))
                                        /* Correct password?            */
       {                                /* Yes --> Log the user "in"    */
          time_t now;
@@ -301,7 +316,7 @@ boolean login(void)
          {
             securep = userp->hsecure;
             printmsg(5,"Processing user via %s", UUCPSHELL);
-            return TRUE;            /* Yes --> Startup the machine   */
+            return CD();            /* Yes --> Startup the machine   */
          }
          else {                     /* No --> run special shell      */
 
@@ -340,7 +355,7 @@ boolean loginbypass(const char *user)
    struct UserTable *userp;
    char line[BUFSIZ];                  /* Allow for long domain names! */
 
-   printmsg(14, "loginbypass: login=%s", user);
+   printmsg(14, "loginbypass: login=\"%s\"", user);
 
 /*--------------------------------------------------------------------*/
 /*                 Validate the user id                               */
@@ -366,7 +381,8 @@ boolean loginbypass(const char *user)
                   userp->uid, userp->realname, arpadate());
 
       securep = userp->hsecure;
-      return TRUE;            /* Yes --> Startup the machine   */
+
+      return CD();            /* Yes --> Startup the machine   */
    } /* else */
 
 } /*loginbypass*/
@@ -540,7 +556,7 @@ void motd( const char *fname, char *buf, const int bufsiz )
       return;
    } /* if ( stream == NULL ) */
 
-   while( fgets( buf, bufsiz, stream ) != NULL )
+   while(( fgets( buf, bufsiz, stream ) != NULL ) && CD())
       wmsg( buf, 0 );
 
    fclose( stream );

@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.11 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: usertabl.c 1.12 1994/04/24 20:35:08 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *     Revision 1.12  1994/04/24  20:35:08  ahd
+ *     Change case of userElement
+ *
  *     Revision 1.11  1994/02/20  19:05:02  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -251,11 +254,22 @@ static size_t loaduser( void )
                                  ignore it.                           */
       }
 
+/*--------------------------------------------------------------------*/
+/*       Password fields are funny; if the tokenize field function    */
+/*       is returns NULL, we set the password to the comparable       */
+/*       empty string ("").  But if the password is if asterisk       */
+/*       (*), we leave the password NULL, and the user can never      */
+/*       login remotely.                                              */
+/*--------------------------------------------------------------------*/
+
       token = NextField(NULL);   /* Get the user password             */
 
       if ( token == NULL )       /* No password needed for login?     */
+      {
          printmsg(2,"loaduser: WARNING: No password assigned for user %s",
                      userp->uid );
+         userp->password = "";   /* Assign requested password        */
+      }
       else if (!equal(token,"*")) /* User can login with passwd?      */
          userp->password = newstr(token); /* Yes --> Set password     */
 
