@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.14 1995/03/23 01:28:55 ahd v1-12p $
+#       $Id: nmakos22.mak 1.15 1995/11/08 01:03:13 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.15  1995/11/08 01:03:13  ahd
+#       Allow copying between drives during install
+#
 #       Revision 1.14  1995/03/23 01:28:55  ahd
 #       Add special OS/2 delete file function
 #
@@ -75,11 +78,11 @@ STACKSIZE= 0x50000
 ZIPID    = 2
 
 !ifndef MSGFILE
-MSGFILE  =\ibmcpp\help\dde4.msg
+MSGFILE  =$(IBMCPP)\ibmcpp\help\dde4.msg
 !endif
 
 !ifndef DLLDIR
-DLLDIR   =\ibmcpp\dll
+DLLDIR   =$(IBMCPP)\ibmcpp\dll
 !endif
 
 !ifndef DLLPROD
