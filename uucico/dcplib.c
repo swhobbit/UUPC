@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.10 1993/11/20 14:48:53 ahd Exp $
+ *    $Id: dcplib.c 1.11 1993/11/30 04:18:14 ahd Exp rommel $
  *
  *    $Log: dcplib.c $
+ * Revision 1.11  1993/11/30  04:18:14  ahd
+ * Correct spelling error in comment
+ *
  * Revision 1.10  1993/11/20  14:48:53  ahd
  * Add support for passing port name/port handle/port speed/user id to child
  *
@@ -455,7 +458,7 @@ static void LoginShell( const   struct UserTable *userp )
                  insert,
                  argstring );
       if ( len != 2 )               /* Make room for new string      */
-         memmove( s + len, s + 2, strlen(s + 2));
+         memmove( s + len, s + 2, strlen(s + 2) + 1);
 
       memcpy( s, insert, len );     /* Move in the string            */
 
