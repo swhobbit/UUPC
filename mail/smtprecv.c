@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.23 2000/05/12 12:35:45 ahd Exp ahd $
+ *       $Id: smtprecv.c 1.24 2000/05/25 03:41:49 ahd v1-13g ahd $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.24  2000/05/25 03:41:49  ahd
+ *       Use more conservative buffering to avoid aborts
+ *
  *       Revision 1.23  2000/05/12 12:35:45  ahd
  *       Annual copyright update
  *
@@ -120,7 +123,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.23 2000/05/12 12:35:45 ahd Exp ahd $");
+RCSID("$Id: smtprecv.c 1.24 2000/05/25 03:41:49 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -268,7 +271,7 @@ commandMAIL(SMTPClient *client,
 
    if (client->connection.localhost ||
        ((lenDomain <= lenHost) &&
-         equal(E_localdomain,
+         equali(E_localdomain,
                client->connection.hostName + lenHost - lenDomain)))
    {
       client->transaction->localRelay = KWTrue;
