@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.13 1993/11/13 17:38:09 ahd Exp $
+ *    $Id: uutypes.h 1.14 1993/11/14 20:55:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.14  1993/11/14  20:55:00  ahd
+ *     Add showspool option
+ *
  *     Revision 1.13  1993/11/13  17:38:09  ahd
  *     Add new options for windowing under OS/2, UUCP from options
  *
@@ -73,6 +76,20 @@
 #define UUFAR far
 #else
 #define UUFAR _far
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                 Handle 16 bit vs. 32 bit compilers                 */
+/*--------------------------------------------------------------------*/
+
+#if defined(BIT32ENV)
+#define MEMSET(p,c,l)  memset(p,c,l)
+#define MEMCPY(t,s,l)  memcpy(t,s,l)
+#define MEMMOVE(t,s,l) memmove(t,s,l)
+#else
+#define MEMSET(p,c,l)  _fmemset(p,c,l)
+#define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
+#define MEMMOVE(t,s,l) _fmemmove(t,s,l)
 #endif
 
 /*--------------------------------------------------------------------*/

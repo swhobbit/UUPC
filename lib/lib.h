@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.15 1993/10/12 01:22:27 ahd Exp $
+ *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.16  1993/11/06  17:57:46  rhg
+ *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  *     Revision 1.15  1993/10/12  01:22:27  ahd
  *     Normalize comments to PL/I style
  *
@@ -82,7 +85,7 @@
                                    only in C7; Visual C fixed the problem. */
 #endif /* _MSC_VER == 700 */
 
-#if defined(WIN32) || defined(__OS2__)
+#if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
 #define BIT32ENV
 #endif
 
@@ -198,7 +201,8 @@
 #endif
 
 #define currentfile()            static char *cfnptr = __FILE__
-#define checkref(a)              (checkptr(a, cfnptr ,__LINE__))     /*ahd */
+#define checkref(a)              { if (!a) checkptr(cfnptr,__LINE__); }
+
 #define newstr(a)                (strpool(a, cfnptr ,__LINE__))
 #ifdef SAFEFREE
 #define free(a)                  (safefree(a, cfnptr ,__LINE__))
@@ -251,7 +255,8 @@ extern FLAGTABLE configFlags[];
 
 void prterror(const size_t lineno, const char *fname, const char *prefix);
 
-extern void checkptr(const void *block, const char *file, const int line);
+extern void checkptr(const char *file,
+                     const int line);
 
 extern int MKDIR(const char *path);
                               /* Make a directory              ahd */
