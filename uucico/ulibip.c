@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.19 1994/04/27 00:02:15 ahd Exp $
+ *    $Id: ulibip.c 1.21 1994/05/23 21:44:05 dmwatt Exp $
  *
  *    $Log: ulibip.c $
+ *        Revision 1.21  1994/05/23  21:44:05  dmwatt
+ *        Support h_nerr
+ *
  *        Revision 1.19  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -149,7 +152,6 @@
 
 #ifdef __OS2__
 typedef int SOCKET;
-void tcloseline(void);
 #endif
 
 #if !defined(__OS2__)
