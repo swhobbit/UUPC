@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.17 1994/01/24 03:10:52 ahd Exp $
+ *    $Id: uutypes.h 1.18 1994/02/13 22:32:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.18  1994/02/13  22:32:16  ahd
+ *     Add mixed memory mode MEMCHR macro
+ *
  *     Revision 1.17  1994/01/24  03:10:52  ahd
  *     Annual Copyright Update
  *
@@ -150,12 +153,13 @@ typedef enum {
                                         various logs                   */
                F_DIRECT,      /* TRUE = Deliver to subdirectories, not
                                         files                          */
-               F_HONORDEBUG,  /* True = Accept -x flag from remote systems */
-               F_ESCAPE,      /* TRUE = Allow ESCAPE to act as Ctrl-Break */
+               F_HONORDEBUG,  /* True = Use -x flag from remote system */
+               F_HONORCTRL,   /* True = Honor USENET control messahes  */
+               F_ESCAPE,      /* TRUE = ESCAPE acts as Ctrl-Break      */
                F_HISTORY,     /* TRUE = Maintain history of of articles
                                         read and posted                 */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
-               B_LONGNAME,    /* TRUE = Exploit long names under OS/2, NT */
+               F_LONGNAME,    /* TRUE = Exploit OS/2 and NT long names  */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on
                                         remote host at once             */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
@@ -166,11 +170,11 @@ typedef enum {
                F_SHOWSPOOL,   /* TRUE = Print files xferred from spool  */
                F_SNEWS,       /* TRUE = Use Simple news delivery        */
                F_SUPPRESSFROM,
-                              /* Suppress writing From lines in Mail   */
+                              /* Suppress writing From lines in Mail    */
                F_SYMMETRICGRADES,
                               /* TRUE = Use send grade as receive grade */
-               F_SYSLOG,      /* TRUE = Write syslog with name and time of
-                                        each file transferred           */
+               F_SYSLOG,      /* TRUE = Write syslog with name and time
+                                        of each file transferred        */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
                                  support                               */
                F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file  */

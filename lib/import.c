@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.21 1994/02/19 04:07:40 ahd Exp $
+ *    $Id: import.c 1.22 1994/02/19 04:42:53 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.22  1994/02/19  04:42:53  ahd
+ *     Use standard first header
+ *
  *     Revision 1.21  1994/02/19  04:07:40  ahd
  *     Use standard first header
  *
@@ -299,7 +302,7 @@ void importpath(char *local, const char *canon, const char *remote)
 
       printmsg(6,"importpath: Checking File system for spool directory %s",
                   E_spooldir );
-      longname = advancedFS( E_spooldir ) && bflag[B_LONGNAME];
+      longname = advancedFS( E_spooldir ) && bflag[F_LONGNAME];
 
 /*--------------------------------------------------------------------*/
 /*                    Verify we have a remote name                    */
