@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.15 1997/03/31 06:58:10 ahd v1-12u $
+ *    $Id: bugout.c 1.16 1998/03/01 01:23:05 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.16  1998/03/01 01:23:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1997/03/31 06:58:10  ahd
  *    Annual Copyright Update
  *
@@ -121,5 +124,14 @@ void bugout(  const char *fname, const size_t lineno )
 
 #endif
 
+#ifdef UDEBUG32
+/*--------------------------------------------------------------------*/
+/*                   Crash the program if debugging                   */
+/*--------------------------------------------------------------------*/
+
+   *((char *)(NULL)) = 'X';
+#endif
+
    exit(panic_rc);
+
 } /*bugout */
