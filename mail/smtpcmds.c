@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*       s m t p v e r b . c                                          */
+/*       s m t p c m d s . c                                          */
 /*                                                                    */
-/*       SMTP verb parser for UUPC/extended                           */
+/*       SMTP verb table for UUPC/extended                            */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.1 1997/11/26 03:34:11 ahd v1-12t $
+ *       $Id: smtpcmds.c 1.2 1997/11/28 23:11:38 ahd v1-12u $
  *
  *       $Log: smtpcmds.c $
+ *       Revision 1.2  1997/11/28 23:11:38  ahd
+ *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *       Revision 1.1  1997/11/26 03:34:11  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -37,7 +40,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.1 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpcmds.c 1.2 1997/11/28 23:11:38 ahd v1-12u $");
 
 /*--------------------------------------------------------------------*/
 /*       Master command verb table for SMTP                           */
