@@ -17,8 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.31 1993/11/16 05:37:01 ahd Exp $
- *       $Log: ulibos2.c $
+ *       $Id: ULIBOS2.C 1.32 1993/11/20 14:48:53 ahd Exp $
+ *       $Log: ULIBOS2.C $
+ * Revision 1.32  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
+ * Revision 1.32  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
  * Revision 1.31  1993/11/16  05:37:01  ahd
  * Double buffer I/O to reduce overruns
  *
@@ -1424,12 +1430,12 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   carrierDetect = status && DCD_ON;
+   carrierDetect = (status & DCD_ON) ? TRUE : FALSE;
 
    if (previousCarrierDetect)
       return carrierDetect;
    else
-      return (status && DSR_ON);
+      return (status & DSR_ON) ? TRUE : FALSE;
 
 } /* nCD */
 
