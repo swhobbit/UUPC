@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.28 1994/04/27 00:02:15 ahd Exp dmwatt $
+ *    $Id: dcp.c 1.29 1994/05/01 21:59:06 dmwatt Exp $
  *
  *    $Log: dcp.c $
+ *        Revision 1.29  1994/05/01  21:59:06  dmwatt
+ *        Trap errors from failure of suspend_init to create pipe
+ *
  *        Revision 1.28  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -175,6 +178,7 @@
 #include "suspend.h"
 #include "commlib.h"
 #include "title.h"
+#include "execute.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -548,7 +552,7 @@ static boolean master( const char recvGrade,
          case CONN_SERVER:
             if (bflag[F_MULTITASK])
                dcupdate();
-            setTitle("Connected to %s", rmtname );
+            setTitle("%s connected to %s", securep->myname, hostp->via );
             m_state = process( POLL_ACTIVE, recvGrade );
             contacted = TRUE;
             break;
@@ -690,7 +694,7 @@ static boolean client( const time_t exitTime,
             break;
 
          case CONN_PROTOCOL:
-            setTitle("Establishing connection for %s",
+            setTitle("Establishing connection on %s",
                       M_device);
             s_state = startup_client(&sendgrade);
             break;
@@ -699,7 +703,9 @@ static boolean client( const time_t exitTime,
             contacted = TRUE;
             if (bflag[F_MULTITASK])
                dcupdate();
-            setTitle("Connected to %s on %s",
+
+            setTitle("%s connected to %s",
+                      securep->myname,
                       rmtname,
                       M_device);
             s_state = process( POLL_PASSIVE, sendgrade );
