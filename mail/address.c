@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.20 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: address.c 1.21 1996/01/01 21:02:07 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.21  1996/01/01 21:02:07  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -98,7 +101,7 @@ currentfile();
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
 
-static char *rfc_route( char *tptr, char **nptr, char **pptr );
+static char *rfc_route( char *tPtr, char **nPtr, char **pPtr );
 
 /*--------------------------------------------------------------------*/
 /*    t o k e n i z e A d d r e s s                                   */
@@ -113,31 +116,39 @@ static char *rfc_route( char *tptr, char **nptr, char **pptr );
 
 KWBoolean
 tokenizeAddress(const char *raddress,
-             char *hispath,
-             char *hisnode,
-             char *hisuser)
+             char *hisPath,
+             char *hisNode,
+             char *hisUser)
 {
 
    static char *saveaddr = NULL;
-   static char *savepath;
-   static char *savenode;
-   static char *saveuser;
+   static char *savePath;
+   static char *saveNode;
+   static char *saveUser;
 
-   char *uptr;                      /* Pointer to his user id         */
-   char *nptr;                      /* Pointer to his node id         */
-   char *pptr;                      /* Pointer to next node in path to him */
-   char *tptr;                      /* Temporary token pointer        */
-   char *wptr;                      /* Work pointer (not used between
+   char *uPtr;                      /* Pointer to his user id         */
+   char *nPtr;                      /* Pointer to his node id         */
+   char *pPtr;                      /* Pointer to next node in path to him */
+   char *tPtr;                      /* Temporary token pointer        */
+   char *wPtr;                      /* Work pointer (not used between
                                        steps                          */
    char *address;
+   KWBoolean foundDelimiter = KWFalse;  /*   used for double
+                                             delimiter scan           */
 
-   struct HostTable *Hptr = NULL;   /* Pointer to host name table     */
+   struct HostTable *hPtr = NULL;   /* Pointer to host name table     */
+
+   if ( *raddress == '\0' )
+   {
+      strcpy( hisPath ,"The address is empty." );
+      return KWFalse;
+   }
 
    if ( strlen( raddress ) >= MAXADDR )
    {
-      printmsg(0, "Unable to process %d length address: %s",
+      printmsg(0, "tokenizeAddress: Unable to process %d length address: %s",
             strlen(raddress), raddress );
-      strcpy( hispath ,"The address string is too long to parse." );
+      strcpy( hisPath ,"The address is too long to parse." );
       return KWFalse;
    }
 
@@ -147,10 +158,9 @@ tokenizeAddress(const char *raddress,
 
    if (!strpbrk(raddress, "%!@"))   /* Any host delimiters?           */
    {                                /* No --> report local data       */
-      strcpy(hisuser, raddress);
-      strcpy(hisnode, E_nodename);
-      strcpy(hispath, E_nodename);
-      strcpy(hisuser, raddress);
+      strcpy(hisUser, raddress);
+      strcpy(hisNode, E_nodename);
+      strcpy(hisPath, E_nodename);
 
       printmsg(5, "tokenizeAddress: Address %s has userid only, no host name",
                raddress);
@@ -166,9 +176,9 @@ tokenizeAddress(const char *raddress,
 
    if ((saveaddr != NULL) && equal(raddress, saveaddr))
    {
-      strcpy(hispath, savepath);
-      strcpy(hisnode, savenode);
-      strcpy(hisuser, saveuser);
+      strcpy(hisPath, savePath);
+      strcpy(hisNode, saveNode);
+      strcpy(hisUser, saveUser);
       return KWTrue;
    }
 
@@ -194,49 +204,76 @@ tokenizeAddress(const char *raddress,
 
    if ( strchr(address, '@') == NULL )  /* Any at signs?              */
    {                                /* No --> Look further for %      */
-      wptr = strrchr(address, '%'); /* Locate any percent signs       */
+      wPtr = strrchr(address, '%'); /* Locate any percent signs       */
 
-      if ( wptr != NULL )           /* Got one?                       */
-         *wptr = '@';               /* Yup --> Make it an at sign at  */
+      if ( wPtr != NULL )           /* Got one?                       */
+         *wPtr = '@';               /* Yup --> Make it an at sign at  */
    }
 
 /*--------------------------------------------------------------------*/
-/*                        Look for bad strings                        */
+/*       Look for unparsable addresses, with node/userid separator    */
+/*       characters next to each other or beginning or ending the     */
+/*       string.  Note that at sign (@) can start the string,         */
+/*       because @domain:user@domain2 is a valid construct.           */
 /*--------------------------------------------------------------------*/
 
-   tptr = address + strlen(address) - 1;
+   tPtr = address + strlen(address) - 1;
 
-   if ((*address == '!' ) ||
-       ( *tptr == '!' ) ||
-       ( *tptr == '@' ) ||
-       (strstr( address, "!!" ) != NULL ) ||
-       (strstr( address, "@@" ) != NULL ))
+   if (( *address == '!' ) || ( *tPtr == '!' ) ||
+       ( *address == '%' ) || ( *tPtr == '%' ) ||
+       ( *tPtr    == '@' ))
    {
-      strcpy( hispath, "The address format is hopelessly invalid" );
+      strcpy( hisPath, "The address is hopelessly invalid -- "
+                       "it begins or ends with a delimiter character" );
       return KWFalse;
    }
+
+   while( tPtr > address )
+   {
+      switch( *tPtr-- )
+      {
+         case '@':
+         case '!':
+         case '%':
+            if ( foundDelimiter )
+            {
+               strcpy( hisPath, "The address is hopelessly invalid -- "
+                                "it has delimiter characters back-to-back" );
+               return KWFalse;
+            }
+            else
+               foundDelimiter = KWTrue;
+            break;
+
+         default:
+            foundDelimiter = KWFalse;
+            break;
+
+      } /* switch( *tPtr-- ) */
+
+   } /* while( tPtr > address ) */
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize routing information                   */
 /*--------------------------------------------------------------------*/
 
-   nptr = nil(char);             /* No known node for user            */
-   pptr = E_mailserv;            /* Default routing via mail server   */
-   tptr = address;               /* Remember start of address         */
+   nPtr = nil(char);             /* No known node for user            */
+   pPtr = E_mailserv;            /* Default routing via mail server   */
+   tPtr = address;               /* Remember start of address         */
 
 /*--------------------------------------------------------------------*/
 /*  The address may be RFC-822 syntax; attempt to parse that format   */
 /*--------------------------------------------------------------------*/
 
-   uptr = tptr = rfc_route( tptr, &nptr, &pptr );
+   uPtr = tPtr = rfc_route( tPtr, &nPtr, &pPtr );
 
 /*--------------------------------------------------------------------*/
 /*   If the user had an RFC-822 path, then the pointer to the path is */
 /*   now initialized, and the remainder of the path has been dropped  */
-/*   from *tptr; otherwise, the entire address is found via *tptr     */
+/*   from *tPtr; otherwise, the entire address is found via *tPtr     */
 /*--------------------------------------------------------------------*/
 
-   wptr  = strrchr(tptr, '@'); /* Get last at sign, since it's right
+   wPtr  = strrchr(tPtr, '@'); /* Get last at sign, since it's right
                                   to left scan (more or less)         */
 
 /*--------------------------------------------------------------------*/
@@ -246,33 +283,35 @@ tokenizeAddress(const char *raddress,
 /*    node.                                                           */
 /*--------------------------------------------------------------------*/
 
-   if (( wptr > tptr ) && ( strchr("!:", *(wptr-1)) == NULL))
+   if (( wPtr > tPtr ) && ( strchr("!:", *(wPtr-1)) == NULL))
    {
 
-      uptr  = tptr;               /* Get user part of userid @node    */
-      *wptr++ = '\0';             /* Terminate user portion           */
+      uPtr  = tPtr;               /* Get user part of userid @node    */
+      *wPtr++ = '\0';             /* Terminate user portion           */
 
-      if ( *wptr == '\0' )        /* Host MISSING?                   */
+      if ( *wPtr == '\0' )        /* Host MISSING?                   */
       {                           /* Yes --> Throw error, treat addr
                                              as local                */
-         printmsg(0, "Invalid RFC-822 address, missing host name: %s",
+         printmsg(0, "tokenizeAddress: Invalid RFC-822 address, missing host name: %s",
                     saveaddr );
-         tptr = "???????";
+         strcpy( hisPath, "The address is hopelessly invalid -- "
+                          "domain name is missing after at sign (@)" );
+         return KWFalse;
       }
       else
-         tptr  = wptr;           /* Get node part of userid @node    */
+         tPtr  = wPtr;           /* Get node part of userid @node    */
 
 #ifdef UDEBUG
       printmsg(4, "tokenizeAddress: parsed user as \"%s\", node as \"%s\"",
-                 uptr,
-                 tptr );
+                 uPtr,
+                 tPtr );
 #endif
    }
 
-   if (tptr != NULL)           /* Did we get a node?                  */
+   if (tPtr != NULL)           /* Did we get a node?                  */
    {                           /* Yes --> Save it                     */
-      nptr = tptr;
-      pptr = HostPath( nptr, pptr);
+      nPtr = tPtr;
+      pPtr = HostPath( nPtr, pPtr);
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -281,24 +320,24 @@ tokenizeAddress(const char *raddress,
 /*       the addressee's node.                                        */
 /*--------------------------------------------------------------------*/
 
-   uptr = strtok(uptr, "!");
-   tptr = strtok(NULL, "");
+   uPtr = strtok(uPtr, "!");
+   tPtr = strtok(NULL, "");
 
-   while ( tptr != NULL )
+   while ( tPtr != NULL )
    {
-      nptr = uptr;                  /* First token is node            */
+      nPtr = uPtr;                  /* First token is node            */
 
-      if (*tptr == '@')             /* Explicit RFC-822 route?        */
+      if (*tPtr == '@')             /* Explicit RFC-822 route?        */
       {                             /* Yes --> Examine in detail      */
-         uptr = strtok( rfc_route( tptr, &nptr, &pptr ), "!");
+         uPtr = strtok( rfc_route( tPtr, &nPtr, &pPtr ), "!");
                                     /* Second token, or what's
                                        left of it, is user id         */
-         tptr = strtok(NULL, "");   /* Save rest of string            */
-      } /* if (*tptr == '@') */
+         tPtr = strtok(NULL, "");   /* Save rest of string            */
+      } /* if (*tPtr == '@') */
       else {
-         uptr = strtok(tptr, "!");  /* Second token is user id        */
-         tptr = strtok(NULL, "");   /* Save rest of string            */
-         pptr = HostPath( nptr, pptr);
+         uPtr = strtok(tPtr, "!");  /* Second token is user id        */
+         tPtr = strtok(NULL, "");   /* Save rest of string            */
+         pPtr = HostPath( nPtr, pPtr);
       } /* else */
 
    } /* while */
@@ -308,13 +347,13 @@ tokenizeAddress(const char *raddress,
 /*   hack (user%node1@gatewayb)                                       */
 /*--------------------------------------------------------------------*/
 
-   while ((tptr = strrchr(uptr, '%')) != NULL)  /* Get last percent   */
+   while ((tPtr = strrchr(uPtr, '%')) != NULL)  /* Get last percent   */
 
    {
-      *tptr = '@';               /* Make it an RFC-822 address        */
-      uptr  = strtok(uptr, "@"); /* Get user part of userid @node     */
-      nptr  = strtok(NULL, "@"); /* Get node part of userid @node     */
-      pptr  = HostPath(nptr,  pptr); /* Old node is new path          */
+      *tPtr = '@';               /* Make it an RFC-822 address        */
+      uPtr  = strtok(uPtr, "@"); /* Get user part of userid @node     */
+      nPtr  = strtok(NULL, "@"); /* Get node part of userid @node     */
+      pPtr  = HostPath(nPtr,  pPtr); /* Old node is new path          */
 
    } /* while */
 
@@ -322,10 +361,10 @@ tokenizeAddress(const char *raddress,
 /*                Determine name of the target system                 */
 /*--------------------------------------------------------------------*/
 
-   tptr = HostAlias( nptr );     /* Get possible alias name          */
+   tPtr = HostAlias( nPtr );     /* Get possible alias name          */
 
-   if ( *tptr != '*' )           /* Unless a wildcard name ...       */
-      nptr = tptr;               /* ... replace name with canonical  */
+   if ( *tPtr != '*' )           /* Unless a wildcard name ...       */
+      nPtr = tPtr;               /* ... replace name with canonical  */
 
 /*--------------------------------------------------------------------*/
 /*   If the last known hop in the path is via our own system, but the */
@@ -333,21 +372,21 @@ tokenizeAddress(const char *raddress,
 /*   default mail server.                                             */
 /*--------------------------------------------------------------------*/
 
-   if (equali(pptr, E_nodename))
+   if (equali(pPtr, E_nodename))
                               /* Is mail routed via our local system? */
    {                          /* Yes --> Determine if destined for us */
 
-      Hptr = checkname(tptr);          /* Locate the system, using
+      hPtr = checkname(tPtr);          /* Locate the system, using
                                           alias from above           */
 
-      if (Hptr == BADHOST)             /* System known?              */
+      if (hPtr == BADHOST)             /* System known?              */
       {                                /* No --> Route via default   */
 
          printmsg(5,
             "tokenizeAddress: Routing mail for \"%s\" via default mail server",
-                  nptr);
+                  nPtr);
 
-         pptr = E_mailserv;
+         pPtr = E_mailserv;
 
       } /* if */
    }  /* if */
@@ -358,24 +397,24 @@ tokenizeAddress(const char *raddress,
 
    printmsg(9,
          "tokenizeAddress: Address \"%s\" is \"%s\" at \"%s\" via \"%s\"",
-            raddress, uptr, nptr, pptr);
+            raddress, uPtr, nPtr, pPtr);
 
 /*--------------------------------------------------------------------*/
 /*  We have parsed the address.  Fill in the information for caller   */
 /*--------------------------------------------------------------------*/
 
-   strcpy(hispath, pptr);
-   strcpy(hisnode, nptr);
-   strcpy(hisuser, uptr);
+   strcpy(hisPath, pPtr);
+   strcpy(hisNode, nPtr);
+   strcpy(hisUser, uPtr);
 
 /*--------------------------------------------------------------------*/
 /*   Save the parsed information along with the original address we   */
 /*   were passed in.  This could save breaking it down again.         */
 /*--------------------------------------------------------------------*/
 
-   savepath = newstr(hispath);
-   savenode = newstr(hisnode);
-   saveuser = newstr(hisuser);
+   savePath = newstr(hisPath);
+   saveNode = newstr(hisNode);
+   saveUser = newstr(hisUser);
 
    free(address);
 
@@ -389,30 +428,30 @@ tokenizeAddress(const char *raddress,
 /*    Strip off explicit RFC-822 routing from an address              */
 /*--------------------------------------------------------------------*/
 
-static char *rfc_route( char *tptr, char **nptr, char **pptr )
+static char *rfc_route( char *tPtr, char **nPtr, char **pPtr )
 {
 
 /*--------------------------------------------------------------------*/
 /*          Loop as long as we have an explicit RFC-822 path          */
 /*--------------------------------------------------------------------*/
 
-   while (*tptr == '@')        /* Explicit RFC 822 path?              */
+   while (*tPtr == '@')        /* Explicit RFC 822 path?              */
    {
-      *nptr = strtok(++tptr, ",:"); /* First token is path/node       */
-      tptr = strtok(NULL, ""); /* Second has rest, including user id  */
-      *pptr = HostPath( *nptr,  *pptr );
+      *nPtr = strtok(++tPtr, ",:"); /* First token is path/node       */
+      tPtr = strtok(NULL, ""); /* Second has rest, including user id  */
+      *pPtr = HostPath( *nPtr,  *pPtr );
                               /* Determine actual path                */
       printmsg(9, "rfc_route: RFC-822 explicit path: "
                   "\"%s\" routed via \"%s\" is via \"%s\"",
-         tptr, *nptr, *pptr);
+         tPtr, *nPtr, *pPtr);
    } /* while */
 
 /*--------------------------------------------------------------------*/
-/*    At this point, *nptr is last node in list, *pptr is path to     */
-/*    *nptr, and *tptr is the rest of the string (userid?)            */
+/*    At this point, *nPtr is last node in list, *pPtr is path to     */
+/*    *nPtr, and *tPtr is the rest of the string (userid?)            */
 /*--------------------------------------------------------------------*/
 
-   return tptr;
+   return tPtr;
 
 } /* rfc_route */
 
@@ -573,9 +612,9 @@ char *ExtractAddress(char *result,
    char *nonblank = NULL;
    char *column  = (char *) input;
    char name[BUFSIZ];      /* User full name             */
-   char *nameptr = name;
+   char *namePtr = name;
    char addr[BUFSIZ];      /* User e-mail address        */
-   char *addrptr  = addr;
+   char *addrPtr  = addr;
 
    char state = 'A';                /* State = skip whitespace    */
    char newstate = 'A';             /* Next state to process      */
@@ -618,8 +657,8 @@ char *ExtractAddress(char *result,
                   break;
 
                case '<':
-                  addrptr = addr;   /* Start address over      */
-                  nameptr = name;   /* Start name over again   */
+                  addrPtr = addr;   /* Start address over      */
+                  namePtr = name;   /* Start name over again   */
                   column  = nonblank - 1;
                                     /* Re-scan in new state    */
                   newstate = '>';   /* Proc all-non <> as name */
@@ -637,7 +676,7 @@ char *ExtractAddress(char *result,
                default:
                   newstate = state; /* stay in this state             */
                   if (!isspace(*column))
-                     *(addrptr++) = *column;
+                     *(addrPtr++) = *column;
 
             }  /* switch(*column) */
             break;
@@ -646,7 +685,7 @@ char *ExtractAddress(char *result,
             if (*column == '>')
                newstate = '>';
             else if (!isspace(*column))
-               *(addrptr++) = *column;
+               *(addrPtr++) = *column;
             break;
 
          case '>':
@@ -658,21 +697,21 @@ char *ExtractAddress(char *result,
 
                case ')':
                   if (quoted)
-                     *(nameptr++) = *column;
+                     *(namePtr++) = *column;
                   else
                      bananas--;
                   break;
 
                case '(':
                   if (quoted)
-                     *(nameptr++) = *column;
+                     *(namePtr++) = *column;
                   else
                      bananas++;
                   break;
 
                case ',':
                   if ( quoted )
-                     *(nameptr++) = *column; /* Take it as a literal */
+                     *(namePtr++) = *column; /* Take it as a literal */
                   else
                      newstate = ',';   /* Terminates address      */
                   break;
@@ -689,7 +728,7 @@ char *ExtractAddress(char *result,
                   /* else fall through */
 
                default:
-                  *(nameptr++) = *column;
+                  *(namePtr++) = *column;
             } /* switch */
             break;
 
@@ -705,14 +744,14 @@ char *ExtractAddress(char *result,
                }
             }
             else
-               *(nameptr++) = *column;
+               *(namePtr++) = *column;
             break;
 
          case '"':
             if (*column == '"')
                newstate = ')';
             else
-               *(nameptr++) = *column;
+               *(namePtr++) = *column;
                      break;
 
          case ',':
@@ -753,8 +792,8 @@ char *ExtractAddress(char *result,
 /*                 Fill in the results for the caller                 */
 /*--------------------------------------------------------------------*/
 
-   *addrptr = '\0';
-   *nameptr = '\0';
+   *addrPtr = '\0';
+   *namePtr = '\0';
    len = strlen( addr );
 
 #ifdef UDEBUG
@@ -775,10 +814,10 @@ char *ExtractAddress(char *result,
    }
    else if (state != 'B')
    {
-      while (--nameptr >= name)
+      while (--namePtr >= name)
       {
-         if (isspace(*nameptr))
-            *nameptr = '\0';
+         if (isspace(*namePtr))
+            *namePtr = '\0';
          else
             break;
       }
@@ -787,15 +826,15 @@ char *ExtractAddress(char *result,
 /*               Strip leading blanks from the address                */
 /*--------------------------------------------------------------------*/
 
-      nameptr = name;
+      namePtr = name;
 
-      while (isspace(*nameptr))
-         nameptr++;
+      while (isspace(*namePtr))
+         namePtr++;
 
-      if ( strlen( nameptr ) >= MAXADDR )
+      if ( strlen( namePtr ) >= MAXADDR )
       {
-         printmsg(0, "ExtractAddress: Truncating name %s", nameptr);
-         nameptr[ MAXADDR - 1 ] = '\0';
+         printmsg(0, "ExtractAddress: Truncating name %s", namePtr);
+         namePtr[ MAXADDR - 1 ] = '\0';
       }
 
       if ( fullname == FULLADDRESS )
@@ -807,11 +846,11 @@ char *ExtractAddress(char *result,
             panic();
          }
 
-         nameptr[ MAXADDR - len - 6] = '\0';
-         sprintf( result, "\"%s\" <%s>", nameptr, addr );
+         namePtr[ MAXADDR - len - 6] = '\0';
+         sprintf( result, "\"%s\" <%s>", namePtr, addr );
       }
       else
-         strcpy(result, nameptr );
+         strcpy(result, namePtr );
 
    } /* else */
 
