@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnett.h 1.2 2000/05/12 12:42:31 ahd v1-13g $
+ *    $Id: smtpnett.h 1.3 2001/03/12 13:51:54 ahd v1-13k $
  *
  *    $Log: smtpnett.h $
+ *    Revision 1.3  2001/03/12 13:51:54  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.2  2000/05/12 12:42:31  ahd
  *    Annual copyright update
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pop3clnt.h 1.3 2000/05/12 12:44:47 ahd v1-13g $
+ *    $Id: pop3clnt.h 1.4 2001/03/12 13:51:54 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: pop3clnt.h $
+ *    Revision 1.4  2001/03/12 13:51:54  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.3  2000/05/12 12:44:47  ahd
  *    Annual copyright update
  *
