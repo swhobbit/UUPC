@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.3 1995/01/03 05:32:26 ahd Exp $
+ *    $Id: sys.c 1.4 1995/01/05 03:43:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.4  1995/01/05 03:43:49  ahd
+ *    rnews SYS file support
+ *
  *    Revision 1.3  1995/01/03 05:32:26  ahd
  *    Further SYS file support cleanup
  *
@@ -114,11 +117,43 @@ currentfile();
 
 struct sys *sys_list = NULL;
 
-static FILE *sysFileStream = NULL;
+static char *cache = NULL;       /* Parsing string cache             */
+static size_t cacheLength = 0;
 
 #define ME "ME"
 
 static void bootStrap( const char *fileName );
+
+/*--------------------------------------------------------------------*/
+/*       t r i m                                                      */
+/*                                                                    */
+/*       Trim whitespace from a string                                */
+/*--------------------------------------------------------------------*/
+
+static char *trim( char *buf )
+{
+  /* compress out spaces, continuations and eoln's */
+
+  char *t1 = strchr(buf, '\\');
+
+  while (t1 != NULL)
+  {
+    memmove(t1, t1 + 1, strlen(t1));
+    t1 = strchr(t1, '\\');
+  }
+
+  t1 = buf;                         /* rescan for whitespace from start */
+  while( *t1 )
+  {
+    if ( isspace( *t1 ) )
+      memmove(t1, t1 + 1, strlen(t1));
+    else
+      t1 ++;
+  }
+
+  return buf;
+
+} /* trim */
 
 /*--------------------------------------------------------------------*/
 /*       p r o c e s s _ s y s                                        */
@@ -127,14 +162,13 @@ static void bootStrap( const char *fileName );
 /*       into memory                                                  */
 /*--------------------------------------------------------------------*/
 
-void process_sys(const long start, char *buf)
+void process_sys( char *buf)
 {
-  struct sys *node = malloc(sizeof(struct sys));
   static struct sys *previous = NULL;
-  char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
-  long       start2;
 
-  printmsg(3, "process_sys: start %ld, entry: %s", start, buf);
+  struct sys *node = malloc(sizeof(struct sys));
+  char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
+  size_t tempLen;
 
   memset(node, 0, sizeof(struct sys));
 
@@ -165,8 +199,6 @@ void process_sys(const long start, char *buf)
   }
   else
     f3 = NULL;
-
-  start2 = start + strlen(f1) + 1;
 
   if (f3 != NULL)
   {
@@ -205,51 +237,43 @@ void process_sys(const long start, char *buf)
   if ( equal(f1, ME ) || equal( f1, E_nodename ))
      node->sysname = E_domain;
   else
-     node->sysname = newstr( f1 );
+     node->sysname = newstr( trim(f1) );
 
   if (s1 != NULL)
   {
-    node->bExclude = TRUE;
-    node->excl_from = start + strlen(f1) + 1;
-    node->excl_to = node->excl_from + strlen(s1);
+    node->exclude = newstr(trim(s1) );
+    tempLen = strlen( node->exclude );
+
+    if ( tempLen >= cacheLength )
+      cacheLength = tempLen + 1;
   }
 
   if (s2 != NULL)
   {
-    node->bDistrib = TRUE;
-    node->dist_from = start2 + strlen(f2) + 1;
-    node->dist_to = node->dist_from + strlen(s2);
+      node->distribution = newstr( trim(s2) );
+      tempLen = strlen( node->distribution );
+
+      if ( tempLen >= cacheLength )
+         cacheLength = tempLen + 1;
   }
 
   if (f2 != NULL)
   {
-    node->bGroups = TRUE;
-    node->grp_from = start2;
-    node->grp_to = node->grp_from + strlen(f2);
+      node->groups = newstr( trim(f2) );
+      tempLen = strlen( node->groups );
+
+      if ( tempLen >= cacheLength )
+         cacheLength = tempLen + 1;
   }
 
-  printmsg(4, "Interpreted sys entry as follows:");
-
-  if ( f1 )
-     printmsg(4, "Node = %s, length = %i", f1, strlen(f1));
-
-  if  ( s1 )
-     printmsg(4, "Exclusions = %s, length = %i", s1, strlen(s1));
-
-  if ( f2 )
-     printmsg(4, "Groups = %s, length = %i", f2, strlen(f2));
-
-  if ( s2 )
-     printmsg(4, "Distributions = %s, length = %i", s2, strlen(s2));
-
-  if ( f3 )
-     printmsg(4, "Flags = %s, length = %i", f3, strlen(f3));
-
-  if ( f4)
-     printmsg(4, "Command = %s, length = %i", f4, strlen(f4));
+  printmsg(4, "process_sys: Node %s, exclude %s, distribution %s, groups %s",
+               node->exclude        ? node->exclude : "(none)",
+               node->distribution   ? node->distribution : "(none)",
+               node->groups         ? node->groups: "(none)" );
 
   if (f3 != NULL)
   {
+     printmsg(4, "Flags = %s, length = %i", f3, strlen(f3));
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended specific options.                 */
@@ -408,12 +432,94 @@ void process_sys(const long start, char *buf)
 
 } /* process_sys */
 
+/*--------------------------------------------------------------------*/
+/*       b o o t S t r a p                                            */
+/*                                                                    */
+/*       Generate a new SYS for a site missing one                    */
+/*--------------------------------------------------------------------*/
+
+static void bootStrap( const char *fileName )
+{
+
+   FILE *stream = FOPEN( fileName, "w", TEXT_MODE );
+   char *sysname = getenv( "UUPCSHADOWS" );
+
+   if ( stream == NULL )
+   {
+      printmsg(0, "Cannot generate new SYS file for news processing.");
+      printerr( fileName );
+      panic();
+   }
+
+   fprintf( stream, "# News configuration file, automatically generated by "
+                    "%s %s\n# at %s\n",
+                     compilep,
+                     compilev,
+                     arpadate() );
+
+/*--------------------------------------------------------------------*/
+/*     We get everything, like we did before the SYS file existed     */
+/*--------------------------------------------------------------------*/
+
+   fprintf( stream, "# The local system, %s (%s)\n",
+            E_domain,
+            E_nodename );
+   fprintf( stream, "ME:all\n" );
+
+/*--------------------------------------------------------------------*/
+/*         Everyone else gets our full feed sans-local stuff.         */
+/*--------------------------------------------------------------------*/
+
+   if ( E_newsserv )
+   {
+      fprintf( stream, "# Our news feed, not batched to speed our posts\n");
+      fprintf( stream, "%s:all/!local::\n", E_newsserv );
+                           /* Uncompressed feed for speedy posts     */
+   }
+
+   if ( sysname != NULL )
+   {
+
+      char *buf = strdup( sysname );
+      checkref( buf );
+
+      fprintf( stream,
+               "# Systems we feed, batched/compressed for high throughput\n" );
+
+      sysname = strtok( buf, WHITESPACE );
+
+      while( sysname != NULL )
+      {
+         fprintf( stream, "%s:all/!local:F:\n", sysname );
+         sysname = strtok( NULL, WHITESPACE );
+      }
+
+      free( buf );
+
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*      Check all our I/O worked, then close up shop and return       */
+/*--------------------------------------------------------------------*/
+
+   if ( ferror( stream ) )
+   {
+      printerr( fileName );
+      panic();
+   }
+
+   fclose( stream );
+
+   printmsg(0, "Generated new %s file for routing news",
+              fileName );
+
+} /* bootStrap */
+
 void init_sys()
 {
 
+  FILE       *sysFileStream = NULL;
   char       sysFileName[FILENAME_MAX];
-  long       where;
-  long       start;
   char       line[BUFSIZ];
   char       *t;
   char       buf[BUFSIZ * 8];
@@ -425,7 +531,7 @@ void init_sys()
 /*               Generate a new SYS file if we need to                */
 /*--------------------------------------------------------------------*/
 
-   if ( stater( sysFileName, &where ) == -1 )
+   if ( stater( sysFileName, 0 ) == -1 )
       bootStrap( sysFileName );
 
   sysFileStream = fopen(sysFileName, "rb");
@@ -439,7 +545,6 @@ void init_sys()
   printmsg(3, "init_sys: reading system file %s", sysFileName);
   fseek(sysFileStream, 0, SEEK_SET);
 
-  where = 0;
   memset(buf, 0, sizeof buf);
 
   while (fgets(line, sizeof line, sysFileStream) != NULL)
@@ -476,7 +581,7 @@ void init_sys()
     if ( *buf && (! strlen(t) || ! wantMore ))
                                     /* Previous entry complete?      */
     {
-       process_sys(start, buf );    /* Yes --> end of entry, process */
+       process_sys( buf );          /* Yes --> end of entry, process */
        *buf = '\0';                 /* Also, reset buffer to empty   */
     }
 
@@ -487,10 +592,7 @@ void init_sys()
     if (*t != '#')                  /* Comment line?                 */
     {                               /* No --> Add it to our buffer   */
 
-       if (strlen(buf) == 0)        /* First line of entry?             */
-         start = where + (t - line );/* Yes, remember where it is        */
-
-       strcat(buf, line);
+       strcat(buf, t);
 
        /*
         * does line end with continuation character? lenient search, allows
@@ -501,8 +603,6 @@ void init_sys()
 
     }  /* else if (*t != '#') */
 
-    where = ftell(sysFileStream);
-
   } /* while (fgets(line, sizeof line, sysFileStream) != NULL) */
 
 /*--------------------------------------------------------------------*/
@@ -510,7 +610,15 @@ void init_sys()
 /*--------------------------------------------------------------------*/
 
    if ( *buf )
-      process_sys(start, buf);
+      process_sys( buf );
+
+   fclose( sysFileStream );
+
+   if ( cacheLength )
+   {
+      cache = malloc( cacheLength );
+      checkref( cache );
+   }
 
 } /* init_sys */
 
@@ -819,58 +927,6 @@ boolean newsgroups(char *list, char *groups)
 }
 
 /*--------------------------------------------------------------------*/
-/*       r e a d _ b l o c k                                          */
-/*                                                                    */
-/*       Read a block of data from the open SYS file                  */
-/*--------------------------------------------------------------------*/
-
-void read_block(long from, long f_to, char *buf)
-{
-  int  read, size;
-  char *t1, *t2;
-
-  size = (int) (f_to - from);
-  memset(buf, 0, BUFSIZ * 8);
-  if ( fseek(sysFileStream, from, SEEK_SET) )
-  {
-      printmsg(0, "Unable to seek SYS file to offset %ld.", from);
-      printerr("seek" );
-      panic();
-  }
-
-  read = fread(buf, 1, size, sysFileStream);
-
-  if (read != size)
-  {
-    printmsg(0, "Unable to read sys file from %ld for %ld bytes.", from, size);
-
-    if ( read < 0 )
-       printerr( "read" );
-    panic();
-
-  }
-
-  /* compress out spaces, continuations and eoln's */
-
-  t1 = strchr(buf, '\\');
-  while (t1 != NULL)
-  {
-    memmove(t1, t1 + 1, strlen(t1));
-    t1 = strchr(t1, '\\');
-  }
-
-  t1 = buf;                         /* rescan for whitespace from start */
-  while( *t1 )
-  {
-    if ( isspace( *t1 ) )
-      memmove(t1, t1 + 1, strlen(t1));
-    else
-      t1 ++;
-  }
-
-} /* read_block */
-
-/*--------------------------------------------------------------------*/
 /*       c h e c k _ s y s                                            */
 /*                                                                    */
 /*       Process posting criteria for a given article                 */
@@ -879,34 +935,37 @@ void read_block(long from, long f_to, char *buf)
 boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 {
 
-  char buf[BUFSIZ*8];
-  boolean bRet = !excluded(entry->sysname, path);
+  boolean bRet;
 
   printmsg(5, "check_sys: node: %s", entry->sysname);
   printmsg(5, "check_sys: groups: %s", groups);
   printmsg(5, "check_sys: distrib: %s", distrib);
   printmsg(5, "check_sys: path: %s", path);
 
-  if (bRet && (entry->bExclude))
+/*--------------------------------------------------------------------*/
+/*       Through out this processing, we keep the copies of the       */
+/*       strings used for this system clean by copying them before    */
+/*       passing them to the routines which want to tokenize them.    */
+/*--------------------------------------------------------------------*/
+
+  bRet = !excluded(strcpy( cache, entry->sysname ), path);
+
+  if (bRet && (entry->exclude ))
   {
     printmsg(3, "check_sys: checking exclusions");
-    read_block(entry->excl_from, entry->excl_to, buf);
-    bRet = !excluded(buf, path);
+    bRet = !excluded(strcpy( cache, entry->exclude ), path);
   }
 
-  if (bRet && (entry->bDistrib))
+  if (bRet && (entry->distribution))
   {
     printmsg(3, "check_sys: checking distributions");
-    read_block(entry->dist_from, entry->dist_to, buf);
-    bRet = distributions(buf, distrib);
+    bRet = distributions(strcpy( cache, entry->distribution ), distrib);
   }
 
-  if (bRet && (entry->bGroups))
+  if (bRet && (entry->groups))
   {
     printmsg(3, "check_sys: checking groups");
-
-    read_block(entry->grp_from, entry->grp_to, buf);
-    bRet = newsgroups(buf, groups);
+    bRet = newsgroups(strcpy( cache, entry->groups ), groups);
   }
 
   printmsg(3, "check_sys: returning %s", bRet ? "TRUE" : "FALSE");
@@ -914,6 +973,12 @@ boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
   return bRet;
 
 } /* check_sys */
+
+/*--------------------------------------------------------------------*/
+/*       e x i t _ s y s                                              */
+/*                                                                    */
+/*       Terminate SYS file processing                                */
+/*--------------------------------------------------------------------*/
 
 void exit_sys(void)
 {
@@ -927,91 +992,11 @@ void exit_sys(void)
     free(sys_entry);
   }
 
-  sys_list = NULL;
-
-   if (sysFileStream != NULL)
-     fclose(sysFileStream);
-}
-
-/*--------------------------------------------------------------------*/
-/*       b o o t S t r a p                                            */
-/*                                                                    */
-/*       Generate a new SYS for a site missing one                    */
-/*--------------------------------------------------------------------*/
-
-static void bootStrap( const char *fileName )
-{
-
-   FILE *stream = FOPEN( fileName, "w", TEXT_MODE );
-   char *sysname = getenv( "UUPCSHADOWS" );
-
-   if ( stream == NULL )
-   {
-      printmsg(0, "Cannot generate new SYS file for news processing.");
-      printerr( fileName );
-      panic();
+  if ( cache )
+  {
+      free( cache );
+      cacheLength = 0;
+      cache = NULL;
    }
 
-   fprintf( stream, "# News configuration file, automatically generated by "
-                    "%s %s\n# at %s\n",
-                     compilep,
-                     compilev,
-                     arpadate() );
-
-/*--------------------------------------------------------------------*/
-/*     We get everything, like we did before the SYS file existed     */
-/*--------------------------------------------------------------------*/
-
-   fprintf( stream, "# The local system, %s (%s)\n",
-            E_domain,
-            E_nodename );
-   fprintf( stream, "ME:all\n" );
-
-/*--------------------------------------------------------------------*/
-/*         Everyone else gets our full feed sans-local stuff.         */
-/*--------------------------------------------------------------------*/
-
-   if ( E_newsserv )
-   {
-      fprintf( stream, "# Our news feed, not batched to speed our posts\n");
-      fprintf( stream, "%s:all/!local::\n", E_newsserv );
-                           /* Uncompressed feed for speedy posts     */
-   }
-
-   if ( sysname != NULL )
-   {
-
-      char *buf = strdup( sysname );
-      checkref( buf );
-
-      fprintf( stream,
-               "# Systems we feed, batched/compressed for high throughput\n" );
-
-      sysname = strtok( buf, WHITESPACE );
-
-      while( sysname != NULL )
-      {
-         fprintf( stream, "%s:all/!local:F:\n", sysname );
-         sysname = strtok( NULL, WHITESPACE );
-      }
-
-      free( buf );
-
-   } /* if */
-
-/*--------------------------------------------------------------------*/
-/*      Check all our I/O worked, then close up shop and return       */
-/*--------------------------------------------------------------------*/
-
-   if ( ferror( stream ) )
-   {
-      printerr( fileName );
-      panic();
-   }
-
-   fclose( stream );
-
-   printmsg(0, "Generated new %s file for routing news",
-              fileName );
-
-} /* bootStrap */
+} /* exit_sys */
