@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.56 1995/01/07 16:12:03 ahd Exp $
+ *    $Id: configur.c 1.57 1995/01/15 19:48:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.57  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.56  1995/01/07 16:12:03  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -1022,7 +1027,7 @@ KWBoolean configure( CONFIGBITS program)
    if (E_tz != NULL)
    {
       sprintf( buf, "TZ=%s", E_tz );
-      E_tz = newstr( E_tz );
+      E_tz = newstr( buf );
       putenv( E_tz );
    }
 
