@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*    u l i b o s 2 . c                                               */
+/*    u l i b n t . c                                                 */
 /*                                                                    */
-/*    OS/2 serial port support for UUCICO                             */
+/*    Windows NT serial port support for UUCICO                       */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.2 1993/09/20 04:50:57 ahd Exp $
+ *       $Id: ulibnt.c 1.3 1993/09/21 01:42:13 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.3  1993/09/21  01:42:13  ahd
+ * Use standard MAXPACK limit for save buffer size
+ *
  * Revision 1.2  1993/09/20  04:50:57  ahd
  * Break out of ULIBOS2.C
  *
@@ -38,7 +41,7 @@
  * Global edits for year, TEXT, etc.
  *
  * Revision 1.10  1993/04/10  21:25:16  dmwatt
- * Add Windows/NT support
+ * Add Windows NT support
  *
  * Revision 1.9  1993/04/05  04:32:19  ahd
  * Additional traps for modem dropping out
@@ -47,7 +50,7 @@
  * Add configurable OS/2 priority values
  *
  * Revision 1.7  1992/12/30  13:02:55  dmwatt
- * Dual path for Windows/NT and OS/2
+ * Dual path for Windows NT and OS/2
  *
  * Revision 1.6  1992/12/11  12:45:11  ahd
  * Correct RTS handshake
@@ -78,7 +81,7 @@
 #include <time.h>
 
 /*--------------------------------------------------------------------*/
-/*                      Windows/NT include files                      */
+/*                      Windows NT include files                      */
 /*--------------------------------------------------------------------*/
 
 #include <windows.h>
@@ -94,6 +97,7 @@
 #include "catcher.h"
 
 #include "commlib.h"
+#include "pnterr.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -121,11 +125,7 @@ static DCB dcb;
 static BYTE com_status;
 static USHORT com_error;
 
-#ifdef __OS2__
-static ULONG usPrevPriority;
-#else
 static USHORT usPrevPriority;
-#endif
 
 static void ShowError( const USHORT status );
 
@@ -140,15 +140,13 @@ static void ShowModem( const DWORD status );
 int nopenline(char *name, BPS baud, const boolean direct )
 {
    DWORD dwError;
-   DWORD Error;
    BOOL rc;
-   HANDLE hProcess;
 
    if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
-   printmsg(15, "openline: %s, %d", name, baud);
+   printmsg(15, "nopenline: %s, %d", name, baud);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -157,7 +155,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (!equal(name,"CON") && !equaln(name, "COM", 3 ))
    {
-      printmsg(0,"openline: Communications port begin with COM, was %s",
+      printmsg(0,"nopenline: Communications port begin with COM, was %s",
          name);
       panic();
    }
@@ -182,8 +180,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (hCom == INVALID_HANDLE_VALUE) {
        dwError = GetLastError();
-       printmsg(0, "openline: OpenFile Error %d on port %s",
-          dwError, name);
+       printmsg(0, "nopenline: OpenFile error on port %s", name);
+       printNTerror("nopenline", dwError);
        return TRUE;
    }
 
@@ -206,12 +204,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
    rc = ClearCommError (hCom,
-        &Error,
+        &dwError,
         NULL);
 
    if (!rc) {
-      printmsg(0, "openline: Error in ClearCommError() call\n");
-      printmsg(0, "Error returned was %d\n", Error);
+      printmsg(0, "nopenline: Error in ClearCommError() call\n");
+      printNTerror("nopenline", dwError);
    }
 
 /*--------------------------------------------------------------------*/
@@ -225,17 +223,15 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Getting attributes");
+   printmsg(15,"nopenline: Getting attributes");
 #endif
 
    rc = GetCommState(hCom, &dcb);
    if (!rc) {
-      printmsg(0,"openline: Unable to get line attributes for %s",name);
+      dwError = GetLastError();
 
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-
-               (int) rc , (int) rc);
-
+      printmsg(0,"nopenline: Unable to get line attributes for %s",name);
+      printNTerror("nopenline", dwError);
       panic();
    }
 
@@ -244,14 +240,17 @@ int nopenline(char *name, BPS baud, const boolean direct )
    dcb.ByteSize = 8;
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Setting attributes");
+   printmsg(15,"nopenline: Setting attributes");
 #endif
 
    rc = SetCommState(hCom, &dcb);
    if (!rc)
    {
+      dwError = GetLastError();
 
-      printmsg(0,"openline: Unable to set line attributes for %s",name);
+      printmsg(0,"nopenline: Unable to set line attributes for %s",name);
+      printNTerror("nopenline", dwError);
+
       panic();
 
    }
@@ -262,7 +261,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Getting flow control information");
+   printmsg(15,"nopenline: Getting flow control information");
 #endif
 
    GetCommState(hCom, &dcb);
@@ -271,18 +270,20 @@ int nopenline(char *name, BPS baud, const boolean direct )
    dcb.fOutxCtsFlow = 1;
    rc = SetCommState(hCom, &dcb);
    if (!rc) {
-       printmsg(0,"openline: Unable to set comm attributes for %s",name);
+      dwError = GetLastError();
+      printmsg(0,"nopenline: Unable to set comm attributes for %s",name);
+      printNTerror("nopenline", dwError);
 
-       panic();
+      panic();
    }
 
 /* Get communications timeout information */
 
    rc = GetCommTimeouts(hCom, &CommTimeout);
    if (!rc) {
-      Error = GetLastError();
-      printmsg(0, "openline: error on GetCommTimeouts() on %s: error %d",
-          name, Error);
+      dwError = GetLastError();
+      printmsg(0, "nopenline: error on GetCommTimeouts() on %s", name);
+      printNTerror("nopenline", dwError);
       panic();
    }
 
@@ -298,7 +299,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if (!rc) {
       printmsg(0,
 
-            "openline: Unable to raise DTR/RTS for %s",
+            "nopenline: Unable to raise DTR/RTS for %s",
                   name);
 
       panic();
@@ -308,19 +309,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    portActive = TRUE;     /* record status for error handler        */
    carrierdetect = FALSE;  /* Modem is not connected                 */
-
-/*--------------------------------------------------------------------*/
-/*                     Up our processing priority                     */
-/*--------------------------------------------------------------------*/
-
-   hProcess = GetCurrentProcess();
-   rc = SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS);
-
-   if (!rc)
-   {
-      printmsg(0, "openline: unable to set priority for process");
-      panic();
-   }
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -352,7 +340,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
    static LPVOID psave;
-   DWORD Error;
+   DWORD dwError;
    BOOL rc;
    static char save[MAXPACK];
    static USHORT bufsize = 0;
@@ -377,12 +365,12 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
    rc = ClearCommError (hCom,
-        &Error,
+        &dwError,
         NULL);
 
    if (!rc) {
-      printmsg(0, "sread:  Unable to read port errors\n");
-      printmsg(0, "Error mask was set to %d\n", Error);
+      printmsg(0, "sread:  Unable to read port errors");
+      printNTerror("sread", dwError);
    }
 
 /*--------------------------------------------------------------------*/
@@ -448,15 +436,9 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
           if ( !rc )
           {
-             LPVOID lpMessageBuffer;
-             Error = GetLastError();
-             FormatMessage(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, Error, LANG_USER_DEFAULT, &lpMessageBuffer, 0, NULL);
-
+             dwError = GetLastError();
              printmsg(0, "sread: unable to set timeout for comm port");
-             printmsg(0, "sread: %s", lpMessageBuffer);
-             LocalFree((HLOCAL)lpMessageBuffer);
+             printNTerror("sread", dwError);
              panic();
           }
       }
@@ -594,8 +576,7 @@ void nssendbrk(unsigned int duration)
 
 void ncloseline(void)
 {
-   USHORT rc;
-   HANDLE hProcess;
+   DWORD dwError;
 
    if ( ! portActive )
       panic();
@@ -604,25 +585,12 @@ void ncloseline(void)
    hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
 
 /*--------------------------------------------------------------------*/
-/*                           Lower priority                           */
-/*--------------------------------------------------------------------*/
-
-   hProcess = GetCurrentProcess();
-   rc = SetPriorityClass(hProcess, NORMAL_PRIORITY_CLASS);
-
-   if (!rc)
-   {
-      printmsg(0, "closeline:  Unable to lower priority for task");
-      panic();
-   }
-
-/*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
 /*--------------------------------------------------------------------*/
 
    if (!EscapeCommFunction(hCom, CLRDTR | CLRRTS))
    {
-      printmsg(0,"closeline: Unable to lower DTR/RTS");
+      printmsg(0,"ncloseline: Unable to lower DTR/RTS");
    }
 
 /*--------------------------------------------------------------------*/
@@ -631,8 +599,9 @@ void ncloseline(void)
 
    if(!CloseHandle(hCom))
    {
-      printmsg(0, "closeline: close of serial port failed, reason %d",
-         GetLastError());
+      dwError = GetLastError();
+      printmsg(0, "ncloseline: close of serial port failed");
+      printNTerror("ncloseline", dwError);
    }
 
 /*--------------------------------------------------------------------*/
@@ -739,6 +708,7 @@ void nflowcontrol( boolean flow )
 {
    USHORT rc;
    DCB dcb;
+   DWORD dwError;
 
    if ( console )
       return;
@@ -760,11 +730,10 @@ void nflowcontrol( boolean flow )
 
    if ( !rc )
    {
+      dwError = GetLastError();
 
       printmsg(0,"flowcontrol: Unable to set flow control");
-
-      printmsg(0,"Return code from SetCommState() was %d",
-               GetLastError());
+      printNTerror("nflowcontrol", dwError);
 
       panic();
 
@@ -796,6 +765,7 @@ boolean nCD( void )
 
    DWORD status;
    static DWORD oldstatus = (DWORD) 0xDEADBEEF;
+   DWORD dwError;
 
    if ( console )
       return feof( stdin ) == 0;
@@ -803,9 +773,9 @@ boolean nCD( void )
    rc = GetCommModemStatus(hCom, &status);
    if ( !rc )
    {
-      printmsg(0,"CD: Unable to get modem status");
-      printmsg(0,"Return code from GetCommModemStatus() was %d",
-               GetLastError());
+      dwError = GetLastError();
+      printmsg(0,"nCD: Unable to get modem status");
+      printNTerror("nCD", dwError);
       panic();
    } /*if */
 
@@ -852,4 +822,3 @@ static void ShowModem( const DWORD status )
       mannounce(MS_CTS_ON,   status, "  Clear to Send"));
 
 } /* ShowModem */
-
