@@ -20,8 +20,11 @@
 */
 
 /*
- *       $Id: ULIBOS2.C 1.2 1992/11/15 20:11:48 ahd Exp $
+ *       $Id: ULIBOS2.C 1.3 1992/11/19 03:00:39 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.3  1992/11/19  03:00:39  ahd
+ * drop rcsid
+ *
  * Revision 1.2  1992/11/15  20:11:48  ahd
  * Add English display of modem status and error bits
  *
@@ -43,6 +46,7 @@
 /*                         OS/2 include files                         */
 /*--------------------------------------------------------------------*/
 
+#define INCL_DOSDEVIOCTL
 #define INCL_BASE
 #include <os2.h>
 #include <limits.h>
