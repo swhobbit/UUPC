@@ -738,7 +738,7 @@ tsfill(trec, mon, day, hh, mm)
         int hh;
         int mm;
 {
-   static int  AlreadySetFirst = FALSE;
+   static int  AlreadySetFirst = KWFalse;
 
    if (!AlreadySetFirst) {
 #ifdef DEBUG
@@ -749,7 +749,7 @@ tsfill(trec, mon, day, hh, mm)
       trec->first_rec.tm_mday = day;
       trec->first_rec.tm_hour = hh;
       trec->first_rec.tm_min = mm;
-      AlreadySetFirst = TRUE;
+      AlreadySetFirst = KWTrue;
    } else {
 #ifdef DEBUG
       if (debug > 2)
@@ -1098,7 +1098,7 @@ printtmrng(trec, printopt)
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
    };
-   static int  IsAlreadyPrinted = FALSE;
+   static int  IsAlreadyPrinted = KWFalse;
 
    if (IsAlreadyPrinted) {
       putchar('\n');
@@ -1117,7 +1117,7 @@ printtmrng(trec, printopt)
                trec->last_rec.tm_hour,
                trec->last_rec.tm_min);
    }
-   IsAlreadyPrinted = TRUE;
+   IsAlreadyPrinted = KWTrue;
    return;
 }
 

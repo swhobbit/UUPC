@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.14 1995/01/03 05:32:26 ahd Exp $
+ *    $Id: active.c 1.15 1995/01/07 16:11:41 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.15  1995/01/07 16:11:41  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.14  1995/01/03 05:32:26  ahd
  *    Drop validate function, we don't exploit it anyway
  *
@@ -331,7 +334,7 @@ struct grp *find_newsgroup(const char *grp)
 /*    Add a news group to our list                                    */
 /*--------------------------------------------------------------------*/
 
-KWBoolean add_newsgroup(const char *grp, const boolean moderated)
+KWBoolean add_newsgroup(const char *grp, const KWBoolean moderated)
 {
    struct grp *cur = group_list;
 

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.6 1994/12/09 03:50:40 rommel v1-12k $
+ *    $Id: suspendn.c 1.7 1994/12/22 00:36:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *    Revision 1.7  1994/12/22 00:36:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/12/09 03:50:40  rommel
  *    Correct errors with back-to-back uses of port failing
  *
@@ -106,7 +109,7 @@
 
 #define STACKSIZE 8192
 
-boolean suspend_processing = FALSE;
+KWBoolean suspend_processing = KWFalse;
 
 static HANDLE hPipe;
 static char nChar;
@@ -176,7 +179,7 @@ DWORD WINAPI SuspThread(LPVOID *ignored)
           else {
             BOOL retval;
 
-            suspend_processing = TRUE;
+            suspend_processing = KWTrue;
             retval = AbortComm();
 
             if (!retval)
@@ -209,7 +212,7 @@ DWORD WINAPI SuspThread(LPVOID *ignored)
           if ( !suspend_processing )
             nChar = SUSPEND_ERROR;
           else {
-            suspend_processing = FALSE;
+            suspend_processing = KWFalse;
 
             SetEvent(eventWait);
             nChar = SUSPEND_OKAY;
@@ -251,7 +254,7 @@ DWORD WINAPI SuspThread(LPVOID *ignored)
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-boolean suspend_init(const char *port )
+KWBoolean suspend_init(const char *port )
 {
   char szPipe[FILENAME_MAX];
   DWORD tid;
@@ -279,23 +282,23 @@ boolean suspend_init(const char *port )
   if (INVALID_HANDLE_VALUE == hPipe)
   {
     printNTerror( "CreateNamedPipe", GetLastError());
-    return FALSE;
+    return KWFalse;
   }
 
 /*--------------------------------------------------------------------*/
 /*                    Now create the events that pass the word        */
 /*--------------------------------------------------------------------*/
 
-   eventWait = CreateEvent(NULL, FALSE, FALSE, NULL);
+   eventWait = CreateEvent(NULL, KWFalse, FALSE, NULL);
    if (eventWait == INVALID_HANDLE_VALUE) {
       printNTerror("CreateEvent", GetLastError());
-      return FALSE;
+      return KWFalse;
    }
 
-   eventFree = CreateEvent(NULL, FALSE, FALSE, NULL);
+   eventFree = CreateEvent(NULL, KWFalse, FALSE, NULL);
    if (eventFree == INVALID_HANDLE_VALUE) {
       printNTerror("CreateEvent", GetLastError());
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -307,10 +310,10 @@ boolean suspend_init(const char *port )
    if (INVALID_HANDLE_VALUE == hThread)
    {
       printNTerror( "CreateThread", GetLastError());
-      return FALSE;
+      return KWFalse;
    }
 
-   return TRUE;
+   return KWTrue;
 
 } /* suspend_init */
 
@@ -320,7 +323,7 @@ boolean suspend_init(const char *port )
 /*       Request another UUCICO give up a modem                       */
 /*--------------------------------------------------------------------*/
 
-int suspend_other(const boolean suspend,
+int suspend_other(const KWBoolean suspend,
                   const char *port )
 {
   char szPipe[FILENAME_MAX];
@@ -328,8 +331,8 @@ int suspend_other(const boolean suspend,
   DWORD nBytes;
   UCHAR nChar;
   BOOL rc;
-  boolean firstPass = TRUE;
-  static boolean suspended = FALSE;
+  KWBoolean firstPass = KWTrue;
+  static KWBoolean suspended = KWFalse;
   int result;
 
   static time_t lastSuspend = 0;
@@ -371,7 +374,7 @@ int suspend_other(const boolean suspend,
 
         if ((dwErr == ERROR_PIPE_BUSY) && firstPass )
         {
-           firstPass = FALSE;
+           firstPass = KWFalse;
 
            rc = WaitNamedPipe(szPipe, 5000); /* Wait up to 5 sec for pipe  */
            if (!rc)

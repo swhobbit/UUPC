@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.6 1994/04/26 03:34:33 ahd v1-12k $
+ *    $Id: ulibip.h 1.7 1994/12/22 00:42:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ *    Revision 1.7  1994/12/22 00:42:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/04/26 03:34:33  ahd
  *    hot (previously opened) handle support
  *
@@ -48,9 +51,9 @@
  *
  */
 
-extern int tactiveopenline(char *name, BPS baud, const boolean direct);
+extern int tactiveopenline(char *name, BPS baud, const KWBoolean direct);
 
-extern int tpassiveopenline(char *name, BPS baud, const boolean direct);
+extern int tpassiveopenline(char *name, BPS baud, const KWBoolean direct);
 
 extern unsigned int tsread(char UUFAR *buffer,
                           unsigned int wanted,
@@ -64,15 +67,15 @@ void tcloseline(void);
 
 void tSIOSpeed(BPS baud);
 
-void tflowcontrol( boolean );
+void tflowcontrol( KWBoolean );
 
 void thangup( void );
 
 BPS tGetSpeed( void );
 
-boolean tCD( void );
+KWBoolean tCD( void );
 
-boolean tWaitForNetConnect(const unsigned int timeout);
+KWBoolean tWaitForNetConnect(const unsigned int timeout);
 
 int tGetComHandle( void );
 

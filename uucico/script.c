@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.11 1994/05/23 22:46:32 ahd v1-12k $
+ *    $Id: script.c 1.12 1994/12/22 00:36:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.12  1994/12/22 00:36:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1994/05/23 22:46:32  ahd
  *    Use atol() for getting speed changes
  *
@@ -91,19 +94,19 @@
 static int StrMatch(char *MatchStr, char C, char **failure);
                                  /* Internal match routine           */
 
-static boolean Match( char *Search,
+static KWBoolean Match( char *Search,
                       char *Buffer,
                       size_t *SearchPos);
 
 static size_t MatchInit( const char *MatchStr );
 
-static boolean writestr(register char *s,
+static KWBoolean writestr(register char *s,
                      unsigned int timeout,
                      char **failure);
 
 static void flushScriptBuffer( void );
 
-static boolean slowWrite( char *s, size_t len, char **failure);
+static KWBoolean slowWrite( char *s, size_t len, char **failure);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -120,7 +123,7 @@ static size_t scriptBufferLen = 0;
 
 static unsigned int waitForEcho = 0;   /* Timeout for each echo      */
 
-static boolean echoMode = FALSE;       /* Looking for echo char      */
+static KWBoolean echoMode = KWFalse;     /* Looking for echo char      */
 
 /*--------------------------------------------------------------------*/
 /*       e x p e c t s t r                                            */
@@ -142,8 +145,8 @@ static boolean echoMode = FALSE;       /* Looking for echo char      */
 /*      Output parameters: none.                                      */
 /*                                                                    */
 /*      Return value:                                                 */
-/*      TRUE is returned if the search string is found on input.      */
-/*      FALSE is returned if sread times out.                         */
+/*      KWTrue is returned if the search string is found on input.     */
+/*      KWFalse is returned if sread times out.                        */
 /*--------------------------------------------------------------------*/
 
 int expectstr(char *Search, unsigned int Timeout, char **failure)
@@ -157,7 +160,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
       printmsg(2, "wanted \"%s\"", Search);
 
    if (!strlen(Search))                      /* expects nothing */
-       return TRUE;
+       return KWTrue;
 
    StrMatch(Search,'\0', failure);    /* set up search string */
 
@@ -195,7 +198,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
          }
 
          printmsg(1, "got ??? \"%s\"",s );
-         return FALSE;
+         return KWFalse;
 
       } /* if (sread(ptr , 1, Timeout) < 1) */
 
@@ -336,7 +339,7 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 /*    Match a single string                                           */
 /*--------------------------------------------------------------------*/
 
-static boolean Match( char *Search,
+static KWBoolean Match( char *Search,
                       char *scriptBuffer,
                       size_t *SearchPos)
 {
@@ -349,10 +352,10 @@ static boolean Match( char *Search,
    for (BufInd = *SearchPos, SearchInd = Search; *SearchInd; SearchInd++)
    {
      if (scriptBuffer[BufInd++ & QINDMASK] != *SearchInd)
-        return FALSE;
+        return KWFalse;
    }
 
-   return TRUE;
+   return KWTrue;
 
 } /* Match */
 
@@ -383,12 +386,12 @@ static size_t MatchInit( const char *MatchStr )
 /*    Send a string to the port during login                          */
 /*--------------------------------------------------------------------*/
 
-static boolean writestr(register char *s,
+static KWBoolean writestr(register char *s,
                         unsigned int timeout,
                         char **failure)
 {
    register char last = '\0';
-   boolean writeCR = TRUE;
+   KWBoolean writeCR = KWTrue;
    unsigned char digit;
 
    while (*s)
@@ -412,7 +415,7 @@ static boolean writestr(register char *s,
 
          case 'c':   /* don't output CR at end of string */
          case 'C':
-            writeCR = FALSE;
+            writeCR = KWFalse;
             break;
 
          case 'r':   /* carriage return */
@@ -420,13 +423,13 @@ static boolean writestr(register char *s,
          case 'm':
          case 'M':
             if (!slowWrite("\r", 1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          case 'n':   /* new line */
          case 'N':
             if (!slowWrite("\n", 1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          case 'p':   /* delay */
@@ -438,19 +441,19 @@ static boolean writestr(register char *s,
          case 'b':   /* backspace */
          case 'B':
             if (slowWrite("\b", 1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          case 't':   /* tab */
          case 'T':
             if (!slowWrite("\t", 1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          case 's':   /* space */
          case 'S':
             if (!slowWrite(" ", 1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          case 'z':   /* set serial port speed */
@@ -474,19 +477,19 @@ static boolean writestr(register char *s,
                digit = (unsigned char) (digit * 8 + *s++ - '0');
             s--;              /* Backup before non-numeric char      */
             if (!slowWrite((char *) &digit,1, failure))
-               return FALSE;
+               return KWFalse;
             break;
 
          default: /* ordinary character */
             if (!slowWrite(s, 1, failure))
-               return FALSE;
+               return KWFalse;
             last = '\0';      /* Zap any repeated backslash (\)      */
          }
       }
       else if (*s != '\\') /* backslash */
       {
          if ( !slowWrite(s, 1, failure))
-            return FALSE;
+            return KWFalse;
       }
       else
          last = *s;
@@ -496,11 +499,11 @@ static boolean writestr(register char *s,
 
    if ( writeCR )
       if ( !slowWrite( "\r", 1 , failure))
-         return FALSE;
+         return KWFalse;
 
    flushScriptBuffer();          /* Handle any queued data on net    */
 
-   return TRUE;                  /* Return success to caller         */
+   return KWTrue;                 /* Return success to caller         */
 
 } /* writestr */
 
@@ -510,9 +513,9 @@ static boolean writestr(register char *s,
 /*       Send line of login sequence                                  */
 /*--------------------------------------------------------------------*/
 
-boolean  sendstr(char *str, unsigned int timeout, char **failure)
+KWBoolean  sendstr(char *str, unsigned int timeout, char **failure)
 {
-   boolean success;
+   KWBoolean success;
 
    printmsg(2, "sending \"%s\"", str);
 
@@ -524,7 +527,7 @@ boolean  sendstr(char *str, unsigned int timeout, char **failure)
          nulls = 3;
       ssendbrk(nulls);  /* send a break signal */
 
-      return TRUE;
+      return KWTrue;
 
    }  /* if (equaln(str, "BREAK", 5)) */
 
@@ -532,7 +535,7 @@ boolean  sendstr(char *str, unsigned int timeout, char **failure)
    {
       echoCheck( timeout );
    }
-   echoMode = TRUE;
+   echoMode = KWTrue;
 
    if (equal(str, "EOT"))
    {
@@ -547,7 +550,7 @@ boolean  sendstr(char *str, unsigned int timeout, char **failure)
 
    } /* else */
 
-   echoMode = FALSE;
+   echoMode = KWFalse;
 
    if ( ! success )
       printmsg(0,"sendstr: Did not receive echo of string \"%s\"",str);
@@ -581,7 +584,7 @@ void echoCheck( const unsigned int timeout )
 /*    snail's pace.                                                   */
 /*--------------------------------------------------------------------*/
 
-static boolean slowWrite( char *s, size_t len, char **failure)
+static KWBoolean slowWrite( char *s, size_t len, char **failure)
 {
 
 /*--------------------------------------------------------------------*/
@@ -604,7 +607,7 @@ static boolean slowWrite( char *s, size_t len, char **failure)
          exp[1] = '\0';          /* Terminate the string             */
 
          if (!expectstr(exp, waitForEcho, failure ))
-            return FALSE;
+            return KWFalse;
 
       } /* if ( waitForEcho ) */
 
@@ -627,7 +630,7 @@ static boolean slowWrite( char *s, size_t len, char **failure)
 
    } /* else */
 
-   return TRUE;
+   return KWTrue;
 
 } /* slowWrite */
 

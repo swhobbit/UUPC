@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.25 1994/05/01 21:57:55 ahd v1-12k $
+ *    $Id: nbstime.c 1.26 1994/12/22 00:35:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.26  1994/12/22 00:35:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1994/05/01 21:57:55  ahd
  *    Insert leading zeroes (0) in fixed format time output
  *    Correct IBM OS/2 daylight savings time error
@@ -163,12 +166,12 @@
 /*  @ 1200 baud    47511 88-12-16 06:03:45 00 0 -.1 045.0 UTC(NIST) * */
 /*--------------------------------------------------------------------*/
 
-boolean nbstime( void )
+KWBoolean nbstime( void )
 {
    char buf[BUFSIZ];
    struct tm  tx;
    int cycles = 11;
-   boolean firstPass = TRUE;
+   KWBoolean firstPass = KWTrue;
    int dst = 0;
    char sync = '?';
    unsigned rc;
@@ -203,7 +206,7 @@ boolean nbstime( void )
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
    {
       printmsg(0,"nbstime: Did not find MJD literal in data from remote");
-      return FALSE;
+      return KWFalse;
    }
 
    rmsg(buf, 2, 2, sizeof buf);     /* Read header line, discard     */
@@ -215,7 +218,7 @@ boolean nbstime( void )
    while ((sync != '#') && cycles-- && ! terminate_processing )
    {
       int column;
-      boolean error = FALSE;
+      KWBoolean error = KWFalse;
 
       static const char model[] =
          "\r\n##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
@@ -231,7 +234,7 @@ boolean nbstime( void )
          if (sread(buf + column, 1, 2) < 1)
          {
             printmsg(0,"nbstime: Timeout reading character");
-            return FALSE;
+            return KWFalse;
          }
 
          swrite( buf + column, 1 ); /* Echo character to time server */
@@ -243,7 +246,7 @@ boolean nbstime( void )
 
             case '#':               /* Numeric digit expected?       */
                if (!isdigit(buf[column] ))
-                  error = TRUE;     /* Bad character, throw buf away */
+                  error = KWTrue;    /* Bad character, throw buf away */
                break;
 
             case '*':               /* Synchronize flag?             */
@@ -251,12 +254,12 @@ boolean nbstime( void )
                   sync = buf[column];    /* Yes --> We're all done */
                else if ( buf[column] != '*' )
                                     /* Correct but not sync?         */
-                  error = TRUE;     /* No --> Bad character          */
+                  error = KWTrue;    /* No --> Bad character          */
                break;
 
             default:                /* Perfect match required        */
                if (model[column] != buf[column] )
-                  error = TRUE;     /* Bad character, throw buf away */
+                  error = KWTrue;    /* Bad character, throw buf away */
                break;
 
          } /* switch( model[column] ) */
@@ -273,7 +276,7 @@ boolean nbstime( void )
       if ( error )                 /* Found a bad character?         */
       {
          if ( firstPass )           /* Getting in sync with remote?  */
-            firstPass = FALSE;      /* Yes --> Don't flag as error   */
+            firstPass = KWFalse;     /* Yes --> Don't flag as error   */
          else {
             if ( debuglevel > 2 )
                printmsg(3,
@@ -318,7 +321,7 @@ boolean nbstime( void )
                  debuglevel < 3 ?
                      ", rerun with debug -x 3 for details" :
                      "");
-      return FALSE;
+      return KWFalse;
    }
 
    time(&delta);              /* Remember time before we set it      */
@@ -358,7 +361,7 @@ boolean nbstime( void )
    {
       printmsg(0,"nbstime: Time warp error (%.24s), clock not set",
             ctime( &today ));
-      return FALSE;
+      return KWFalse;
    }
 #endif
 
@@ -437,7 +440,7 @@ boolean nbstime( void )
       dwError = GetLastError();
       printmsg(0, "nbstime: OpenProcessToken failed");
       printNTerror("OpenProcessToken", dwError);
-      return FALSE;
+      return KWFalse;
    }
 
    LookupPrivilegeValue(NULL, "SeSystemtimePrivilege",
@@ -445,13 +448,13 @@ boolean nbstime( void )
    tkp.PrivilegeCount = 1;
    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-   if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
+   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
       (PTOKEN_PRIVILEGES)NULL, 0))
    {
       dwError = GetLastError();
       printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
       printNTerror("AdjustTokenPrivileges", dwError);
-      return FALSE;
+      return KWFalse;
    }
 
    rc = SetSystemTime( &DateTime );
@@ -464,13 +467,13 @@ boolean nbstime( void )
 
    tkp.Privileges[0].Attributes = 0;
 
-   if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
+   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
       (PTOKEN_PRIVILEGES)NULL, 0))
    {
       dwError = GetLastError();
       printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
       printNTerror("AdjustTokenPrivileges", dwError);
-      return FALSE;
+      return KWFalse;
    }
 
    time(&today);                 /* Since we didn't set the time via
@@ -548,6 +551,6 @@ boolean nbstime( void )
                (const char *) (sync == '#' ?
                   "  Note: Perfectly in sync with NIST." :
                   "") );
-   return TRUE;
+   return KWTrue;
 
 } /* nbstime */

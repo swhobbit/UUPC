@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.12 1994/05/08 22:46:32 ahd v1-12k $
+ *    $Id: ulib14.c 1.13 1994/12/22 00:36:31 ahd Exp $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.13  1994/12/22 00:36:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1994/05/08 22:46:32  ahd
  *    Correct declare in icd()
  *
@@ -100,7 +103,7 @@
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-static void modemControl( char mask, boolean on);
+static void modemControl( char mask, KWBoolean on);
 static void ShowModem( void );
 static unsigned char bps_table(int);
 
@@ -110,10 +113,10 @@ static unsigned char bps_table(int);
 
 static BPS currentBPS;
 static char currentDirect;
-static boolean carrierDetect;
+static KWBoolean carrierDetect;
 
 currentfile();
-static boolean hangupNeeded = TRUE;
+static KWBoolean hangupNeeded = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*    b p s _ t a b l e                                               */
@@ -143,7 +146,7 @@ static unsigned char bps_table (int bps)
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int iopenline(char *name, BPS bps, const boolean direct)
+int iopenline(char *name, BPS bps, const KWBoolean direct)
 {
 
    if (portActive)              /* Was the port already active?      */
@@ -160,7 +163,7 @@ int iopenline(char *name, BPS bps, const boolean direct)
       panic();
    }
 
-   norecovery = FALSE; /* Flag we need a graceful shutdown after Cntl-BREAK */
+   norecovery = KWFalse; /* Flag we need a graceful shutdown after Cntl-BREAK */
 
 /*--------------------------------------------------------------------*/
 /*       With the INT14 setup, we don't worry about the lock file     */
@@ -170,14 +173,14 @@ int iopenline(char *name, BPS bps, const boolean direct)
 
    portNum--;              /* Change ordinal number to offset       */
    SIOSpeed( bps );        /* Open the port and set the speed       */
-   flowcontrol( FALSE );   /* Enable hardware flow control          */
+   flowcontrol( KWFalse );  /* Enable hardware flow control          */
 
    ssleep(2);              /* Wait two seconds as required by V.24  */
-   carrierDetect = FALSE;  /* No modem connected yet                */
+   carrierDetect = KWFalse;  /* No modem connected yet               */
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
    return 0;               /* Return success to caller */
 
@@ -233,11 +236,11 @@ unsigned int isread(char UUFAR *buffer,
    {
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"isread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          commBufferUsed = 0;
          return commBufferUsed;
@@ -269,7 +272,7 @@ unsigned int isread(char UUFAR *buffer,
 
    traceData( commBuffer + commBufferCached,
               commBufferUsed - commBufferCached,
-              FALSE );
+              KWFalse );
 
    if ( buffer != NULL )
    {
@@ -320,7 +323,7 @@ int iswrite(const char UUFAR *data, unsigned int len)
 #endif /* RHG */
    }
 
-   traceData( data, len, TRUE );
+   traceData( data, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -347,11 +350,11 @@ void issendbrk(unsigned int duration)
 /*       (Snuffles doubts this works properly)                        */
 /*--------------------------------------------------------------------*/
 
-   modemControl( 0x20, TRUE );   /* Raise flag, which lowers DSR */
+   modemControl( 0x20, KWTrue );  /* Raise flag, which lowers DSR */
 
    ddelay (250);                 /* Wait a quarter second */
 
-   modemControl( 0x20, FALSE);   /* Lower flag, which raises DSR */
+   modemControl( 0x20, KWFalse);  /* Lower flag, which raises DSR */
 
 } /* issendbrk */
 
@@ -366,9 +369,9 @@ void icloseline(void)
    if (!portActive)
       panic();
 
-   portActive = FALSE;     /* flag port closed for error handler  */
+   portActive = KWFalse;    /* flag port closed for error handler  */
 
-   modemControl( 0x20, FALSE );  /* Lower DSR */
+   modemControl( 0x20, KWFalse );  /* Lower DSR */
 
    ddelay (500);
 
@@ -386,18 +389,18 @@ void ihangup( void )
 {
    if (!hangupNeeded)
       return;
-   hangupNeeded = FALSE;
+   hangupNeeded = KWFalse;
 
-   modemControl( 0x20, FALSE );  /* Lower DSR */
+   modemControl( 0x20, KWFalse );  /* Lower DSR */
 
    ddelay (500);                 /* Pause half a second */
 
-   modemControl( 0x20, TRUE );   /* Restore DSR */
+   modemControl( 0x20, KWTrue );  /* Restore DSR */
 
    ddelay (2000);                /* Wait two seconds to recover */
 
    printmsg(3,"ihangup: complete.");
-   carrierDetect = FALSE;  /* No modem connected yet               */
+   carrierDetect = KWFalse;  /* No modem connected yet              */
 
 } /* ihangup */
 
@@ -431,7 +434,7 @@ void iSIOSpeed(BPS bps)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void iflowcontrol( boolean flow )
+void iflowcontrol( KWBoolean flow )
 {
 
 #ifdef ARTICOMM_INT14 /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
@@ -479,10 +482,10 @@ BPS iGetSpeed( void )
 #define FS_dsr_high() (FSStatus() & MDM_DSR)
 #define FS_cd_high()  (FSStatus() & MDM_CD )
 
-boolean iCD( void )
+KWBoolean iCD( void )
 {
 
-   boolean newCarrierDetect = FS_cd_high();
+   KWBoolean newCarrierDetect = FS_cd_high();
 
    ShowModem();
 
@@ -544,7 +547,7 @@ static void ShowModem( void )
 /*       Twiddle a modem control register bit on or off               */
 /*--------------------------------------------------------------------*/
 
-static void modemControl( char mask, boolean on)
+static void modemControl( char mask, KWBoolean on)
 {
    union REGS regs;              /* Scratch area for interrupt calls. */
 

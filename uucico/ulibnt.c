@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.26 1994/05/23 21:44:05 dmwatt v1-12k $
+ *       $Id: ulibnt.c 1.27 1994/12/22 00:37:42 ahd Exp $
  *       $Log: ulibnt.c $
+ *       Revision 1.27  1994/12/22 00:37:42  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.26  1994/05/23 21:44:05  dmwatt
  *       Allow port sharing between parent and child
  *
@@ -173,7 +176,7 @@
 
 currentfile();
 
-static boolean hangupNeeded = FALSE;
+static KWBoolean hangupNeeded = KWFalse;
 
 static currentSpeed = 0;
 
@@ -204,7 +207,7 @@ static void ShowModem( const DWORD status );
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int nopenline(char *name, BPS baud, const boolean direct )
+int nopenline(char *name, BPS baud, const KWBoolean direct )
 {
    DWORD dwError;
    BOOL rc;
@@ -234,7 +237,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
 
-   hComEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+   hComEvent = CreateEvent(NULL, KWFalse, FALSE, NULL);
 
    if (hComEvent == INVALID_HANDLE_VALUE)
    {
@@ -245,7 +248,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if ( hCom == INVALID_HANDLE_VALUE)
    {
       sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-      sa.bInheritHandle = TRUE;
+      sa.bInheritHandle = KWTrue;
       sa.lpSecurityDescriptor = NULL;
 
       hCom = CreateFile( name,
@@ -268,7 +271,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
           dwError = GetLastError();
           printmsg(0, "nopenline: OpenFile error on port %s", name);
           printNTerror("nopenline", dwError);
-          return TRUE;
+          return KWTrue;
       }
 
    }
@@ -388,7 +391,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    traceStart( name );     /* Enable logging                          */
 
-   portActive = TRUE;     /* record status for error handler        */
+   portActive = KWTrue;    /* record status for error handler        */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -426,7 +429,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    time_t now ;
    OVERLAPPED overlap;
 
-   boolean firstPass =  ( currentSpeed > 2400 ) && ( wanted == 1 );
+   KWBoolean firstPass =  ( currentSpeed > 2400 ) && ( wanted == 1 );
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */
@@ -501,11 +504,11 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"sread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
@@ -517,7 +520,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       if ((stop_time <= now ) || firstPass )
       {
          portTimeout = 0;
-         firstPass = FALSE;
+         firstPass = KWFalse;
       }
       else {
          portTimeout = (USHORT) (stop_time - now) / needed * 1000;
@@ -580,7 +583,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          }
       }
 
-      rc = GetOverlappedResult(hCom, &overlap, &received, TRUE);
+      rc = GetOverlappedResult(hCom, &overlap, &received, KWTrue);
 
       if (!rc)
       {
@@ -602,7 +605,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
       traceData( commBuffer + commBufferUsed,
                  (unsigned) received,
-                 FALSE );
+                 KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -652,7 +655,7 @@ int nswrite(const char *input, unsigned int len)
    DWORD bytes;
    DWORD dwError;
    BOOL rc;
-   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
+   hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
@@ -679,7 +682,7 @@ int nswrite(const char *input, unsigned int len)
       }
    }
 
-   rc = GetOverlappedResult(hCom, &overlap, &bytes, TRUE);
+   rc = GetOverlappedResult(hCom, &overlap, &bytes, KWTrue);
 
    if (!rc)
    {
@@ -692,7 +695,7 @@ int nswrite(const char *input, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE);
+   traceData( data, len, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the port to the caller          */
@@ -737,8 +740,8 @@ void ncloseline(void)
    if ( ! portActive )
       panic();
 
-   portActive = FALSE; /* flag port closed for error handler  */
-   hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
+   portActive = KWFalse; /* flag port closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with port any more  */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -803,7 +806,7 @@ void nhangup( void )
    if (!hangupNeeded)
       return;
 
-   hangupNeeded = FALSE;
+   hangupNeeded = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -820,7 +823,7 @@ void nhangup( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"hangup: Dropped DTR");
-   carrierDetect = FALSE;  /* Modem is not connected                 */
+   carrierDetect = KWFalse;  /* Modem is not connected                */
    ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
@@ -882,7 +885,7 @@ void nSIOSpeed(BPS baud)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void nflowcontrol( boolean flow )
+void nflowcontrol( KWBoolean flow )
 {
    USHORT rc;
    DCB dcb;
@@ -891,15 +894,15 @@ void nflowcontrol( boolean flow )
    GetCommState(hCom, &dcb);
    if (flow)
    {
-      dcb.fOutX = TRUE;
-      dcb.fInX = TRUE;
+      dcb.fOutX = KWTrue;
+      dcb.fInX = KWTrue;
       dcb.fRtsControl = RTS_CONTROL_ENABLE;
-      dcb.fOutxCtsFlow = FALSE;
+      dcb.fOutxCtsFlow = KWFalse;
    } else {
-      dcb.fOutX = FALSE;
-      dcb.fInX = FALSE;
+      dcb.fOutX = KWFalse;
+      dcb.fInX = KWFalse;
       dcb.fRtsControl = RTS_CONTROL_ENABLE;
-      dcb.fOutxCtsFlow = TRUE;
+      dcb.fOutxCtsFlow = KWTrue;
    }
    FlushFileBuffers(hCom);
    rc = SetCommState(hCom, &dcb);
@@ -934,9 +937,9 @@ BPS nGetSpeed( void )
 /*   Return status of carrier detect                                  */
 /*--------------------------------------------------------------------*/
 
-boolean nCD( void )
+KWBoolean nCD( void )
 {
-   boolean newCarrierDetect;
+   KWBoolean newCarrierDetect;
    USHORT rc;
 
    DWORD status;
@@ -958,7 +961,7 @@ boolean nCD( void )
       oldstatus = status;
    }
 
-   newCarrierDetect = (status & MS_RLSD_ON) ? TRUE : FALSE;
+   newCarrierDetect = (status & MS_RLSD_ON) ? KWTrue : KWFalse;
    if ( newCarrierDetect )
       carrierDetect = newCarrierDetect;
 
@@ -971,7 +974,7 @@ boolean nCD( void )
    if (carrierDetect)
       return newCarrierDetect;
    else
-      return (status & MS_DSR_ON) ? TRUE : FALSE;
+      return (status & MS_DSR_ON) ? KWTrue : KWFalse;
 
 } /* nCD */
 
@@ -1029,7 +1032,7 @@ void nSetComHandle( const int handle )
 
 BOOL AbortComm(void)
 {
-   BOOL retval = FALSE;
+   BOOL retval = KWFalse;
 
    if (hCom != INVALID_HANDLE_VALUE)
       retval = PurgeComm(hCom, PURGE_TXABORT | PURGE_RXABORT);

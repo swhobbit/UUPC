@@ -118,7 +118,7 @@ void pSOS2Err(const size_t lineno,
               const char *prefix,
               int rc)
 {
-   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
    const char *msg;
 

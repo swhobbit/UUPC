@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.1 1994/03/28 02:18:45 ahd v1-12k $
+ *    $Id: ulibnb.c 1.2 1994/12/22 00:37:14 ahd Exp $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.2  1994/12/22 00:37:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.1  1994/03/28 02:18:45  ahd
  *    Initial revision
  *
@@ -46,21 +49,21 @@
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-boolean IsFatalSocketError(int err);
+KWBoolean IsFatalSocketError(int err);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static boolean carrierDetect = FALSE;
+static KWBoolean carrierDetect = KWFalse;
 
 currentfile();
-static boolean hangupNeeded = TRUE;
-extern boolean winsockActive;                   /* Initialized in catcher.c  */
+static KWBoolean hangupNeeded = KWTrue;
+extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
 
-static boolean connectionDied = FALSE;          /* The current connection failed  */
+static KWBoolean connectionDied = KWFalse;        /* The current connection failed  */
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -80,7 +83,7 @@ static boolean connectionDied = FALSE;          /* The current connection failed
 #pragma argsused
 #endif
 
-int bactiveopenline(char *name, BPS bps, const boolean direct)
+int bactiveopenline(char *name, BPS bps, const KWBoolean direct)
 {
    SOCKADDR_IN sin;
    LPHOSTENT phe;
@@ -93,12 +96,12 @@ int bactiveopenline(char *name, BPS bps, const boolean direct)
 
    printmsg(15, "bactiveopenline: %s", name);
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+   norecovery = KWFalse;    /* Flag we need a graceful shutdown after  */
                            /* Ctrl-BREAK                              */
 
-   carrierDetect = FALSE;  /* No modem connected yet                */
+   carrierDetect = KWFalse;  /* No modem connected yet               */
 
-   connectionDied = FALSE; /* The connection hasn't failed yet */
+   connectionDied = KWFalse; /* The connection hasn't failed yet */
 
 /*--------------------------------------------------------------------*/
 /*            Create add ourself to the NETBIOS name table            */
@@ -107,7 +110,7 @@ int bactiveopenline(char *name, BPS bps, const boolean direct)
    if (NetbiosAddName(Name) == ILLEGAL_NAME_NUM)
    {
       printmsg(0, "tactiveopenline: NetbiosAddName failed");
-      return TRUE;
+      return KWTrue;
    }
 
    if (!ControlNcb.NcbRetCode)
@@ -123,10 +126,10 @@ int bactiveopenline(char *name, BPS bps, const boolean direct)
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
-   carrierDetect = TRUE;   /* Carrier detect = connection              */
+   portActive = KWTrue;    /* record status for error handler */
+   carrierDetect = KWTrue;  /* Carrier detect = connection              */
 
-   return FALSE;                       /* Return success to caller     */
+   return KWFalse;                      /* Return success to caller     */
 
 } /* bactiveopenline */
 
@@ -140,7 +143,7 @@ int bactiveopenline(char *name, BPS bps, const boolean direct)
 #pragma argsused
 #endif
 
-int tpassiveopenline(char *name, BPS bps, const boolean direct)
+int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 {
 
    if (portActive)              /* Was the port already active?      */
@@ -148,19 +151,19 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    printmsg(15, "tpassiveopenline: opening passive connection");
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+   norecovery = KWFalse;    /* Flag we need a graceful shutdown after  */
                            /* Ctrl-BREAK                              */
 
-   carrierDetect = FALSE;  /* No network connection yet             */
+   carrierDetect = KWFalse;  /* No network connection yet            */
 
-   connectionDied = FALSE; /* The connection hasn't failed yet */
+   connectionDied = KWFalse; /* The connection hasn't failed yet */
 
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
-   return FALSE;          /* Return success to caller                 */
+   return KWFalse;         /* Return success to caller                 */
 
 } /* tpassiveopen */
 
@@ -188,7 +191,7 @@ unsigned int tsread(char UUFAR *output,
    fd_set readfds;
    struct timeval tm;
 
-   boolean firstPass = TRUE;
+   KWBoolean firstPass = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                           Validate input                           */
@@ -252,11 +255,11 @@ unsigned int tsread(char UUFAR *output,
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"tsread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
@@ -291,7 +294,7 @@ unsigned int tsread(char UUFAR *output,
          if (IsFatalSocketError(err))
          {
             shutdown(connectedSock, 2);  /* Fail both reads and writes  */
-            connectionDied = TRUE;
+            connectionDied = KWTrue;
          }
          commBufferUsed = 0;
          return 0;
@@ -309,7 +312,7 @@ unsigned int tsread(char UUFAR *output,
                             commBufferLength - commBufferUsed : needed,
                          0);
 
-         firstPass = FALSE;
+         firstPass = KWFalse;
 
          if (received == SOCKET_ERROR)
          {
@@ -335,7 +338,7 @@ unsigned int tsread(char UUFAR *output,
 
       traceData( commBuffer + commBufferUsed,
                  (unsigned) received,
-                 FALSE );
+                 KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -399,7 +402,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
       if (IsFatalSocketError(err))
       {
          shutdown(connectedSock, 2);  /* Fail both reads and writes   */
-         connectionDied = TRUE;
+         connectionDied = KWTrue;
       }
       return 0;
    }
@@ -414,7 +417,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE );
+   traceData( data, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -452,7 +455,7 @@ void tcloseline(void)
    if (!portActive)
       panic();
 
-   portActive = FALSE;     /* flag port closed for error handler  */
+   portActive = KWFalse;    /* flag port closed for error handler  */
 
    if (connectedSock != INVALID_SOCKET)
    {
@@ -466,7 +469,7 @@ void tcloseline(void)
       pollingSock = INVALID_SOCKET;
    }
 
-   carrierDetect = FALSE;  /* No network connection yet               */
+   carrierDetect = KWFalse;  /* No network connection yet              */
    traceStop();
 
 } /* tcloseline */
@@ -481,7 +484,7 @@ void thangup( void )
 {
    if (!hangupNeeded)
       return;
-   hangupNeeded = FALSE;
+   hangupNeeded = KWFalse;
 
    if (connectedSock != INVALID_SOCKET)
    {
@@ -495,7 +498,7 @@ void thangup( void )
       pollingSock = INVALID_SOCKET;
    }
 
-   carrierDetect = FALSE;  /* No network connection yet               */
+   carrierDetect = KWFalse;  /* No network connection yet              */
 
 } /* thangup */
 
@@ -524,7 +527,7 @@ void tSIOSpeed(BPS bps)
 #pragma argsused
 #endif
 
-void tflowcontrol( boolean flow )
+void tflowcontrol( KWBoolean flow )
 {
    return;                  /* Irrelevant on network (we hope)       */
 } /* tflowcontrol */
@@ -547,9 +550,9 @@ BPS tGetSpeed( void )
 /*    Report if we have carrier detect and lost it                    */
 /*--------------------------------------------------------------------*/
 
-boolean tCD( void )
+KWBoolean tCD( void )
 {
-   boolean online = carrierDetect;
+   KWBoolean online = carrierDetect;
 
    return online;
 } /* tCD */
@@ -560,7 +563,7 @@ boolean tCD( void )
 /*       Wait for remote system to connect to our waiting server      */
 /*--------------------------------------------------------------------*/
 
-boolean tWaitForNetConnect(const unsigned int timeout)
+KWBoolean tWaitForNetConnect(const unsigned int timeout)
 {
    fd_set readfds;
    int nReady;
@@ -580,16 +583,16 @@ boolean tWaitForNetConnect(const unsigned int timeout)
 
       printmsg(0, "WaitForNetConnect: select() failed");
       printWSerror("select", wsErr);
-      return FALSE;
+      return KWFalse;
    }
    else if (nReady == 0)
    {
       printmsg(5, "WaitForNetConnect: select() timed out");
-      return FALSE;
+      return KWFalse;
    }
 
    if (terminate_processing)
-      return FALSE;
+      return KWFalse;
 
    connectedSock = accept(pollingSock, NULL, NULL);
    if (connectedSock == INVALID_SOCKET)
@@ -600,8 +603,8 @@ boolean tWaitForNetConnect(const unsigned int timeout)
       printWSerror("accept", wsErr);
    }
 
-   carrierDetect = TRUE;
+   carrierDetect = KWTrue;
 
-   return TRUE;
+   return KWTrue;
 
 } /* tWaitForNetConnect */

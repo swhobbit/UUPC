@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.42 1994/05/07 21:45:33 ahd v1-12k $
+ *       $Id: ulibos2.c 1.43 1994/12/22 00:38:05 ahd Exp $
  *       $Log: ulibos2.c $
+ *       Revision 1.43  1994/12/22 00:38:05  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.42  1994/05/07 21:45:33  ahd
  *       Correct CD() processing to be sticky -- once it fails, it
  *       keeps failing until reset by close or hangup.
@@ -196,7 +199,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 
 currentfile();
 
-static boolean hangupNeeded = FALSE;
+static KWBoolean hangupNeeded = KWFalse;
 
 static BPS currentSpeed = 0;
 static BPS saveSpeed = 0;
@@ -225,7 +228,7 @@ static void ShowModem( const BYTE status );
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int nopenline(char *name, BPS portSpeed, const boolean direct )
+int nopenline(char *name, BPS portSpeed, const KWBoolean direct )
 {
 
    APIRET rc;
@@ -286,7 +289,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
       {
          printOS2error( name, rc );
          commHandle = -1;
-         return TRUE;
+         return KWTrue;
       }
 
    } /* if ( commHandle == -1 ) */
@@ -538,8 +541,8 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    traceStart( name );     /* Enable logging                         */
 
-   portActive = TRUE;      /* record status for error handler        */
-   carrierDetect = FALSE;  /* Modem is not connected                 */
+   portActive = KWTrue;     /* record status for error handler        */
+   carrierDetect = KWFalse;  /* Modem is not connected                */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -575,7 +578,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
    time_t now ;
    USHORT com_error;
 
-   boolean firstPass = ( currentSpeed > 2400 ) && ( wanted == 1 );
+   KWBoolean firstPass = ( currentSpeed > 2400 ) && ( wanted == 1 );
                               /* Perform extended read only on high-
                                  speed modem links when looking for
                                  packet data                         */
@@ -684,11 +687,11 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"nsread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
@@ -700,7 +703,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
       if ((stop_time <= now ) || firstPass )
       {
          portTimeout = 0;
-         firstPass = FALSE;
+         firstPass = KWFalse;
       }
       else {
          portTimeout = (USHORT) (stop_time - now) / needed * 100;
@@ -781,7 +784,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( commBuffer + commBufferUsed, (unsigned) received, FALSE );
+      traceData( commBuffer + commBufferUsed, (unsigned) received, KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -835,7 +838,7 @@ int nswrite(const char UUFAR *input, unsigned int len)
 
    APIRET rc;
 
-   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
+   hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
@@ -852,7 +855,7 @@ int nswrite(const char UUFAR *input, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE);
+   traceData( data, len, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the port to the caller          */
@@ -959,8 +962,8 @@ void ncloseline(void)
       return;
    }
 
-   portActive = FALSE; /* flag port closed for error handler  */
-   hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
+   portActive = KWFalse; /* flag port closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with port any more  */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -1104,8 +1107,8 @@ void nhangup( void )
    if (!hangupNeeded)
       return;
 
-   hangupNeeded = FALSE;
-   carrierDetect = FALSE;  /* Modem is not connected                 */
+   hangupNeeded = KWFalse;
+   carrierDetect = KWFalse;  /* Modem is not connected                */
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -1281,7 +1284,7 @@ void nSIOSpeed(BPS portSpeed)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void nflowcontrol( boolean flow )
+void nflowcontrol( KWBoolean flow )
 {
    APIRET rc;
 
@@ -1425,9 +1428,9 @@ BPS nGetSpeed( void )
 /*   Return status of carrier detect                                  */
 /*--------------------------------------------------------------------*/
 
-boolean nCD( void )
+KWBoolean nCD( void )
 {
-   boolean newCarrierDetect;
+   KWBoolean newCarrierDetect;
    APIRET rc;
 
 #ifdef __OS2__
@@ -1477,7 +1480,7 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   newCarrierDetect = (status & DCD_ON) ? TRUE : FALSE;
+   newCarrierDetect = (status & DCD_ON) ? KWTrue : KWFalse;
 
    if ( newCarrierDetect )
       carrierDetect = newCarrierDetect;
@@ -1485,7 +1488,7 @@ boolean nCD( void )
    if (carrierDetect)
       return newCarrierDetect;
    else
-      return (status & DSR_ON) ? TRUE : FALSE;
+      return (status & DSR_ON) ? KWTrue : KWFalse;
 
 } /* nCD */
 

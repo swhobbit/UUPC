@@ -33,7 +33,7 @@
 
 currentfile();
 
-static boolean restore = FALSE;
+static KWBoolean restore = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*       s e t P r t y                                                */
@@ -59,7 +59,7 @@ void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
       printNTerror("setprty", err);
    }
 
-   restore = TRUE;
+   restore = KWTrue;
 }
 
 /*--------------------------------------------------------------------*/

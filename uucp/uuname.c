@@ -139,7 +139,7 @@ void main(int  argc, char  **argv)
 
 static void all( )
 {
-   struct HostTable *hostp = nexthost( TRUE );
+   struct HostTable *hostp = nexthost( KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*                  Scan one or all host directories                  */
@@ -153,7 +153,7 @@ static void all( )
 /*    If processing all hosts, step to the next host in the queue     */
 /*--------------------------------------------------------------------*/
 
-      hostp = nexthost( FALSE );
+      hostp = nexthost( KWFalse );
 
    } /* while */
 

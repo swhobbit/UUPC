@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.9 1994/03/09 04:21:30 ahd v1-12k $
+ *    $Id: uucico.c 1.10 1994/12/22 00:38:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.10  1994/12/22 00:38:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/03/09 04:21:30  ahd
  *    Also trap SIGTERM when possible
  *
@@ -50,7 +53,7 @@
  * 22 Sep 1989 Delete kermit and password environment
  *             variables (now in password file).                  ahd
  * 30 Apr 1990  Add autoedit support for sending mail              ahd
- *  2 May 1990  Allow set of booleans options via options=         ahd
+ *  2 May 1990  Allow set of KWBooleans options via options=        ahd
  * 29 Jul 1990  Change mapping of UNIX to MS-DOS file names        ahd
  * 03 Mar 1992  Replace with new Signal handler for Ctrl C         ahd
  */

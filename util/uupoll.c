@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.23 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: uupoll.c 1.24 1994/12/22 00:31:26 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.24  1994/12/22 00:31:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1994/12/09 03:42:09  ahd
  *    Don't issue redundant UUUXQT commands when autoUUXQT is active
  *
@@ -171,7 +174,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.23 1994/12/09 03:42:09 ahd v1-12k $";
+         "$Id: uupoll.c 1.24 1994/12/22 00:31:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -228,15 +231,15 @@ __cdecl
 static active(const char *Rmtname,
               const int debuglevel,
               const char *logname,
-              const boolean autoUUXQT );
+              const KWBoolean autoUUXQT );
 
 static void    busywork( time_t next);
 
-static int runCommand( char *command, const boolean sync);
+static int runCommand( char *command, const KWBoolean sync);
 
 static time_t  nextpoll( hhmm first, hhmm interval );
 
-static boolean     notanumber( char *number);
+static KWBoolean    notanumber( char *number);
 
 static void    usage( char *name );
 
@@ -244,12 +247,12 @@ static void    usage( char *name );
                      int debuglevel,
                      const char *logname,
                      const char *modem,
-                     const boolean autoUUXQT );
+                     const KWBoolean autoUUXQT );
 
 static hhmm    firstpoll(hhmm interval);
 
 static void    uuxqt( const int debuglevel,
-                      const boolean sync);
+                      const KWBoolean sync);
 
 static time_t LifeSpan( time_t duration,
                         time_t stoptime );
@@ -277,11 +280,11 @@ currentfile();
    hhmm autowait = -1;
    hhmm cleanup  = -1;
    time_t cleannext = LONG_MAX;
-   boolean autoUUXQT = FALSE;
+   KWBoolean autoUUXQT = KWFalse;
 
    time_t exittime;
    int nopassive = 2;
-   boolean done = FALSE;
+   KWBoolean done = KWFalse;
    char *Rmtname = NULL;
    char *CleanCommand = "uuclean";
    char *logname = NULL;
@@ -290,7 +293,7 @@ currentfile();
    int returnCode = 0;
 
 #ifndef NOCBREAK
-   boolean cbrk;
+   KWBoolean cbrk;
 #endif
 
    banner(argv);
@@ -438,7 +441,7 @@ currentfile();
 
 
       case 'U':
-         autoUUXQT = TRUE;
+         autoUUXQT = KWTrue;
          break;
 
 /*--------------------------------------------------------------------*/
@@ -557,7 +560,7 @@ currentfile();
          {
             printf("Performing auto-clean with command: %s\n",
                      CleanCommand );
-            if (runCommand( CleanCommand, FALSE ))
+            if (runCommand( CleanCommand, KWFalse ))
                printerr( CleanCommand );
             cleannext = nextpoll(cleanup,  2400);
          }
@@ -584,12 +587,12 @@ currentfile();
 
                if (returnCode == 0)
                {
-                  boolean poll  =  (autowait != -1) &&
+                  KWBoolean poll  =  (autowait != -1) &&
                                    (now >= autonext) &&
                                    (now < next);
 
                   if ( ! autoUUXQT )
-                     uuxqt( debuglevel, TRUE );
+                     uuxqt( debuglevel, KWTrue );
 
                   if ( poll )
                   {
@@ -605,9 +608,9 @@ currentfile();
             } /* else */
 
             if ( (now > exittime) && (now < next))
-               done = TRUE;
+               done = KWTrue;
             else if ( returnCode == 100 )
-               done = TRUE;
+               done = KWTrue;
 
          } /* else */
 
@@ -621,7 +624,7 @@ currentfile();
       {
          if ( batchCommand != NULL )
          {
-            returnCode = runCommand( batchCommand, TRUE );
+            returnCode = runCommand( batchCommand, KWTrue );
             if ( returnCode != 0 )
             {
                printmsg(0,
@@ -638,7 +641,7 @@ currentfile();
                              autoUUXQT );
 
          if ( returnCode == 100 )
-            done = TRUE;
+            done = KWTrue;
 
       } /* if ( ! done && (first >= 0) ) */
 
@@ -648,7 +651,7 @@ currentfile();
 /*                          End of main loop                          */
 /*--------------------------------------------------------------------*/
 
-   uuxqt( debuglevel, TRUE  );   /* One last call to UUXQT            */
+   uuxqt( debuglevel, KWTrue  );  /* One last call to UUXQT            */
 
 #ifndef NOCBREAK
    if (!cbrk)
@@ -750,14 +753,14 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
  static active(const char *Rmtname,
                const int debuglevel,
                const char *logname,
-               const boolean autoUUXQT )
+               const KWBoolean autoUUXQT )
  {
    int result;
 
    if (Rmtname == NULL)             /* Default?                       */
    {                                /* Yes --> do -s all and -s any   */
 
-      if (active("all",debuglevel, logname, FALSE ) < 100)
+      if (active("all",debuglevel, logname, KWFalse ) < 100)
          return active("any",debuglevel, logname, autoUUXQT );
       else
          return 100;
@@ -775,10 +778,10 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
       if ( autoUUXQT )
          strcat( buf, " -U" );
 
-      result = runCommand(buf, TRUE);
+      result = runCommand(buf, KWTrue);
 
       if (( result == 0 ) && ! autoUUXQT )
-         uuxqt( debuglevel, TRUE );
+         uuxqt( debuglevel, KWTrue );
 
       printmsg(2,"active: Return code = %d", result );
 
@@ -824,7 +827,7 @@ static void busywork( time_t next)
 /*    not a problem for the intended argv[0]s of UUCICO.              */
 /*--------------------------------------------------------------------*/
 
- static int runCommand( char *command, const boolean sync)
+ static int runCommand( char *command, const KWBoolean sync)
  {
    int result;
 
@@ -846,7 +849,7 @@ static void busywork( time_t next)
    fclose(stream);
 #endif /* DEBUG */
 
-   result = executeCommand( command, NULL, NULL, sync, FALSE );
+   result = executeCommand( command, NULL, NULL, sync, KWFalse );
 
    if ( result < 0 )
    {
@@ -943,7 +946,7 @@ static hhmm firstpoll(hhmm interval)
 /*    Examines string, returns true if non-numeric                    */
 /*--------------------------------------------------------------------*/
 
- static boolean notanumber( char *start)
+ static KWBoolean notanumber( char *start)
  {
    char *number = start;
    while (*number != '\0')
@@ -951,11 +954,11 @@ static hhmm firstpoll(hhmm interval)
       if (!isdigit(*number))
       {
          printf("Parameter must be numeric, was %s\n",start);
-         return TRUE;
+         return KWTrue;
       }
       number++;
    }
-   return FALSE;
+   return KWFalse;
  } /* notanumber */
 
 /*--------------------------------------------------------------------*/
@@ -968,7 +971,7 @@ static hhmm firstpoll(hhmm interval)
                      int debuglevel,
                      const char *logname,
                      const char *modem,
-                     const boolean autoUUXQT )
+                     const KWBoolean autoUUXQT )
  {
    char buf[128];             /* Buffer for runCommand() commands     */
    time_t seconds = (next - now + 59);
@@ -993,7 +996,7 @@ static hhmm firstpoll(hhmm interval)
    if ( autoUUXQT )
       strcat( buf, " -U" );
 
-   result = runCommand(buf, TRUE);
+   result = runCommand(buf, KWTrue);
 
    printmsg(2,"passive: Return code = %d", result );
    return result;
@@ -1006,7 +1009,7 @@ static hhmm firstpoll(hhmm interval)
 /*    Execute the UUXQT program to run files received by UUCICO       */
 /*--------------------------------------------------------------------*/
 
- static void uuxqt( const int debuglevel, const boolean sync)
+ static void uuxqt( const int debuglevel, const KWBoolean sync)
  {
    int result;
    char buf[128];             /* Buffer for runCommand() commands     */

@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.12 1994/03/11 01:49:45 ahd v1-12k $
+ *       $Id: dcpstats.c 1.13 1994/12/22 00:35:06 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.13  1994/12/22 00:35:06  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.12  1994/03/11 01:49:45  ahd
  *       Don't backup the host status file before updates
  *
@@ -152,14 +155,14 @@ void dcstats(void)
 
 void dcupdate( void )
 {
-   boolean firsthost = TRUE;
+   KWBoolean firsthost = KWTrue;
    struct HostTable *host;
    FILE *stream;
    char fname[FILENAME_MAX];
    long size;
    unsigned short len1 = (unsigned short) strlen(compilep);
    unsigned short len2 = (unsigned short) strlen(compilev);
-   boolean gotlock;
+   KWBoolean gotlock;
    short retries = 30;
    LOCKSTACK savelock;
 
@@ -209,7 +212,7 @@ void dcupdate( void )
       len1 = (unsigned short) strlen( host->hostname );
       len2 = (unsigned short) sizeof host->status;
 
-      firsthost = FALSE;
+      firsthost = KWFalse;
 
       fwrite( &len1, sizeof len1, 1, stream );
       fwrite( &len2, sizeof len2, 1, stream );

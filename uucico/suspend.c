@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.9 1994/12/09 03:50:40 rommel v1-12k $
+ *    $Id: suspend.c 1.10 1994/12/22 00:36:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *    Revision 1.10  1994/12/22 00:36:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/12/09 03:50:40  rommel
  *    Correct errors with back-to-back uses of port failing
  *
@@ -75,7 +78,7 @@
 #include "security.h"
 #include "suspend.h"
 
-boolean suspend_processing = FALSE;
+KWBoolean suspend_processing = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*       s u s p e n d _ i n i t                                      */
@@ -89,9 +92,9 @@ boolean suspend_processing = FALSE;
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-boolean suspend_init(const char *port )
+KWBoolean suspend_init(const char *port )
 {
-   return TRUE;
+   return KWTrue;
 }
 
 #if _MSC_VER >= 700
@@ -110,7 +113,7 @@ boolean suspend_init(const char *port )
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-int suspend_other(const boolean suspend,
+int suspend_other(const KWBoolean suspend,
                   const char *port )
 {
    return 1;

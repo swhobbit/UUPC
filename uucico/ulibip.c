@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.22 1994/05/24 03:44:04 ahd v1-12k $
+ *    $Id: ulibip.c 1.23 1994/12/22 00:37:05 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.23  1994/12/22 00:37:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1994/05/24 03:44:04  ahd
  *    Deleted unneeded declare for tcloseline()
  *
@@ -160,27 +163,27 @@ typedef int SOCKET;
 #if !defined(__OS2__)
 void AtWinsockExit(void);
 #endif
-boolean IsFatalSocketError(int err);
+KWBoolean IsFatalSocketError(int err);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
 currentfile();
-static boolean hangupNeeded = TRUE;
+static KWBoolean hangupNeeded = KWTrue;
 
 #if defined(__OS2__)
-boolean winsockActive = FALSE;    /* Initialized here -- <not> in catcher.c
+KWBoolean winsockActive = KWFalse;  /* Initialized here -- <not> in catcher.c
                                      No need for catcher -- no WSACleanup() of
                                      OS/2 sockets required                  */
 #else
-extern boolean winsockActive;                   /* Initialized in catcher.c  */
+extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 #endif
 
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
 
-static boolean connectionDied = FALSE;          /* The current connection failed  */
+static KWBoolean connectionDied = KWFalse;        /* The current connection failed  */
 
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
@@ -196,16 +199,16 @@ static boolean connectionDied = FALSE;          /* The current connection failed
 /*    Start the Windows sockets DLL                                   */
 /*--------------------------------------------------------------------*/
 
-boolean InitWinsock(void)
+KWBoolean InitWinsock(void)
 {
 #if !defined(__OS2__)
    WSADATA WSAData;
 #endif
    int status;
-   static boolean firstPass = TRUE;
+   static KWBoolean firstPass = KWTrue;
 
    if ( winsockActive )
-      return TRUE;
+      return KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*       The atexit() must precede the WSAStartup() so the            */
@@ -215,14 +218,14 @@ boolean InitWinsock(void)
 #if !defined(__OS2__)
    if ( firstPass )
    {
-      firstPass = FALSE;
+      firstPass = KWFalse;
       atexit(AtWinsockExit);
    }
 #endif
 
 #ifdef _Windows
    if (!pWinSockInit())
-      return FALSE;
+      return KWFalse;
 #endif
 
 /* status = WSAStartup(MAKEWORD(1,1), &WSAData); */
@@ -240,11 +243,11 @@ boolean InitWinsock(void)
 #else
       printf("WSAStartup Error: %d", status);
 #endif
-      return FALSE;
+      return KWFalse;
    }
 
-   winsockActive = TRUE;
-   return TRUE;
+   winsockActive = KWTrue;
+   return KWTrue;
 
 } /* InitWinsock */
 
@@ -263,7 +266,7 @@ void AtWinsockExit(void)
    pWinSockExit();
 #endif
 
-   winsockActive = FALSE;
+   winsockActive = KWFalse;
 
 }  /* AtWinsockExit */
 
@@ -279,7 +282,7 @@ void AtWinsockExit(void)
 #pragma argsused
 #endif
 
-int tactiveopenline(char *name, BPS bps, const boolean direct)
+int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
 {
    SOCKADDR_IN sin;
    LPHOSTENT phe;
@@ -288,17 +291,17 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    char *portStr;
 
    if (!InitWinsock())           /* Initialize library?               */
-      return TRUE;               /* No --> Report error               */
+      return KWTrue;              /* No --> Report error               */
 
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
    printmsg(15, "tactiveopenline: %s", name);
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
+   norecovery = KWFalse;    /* Flag we need a graceful shutdown after  */
                            /* Ctrl-BREAK                              */
 
-   connectionDied = FALSE; /* The connection hasn't failed yet */
+   connectionDied = KWFalse; /* The connection hasn't failed yet */
 
 /*--------------------------------------------------------------------*/
 /*                        Parse out port address                      */
@@ -346,7 +349,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
             "Is '%s' listed in the hosts file or a valid IP address?",
             name);
          printWSerror("gethostbyname", wsErr);
-         return TRUE;
+         return KWTrue;
       }
 
    } /* else */
@@ -376,7 +379,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    if (connectedSock == INVALID_SOCKET)
    {
       printmsg(0, "tactiveopenline: socket() failed");
-      return TRUE;
+      return KWTrue;
    }
 
    if (connect( connectedSock, (PSOCKADDR) &sin, sizeof(sin)) < 0)
@@ -388,14 +391,14 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
       closesocket( connectedSock );
       connectedSock = INVALID_SOCKET;
 
-      return TRUE;
+      return KWTrue;
    }
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
-   return FALSE;                       /* Return success to caller     */
+   return KWFalse;                      /* Return success to caller     */
 
 } /* tactiveopenline */
 
@@ -409,22 +412,22 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 #pragma argsused
 #endif
 
-int tpassiveopenline(char *name, BPS bps, const boolean direct)
+int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 {
    SOCKADDR_IN sin;
    LPSERVENT pse;
 
    if (!InitWinsock())           /* Initialize library?               */
-      return TRUE;               /* No --> Report error               */
+      return KWTrue;              /* No --> Report error               */
 
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
    printmsg(15, "tpassiveopenline: opening passive connection");
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after */
+   norecovery = KWFalse;    /* Flag we need a graceful shutdown after */
                            /* Ctrl-BREAK                             */
-   connectionDied = FALSE; /* The connection hasn't failed yet       */
+   connectionDied = KWFalse; /* The connection hasn't failed yet      */
 
 /*--------------------------------------------------------------------*/
 /*      Handle being started from INET, we already have a socket      */
@@ -433,8 +436,8 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
    if ( connectedSock != INVALID_SOCKET )
    {
       traceStart( name );
-      portActive = TRUE;     /* record status for error handler      */
-      return FALSE;          /* Return success to caller             */
+      portActive = KWTrue;    /* record status for error handler      */
+      return KWFalse;         /* Return success to caller             */
    }
 
 /*--------------------------------------------------------------------*/
@@ -480,7 +483,7 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
       printmsg(0, "tpassiveopen: socket() failed");
       printWSerror("socket", wsErr);
-      return TRUE;
+      return KWTrue;
    }
 
    printmsg(15, "tpassiveopen: doing bind()");
@@ -493,7 +496,7 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
       printmsg(0, "tpassiveopen: bind(pollingSock) failed");
       printWSerror("bind", wsErr);
-      return TRUE;                      /* report failure              */
+      return KWTrue;                     /* report failure              */
    }
 
    printmsg(15, "tpassiveopen: doing listen()");
@@ -503,14 +506,14 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
       printmsg(0, "tpassiveopen: listen(pollingSock) failed");
       printWSerror("listen", wsErr);
-      return TRUE;
+      return KWTrue;
    }
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
-   return FALSE;          /* Return success to caller                 */
+   return KWFalse;         /* Return success to caller                 */
 
 } /* tpassiveopen */
 
@@ -538,7 +541,7 @@ unsigned int tsread(char UUFAR *output,
    fd_set readfds;
    struct timeval tm;
 
-   boolean firstPass = TRUE;
+   KWBoolean firstPass = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                           Validate input                           */
@@ -602,11 +605,11 @@ unsigned int tsread(char UUFAR *output,
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"tsread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
@@ -642,7 +645,7 @@ unsigned int tsread(char UUFAR *output,
          if (IsFatalSocketError(err))
          {
             shutdown(connectedSock, 2);  /* Fail both reads and writes  */
-            connectionDied = TRUE;
+            connectionDied = KWTrue;
          }
          commBufferUsed = 0;
          return 0;
@@ -660,7 +663,7 @@ unsigned int tsread(char UUFAR *output,
                             commBufferLength - commBufferUsed : needed,
                          0);
 
-         firstPass = FALSE;
+         firstPass = KWFalse;
 
          if (received == SOCKET_ERROR)
          {
@@ -686,7 +689,7 @@ unsigned int tsread(char UUFAR *output,
 
       traceData( commBuffer + commBufferUsed,
                  (unsigned) received,
-                 FALSE );
+                 KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -750,7 +753,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
       if (IsFatalSocketError(err))
       {
          shutdown(connectedSock, 2);  /* Fail both reads and writes   */
-         connectionDied = TRUE;
+         connectionDied = KWTrue;
       }
       return 0;
    }
@@ -765,7 +768,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE );
+   traceData( data, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -803,7 +806,7 @@ void tcloseline(void)
    if (!portActive)
       panic();
 
-   portActive = FALSE;     /* flag port closed for error handler  */
+   portActive = KWFalse;    /* flag port closed for error handler  */
 
    if (connectedSock != INVALID_SOCKET)
    {
@@ -832,8 +835,8 @@ void thangup( void )
    if (!hangupNeeded)
       return;
 
-   hangupNeeded = FALSE;
-   connectionDied = FALSE;
+   hangupNeeded = KWFalse;
+   connectionDied = KWFalse;
 
    if (connectedSock != INVALID_SOCKET)
    {
@@ -874,7 +877,7 @@ void tSIOSpeed(BPS bps)
 #pragma argsused
 #endif
 
-void tflowcontrol( boolean flow )
+void tflowcontrol( KWBoolean flow )
 {
    return;                  /* Irrelevant on network (we hope)       */
 } /* tflowcontrol */
@@ -897,10 +900,10 @@ BPS tGetSpeed( void )
 /*    Report if we have carrier detect and lost it                    */
 /*--------------------------------------------------------------------*/
 
-boolean tCD( void )
+KWBoolean tCD( void )
 {
 
-   return connectionDied ? FALSE : TRUE;
+   return connectionDied ? KWFalse : KWTrue;
 
 } /* tCD */
 
@@ -910,7 +913,7 @@ boolean tCD( void )
 /*       Wait for remote system to connect to our waiting server      */
 /*--------------------------------------------------------------------*/
 
-boolean tWaitForNetConnect(const unsigned int timeout)
+KWBoolean tWaitForNetConnect(const unsigned int timeout)
 {
    fd_set readfds;
    int nReady;
@@ -930,16 +933,16 @@ boolean tWaitForNetConnect(const unsigned int timeout)
 
       printmsg(0, "WaitForNetConnect: select() failed");
       printWSerror("select", wsErr);
-      return FALSE;
+      return KWFalse;
    }
    else if (nReady == 0)
    {
       printmsg(5, "WaitForNetConnect: select() timed out");
-      return FALSE;
+      return KWFalse;
    }
 
    if (terminate_processing)
-      return FALSE;
+      return KWFalse;
 
    connectedSock = accept(pollingSock, NULL, NULL);
    if (connectedSock == INVALID_SOCKET)
@@ -950,7 +953,7 @@ boolean tWaitForNetConnect(const unsigned int timeout)
       printWSerror("accept", wsErr);
    }
 
-   return TRUE;
+   return KWTrue;
 
 } /* tWaitForNetConnect */
 
@@ -960,7 +963,7 @@ boolean tWaitForNetConnect(const unsigned int timeout)
 /*      Determine if an error is a show stopped                       */
 /*--------------------------------------------------------------------*/
 
-boolean IsFatalSocketError(int err)
+KWBoolean IsFatalSocketError(int err)
 {
 #if defined(__OS2__)
    if (err == ENOTSOCK     ||
@@ -983,9 +986,9 @@ boolean IsFatalSocketError(int err)
        err == WSAEHOSTDOWN    ||
        err == WSAEHOSTUNREACH)
 #endif
-       return TRUE;
+       return KWTrue;
     else
-       return FALSE;
+       return KWFalse;
 
 } /* IsFatalSocketError */
 
@@ -1002,7 +1005,7 @@ BOOL AbortNetwork(void)
       pollingSock = INVALID_SOCKET;
    }
 
-   return FALSE;
+   return KWFalse;
 }
 #endif
 

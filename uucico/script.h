@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.h 1.4 1994/01/01 19:24:07 ahd v1-12k $
+ *    $Id: script.h 1.5 1994/12/22 00:40:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.h $
+ *    Revision 1.5  1994/12/22 00:40:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/01 19:24:07  ahd
  *    Annual Copyright Update
  *
@@ -31,6 +34,6 @@
 
 int expectstr(char *Search, unsigned int Timeout, char **failure);
 
-boolean sendstr(char  *str, unsigned int timeout, char **failure);
+KWBoolean sendstr(char  *str, unsigned int timeout, char **failure);
 
 void echoCheck( const unsigned int timeout );

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.13 1994/12/22 00:19:40 ahd Exp $
+ *    $Id: mlib.c 1.14 1995/01/07 16:19:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.14  1995/01/07 16:19:13  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.13  1994/12/22 00:19:40  ahd
  *    Annual Copyright Update
  *
@@ -163,7 +166,7 @@ int Invoke(const char *ecmd,
 /*          Execute command, report results if interesting.           */
 /*--------------------------------------------------------------------*/
 
-   rc = execute("", command, NULL, NULL, KWTrue, TRUE );
+   rc = execute("", command, NULL, NULL, KWTrue, KWTrue );
 
    if( rc )
    {

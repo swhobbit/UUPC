@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.14 1994/05/08 22:46:32 ahd v1-12k $
+ *    $Id: ulibwin.c 1.15 1994/12/22 00:38:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.15  1994/12/22 00:38:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/05/08 22:46:32  ahd
  *    Correct compile error
  *
@@ -124,7 +127,7 @@
 
 currentfile();
 
-static boolean hangupNeeded = FALSE;
+static KWBoolean hangupNeeded = KWFalse;
 static UINT currentSpeed = 0;
 static LPBYTE lpbModemBits;       /* --> Modem Status Register bits   */
 
@@ -159,7 +162,7 @@ static void ShowError( int status );
 #pragma argsused
 #endif
 
-int nopenline(char *name, BPS baud, const boolean direct )
+int nopenline(char *name, BPS baud, const KWBoolean direct )
 {
    int rc;
 
@@ -175,7 +178,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       printmsg(0,
          "openline: Communications port must be format COMx, was %s",
          name);
-      return TRUE;
+      return KWTrue;
    }
 
    if((nCid = OpenComm(name, IN_QUEUE_SIZE, OUT_QUEUE_SIZE)) < 0)
@@ -185,7 +188,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
                    name,
                    nCid,
                    nCid);
-      return TRUE;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -305,7 +308,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -326,7 +329,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*   "description" in dcpgpkt.c is:                                   */
 /*                                                                    */
 /*   sread(buf, n, timeout)                                           */
-/*      while(TRUE)                                                   */
+/*      while(KWTrue)                                                  */
 /*         if # of chars available >= n (w/o dec internal counter)    */
 /*            read n chars into buf (dec internal counter)            */
 /*            break                                                   */
@@ -390,7 +393,7 @@ unsigned int nsread(char UUFAR *output,
 /*       Watch RX Queue till wanted bytes available or timeout        */
 /*--------------------------------------------------------------------*/
 
-   while(TRUE)
+   while(KWTrue)
    {
 
       //
@@ -439,7 +442,7 @@ unsigned int nsread(char UUFAR *output,
          return(stat.cbInQue);
       }
 
-   } // end of while(TRUE)
+   } // end of while(KWTrue)
 
    //
    // We have enough in the RX queue. Grab 'em right into the
@@ -455,7 +458,7 @@ unsigned int nsread(char UUFAR *output,
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-   traceData( output, wanted, FALSE );
+   traceData( output, wanted, KWFalse );
 
    return(received);
 
@@ -472,7 +475,7 @@ int nswrite(const char UUFAR *data, unsigned int len)
    int bytes;
    int rc;
 
-   hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
+   hangupNeeded = KWTrue;     /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
@@ -500,7 +503,7 @@ int nswrite(const char UUFAR *data, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE );
+   traceData( data, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the port to the caller          */
@@ -541,8 +544,8 @@ void ncloseline(void)
    if ( ! portActive )
       panic();
 
-   portActive = FALSE;     /* flag port closed for error handler  */
-   hangupNeeded = FALSE;  /* Don't fiddle with port any more     */
+   portActive = KWFalse;    /* flag port closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with port any more    */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
@@ -577,8 +580,8 @@ void ncloseline(void)
 
 void nhangup( void )
 {
-   hangupNeeded = FALSE;
-   carrierDetect = FALSE;
+   hangupNeeded = KWFalse;
+   carrierDetect = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
@@ -646,7 +649,7 @@ void nSIOSpeed(BPS baud)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void nflowcontrol( boolean flow )
+void nflowcontrol( KWBoolean flow )
 {
    int rc;
    DCB dcb;
@@ -655,16 +658,16 @@ void nflowcontrol( boolean flow )
 
    if (flow)
    {
-      dcb.fOutX = TRUE;
-      dcb.fInX = TRUE;
-      dcb.fRtsflow = FALSE;
-      dcb.fOutxCtsFlow = FALSE;
+      dcb.fOutX = KWTrue;
+      dcb.fInX = KWTrue;
+      dcb.fRtsflow = KWFalse;
+      dcb.fOutxCtsFlow = KWFalse;
    }
    else {
-      dcb.fOutX = FALSE;
-      dcb.fInX = FALSE;
-      dcb.fRtsflow = TRUE;
-      dcb.fOutxCtsFlow = TRUE;
+      dcb.fOutX = KWFalse;
+      dcb.fInX = KWFalse;
+      dcb.fRtsflow = KWTrue;
+      dcb.fOutxCtsFlow = KWTrue;
    }
 
    if ((rc = SetCommState(&dcb)) != 0)
@@ -695,9 +698,9 @@ BPS nGetSpeed( void )
 /*   Return status of carrier detect                                  */
 /*--------------------------------------------------------------------*/
 
-boolean nCD( void )
+KWBoolean nCD( void )
 {
-   boolean newCarrierDetect;
+   KWBoolean newCarrierDetect;
 
    newCarrierDetect = ((*lpbModemBits & MSR_RLSD) != 0);
 
@@ -715,7 +718,7 @@ boolean nCD( void )
    if (carrierDetect)
       return newCarrierDetect;
    else
-      return ((*lpbModemBits & MSR_DSR) != 0) ? TRUE : FALSE;
+      return ((*lpbModemBits & MSR_DSR) != 0) ? KWTrue : KWFalse;
 
 } /* nCD */
 

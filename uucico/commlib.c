@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.26 1994/12/22 00:32:48 ahd Exp $
+ *    $Id: commlib.c 1.27 1994/12/22 04:13:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.27  1994/12/22 04:13:38  ahd
+ *    Correct 't' protocol processing to use 512 messages with no header
+ *
  *    Revision 1.26  1994/12/22 00:32:48  ahd
  *    Annual Copyright Update
  *
@@ -158,8 +161,8 @@ typedef struct _COMMSUITE {
         ref_WaitForNetConnect   WaitForNetConnect;
         ref_GetComHandle        GetComHandle;
         ref_SetComHandle        SetComHandle;
-        boolean  network;
-        boolean  buffered;
+        KWBoolean  network;
+        KWBoolean  buffered;
         char     *netDevice;           /* Network device name         */
 } COMMSUITE;
 
@@ -185,12 +188,12 @@ typedef struct _COMMSUITE {
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-boolean portActive;         /* Port active flag for error handler   */
-boolean traceEnabled;       /* Trace active flag                    */
+KWBoolean portActive;        /* Port active flag for error handler   */
+KWBoolean traceEnabled;      /* Trace active flag                    */
 size_t commBufferLength = 0;
 size_t commBufferUsed   = 0;
 char UUFAR *commBuffer = NULL;
-boolean   carrierDetect;    /* Modem is not connected    */
+KWBoolean  carrierDetect;    /* Modem is not connected    */
 
 ref_activeopenline activeopenlinep;
 ref_passiveopenline passiveopenlinep;
@@ -216,7 +219,7 @@ static FILE *traceStream;    /* Stream used for trace file            */
 static short   traceMode;    /* Flag for last data (input/output)     */
                              /* written to trace log                  */
 
-static boolean network = FALSE;  /* Current communications suite is   */
+static KWBoolean network = KWFalse;  /* Current communications suite is  */
                                  /* network oriented                  */
 
 currentfile();
@@ -225,7 +228,7 @@ int dummyGetComHandle( void );
 
 void dummySetComHandle( const int );
 
-boolean dummyWaitForNetConnect(const unsigned int timeout);
+KWBoolean dummyWaitForNetConnect(const unsigned int timeout);
 
 /*--------------------------------------------------------------------*/
 /*       c h o o s e C o m m u n i c a t i o n s                      */
@@ -233,7 +236,7 @@ boolean dummyWaitForNetConnect(const unsigned int timeout);
 /*       Choose communications suite to use                           */
 /*--------------------------------------------------------------------*/
 
-boolean chooseCommunications( const char *name )
+KWBoolean chooseCommunications( const char *name )
 {
    static COMMSUITE suite[] =
    {
@@ -246,13 +249,13 @@ boolean chooseCommunications( const char *name )
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
           nSetComHandle,
-          FALSE,                       /* Not network based           */
-          TRUE,                        /* Buffered under OS/2 and Windows NT  */
+          KWFalse,                      /* Not network based           */
+          KWTrue,                       /* Buffered under OS/2 and Windows NT  */
 #else
           dummyGetComHandle,
           dummySetComHandle,
-          FALSE,                       /* Not network based           */
-          TRUE,                        /* Unbuffered for DOS, Windows 3.x  */
+          KWFalse,                      /* Not network based           */
+          KWTrue,                       /* Unbuffered for DOS, Windows 3.x  */
 #endif
           NULL                         /* No network device name      */
         },
@@ -265,8 +268,8 @@ boolean chooseCommunications( const char *name )
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          FALSE,                       /* Not network oriented        */
-          FALSE,                       /* Not buffered                 */
+          KWFalse,                      /* Not network oriented        */
+          KWFalse,                      /* Not buffered                 */
           NULL                         /* No network device name      */
         },
 #ifdef ARTICOMM
@@ -278,8 +281,8 @@ boolean chooseCommunications( const char *name )
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          FALSE,                       /* Not network oriented        */
-          TRUE,                        /* Buffered                    */
+          KWFalse,                      /* Not network oriented        */
+          KWTrue,                       /* Buffered                    */
           NULL                         /* No network device name      */
         },
 #else
@@ -291,8 +294,8 @@ boolean chooseCommunications( const char *name )
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          FALSE,                       /* Not network oriented        */
-          TRUE,                        /* Buffered                    */
+          KWFalse,                      /* Not network oriented        */
+          KWTrue,                       /* Buffered                    */
           NULL                         /* No network device name      */
         },
 
@@ -309,8 +312,8 @@ boolean chooseCommunications( const char *name )
           tWaitForNetConnect,
           tGetComHandle,
           tSetComHandle,
-          TRUE,                        /* Network oriented            */
-          TRUE,                        /* Uses internal buffer        */
+          KWTrue,                       /* Network oriented            */
+          KWTrue,                       /* Uses internal buffer        */
           "tcptty",                    /* Network device name         */
         },
 #endif
@@ -324,8 +327,8 @@ boolean chooseCommunications( const char *name )
           pWaitForNetConnect,
           pGetComHandle,
           pSetComHandle,
-          TRUE,                        /* Network oriented            */
-          TRUE,                        /* Uses internal buffer        */
+          KWTrue,                       /* Network oriented            */
+          KWTrue,                       /* Uses internal buffer        */
           "pipe",                      /* Network device name         */
         },
 #endif
@@ -350,7 +353,7 @@ boolean chooseCommunications( const char *name )
    {
       printmsg(0,"chooseCommunications: Invalid suite name %s",
                   name );
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -413,8 +416,8 @@ boolean chooseCommunications( const char *name )
             "chooseCommunications: Chose suite %s",
             suite[subscript].type );
 
-   carrierDetect = FALSE;
-   return TRUE;
+   carrierDetect = KWFalse;
+   return KWTrue;
 
 } /* chooseCommunications */
 
@@ -424,7 +427,7 @@ boolean chooseCommunications( const char *name )
 /*       Begin communicatons line tracing                             */
 /*--------------------------------------------------------------------*/
 
-boolean traceStart( const char *port )
+KWBoolean traceStart( const char *port )
 {
    char *linelog;
    time_t now;
@@ -440,7 +443,7 @@ boolean traceStart( const char *port )
 
 
    if ( ! traceEnabled )
-      return FALSE;
+      return KWFalse;
 
    linelog = normalize( "LineData.Log" );
 
@@ -456,8 +459,8 @@ boolean traceStart( const char *port )
    {
       printerr( linelog );
       printmsg(0, "Unable to open trace file, tracing disabled");
-      traceEnabled = FALSE;
-      return FALSE;
+      traceEnabled = KWFalse;
+      return KWFalse;
    }
 
    time( &now );
@@ -471,7 +474,7 @@ boolean traceStart( const char *port )
    traceMode  = 2;               /* Make sure first trace includes     */
                                  /* prefix with direction              */
 
-   return TRUE;                  /* Success to caller                 */
+   return KWTrue;                 /* Success to caller                 */
 
 } /* traceStart */
 
@@ -501,7 +504,7 @@ void traceStop( void )
 
 void traceData( const char UUFAR *data,
                 const unsigned len,
-                const boolean output)
+                const KWBoolean output)
 {
 
 #if defined(VERBOSE) || !defined(BIT32ENV)
@@ -555,7 +558,7 @@ void traceData( const char UUFAR *data,
 /*       Report if current communications suite is network oriented   */
 /*--------------------------------------------------------------------*/
 
-boolean IsNetwork(void)
+KWBoolean IsNetwork(void)
 {
    return network;         /* Preset when suite initialized           */
 }
@@ -578,7 +581,7 @@ void dummySetComHandle( const int foo )
 }
 
 
-boolean dummyWaitForNetConnect(const unsigned int timeout)
+KWBoolean dummyWaitForNetConnect(const unsigned int timeout)
 {
-   return FALSE;
+   return KWFalse;
 }

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.23 1994/12/22 00:44:37 ahd Exp $
+ *    $Id: uustat.c 1.24 1995/01/02 05:04:25 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.24  1995/01/02 05:04:25  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.23  1994/12/22 00:44:37  ahd
  *    Annual Copyright Update
  *
@@ -42,7 +45,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.23 1994/12/22 00:44:37 ahd Exp $";
+         "$Id: uustat.c 1.24 1995/01/02 05:04:25 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -105,7 +108,7 @@ struct data_queue {
    struct data_queue *next_link;
    time_t created;
    long size;
-   boolean execute;
+   KWBoolean execute;
    char type;
 } ;
 
@@ -410,10 +413,10 @@ void all( const char *system, const char *userid)
    long  size;
    time_t ltime;
    struct HostTable *hostp;
-   boolean hit = FALSE;
+   KWBoolean hit = KWFalse;
 
    if ( equal(system,ALL) )
-      hostp = nexthost( TRUE );
+      hostp = nexthost( KWTrue );
    else
       hostp = checkreal( system );
 
@@ -431,7 +434,7 @@ void all( const char *system, const char *userid)
 
       while( readnext(fname , hostp->hostname, "C", NULL, &ltime, &size) )
       {
-         boolean display = equali( userid, ALL );
+         KWBoolean display = equali( userid, ALL );
          struct data_queue *data_link = NULL;
          char  canon[FILENAME_MAX];
          char user[MAXL];
@@ -460,7 +463,7 @@ void all( const char *system, const char *userid)
             case POLL_CALL:
                if ( display )
                {
-                  hit = TRUE;
+                  hit = KWTrue;
                   printmsg(0,"%-12s %s %s",
                           canon+2,
                           dater(ltime, NULL),
@@ -471,11 +474,11 @@ void all( const char *system, const char *userid)
             case SEND_CALL:
             case RECEIVE_CALL:
                if( equal(userid , ALL) || equali(userid, user))
-                  display = TRUE;
+                  display = KWTrue;
 
                if (display)
                {
-                   hit = TRUE;
+                   hit = KWTrue;
                    print_all( canon + 2,
                               data_link,
                               user,
@@ -502,7 +505,7 @@ void all( const char *system, const char *userid)
 /*--------------------------------------------------------------------*/
 
       if ( equal( system , ALL ))
-         hostp = nexthost( FALSE );
+         hostp = nexthost( KWFalse );
       else
          hostp = BADHOST;
 
@@ -534,7 +537,7 @@ static void poll(const char *callee, const char grade )
 /*--------------------------------------------------------------------*/
 
    if ( equal(callee,ALL) )
-      hostp = nexthost( TRUE );
+      hostp = nexthost( KWTrue );
    else
       hostp = checkreal( callee );
 
@@ -548,7 +551,7 @@ static void poll(const char *callee, const char grade )
 
       sprintf(tmfile,"%.8s",hostp->hostname);
 
-      if ( ValidDOSName( tmfile, FALSE ) || !equal(callee, ALL))
+      if ( ValidDOSName( tmfile, KWFalse ) || !equal(callee, ALL))
       {
          sprintf(tmfile, spool_fmt, 'C', hostp->hostname, grade ,
                   "000");
@@ -587,7 +590,7 @@ static void poll(const char *callee, const char grade )
 /*--------------------------------------------------------------------*/
 
       if( equal( callee , ALL ))
-         hostp = nexthost( FALSE );
+         hostp = nexthost( KWFalse );
       else
          hostp = BADHOST;
 
@@ -617,8 +620,8 @@ static void long_stats( const char *system )
 {
    struct HostTable *hostp;
    time_t now = time( NULL );
-   boolean hit = FALSE;
-   boolean firstPass = TRUE;
+   KWBoolean hit = KWFalse;
+   KWBoolean firstPass = KWTrue;
 
    HostStatus();              /* Load the host status table info      */
 
@@ -641,7 +644,7 @@ static void long_stats( const char *system )
 
       char fname[FILENAME_MAX];
       char summary[30];          /* Generous, really only need ~ 20  */
-      boolean work = FALSE;
+      KWBoolean work = KWFalse;
       size_t subscript;
 
       *summary = '\0';           /* Clear output buffer              */
@@ -692,7 +695,7 @@ static void long_stats( const char *system )
                sprintf( fname + strlen(fname), "(%d)",
                         (now - oldest_file) / DAY );
 
-            work =  hit = TRUE;
+            work =  hit = KWTrue;
 
             sprintf(summary + strlen(summary), "%-8s ",fname );
          } /* if */
@@ -730,7 +733,7 @@ static void long_stats( const char *system )
       if (equal(system, ALL))
       {
          hostp = nexthost( firstPass );
-         firstPass = FALSE;
+         firstPass = KWFalse;
       }
       else
          hostp = BADHOST;
@@ -763,7 +766,7 @@ static void short_stats( const char *system )
 /*--------------------------------------------------------------------*/
 
    if ( equal(system,ALL) )
-      hostp = nexthost( TRUE );
+      hostp = nexthost( KWTrue );
    else
       hostp = checkreal( system );
 
@@ -780,7 +783,7 @@ static void short_stats( const char *system )
                   "*** INVALID/UNDOCUMENTED STATUS ***");
 
       if (equal(system, ALL))
-         hostp = nexthost( FALSE );
+         hostp = nexthost( KWFalse );
       else
          hostp = BADHOST;
    } /* while */
@@ -954,10 +957,10 @@ static CALLTYPE open_call( const char *callname,
                                    sys,
                                    current->name,
                                    sizeof current->name );
-                        current->execute = TRUE;
+                        current->execute = KWTrue;
                      }
                      else {
-                        current->execute = FALSE;
+                        current->execute = KWFalse;
                         strcpy( current->name , fname );
                      }
                      break;
@@ -989,7 +992,7 @@ static CALLTYPE open_call( const char *callname,
             }
             else if ( action == JOB_STATUS )
             {
-               current->execute = FALSE;
+               current->execute = KWFalse;
                strcpy( current->name , fname );
                current->created = stater( callname, &current->size);
             }
@@ -1168,13 +1171,13 @@ static char *is_job(const char *callfile)
 {
    struct HostTable *hostp;
    char hname[FILENAME_MAX];
-   boolean hit = FALSE;
+   KWBoolean hit = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                  Get the first system to process                   */
 /*--------------------------------------------------------------------*/
 
-      hostp = nexthost( TRUE );
+      hostp = nexthost( KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*              Begin loop to display local system                    */
@@ -1189,10 +1192,10 @@ static char *is_job(const char *callfile)
          importpath( hname, callfile, hostp->hostname);
          if ( !access( hname, 0 ))  /* Does the host file exist?      */
             return hostp->hostname; /* Yes --> Return success         */
-         hit = TRUE;
+         hit = KWTrue;
       }
 
-      hostp = nexthost( FALSE );
+      hostp = nexthost( KWFalse );
    } /* while */
 
 /*--------------------------------------------------------------------*/

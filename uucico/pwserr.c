@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.8 1994/02/20 23:56:56 dmwatt v1-12k $
+ *    $Id: pwserr.c 1.9 1994/12/22 00:35:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.9  1994/12/22 00:35:59  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1994/02/20 23:56:56  dmwatt
  *    Avoid conflict of errno with Windows NT macro of the same name
  *
@@ -162,7 +165,7 @@ void pWSErr(const size_t lineno,
              const char *prefix,
              int rc)
 {
-   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
    const char UUFAR *msg;
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.18 1994/12/22 00:19:34 ahd Exp $
+ *    $Id: mailsend.c 1.19 1995/01/07 16:19:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.19  1995/01/07 16:19:08  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.18  1994/12/22 00:19:34  ahd
  *    Annual Copyright Update
  *
@@ -420,7 +423,7 @@ KWBoolean Send_Mail(FILE *datain,
 /*--------------------------------------------------------------------*/
 
    sprintf(buf, "-t -f %s", pipename);
-   status = execute(RMAIL, buf, NULL, NULL, KWTrue, TRUE );
+   status = execute(RMAIL, buf, NULL, NULL, KWTrue, KWTrue );
 
    if ( status < 0 )
    {
@@ -994,7 +997,7 @@ static void filter( char *tmailbag, char *command)
 /*                          Run the command                           */
 /*--------------------------------------------------------------------*/
 
-   result = executeCommand( command, tmailbag, pipename, KWTrue, TRUE );
+   result = executeCommand( command, tmailbag, pipename, KWTrue, KWTrue );
 
    if (result == -1)       /* Did spawn fail?            */
          ;                 /* No operation               */

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.h 1.3 1994/05/24 03:45:09 ahd v1-12k $
+ *    $Id: dcplib.h 1.4 1994/12/22 00:40:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcplib.h $
+ *    Revision 1.4  1994/12/22 00:40:00  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/05/24 03:45:09  ahd
  *    Clean up header comments
  *
@@ -30,6 +33,6 @@
  *
  */
 
-boolean login(void);
+KWBoolean login(void);
 
-boolean loginbypass(const char *user);
+KWBoolean loginbypass(const char *user);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.9 1994/10/03 01:01:25 ahd v1-12k $
+ *    $Id: dcpepkt.c 1.10 1994/12/22 00:34:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.10  1994/12/22 00:34:37  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/10/03 01:01:25  ahd
  *    Reflect read errors to caller rather than (stupidly) eating them
  *
@@ -91,7 +94,7 @@ static unsigned long ebytesdone;
 #pragma argsused
 #endif
 
-short eopenpk(const boolean master)
+short eopenpk(const KWBoolean master)
 {
    s_pktsize = r_pktsize = MAXPACK;    /* Fixed for 'e' procotol     */
 
@@ -184,7 +187,7 @@ short eclosepk()
 /*    Transmit/receive file length                                    */
 /*--------------------------------------------------------------------*/
 
-short efilepkt(const boolean xmit, const unsigned long bytes)
+short efilepkt(const KWBoolean xmit, const unsigned long bytes)
 {
    char startbuf[20];
 

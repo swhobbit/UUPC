@@ -37,9 +37,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.41 1994/12/27 20:45:50 ahd Exp $
+ *     $Id: dcpsys.c 1.42 1994/12/31 03:39:56 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.42  1994/12/31 03:39:56  ahd
+ *     Correct processing for systems with grade restrictions in the
+ *     systems file when calling system "any"
+ *
  *     Revision 1.41  1994/12/27 20:45:50  ahd
  *     Smoother call grading'
  *
@@ -212,44 +216,44 @@ typedef struct {
         char type;
         short (*getpkt)(char *data, short *len);
         short (*sendpkt)(char *data, short len);
-        short (*openpk)(const boolean caller);
+        short (*openpk)(const KWBoolean caller);
         short (*closepk)(void);
         short (*rdmsg)(char *data);
         short (*wrmsg)(char *data);
         short (*eofpkt)(void);
-        short (*filepkt)(const boolean master, const unsigned long fileSize);
-        boolean network;
+        short (*filepkt)(const KWBoolean master, const unsigned long fileSize);
+        KWBoolean network;
 } Proto;
 
 Proto Protolst[] = {
        { 'g', ggetpkt, gsendpkt, gopenpk, gclosepk,
               grdmsg,  gwrmsg,   geofpkt, gfilepkt,
-              FALSE,
+              KWFalse,
        } ,
 
        { 'G', ggetpkt, gsendpkt, Gopenpk, gclosepk,
               grdmsg,  gwrmsg,   geofpkt, gfilepkt,
-              FALSE,
+              KWFalse,
        } ,
 
        { 'f', fgetpkt, fsendpkt, fopenpk, fclosepk,
               frdmsg,  fwrmsg,   feofpkt, ffilepkt,
-              FALSE,
+              KWFalse,
        } ,
 
        { 'v', ggetpkt, gsendpkt, vopenpk, gclosepk,
               grdmsg,  gwrmsg,   geofpkt, gfilepkt,
-              FALSE,
+              KWFalse,
        } ,
 #if defined(_Windows) || defined(BIT32ENV) || defined(FAMILYAPI)
        { 'e', egetpkt, esendpkt, eopenpk, eclosepk,
               erdmsg,  ewrmsg,   eeofpkt, efilepkt,
-              TRUE,
+              KWTrue,
        } ,
        { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
               trdmsg,  twrmsg,
               geofpkt, gfilepkt, /* Yup, same as 'g'  */
-              TRUE,
+              KWTrue,
        } ,
 #endif
    { '\0' }
@@ -257,12 +261,12 @@ Proto Protolst[] = {
 
 short (*sendpkt)(char *data, short len);
 short (*getpkt)(char *data, short *len);
-short (*openpk)(const boolean caller);
+short (*openpk)(const KWBoolean caller);
 short (*closepk)(void);
 short (*wrmsg)(char *data);
 short (*rdmsg)(char *data);
 short (*eofpkt)(void);
-short (*filepkt)(const boolean master, const unsigned long bytes);
+short (*filepkt)(const KWBoolean master, const unsigned long bytes);
 
 char *flds[60];
 int kflds;
@@ -443,9 +447,9 @@ CONN_STATE sysend()
 {
    char msg[80];
 
-   wmsg("OOOOOO", TRUE);
-   rmsg(msg, TRUE, 5, sizeof msg);
-   wmsg("OOOOOO", TRUE);
+   wmsg("OOOOOO", KWTrue);
+   rmsg(msg, KWTrue, 5, sizeof msg);
+   wmsg("OOOOOO", KWTrue);
    ssleep(2);                 /* Wait for it to be transmitted       */
 
    return CONN_DROPLINE;
@@ -458,7 +462,7 @@ CONN_STATE sysend()
 /*    write a ^P type msg to the remote uucp                          */
 /*--------------------------------------------------------------------*/
 
-void wmsg(const char *msg, const boolean synch)
+void wmsg(const char *msg, const KWBoolean synch)
 {
 
    if (synch)
@@ -479,7 +483,7 @@ void wmsg(const char *msg, const boolean synch)
 /*    read a ^P msg from UUCP                                         */
 /*--------------------------------------------------------------------*/
 
-int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
+int rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len)
 {
    int i;
    char ch = '?';       /* Initialize to non-zero value  */    /* ahd  */
@@ -597,7 +601,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                      Begin normal processing                       */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for first message");
       return CONN_TERMINATE;
@@ -644,13 +648,13 @@ CONN_STATE startup_server(const char recvgrade )
       sprintf( msg + strlen(msg), " -p%c -vgrade=%c",
                   recvgrade, recvgrade );
 
-   wmsg(msg, TRUE);
+   wmsg(msg, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*                  Second message is system is okay                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for second message");
       return CONN_TERMINATE;
@@ -666,7 +670,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                Third message is protocol exchange                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (*msg != 'P')
@@ -683,7 +687,7 @@ CONN_STATE startup_server(const char recvgrade )
    if ( s == NULL )
    {
       printmsg(0,"Startup: No common protocol");
-      wmsg("UN", TRUE);
+      wmsg("UN", KWTrue);
       return CONN_TERMINATE; /* no common protocol */
    }
 
@@ -699,7 +703,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*--------------------------------------------------------------------*/
 
    sprintf(msg, "U%c", *s);
-   wmsg(msg, TRUE);
+   wmsg(msg, KWTrue);
 
    setproto(*s);
 
@@ -752,9 +756,9 @@ CONN_STATE startup_client( char *sendgrade )
 
    sprintf(msg, "Shere=%s", securep == NULL ?
                               E_nodename : securep->myname );
-   wmsg(msg, TRUE);
+   wmsg(msg, KWTrue);
 
-   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    printmsg(2, "1st msg from remote = %s", msg);
@@ -819,13 +823,13 @@ CONN_STATE startup_client( char *sendgrade )
 
          if (!checktime( E_anonymous )) /* Good time to call?         */
          {
-            wmsg("RWrong time for anonymous system",TRUE);
+            wmsg("RWrong time for anonymous system",KWTrue);
             printmsg(0,"Wrong time for anonymous system \"%s\"",sysname);
          }  /* if */
 
          if ( !LockSystem( sysname , B_UUCICO ))
          {
-            wmsg("RLCK",TRUE);   /* Odd, we locked anonymous system? */
+            wmsg("RLCK",KWTrue);  /* Odd, we locked anonymous system? */
             return CONN_TERMINATE;
          }
 
@@ -834,7 +838,7 @@ CONN_STATE startup_client( char *sendgrade )
 
       }    /* if (E_anonymous != NULL) */
       else {
-         wmsg("RYou are unknown to me",TRUE);
+         wmsg("RYou are unknown to me",KWTrue);
          printmsg(0,"startup: Unknown host \"%s\"", sysname);
          return CONN_TERMINATE;
       } /* else */
@@ -842,7 +846,7 @@ CONN_STATE startup_client( char *sendgrade )
    else if ( LockSystem( hostp->hostname , B_UUCICO ))
       hostp->via = hostp->hostname;
    else {
-      wmsg("RLCK",TRUE);
+      wmsg("RLCK",KWTrue);
       return CONN_TERMINATE;
    } /* else */
 
@@ -853,7 +857,7 @@ CONN_STATE startup_client( char *sendgrade )
    if ( !ValidateHost( sysname ))
                                           /* Wrong host for user? */
    {                                      /* Yes --> Abort        */
-      wmsg("RLOGIN",TRUE);
+      wmsg("RLOGIN",KWTrue);
       printmsg(0,"startup: Access rejected for host \"%s\"", sysname);
       hostp->status.hstatus = wrong_host;
       return CONN_TERMINATE;
@@ -868,7 +872,7 @@ CONN_STATE startup_client( char *sendgrade )
 
    if (securep->callback)
    {
-      wmsg("RCB",TRUE);
+      wmsg("RCB",KWTrue);
       hostp->status.hstatus = callback_req;
       return CONN_TERMINATE;  /* Really more complex than this       */
    }
@@ -900,12 +904,12 @@ CONN_STATE startup_client( char *sendgrade )
 /*              The host name is good; get the protocol               */
 /*--------------------------------------------------------------------*/
 
-   wmsg("ROK", TRUE);
+   wmsg("ROK", KWTrue);
 
    sprintf(msg, "P%s", plist);
-   wmsg(msg, TRUE);
+   wmsg(msg, KWTrue);
 
-   if (rmsg(msg, TRUE, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (msg[0] != 'U')
@@ -1162,7 +1166,7 @@ static char HostGrade( const char *fname, const char *remote )
 /*    Determine if we can call a system                               */
 /*--------------------------------------------------------------------*/
 
-boolean CallWindow( const char callgrade )
+KWBoolean CallWindow( const char callgrade )
 {
 
 /*--------------------------------------------------------------------*/
@@ -1172,7 +1176,7 @@ boolean CallWindow( const char callgrade )
    if ( !callgrade && equal(flds[FLD_CCTIME],"Never" ))
    {
       hostp->status.hstatus = wrong_time;
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1192,7 +1196,7 @@ boolean CallWindow( const char callgrade )
       {                                      /* Yes--> Return        */
          hostp->status.hstatus = wrong_time;
          time(&hostp->status.ltime);  /* Save time of last attempt to call  */
-         return FALSE;
+         return KWFalse;
       }
    } /* if */
 
@@ -1200,6 +1204,6 @@ boolean CallWindow( const char callgrade )
 /*       We pass the time check                                       */
 /*--------------------------------------------------------------------*/
 
-   return TRUE;
+   return KWTrue;
 
 } /* CallWindow */

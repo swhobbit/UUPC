@@ -21,7 +21,7 @@ void put_active(void);     /* Write the active newsgroups file */
 
 struct grp *find_newsgroup(const char *grp); /* Find pointer for group     */
 
-KWBoolean add_newsgroup(const char *grp, const boolean moderated);
+KWBoolean add_newsgroup(const char *grp, const KWBoolean moderated);
 
 KWBoolean del_newsgroup(const char *grp);
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.29 1994/05/23 22:46:32 ahd v1-12k $
+ *    $Id: ulib.c 1.30 1994/12/22 00:36:25 ahd Exp $
  *
  *    $Log: ulib.c $
+ *    Revision 1.30  1994/12/22 00:36:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.29  1994/05/23 22:46:32  ahd
  *    Print specific message when aborting because port is already closed
  *
@@ -169,7 +172,7 @@ currentfile();
 #define  STOPBIT  1
 
 static int com_handle;
-static boolean hangup_needed = TRUE;
+static KWBoolean hangup_needed = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*    n o p e n l i n e                                               */
@@ -177,7 +180,7 @@ static boolean hangup_needed = TRUE;
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int nopenline(char *name, BPS bps, const boolean direct)
+int nopenline(char *name, BPS bps, const KWBoolean direct)
 {
    int   value;
 
@@ -229,7 +232,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
 
    traceStart( name );
 
-   portActive = TRUE;     /* record status for error handler */
+   portActive = KWTrue;    /* record status for error handler */
 
    return 0;
 
@@ -255,7 +258,7 @@ unsigned int nsread(char UUFAR *input,
 {
    time_t start;
 
-   hangup_needed = TRUE;
+   hangup_needed = KWTrue;
 
    start = time(nil(time_t)); /* Remember when we started processing */
 
@@ -276,11 +279,11 @@ unsigned int nsread(char UUFAR *input,
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"nsread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
@@ -307,7 +310,7 @@ unsigned int nsread(char UUFAR *input,
                printmsg( 19, "nsread: char = %c", Received );
          }
 
-         traceData( input, wanted, FALSE );
+         traceData( input, wanted, KWFalse );
 
          return pending;
 
@@ -336,7 +339,7 @@ int nswrite(const char UUFAR *input, unsigned int len)
    unsigned int i;
    char UUFAR *data = (char UUFAR *) input;
 
-   hangup_needed = TRUE;
+   hangup_needed = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
@@ -412,7 +415,7 @@ int nswrite(const char UUFAR *input, unsigned int len)
    for (i = 0; i < len; i++)
       send_com(*data++);
 
-   traceData( input, len, TRUE );
+   traceData( input, len, KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -453,7 +456,7 @@ void ncloseline(void)
       panic();
    }
 
-   portActive = FALSE;        /* Flag port closed for error handler  */
+   portActive = KWFalse;       /* Flag port closed for error handler  */
 
    dtr_off();
    ddelay(500);               /* Required for V.24             */
@@ -489,8 +492,8 @@ void nhangup( void )
       if (!hangup_needed)
          return;
 
-      hangup_needed = FALSE;
-      carrierDetect = FALSE;  /* No modem connected yet                */
+      hangup_needed = KWFalse;
+      carrierDetect = KWFalse;  /* No modem connected yet               */
 
       dtr_off();              /* Hang the phone up                     */
       ddelay(500);            /* Really only need 250 milliseconds     */
@@ -535,7 +538,7 @@ void nSIOSpeed(BPS bps)
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void nflowcontrol( boolean flow )
+void nflowcontrol( KWBoolean flow )
 {
    printmsg(4,"flowcontrol: Closing port");
    close_com();
@@ -566,9 +569,9 @@ BPS nGetSpeed( void )
 /*    Report if we have carrier detect and lost it                    */
 /*--------------------------------------------------------------------*/
 
-boolean nCD( void )
+KWBoolean nCD( void )
 {
-   boolean newCarrierDetect;
+   KWBoolean newCarrierDetect;
 
    ShowModem();
    newCarrierDetect = is_cd_high();

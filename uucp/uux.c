@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.15 1994/02/26 17:21:05 ahd v1-12k $
+ *    $Id: uux.c 1.16 1994/12/22 00:45:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.16  1994/12/22 00:45:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/02/26 17:21:05  ahd
  *    Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -181,17 +184,17 @@ typedef enum {
       OUTPUT_FILE = 2         /* Redirected stdout file               */
       } FileType;
 
-static boolean flags[FLG_MAXIMUM] = {
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE,
-                                        FALSE
+static KWBoolean flags[FLG_MAXIMUM] = {
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse,
+                                        KWFalse
                                     };
 static char* st_out = NULL;
 static char* user_id = NULL;
@@ -212,21 +215,21 @@ static void usage( void );
 
 static char *SwapSlash(char *p);
 
-static boolean cp(char *from, char *to);
+static KWBoolean cp(char *from, char *to);
 
-static boolean split_path(char *path,
+static KWBoolean split_path(char *path,
                           char *system,
                           char *file,
-                          boolean expand,
+                          KWBoolean expand,
                           char *default_sys);
 
-static boolean CopyData( const char *input, const char *output);
+static KWBoolean CopyData( const char *input, const char *output);
 
-static boolean do_uuxqt(char *job_name, char *src_syst, char *src_file, char *dest_syst, char *dest_file);
+static KWBoolean do_uuxqt(char *job_name, char *src_syst, char *src_file, char *dest_syst, char *dest_file);
 
-static boolean do_copy(char *src_syst, char *src_file, char *dest_syst, char *dest_file);
+static KWBoolean do_copy(char *src_syst, char *src_file, char *dest_syst, char *dest_file);
 
-static boolean do_remote(int optind, int argc, char **argv);
+static KWBoolean do_remote(int optind, int argc, char **argv);
 
 static void preamble(FILE* stream);
 
@@ -270,7 +273,7 @@ static char *SwapSlash(char *p)
 /*    Copy Local Files                                                */
 /*--------------------------------------------------------------------*/
 
-static boolean cp(char *from, char *to)
+static KWBoolean cp(char *from, char *to)
 {
    int  fd_from, fd_to;
    int  nr;
@@ -282,14 +285,14 @@ static boolean cp(char *from, char *to)
       function */
 
    if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-      return FALSE;        /* failed                                  */
+      return KWFalse;       /* failed                                  */
 
    /* what if the to is a directory? */
    /* possible with local source & dest uucp */
 
    if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
       close(fd_from);
-      return FALSE;        /* failed                                  */
+      return KWFalse;       /* failed                                  */
       /* NOTE - this assumes all the required directories exist!      */
    }
 
@@ -301,8 +304,8 @@ static boolean cp(char *from, char *to)
    close(fd_from);
 
    if (nr != 0 || nw == -1)
-      return FALSE;        /* failed in copy                          */
-   return TRUE;
+      return KWFalse;       /* failed in copy                          */
+   return KWTrue;
 }
 
 /*--------------------------------------------------------------------*/
@@ -311,12 +314,12 @@ static boolean cp(char *from, char *to)
 /*    Copy data into its final resting spot                           */
 /*--------------------------------------------------------------------*/
 
-static boolean CopyData( const char *input, const char *output)
+static KWBoolean CopyData( const char *input, const char *output)
 {
    FILE    *datain;
    FILE    *dataout;
    char     buf[BUFSIZ];
-   boolean  status = TRUE;
+   KWBoolean  status = KWTrue;
    size_t   len;
 
    if ( (dataout = FOPEN(output, "w", IMAGE_MODE)) == NULL )
@@ -326,7 +329,7 @@ static boolean CopyData( const char *input, const char *output)
                output);
       printmsg(2,"Writing data file %s",
                  output );
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -346,7 +349,7 @@ static boolean CopyData( const char *input, const char *output)
       printmsg(0,"Unable to open input file \"%s\"",
                (input == NULL ? "stdin" : input));
       fclose(dataout);
-      return FALSE;
+      return KWFalse;
    } /* datain */
 
    printmsg(2,"Copying data %s to %s",
@@ -364,7 +367,7 @@ static boolean CopyData( const char *input, const char *output)
          printerr("dataout");
          printmsg(0,"I/O error on \"%s\"", output);
          fclose(dataout);
-         return FALSE;
+         return KWFalse;
       } /* if */
    } /* while */
 
@@ -376,7 +379,7 @@ static boolean CopyData( const char *input, const char *output)
    {
       printerr(input);
       clearerr(datain);
-      status = FALSE;
+      status = KWFalse;
    }
 
    if (input != NULL)
@@ -391,10 +394,10 @@ static boolean CopyData( const char *input, const char *output)
 /*    s p l i t _ p a t h                                             */
 /*--------------------------------------------------------------------*/
 
-static boolean split_path(char *path,
+static KWBoolean split_path(char *path,
                           char *sysname,
                           char *file,
-                          boolean expand,
+                          KWBoolean expand,
                           char *default_sys )
 {
       char *p_left;
@@ -410,7 +413,7 @@ static boolean split_path(char *path,
    if (strcspn(path, "*?[") < strlen(path))
    {
       printmsg(0,"uux - Wildcards not allowed in operand: %s",p );
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -432,10 +435,10 @@ static boolean split_path(char *path,
       if ( equal(sysname, E_nodename ) &&
            expand &&
            (expand_path(file, NULL, E_homedir, NULL) == NULL))
-         return FALSE;     /* expand_path will delivery any needed
+         return KWFalse;    /* expand_path will delivery any needed
                                  nasty-gram to user                  */
 
-      return TRUE;
+      return KWTrue;
 
    } /* if ( p_left == NULL ) */
 
@@ -455,16 +458,16 @@ static boolean split_path(char *path,
          if ( p_left != p_right )      /* More bangs?                 */
          {
             printmsg(0,"uux - Invalid syntax for local file: %s", p );
-            return FALSE;              /* Yes --> I don't grok this   */
+            return KWFalse;             /* Yes --> I don't grok this   */
          }
 
          strcpy(file, p+1);            /* Just return filename        */
 
          if ( expand && (expand_path(file, NULL, E_homedir, NULL) == NULL))
-            return FALSE;     /* expand_path will delivery any needed
+            return KWFalse;    /* expand_path will delivery any needed
                                  nasty-gram to user                  */
          strcpy(sysname, E_nodename);
-         return TRUE;
+         return KWTrue;
       } /* p_left == p */
 
 /*--------------------------------------------------------------------*/
@@ -485,11 +488,11 @@ static boolean split_path(char *path,
 
           printmsg(0, "uux - Intermediate system %.*s not supported",
                      p_right - (p_left + 1), p_left + 1);
-          return FALSE;
+          return KWFalse;
 
       } /* if (p_left != p_right) */
 
-      return TRUE;                     /* and we're done              */
+      return KWTrue;                    /* and we're done              */
 
 } /* split_path */
 
@@ -499,7 +502,7 @@ static boolean split_path(char *path,
 /*    Generate a UUXQT command file for local system                  */
 /*--------------------------------------------------------------------*/
 
-static boolean do_uuxqt(char *job_name,
+static KWBoolean do_uuxqt(char *job_name,
                         char *src_syst,
                         char *src_file,
                         char *dest_syst,
@@ -533,7 +536,7 @@ static boolean do_uuxqt(char *job_name,
    if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
-      return FALSE;
+      return KWFalse;
    } /* if */
 
    fprintf(stream, "# third party request, job id\n" );
@@ -543,7 +546,7 @@ static boolean do_uuxqt(char *job_name,
    fprintf(stream, "C uucp -C %s %s!%s\n", src_file, dest_syst, dest_file );
    fclose (stream);
 
-   return TRUE;
+   return KWTrue;
 
 } /* do_uuxqt */
 
@@ -554,7 +557,7 @@ static boolean do_uuxqt(char *job_name,
 /*    1 hop away.  All the rest have been filtered out                */
 /*--------------------------------------------------------------------*/
 
-static boolean do_copy(char *src_syst,
+static KWBoolean do_copy(char *src_syst,
                        char *src_file,
                        char *dest_syst,
                        char *dest_file)
@@ -594,7 +597,7 @@ static boolean do_copy(char *src_syst,
       if (!equal(src_syst, E_nodename))
       {
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
-            return FALSE;
+            return KWFalse;
 
          SwapSlash(src_file);
 
@@ -603,7 +606,7 @@ static boolean do_copy(char *src_syst,
          if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
             printerr( icfilename );
             printmsg(0, "uux: cannot append to %s\n", icfilename);
-            return FALSE;
+            return KWFalse;
          }
 
          fprintf(cfile, "R %s %s %s -c D.0 0666 %s\n",
@@ -612,7 +615,7 @@ static boolean do_copy(char *src_syst,
                         flags[FLG_USE_USERID] ? user_id : E_mailbox);
 
          fclose(cfile);
-         return TRUE;
+         return KWTrue;
       }
 
 /*--------------------------------------------------------------------*/
@@ -629,19 +632,19 @@ static boolean do_copy(char *src_syst,
                   dest_syst, sequence, tmfile);
 
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
-            return FALSE;
+            return KWFalse;
 
          SwapSlash(dest_file);
 
          if (stat(src_file, &statbuf) != 0)  {
             printerr( src_file );
-            return FALSE;
+            return KWFalse;
          }
 
          if (statbuf.st_mode & S_IFDIR)  {
             printf("uux - directory name \"%s\" illegal\n",
                     src_file );
-            return FALSE;
+            return KWFalse;
          }
 
          if (flags[FLG_COPY_SPOOL]) {
@@ -655,7 +658,7 @@ static boolean do_copy(char *src_syst,
             if (!cp(src_file, idfilename))  {
                printmsg(0, "copy \"%s\" to \"%s\" failed",
                   src_file, idfilename);           /* copy data        */
-               return FALSE;
+               return KWFalse;
             }
          }
          else
@@ -665,7 +668,7 @@ static boolean do_copy(char *src_syst,
          {
             printerr( icfilename );
             printf("uux: cannot append to %s\n", icfilename);
-            return FALSE;
+            return KWFalse;
          } /* if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL) */
 
          fprintf(cfile, "S %s %s %s -%s %s 0666 %s\n",
@@ -677,7 +680,7 @@ static boolean do_copy(char *src_syst,
 
          fclose(cfile);
 
-         return TRUE;
+         return KWTrue;
       }
 
 /*--------------------------------------------------------------------*/
@@ -686,16 +689,16 @@ static boolean do_copy(char *src_syst,
 
       else {
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
-            return FALSE;
+            return KWFalse;
 
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
-            return FALSE;
+            return KWFalse;
 
          if (equal(src_file, dest_file))
          {
             printmsg(0, "%s %s - same file; can't copy\n",
                   src_file, dest_file);
-            return FALSE;
+            return KWFalse;
          } /* if (equal(src_file, dest_file)) */
 
          return(cp(src_file, dest_file));
@@ -762,16 +765,16 @@ static void preamble(FILE* stream)
 /*   gather data files to ship to execution system and build X file   */
 /*--------------------------------------------------------------------*/
 
-static boolean do_remote(int optind, int argc, char **argv)
+static KWBoolean do_remote(int optind, int argc, char **argv)
 {
    FILE    *stream;           /* For writing out data                 */
    char    *sequence_s;
 
-   boolean s_remote;
-   boolean d_remote;
-   boolean i_remote = FALSE;
-   boolean o_remote = FALSE;
-   boolean p_remote = FALSE;
+   KWBoolean s_remote;
+   KWBoolean d_remote;
+   KWBoolean i_remote = KWFalse;
+   KWBoolean o_remote = KWFalse;
+   KWBoolean p_remote = KWFalse;
 
    long    sequence;
 
@@ -799,13 +802,13 @@ static boolean do_remote(int optind, int argc, char **argv)
 /*    Get the remote system and command to execute on that system     */
 /*--------------------------------------------------------------------*/
 
-   if (!split_path(argv[optind++], dest_system, command, FALSE, E_nodename))
+   if (!split_path(argv[optind++], dest_system, command, KWFalse, E_nodename))
    {
       printmsg(0, "uux - illegal syntax %s", argv[--optind]);
-      return FALSE;
+      return KWFalse;
    }
 
-   d_remote = equal(dest_system, E_nodename) ? FALSE : TRUE ;
+   d_remote = equal(dest_system, E_nodename) ? KWFalse : KWTrue ;
 
 /*--------------------------------------------------------------------*/
 /*        OK - we have a destination system - do we know him?         */
@@ -814,7 +817,7 @@ static boolean do_remote(int optind, int argc, char **argv)
    if ((d_remote) && (checkreal(dest_system) == BADHOST))
    {
       printmsg(0, "uux - bad system: %s", dest_system);
-      return FALSE;
+      return KWFalse;
    }
 
    printmsg(9,"xsys -> %s", dest_system);
@@ -839,7 +842,7 @@ static boolean do_remote(int optind, int argc, char **argv)
    if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
-      return FALSE;
+      return KWFalse;
    } /* if */
 
    preamble(stream);
@@ -866,57 +869,57 @@ static boolean do_remote(int optind, int argc, char **argv)
       case '<':
          if (p_remote) {
             printmsg(0, "uux - input file specified after pipe");
-            return FALSE;
+            return KWFalse;
          }
          else if (i_remote) {
             printmsg(0, "uux - multiple input files specified");
-            return FALSE;
+            return KWFalse;
          }
          else
-            i_remote = TRUE;
+            i_remote = KWTrue;
          f_remote = INPUT_FILE;
          printmsg(9, "prm -> %c", *argv[optind]);
          if (!*++argv[optind])
             if (++optind >= argc)
             {
                printmsg(0, "uux - no input file specified after <");
-               return FALSE;
+               return KWFalse;
             }
          break;
 
       case '>':
          if (o_remote) {
             printmsg(0, "uux - multiple output files specified");
-            return FALSE;
+            return KWFalse;
          } else
-            o_remote = TRUE;
+            o_remote = KWTrue;
          f_remote = OUTPUT_FILE;
          printmsg(9, "prm -> %c", *argv[optind]);
          if (!*++argv[optind])
              if (++optind >= argc)
              {
                 printmsg(0, "uux - no output file specified after >");
-                return FALSE;
+                return KWFalse;
              }
          break;
 
        case '|':
           if (o_remote) {
              printmsg(0, "uux - pipe specified after output file");
-             return FALSE;
+             return KWFalse;
           } else
-             p_remote = TRUE;
+             p_remote = KWTrue;
           printmsg(9, "prm -> %c", *argv[optind]);
           if (!*++argv[optind])
              if (++optind >= argc)
              {
                 printmsg(0, "uux - no command specified after |");
-                return FALSE;
+                return KWFalse;
              }
           if (strchr(argv[optind], '!'))
           {
              printmsg(0, "uux - no host name allowed after |");
-             return FALSE;
+             return KWFalse;
           }
           strcat(command," | ");
           strcat(command, argv[optind]);
@@ -930,7 +933,7 @@ static boolean do_remote(int optind, int argc, char **argv)
           {
              printmsg(0, "uux - missing close parenthesis in %s",
                          argv[optind] + 1);
-             return FALSE;
+             return KWFalse;
           }
           argv[optind][len] = '\0';
        }
@@ -949,13 +952,13 @@ static boolean do_remote(int optind, int argc, char **argv)
 /*        Hmmm.  Do we want the remote to have DOS style path?        */
 /*--------------------------------------------------------------------*/
 
-      if (!split_path(argv[optind], src_system, src_file, FALSE, dest_system))
+      if (!split_path(argv[optind], src_system, src_file, KWFalse, dest_system))
       {
          printmsg(0, "uux - illegal syntax %s", argv[optind]);
-         return FALSE;
+         return KWFalse;
       } /* if (!split_path()) */
 
-      s_remote = equal(src_system, E_nodename) ? FALSE : TRUE ;
+      s_remote = equal(src_system, E_nodename) ? KWFalse : KWTrue ;
 
 /*--------------------------------------------------------------------*/
 /*                   Do we know the source system?                    */
@@ -964,7 +967,7 @@ static boolean do_remote(int optind, int argc, char **argv)
       if ((s_remote) && (checkreal(src_system) == BADHOST))
       {
          printmsg(0, "uux - bad system %s\n", src_system);
-         return FALSE;
+         return KWFalse;
       } /* if ((s_remote) && (checkreal(src_system) == BADHOST)) */
 
       if (f_remote == OUTPUT_FILE)
@@ -1021,7 +1024,7 @@ static boolean do_remote(int optind, int argc, char **argv)
          if ((s_remote && !d_remote) || (!s_remote && d_remote))
          {
             if (!do_copy(src_system, src_file, dest_system, dest_file))
-               return FALSE;
+               return KWFalse;
          } /* if ((s_remote && !d_remote) || (!s_remote && d_remote)) */
 
 /*--------------------------------------------------------------------*/
@@ -1035,10 +1038,10 @@ static boolean do_remote(int optind, int argc, char **argv)
                           remote_file,
                           dest_system,
                           dest_file))
-               return FALSE;
+               return KWFalse;
 
             if (!do_copy(src_system, src_file, E_nodename, dest_file))
-               return FALSE;
+               return KWFalse;
 
          } /* else if (s_remote && d_remote) */
 
@@ -1059,7 +1062,7 @@ static boolean do_remote(int optind, int argc, char **argv)
    {
       if (i_remote) {
          printmsg(0, "uux - multiple input files specified");
-         return FALSE;
+         return KWFalse;
       }
 
       sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
@@ -1074,7 +1077,7 @@ static boolean do_remote(int optind, int argc, char **argv)
 
       if (!CopyData( NULL, msfile )) {
          remove( msfile );
-         return FALSE;
+         return KWFalse;
       }
 
       fprintf(stream, "F %s\n", rifile);
@@ -1102,7 +1105,7 @@ static boolean do_remote(int optind, int argc, char **argv)
       if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL) {
          printerr( msname );
          printmsg(0, "uux: cannot write/append to C file %s", msfile);
-         return FALSE;
+         return KWFalse;
       }
 
       if (flags[FLG_READ_STDIN])
@@ -1112,7 +1115,7 @@ static boolean do_remote(int optind, int argc, char **argv)
 
       fclose(stream);
    }
-   return TRUE;
+   return KWTrue;
 } /* do_remote */
 
 /*--------------------------------------------------------------------*/
@@ -1170,47 +1173,47 @@ void main(int  argc, char  **argv)
    while ((c = getopt(argc, argv, "-a:bcCEejg:nprs:x:z")) !=  EOF)
       switch(c) {
       case '-':
-         flags[FLG_READ_STDIN] = TRUE;
+         flags[FLG_READ_STDIN] = KWTrue;
          break;
       case 'a':
-         flags[FLG_USE_USERID] = TRUE;
+         flags[FLG_USE_USERID] = KWTrue;
          user_id = optarg;
          break;
       case 'b':
-         flags[FLG_RETURN_STDIN] = TRUE;
+         flags[FLG_RETURN_STDIN] = KWTrue;
          break;
       case 'c':               /* don't spool                          */
-         flags[FLG_COPY_SPOOL] = FALSE;
+         flags[FLG_COPY_SPOOL] = KWFalse;
          break;
       case 'C':               /* force spool                          */
-         flags[FLG_COPY_SPOOL] = TRUE;
+         flags[FLG_COPY_SPOOL] = KWTrue;
          break;
       case 'E':               /* use exec to execute                  */
-         flags[FLG_USE_EXEC] = TRUE;
+         flags[FLG_USE_EXEC] = KWTrue;
          break;
       case 'e':               /* use sh to execute                    */
-         flags[FLG_USE_EXEC] = FALSE;
+         flags[FLG_USE_EXEC] = KWFalse;
          break;
       case 'j':               /* output job id to stdout              */
-         flags[FLG_OUTPUT_JOBID] = TRUE;
+         flags[FLG_OUTPUT_JOBID] = KWTrue;
          break;
       case 'n':               /* do not notify user if command fails  */
-         flags[FLG_NONOTIFY_FAIL] = TRUE;
+         flags[FLG_NONOTIFY_FAIL] = KWTrue;
          break;
       case 'p':
-         flags[FLG_READ_STDIN] = TRUE;
+         flags[FLG_READ_STDIN] = KWTrue;
          break;
       case 'r':               /* queue job only                       */
-         flags[FLG_QUEUE_ONLY] = TRUE;
+         flags[FLG_QUEUE_ONLY] = KWTrue;
          break;
       case 'z':
-         flags[FLG_NOTIFY_SUCCESS] = TRUE;
+         flags[FLG_NOTIFY_SUCCESS] = KWTrue;
          break;
       case 'g':               /* set grade of transfer                 */
          grade = *optarg;
          break;
       case 's':               /* report status of transfer to file     */
-         flags[FLG_STATUS_FILE] = TRUE;
+         flags[FLG_STATUS_FILE] = KWTrue;
          st_out = optarg;
          break;
       case 'x':

@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.21 1994/05/07 21:45:33 ahd v1-12k $
+ *       $Id: ulibnmp.c 1.22 1994/12/22 00:37:24 ahd Exp $
  *       $Log: ulibnmp.c $
+ *       Revision 1.22  1994/12/22 00:37:24  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.21  1994/05/07 21:45:33  ahd
  *       Correct CD() processing to be sticky -- once it fails, it
  *       keeps failing until reset by close or hangup.
@@ -128,11 +131,11 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 
 currentfile();
 
-static boolean hangupNeeded = FALSE;
+static KWBoolean hangupNeeded = KWFalse;
 
 static BPS currentSpeed = 0;
 
-static boolean passive;
+static KWBoolean passive;
 
 #define FAR_NULL ((PVOID) 0L)
 
@@ -159,7 +162,7 @@ static int writes, reads, writeSpins, readSpins;
 #pragma argsused
 #endif
 
-int ppassiveopenline(char *name, BPS baud, const boolean direct )
+int ppassiveopenline(char *name, BPS baud, const KWBoolean direct )
 {
 
    APIRET rc;
@@ -205,7 +208,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
       if ( rc )
       {
          printOS2error(pipeName, rc );
-         return TRUE;
+         return KWTrue;
       }
 
    } /* if ( pipeHandle == -1 ) */
@@ -218,8 +221,8 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 
    traceStart( name );     /* Enable logging                          */
 
-   portActive = TRUE;      /* Record status for error handler        */
-   passive    = TRUE;
+   portActive = KWTrue;     /* Record status for error handler        */
+   passive    = KWTrue;
 
    return 0;
 
@@ -231,7 +234,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*       Wait for network connection                                  */
 /*--------------------------------------------------------------------*/
 
-boolean pWaitForNetConnect(const unsigned int timeout)
+KWBoolean pWaitForNetConnect(const unsigned int timeout)
 {
 
    time_t stop;
@@ -248,19 +251,19 @@ boolean pWaitForNetConnect(const unsigned int timeout)
 
       if ( rc == 0 )
       {
-         hangupNeeded = TRUE;      /* Flag that the pipe is now dirty */
-         return TRUE;
+         hangupNeeded = KWTrue;     /* Flag that the pipe is now dirty */
+         return KWTrue;
       }
       else if ( rc == ERROR_PIPE_NOT_CONNECTED )
          ssleep(5);
       else {
          printOS2error("DosConnectNPipe", rc );
-         return FALSE;
+         return KWFalse;
       } /* else */
 
    } while( (stop > time( NULL )) && ! terminate_processing );
 
-   return FALSE;
+   return KWFalse;
 
 }  /* pWaitForNetConnect */
 
@@ -274,7 +277,7 @@ boolean pWaitForNetConnect(const unsigned int timeout)
 #pragma argsused
 #endif
 
-int pactiveopenline(char *name, BPS baud, const boolean direct )
+int pactiveopenline(char *name, BPS baud, const KWBoolean direct )
 {
 
    APIRET rc;
@@ -311,7 +314,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
    {
       printOS2error(name , rc );
       pipeHandle = -1;
-      return TRUE;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -322,8 +325,8 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 
    traceStart( name );     /* Enable logging                          */
 
-   portActive = TRUE;      /* Record status for error handler        */
-   passive    = FALSE;
+   portActive = KWTrue;     /* Record status for error handler        */
+   passive    = KWFalse;
 
    return 0;
 
@@ -352,7 +355,7 @@ unsigned int psread(char UUFAR *output,
    time_t stop_time ;
    time_t now ;
 
-   boolean firstPass = TRUE;
+   KWBoolean firstPass = KWTrue;
 
    reads++;
 
@@ -404,17 +407,17 @@ unsigned int psread(char UUFAR *output,
 
       if ( terminate_processing )
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
          if ( ! recurse )
          {
             printmsg(2,"psread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
       }
 
       if ( firstPass )
-         firstPass = FALSE;
+         firstPass = KWFalse;
       else {
          readSpins++;
 
@@ -454,7 +457,7 @@ unsigned int psread(char UUFAR *output,
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      traceData( commBuffer + commBufferUsed, (unsigned) received, FALSE );
+      traceData( commBuffer + commBufferUsed, (unsigned) received, KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -514,7 +517,7 @@ int pswrite(const char UUFAR *input, unsigned int len)
 
    APIRET rc;
 
-   hangupNeeded = TRUE;      /* Flag that the pipe is now dirty  */
+   hangupNeeded = KWTrue;     /* Flag that the pipe is now dirty  */
    writes ++;
 
 /*--------------------------------------------------------------------*/
@@ -542,7 +545,7 @@ int pswrite(const char UUFAR *input, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   traceData( data, len, TRUE);
+   traceData( data, len, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the pipe to the caller          */
@@ -580,8 +583,8 @@ void pcloseline(void)
    if ( ! portActive )
       panic();
 
-   portActive = FALSE; /* flag pipe closed for error handler  */
-   hangupNeeded = FALSE;  /* Don't fiddle with pipe any more  */
+   portActive = KWFalse; /* flag pipe closed for error handler  */
+   hangupNeeded = KWFalse;  /* Don't fiddle with pipe any more  */
 
    printmsg(4,
          "pcloseline: Read delay %d ms, Write delay %d ms",
@@ -630,7 +633,7 @@ void phangup( void )
 #else
       DosDisConnectNmPipe( pipeHandle );
 #endif
-      hangupNeeded = FALSE;
+      hangupNeeded = KWFalse;
    }
 
    return;
@@ -664,7 +667,7 @@ void pSIOSpeed(BPS baud)
 #pragma argsused
 #endif
 
-void pflowcontrol( boolean flow )
+void pflowcontrol( KWBoolean flow )
 {
    return;
 } /* pflowcontrol */
@@ -686,9 +689,9 @@ BPS pGetSpeed( void )
 /*   Return status of carrier detect                                  */
 /*--------------------------------------------------------------------*/
 
-boolean pCD( void )
+KWBoolean pCD( void )
 {
-   return TRUE;
+   return KWTrue;
 } /* pCD */
 
 /*--------------------------------------------------------------------*/

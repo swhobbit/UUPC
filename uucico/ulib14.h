@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.h 1.4 1994/01/24 02:57:49 ahd v1-12k $
+ *    $Id: ulib14.h 1.5 1994/12/22 00:41:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulib14.h $
+ *    Revision 1.5  1994/12/22 00:41:32  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/24 02:57:49  ahd
  *    Annual Copyright Update
  *
@@ -38,7 +41,7 @@
  *
  */
 
-extern int iopenline(char *name, BPS baud, const boolean direct);
+extern int iopenline(char *name, BPS baud, const KWBoolean direct);
 
 extern unsigned int isread(char UUFAR *buffer,
                           unsigned int wanted,
@@ -52,10 +55,10 @@ void icloseline(void);
 
 void iSIOSpeed(BPS baud);
 
-void iflowcontrol( boolean );
+void iflowcontrol( KWBoolean );
 
 void ihangup( void );
 
 BPS iGetSpeed( void );
 
-boolean iCD( void );
+KWBoolean iCD( void );

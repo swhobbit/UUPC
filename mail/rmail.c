@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.33 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: rmail.c 1.34 1995/01/07 16:19:21 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.34  1995/01/07 16:19:21  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.33  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -802,12 +805,12 @@ static char **Parse822( KWBoolean *header,
 
    static HEADERS headerTable[] =
    {
-      { "From:",   NULL,  KWFalse, KWTrue,  FALSE, FALSE },
-      { "Sender:", NULL,  KWFalse, FALSE, FALSE, FALSE },
-      { "To:",     NULL,  KWFalse, FALSE, KWTrue,  FALSE },
-      { "Cc:",     NULL,  KWFalse, FALSE, KWTrue,  FALSE },
-      { "Bcc:",    NULL,  KWTrue,  KWFalse, TRUE,  FALSE },
-      { "Date:",   NULL,  KWFalse, FALSE, FALSE, FALSE },
+      { "From:",   NULL,  KWFalse, KWTrue,  KWFalse, FALSE },
+      { "Sender:", NULL,  KWFalse, KWFalse, FALSE, FALSE },
+      { "To:",     NULL,  KWFalse, KWFalse, KWTrue,  FALSE },
+      { "Cc:",     NULL,  KWFalse, KWFalse, KWTrue,  FALSE },
+      { "Bcc:",    NULL,  KWTrue,  KWFalse, KWTrue,  KWFalse },
+      { "Date:",   NULL,  KWFalse, KWFalse, FALSE, FALSE },
       { NULL }
    };
 

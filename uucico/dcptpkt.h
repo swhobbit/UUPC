@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcptpkt.h 1.4 1994/01/01 19:23:24 ahd v1-12k $
+  *      $Id: dcptpkt.h 1.5 1994/12/22 00:40:15 ahd Exp $
   *
   *      $Log: dcptpkt.h $
+  *      Revision 1.5  1994/12/22 00:40:15  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.4  1994/01/01 19:23:24  ahd
   *      Annual Copyright Update
   *
@@ -41,7 +44,7 @@
  *
   */
 
-short  topenpk(const boolean master);
+short  topenpk(const KWBoolean master);
 
 short  tclosepk(void);
 
@@ -55,6 +58,6 @@ short  trdmsg(char *str);
 
 short  teofpkt( void );
 
-short  tfilepkt( const boolean master, const unsigned long bytes );
+short  tfilepkt( const KWBoolean master, const unsigned long bytes );
 
 #endif

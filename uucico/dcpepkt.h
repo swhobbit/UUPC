@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpepkt.h 1.3 1994/01/01 19:22:57 ahd v1-12k $
+  *      $Id: dcpepkt.h 1.4 1994/12/22 00:39:31 ahd Exp $
   *
   *      $Log: dcpepkt.h $
+  *      Revision 1.4  1994/12/22 00:39:31  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.3  1994/01/01 19:22:57  ahd
   *      Annual Copyright Update
   *
@@ -41,7 +44,7 @@
  *
   */
 
-short  eopenpk(const boolean master);
+short  eopenpk(const KWBoolean master);
 
 short  eclosepk(void);
 
@@ -55,6 +58,6 @@ short  erdmsg(char *str);
 
 short  eeofpkt( void );
 
-short  efilepkt( const boolean master, const unsigned long bytes );
+short  efilepkt( const KWBoolean master, const unsigned long bytes );
 
 #endif

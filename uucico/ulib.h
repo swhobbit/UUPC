@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.8 1994/04/26 03:34:33 ahd v1-12k $
+ *    $Id: ulib.h 1.9 1994/12/22 00:41:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulib.h $
+ *    Revision 1.9  1994/12/22 00:41:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1994/04/26 03:34:33  ahd
  *    hot (previously opened) handle support
  *
@@ -46,7 +49,7 @@
  *
  */
 
-extern int nopenline(char *name, BPS baud, const boolean direct);
+extern int nopenline(char *name, BPS baud, const KWBoolean direct);
 
 extern unsigned int nsread(char UUFAR *buffer,
                           unsigned int wanted,
@@ -60,13 +63,13 @@ void ncloseline(void);
 
 void nSIOSpeed(BPS baud);
 
-void nflowcontrol( boolean );
+void nflowcontrol( KWBoolean );
 
 void nhangup( void );
 
 BPS nGetSpeed( void );
 
-boolean nCD( void );
+KWBoolean nCD( void );
 
 #if defined(BIT32ENV) || defined(FAMILYAPI)
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.19 1994/02/19 05:07:00 ahd v1-12k $
+ *    $Id: dcpfpkt.c 1.20 1994/12/22 00:34:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.20  1994/12/22 00:34:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.19  1994/02/19 05:07:00  ahd
  *    Use standard first header
  *
@@ -155,9 +158,9 @@ static short chksum;
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-short fopenpk(const boolean master)
+short fopenpk(const KWBoolean master)
 {
-   flowcontrol(TRUE);
+   flowcontrol(KWTrue);
 
    if ( M_fPacketSize > MAXPACK)
       M_fPacketSize = MAXPACK;
@@ -179,7 +182,7 @@ short fopenpk(const boolean master)
 
 short fclosepk()
 {
-   flowcontrol(FALSE);
+   flowcontrol(KWFalse);
    return DCP_OK;
 } /* fclosepk */
 
@@ -256,7 +259,7 @@ short fgetpkt(char *packet, short *bytes)
    char buf[5], tbuf[1];
    short i;
    static char special = 0;
-   static boolean eof = FALSE;
+   static KWBoolean eof = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                    Handle EOF on previous call                     */
@@ -264,7 +267,7 @@ short fgetpkt(char *packet, short *bytes)
 
    if ( eof )
    {
-      eof = FALSE;
+      eof = KWFalse;
       printmsg(2,"fgetpkt: EOF from other host");
       *bytes = 0;
       if (fsendresp(DCP_OK) == DCP_OK)
@@ -324,7 +327,7 @@ short fgetpkt(char *packet, short *bytes)
             sscanf(buf, "%4x", &chksum);
             *bytes = (short) (op - packet);
             if (chksum == sum) {
-               eof = TRUE;
+               eof = KWTrue;
                printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
                return DCP_OK;
             } else {
@@ -482,7 +485,7 @@ short fsendpkt(char *ip, short len)
 #pragma argsused
 #endif
 
-short ffilepkt( const boolean transmit, const unsigned long bytes )
+short ffilepkt( const KWBoolean transmit, const unsigned long bytes )
 {
    chksum = 0xffff;
    printmsg(3,"ffilepkt: Checksum reset");

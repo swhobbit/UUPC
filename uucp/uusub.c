@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.11 1994/02/20 19:11:18 ahd v1-12k $
+ *    $Id: uusub.c 1.12 1994/12/22 00:44:57 ahd Exp $
  *
  *    $Log: uusub.c $
+ *    Revision 1.12  1994/12/22 00:44:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1994/02/20 19:11:18  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -111,7 +114,7 @@ void main( int argc , char **argv)
 {
 
    int         option;
-   boolean clear_stats = FALSE;
+   KWBoolean clear_stats = KWFalse;
    char *name = nil(char);
 
 /*--------------------------------------------------------------------*/
@@ -134,7 +137,7 @@ void main( int argc , char **argv)
    while ((option = getopt(argc, argv, "cs:x:")) != EOF)  {
       switch(option)  {
          case 'c':               /* clear stats                       */
-            clear_stats = TRUE;
+            clear_stats = KWTrue;
             break;
          case 's':               /* only named host                    */
             name = optarg;
@@ -190,7 +193,7 @@ void main( int argc , char **argv)
 static void showstats( const char *name )
 {
    struct HostTable *host;
-   boolean firsthost = TRUE;
+   KWBoolean firsthost = KWTrue;
    static const char *dashes = "-----------";
 
    printf("Host information collected since %s\n",ctime( &start_stats ));
@@ -207,7 +210,7 @@ static void showstats( const char *name )
    else
       while  ((host = nexthost( firsthost )) != BADHOST)
       {
-         firsthost = FALSE;
+         firsthost = KWFalse;
          showhost ( host );
       } /* while */
 

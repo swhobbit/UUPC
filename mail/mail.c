@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.31 1994/12/22 00:19:13 ahd Exp $
+ *    $Id: mail.c 1.32 1995/01/07 16:18:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.32  1995/01/07 16:18:46  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.31  1994/12/22 00:19:13  ahd
  *    Annual Copyright Update
  *
@@ -145,7 +148,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.31 1994/12/22 00:19:13 ahd Exp $";
+      "$Id: mail.c 1.32 1995/01/07 16:18:46 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1028,7 +1031,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
             if ( (cmd_ptr->bits & AUTOPRINT ) &&
                   bflag[F_AUTOPRINT] &&
                   (letters[current].status != M_DELETED) )
-               Pager( current , KWTrue, ignoresome, TRUE);
+               Pager( current , KWTrue, ignoresome, KWTrue);
             else if ( !(cmd_ptr->bits & NOAUTOHEADER ) )
                PrintSubject( current , letternum );
          } /* if */

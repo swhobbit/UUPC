@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.15 1994/05/08 02:50:44 ahd v1-12k $
+ *    $Id: modem.h 1.16 1994/12/22 00:40:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ *    Revision 1.16  1994/12/22 00:40:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/05/08 02:50:44  ahd
  *    Change name of carrier detect
  *
@@ -95,13 +98,13 @@ KEWSHORT GetGPacket( KEWSHORT maxvalue, const char protocol );
 
 KEWSHORT GetGWindow( KEWSHORT maxvalue, const char protocol );
 
-boolean getmodem( const char *brand);
+KWBoolean getmodem( const char *brand);
 
 /*--------------------------------------------------------------------*/
 /*                       Environment variables                        */
 /*--------------------------------------------------------------------*/
 
-extern boolean  bmodemflag[MODEM_LAST];
+extern KWBoolean  bmodemflag[MODEM_LAST];
 extern char     *M_device;
 extern KEWSHORT M_ePacketTimeout;
 extern KEWSHORT M_fPacketSize;

@@ -185,11 +185,11 @@ next(this)
 	llst_t	*this;
 {
 	if (!this)
-		return(FALSE);
+		return(KWFalse);
 	if (!this->curr_el || !this->curr_el->nxt)
-		return(FALSE);
+		return(KWFalse);
 	this->curr_el = this->curr_el->nxt;
-	return(TRUE);
+	return(KWTrue);
 }
 
 static bool
@@ -197,11 +197,11 @@ prev(this)
 	llst_t	*this;
 {
 	if (!this)
-		return(FALSE);
+		return(KWFalse);
 	if (!this->curr_el || !this->curr_el->prv)
-		return(FALSE);
+		return(KWFalse);
 	this->curr_el = this->curr_el->prv;
-	return(TRUE);
+	return(KWTrue);
 }
 
 static bool
@@ -212,9 +212,9 @@ add(this, datum)
 	llel_t	*new;
 
 	if (!this)
-		return(FALSE);
+		return(KWFalse);
 	if ((new = (llel_t *) malloc(sizeof(llel_t))) == NULL)
-		return(FALSE);
+		return(KWFalse);
 	new->d = datum;
 	this->num_el++;
 	if (!this->first_el) {
@@ -235,7 +235,7 @@ add(this, datum)
 		new->prv = this->curr_el;
 	}
 	this->curr_el = new;
-	return(TRUE);
+	return(KWTrue);
 }
 
 static VOID
@@ -333,13 +333,13 @@ find(this, el, fn)
 	cmp_t	(*fn)();
 {
 	if (!this)
-		return(FALSE);
+		return(KWFalse);
 	llst_top(this);
 	do {
 		if ((*fn)(el, llst_current(this)) == 0)
-			return(TRUE);
+			return(KWTrue);
 	} while (llst_next(this));
-	return(FALSE);
+	return(KWFalse);
 }
 
 static VOID

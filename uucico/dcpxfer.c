@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.47 1994/12/22 00:35:22 ahd Exp $
+ *       $Id: dcpxfer.c 1.48 1994/12/27 20:45:50 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.48  1994/12/27 20:45:50  ahd
+ *       Smoother call grading'
+ *
  *       Revision 1.47  1994/12/22 00:35:22  ahd
  *       Annual Copyright Update
  *
@@ -218,7 +221,7 @@ static long bytes;
 static unsigned long fileSize;
 static struct timeb startTime;
 
-static boolean spool = FALSE; /* Received file is into spool dir     */
+static KWBoolean spool = KWFalse; /* Received file is into spool dir   */
 static char spolName[FILENAME_MAX];
                               /* Final host name of file to be
                                  received into spool directory       */
@@ -237,8 +240,8 @@ currentfile();
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static boolean pktgetstr( char *s);
-static boolean pktsendstr( char *s );
+static KWBoolean pktgetstr( char *s);
+static KWBoolean pktsendstr( char *s );
 static void buf_init( void );
 
 static int  bufill(char  *buffer);
@@ -384,7 +387,7 @@ XFER_STATE sbreak( void )
 /*    Send End-Of-File                                                */
 /*--------------------------------------------------------------------*/
 
-XFER_STATE seof( const boolean purge_file )
+XFER_STATE seof( const KWBoolean purge_file )
 {
 
    struct tm  *tmx;
@@ -402,7 +405,7 @@ XFER_STATE seof( const boolean purge_file )
          printmsg(0, "Remote system asks that the file be resent");
          fseek(xfer_stream, 0L, SEEK_SET);
          bytes = 0;
-         (*filepkt)(TRUE, fileSize);
+         (*filepkt)(KWTrue, fileSize);
                                  /* Warmstart file-transfer protocol */
          return XFER_SENDDATA;   /* stay in data phase */
 
@@ -692,7 +695,7 @@ XFER_STATE ssfile( void )
    }
 
    fileSize = filelength( fileno( xfer_stream ) );
-   (*filepkt)(TRUE, fileSize);/* Init for file transfer              */
+   (*filepkt)(KWTrue, fileSize);/* Init for file transfer             */
 
    return XFER_SENDDATA;      /* Enter data transmission mode        */
 
@@ -804,10 +807,10 @@ appending file name \"%s\"", spolName, slash);
       return XFER_ABORT;
    } /* if */
 
-   spool = FALSE;             /* Do not rename file at completion */
+   spool = KWFalse;            /* Do not rename file at completion */
    lName = spolName;          /* Use full name for local logging      */
 
-   (*filepkt)(FALSE, 0);      /* Init for file transfer              */
+   (*filepkt)(KWFalse, 0);     /* Init for file transfer              */
 
    return XFER_RECVDATA;      /* Now start receiving the data     */
 
@@ -824,7 +827,7 @@ XFER_STATE sinit( void )
 {
 
 
-   if ((*openpk)( TRUE ))     /* Initialize in caller mode           */
+   if ((*openpk)( KWTrue ))    /* Initialize in caller mode           */
       return XFER_ABORT;
    else {
       buf_init();
@@ -841,7 +844,7 @@ XFER_STATE sinit( void )
 /*    Scan spooling directory for C.* files for the other system      */
 /*--------------------------------------------------------------------*/
 
-XFER_STATE schkdir( const boolean outbound, const char callgrade )
+XFER_STATE schkdir( const KWBoolean outbound, const char callgrade )
 {
    XFER_STATE c;
 
@@ -903,7 +906,7 @@ XFER_STATE endp( void )
    if (spool)
    {
       unlink(tempName);
-      spool = FALSE;
+      spool = KWFalse;
    }
    return XFER_EXIT;
 
@@ -920,7 +923,7 @@ XFER_STATE endp( void )
 XFER_STATE rinit( void )
 {
 
-   if ((*openpk)( FALSE ) == DCP_OK )   /* Initialize in callee mode */
+   if ((*openpk)( KWFalse ) == DCP_OK )  /* Initialize in callee mode */
    {
       buf_init();
       return XFER_SLAVE;
@@ -1014,9 +1017,9 @@ XFER_STATE rrfile( void )
         (tName[1] == '.') &&
         (strchr(tName,'/') == NULL ) &&
         (strchr(tName,'\\') == NULL ))
-      spool = TRUE;
+      spool = KWTrue;
    else
-      spool = FALSE;
+      spool = KWFalse;
 
    strcpy( fileName, tName );
 
@@ -1166,7 +1169,7 @@ XFER_STATE rrfile( void )
 
    lName = spool ? tName : spolName;   /* choose name to log          */
 
-   (*filepkt)(FALSE, 0);      /* Init for file transfer              */
+   (*filepkt)(KWFalse, 0);     /* Init for file transfer              */
 
    return XFER_RECVDATA;   /* Switch to data state                */
 
@@ -1270,7 +1273,7 @@ XFER_STATE rsfile( void )
    lName = spolName;       /* Remember name of file to log            */
 
    fileSize = filelength( fileno( xfer_stream ) );
-   (*filepkt)(TRUE, fileSize);   /* Init for file transfer            */
+   (*filepkt)(KWTrue, fileSize);  /* Init for file transfer            */
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 
@@ -1369,7 +1372,7 @@ XFER_STATE reof( void )
          response = cn;
          printerr(spolName);
       } /* if ( RENAME(tempName, spolName )) */
-      spool = FALSE;
+      spool = KWFalse;
    } /* if (equal(response,cy) && spool) */
 
    if (!pktsendstr(response)) /* Announce we accepted the file       */
@@ -1459,7 +1462,7 @@ XFER_STATE reof( void )
 /*    Transmit a control packet                                       */
 /*--------------------------------------------------------------------*/
 
-static boolean pktsendstr( char *s )
+static KWBoolean pktsendstr( char *s )
 {
 
    printmsg(2, ">>> %s", s);
@@ -1473,11 +1476,11 @@ static boolean pktsendstr( char *s )
       fflush( logfile );         /* Known safe place  to flush log    */
 
    if((*wrmsg)(s) != DCP_OK )
-      return FALSE;
+      return KWFalse;
 
    remote_stats.bsent += strlen(s)+1;
 
-   return TRUE;
+   return KWTrue;
 
 } /* pktsendstr */
 
@@ -1487,15 +1490,15 @@ static boolean pktsendstr( char *s )
 /*    Receive a control packet                                        */
 /*--------------------------------------------------------------------*/
 
-static boolean pktgetstr( char *s)
+static KWBoolean pktgetstr( char *s)
 {
    if ((*rdmsg)(s) != DCP_OK )
-     return FALSE;
+     return KWFalse;
 
    remote_stats.breceived += strlen( s ) + 1;
    printmsg(2, "<<< %s", s);
 
-   return TRUE;
+   return KWTrue;
 } /* pktgetstr */
 
 /*--------------------------------------------------------------------*/

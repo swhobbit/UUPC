@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.21 1994/05/08 22:46:32 ahd v1-12k $
+ *    $Id: dcplib.c 1.22 1994/12/22 00:35:01 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.22  1994/12/22 00:35:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1994/05/08 22:46:32  ahd
  *    Add missing value for return.
  *
@@ -175,7 +178,7 @@ void motd( const char *fname, char *buf, const int bufsiz );
 /*    Login handler                                                   */
 /*--------------------------------------------------------------------*/
 
-boolean login(void)
+KWBoolean login(void)
 {
    char line[BUFSIZ];                  /* Allow for long domain names! */
    char user[50];
@@ -241,7 +244,7 @@ boolean login(void)
 
    for ( attempts = 0; attempts < 5 ; attempts++ )
    {
-      boolean invalid = TRUE;
+      KWBoolean invalid = KWTrue;
       while (invalid)         /* Spin for a user id or timeout       */
       {
          memset(user, 0, sizeof user);
@@ -250,10 +253,10 @@ boolean login(void)
 
          if (rmsg(user, 2, M_startupTimeout, sizeof user) == TIMEOUT)
                                     /* Did the user enter data?  */
-            return FALSE;   /* No --> Give up                */
+            return KWFalse;  /* No --> Give up                */
 
          if (! CD() )
-            return FALSE;
+            return KWFalse;
 
          token = user;
          while ((*token != '\0') && invalid) /* Ignore empty lines   */
@@ -278,14 +281,14 @@ boolean login(void)
       {
          wmsg("\r\nPassword: ", 0);
          if (rmsg(pswd, 0, M_startupTimeout, sizeof pswd) == TIMEOUT)
-            return FALSE;
+            return KWFalse;
 
       }
 
       printmsg(14, "login: password=\"%s\"", pswd);
 
       if ( ! CD() )
-         return FALSE;
+         return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                 Validate the user id and passowrd                  */
@@ -329,7 +332,7 @@ boolean login(void)
             if ( E_motd != NULL )
                motd( E_motd, line, sizeof line );
             LoginShell( userp );
-            return FALSE;   /* Hang up phone and exit        */
+            return KWFalse;  /* Hang up phone and exit        */
          }
       }
       else {                        /* Password was wrong.  Report   */
@@ -346,7 +349,7 @@ boolean login(void)
 /*    login attempts; hangup the telephone and try again.          */
 /*-----------------------------------------------------------------*/
 
-   return FALSE;                    /* Exit processing            */
+   return KWFalse;                   /* Exit processing            */
 
 } /*login*/
 
@@ -356,7 +359,7 @@ boolean login(void)
 /*    Initialize user setup when login is bypassed                    */
 /*--------------------------------------------------------------------*/
 
-boolean loginbypass(const char *user)
+KWBoolean loginbypass(const char *user)
 {
    struct UserTable *userp;
    char line[BUFSIZ];                  /* Allow for long domain names! */
@@ -375,7 +378,7 @@ boolean loginbypass(const char *user)
 
       printmsg(0,"loginbypass: login for user %s failed, bad user id",
                user);               /* Log the error for ourselves   */
-      return FALSE;                 /* Hang up phone and exit        */
+      return KWFalse;                /* Hang up phone and exit        */
    }
    else {
                                     /* Yes --> Log the user "in"     */
@@ -525,7 +528,7 @@ static void LoginShell( const   struct UserTable *userp )
 
    printmsg(1,"LoginShell: Invoking %s %s in directory %s",
          path, argstring, userp->homedir);
-   rc = execute( path, args ? argstring : NULL, NULL, NULL, TRUE, FALSE );
+   rc = execute( path, args ? argstring : NULL, NULL, NULL, KWTrue, KWFalse );
 
    PopDir();               /* Return to original directory  */
 

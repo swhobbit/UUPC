@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpfpkt.h 1.7 1994/01/01 19:23:03 ahd v1-12k $
+  *      $Id: dcpfpkt.h 1.8 1994/12/22 00:39:41 ahd Exp $
   *
   *      $Log: dcpfpkt.h $
+  *      Revision 1.8  1994/12/22 00:39:41  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.7  1994/01/01 19:23:03  ahd
   *      Annual Copyright Update
   *
@@ -49,7 +52,7 @@
  *
   */
 
-short  fopenpk(const boolean master);
+short  fopenpk(const KWBoolean master);
 
 short  fclosepk(void);
 
@@ -63,6 +66,6 @@ short  frdmsg(char *str);
 
 short  feofpkt( void );
 
-short  ffilepkt( const boolean master, const unsigned long bytes );
+short  ffilepkt( const KWBoolean master, const unsigned long bytes );
 
 #endif

@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.39 1994/10/23 23:29:44 ahd v1-12k $
+ *    $Id: uuxqt.c 1.40 1994/12/22 00:45:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.40  1994/12/22 00:45:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.39  1994/10/23 23:29:44  ahd
  *    Be consistent in use of flags to execute() for foreground
  *    control.
@@ -239,9 +242,9 @@ static char *dataf_fmt = DATAFFMT;
 
 static void usage( void );
 
-static boolean copylocal(const char *from, const char *to);
+static KWBoolean copylocal(const char *from, const char *to);
 
-static boolean do_uuxqt( const char *sysname );
+static KWBoolean do_uuxqt( const char *sysname );
 
 static void process( const char *fname,
                      const char *remote,
@@ -249,13 +252,13 @@ static void process( const char *fname,
 
 static void create_environment(const char *requestor);
 
-static boolean AppendData( const char *input, FILE* dataout);
+static KWBoolean AppendData( const char *input, FILE* dataout);
 
-static boolean do_copy( char *localfile,
+static KWBoolean do_copy( char *localfile,
                        const char *rmtsystem,
                        const char *remotefile,
                        const char *requestor,
-                       const boolean success );
+                       const KWBoolean success );
 
 static void ReportResults(const int   status,
                           const char *input,
@@ -266,7 +269,7 @@ static void ReportResults(const int   status,
                           const char *requestor,
                           const char *outnode,
                           const char *outname,
-                          const boolean xflag[],
+                          const KWBoolean xflag[],
                           const char *statfil,
                           const char *machine,
                           const char *user);
@@ -275,9 +278,9 @@ static int shell(char *command,
                  const char *inname,
                  const char *outname,
                  const char *remoteName,
-                 boolean xflag[]);
+                 KWBoolean xflag[]);
 
-static boolean MailStatus(char *tempfile,
+static KWBoolean MailStatus(char *tempfile,
                           char *address,
                           char *subject);
 
@@ -426,7 +429,7 @@ void main( int argc, char **argv)
 /*    Processing incoming eXecute (X.*) files for a remote system     */
 /*--------------------------------------------------------------------*/
 
-static boolean do_uuxqt( const char *sysname )
+static KWBoolean do_uuxqt( const char *sysname )
 {
    struct HostTable *hostp;
    static char uu_machine[] = UU_MACHINE "=";
@@ -450,7 +453,7 @@ static boolean do_uuxqt( const char *sysname )
       }
 
    } else
-        hostp = nexthost( TRUE );
+        hostp = nexthost( KWTrue );
 
 /*--------------------------------------------------------------------*/
 /*                Define mask for execution directory                 */
@@ -473,7 +476,7 @@ static boolean do_uuxqt( const char *sysname )
    while  (hostp != BADHOST)
    {
       char fname[FILENAME_MAX];
-      boolean locked = FALSE;
+      KWBoolean locked = KWFalse;
 
       setTitle( "Processing host %s", hostp->hostname );
 
@@ -513,7 +516,7 @@ static boolean do_uuxqt( const char *sysname )
             if ( locked || LockSystem( hostp->hostname , B_UUXQT ))
             {
                process( fname , hostp->hostname, executeDirectory );
-               locked = TRUE;
+               locked = KWTrue;
             }
             else
                break;               /* We didn't get the lock         */
@@ -535,13 +538,13 @@ static boolean do_uuxqt( const char *sysname )
 /*--------------------------------------------------------------------*/
 
       if( equal(sysname,"all") )
-         hostp = nexthost( FALSE );
+         hostp = nexthost( KWFalse );
       else
          hostp = BADHOST;
 
    } /*while nexthost*/
 
-   return FALSE;
+   return KWFalse;
 
 } /* do_uuxqt */
 
@@ -569,8 +572,8 @@ static void process( const char *fname,
    char line[BUFSIZ];
 #endif
 
-   boolean skip = FALSE;
-   boolean reject = FALSE;
+   KWBoolean skip = KWFalse;
+   KWBoolean reject = KWFalse;
    FILE *fxqt;
    int status = 0;      /* initialized ONLY to suppress compiler warning */
 
@@ -587,7 +590,7 @@ static void process( const char *fname,
       char *xqtname;
    } *F_list = NULL;
 
-   boolean xflag[UU_LAST - 1] = { 0 };
+   KWBoolean xflag[UU_LAST - 1] = { 0 };
    time_t jtime = time(NULL);
 
 /*--------------------------------------------------------------------*/
@@ -633,7 +636,7 @@ static void process( const char *fname,
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No user on U line in %s", fname );
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -664,7 +667,7 @@ static void process( const char *fname,
          if ( cp == NULL )
          {
             printmsg(0,"No input file name on I line");
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -685,7 +688,7 @@ static void process( const char *fname,
             if (!equal(remote, E_nodename))
                if (!ValidateFile( hostfile, ALLOW_READ))
                {
-                  reject = xflag[S_NOREAD] = TRUE;
+                  reject = xflag[S_NOREAD] = KWTrue;
                   break;
                }
          }
@@ -704,7 +707,7 @@ static void process( const char *fname,
          if ( cp == NULL )
          {
             printmsg(0,"No output file name on O line");
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -727,14 +730,14 @@ static void process( const char *fname,
                   E_spooldir (to keep people from setting up phony requests).
                   I am not sure whether we want to do likewise.  --RHG */
                {
-                  reject = xflag[S_NOWRITE] = TRUE;
+                  reject = xflag[S_NOWRITE] = KWTrue;
                   break;
                }
          }
 
          outname = strdup(hostfile);
          checkref(outname);
-         xflag[X_OUTPUT] = TRUE;  /* return output to "outnode"   */
+         xflag[X_OUTPUT] = KWTrue;  /* return output to "outnode"  */
 
          break;
 
@@ -747,7 +750,7 @@ static void process( const char *fname,
          if ( *cp == '\0' )
          {
             printmsg(0,"No command name on C line");
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
          command = strdup( cp );
@@ -763,7 +766,7 @@ static void process( const char *fname,
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No job id on J line in %s", fname );
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -782,7 +785,7 @@ static void process( const char *fname,
          {
             printmsg(0,"Missing F parameter in %s, command rejected",
                        fname);
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -799,7 +802,7 @@ static void process( const char *fname,
             {                             /* No --> Skip the file        */
                printmsg(0,"Missing file %s (%s) for %s, command skipped",
                         cp, hostfile, fname);
-               skip = TRUE;
+               skip = KWTrue;
                break;
             }
 
@@ -817,18 +820,18 @@ static void process( const char *fname,
          {
             printmsg(0,"Invalid F parameter in %s, command rejected",
                        fname);
-            reject = xflag[F_BADF] = TRUE;
+            reject = xflag[F_BADF] = KWTrue;
             break;
          }
 
          cp = strtok(NULL, WHITESPACE);
          if (cp != NULL)
          {
-            if (!ValidDOSName(cp, FALSE))
+            if (!ValidDOSName(cp, KWFalse))
             {  /* Illegal filename --> reject the whole request */
                printmsg(0,"Illegal file %s in %s, command rejected",
                           cp, fname);
-               reject = xflag[F_BADF] = TRUE;
+               reject = xflag[F_BADF] = KWTrue;
                break;
             }
             else
@@ -849,7 +852,7 @@ static void process( const char *fname,
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
             printmsg(0,"No requestor on R line in %s", fname );
-            reject = xflag[F_CORRUPT] = TRUE;
+            reject = xflag[F_CORRUPT] = KWTrue;
             break;
          }
 
@@ -871,7 +874,7 @@ static void process( const char *fname,
 
          statfil = strdup(cp);
          checkref(statfil);
-         xflag[X_STATFIL] = TRUE;    /* return status to remote file  */
+         xflag[X_STATFIL] = KWTrue;   /* return status to remote file  */
 
          break;
 
@@ -879,25 +882,25 @@ static void process( const char *fname,
 /*                            Flag fields                             */
 /*--------------------------------------------------------------------*/
 
-      case 'Z': xflag[X_FAILED] = TRUE;   /* send status if command failed  */
+      case 'Z': xflag[X_FAILED] = KWTrue;  /* send status if command failed  */
          break;
 
-      case 'N': xflag[X_FAILED] = FALSE;  /* send NO status if command failed */
+      case 'N': xflag[X_FAILED] = KWFalse;  /* send NO status if command failed */
          break;
 
-      case 'n': xflag[X_SUCCESS] = TRUE;  /* send status if command succeeded */
+      case 'n': xflag[X_SUCCESS] = KWTrue;  /* send status if command succeeded */
          break;
 
-      case 'z': xflag[X_SUCCESS] = FALSE; /* NO status if command succeeded */
+      case 'z': xflag[X_SUCCESS] = KWFalse; /* NO status if command succeeded */
          break;
 
-      case 'B': xflag[X_INPUT] = TRUE;    /* return command input on error  */
+      case 'B': xflag[X_INPUT] = KWTrue;   /* return command input on error  */
          break;
 
-      case 'e': xflag[X_USEEXEC] = FALSE; /* process command using sh(1)    */
+      case 'e': xflag[X_USEEXEC] = KWFalse; /* process command using sh(1)   */
          break;
 
-      case 'E': xflag[X_USEEXEC] = TRUE;  /* process command using exec(2)  */
+      case 'E': xflag[X_USEEXEC] = KWTrue;  /* process command using exec(2)  */
          break;
 
 /*--------------------------------------------------------------------*/
@@ -916,7 +919,7 @@ static void process( const char *fname,
    if ((command == NULL) && !skip)
    {
       printmsg(0,"No command supplied for X.* file %s, rejected", fname);
-      reject = xflag[F_CORRUPT] = TRUE;
+      reject = xflag[F_CORRUPT] = KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -978,7 +981,7 @@ static void process( const char *fname,
                               executeDirectory,
                               securep->pubdir,
                               NULL) == NULL ))  /* Can't expand path?   */
-               reject = xflag[E_NOACC] = TRUE;
+               reject = xflag[E_NOACC] = KWTrue;
                                  /* Cannot determine true file name
                                     easily, reject it.               */
             else if (equalni( executeDirectory,
@@ -992,7 +995,7 @@ static void process( const char *fname,
                  (strchr( token, '\\') != NULL )) && /* path sep? */
                  (!ValidateFile( hostfile, ALLOW_WRITE ) ||
                   !ValidateFile( hostfile, ALLOW_READ  )))
-               reject = xflag[E_NOACC] = TRUE;
+               reject = xflag[E_NOACC] = KWTrue;
 
          } /* while( next && ! reject ) */
 
@@ -1033,7 +1036,7 @@ static void process( const char *fname,
                      now, just reject it completely. */
                   printmsg(0, "Copy %s to %s failed",
                               qPtr->spoolname, qPtr->xqtname);
-                  reject = xflag[F_NOCOPY] = TRUE;
+                  reject = xflag[F_NOCOPY] = KWTrue;
                   break;
                }
          } /* for ( ;; ) */
@@ -1063,7 +1066,7 @@ static void process( const char *fname,
             if (strchr(cmd, '<') != NULL || strchr(cmd, '>') != NULL)
             {
                printmsg(0,"The characters \'<\' and \'>\' are not supported in remote commands");
-               reject = xflag[F_CORRUPT] = TRUE;
+               reject = xflag[F_CORRUPT] = KWTrue;
             }
             else if ((pipe = strchr(cmd, '|')) == NULL) /* Any pipes? */
                status = shell(cmd, input, output, remote, xflag); /* No */
@@ -1082,7 +1085,7 @@ static void process( const char *fname,
                   /* Swap the output and pipe files for the next pass */
                   char *p = pipefile; pipefile = output; output = p;
 
-                  xflag[E_NORMAL] = FALSE;
+                  xflag[E_NORMAL] = KWFalse;
                   *pipe = '\0';
                   status = shell(next_cmd, output, pipefile, remote, xflag);
                   /* *pipe = '|'; */
@@ -1090,7 +1093,7 @@ static void process( const char *fname,
 
                if (status == 0)
                {
-                  xflag[E_NORMAL] = FALSE;
+                  xflag[E_NORMAL] = KWFalse;
                   status = shell(next_cmd, pipefile, output, remote, xflag);
                }
 
@@ -1175,7 +1178,7 @@ static int shell(char *command,
                  const char *inname,
                  const char *outname,
                  const char *remoteName,
-                 boolean xflag[])
+                 KWBoolean xflag[])
 {
    int    result = 0;
 
@@ -1216,7 +1219,7 @@ static int shell(char *command,
    if ( (!equal(remoteName, E_nodename)) && (!ValidateCommand( cmdname )) )
    {
       printmsg(0,"Command %s not allowed at this site", cmdname);
-      xflag[E_NOEXE] = TRUE;
+      xflag[E_NOEXE] = KWTrue;
       return 99;
    }
 
@@ -1247,8 +1250,8 @@ static int shell(char *command,
                         commandBuf,
                         NULL,
                         outname,
-                        TRUE,
-                        FALSE );
+                        KWTrue,
+                        KWFalse );
    }
 
 /*--------------------------------------------------------------------*/
@@ -1262,7 +1265,7 @@ static int shell(char *command,
       while (( parameters != NULL ) && (result != -1 ))
       {
 
-         boolean firstPass = TRUE;
+         KWBoolean firstPass = KWTrue;
          int left;
 
          int rlen = IsDOS() ? 126 : sizeof commandBuf - 2;
@@ -1297,7 +1300,7 @@ static int shell(char *command,
                strcat( commandBuf, " ");
                strcat( commandBuf, parameters );
                rlen -= strlen( parameters ) + 1;
-               firstPass = FALSE;
+               firstPass = KWFalse;
             }
 
 /*--------------------------------------------------------------------*/
@@ -1333,8 +1336,8 @@ static int shell(char *command,
                         commandBuf,
                         bflag[F_WINDOWS] ? NULL : inname,
                         outname,
-                        TRUE,
-                        FALSE );
+                        KWTrue,
+                        KWFalse );
 
       if ( result != 0 )    /* Did command execution fail?            */
       {
@@ -1349,15 +1352,15 @@ static int shell(char *command,
                         parameters,
                         inname,
                         outname,
-                        TRUE,
-                        FALSE );
+                        KWTrue,
+                        KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*                    Determine result of command                     */
 /*--------------------------------------------------------------------*/
 
    if ( result == 0 )
-      xflag[E_NORMAL] = TRUE;
+      xflag[E_NORMAL] = KWTrue;
    else if ( equal(cmdname, RNEWS) )
                            /* Did command execution fail?            */
    {
@@ -1366,7 +1369,7 @@ static int shell(char *command,
       panic();
    }
    else if ( result > 0 )
-      xflag[E_STATUS] = TRUE;
+      xflag[E_STATUS] = KWTrue;
 
    fflush(logfile);
 
@@ -1392,7 +1395,7 @@ static void usage( void )
 /*    Copy Local Files                                                */
 /*--------------------------------------------------------------------*/
 
-static boolean copylocal(const char *from, const char *to)
+static KWBoolean copylocal(const char *from, const char *to)
 {
       int  fd_from, fd_to;
       int  nr;
@@ -1404,14 +1407,14 @@ static boolean copylocal(const char *from, const char *to)
          function EXCEPT that we want a COPY, not a MOVE! */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
-         return FALSE;        /* failed                                */
+         return KWFalse;       /* failed                                */
 
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
 
       if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
          close(fd_from);
-         return FALSE;        /* failed                                */
+         return KWFalse;       /* failed                                */
          /* NOTE - this assumes all the required directories exist!  */
       }
 
@@ -1423,8 +1426,8 @@ static boolean copylocal(const char *from, const char *to)
       close(fd_from);
 
       if (nr != 0 || nw == -1)
-         return FALSE;        /* failed in copy                       */
-      return TRUE;
+         return KWFalse;       /* failed in copy                       */
+      return KWTrue;
 } /* copylocal */
 
 /*--------------------------------------------------------------------*/
@@ -1486,11 +1489,11 @@ static void create_environment(const char *requestor)
 /*    Send a file to remote node via uucp                             */
 /*--------------------------------------------------------------------*/
 
-static boolean do_copy(char *localfile,
+static KWBoolean do_copy(char *localfile,
                        const char *rmtsystem,
                        const char *remotefile,
                        const char *requestor,
-                       const boolean success )
+                       const KWBoolean success )
 {
       if (rmtsystem == NULL) {
           copylocal(localfile, remotefile);
@@ -1517,7 +1520,7 @@ static boolean do_copy(char *localfile,
 
           if (stat((char *) localfile, &statbuf) != 0)  {
               printerr( localfile );
-              return FALSE;
+              return KWFalse;
           }
 
           sprintf(idfile , dataf_fmt, 'D', E_nodename, sequence_s,
@@ -1527,13 +1530,13 @@ static boolean do_copy(char *localfile,
 
           if (!copylocal(localfile, idfilename))  {
              printmsg(0, "Copy \"%s\" to \"%s\" failed", localfile, idfilename);
-             return FALSE;
+             return KWFalse;
           }
 
           if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
              printerr( icfilename );
              printf("cannot append to %s\n", icfilename);
-             return FALSE;
+             return KWFalse;
           }
 
           fprintf(cfile, success ? "S %s %s uucp -n %s 0666 %s\n"
@@ -1543,7 +1546,7 @@ static boolean do_copy(char *localfile,
           fclose(cfile);
     };
 
-    return TRUE;
+    return KWTrue;
 } /* do_copy */
 
 /*--------------------------------------------------------------------*/
@@ -1562,7 +1565,7 @@ static void ReportResults(const int status,
                           const char *requestor,
                           const char *outnode,
                           const char *outname,
-                          const boolean xflag[],
+                          const KWBoolean xflag[],
                           const char *statfil,
                           const char *machine,
                           const char *user)
@@ -1710,24 +1713,24 @@ static void ReportResults(const int status,
 /* Append data to output file                                         */
 /*--------------------------------------------------------------------*/
 
-static boolean AppendData( const char *input, FILE* dataout)
+static KWBoolean AppendData( const char *input, FILE* dataout)
 {
    FILE    *datain;
    char     buf[BUFSIZ];
-   boolean  status = TRUE;
+   KWBoolean  status = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                      Verify the input opened                       */
 /*--------------------------------------------------------------------*/
 
    if (input == NULL)
-      return FALSE;
+      return KWFalse;
    else
       datain = FOPEN(input, "r",TEXT_MODE);
 
    if (datain == NULL) {
       printerr(input);
-      return FALSE;
+      return KWFalse;
    } /* datain */
 
 /*--------------------------------------------------------------------*/
@@ -1741,7 +1744,7 @@ static boolean AppendData( const char *input, FILE* dataout)
          printmsg(0,"AppendData: I/O error on output file");
          printerr("dataout");
          fclose(datain);
-         return FALSE;
+         return KWFalse;
       } /* if */
    } /* while */
 
@@ -1753,7 +1756,7 @@ static boolean AppendData( const char *input, FILE* dataout)
    {
       printerr(input);
       clearerr(datain);
-      status = FALSE;
+      status = KWFalse;
    }
 
    fclose(datain);
@@ -1767,11 +1770,11 @@ static boolean AppendData( const char *input, FILE* dataout)
 /*    Send text in a mailbag file to address(es) specified by line.   */
 /*--------------------------------------------------------------------*/
 
-static boolean MailStatus(char *tempfile,
+static KWBoolean MailStatus(char *tempfile,
                           char *address,
                           char *subject)
 {
-   boolean status;
+   KWBoolean status;
    char buf[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
@@ -1790,7 +1793,7 @@ static boolean MailStatus(char *tempfile,
    strcat( buf, " " );
    strcat( buf, address );
 
-   status = execute( RMAIL, buf, NULL, NULL, TRUE, FALSE );
+   status = execute( RMAIL, buf, NULL, NULL, KWTrue, KWFalse );
 
 /*--------------------------------------------------------------------*/
 /*                       Report errors, if any                        */

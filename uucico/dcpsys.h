@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.24 1994/12/22 00:13:16 ahd Exp $
+ *    $Id: dcpsys.h 1.9 1994/12/27 20:46:08 ahd Exp $
  *
  *    Revision history:
  */
@@ -56,15 +56,15 @@ char nextGrade( const char grade );
 
 XFER_STATE scandir(char *remote, const char grade );
 
-int   rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len);
+int   rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len);
 
-void  wmsg(const char *msg, const boolean synch);
+void  wmsg(const char *msg, const KWBoolean synch);
 
 extern short (*sendpkt)(char *data, short len);
 
 extern short (*getpkt)(char *data, short *len);
 
-extern short (*openpk)(const boolean caller);
+extern short (*openpk)(const KWBoolean caller);
 
 extern short (*closepk)(void);
 
@@ -74,6 +74,6 @@ extern short (*rdmsg)(char *data);
 
 extern short (*eofpkt)(void);
 
-extern short (*filepkt)(const boolean master, const unsigned long bytes);
+extern short (*filepkt)(const KWBoolean master, const unsigned long bytes);
 
-boolean CallWindow( const char callgrade );
+KWBoolean CallWindow( const char callgrade );

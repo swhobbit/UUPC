@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.h 1.4 1994/01/24 02:57:57 ahd v1-12k $
+ *    $Id: ulibfs.h 1.5 1994/12/22 00:41:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibfs.h $
+ *    Revision 1.5  1994/12/22 00:41:45  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/24 02:57:57  ahd
  *    Annual Copyright Update
  *
@@ -35,7 +38,7 @@
  *
  */
 
-extern int fopenline(char *name, BPS baud, const boolean direct);
+extern int fopenline(char *name, BPS baud, const KWBoolean direct);
 
 extern unsigned int fsread(char UUFAR *buffer,
                           unsigned int wanted,
@@ -49,10 +52,10 @@ void fcloseline(void);
 
 void fSIOSpeed(BPS baud);
 
-void fflowcontrol( boolean );
+void fflowcontrol( KWBoolean );
 
 void fhangup( void );
 
 BPS fGetSpeed( void );
 
-boolean fCD( void );
+KWBoolean fCD( void );

@@ -14,9 +14,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpgpkt.h 1.7 1994/01/24 03:06:04 ahd v1-12k $
+  *      $Id: dcpgpkt.h 1.8 1994/12/22 00:39:51 ahd Exp $
   *
   *      $Log: dcpgpkt.h $
+  *      Revision 1.8  1994/12/22 00:39:51  ahd
+  *      Annual Copyright Update
+  *
   *      Revision 1.7  1994/01/24 03:06:04  ahd
   *      Annual Copyright Update
   *
@@ -37,13 +40,13 @@
  *
   */
 
-short  vopenpk(const boolean master);
-short  Gopenpk(const boolean master);
-short  gopenpk(const boolean master);
+short  vopenpk(const KWBoolean master);
+short  Gopenpk(const KWBoolean master);
+short  gopenpk(const KWBoolean master);
 short  gclosepk(void);
 short  ggetpkt(char  *data,short  *len);
 short  gsendpkt(char  *data,short  len);
 short  gwrmsg(char *str);
 short  grdmsg(register char *str);
 short  geofpkt( void );
-short  gfilepkt( const boolean master, const unsigned long bytes );
+short  gfilepkt( const KWBoolean master, const unsigned long bytes );

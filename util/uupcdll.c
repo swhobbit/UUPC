@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.3 1994/12/22 00:31:20 ahd Exp $
+ *       $Id: uupcdll.c 1.4 1995/01/07 16:22:53 ahd Exp $
  *       $Log: uupcdll.c $
+ *       Revision 1.4  1995/01/07 16:22:53  ahd
+ *       Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.3  1994/12/22 00:31:20  ahd
  *       Annual Copyright Update
  *
@@ -307,7 +310,7 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
 BOOL UUPCCheckMessage(char *message)
 {
     char *headerEnd;
-    BOOL gotTo = KWFalse, gotFrom = FALSE;
+    BOOL gotTo = KWFalse, gotFrom = KWFalse;
 
     headerEnd = strstr(message, "\n\n");
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.15 1994/02/19 05:14:52 ahd v1-12k $
+ *    $Id: uucp.c 1.16 1994/12/22 00:44:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.16  1994/12/22 00:44:15  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/02/19 05:14:52  ahd
  *    Use standard first header
  *
@@ -125,14 +128,14 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static boolean       spool_flag = FALSE;
+static KWBoolean      spool_flag = KWFalse;
 static char          spool_file[FILENAME_MAX] = ""; /* alt spool file name */
-static boolean       dir_flag = TRUE;
-static boolean       xeqt_flag = TRUE;    /* Triggered by -r option   */
-static boolean       j_flag = FALSE;      /* set by -j option */
+static KWBoolean      dir_flag = KWTrue;
+static KWBoolean      xeqt_flag = KWTrue;   /* Triggered by -r option   */
+static KWBoolean      j_flag = KWFalse;     /* set by -j option */
 static char          grade = 'n';         /* Default grade of service  */
-static boolean       mail_me = FALSE;     /* changes with -m           */
-static boolean       mail_them = FALSE;   /* changes with -n           */
+static KWBoolean      mail_me = KWFalse;    /* changes with -m           */
+static KWBoolean      mail_them = KWFalse;  /* changes with -n           */
 static char  remote_user[10];             /* user to mail with -n     */
 
 static char  flags[16];
@@ -307,7 +310,7 @@ int   do_uux(char *remote,
 /*                              OK - GO!                              */
 /*--------------------------------------------------------------------*/
 
-   execute("uux", xcmd, NULL, NULL, TRUE, FALSE);
+   execute("uux", xcmd, NULL, NULL, KWTrue, KWFalse);
 
    return(1);
 
@@ -326,8 +329,8 @@ int   do_copy(char *src_syst,
               char *dest_file)
 {
       char        *p;
-      boolean wild_flag = FALSE;
-      boolean write_flag;
+      KWBoolean wild_flag = KWFalse;
+      KWBoolean write_flag;
       char        tmfile[15];       /* Unix style name for c file     */
       char        idfile[15];       /* Unix style name for data file copy  */
       char        work[FILENAME_MAX];   /* temp area for filename hacking  */
@@ -340,7 +343,7 @@ int   do_copy(char *src_syst,
       DIR *dirp = NULL;
       struct direct *dp = NULL;
       char subseq = 'A';
-      boolean makeDirectory = TRUE;    /* May need to build spool dir  */
+      KWBoolean makeDirectory = KWTrue;  /* May need to build spool dir  */
 
       long    int     sequence;
       char    *remote_syst;   /* Non-local system in copy              */
@@ -405,7 +408,7 @@ int   do_copy(char *src_syst,
 
          if (strcspn(src_file, "*?") == strlen(src_file))
          {
-            wild_flag = FALSE;
+            wild_flag = KWFalse;
 
             if (stat(src_file, &statbuf) != 0)
             {
@@ -421,7 +424,7 @@ int   do_copy(char *src_syst,
             }
          } /* if (strcspn(src_file, "*?") == strlen(src_file))  */
          else  {
-            wild_flag = TRUE;
+            wild_flag = KWTrue;
 
             appendSlash(dest_file); /* Target must be directory   */
 
@@ -444,7 +447,7 @@ int   do_copy(char *src_syst,
             }
          } /* else */
 
-         write_flag = TRUE;
+         write_flag = KWTrue;
 
          while (write_flag)
          {
@@ -474,7 +477,7 @@ int   do_copy(char *src_syst,
                      *lastPath = '\0';
                      MKDIR( idfilename );
                      *lastPath = '/';     /* Restore last segment of name  */
-                     makeDirectory = FALSE;
+                     makeDirectory = KWFalse;
                   } /* if ( lastPath != NULL ) */
 
                } /* if ( makeDirectory ) */
@@ -505,10 +508,10 @@ int   do_copy(char *src_syst,
             if (wild_flag)  {
                dp = readdir(dirp);
                if ( dp == NULL )
-                  write_flag = FALSE;
+                  write_flag = KWFalse;
             }
             else
-               write_flag = FALSE;
+               write_flag = KWFalse;
          }
          if (dirp != NULL )
             closedir( dirp );
@@ -562,35 +565,35 @@ void  main(int argc, char *argv[])
       while ((option = getopt(argc, argv, "Ccdfg:jmn:rs:x:")) != EOF)  {
          switch(option)  {
             case 'c':               /* don't spool                    */
-               spool_flag = FALSE;
+               spool_flag = KWFalse;
                break;
             case 'C':               /* force spool                    */
-               spool_flag = TRUE;
+               spool_flag = KWTrue;
                break;
             case 'd':               /* make directories               */
-               dir_flag = TRUE;
+               dir_flag = KWTrue;
                break;
             case 'e':               /* send uucp command to sys        */
                /* This one is in Sams but nowhere else - I'm ignoring it */
                break;
             case 'f':               /* don't make directories         */
-               dir_flag = FALSE;
+               dir_flag = KWFalse;
                break;
             case 'g':               /* set grade of transfer           */
                grade = *optarg;
                break;
             case 'j':               /* output job id to stdout        */
-               j_flag = TRUE;
+               j_flag = KWTrue;
                break;
             case 'm':               /* send mail when copy completed  */
-               mail_me = TRUE;
+               mail_me = KWTrue;
                break;
             case 'n':               /* notify remote user file was sent  */
-               mail_them = TRUE;
+               mail_them = KWTrue;
                sprintf(remote_user, "%.8s", optarg);
                break;
             case 'r':               /* queue job only                 */
-               xeqt_flag = FALSE;
+               xeqt_flag = KWFalse;
                break;
             case 's':               /* report status of transfer to file  */
                strcpy( spool_file, optarg);

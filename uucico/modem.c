@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.52 1994/12/09 03:45:50 ahd v1-12k $
+ *    $Id: modem.c 1.53 1994/12/22 00:35:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.53  1994/12/22 00:35:37  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.52  1994/12/09 03:45:50  ahd
  *    Add more setTitle commands to better track call progress
  *    Better handling of login scripts which end with except string
@@ -257,7 +260,7 @@ KEWLONG  M_xfer_bufsize;      /* Buffering used for file transfers */
 static KEWSHORT M_priority = 999;
 static KEWSHORT M_prioritydelta = 999;
 
-boolean bmodemflag[MODEM_LAST];
+KWBoolean bmodemflag[MODEM_LAST];
 
 static FLAGTABLE modemFlags[] = {
    { "carrierdetect",  MODEM_CARRIERDETECT,          B_LOCAL },
@@ -311,18 +314,18 @@ static CONFIGTABLE modemtable[] = {
 
 }; /* modemtable */
 
-static boolean reEnable = FALSE;
+static KWBoolean reEnable = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static boolean dial(char *number, const BPS speed);
+static KWBoolean dial(char *number, const BPS speed);
 
-static boolean sendlist( char **list, int timeout, int lasttimeout,
+static KWBoolean sendlist( char **list, int timeout, int lasttimeout,
                          char **failure);
 
-static boolean sendalt( char *string, int timeout, char **failure);
+static KWBoolean sendalt( char *string, int timeout, char **failure);
 
 static void autobaud( const BPS speed);
 
@@ -458,8 +461,8 @@ CONN_STATE callhot( const BPS xspeed, const int hotHandle )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           /* Shutdown gracefully as needed     */
-   reEnable   = FALSE;           /* Don't reenable port, we own it!   */
+   norecovery = KWFalse;          /* Shutdown gracefully as needed     */
+   reEnable   = KWFalse;          /* Don't reenable port, we own it!   */
 
    if ( hotHandle != -1 )
       SetComHandle( hotHandle );
@@ -523,8 +526,8 @@ CONN_STATE callin( const time_t exit_time )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           /* Shutdown gracefully as needed    */
-   reEnable   = FALSE;           /* Don't reenable port, we own it!   */
+   norecovery = KWFalse;          /* Shutdown gracefully as needed    */
+   reEnable   = KWFalse;          /* Don't reenable port, we own it!   */
 
    echoCheck( 0 );               /* Disable echo checking            */
 
@@ -577,13 +580,13 @@ CONN_STATE callin( const time_t exit_time )
                               "user hits Ctrl-Break" :
                               dater( exit_time , NULL));
 
-   interactive_processing = FALSE;
+   interactive_processing = KWFalse;
 
    if (IsNetwork())
    {                          /* Network connect is different        */
       if (!WaitForNetConnect(offset))
       {
-         interactive_processing = TRUE;
+         interactive_processing = KWTrue;
 
          shutDown();
 
@@ -594,7 +597,7 @@ CONN_STATE callin( const time_t exit_time )
          return CONN_INITIALIZE;
       }
 
-      interactive_processing = TRUE;
+      interactive_processing = KWTrue;
       printmsg(14, "callin: Network reports connected");
 
    }
@@ -609,7 +612,7 @@ CONN_STATE callin( const time_t exit_time )
             return CONN_INITIALIZE;     /* No --> Return to caller    */
       }
 
-      interactive_processing = TRUE;
+      interactive_processing = KWTrue;
 
       setPrty(M_priority, M_prioritydelta );
                               /* Into warp drive for actual transfers  */
@@ -654,14 +657,14 @@ CONN_STATE callin( const time_t exit_time )
 /*    Read a modem configuration file                                 */
 /*--------------------------------------------------------------------*/
 
-boolean getmodem( const char *brand)
+KWBoolean getmodem( const char *brand)
 {
    char filename[FILENAME_MAX];
    static char *modem = NULL;
    FILE *fp;
    CONFIGTABLE *tptr;
    size_t subscript;
-   boolean success;
+   KWBoolean success;
 
 /*--------------------------------------------------------------------*/
 /*                      Validate the modem name                       */
@@ -669,7 +672,7 @@ boolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    if ((modem != NULL) && equal(modem, brand)) /* Already initialized?*/
-      return TRUE;            /* Yes --> Don't process it again      */
+      return KWTrue;           /* Yes --> Don't process it again      */
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the table                        */
@@ -680,7 +683,7 @@ boolean getmodem( const char *brand)
          *(tptr->loc) = nil(char);
 
    for (subscript = 0; subscript < MODEM_LAST; subscript++)
-      bmodemflag[subscript] = FALSE;
+      bmodemflag[subscript] = KWFalse;
 
    M_charDelay = 00;          /* Default is no delay between chars    */
    dialTimeout = 40;          /* Default is 40 seconds to dial phone  */
@@ -726,7 +729,7 @@ boolean getmodem( const char *brand)
       printmsg(0,"getmodem: Unable to locate configuration for %s",
                brand);
       printerr( filename );
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -737,19 +740,19 @@ boolean getmodem( const char *brand)
    success = getconfig(fp, MODEM_CONFIG, B_UUCICO, modemtable, modemFlags);
    fclose(fp);
    if (!success)
-      return FALSE;
+      return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*         Verify all required modem parameters were supplied         */
 /*--------------------------------------------------------------------*/
 
-   success = TRUE;
+   success = KWTrue;
    for (tptr = modemtable; tptr->sym != nil(char); tptr++) {
       if ((tptr->bits & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "getmodem: configuration parameter \"%s\" must be set.",
             tptr->sym);
-         success = FALSE;
+         success = KWFalse;
       } /* if */
    } /* for */
 
@@ -762,7 +765,7 @@ boolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    if ( ! chooseCommunications( M_suite ))
-      return FALSE;
+      return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*       We have success, save modem name for next time to speed      */
@@ -771,7 +774,7 @@ boolean getmodem( const char *brand)
 
    modem = newstr(brand);  /* Yes --> Remember it for next time   */
 
-   return TRUE;
+   return KWTrue;
 
 } /* getmodem */
 
@@ -782,7 +785,7 @@ boolean getmodem( const char *brand)
 /*    strings are not configurable                                    */
 /*--------------------------------------------------------------------*/
 
-static boolean dial(char *number, const BPS speed)
+static KWBoolean dial(char *number, const BPS speed)
 {
    char buf[81];
 
@@ -790,8 +793,8 @@ static boolean dial(char *number, const BPS speed)
 /*                        Open the serial port                        */
 /*--------------------------------------------------------------------*/
 
-   norecovery = FALSE;           /* Shutdown gracefully as needed     */
-   reEnable   = TRUE;            /* Automatically reenable port       */
+   norecovery = KWFalse;          /* Shutdown gracefully as needed     */
+   reEnable   = KWTrue;           /* Automatically reenable port       */
 
    echoCheck( 0 );               /* Disable echo checking            */
 
@@ -804,7 +807,7 @@ static boolean dial(char *number, const BPS speed)
       if (activeopenline(number, speed, bmodemflag[MODEM_DIRECT]))
       {
          hostp->status.hstatus =  nodevice;
-         return FALSE;
+         return KWFalse;
       }
    }
    else {
@@ -813,7 +816,7 @@ static boolean dial(char *number, const BPS speed)
       {
 
          hostp->status.hstatus =  nodevice;
-         return FALSE;
+         return KWFalse;
       }
 
       while (sread(buf,1,0)); /* Discard trailing trash from modem
@@ -828,7 +831,7 @@ static boolean dial(char *number, const BPS speed)
          printmsg(0,"dial: Modem failed to initialize");
          shutDown();
          hostp->status.hstatus =  dial_script_failed;
-         return FALSE;
+         return KWFalse;
       }
 
 /*--------------------------------------------------------------------*/
@@ -841,13 +844,13 @@ static boolean dial(char *number, const BPS speed)
          strcat(buf, dialSuffix);
 
       if (!sendstr( buf, modemTimeout, noconnect ))
-         return FALSE;
+         return KWFalse;
                               /* Send the dial command to the modem  */
 
       if (!sendlist(connect,  modemTimeout, dialTimeout, noconnect))
       {
          hostp->status.hstatus =  dial_failed;
-         return FALSE;
+         return KWFalse;
       }
 
    }  /* if ( !IsNetwork() ) */
@@ -867,7 +870,7 @@ static boolean dial(char *number, const BPS speed)
 /*                      Report success to caller                      */
 /*--------------------------------------------------------------------*/
 
-   return TRUE;            /* Dial succeeded    */
+   return KWTrue;           /* Dial succeeded    */
 
 } /* dial */
 
@@ -925,7 +928,7 @@ static void autobaud( const BPS speed )
 
 void shutDown( void )
 {
-   static boolean recurse = FALSE;
+   static KWBoolean recurse = KWFalse;
 
    echoCheck( 0 );
 
@@ -934,15 +937,15 @@ void shutDown( void )
 
    if ( !recurse )
    {
-      boolean aborted = terminate_processing;
+      KWBoolean aborted = terminate_processing;
       unsigned long saveRaised = raised;
-      recurse = TRUE;
-      terminate_processing = FALSE;
+      recurse = KWTrue;
+      terminate_processing = KWFalse;
       raised = 0;
       hangup();
       resetPrty();               /* Drop out of hyperspace            */
       sendlist( dropline, modemTimeout, modemTimeout, NULL);
-      recurse = FALSE;
+      recurse = KWFalse;
       terminate_processing |= aborted;
       saveRaised |= raised;
    }
@@ -958,9 +961,9 @@ void shutDown( void )
 /*--------------------------------------------------------------------*/
 
    if (!IsNetwork() && reEnable )
-      suspend_other(FALSE, M_device);
+      suspend_other(KWFalse, M_device);
 
-   norecovery = TRUE;
+   norecovery = KWTrue;
 
 }  /* shutDown */
 
@@ -970,15 +973,15 @@ void shutDown( void )
 /*    Send a NULL terminated list of send/expect strings              */
 /*--------------------------------------------------------------------*/
 
-static boolean sendlist(   char **list,
+static KWBoolean sendlist(  char **list,
                            int timeout,
                            int lasttimeout,
                            char **failure)
 {
-   boolean expect = TRUE;
+   KWBoolean expect = KWTrue;
 
    if (list == NULL)          /* Was the field supplied?             */
-      return TRUE;            /* No --> Must be optional, return     */
+      return KWTrue;           /* No --> Must be optional, return     */
 
 /*--------------------------------------------------------------------*/
 /*     Run through the list, alternating expect and send strings      */
@@ -990,18 +993,18 @@ static boolean sendlist(   char **list,
       if (expect)
       {
          char *exp = strdup( *list );
-         boolean success;
+         KWBoolean success;
          checkref( exp );
          success = sendalt( exp,
                             (*(++list) == NULL) ? lasttimeout : timeout,
                             failure);
          free( exp );
          if (!success)
-            return FALSE;
+            return KWFalse;
       }
       else
          if (!sendstr( *list++, timeout, failure ))
-            return FALSE;
+            return KWFalse;
 
       expect = ! expect;
 
@@ -1011,7 +1014,7 @@ static boolean sendlist(   char **list,
 /*    If we made it this far, success is at hand; return to caller    */
 /*--------------------------------------------------------------------*/
 
-   return TRUE;
+   return KWTrue;
 
 } /* sendlist */
 
@@ -1021,7 +1024,7 @@ static boolean sendlist(   char **list,
 /*    Expect a string, with alternates                                */
 /*--------------------------------------------------------------------*/
 
-static boolean sendalt( char *exp, int timeout, char **failure)
+static KWBoolean sendalt( char *exp, int timeout, char **failure)
 {
    int ok;
 
@@ -1037,7 +1040,7 @@ static boolean sendalt( char *exp, int timeout, char **failure)
       if ( terminate_processing || raised )
       {
          shutDown();
-         return FALSE;
+         return KWFalse;
       }
 
       if (ok || (alternate == nil(char)))
@@ -1046,7 +1049,7 @@ static boolean sendalt( char *exp, int timeout, char **failure)
       if (!CD())
       {
          printmsg(0,"sendalt: Serial port reports modem not ready");
-         return FALSE;
+         return KWFalse;
       }
 
       exp = strchr(alternate, '-');
@@ -1056,7 +1059,7 @@ static boolean sendalt( char *exp, int timeout, char **failure)
       printmsg(0, "sending alternate");
 
       if ( !sendstr(alternate,timeout, failure) )
-         return FALSE;
+         return KWFalse;
 
    } /*for*/
 

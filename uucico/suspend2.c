@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.16 1994/12/09 03:50:40 rommel v1-12k $
+ *    $Id: suspend2.c 1.17 1994/12/22 00:36:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.17  1994/12/22 00:36:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1994/12/09 03:50:40  rommel
  *    Correct errors with back-to-back uses of port failing
  *
@@ -135,7 +138,7 @@
 
 #define STACKSIZE 8192
 
-boolean suspend_processing = FALSE;
+KWBoolean suspend_processing = KWFalse;
 
 /* Note for the 16-bit version only:
  *
@@ -247,10 +250,10 @@ static VOID FAR SuspendThread(VOID)
             nChar = SUSPEND_BUSY;
           }
           else {
-            suspend_processing = TRUE;
+            suspend_processing = KWTrue;
 
 #ifdef BIT32ENV
-            bDummyKill = TRUE;
+            bDummyKill = KWTrue;
             DosKillProcess(DKP_PROCESS, getpid());
             nChar = (char) (DosWaitEventSem(semFree, 20000) ?
                      SUSPEND_ERROR : SUSPEND_OKAY);
@@ -271,7 +274,7 @@ static VOID FAR SuspendThread(VOID)
           if ( !suspend_processing )
             nChar = SUSPEND_BUSY;
           else {
-            suspend_processing = FALSE;
+            suspend_processing = KWFalse;
 
 #ifdef BIT32ENV
             DosPostEventSem(semWait);
@@ -338,7 +341,7 @@ static void SuspendHandler(int nSig)
 {
   if ( bDummyKill )
   {
-    bDummyKill = FALSE;
+    bDummyKill = KWFalse;
 #if defined(__TURBOC__)
     signal(SIGTERM, (void (__cdecl *)(int))SuspendHandler);
 #else
@@ -380,7 +383,7 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-boolean suspend_init(const char *port )
+KWBoolean suspend_init(const char *port )
 {
 
   char szPipe[FILENAME_MAX];
@@ -409,7 +412,7 @@ boolean suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosSetSigHandler", rc);
-    return FALSE;
+    return KWFalse;
   }
 #endif
 
@@ -435,7 +438,7 @@ boolean suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosCreateNPipe", rc);
-    return FALSE;
+    return KWFalse;
   }
 
 #else
@@ -450,7 +453,7 @@ boolean suspend_init(const char *port )
   if (rc)
   {
     printOS2error( "DosMakeNmPipe", rc);
-    return FALSE;
+    return KWFalse;
   }
 #endif
 
@@ -464,21 +467,21 @@ boolean suspend_init(const char *port )
    if (rc)
    {
       printOS2error( "DosCreateEventSem", rc);
-      return FALSE;
+      return KWFalse;
    }
 
    rc = DosCreateEventSem(NULL, &semWait, 0, 0);
    if (rc)
    {
       printOS2error( "DosCreateEventSem", rc);
-      return FALSE;
+      return KWFalse;
    }
 
    rc = DosCreateEventSem(NULL, &semReady, 0, 0);
    if (rc)
    {
       printOS2error( "DosCreateEventSem", rc);
-      return FALSE;
+      return KWFalse;
    }
 
 #else
@@ -493,7 +496,7 @@ boolean suspend_init(const char *port )
    if (rc)
    {
       printOS2error( "DosAllocSeg", rc);
-      return FALSE;
+      return KWFalse;
    }
 
    pStack = (PSZ) MAKEP(selStack, 0) + STACKSIZE -2 ;
@@ -513,7 +516,7 @@ boolean suspend_init(const char *port )
    if (rc)
    {
       printOS2error( "DosCreateThread", rc);
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -530,7 +533,7 @@ boolean suspend_init(const char *port )
       panic();
    }
 
-   return TRUE;
+   return KWTrue;
 } /* suspend_init */
 
 /*--------------------------------------------------------------------*/
@@ -539,7 +542,7 @@ boolean suspend_init(const char *port )
 /*       Request another UUCICO give up a modem                       */
 /*--------------------------------------------------------------------*/
 
-int suspend_other(const boolean suspend,
+int suspend_other(const KWBoolean suspend,
                   const char *port )
 {
   char szPipe[FILENAME_MAX];
@@ -547,8 +550,8 @@ int suspend_other(const boolean suspend,
   U_INT nAction, nBytes;
   UCHAR nChar;
   APIRET rc = 1;
-  boolean firstPass = TRUE;
-  static boolean suspended = FALSE;
+  KWBoolean firstPass = KWTrue;
+  static KWBoolean suspended = KWFalse;
   int result;
 
   static time_t lastSuspend = 0;
@@ -589,7 +592,7 @@ int suspend_other(const boolean suspend,
 
         if ((rc == ERROR_PIPE_BUSY) && firstPass )
         {
-           firstPass = FALSE;
+           firstPass = KWFalse;
 
 #ifdef BIT32ENV
            rc = DosWaitNPipe( szPipe, 20000 ); /* Wait up to 20 sec for pipe  */

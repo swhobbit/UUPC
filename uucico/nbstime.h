@@ -9,4 +9,4 @@
 /*    copyrights                                                      */
 /*--------------------------------------------------------------------*/
 
-boolean nbstime( void );
+KWBoolean nbstime( void );

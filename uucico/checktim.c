@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.6 1994/12/22 00:32:41 ahd Exp $
+ *    $Id: checktim.c 1.7 1994/12/31 03:39:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.7  1994/12/31 03:39:56  ahd
+ *    Correct processing for systems with grade restrictions in the
+ *    systems file when calling system "any"
+ *
  *    Revision 1.6  1994/12/22 00:32:41  ahd
  *    Annual Copyright Update
  *
@@ -208,7 +212,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
    size_t istart;
    size_t iend;
    struct Table *tptr;
-   boolean dial = FALSE;      /* Assume we cannot dial               */
+   KWBoolean dial = KWFalse;    /* Assume we cannot dial               */
    char  found = 0;           /* Did not yet find current keyword    */
    char grade = ALL_GRADES;   /* Default grade if none specified     */
 
@@ -293,7 +297,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
 /*                  Search for the requested keyword                  */
 /*--------------------------------------------------------------------*/
 
-   for (tptr = table, found = FALSE;
+   for (tptr = table, found = KWFalse;
          (tptr->keyword != nil(char)) && !dial; tptr++)
    {
 
@@ -303,7 +307,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
 
       if (equal(tptr->keyword,tdays))
       {
-         found = TRUE;     /* Win or Lose, keyword is valid          */
+         found = KWTrue;    /* Win or Lose, keyword is valid          */
          if (weekday & tptr->wdays)    /* Can we dial out today?     */
          {                             /* Yes --> Check the time     */
 

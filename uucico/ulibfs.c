@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.10 1994/05/07 21:45:33 ahd v1-12k $
+ *    $Id: ulibfs.c 1.11 1994/12/22 00:36:47 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.11  1994/12/22 00:36:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/05/07 21:45:33  ahd
  *    Correct CD() processing to be sticky -- once it fails, it
  *    keeps failing until reset by close or hangup.
@@ -93,9 +96,9 @@ static unsigned short blockIO( char UUFAR *buffer,
 /*--------------------------------------------------------------------*/
 
 static BPS currentBPS;
-static boolean currentDirect;
-static boolean carrierDetect;
-static boolean hangupNeeded;
+static KWBoolean currentDirect;
+static KWBoolean carrierDetect;
+static KWBoolean hangupNeeded;
 
 currentfile();
 
@@ -105,7 +108,7 @@ currentfile();
 /*    Open a fossil controlled port                                   */
 /*--------------------------------------------------------------------*/
 
-int fopenline(char *name, BPS baud, const boolean direct)
+int fopenline(char *name, BPS baud, const KWBoolean direct)
 {
    short result;
    FS_INFO fossilData;         /* Information returned by FOSSIL      */
@@ -131,7 +134,7 @@ int fopenline(char *name, BPS baud, const boolean direct)
    if ( result != FS_COOKIE )
    {
       printmsg(0,"fopenLine: Open failed, result %d",result );
-      return TRUE;            /* Report failure                       */
+      return KWTrue;           /* Report failure                       */
    }
 
 /*--------------------------------------------------------------------*/
@@ -141,9 +144,9 @@ int fopenline(char *name, BPS baud, const boolean direct)
    ssleep(2);                 /* Wait two seconds as required by V.24  */
 
    currentDirect = direct;    /* Save for flow control processing     */
-   carrierDetect = FALSE;     /* No modem connected yet               */
+   carrierDetect = KWFalse;    /* No modem connected yet               */
 
-   flowcontrol( FALSE );      /* Set no (or hardware) flow control     */
+   flowcontrol( KWFalse );     /* Set no (or hardware) flow control     */
    fSIOSpeed( baud );         /* Set the port speed                    */
    traceStart( name );        /* Enable line tracing                  */
 
@@ -158,8 +161,8 @@ int fopenline(char *name, BPS baud, const boolean direct)
               (int) fossilData.inputSize,
               (int) fossilData.outputSize );
 
-   portActive = TRUE;         /* Flag port is open                    */
-   return FALSE;              /* Report success to caller              */
+   portActive = KWTrue;        /* Flag port is open                    */
+   return KWFalse;             /* Report success to caller              */
 
 } /* fopenLine */
 
@@ -194,7 +197,7 @@ unsigned int fsread(char UUFAR *buffer,
       {
          unsigned int moved = blockIO( buffer, wanted, FS_READBLOK );
                                              /* Get the data           */
-         traceData( buffer, moved, FALSE );  /* Trace the data         */
+         traceData( buffer, moved, KWFalse );  /* Trace the data        */
 
          if ( moved < wanted)                /* Promised data delivered?  */
          {                                   /* NO --> Panic (literally)  */
@@ -224,12 +227,12 @@ unsigned int fsread(char UUFAR *buffer,
 
       if ( terminate_processing )         /* User hit Ctrl-Break?     */
       {
-         static boolean recurse = FALSE;
+         static KWBoolean recurse = KWFalse;
 
          if ( ! recurse )
          {
             printmsg(2,"fsread: User aborted processing");
-            recurse = TRUE;
+            recurse = KWTrue;
          }
          return 0;
 
@@ -265,7 +268,7 @@ int fswrite(const char UUFAR *data, unsigned int queued)
    static int const max_spin = 20;
    FS_INFO fossilData;           /* Information returned by FOSSIL     */
 
-   hangupNeeded = TRUE;          /* Serial port is now "dirty"        */
+   hangupNeeded = KWTrue;         /* Serial port is now "dirty"        */
 
    showModem( FSStatus());       /* Report modem status if changed     */
 
@@ -276,7 +279,7 @@ int fswrite(const char UUFAR *data, unsigned int queued)
   moved = blockIO( (char UUFAR *) data, queued, FS_WRITBLOK );
                                  /* Write the data to port            */
 
-  traceData( data, moved, TRUE); /* Trace our output                  */
+  traceData( data, moved, KWTrue); /* Trace our output                 */
 
   if ( moved == queued )         /* Did it all get written out?        */
       return moved;              /* Yes --> Return gracefully         */
@@ -321,7 +324,7 @@ int fswrite(const char UUFAR *data, unsigned int queued)
 
       moved = blockIO( (char UUFAR *) data + total, queued, FS_WRITBLOK );
                                                 /* Write the data     */
-      traceData( data + total, moved, TRUE);    /* Trace our output   */
+      traceData( data + total, moved, KWTrue);   /* Trace our output   */
 
       if ( moved != 0)
          spin--;           /* No progress, consider timing out    */
@@ -360,10 +363,10 @@ int fswrite(const char UUFAR *data, unsigned int queued)
 void fssendbrk(unsigned int duration)
 {
 
-   FSBreak( TRUE );
+   FSBreak( KWTrue );
    printmsg(4, "fssendbrk: %d", duration);
    ddelay( (KEWSHORT) (duration * 100) );
-   FSBreak( FALSE );
+   FSBreak( KWFalse );
 
 } /* fssendbrk */
 
@@ -378,12 +381,12 @@ void fcloseline(void)
    if (!portActive)
       panic();
 
-   portActive = FALSE;        /* Flag port closed for error handler   */
+   portActive = KWFalse;       /* Flag port closed for error handler   */
 
    FSFlushXmit();             /* Drop XMIT queue if not empty         */
    FSFlushRecv();             /* Drop Recv queue as well              */
 
-   FSDTR( FALSE );
+   FSDTR( KWFalse );
    ddelay(500);               /* Required for V.24                    */
 
    FSClose();
@@ -442,7 +445,7 @@ void fSIOSpeed(BPS bps)
 /*       Enable flow control for FOSSIL driven port                   */
 /*--------------------------------------------------------------------*/
 
-void fflowcontrol( boolean flow )
+void fflowcontrol( KWBoolean flow )
 {
    printmsg(4,"fflowcontrol: %sabling in-band flow control",
                flow ? "en" : "dis");
@@ -466,19 +469,19 @@ void fhangup( void )
    if (!hangupNeeded)
       return;
 
-   hangupNeeded = FALSE;
+   hangupNeeded = KWFalse;
 
    FSFlushXmit();             /* Drop XMIT queue if not empty         */
    FSFlushRecv();             /* Drop Recv queue as well              */
 
-   FSDTR( FALSE );         /* Hang the phone up                        */
+   FSDTR( KWFalse );        /* Hang the phone up                        */
    ddelay(500);            /* Really only need 250 milliseconds        */
-   FSDTR( TRUE );          /* Bring the modem back on-line             */
+   FSDTR( KWTrue );         /* Bring the modem back on-line             */
    ddelay(2000);           /* Now wait for the poor thing to recover   */
                            /* two seconds is required by V.24          */
 
    printmsg(3,"fhangup: complete.");
-   carrierDetect = FALSE;  /* No modem connected yet                   */
+   carrierDetect = KWFalse;  /* No modem connected yet                  */
 
 } /* fhangup */
 
@@ -499,21 +502,21 @@ BPS fGetSpeed( void )
 /*       Determine if Carrier Detect has dropped                      */
 /*--------------------------------------------------------------------*/
 
-boolean fCD( void )
+KWBoolean fCD( void )
 {
-   boolean newCarrierDetect;
+   KWBoolean newCarrierDetect;
 
    short status = FSStatus();
 
    showModem( status );
 
    if ( status & FS_STAT_DCD )
-      carrierDetect = newCarrierDetect = TRUE;
+      carrierDetect = newCarrierDetect = KWTrue;
 
    if (carrierDetect)
       return newCarrierDetect;
    else
-      return TRUE;
+      return KWTrue;
 
 } /* fCD */
 

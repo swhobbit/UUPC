@@ -18,9 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.38 1994/12/27 20:45:50 ahd Exp $
+ *    $Id: dcp.c 1.39 1994/12/31 03:39:56 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.39  1994/12/31 03:39:56  ahd
+ *    Correct processing for systems with grade restrictions in the
+ *    systems file when calling system "any"
+ *
  *    Revision 1.38  1994/12/27 20:45:50  ahd
  *    Smoother call grading'
  *
@@ -233,7 +237,7 @@ size_t s_pktsize;             /* send packet size for protocol       */
 size_t r_pktsize;             /* receive packet size for protocol    */
 
 FILE *xfer_stream = NULL;        /* stream for file being handled    */
-boolean callnow = FALSE;           /* TRUE = ignore time in L.SYS     */
+KWBoolean callnow = KWFalse;         /* KWTrue = ignore time in L.SYS    */
 FILE *fwork = NULL, *fsys= NULL ;
 FILE *syslog = NULL;
 char workfile[FILENAME_MAX];  /* name of current workfile         */
@@ -242,7 +246,7 @@ char rmtname[20];             /* system we end up talking to      */
 struct HostTable *hostp;
 struct HostStats remote_stats; /* host status, as defined by hostatus */
 
-static boolean dialed = FALSE;/* True = We attempted a phone call */
+static KWBoolean dialed = KWFalse;/* True = We attempted a phone call */
 
 currentfile();
 
@@ -252,15 +256,15 @@ currentfile();
 
 static CONN_STATE process( const POLL_MODE poll_mode, const char callGrade );
 
-static boolean master( const char recvGrade,
-                       const boolean overrideGrade,
-                       const boolean runUUXQT );
+static KWBoolean master( const char recvGrade,
+                       const KWBoolean overrideGrade,
+                       const KWBoolean runUUXQT );
 
-static boolean client( const time_t exitTime,
+static KWBoolean client( const time_t exitTime,
                        const char *hotUser,
                        const BPS hotBPS,
                        const int hotHandle,
-                       const boolean runUUXQT );
+                       const KWBoolean runUUXQT );
 
 /*--------------------------------------------------------------------*/
 /*    d c p m a i n                                                   */
@@ -272,15 +276,15 @@ int dcpmain(int argc, char *argv[])
 {
 
    char *logfile_name = NULL;
-   boolean  contacted = FALSE;
+   KWBoolean  contacted = KWFalse;
 
    int option;
    int pollMode = POLL_ACTIVE;   /* Default = dial out to system     */
    time_t exitTime = LONG_MAX;
 
    char recvGrade = ALL_GRADES;
-   boolean overrideGrade = FALSE;
-   boolean runUUXQT = FALSE;
+   KWBoolean overrideGrade = KWFalse;
+   KWBoolean runUUXQT = KWFalse;
 
    char *hotUser = NULL;
    BPS  hotBPS = 0;
@@ -311,7 +315,7 @@ int dcpmain(int argc, char *argv[])
             if ( ! recvGrade )   /* If no class, use the default  */
                recvGrade = ALL_GRADES;
          }
-         overrideGrade = TRUE;
+         overrideGrade = KWTrue;
          break;
 
       case 'h':
@@ -329,7 +333,7 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 'n':
-         callnow = TRUE;
+         callnow = KWTrue;
          break;
 
       case 'r':
@@ -341,11 +345,11 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 't':
-         traceEnabled = TRUE;
+         traceEnabled = KWTrue;
          break;
 
       case 'U':
-         runUUXQT = TRUE;
+         runUUXQT = KWTrue;
          break;
 
       case 'x':
@@ -465,9 +469,9 @@ int dcpmain(int argc, char *argv[])
 /*       Call out to other sites                                      */
 /*--------------------------------------------------------------------*/
 
-static boolean master( const char recvGrade,
-                       const boolean overrideGrade,
-                       const boolean runUUXQT )
+static KWBoolean master( const char recvGrade,
+                       const KWBoolean overrideGrade,
+                       const KWBoolean runUUXQT )
 {
 
    CONN_STATE m_state = CONN_INITSTAT;
@@ -475,8 +479,8 @@ static boolean master( const char recvGrade,
 
    char sendgrade = ALL_GRADES;
 
-   boolean contacted = FALSE;
-   boolean needUUXQT = FALSE;
+   KWBoolean contacted = KWFalse;
+   KWBoolean needUUXQT = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                    Validate the system to call                     */
@@ -537,7 +541,7 @@ static boolean master( const char recvGrade,
                m_state = CONN_INITIALIZE;
             else if ( LockSystem( hostp->hostname , B_UUCICO))
             {
-               dialed = TRUE;
+               dialed = KWTrue;
                time(&hostp->status.ltime);
                               /* Save time of last attempt to call  */
                hostp->status.hstatus = autodial;
@@ -566,7 +570,7 @@ static boolean master( const char recvGrade,
             if ( !IsNetwork() )
             {
                setTitle( "Allocating modem on %s", M_device);
-               if (suspend_other(TRUE, M_device ) < 0 )
+               if (suspend_other(KWTrue, M_device ) < 0 )
                {
                   hostp->status.hstatus =  nodevice;
                   m_state = CONN_INITIALIZE;    /* Try next system     */
@@ -590,7 +594,7 @@ static boolean master( const char recvGrade,
 
             setTitle("%s connected to %s", securep->myname, hostp->via );
             m_state = process( POLL_ACTIVE, recvGrade );
-            contacted = TRUE;
+            contacted = KWTrue;
             break;
 
          case CONN_TERMINATE:
@@ -601,7 +605,7 @@ static boolean master( const char recvGrade,
                if (hostp->status.hstatus == inprogress)
                   hostp->status.hstatus = call_failed;
                dcstats();
-               needUUXQT = TRUE;
+               needUUXQT = KWTrue;
             }
             break;
 
@@ -625,9 +629,9 @@ static boolean master( const char recvGrade,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-               execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+               execute( "uuxqt", buf, NULL, NULL, KWFalse, FALSE );
             }
-            needUUXQT = FALSE;
+            needUUXQT = KWFalse;
             m_state = CONN_INITIALIZE;
             break;
 
@@ -660,18 +664,18 @@ static boolean master( const char recvGrade,
 /*       Allow other systems to call us                               */
 /*--------------------------------------------------------------------*/
 
-static boolean client( const time_t exitTime,
+static KWBoolean client( const time_t exitTime,
                        const char *hotUser,
                        const BPS hotBPS,
                        const int hotHandle,
-                       const boolean runUUXQT )
+                       const KWBoolean runUUXQT )
 {
 
    CONN_STATE s_state = CONN_INITIALIZE;
    CONN_STATE old_state = CONN_EXIT;
 
-   boolean contacted = FALSE;
-   boolean needUUXQT = FALSE;
+   KWBoolean contacted = KWFalse;
+   KWBoolean needUUXQT = KWFalse;
 
    char sendgrade = ALL_GRADES;
 
@@ -761,7 +765,7 @@ static boolean client( const time_t exitTime,
             break;
 
          case CONN_CLIENT:
-            contacted = TRUE;
+            contacted = KWTrue;
             if (bflag[F_MULTITASK])
                dcupdate();
 
@@ -777,7 +781,7 @@ static boolean client( const time_t exitTime,
             if ( hostp != NULL )
             {
                dcstats();
-               needUUXQT = TRUE;
+               needUUXQT = KWTrue;
             }
             break;
 
@@ -800,9 +804,9 @@ static boolean client( const time_t exitTime,
             {
                char buf[100];
                sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
-               execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+               execute( "uuxqt", buf, NULL, NULL, KWFalse, FALSE );
             }
-            needUUXQT = FALSE;
+            needUUXQT = KWFalse;
             s_state = CONN_EXIT;
             break;
 
@@ -833,8 +837,8 @@ static boolean client( const time_t exitTime,
 
 static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
 {
-   boolean master  = ( pollMode == POLL_ACTIVE );
-   boolean aborted = FALSE;
+   KWBoolean master  = ( pollMode == POLL_ACTIVE );
+   KWBoolean aborted = KWFalse;
    XFER_STATE state =  master ? XFER_SENDINIT : XFER_RECVINIT;
    XFER_STATE old_state = XFER_EXIT;
                               /* Initialized to any state but the
@@ -870,14 +874,14 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
             break;
 
          case XFER_MASTER:    /* Begin master mode                   */
-            master = TRUE;
+            master = KWTrue;
             state = XFER_NEXTJOB;
             resetGrade( );    /* Reset best grade status             */
             currentGrade = E_firstGrade;
             break;
 
          case XFER_SLAVE:     /* Begin slave mode                    */
-            master = FALSE;
+            master = KWFalse;
             state = XFER_RECVHDR;
             break;
 

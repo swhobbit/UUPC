@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.10 1994/02/20 19:11:18 ahd v1-12k $
+ *    $Id: dcptpkt.c 1.11 1994/12/22 04:13:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.11  1994/12/22 04:13:38  ahd
+ *    Correct 't' protocol processing to use 512 messages with no header
+ *
  *    Revision 1.10  1994/02/20 19:11:18  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -170,7 +173,7 @@ static unsigned long ntohl( const unsigned long input )
 #pragma argsused
 #endif
 
-short topenpk(const boolean master)
+short topenpk(const KWBoolean master)
 {
    s_pktsize = r_pktsize = TBUFSIZE;
                                     /* Fixed for 't' procotol         */

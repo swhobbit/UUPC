@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.35 1994/06/13 00:12:05 ahd v1-12k $
+ *      $Id: dcpgpkt.c 1.36 1994/12/22 00:34:53 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.36  1994/12/22 00:34:53  ahd
+ *      Annual Copyright Update
+ *
  *      Revision 1.35  1994/06/13 00:12:05  ahd
  *      Correct length of error variable in messages
  *
@@ -262,7 +265,7 @@ static unsigned rwl, rwu, swl, swu;
 static unsigned nbuffers;
 static KEWSHORT nerr;
 static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
-static boolean arrived[NBUF];
+static KWBoolean arrived[NBUF];
 static unsigned nwindows;
 
 static char UUFAR outbuf[NBUF][MAXPACK];
@@ -271,7 +274,7 @@ static time_t ftimer[NBUF];
 static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 
-static boolean variablepacket;  /* "v" or in modem file              */
+static KWBoolean variablepacket;  /* "v" or in modem file             */
 
 static time_t idletimer = 0;
 
@@ -279,7 +282,7 @@ static time_t idletimer = 0;
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static short initialize(const boolean caller, const char protocol );
+static short initialize(const KWBoolean caller, const char protocol );
 
 static short  gmachine(const short timeout);
 
@@ -308,7 +311,7 @@ static unsigned checksum(const char UUFAR *data, unsigned len);
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-short Gopenpk(const boolean caller)
+short Gopenpk(const KWBoolean caller)
 {
    return initialize(caller , 'G');
 } /* Gopenpk */
@@ -319,7 +322,7 @@ short Gopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-short vopenpk(const boolean caller)
+short vopenpk(const KWBoolean caller)
 {
    return initialize(caller, 'v');
 } /* vopenpk */
@@ -330,7 +333,7 @@ short vopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-short gopenpk(const boolean caller)
+short gopenpk(const KWBoolean caller)
 {
    return initialize(caller, 'g');
 } /* vopenpk */
@@ -341,7 +344,7 @@ short gopenpk(const boolean caller)
 /*    Initialize processing for protocol                              */
 /*--------------------------------------------------------------------*/
 
-static short initialize(const boolean caller, const char protocol )
+static short initialize(const KWBoolean caller, const char protocol )
 {
    unsigned i, xxx, yyy, len, maxwindows;
 
@@ -392,7 +395,7 @@ static short initialize(const boolean caller, const char protocol )
    for (i = 0; i < NBUF; i++)
    {
       ftimer[i] = 0;
-      arrived[i] = FALSE;
+      arrived[i] = KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -698,7 +701,7 @@ static short initialize(const boolean caller, const char protocol )
 #pragma argsused
 #endif
 
-short gfilepkt( const boolean send, const unsigned long len)
+short gfilepkt( const KWBoolean send, const unsigned long len)
 {
 
    return DCP_OK;
@@ -835,7 +838,7 @@ short ggetpkt(char *data, short *len)
    *len = inlen[rwl];
    MEMCPY(data, inbuf[rwl], *len);
 
-   arrived[rwl] = FALSE;      /* Buffer is now emptied               */
+   arrived[rwl] = KWFalse;     /* Buffer is now emptied               */
    rwu = nextpkt(rwu);        /* bump receive window                 */
 
    return(0);
@@ -1015,15 +1018,15 @@ short grdmsg( char *s)
 static short gmachine(const short timeout )
 {
 
-   boolean done   = FALSE;    /* True = drop out of machine loop  */
-   boolean close  = FALSE;    /* True = terminate connection upon
+   KWBoolean done  = KWFalse;   /* True = drop out of machine loop  */
+   KWBoolean close  = KWFalse;  /* True = terminate connection upon
                                         exit                      */
-   boolean inseq  = TRUE;     /* True = Count next out of sequence
+   KWBoolean inseq  = KWTrue;   /* True = Count next out of sequence
                                         packet as an error           */
    while ( !done )
    {
-      boolean resend = FALSE;    /* True = resend data packets       */
-      boolean donak  = FALSE;    /* True = NAK the other system      */
+      KWBoolean resend = KWFalse;  /* True = resend data packets       */
+      KWBoolean donak  = KWFalse;  /* True = NAK the other system      */
       unsigned long packet_no = remote_stats.packets;
 
       short pkttype;
@@ -1062,7 +1065,7 @@ static short gmachine(const short timeout )
          case CLOSE:
             remote_stats.packets++;
             printmsg(GDEBUG, "**got CLOSE");
-            close = done = TRUE;
+            close = done = KWTrue;
             break;
 
          case DCP_EMPTY:
@@ -1072,13 +1075,13 @@ static short gmachine(const short timeout )
             {
                printmsg(0,"gmachine: Modem carrier lost");
                nerr++;
-               close = TRUE;
+               close = KWTrue;
             }
 
             if ( terminate_processing )
             {
                printmsg(0,"gmachine: User aborted processing");
-               close = TRUE;
+               close = KWTrue;
             }
 
             if (ftimer[swl])
@@ -1096,13 +1099,13 @@ static short gmachine(const short timeout )
                           sliding window scheme relaxes this reqirment. */
                    nerr++;
                    timeouts++;
-                   resend = TRUE;
+                   resend = KWTrue;
                } /* if */
             } /* if */
             else if ( now >= (idletimer + M_gPacketTimeout))
-               donak = TRUE;
+               donak = KWTrue;
 
-            done = TRUE;
+            done = KWTrue;
             break;
 
          case DATA:
@@ -1115,21 +1118,21 @@ static short gmachine(const short timeout )
                remote_stats.packets++;
                idletimer = now;
                rwl = i1;
-               inseq = arrived[rwl] = TRUE;
+               inseq = arrived[rwl] = KWTrue;
                inlen[rwl] = (unsigned short) rlen;
                printmsg(5, "*** ACK d %d", rwl);
                gspack(ACK, rwl, 0, 0, 0, NULL);
-               done = TRUE;   /* return to caller when finished      */
+               done = KWTrue;  /* return to caller when finished      */
                               /* in a mtask system, unneccesary      */
             }
             else {
                if (inseq || ( now >= (idletimer + M_gPacketTimeout)))
                {
-                  donak = TRUE;  /* Only flag first out of sequence
+                  donak = KWTrue;  /* Only flag first out of sequence
                                     packet as error, since we know
                                     following ones also bad            */
                   outsequence++;
-                  inseq = FALSE;
+                  inseq = KWFalse;
                }
                printmsg(GDEBUG, "*** unexpect %d ne %d (%d - %d)",
                                        rseq, i1, rwl, rwu);
@@ -1146,7 +1149,7 @@ static short gmachine(const short timeout )
                nerr++;
                naksin++;
                printmsg(5, "**got NAK %d", rack);
-               resend = TRUE;
+               resend = KWTrue;
             }
             else if (pkttype == ACK)
                printmsg(5, "**got ACK %d", rack);
@@ -1158,7 +1161,7 @@ static short gmachine(const short timeout )
                ftimer[swl] = 0;
                idletimer = now;
                nbuffers--;
-               done = TRUE;            /* Get more data for input */
+               done = KWTrue;           /* Get more data for input */
                swl = nextpkt(swl);
             } /* while */
 
@@ -1172,7 +1175,7 @@ static short gmachine(const short timeout )
          case DCP_ERROR:
             printmsg(GDEBUG, "*** got BAD CHK");
             naksout++;
-            donak = TRUE;
+            donak = KWTrue;
             lazynak = 0;               /* Always NAK bad checksum */
             break;
 
@@ -1256,7 +1259,7 @@ static short gmachine(const short timeout )
          printmsg(0,
             "gmachine: Consecutive error limit of %d exceeded, %d total errors",
             M_MaxErr, nerr + remote_stats.errors);
-         done = close = TRUE;
+         done = close = KWTrue;
          gstats();
       }
    } /* while */
@@ -1465,7 +1468,7 @@ static void gspack(short type,
 /*       NOTE (specifications for sread()):                           */
 /*                                                                    */
 /*          sread(buf, n, timeout)                                    */
-/*          while(TRUE)                                               */
+/*          while(KWTrue)                                              */
 /*          {                                                         */
 /*             if (# of chars available >= n)                         */
 /*                read n chars into buf                               */
@@ -1485,7 +1488,7 @@ static short grpack(unsigned *yyy,
 {
    static unsigned char UUFAR grpkt[MAXPACK+HDRSIZE];
 
-   static short got_hdr  = FALSE;
+   static short got_hdr  = KWFalse;
    static int received = 0;       /* Bytes already read into buffer */
    int needed;
 
@@ -1570,7 +1573,7 @@ static short grpack(unsigned *yyy,
             grpkt[1], grpkt[2], grpkt[3], grpkt[4], grpkt[5], i);
 
          if (i == 0)          /* Good header?                        */
-            got_hdr = TRUE;   /* Yes --> Drop out of loop            */
+            got_hdr = KWTrue;  /* Yes --> Drop out of loop            */
          else {               /* No  --> Flag it, continue loop      */
             badhdr++;
             printmsg(GDEBUG, "*** bad pkt header ***");
@@ -1597,7 +1600,7 @@ static short grpack(unsigned *yyy,
       *xxx = 0;
       check = 0;
       checkchk = 0;
-      got_hdr = FALSE;
+      got_hdr = KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1623,7 +1626,7 @@ get_data:
          printmsg(0,"grpack: Invalid packet size %d (%d)",
             total, (int) grpkt[1]);
          received = 0;
-         got_hdr = FALSE;
+         got_hdr = KWFalse;
          return(DCP_ERROR);
       }
 
@@ -1641,7 +1644,7 @@ get_data:
                   timeout) < (unsigned short)needed))
          return(DCP_EMPTY);
 
-      got_hdr = FALSE;           /* Must re-process header next pass */
+      got_hdr = KWFalse;          /* Must re-process header next pass */
 
 /*--------------------------------------------------------------------*/
 /*              Break packet header into various values               */

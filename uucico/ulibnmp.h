@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnmp.h 1.5 1994/04/26 03:34:33 ahd v1-12k $
+ *    $Id: ulibnmp.h 1.6 1994/12/22 00:42:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibnmp.h $
+ *    Revision 1.6  1994/12/22 00:42:12  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/04/26 03:34:33  ahd
  *    hot (previously opened) handle support
  *
@@ -42,9 +45,9 @@
  *
  */
 
-int pactiveopenline(char *name, BPS baud, const boolean direct );
+int pactiveopenline(char *name, BPS baud, const KWBoolean direct );
 
-int ppassiveopenline(char *name, BPS baud, const boolean direct );
+int ppassiveopenline(char *name, BPS baud, const KWBoolean direct );
 
 unsigned int psread(char UUFAR *output, unsigned int wanted, unsigned int timeout);
 
@@ -58,13 +61,13 @@ void phangup( void );
 
 void pSIOSpeed(BPS baud);
 
-void pflowcontrol( boolean flow );
+void pflowcontrol( KWBoolean flow );
 
 BPS pGetSpeed( void );
 
-boolean pCD( void );
+KWBoolean pCD( void );
 
-boolean pWaitForNetConnect(const unsigned int timeout);
+KWBoolean pWaitForNetConnect(const unsigned int timeout);
 
 int pGetComHandle( void );
 

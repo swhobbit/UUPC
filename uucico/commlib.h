@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.16 1994/05/08 02:50:44 ahd v1-12k $
+ *    $Id: commlib.h 1.17 1994/12/22 00:39:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.17  1994/12/22 00:39:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1994/05/08 02:50:44  ahd
  *    Change name of carrier detect
  *
@@ -85,9 +88,9 @@
 /*       in the communications drivers                                */
 /*--------------------------------------------------------------------*/
 
-typedef int (*ref_activeopenline)(char *name, BPS baud, const boolean direct);
+typedef int (*ref_activeopenline)(char *name, BPS baud, const KWBoolean direct);
 
-typedef int (*ref_passiveopenline)(char *name, BPS baud, const boolean direct);
+typedef int (*ref_passiveopenline)(char *name, BPS baud, const KWBoolean direct);
 
 typedef unsigned int (*ref_sread)(char UUFAR *buffer,
                                   unsigned int wanted,
@@ -101,15 +104,15 @@ typedef void (*ref_closeline)(void);
 
 typedef void (*ref_SIOSpeed)(BPS baud);
 
-typedef void (*ref_flowcontrol)(boolean);
+typedef void (*ref_flowcontrol)(KWBoolean);
 
 typedef void (*ref_hangup)( void );
 
 typedef BPS (*ref_GetSpeed)( void );
 
-typedef boolean (*ref_CD)( void );
+typedef KWBoolean (*ref_CD)( void );
 
-typedef boolean (*ref_WaitForNetConnect)(const unsigned int timeout);
+typedef KWBoolean (*ref_WaitForNetConnect)(const unsigned int timeout);
 
 typedef int (*ref_GetComHandle)( void );
 
@@ -117,24 +120,24 @@ typedef void (*ref_SetComHandle)( const int );
 
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */
-/*       returns TRUE on success.                                     */
+/*       returns KWTrue on success.                                    */
 /*--------------------------------------------------------------------*/
 
-boolean chooseCommunications( const char *suite );
+KWBoolean chooseCommunications( const char *suite );
 
-boolean IsNetwork(void);         /* Report if suite is network oriented  */
+KWBoolean IsNetwork(void);        /* Report if suite is network oriented  */
 
 /*--------------------------------------------------------------------*/
 /*       Trace functions for communications routines                  */
 /*--------------------------------------------------------------------*/
 
-boolean traceStart( const char *port );
+KWBoolean traceStart( const char *port );
 
 void traceStop( void );
 
 void traceData( const char UUFAR *data,
                 const unsigned len,
-                const boolean output);
+                const KWBoolean output);
 
 /*--------------------------------------------------------------------*/
 /*           Declare the functions used by various routines           */
@@ -180,11 +183,11 @@ extern size_t commBufferLength;
 extern size_t commBufferUsed;
 extern char UUFAR *commBuffer;
 
-extern boolean portActive;          /* Port active flag for error handler  */
-extern boolean traceEnabled;        /* Enable comm port trace          */
-extern boolean carrierDetect;       /* Modem is connected  flag        */
+extern KWBoolean portActive;         /* Port active flag for error handler  */
+extern KWBoolean traceEnabled;       /* Enable comm port trace          */
+extern KWBoolean carrierDetect;      /* Modem is connected  flag        */
 
-boolean IsNetwork(void);
+KWBoolean IsNetwork(void);
 
 /*--------------------------------------------------------------------*/
 /*                     Priority setting functions                     */

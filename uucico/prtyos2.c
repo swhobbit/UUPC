@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.6 1994/02/19 05:09:35 ahd v1-12k $
+ *    $Id: prtyos2.c 1.7 1994/12/22 00:35:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ *    Revision 1.7  1994/12/22 00:35:49  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/02/19 05:09:35  ahd
  *    Use standard first header
  *
@@ -76,7 +79,7 @@ static ULONG usPrevPriority;
 static USHORT usPrevPriority;
 #endif
 
-static boolean restore = FALSE;
+static KWBoolean restore = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*       s e t P r t y                                                */
@@ -111,7 +114,7 @@ void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
       panic();
    } /*if */
    else
-      restore = TRUE;
+      restore = KWTrue;
 
    rc = DosSetPrty(PRTYS_PROCESS, priority, prioritydelta, 0);
 
@@ -146,6 +149,6 @@ void resetPrty( void )
    if (rc)
       printOS2error( "DosSetPrty", rc );
 
-   restore = FALSE;
+   restore = KWFalse;
 
 } /* resetPrty */

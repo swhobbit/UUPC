@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.h 1.6 1994/10/24 23:41:49 rommel v1-12k $
+ *    $Id: suspend.h 1.7 1994/12/22 00:41:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend.h $
+ *    Revision 1.7  1994/12/22 00:41:07  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/10/24 23:41:49  rommel
  *    Prevent suspend processing hanging from rapid closing and opening of
  *    the same file.
@@ -49,11 +52,11 @@
  */
 
 #ifndef NO_SUSPEND_FUNCTIONS
-extern boolean suspend_processing;
+extern KWBoolean suspend_processing;
 
-boolean suspend_init(const char *port );
+KWBoolean suspend_init(const char *port );
 
-int suspend_other(const boolean suspend,
+int suspend_other(const KWBoolean suspend,
                   const char *port );
 
 CONN_STATE suspend_wait(void);
