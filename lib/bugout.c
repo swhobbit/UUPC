@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.16 1998/03/01 01:23:05 ahd v1-12v $
+ *    $Id: bugout.c 1.17 1998/04/08 11:32:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.17  1998/04/08 11:32:07  ahd
+ *    Force a crash, not non-zero exit, when debugging
+ *
  *    Revision 1.16  1998/03/01 01:23:05  ahd
  *    Annual Copyright Update
  *
@@ -124,7 +127,8 @@ void bugout(  const char *fname, const size_t lineno )
 
 #endif
 
-#ifdef UDEBUG32
+#if defined(UDEBUG32) && !defined(UUGUI)
+
 /*--------------------------------------------------------------------*/
 /*                   Crash the program if debugging                   */
 /*--------------------------------------------------------------------*/
