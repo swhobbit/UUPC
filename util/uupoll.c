@@ -82,9 +82,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.21 1994/05/06 03:55:50 ahd Exp $
+ *    $Id: uupoll.c 1.22 1994/08/08 00:32:15 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.22  1994/08/08  00:32:15  ahd
+ * Update usage() message
+ *
+ * Revision 1.22  1994/08/08  00:32:15  ahd
+ * Update usage() message
+ *
  * Revision 1.21  1994/05/06  03:55:50  ahd
  * Add support -U (auto run UUXQT) flag
  *
@@ -162,7 +168,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.21 1994/05/06 03:55:50 ahd Exp $";
+         "$Id: uupoll.c 1.22 1994/08/08 00:32:15 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -579,7 +585,8 @@ currentfile();
                                    (now >= autonext) &&
                                    (now < next);
 
-                  uuxqt( debuglevel, TRUE );
+                  if ( ! autoUUXQT )
+                     uuxqt( debuglevel, TRUE );
 
                   if ( poll )
                   {
