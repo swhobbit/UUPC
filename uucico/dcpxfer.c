@@ -33,9 +33,12 @@
 */
 
 /*
- *       $Id: DCPXFER.C 1.4 1992/11/19 02:36:12 ahd Exp $
+ *       $Id: DCPXFER.C 1.5 1992/11/19 03:01:31 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.5  1992/11/19  03:01:31  ahd
+ * drop rcsid
+ *
  * Revision 1.4  1992/11/19  02:36:12  ahd
  * Insure log file is flushed
  *
@@ -1048,7 +1051,7 @@ XFER_STATE rdata( void )
       else
          used += len;
 
-   }  while (((used - pktsize) <= xfer_bufsize) && len);
+   }  while (((used + pktsize) <= xfer_bufsize) && len);
 
 /*--------------------------------------------------------------------*/
 /*                  Write incoming data to the file                   */
