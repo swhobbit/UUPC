@@ -19,10 +19,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.3 1995/01/03 05:32:26 ahd Exp $
+ *    $Id: sendbats.c 1.4 1995/01/15 19:48:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.4  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.3  1995/01/03 05:32:26  ahd
  *    Further SYS file support cleanup
  *
@@ -37,7 +42,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.3 1995/01/03 05:32:26 ahd Exp $";
+            "$Id: sendbats.c 1.4 1995/01/15 19:48:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -146,9 +151,6 @@ int main( int argc, char **argv)
      if (node->flag.batch)
      {
          setTitle( "Batching news for %s", node->sysname );
-         printmsg(0,"SENDBATS: Batching news for system %s",
-                  node->sysname);
-
          process_batch(node, node->sysname, node->command);
      }
 

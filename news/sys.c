@@ -73,10 +73,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.10 1995/01/13 14:02:36 ahd Exp $
+ *    $Id: sys.c 1.11 1995/01/15 19:48:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.11  1995/01/15 19:48:35  ahd
+ *    Allow active file to be optional
+ *    Delete fullbatch global option
+ *    Add "local" and "batch" flags to SYS structure for news
+ *
  *    Revision 1.10  1995/01/13 14:02:36  ahd
  *    News debugging fixes from Dave Watt
  *    Add new checks for possible I/O errors
@@ -420,11 +425,12 @@ process_sys( char *buf)
                   "flags in system %s", f1);
       success = KWFalse;
     }
-    else if ( batchOptions )
-       node->flag.batch = KWTrue;
 
     if ( node->flag.J )             /* Now ignore for true batch     */
        batchOptions--;
+
+    if ( batchOptions )
+       node->flag.batch = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*       If we are batching, then the default "command" is            */
@@ -500,7 +506,7 @@ process_sys( char *buf)
    {
       char command[ FILENAME_MAX * 4 ];
 
-      sprintf(command, "uux -p -g%c -n -x %d -C %%s!rnews",
+      sprintf(command, "uux -anews -p -g%c -n -x %d -C %%s!rnews",
               E_newsGrade,
               debuglevel );
 

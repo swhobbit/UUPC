@@ -33,9 +33,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.49 1995/01/14 15:06:16 ahd Exp $
+ *       $Id: rnews.c 1.50 1995/01/15 19:48:35 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.50  1995/01/15 19:48:35  ahd
+ *       Allow active file to be optional
+ *       Delete fullbatch global option
+ *       Add "local" and "batch" flags to SYS structure for news
+ *
  *       Revision 1.49  1995/01/14 15:06:16  ahd
  *       Trap end of DOS headers as well as proper UNIX headers
  *
@@ -176,7 +181,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.49 1995/01/14 15:06:16 ahd Exp $";
+         "$Id: rnews.c 1.50 1995/01/15 19:48:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -202,6 +207,7 @@ static const char rcsid[] =
 #include "importng.h"
 #include "logger.h"
 #include "timestmp.h"
+#include "stater.h"
 
 #include "execute.h"
 
@@ -1041,7 +1047,7 @@ static int Batched( FILE *streamIn)
 
    } /* while */
 
-   fclose( inStream );
+   fclose( streamIn );
 
    return status;
 
@@ -1653,7 +1659,7 @@ void shadow_news( const char *fname )
 
         printmsg(1, "Shadowing news to %s", sysName );
 
-        sprintf(commandOptions, "-p -g%c -n -x %d -C %s!rnews",
+        sprintf(commandOptions, "-p -anews -g%c -n -x %d -C %s!rnews",
                 E_newsGrade,
                 debuglevel,
                 sysName );
@@ -1889,7 +1895,8 @@ static void copy_rmt_article(const char *filename,
 
   char buf[BUFSIZ];
 
-  KWBoolean searchHeaders = KWTrue;
+  KWBoolean searchHeaders = append ? KWFalse : KWTrue;
+                              /* Don't mangle headers in NNS mode    */
   KWBoolean skipHeader   = KWFalse;
 
   printmsg(2, "rnews: Saving remote article in %s", filename);
@@ -2048,8 +2055,11 @@ static KWBoolean batch_remote(const struct sys *node,
 
   if ( node->flag.f )
   {
-      fprintf( batchListStream, " %lu",
-               (unsigned long) imlength( imf ));
+      long length;
+
+      stater( fname, &length );
+
+      fprintf( batchListStream, " %ld", &length );
 
   } /* if ( node->flag.f ) */
 
