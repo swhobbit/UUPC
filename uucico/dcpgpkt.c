@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.33 1994/05/08 02:43:07 ahd Exp $
+ *      $Id: dcpgpkt.c 1.34 1994/05/23 22:45:10 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *        Revision 1.34  1994/05/23  22:45:10  ahd
+ *        Drop use of second variable for buffer tracking
+ *
  *        Revision 1.33  1994/05/08  02:43:07  ahd
  *        Handle carrier detect option internal to CD()
  *
@@ -799,8 +802,9 @@ short ggetpkt(char *data, short *len)
                debuglevel = 6;
 #endif
             printmsg(GDEBUG,
-                     "ggetpkt: Timeout %d waiting for inbound packet %d",
-                     M_MaxErr - --retry, remote_stats.packets + 1);
+                     "ggetpkt: Timeout %ld waiting for inbound packet %ld",
+                     (long) M_MaxErr - --retry,
+                     (long) remote_stats.packets + 1);
             timeouts++;
             start = now;
          } /* if (time( now ) > (start + M_gPacketTimeout) ) */
@@ -1028,7 +1032,7 @@ static short gmachine(const short timeout )
 
          printmsg(10, "* send %d < W < %d, "
                       "receive %d < W < %d, "
-                      "error %d, packet %d",
+                      "error %d, packet %ld",
                       swl,
                       swu,
                       rwl,
@@ -1101,6 +1105,7 @@ static short gmachine(const short timeout )
          case DATA:
             printmsg(5, "**got DATA %d %d", rack, rseq);
             i1 = nextpkt(rwl);   /* (R+1)%8 <-- -->(R+W)%8 */
+
             if (i1 == rseq)
             {
                lazynak--;
