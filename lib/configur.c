@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.85 1998/08/02 01:01:27 ahd Exp $
+ *    $Id: configur.c 1.86 1998/09/08 23:21:22 ahd v1-12d $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.86  1998/09/08 23:21:22  ahd
+ *    Restore missing option configuration
+ *
  *    Revision 1.85  1998/08/02 01:01:27  ahd
  *    Add autocall option
  *
@@ -155,7 +158,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.85 1998/08/02 01:01:27 ahd Exp $");
+RCSID("$Id: configur.c 1.86 1998/09/08 23:21:22 ahd v1-12d $");
 currentfile();
 
 #define HOMEDIRLIT "*HOME*"
@@ -243,7 +246,9 @@ typedef enum {
       ENV_OS2_16BIT  = 0x0040,
       ENV_WIN        = 0x0080,
       ENV_WIN_32BIT  = 0x0100,
-      ENV_WIN_16BIT  = 0x0200
+      ENV_WIN_16BIT  = 0x0200,
+      ENV_WIN_NT     = 0x0400,
+      ENV_WIN_9X     = 0x0800
       } ENV_TYPE;
 
 #ifdef WIN32
@@ -426,6 +431,8 @@ static ENVLIST osEnvTable[] =
    { "os2",      ENV_OS2      },
    { "win32",    ENV_WIN_32BIT},
    { "win16",    ENV_WIN_16BIT},
+   { "winnt",    ENV_WIN_NT   },
+   { "win9x",    ENV_WIN_9X   },
    { "32bitwin", ENV_WIN_32BIT},
    { "16bitwin", ENV_WIN_16BIT},
    { "win",      ENV_WIN      },
@@ -1033,6 +1040,8 @@ KWBoolean configure( CONFIGBITS program)
 
 #ifdef WIN32
    setstdinmode();
+
+   isWinNT();                    /* Also set NT vs. 9x flags */
 #endif
 
 #ifdef __IBMC__
@@ -1190,7 +1199,7 @@ KWBoolean configure( CONFIGBITS program)
 
       fprintf(stderr,
 "Warning: UUPC configuration file version (%s) does not match program\n"
-"level (%s).  Refer to UUPC/extended upgrade documention to complete\n"
+"level (%s).  Refer to UUPC/extended upgrade documentation to complete\n"
 "upgrade and suppress this message.\n\n",
               E_version,
               compilev );
@@ -1320,7 +1329,46 @@ KWBoolean IsDOS( void )
 static HKEY uupcMachineKey = INVALID_HANDLE_VALUE;
 static HKEY uupcUserKey = INVALID_HANDLE_VALUE;
 
-char *getregistry(char *envName, char **value)
+/*--------------------------------------------------------------------*/
+/*       i s W i n N T                                                */
+/*                                                                    */
+/*       Reports if current environment is Windows NT; only defined   */
+/*       for WIN32 environment                                        */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+isWinNT( void )
+{
+   OSVERSIONINFO osvi;
+
+   if (!(((unsigned long) active_env) & (ENV_WIN_NT | ENV_WIN_9X)))
+   {
+      /* First pass, set the environment flag */
+      osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+      GetVersionEx(&osvi);
+
+      if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+         active_env |= ENV_WIN_NT;
+      else
+         active_env |= ENV_WIN_9X;
+   }
+
+   /* Return our stored result */
+   if (((unsigned long) active_env) & ENV_WIN_NT)
+      return KWTrue;
+   else
+      return KWFalse;
+
+} /* isWinNT */
+
+/*--------------------------------------------------------------------*/
+/*       g e t r e g i s t r y                                        */
+/*                                                                    */
+/*       Retrieve a key from the Windows 95/98/NT registry            */
+/*--------------------------------------------------------------------*/
+
+char
+*getregistry(char *envName, char **value)
 {
    LONG result;
    DWORD dwType;
