@@ -1,0 +1,101 @@
+Microsoft Developer Studio Workspace File, Format Version 5.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "lib"=.\lib\lib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "uucommt"=.\uucommt\uucommt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uumaster"=.\uumaster.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name uucommt
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uupopd
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uusmtpd
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uupopd"=.\mail\uupopd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uucommt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uusmtpd"=.\mail\uusmtpd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uucommt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
