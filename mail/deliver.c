@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.61 1998/03/16 06:41:41 ahd Exp $
+ *    $Id: deliver.c 1.62 1998/03/16 07:47:40 ahd v1-13b $
  *
  *    $Log: deliver.c $
+ * Revision 1.62  1998/03/16  07:47:40  ahd
+ * Invert (correct) test for existence of mailbox before stater()
+ *
  *    Revision 1.61  1998/03/16 06:41:41  ahd
  *    Support for time stamp controlling trumpt processing
  *
@@ -151,6 +154,7 @@
 #include "trumpet.h"
 #include "usertabl.h"
 #include "stater.h"
+#include "title.h"
 #include "deliverm.h"               /* Misc support functions        */
 
 #ifdef TCPIP
@@ -234,6 +238,8 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
                      address,
                      validate );
    }
+
+   setTitle("Delivering from %s to %s", sender, address);
 
 /*--------------------------------------------------------------------*/
 /*                   Deliver to a gateway if needed                   */

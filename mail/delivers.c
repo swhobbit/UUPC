@@ -50,9 +50,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.11 1998/03/01 01:33:06 ahd v1-13b $
+ *       $Id: delivers.c 1.12 1998/07/27 01:03:54 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.12  1998/07/27 01:03:54  ahd
+ *       Add work around for sending overlength lines (now that
+ *       rmail doesn't puke on such lines on input)
+ *
  * Revision 1.11  1998/03/01  01:33:06  ahd
  * Annual Copyright Update
  *
@@ -90,6 +94,7 @@
 #include "delivers.h"
 #include "timestmp.h"
 #include "address.h"
+#include "title.h"
 #include "../uucico/commlib.h"
 
 /*--------------------------------------------------------------------*/
@@ -98,7 +103,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.11 1998/03/01 01:33:06 ahd v1-13b $");
+RCSID("$Id: delivers.c 1.12 1998/07/27 01:03:54 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -657,6 +662,8 @@ ConnectSMTP(
    int     subscript = 0;
    size_t  successes = 0;
 
+  setTitle( "Connect SMTP relay %s", relay );
+
   if (! chooseCommunications(SUITE_TCPIP, KWTrue, NULL))
       return 0;
 
@@ -730,6 +737,13 @@ ConnectSMTP(
 
   /* PSEUDO Send RCPT To: $*/
 
+  if (count == 1)
+  {
+    setTitle("Sending mail to %s via %s",
+            toAddress[subscript],
+            relay);
+  }
+
   for (subscript = 0; subscript < count; subscript++)
   {
      if (SendSMTPAddressCmd(imf,
@@ -738,6 +752,8 @@ ConnectSMTP(
                             validate))
         successes ++;
   }
+
+  setTitle("Sending data via %s",  relay);
 
   if (successes)                    /* At least one receiver?        */
   {

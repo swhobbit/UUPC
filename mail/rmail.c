@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.69 1998/03/16 07:47:40 ahd Exp $
+ *    $Id: rmail.c 1.70 1998/04/19 15:30:08 ahd v1-13b $
  *
- *    $Log: RMAIL.C $
+ *    $Log: rmail.c $
+ * Revision 1.70  1998/04/19  15:30:08  ahd
+ * Relax error traps for UUCP from line
+ *
  *    Revision 1.69  1998/03/16 07:47:40  ahd
  *    Correct definition of LOCAL_BUFSIZ
  *
@@ -218,6 +221,7 @@
 #include "timestmp.h"
 #include "catcher.h"
 #include "execute.h"
+#include "title.h"
 
 #ifdef _Windows
 #include "winutil.h"
@@ -591,6 +595,8 @@ int main(int argc, char **argv)
          else
             delivered += Deliver(imf, &sender, address[count], KWTrue);
    }
+
+   setTitle("Cleaning up");
 
    flushQueues(imf, &sender );
 
