@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.19 1994/02/19 04:12:02 ahd Exp $
+ *    $Id: ssleep.c 1.20 1994/02/19 04:46:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.20  1994/02/19  04:46:54  ahd
+ *     Use standard first header
+ *
  *     Revision 1.19  1994/02/19  04:12:02  ahd
  *     Use standard first header
  *
@@ -172,10 +175,10 @@ void ddelay( KEWSHORT milliseconds )
       return;
    }
 
-   SetTimer( hOurWindow,
-            TimerId,
-            (milliseconds > 55) ? (WORD)milliseconds : (WORD)55 ,
-            NULL );
+   TimerID = SetTimer( hOurWindow,
+                       TimerId,
+                       (milliseconds > 55) ? (WORD)milliseconds : (WORD)55 ,
+                       NULL );
 
    if ( TimerId == 0 )
    {
