@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.14 1994/04/24 20:30:08 ahd v1-12k $
+#       $Id: lib.mak 1.15 1994/12/22 00:14:53 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.15  1994/12/22 00:14:53  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.14  1994/04/24 20:30:08  ahd
 #       Add title altering function
 #
@@ -74,8 +77,8 @@ LIBLST1= $(OBJ)\active.obj\
          $(OBJ)\expath.obj $(OBJ)\execute.obj
 LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
          $(OBJ)\getargs.obj $(OBJ)\getopt.obj $(OBJ)\getseq.obj\
-         $(OBJ)\hostable.obj $(OBJ)\hostatus.obj
-LIBLST3= $(OBJ)\hostrset.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
+         $(OBJ)\hostable.obj $(OBJ)\hostatus.obj $(OBJ)\hostrset.obj
+LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
          $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
 LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
