@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.19 1998/03/01 01:24:50 ahd v1-12v $
+ *    $Id: printmsg.c 1.20 1998/04/08 11:32:07 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.20  1998/04/08 11:32:07  ahd
+ *    Allow shared libraries for NT
+ *
  *    Revision 1.19  1998/03/01 01:24:50  ahd
  *    Annual Copyright Update
  *
@@ -307,14 +310,33 @@ void printmsg(int level, char *fmt, ...)
 
       if ((stream != stdout) && (stream != stderr))
       {
-         char now[DATEBUF];
+         char timeBuffer[64];
+         time_t now;
+
+         static char format[] = "%m/%d-%H:%M:%S ";
+         struct tm lt;
+
+#ifndef UUGUI
+         if (debuglevel > 1)
+#endif
+         {
+            time(&now);
+            lt = *localtime(&now);
+            strftime(timeBuffer, sizeof(timeBuffer), format, &lt);
+         }
+
+#ifdef UUGUI
+         fprintf(stderr, timeBuffer);
+#endif
+
          vfprintf(stderr, fmt, arg_ptr);
          fputc('\n',stderr);
 
          if ( debuglevel > 1 )
             fprintf(stream, "(%d) ", level);
          else
-            fprintf(stream, "%s ", dater( time( NULL ), now));
+            fprintf(stream, "%s ", timeBuffer);
+
 
       } /* if (stream != stdout) */
 
