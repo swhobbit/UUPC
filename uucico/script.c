@@ -2,9 +2,30 @@
 /*    s c r i p t . c                                                 */
 /*                                                                    */
 /*    Script processing routines for UUPC/extended                    */
-/*                                                                    */
-/*    John H. DuBois III  3/31/90                                     */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Originally by John H. DuBois III  3/31/90                       */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.16 1993/11/06 17:57:46 rhg Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -68,9 +89,10 @@ static void slowWrite( char *s, size_t len);
 
 currentfile();
 
-static char scriptBuffer[40];    /* Can be shorter then longest send  */
+static char scriptBuffer[MAXMATCH]; /* Shared between input & output  */
+                                 /* Can be shorter then longest send  */
                                  /* string, as longer strings are     */
-                                 /* send without buffering            */
+                                 /* sent without buffering            */
 
 static size_t scriptBufferLen = 0;
 
@@ -198,7 +220,6 @@ static int StrMatch(char *MatchStr, char C, char **failure)
  *      position where characters are added to the buffer.
  */
 
-   static char Buffer[MAXMATCH];       /* Input string buffer */
    static size_t PutPos;               /* Where to add chars to buffer */
 
    static size_t SearchPos[MAXLIST];
@@ -213,7 +234,7 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 
    if ( C == '\0')
    {                                   /* Set up call */
-      memset(Buffer,'\0',MAXMATCH);    /* Clear buffer */
+      memset(scriptBuffer,'\0',sizeof scriptBuffer);    /* Clear buffer */
       PutPos = 0;
 
       SearchPosition = MatchInit( MatchStr );
@@ -236,9 +257,9 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 /*                       Look for primary match                       */
 /*--------------------------------------------------------------------*/
 
-   Buffer[ PutPos++ & QINDMASK] = C;
+   scriptBuffer[ PutPos++ & QINDMASK] = C;
 
-   if (Match( MatchStr, Buffer, &SearchPosition))
+   if (Match( MatchStr, scriptBuffer, &SearchPosition))
    {
       printmsg(2, "got that");
       return 1;
@@ -254,7 +275,7 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 
       while ( subscript-- )
       {
-         if (Match( failure[subscript], Buffer, &SearchPos[subscript]))
+         if (Match( failure[subscript], scriptBuffer, &SearchPos[subscript]))
          {
             printmsg(0,"got \"%s\" (failure)",failure[subscript]);
             return 2;
@@ -274,7 +295,7 @@ static int StrMatch(char *MatchStr, char C, char **failure)
 /*--------------------------------------------------------------------*/
 
 static boolean Match( char *Search,
-                      char *Buffer,
+                      char *scriptBuffer,
                       size_t *SearchPos)
 {
    int BufInd;             /* Index to input string buffer for string
@@ -285,7 +306,7 @@ static boolean Match( char *Search,
    *SearchPos += 1;
    for (BufInd = *SearchPos, SearchInd = Search; *SearchInd; SearchInd++)
    {
-     if (Buffer[BufInd++ & QINDMASK] != *SearchInd)
+     if (scriptBuffer[BufInd++ & QINDMASK] != *SearchInd)
         return FALSE;
    }
 
@@ -303,14 +324,14 @@ static size_t MatchInit( const char *MatchStr )
 {
    size_t SearchLen = strlen(MatchStr);
 
-   if (SearchLen > MAXMATCH)
+   if (SearchLen > sizeof scriptBuffer)
    {
-      printmsg(0,"StrMatch: String to match '%s' is too long.\n",
+      printmsg(0,"StrMatch: String to match '%s' is too long.",
            MatchStr);
       panic();
    }
 
-   return MAXMATCH - SearchLen;
+   return sizeof scriptBuffer - SearchLen;
 
 } /* MatchInit */
 
@@ -453,11 +474,18 @@ void sendstr(char *str)
 
 static void slowWrite( char *s, size_t len)
 {
+
+/*--------------------------------------------------------------------*/
+/*       We don't have to flush before the char delay because the     */
+/*       character delay is constant for one connection-- on or off   */
+/*--------------------------------------------------------------------*/
+
    if ( M_charDelay )
+   while ( len-- )
    {
-      swrite( s , len );
+      swrite( s++ , 1 );
       ddelay(M_charDelay);
-   }
+   } /* while ( len-- ) */
    else {
 
       if ( (scriptBufferLen + len) > sizeof scriptBuffer )
