@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.6 1994/12/22 00:12:57 ahd Exp $
+ *    $Id: hlib.h 1.7 1994/12/31 03:51:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.7  1994/12/31 03:51:25  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.6  1994/12/22 00:12:57  ahd
  *    Annual Copyright Update
  *
@@ -29,7 +32,7 @@
 
 #define SAME 0
 
-#define SFILENAME "SEQF"
+#define SFILENAME "SEQF.DAT"
 #define DOTFORWARD "forward"
 
 #define SEPCHAR '/'
