@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\LIB\RCS\SECURITY.C 1.4 1993/03/06 22:48:23 ahd Exp $
+ *    $Id: SECURITY.C 1.5 1993/04/11 00:31:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: SECURITY.C $
+ *     Revision 1.5  1993/04/11  00:31:04  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.4  1993/03/06  22:48:23  ahd
  *     Re-do compare of sort to void bug in some qsort() functions
  *
@@ -580,7 +583,7 @@ static size_t InitDir( char *directories,
       strcpy( path, token);
       if (isalpha(path[0]) && (path[1] != ':') && (strlen(path) == 2))
          ;                 /* Yup, do nothing for root drive names  */
-      else if ( expand_path( path, ".", E_pubdir , NULL) == NULL )
+      else if ( expand_path( path, NULL, E_pubdir , NULL) == NULL )
       {
          printmsg(0, "Unable to expand path \"%s\"",path );
          return 0;
