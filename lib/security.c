@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.29 1996/01/04 04:00:46 ahd v1-12r $
+ *    $Id: security.c 1.30 1997/03/31 07:06:33 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.30  1997/03/31 07:06:33  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.29  1996/01/04 04:00:46  ahd
  *    Use sorted list of boolean options with binary search and computed
  *    table size.
@@ -186,9 +189,10 @@ KWBoolean LoadSecurity( void )
 /*                    Initialize local host entry                     */
 /*--------------------------------------------------------------------*/
 
-   hostp = checkname( E_nodename );
+   hostp = checkself( E_nodename );
    if ( hostp == NULL )
       panic();
+
    hostp->hsecure = &localSecurity;
    hostp->hsecure->local = KWTrue;
 

@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.56 1997/05/11 04:28:26 ahd v1-12s $
+ *    $Id: uuxqt.c 1.57 1997/11/21 16:06:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.57  1997/11/21 16:06:43  ahd
+ *    Invert security check for non-local files to deny if
+ *    check passes.
+ *
  *    Revision 1.56  1997/05/11 04:28:26  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -493,7 +497,7 @@ static KWBoolean do_uuxqt( const char *sysname )
    if( !equal( sysname , "all" ) )
    {
       if (equal( sysname , E_nodename ))
-          hostp = checkname( sysname );
+          hostp = checkself( sysname );
       else
           hostp = checkreal( sysname );
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.28 1997/03/31 06:59:39 ahd Exp $
+  *      $Id: hostable.c 1.29 1997/05/11 04:27:40 ahd v1-12s $
   *
   *      $Log: hostable.c $
+  *      Revision 1.29  1997/05/11 04:27:40  ahd
+  *      SMTP client support for RMAIL/UUXQT
+  *
   *      Revision 1.28  1997/03/31 06:59:39  ahd
   *      Annual Copyright Update
   *
@@ -168,6 +171,19 @@ struct HostTable *checkName(const char *name,
    }
 
    namel = strlen(name);
+
+/*--------------------------------------------------------------------*/
+/*       Validate our environment; if the domain information is       */
+/*       not initialized, program should only be calling              */
+/*       checkreal() directly.                                        */
+/*--------------------------------------------------------------------*/
+
+   if ( E_localdomain == NULL )
+   {
+      printmsg(0,"Internal error: Attempt to use local domain "
+                  "without initialization" );
+      bugout(function, line);
+   }
 
 /*--------------------------------------------------------------------*/
 /*    If same argument as last time, return same result; otherwise    */

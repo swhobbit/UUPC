@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.31 1996/11/19 00:14:35 ahd Exp $
+ *    $Id: uustat.c 1.32 1997/04/24 01:41:10 ahd v1-12s $
  *
  *    $Log: uustat.c $
+ *    Revision 1.32  1997/04/24 01:41:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.31  1996/11/19 00:14:35  ahd
  *    Add more debugging information
  *
@@ -68,7 +71,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.31 1996/11/19 00:14:35 ahd Exp $";
+         "$Id: uustat.c 1.32 1997/04/24 01:41:10 ahd v1-12s $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -352,7 +355,7 @@ main(int  argc, char  **argv)
       exit(2);
    }
 
-   checkname(E_nodename);     /* Force loading of host table         */
+   checkself(E_nodename);     /* Force loading of host table         */
 
 /*--------------------------------------------------------------------*/
 /*                 Determine if we have a valid host                  */
@@ -659,10 +662,10 @@ static void long_stats( const char *system )
 /*                  Get the first system to process                   */
 /*--------------------------------------------------------------------*/
 
-   if ( equal(system,ALL) )
-      hostp = checkname( E_nodename ); /* Start with local system    */
+   if ( equal(system,ALL) || equali( system, E_nodename ))
+      hostp = checkself( E_nodename ); /* Start with local system    */
    else
-      hostp = checkname( system );  /* not checkreal, may be local   */
+      hostp = checkreal( system );
 
 /*--------------------------------------------------------------------*/
 /*              Begin loop to display status of systems               */

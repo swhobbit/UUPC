@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.52 1996/11/18 04:46:49 ahd Exp $
+ *     $Id: dcpsys.c 1.53 1997/04/24 01:33:53 ahd v1-12s $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.53  1997/04/24 01:33:53  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.52  1996/11/18 04:46:49  ahd
  *     Normalize arguments to bugout
  *     Reset title after exec of sub-modules
@@ -522,7 +525,7 @@ void wmsg(const char *msg, const KWBoolean synch)
 /*    read a ^P msg from UUCP                                         */
 /*--------------------------------------------------------------------*/
 
-int rmsg(char *msg, SYNCH synch, unsigned int msgtime, int max_len)
+int rmsg(char *msg, const SYNCH synch, unsigned int msgtime, int max_len)
 {
    int i = 0;
    char ch = '?';       /* Initialize to non-zero value  */    /* ahd  */
