@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: dcptpkt.c 1.1 1993/09/18 19:47:24 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: dcpfpkt.c $
+ *    $Log: dcptpkt.c $
+ * Revision 1.1  1993/09/18  19:47:24  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -42,8 +45,8 @@
 #include <time.h>
 #include <string.h>
 
-#ifdef defined(WIN32) || defined(_Windows)
-#include <winsock.h>       // Needed for byte ordering
+#if defined(WIN32) || defined(_Windows)
+#include "winsock.h"       // Needed for byte ordering
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -59,6 +62,10 @@
 #include "ssleep.h"
 #include "modem.h"
 #include "commlib.h"
+
+#ifdef _Windows
+#include "pwinsock.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*     Network functions needed when no winsock functions available   */
@@ -78,7 +85,7 @@ static unsigned long ntohl( const unsigned long input );
 static unsigned long htonl( const unsigned long input )
 {
    unsigned long result;
-   unsigned char *p = (char *) &result;
+   unsigned char *p = (unsigned char *) &result;
    int i;
 
    for (i = 0 ; i < sizeof input; i++ )
@@ -96,7 +103,7 @@ static unsigned long htonl( const unsigned long input )
 
 static unsigned long ntohl( const unsigned long input )
 {
-   unsigned char *p = (char *) &input;
+   unsigned char *p = (unsigned char *) &input;
    unsigned long result = 0;
    int i;
 
@@ -128,6 +135,71 @@ short topenpk(const boolean master)
 } /* topenpk */
 
 /*--------------------------------------------------------------------*/
+/*    t g e t p k t                                                   */
+/*                                                                    */
+/*    Receive an "t" protocol packet of data from the other system    */
+/*--------------------------------------------------------------------*/
+
+short tgetpkt(char *packet, short *bytes)
+{
+   unsigned short recv;
+   unsigned long nrecv;
+
+   if (sread( (char *) &nrecv, sizeof nrecv, M_tPacketTimeout) < sizeof nrecv)
+   {
+      printmsg(0,"tgetpkt: Length read failed");
+      return -1;
+   }
+
+   recv = (short) ntohl( nrecv );
+
+   if ( recv > r_pktsize )
+   {
+      printmsg(0,"tgetpkt: Buffer overrun!  Wanted %d bytes, %d queued",
+                  (int) *bytes,
+                  (int) recv );
+      return -1;
+   }
+
+   if (sread( packet, recv, M_tPacketTimeout) < recv)
+   {
+      printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
+      return -1;
+   }
+
+   remote_stats.packets++;
+
+   *bytes = recv;
+
+   return 0;
+
+} /* tgetpkt */
+
+/*--------------------------------------------------------------------*/
+/*    t s e n d p k t                                                 */
+/*                                                                    */
+/*    Send an "t" protocol packet to the other system                 */
+/*--------------------------------------------------------------------*/
+
+short tsendpkt(char *ip, short len)
+{
+
+   unsigned long nxmit = htonl((unsigned long) len);
+
+   if ( swrite( (char *) &nxmit, sizeof nxmit ) != sizeof nxmit )
+      return -1;
+
+   if ( len && (swrite( ip , len ) != len ))
+      return -1;
+
+   remote_stats.packets++;
+
+   return 0;
+
+} /* tsendpkt */
+
+
+/*--------------------------------------------------------------------*/
 /*    t c l o s e p k                                                 */
 /*                                                                    */
 /*    Shutdown "t" procotol with other system                         */
@@ -138,22 +210,24 @@ short tclosepk()
    return DCP_OK;
 } /* tclosepk */
 
+#ifdef EXTRA_STUFF
+
 /*--------------------------------------------------------------------*/
 /*    t w r m s g                                                     */
 /*                                                                    */
 /*    Send a control message to remote system with "t" procotol       */
 /*--------------------------------------------------------------------*/
 
-short twrmsg(char *str)
+short twrmsg(char *s)
 {
-   for(; strlen(s) >= s_pktsize; s += s_pktsize)
+   for( ; strlen(s) >= s_pktsize; s += s_pktsize)
    {
-      short result = tsendpkt(s, s_pktsize);
+      short result = tsendpkt(s, (short) s_pktsize);
       if (result)
          return result;
    }
 
-   return tsendpkt(s, strlen(s)+1);
+   return tsendpkt(s, (short) (strlen(s) + 1));
 
 } /* twrmsg */
 
@@ -168,7 +242,7 @@ short trdmsg(char *s)
    for ( ;; )
    {
       short len;
-      short result = ggetpkt( s, &len );
+      short result = tgetpkt( s, &len );
       if (result || (s[len-1] == '\0'))
          return result;
       s += len;
@@ -176,57 +250,6 @@ short trdmsg(char *s)
 
 } /* trdmsg */
 
-/*--------------------------------------------------------------------*/
-/*    t g e t p k t                                                   */
-/*                                                                    */
-/*    Receive an "t" protocol packet of data from the other system    */
-/*--------------------------------------------------------------------*/
-
-short tgetpkt(char *packet, short *bytes)
-{
-   unsigned long recv;
-   unsigned long nrecv;
-
-   if ( sread( &nrecv, sizeof nrecv, E_tPacketTimeout) < E_tPacketTimeout)
-   {
-      printmsg(0,"tgetpkt: Length read failed");
-      return DCP_FAILED:
-   }
-
-   recv = ntohl( nrecv );
-
-   if ( sread( packet, bytes, E_tPacketTimeout) < E_tPacketTimeout)
-   {
-      printmsg(0,"tgetpkt: Data read failed");
-      return DCP_FAILED:
-   }
-
-   remote_stats.packets++;
-
-} /* tgetpkt */
-
-/*--------------------------------------------------------------------*/
-/*    t s e n d p k t                                                 */
-/*                                                                    */
-/*    Send an "t" protocol packet to the other system                 */
-/*--------------------------------------------------------------------*/
-
-short tsendpkt(char *ip, short len)
-{
-
-   unsigned long nxmit = htol((unsigned long) len);
-
-   if ( swrite( &nxmit, sizeof nxmit )) != sizeof nxmit )
-      return DCP_FAILED;
-
-   if ( xmit && (swrite( ip , len ) != len ))
-      return DCP_FAILED;
-
-   remote_stats.packets++;
-
-   return DCP_OK;
-
-} /* tsendpkt */
 
 /*--------------------------------------------------------------------*/
 /*    t f i l e p k t                                                 */
@@ -236,7 +259,9 @@ short tsendpkt(char *ip, short len)
 
 short tfilepkt( void)
 {
+
    return DCP_OK;
+
 } /* tfilepkt */
 
 /*--------------------------------------------------------------------*/
@@ -247,6 +272,10 @@ short tfilepkt( void)
 
 short teofpkt( void )
 {
-   return tsendpkt( NULL, 0 );
-
+   if (tsendpkt("", 0))          /* Empty packet == EOF              */
+      return DCP_FAILED;
+   else
+      return DCP_OK;
 } /* teofpkt */
+
+#endif

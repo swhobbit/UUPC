@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.4 1993/07/22 23:22:27 ahd Exp $
+ *    $Id: dcplib.c 1.5 1993/07/24 03:40:55 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.5  1993/07/24  03:40:55  ahd
+ * Correct #ifif to #ifel
+ *
  * Revision 1.4  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
  *
@@ -102,7 +105,9 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
+#if !defined(_Windows)
 currentfile();
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -153,22 +158,26 @@ boolean login(void)
 
    sprintf(line,"\r\n\n%s %d.%02d with %s %s (%s) (%s)\r\n",
 #ifdef WIN32
-            "Windows/NT(TM)",
-            _osmajor,
+            "Windows NT(TM)",
+            _winmajor,
+            _winminor,
 #elif defined(__OS2__)
             "OS/2(R)",
-            _osmajor,
+            (int) _osmajor / 10,
+            _osminor,
 #elif defined( __TURBOC__ )
             "MS-DOS(R)",
             _osmajor,
+            _osminor,
 #else
             (_osmode == DOS_MODE) ? "DOS" : "OS/2(R)" ,
-            (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
+            (_osmode == DOS_MODE) ? (int) _osmajor : ((int) _osmajor / 10 ),
+            _osminor,
 #endif
-       _osminor,
-       compilep,
-       compilev,
-       E_domain, device); /* Print a hello message            */
+            compilep,
+            compilev,
+            E_domain,
+            device); /* Print a hello message            */
 #endif
 
    wmsg(line,0);

@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.16 1993/05/30 00:01:47 ahd Exp $
+ *     $Id: dcpsys.c 1.17 1993/08/26 05:00:25 ahd Exp $
  *
- *     $Log: DCPSYS.C $
+ *     $Log: dcpsys.c $
+ * Revision 1.17  1993/08/26  05:00:25  ahd
+ * Debugging code for odd failures on J. McBride's network
+ *
  * Revision 1.16  1993/05/30  00:01:47  ahd
  * Multiple commuications drivers support
  *
@@ -112,6 +115,7 @@
 #include "dcp.h"
 #include "dcpfpkt.h"
 #include "dcpgpkt.h"
+#include "dcptpkt.h"
 #include "dcplib.h"
 #include "dcpsys.h"
 #include "export.h"
@@ -130,16 +134,30 @@ currentfile();
 
 Proto Protolst[] = {
        { 'g', ggetpkt, gsendpkt, gopenpk, gclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt } ,
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt,
+              FALSE,
+       } ,
 
        { 'G', ggetpkt, gsendpkt, Gopenpk, gclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt } ,
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt,
+              FALSE,
+       } ,
 
        { 'f', fgetpkt, fsendpkt, fopenpk, fclosepk,
-              frdmsg,  fwrmsg,   feofpkt, ffilepkt } ,
+              frdmsg,  fwrmsg,   feofpkt, ffilepkt,
+              FALSE,
+       } ,
 
        { 'v', ggetpkt, gsendpkt, vopenpk, gclosepk,
-              grdmsg,  gwrmsg,   geofpkt, gfilepkt } ,
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt,
+              FALSE,
+       } ,
+#if defined(_Windows) || defined(BIT32ENV)
+       { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
+              grdmsg,  gwrmsg,   geofpkt, gfilepkt, // Yup, same as 'g'
+              TRUE,
+       } ,
+#endif
    { '\0' }
    };
 
@@ -728,7 +746,10 @@ CONN_STATE startup_client( char *sendgrade )
 
    s = plist;
    for (tproto = Protolst; tproto->type != '\0' ; tproto++)
-      *s++ = tproto->type;
+   {
+      if ( IsNetwork() || !tproto->network )
+         *s++ = tproto->type;
+   }
 
    *s = '\0';                 /* Terminate our string                */
 

@@ -1,3 +1,28 @@
+/*--------------------------------------------------------------------*/
+/*          u u x . c                                                 */
+/*                                                                    */
+/*          Queue remote commands for UUCP under UUPC/extended        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
 /*
       Program:    uux.c              27 August 1991
       Author:     Mitch Mitchell
@@ -386,6 +411,8 @@ static boolean split_path(char *path,
            (expand_path(file, NULL, E_homedir, NULL) == NULL))
          return FALSE;     /* expand_path will delivery any needed
                                  nasty-gram to user                  */
+
+      return TRUE;
    } /* if ( p_left == NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -827,7 +854,11 @@ static boolean do_remote(int optind, int argc, char **argv)
 
          printmsg(9, "prm -> %s", argv[optind]);
 
-         if (!split_path(argv[optind], src_system, src_file, TRUE, dest_system))
+/*--------------------------------------------------------------------*/
+/*        Hmmm.  Do we want the remote to have DOS style path?        */
+/*--------------------------------------------------------------------*/
+
+         if (!split_path(argv[optind], src_system, src_file, FALSE, dest_system))
          {
             printmsg(0, "uux - illegal syntax %s", argv[optind]);
             return FALSE;
@@ -996,9 +1027,6 @@ void main(int  argc, char  **argv)
 /*--------------------------------------------------------------------*/
 
    tzset();                      /* Set up time zone information  */
-
-   PushDir( E_spooldir );
-   atexit( PopDir );
 
    user_id = E_mailbox;
 

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.5 1993/07/31 16:27:49 ahd Exp $
+ *    $Id: uucp.c 1.6 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.6  1993/08/02  03:24:59  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.5  1993/07/31  16:27:49  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -222,7 +225,7 @@ int   do_uux(char *remote,
 /*--------------------------------------------------------------------*/
 
       if ((*src_syst == '\0') || equal(src_syst, E_nodename))
-         sprintf(xcmd + strlen(xcmd), " \\!%s ", src_file);
+         sprintf(xcmd + strlen(xcmd), " !%s ", src_file);
       else  {
          if (!equal(remote, src_syst))
             sprintf(xcmd + strlen(xcmd), " (%s!%s) ", src_syst, src_file);
@@ -527,9 +530,16 @@ void  main(int argc, char *argv[])
       if (mail_them)
          flags[i++] = 'n';
       flags[i] = '\0';
+
       if (remote_user[0] == '\0')
-         strcpy(remote_user, E_mailbox);
-      if (argc - optind < 2)  {
+      {
+         /* copy the string taking care not to overrun the buffer */
+         strncpy(remote_user, E_mailbox, sizeof(remote_user) - 1 );
+         remote_user[sizeof(remote_user) - 1] = '\0';
+      }
+
+      if (argc - optind < 2)
+      {
          usage();
          exit(1);
       }

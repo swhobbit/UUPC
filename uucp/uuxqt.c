@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.13 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: uuxqt.c 1.14 1993/08/03 03:35:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.14  1993/08/03  03:35:58  ahd
+ * Correct path pointer to initialized variable
+ *
  * Revision 1.13  1993/08/03  03:11:49  ahd
  * Initialize buffer for shell() in non-Windows environment
  *
@@ -137,7 +140,7 @@ typedef enum {
         E_NOEXE,
         E_FAILED,
 
-        UU_LAST,
+        UU_LAST
 
         } UU_FLAGS;
 
@@ -883,7 +886,7 @@ static int shell(char *command,
 
          boolean firstPass = TRUE;
 
-#ifdef __OS2__
+#if defined(__OS2__) || defined(WIN32)
          size_t rlen =  254 ;
 #elif defined(__TURBOC__)
          size_t rlen =  126 ;
@@ -910,7 +913,7 @@ static int shell(char *command,
 /*--------------------------------------------------------------------*/
 
          while ((parameters != NULL) &&
-                (rlen - strlen( parameters) > 0))
+                ((rlen - strlen( parameters)) > 0))
          {
             char *next = strtok( NULL, "");
 
@@ -1213,7 +1216,7 @@ static void ReportResults(const int status,
      char address[MAXADDR];
      char subject[80];
      FILE *mailtmp = NULL;
-     char *tempmail = mktempname(NULL, "TMP");
+     char *tempmail;
 
 
      if (!(xflag[X_FAILED] | xflag[X_SUCCESS] |
@@ -1222,6 +1225,8 @@ static void ReportResults(const int status,
          unlink(output);
          return;
      }
+
+     tempmail = mktempname(NULL, "TMP");
 
      if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
          printerr(tempmail);
