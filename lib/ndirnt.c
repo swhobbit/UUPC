@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.17 1997/03/31 07:05:09 ahd v1-12t $
+ *       $Id: ndirnt.c 1.18 1997/12/14 21:13:45 ahd v1-12u $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.18  1997/12/14 21:13:45  ahd
+ *       Correct memory leak when directory fails to open
+ *
  *       Revision 1.17  1997/03/31 07:05:09  ahd
  *       Annual Copyright Update
  *
@@ -108,7 +111,7 @@ static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
 
-RCSID("$Id$");
+RCSID("$Id: ndirnt.c 1.18 1997/12/14 21:13:45 ahd v1-12u $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -140,7 +143,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    printmsg(5, "dirhandle = %d, file = %s", dirHandle, dirData.cFileName );
 
    if ((int)dirHandle == -1) {
-      printmsg(2,"opendir: Error on directory %s",pathname );
+      printmsg(4,"opendir: Error on directory %s",pathname );
       free( pathname );
       return NULL;
    }
