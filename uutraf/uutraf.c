@@ -4,6 +4,9 @@
 
 #define SID "@(#)uutraf:uutraf.c 1.2.2.8  92/10/23 10:23:03 (woods)"
 #include <sccsid.h>
+#ifdef UUPC
+#include "uutypes.h"
+#endif
 
 #if defined(USE_STDDEF) || defined(_POSIX_SOURCE) || \
    REALSTDC || (__STDC__ - 0) == 1
