@@ -22,11 +22,11 @@
  * Created: Sun Aug 15 1993
  */
 
-
-
-
 /*
  * $Log: history.c $
+ * Revision 1.21  1999/01/04 03:53:30  ahd
+ * Annual copyright change
+ *
  * Revision 1.20  1998/03/01 01:30:17  ahd
  * Annual Copyright Update
  *
@@ -97,8 +97,6 @@
  * Initial revision
  * */
 
-
-
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -118,9 +116,7 @@
 #include "importng.h"
 #include "hdbm.h"
 
-RCSID("$Id: history.c 1.20 1998/03/01 01:30:17 ahd v1-13f ahd $" );
-
-currentfile();
+RCSID("$Id: history.c 1.21 1999/01/04 03:53:30 ahd Exp $" );
 
 /*--------------------------------------------------------------------*/
 /*    o p e n _ h i s t o r y                                         */

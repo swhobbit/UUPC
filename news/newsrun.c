@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.20 1998/03/01 01:30:29 ahd v1-13f ahd $
+ *       $Id: newsrun.c 1.21 1999/01/04 03:52:55 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.21  1999/01/04 03:52:55  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.20  1998/03/01 01:30:29  ahd
  *       Annual Copyright Update
  *
@@ -254,7 +257,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.20 1998/03/01 01:30:29 ahd v1-13f ahd $");
+RCSID("$Id: newsrun.c 1.21 1999/01/04 03:52:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -309,8 +312,6 @@ RCSID("$Id: newsrun.c 1.20 1998/03/01 01:30:29 ahd v1-13f ahd $");
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
-
-currentfile();
 
 static time_t now;
 static void *history;
@@ -1513,7 +1514,6 @@ static KWBoolean deliver_local(IMFILE *imf,
   strncpy( msgID, messageID, sizeof msgID );
   msgID[ sizeof msgID - 1] = '\0';
 
-
   loc_articles++;
 
    if (control)
@@ -1790,7 +1790,6 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
      printerr( filename );
      panic();
   }
-
 
 } /* copy_rmt_article */
 

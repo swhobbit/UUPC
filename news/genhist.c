@@ -21,6 +21,9 @@
 
 /*
  *       $Log: genhist.c $
+ *       Revision 1.26  1999/01/04 03:52:55  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.25  1998/03/03 03:51:07  ahd
  *       Clean up RCS history comments
  *
@@ -109,7 +112,7 @@
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.25 1998/03/03 03:51:07 ahd v1-13f ahd $");
+RCSID("$Id: genhist.c 1.26 1999/01/04 03:52:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -134,8 +137,6 @@ RCSID("$Id: genhist.c 1.25 1998/03/03 03:51:07 ahd v1-13f ahd $");
 #include "stater.h"
 #include "timestmp.h"
 #include "hdbm.h"
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -230,7 +231,6 @@ main( int argc, char **argv)
    loadActive( KWTrue );
 
    backupHistory();
-
 
    PushDir( E_newsdir );            /* Save drive, directory name,
                                        creates directoryt if needed  */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.21 1998/03/01 01:25:38 ahd v1-13f ahd $
+ *    $Id: timestmp.c 1.22 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.22  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.21  1998/03/01 01:25:38  ahd
  *    Annual Copyright Update
  *
@@ -77,18 +80,14 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: timestmp.c 1.21 1998/03/01 01:25:38 ahd v1-13f ahd $");
+RCSID("$Id: timestmp.c 1.22 1999/01/04 03:52:28 ahd Exp $");
 
-#ifdef _Windows
-currentfile();
-#endif
+const char *compiled = __DATE__;
+const char *compilet = __TIME__;
+const char *compilev = UUPCV;
 
-char compiled[] = { __DATE__ } ;
-char compilet[] = { __TIME__ } ;
-char compilev[] = { UUPCV } ;
-
-char compilep[] = { "UUPC/extended" } ;
-char *compilen  = compilep;
+const char *compilep = "UUPC/extended";
+char       *compilen = "?";
 
 #ifdef _Windows
 char *compilew = NULL;
@@ -220,7 +219,6 @@ void banner (char **argv)
    if ( hOurTask == NULL )
       panic();
    hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
-
 
    ddelay(0);           /* To insure we yield control at least once;  */
                         /* see comments in winutil.c.                 */

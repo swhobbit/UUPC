@@ -24,7 +24,8 @@
 #include "usertabl.h"
 #include "expath.h"
 
-currentfile();
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*    V a l i d a t e C o m m a n d                                   */
 /*                                                                    */

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.18 1998/03/01 01:40:39 ahd v1-13f ahd $
+ *    $Id: ulibfs.c 1.19 1999/01/04 03:53:30 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.19  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:40:39  ahd
  *    Annual Copyright Update
  *
@@ -121,7 +124,7 @@ static BPS currentBPS;
 static KWBoolean currentDirect;
 static KWBoolean hangupNeeded;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    f o p e n L i n e                                               */
@@ -618,15 +621,16 @@ static void getDriverInfo( FS_INFO *fossilData)
 static void getDriverInfo( FS_INFO *fossilData)
 {
    static fossilSize = sizeof *fossilData;
+   int fs_segment = FP_SEG( fossilData );
+   int fs_offset  = FP_OFF( fossilData );
 
    _asm \
    {
       push  es
       mov   ah,FS_DRIVINFO
       mov   cx,fossilSize
-      push  ds
-      pop   es
-      mov   di,fossilData
+      mov   es,fs_segment
+      mov   di,fs_offset
       mov   dx,portNum
       int   FS_INTERRUPT   ;
       pop   es

@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.18 1998/11/24 03:08:50 ahd v1-13f ahd $
+ *    $Id: strpool.c 1.19 1999/01/04 03:52:28 ahd Exp $
  *
  *    $Log: strpool.c $
+ *    Revision 1.19  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/11/24 03:08:50  ahd
  *    Use KW_BUFSIZ for strpool size
  *
@@ -85,6 +88,8 @@
 
 #include <limits.h>
 
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -141,7 +146,7 @@ static long saved     = 0;
 /*    Allocate a string from the string poll                          */
 /*--------------------------------------------------------------------*/
 
-char *strpool( const char *input , const char *file, size_t line)
+char *strpool( const char *input , const char UUFAR *file, size_t line)
 {
    unsigned len;
    int best_fit = SHRT_MAX;
@@ -267,7 +272,6 @@ char *strpool( const char *input , const char *file, size_t line)
 /*    and return to the caller with the new string                    */
 /*--------------------------------------------------------------------*/
 
-
    result = save->pool + save->used;
    *result = (char) ((unsigned char) len);
    strcpy( ++result, input );
@@ -288,7 +292,7 @@ char *strpool( const char *input , const char *file, size_t line)
 /*    Insure we are not freeing memory saved for a pool               */
 /*--------------------------------------------------------------------*/
 
-void safefree( void *input , const char *file, size_t line)
+void safefree( void *input , const char UUFAR *file, size_t line)
 {
    STR_QUEUE *current = anchor;
    int buffers = 0;

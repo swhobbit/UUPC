@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.15 1998/03/01 01:25:31 ahd v1-13f ahd $
+ *    $Id: stater.c 1.16 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.16  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/03/01 01:25:31  ahd
  *    Annual Copyright Update
  *
@@ -51,8 +54,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: stater.c 1.15 1998/03/01 01:25:31 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: stater.c 1.16 1999/01/04 03:52:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    s t a t e r                                                     */

@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.18 1998/03/01 01:40:34 ahd v1-13f ahd $
+ *    $Id: ulib14.c 1.19 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.19  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:40:34  ahd
  *    Annual Copyright Update
  *
@@ -129,7 +132,7 @@ static unsigned char bps_table(int);
 static BPS currentBPS;
 static char currentDirect;
 
-currentfile();
+RCSID("$Id$");
 static KWBoolean hangupNeeded = KWTrue;
 
 /*--------------------------------------------------------------------*/

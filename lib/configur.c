@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.87 1998/11/05 03:29:03 ahd v1-13f ahd $
+ *    $Id: configur.c 1.88 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.88  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.87  1998/11/05 03:29:03  ahd
  *    Allow on-the-fly actions based on WinNT vs. Win95
  *
@@ -161,8 +164,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.87 1998/11/05 03:29:03 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: configur.c 1.88 1999/01/04 03:52:28 ahd Exp $");
 
 #define HOMEDIRLIT "*HOME*"
 

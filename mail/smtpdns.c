@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpdns.c 1.2 1998/03/01 01:32:38 ahd v1-13f ahd $
+ *    $Id: smtpdns.c 1.3 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: smtpdns.c $
+ *    Revision 1.3  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.2  1998/03/01 01:32:38  ahd
  *    Annual Copyright Update
  *
@@ -39,9 +42,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpdns.c 1.2 1998/03/01 01:32:38 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtpdns.c 1.3 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t H o s t N a m e F r o m S o c k e t                    */

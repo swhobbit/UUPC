@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.14 1998/03/01 01:23:33 ahd v1-13f ahd $
+ *    $Id: export.c 1.15 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: export.c $
+ *    Revision 1.15  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.14  1998/03/01 01:23:33  ahd
  *    Annual Copyright Update
  *
@@ -81,7 +84,7 @@
 #include "hostable.h"
 #include "security.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       e x p o r t p a t h                                          */

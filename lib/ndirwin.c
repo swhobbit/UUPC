@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndirwin.c 1.11 1998/03/01 01:24:35 ahd v1-13f ahd $
+ *    $Id: ndirwin.c 1.12 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: ndirwin.c $
+ *    Revision 1.12  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.11  1998/03/01 01:24:35  ahd
  *    Annual Copyright Update
  *
@@ -84,7 +87,7 @@
 static char *pathname = NULL;
 static struct ffblk findbuf;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r x                                                 */

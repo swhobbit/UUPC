@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.20 1998/11/24 14:10:23 ahd v1-13f ahd $
+ *    $Id: smtpserv.c 1.21 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.21  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/11/24 14:10:23  ahd
  *    Add missing header for title.h
  *
@@ -97,9 +100,7 @@
 #include "title.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.20 1998/11/24 14:10:23 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtpserv.c 1.21 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       f l a g R e a d y C l i e n t L i s t                        */
@@ -125,7 +126,6 @@ flagReadyClientList(SMTPClient *top)
 /*       not dropping connections on a busy server.                   */
 /*--------------------------------------------------------------------*/
 
-
    do {
 #ifdef UDEBUG
 
@@ -137,7 +137,6 @@ flagReadyClientList(SMTPClient *top)
                      getClientHandle(current),
                      getClientMode(current));
 #endif
-
 
       if (getClientProcess(current))
       {

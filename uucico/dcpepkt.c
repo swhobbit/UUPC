@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.18 1998/03/01 01:39:18 ahd v1-13f ahd $
+ *    $Id: dcpepkt.c 1.19 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.19  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:39:18  ahd
  *    Annual Copyright Update
  *
@@ -105,6 +108,8 @@
 #include "ssleep.h"
 #include "modem.h"
 #include "commlib.h"
+
+RCSID("$Id$");
 
 static unsigned long efilelength;
 static unsigned long ebytesdone;

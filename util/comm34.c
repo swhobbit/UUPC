@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: comm34.c 1.3 1993/10/24 20:58:55 rhg Exp $
+ *    $Id: comm34.c 1.4 1994/02/19 05:01:00 ahd v1-13f $
  *
  *    Revision history:
  *    $Log: comm34.c $
+ *    Revision 1.4  1994/02/19 05:01:00  ahd
+ *    Use standard first header
+ *
  * Revision 1.3  1993/10/24  20:58:55  rhg
  * Clean up for MS C 7.0
  *
@@ -33,7 +36,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: comm34.c 1.3 1993/10/24 20:58:55 rhg Exp $";
+static char rcsid[] = "$Id: comm34.c 1.4 1994/02/19 05:01:00 ahd v1-13f $";
 
 /*
  * Compiler: Microsoft C 5.1
@@ -56,6 +59,8 @@ static char rcsid[] = "$Id: comm34.c 1.3 1993/10/24 20:58:55 rhg Exp $";
 /*--------------------------------------------------------------------*/
 
 #include "timestmp.h"
+
+RCSID("$Id$");
 
 #define MK_FP(seg,ofs)  ((void far *)(((unsigned long)(seg) << 16) | (ofs)))
 

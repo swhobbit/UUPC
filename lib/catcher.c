@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.25 1998/11/24 03:08:50 ahd v1-13f ahd $
+ *    $Id: catcher.c 1.26 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.26  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.25  1998/11/24 03:08:50  ahd
  *    Support on-the-fly debugger entry
  *
@@ -55,7 +58,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: catcher.c 1.25 1998/11/24 03:08:50 ahd v1-13f ahd $");
+RCSID("$Id: catcher.c 1.26 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
@@ -107,7 +110,6 @@ KWBoolean norecovery = KWTrue;
 #if defined(WIN32) || defined(_Windows)
 KWBoolean winsockActive = KWFalse;    /* Set/reset in ulibip.c          */
 
-currentfile();
 #endif
 
 #define INVALID_CHAR '*'

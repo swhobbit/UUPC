@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.14 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: smtpd.c 1.15 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.15  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.14  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -98,9 +101,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.14 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtpd.c 1.15 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c l i e n t M o d e                                          */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.21 1998/03/01 01:23:50 ahd v1-13f ahd $
+ *    $Id: getseq.c 1.22 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.22  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.21  1998/03/01 01:23:50  ahd
  *    Annual Copyright Update
  *
@@ -103,7 +106,7 @@
 
 #include "getseq.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    g e t S e q                                                     */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.7 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *       $Id: pop3lwc.c 1.8 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.8  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.7  1998/11/04 01:59:55  ahd
  *       Prevent buffer overflows when processing UIDL lines
  *       in POP3 mail.
@@ -71,9 +74,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.7 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: pop3lwc.c 1.8 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */

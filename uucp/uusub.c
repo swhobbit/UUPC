@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.19 1998/03/01 01:46:19 ahd v1-13f ahd $
+ *    $Id: uusub.c 1.20 1999/01/04 03:53:57 ahd Exp $
  *
  *    $Log: uusub.c $
+ *    Revision 1.20  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.19  1998/03/01 01:46:19  ahd
  *    Annual Copyright Update
  *
@@ -112,7 +115,7 @@ static char *format( unsigned long l);
 static char output[10 * 12];
 static size_t column ;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */

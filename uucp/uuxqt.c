@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.61 1998/09/08 23:21:22 ahd v1-13f ahd $
+ *    $Id: uuxqt.c 1.62 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.62  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.61  1998/09/08 23:21:22  ahd
  *    Prevent buffer overruns
  *
@@ -264,7 +267,7 @@
 #include "winutil.h"
 #endif
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                      Execution flag defines                        */
@@ -692,7 +695,6 @@ static void process( const char *eXecFileName,
                     line );
          skip = KWTrue;
       }
-
 
       printmsg(5, "Input read: %s", line);
 

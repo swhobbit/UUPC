@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.23 1998/04/29 03:49:49 ahd v1-13f ahd $
+ *    $Id: printmsg.c 1.24 1999/01/04 03:52:28 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.24  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.23  1998/04/29 03:49:49  ahd
  *    Correct formatting of date at debug 1
  *
@@ -122,7 +125,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(__HEAPCHECK__)
-currentfile();
+RCSID("$Id$");
 #endif
 
 int debuglevel = 1;

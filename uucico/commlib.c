@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.38 1998/04/19 23:55:58 ahd v1-13f ahd $
+ *    $Id: commlib.c 1.39 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.39  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.38  1998/04/19 23:55:58  ahd
  *    *** empty log message ***
  *
@@ -202,7 +205,7 @@ static KWBoolean network = KWFalse;  /* Current communications suite is  */
 static KWBoolean tapi = KWFalse; /* Current communications suite is  */
                                  /* based on MS Windows TAPI         */
 
-currentfile();
+RCSID("$Id$");
 
 int dummyGetComHandle( void );
 

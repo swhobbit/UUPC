@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.11 1998/03/01 01:40:26 ahd v1-13f ahd $
+ *    $Id: suspendn.c 1.12 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *    Revision 1.12  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.11  1998/03/01 01:40:26  ahd
  *    Annual Copyright Update
  *
@@ -132,7 +135,7 @@ static HANDLE eventFree = INVALID_HANDLE_VALUE;
 static ULONG postCount;
 static ULONG nBytes;
 
-currentfile();
+RCSID("$Id$");
 
 BOOL AbortComm(void);
 

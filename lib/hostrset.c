@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.17 1998/03/01 01:23:59 ahd v1-13f ahd $
+ *    $Id: hostrset.c 1.18 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *    Revision 1.18  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/03/01 01:23:59  ahd
  *    Annual Copyright Update
  *
@@ -93,7 +96,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       H o s t R e s e t                                            */

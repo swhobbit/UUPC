@@ -11,10 +11,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strlwr.c 1.7 1994/02/19 03:59:08 ahd Exp $
+ *    $Id: strlwr.c 1.8 1994/02/19 04:47:09 ahd v1-13f $
  *
  *    Revision history:
  *    $Log: strlwr.c $
+ *    Revision 1.8  1994/02/19 04:47:09  ahd
+ *    Use standard first header
+ *
  *     Revision 1.7  1994/02/19  03:59:08  ahd
  *     Use standard first header
  *
@@ -51,6 +54,8 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.15 1998/03/01 01:24:16 ahd v1-13f ahd $
+ *    $Id: mkdir.c 1.16 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *    Revision 1.16  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/03/01 01:24:16  ahd
  *    Annual Copyright Update
  *
@@ -70,6 +73,8 @@
 #include "uupcmoah.h"
 
 #include <direct.h>
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

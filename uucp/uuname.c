@@ -24,7 +24,7 @@
 #include "security.h"
 #include "timestmp.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                             Verb list                              */

@@ -31,7 +31,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static KWBoolean restore = KWFalse;
 

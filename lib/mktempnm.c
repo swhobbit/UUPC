@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.18 1998/03/01 01:24:24 ahd v1-13f ahd $
+ *    $Id: mktempnm.c 1.19 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.19  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:24:24  ahd
  *    Annual Copyright Update
  *
@@ -88,7 +91,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m k t e m p n a m e                                             */

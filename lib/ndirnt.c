@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.20 1998/03/01 01:24:05 ahd v1-13f ahd $
+ *       $Id: ndirnt.c 1.21 1999/01/04 03:52:28 ahd Exp $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.21  1999/01/04 03:52:28  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.20  1998/03/01 01:24:05  ahd
  *       Annual Copyright Update
  *
@@ -117,8 +120,7 @@ static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
 
-RCSID("$Id: ndirnt.c 1.20 1998/03/01 01:24:05 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: ndirnt.c 1.21 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r                                                   */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.64 1998/09/08 23:21:22 ahd v1-13f ahd $
+ *    $Id: deliver.c 1.65 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.65  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.64  1998/09/08 23:21:22  ahd
  *    Add setting of title for major operations
  *
@@ -180,7 +183,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */

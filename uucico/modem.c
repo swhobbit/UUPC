@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.74 1998/11/24 13:49:41 ahd v1-13f ahd $
+ *    $Id: modem.c 1.75 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.75  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.74  1998/11/24 13:49:41  ahd
  *    Disable optimization under VC++ 5.0 for modem packet size computation;
  *    panic if code loops excessively anyway.
@@ -282,8 +285,6 @@ static KWBoolean sendalt( char *string,
 
 static void autobaud( const BPS speed);
 
-
-
 #ifdef TAPI_SUPPORT
 static CONN_STATE answerTAPI(time_t offset);
 #endif
@@ -292,8 +293,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*              Define current file name for references               */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-RCSID("$Id: modem.c 1.74 1998/11/24 13:49:41 ahd v1-13f ahd $");
+RCSID("$Id: modem.c 1.75 1999/01/04 03:53:30 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */
@@ -492,7 +492,6 @@ CONN_STATE callin( const time_t exit_time )
       offset = SHRT_MAX;
    }
 
-
 /*--------------------------------------------------------------------*/
 /*                        Open the serial port                        */
 /*--------------------------------------------------------------------*/
@@ -534,7 +533,6 @@ CONN_STATE callin( const time_t exit_time )
                           IsNetwork() ? M_portNumber : inspeed,
                           IsNetwork() ? KWFalse : bmodemflag[MODEM_DIRECT]))
          panic();
-
 
       if (!IsTAPI())
       {
@@ -827,7 +825,6 @@ static KWBoolean dial(char *number, const BPS speed)
       }
    }
    else {
-
 
       if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
       {
@@ -1167,7 +1164,6 @@ KEWSHORT GetGWindow(  KEWSHORT maxvalue , const char protocol )
 /*    Return the allowed packet size for the "g" procotol             */
 /*--------------------------------------------------------------------*/
 
-
 KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
 {
    KEWSHORT savePacketSize ;
@@ -1255,7 +1251,7 @@ answerTAPI(time_t offset)
          SetComHandle(h);
          printmsg(2, "Tapi line connected");
 
-         // do the inits to the port
+         /* do the inits to the port */
          if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
              panic();
 

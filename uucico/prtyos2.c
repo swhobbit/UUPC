@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.11 1998/03/01 01:40:04 ahd v1-13f ahd $
+ *    $Id: prtyos2.c 1.12 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ *    Revision 1.12  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.11  1998/03/01 01:40:04  ahd
  *    Annual Copyright Update
  *
@@ -79,7 +82,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 #ifndef __OS2__
 typedef USHORT APIRET ;  /* Define older API return type              */

@@ -30,10 +30,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: winstdio.c 1.2 1998/04/20 02:47:57 ahd v1-13f ahd $
+ *       $Id: winstdio.c 1.3 1999/01/04 03:52:28 ahd Exp $
  *
  *       Revision history:
  *       $Log: winstdio.c $
+ *       Revision 1.3  1999/01/04 03:52:28  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.2  1998/04/20 02:47:57  ahd
  *       TAPI/Windows 32 BIT GUI display support
  *
@@ -41,7 +44,6 @@
  *       Initial revision
  *
  */
-
 
 #define NO_UUIO_REDEFINES        /* Don't redefine functions we use */
 #include "uupcmoah.h"
@@ -56,7 +58,7 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_LINES 1000
 
-RCSID("$Id: winstdio.c 1.2 1998/04/20 02:47:57 ahd v1-13f ahd $");
+RCSID("$Id: winstdio.c 1.3 1999/01/04 03:52:28 ahd Exp $");
 
 HWND hFrame;                        /* handle of main window */
 HANDLE hInst;                       /* our instance */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.20 1998/11/24 03:08:50 ahd v1-13f ahd $
+ *    $Id: bugout.c 1.21 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.21  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/11/24 03:08:50  ahd
  *    Use BREAKPOINT, not divide by 0, to enter debugger
  *
@@ -80,7 +83,6 @@
  *
  */
 
-
 #include "uupcmoah.h"
 
 #if defined(_Windows) || defined(WIN32)
@@ -106,7 +108,8 @@
 int panic_rc = 69;                  /* Actually defined in catcher.h,
                                        but not all routines need the
                                        catcher.                      */
-RCSID("$Id: bugout.c 1.20 1998/11/24 03:08:50 ahd v1-13f ahd $");
+
+RCSID("$Id: bugout.c 1.21 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */
@@ -114,7 +117,7 @@ RCSID("$Id: bugout.c 1.20 1998/11/24 03:08:50 ahd v1-13f ahd $");
 /*    Perform a panic() exit from UUPC/extended                       */
 /*--------------------------------------------------------------------*/
 
-void bugout(  const char *fname, const size_t lineno )
+void bugout(const char UUFAR *fname, const size_t lineno )
 {
 
 #ifdef _Windows
@@ -122,13 +125,13 @@ void bugout(  const char *fname, const size_t lineno )
 #endif
 
   printmsg(0,"%s aborting at line %d in file %s",
-              compilen, lineno, fname );
+              compilen, lineno, localFName(fname));
   copylog();
 
 #ifdef _Windows
 
    sprintf(buf,"%s aborting at line %d in file %s",
-              compilen, lineno, fname );
+              compilen, lineno, localFName(fname));
 
    MessageBox( hOurWindow, buf, compilen, MB_ICONEXCLAMATION );
 

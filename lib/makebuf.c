@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: makebuf.c 1.1 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: makebuf.c 1.2 1996/11/19 00:14:35 ahd v1-13f $
  *
  *    $Log: makebuf.c $
+ *    Revision 1.2  1996/11/19 00:14:35  ahd
+ *    Add more debugging information
+ *
  *    Revision 1.1  1996/11/18 04:46:49  ahd
  *    Initial revision
  *
@@ -43,7 +46,7 @@
 /*                           RCS signature                            */
 /*--------------------------------------------------------------------*/
 
-RCSID( "$Id: makebuf.c 1.1 1996/11/18 04:46:49 ahd Exp $" );
+RCSID( "$Id: makebuf.c 1.2 1996/11/19 00:14:35 ahd v1-13f $" );
 
 /*--------------------------------------------------------------------*/
 /*                     Local typedefs and defines                     */
@@ -153,7 +156,6 @@ freeBuf( void *oldBuffer, const char *file, const size_t line )
 
       entries--;
 #endif
-
 
 /*--------------------------------------------------------------------*/
 /*            Pop the current entry off the stack and free it         */

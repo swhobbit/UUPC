@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.34 1998/05/11 01:20:48 ahd v1-13f ahd $
+ *    $Id: uupoll.c 1.35 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.35  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.34  1998/05/11 01:20:48  ahd
  *    Always log to correct directory if enabled at all
  *
@@ -206,7 +209,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.34 1998/05/11 01:20:48 ahd v1-13f ahd $";
+         "$Id: uupoll.c 1.35 1999/01/04 03:53:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -293,7 +296,7 @@ static time_t now;            /* Current time, updated at start of
                                  program and by busywork() and
                                  runCommand()                        */
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -470,7 +473,6 @@ currentfile();
             usage( argv[0] );
          nopassive = atoi(optarg);
          break;
-
 
       case 'U':
          autoUUXQT = KWTrue;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.10 1998/04/20 02:47:57 ahd v1-13f ahd $
+ *    $Id: titlen.c 1.11 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: titlen.c $
+ *    Revision 1.11  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.10  1998/04/20 02:47:57  ahd
  *    TAPI/Windows 32 BIT GUI display support
  *
@@ -61,6 +64,8 @@
 
 #include "title.h"
 #include "timestmp.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       s e t T i t l e                                              */

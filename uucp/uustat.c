@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.34 1998/03/01 01:46:16 ahd v1-13f ahd $
+ *    $Id: uustat.c 1.35 1999/01/04 03:53:57 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.35  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.34  1998/03/01 01:46:16  ahd
  *    Annual Copyright Update
  *
@@ -78,7 +81,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.34 1998/03/01 01:46:16 ahd v1-13f ahd $";
+         "$Id: uustat.c 1.35 1999/01/04 03:53:57 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -174,7 +177,7 @@ typedef enum {
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static const char *host_status[] = {
       "(invalid - entry not properly initialized)",

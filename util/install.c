@@ -11,10 +11,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: install.c 1.4 1994/02/19 05:02:21 ahd v1-12k $
+ *    $Id: install.c 1.5 1995/01/07 16:22:44 ahd v1-13f $
  *
  *    Revision history:
  *    $Log: install.c $
+ *    Revision 1.5  1995/01/07 16:22:44  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.4  1994/02/19 05:02:21  ahd
  *    Use standard first header
  *
@@ -35,7 +38,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-      "$Id: install.c 1.4 1994/02/19 05:02:21 ahd v1-12k $";
+      "$Id: install.c 1.5 1995/01/07 16:22:44 ahd v1-13f $";
 
 /*--------------------------------------------------------------------*/
 /*                      Standard C include files                      */
@@ -46,6 +49,8 @@ static char rcsid[] =
 /*--------------------------------------------------------------------*/
 
 #include "timestmp.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */

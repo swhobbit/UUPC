@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.31 1998/03/01 01:25:27 ahd v1-13f ahd $
+ *    $Id: ssleep.c 1.32 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.32  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.31  1998/03/01 01:25:27  ahd
  *    Annual Copyright Update
  *
@@ -175,7 +178,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 #ifdef _Windows
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.17 1998/11/01 20:38:15 ahd v1-13f ahd $
+ *    $Id: sysalias.c 1.18 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.18  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/11/01 20:38:15  ahd
  *    Add additional traps for memory allocation failing
  *
@@ -104,7 +107,7 @@ char *SysAliases = NULL;      /* Name of our system alias file       */
 static ALIASTABLE *aliasTable = NULL;
 static size_t aliases = 0;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                             Prototypes                             */

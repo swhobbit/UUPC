@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.22 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: smtpnetw.c 1.23 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.23  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.22  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -127,9 +130,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.22 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtpnetw.c 1.23 1999/01/04 03:54:27 ahd Exp $");
 
 #define MINUTE(seconds) ((seconds)*60)
 
@@ -164,7 +165,6 @@ isFatalSocketError(int err);
 #if !defined(__OS2__)
 void AtWinsockExit(void);
 #endif
-
 
 /*--------------------------------------------------------------------*/
 /*       g e t L i n e B r e a k                                      */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.18 1998/11/01 20:38:15 ahd v1-13f ahd $
+ *       $Id: smtprecv.c 1.19 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.19  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.18  1998/11/01 20:38:15  ahd
  *       Gracefully handle @@name.com (mangled by remotes from <>)
  *
@@ -104,9 +107,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.18 1998/11/01 20:38:15 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtprecv.c 1.19 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -323,7 +324,6 @@ commandRCPT(SMTPClient *client,
       SMTPResponse(client, SR_PE_BAD_MAILBOX, xmitBuf);
       return KWFalse;
    }
-
 
 /*--------------------------------------------------------------------*/
 /*      Don't relay for third parties unless explicitly allowed       */

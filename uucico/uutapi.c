@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutapi.c 1.3 1998/05/11 01:20:48 ahd v1-13f ahd $
+ *    $Id: uutapi.c 1.4 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutapi.c $
+ *    Revision 1.4  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.3  1998/05/11 01:20:48  ahd
  *    Allow building UUCICO w/o TAPI support under NT
  *
@@ -67,7 +70,7 @@
 #include "pnterr.h"
 #include "uutapi.h"
 
-RCSID("$Id: uutapi.c 1.3 1998/05/11 01:20:48 ahd v1-13f ahd $");
+RCSID("$Id: uutapi.c 1.4 1999/01/04 03:53:57 ahd Exp $");
 
 extern HWND     hFrame;             /* handle of main window */
 extern HANDLE   hInst;              /* our instance */
@@ -368,7 +371,6 @@ Tapi_MsgCheck()
    return (bTapiInUse);
 
 }  /* Tapi_MsgCheck */
-
 
 /*--------------------------------------------------------------------*/
 /*       T a p i _ L i n e S t a t u s                                */

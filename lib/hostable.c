@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.32 1998/03/01 01:23:53 ahd v1-13f ahd $
+  *      $Id: hostable.c 1.33 1999/01/04 03:52:28 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.33  1999/01/04 03:52:28  ahd
+  *      Annual copyright change
+  *
   *      Revision 1.32  1998/03/01 01:23:53  ahd
   *      Annual Copyright Update
   *
@@ -126,7 +129,7 @@
 #include "hostable.h"
 #include "security.h"
 
-currentfile();
+RCSID("$Id$");
 
 static struct HostTable *hosts = NULL;
 
@@ -158,7 +161,7 @@ static size_t localdomainl;   /* Length of localdomain                */
 
 struct HostTable *checkName(const char *name,
                             const size_t line,
-                            const char *function)
+                            const char UUFAR *function)
 {
    char  hostname[MAXADDR];   /* Local copy of name to process        */
    char *period;              /* Pointer "." in hostname              */
@@ -302,7 +305,7 @@ struct HostTable *checkName(const char *name,
 
 struct HostTable *checkReal(const char *name,
                             const size_t line,
-                            const char *function)
+                            const char UUFAR *function)
 {
    size_t  namel;
    struct HostTable *hostp;

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.27 1998/03/01 01:33:12 ahd v1-13f ahd $
+ *    $Id: nickname.c 1.28 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.28  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.27  1998/03/01 01:33:12  ahd
  *    Annual Copyright Update
  *
@@ -142,7 +145,7 @@ static NICKNAME *nickname = NULL;
 
 static size_t loadAliases( void ) ;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*   n i c k C o m p a r e                                            */

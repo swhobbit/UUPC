@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.32 1998/08/02 01:01:27 ahd v1-13f ahd $
+ *    $Id: logger.c 1.33 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.33  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.32  1998/08/02 01:01:27  ahd
  *    Don't print spin off message unless building for debug
  *
@@ -84,8 +87,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-RCSID("$Id: logger.c 1.32 1998/08/02 01:01:27 ahd v1-13f ahd $");
+RCSID("$Id: logger.c 1.33 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -232,7 +234,6 @@ void copylog(void)
    FILE *output;
    char buf[BUFSIZ];
    size_t chars_read;
-
 
    /* Handle aborts, which may cause this to be called extra */
    if (logfile == stderr)

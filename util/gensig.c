@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.18 1998/05/11 01:20:48 ahd v1-13f ahd $
+ *    $Id: gensig.c 1.19 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.19  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/05/11 01:20:48  ahd
  *    Correct compiler warning
  *
@@ -63,7 +66,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.18 1998/05/11 01:20:48 ahd v1-13f ahd $";
+      "$Id: gensig.c 1.19 1999/01/04 03:53:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -115,7 +118,7 @@ static void CopyFixed( const char *fname, FILE *stream );
 
 static long chooseavailable( const char *quotesUsed, long quotes );
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -227,7 +230,6 @@ names( const char *data, char *lookaside , char *quotesUsed )
 #endif /* __TURBOC__ */
 
 } /* names */
-
 
 /*--------------------------------------------------------------------*/
 /*    g e t q u o t e                                                 */

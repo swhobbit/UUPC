@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.18 1998/10/28 03:19:14 ahd v1-13f ahd $
+ *    $Id: dcptpkt.c 1.19 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.19  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/10/28 03:19:14  ahd
  *    Don't attempt to compile uneeded routines under OS/2 VAC++ 3.0
  *
@@ -91,6 +94,8 @@
 #include "ssleep.h"
 #include "modem.h"
 #include "commlib.h"
+
+RCSID("$Id$");
 
 #define TPACKETSIZE  512
 #define TBUFSIZE     1024

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.54 1998/11/05 03:29:03 ahd v1-13f ahd $
+ *    $Id: dcp.c 1.55 1999/01/04 03:53:57 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.55  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.54  1998/11/05 03:29:03  ahd
  *    Don't abort if Win9X can't suspend (Windows 98 is missing files)
  *
@@ -296,7 +299,7 @@ struct HostStats remote_stats; /* host status, as defined by hostatus */
 
 static KWBoolean dialed = KWFalse;/* True = We attempted a phone call */
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

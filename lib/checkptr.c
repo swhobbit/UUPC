@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*       c h e c k p t r . c                                          */
 /*                                                                    */
@@ -19,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.13 1998/03/01 01:23:13 ahd v1-13f ahd $
+ *    $Id: checkptr.c 1.14 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.14  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.13  1998/03/01 01:23:13  ahd
  *    Annual Copyright Update
  *
@@ -69,7 +71,7 @@
 
 #include "uupcmoah.h"
 
-RCSID( "$Id: checkptr.c 1.13 1998/03/01 01:23:13 ahd v1-13f ahd $" );
+RCSID( "$Id: checkptr.c 1.14 1999/01/04 03:52:55 ahd Exp $" );
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r                                                 */
@@ -77,7 +79,7 @@ RCSID( "$Id: checkptr.c 1.13 1998/03/01 01:23:13 ahd v1-13f ahd $" );
 /*    Report that a pointer is NULL                                   */
 /*--------------------------------------------------------------------*/
 
-void checkptr( const char *file, const size_t line)
+void checkptr( const char UUFAR *file, const size_t line)
 {
    printmsg(0,"Storage allocation failure; possible cause: "
                " memory shortage.");

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.17 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *       $Id: smtpclnt.c 1.18 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.18  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.17  1998/11/04 01:59:55  ahd
  *       Prevent buffer overflows when processing UIDL lines
  *       in POP3 mail.
@@ -102,9 +105,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-
-RCSID("$Id: smtpclnt.c 1.17 1998/11/04 01:59:55 ahd v1-13f ahd $");
+RCSID("$Id: smtpclnt.c 1.18 1999/01/04 03:54:27 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -360,7 +361,6 @@ processClient(SMTPClient *client)
    static const char mName[] = "processClient";
    client->ignoreUntilTime = 0;     /* If we're called, this out of
                                        date ... short circuit checks */
-
 
    assertSMTP(client);
 

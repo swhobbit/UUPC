@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.7 1998/03/01 01:40:46 ahd v1-13f ahd $
+ *    $Id: ulibnb.c 1.8 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.8  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.7  1998/03/01 01:40:46  ahd
  *    Annual Copyright Update
  *
@@ -70,7 +73,7 @@ KWBoolean IsFatalSocketError(int err);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 static KWBoolean hangupNeeded = KWTrue;
 extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
@@ -170,7 +173,6 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
    carrierDetect = KWFalse;  /* No network connection yet            */
 
    connectionDied = KWFalse; /* The connection hasn't failed yet */
-
 
    traceStart( name );
 

@@ -35,7 +35,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static DIR *thisDirP = NULL;
 static DIR *lastDirP = NULL;

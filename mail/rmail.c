@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.72 1998/11/01 20:38:15 ahd v1-13f ahd $
+ *    $Id: rmail.c 1.73 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.73  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.72  1998/11/01 20:38:15  ahd
  *    Don't generate duplicate Message-IDs in -t order
  *
@@ -233,6 +236,7 @@
 #include "winutil.h"
 #endif
 
+
 /*--------------------------------------------------------------------*/
 /*                           Local defines                            */
 /*--------------------------------------------------------------------*/
@@ -280,9 +284,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
- currentfile();                     /* file name for checkref()        */
-
- RCSID("$Id: rmail.c 1.72 1998/11/01 20:38:15 ahd v1-13f ahd $");
+RCSID("$Id: rmail.c 1.73 1999/01/04 03:54:27 ahd Exp $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;

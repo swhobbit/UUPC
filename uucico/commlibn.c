@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.6 1998/05/11 01:20:48 ahd v1-13f ahd $
+ *    $Id: commlibn.c 1.7 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlibn.c $
+ *    Revision 1.7  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.6  1998/05/11 01:20:48  ahd
  *    Allow building UUCICO w/o TAPI support under NT
  *
@@ -51,3 +54,5 @@
 #endif
 
 #include "commlib.c"
+
+RCSID("$Id$");

@@ -21,6 +21,9 @@
 
 /*
    $Log: novrstrk.c $
+   Revision 1.9  1999/01/04 03:53:30  ahd
+   Annual copyright change
+
    Revision 1.8  1998/03/01 01:36:36  ahd
    Annual Copyright Update
 
@@ -53,7 +56,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-         "$Id: novrstrk.c 1.8 1998/03/01 01:36:36 ahd v1-13f ahd $";
+         "$Id: novrstrk.c 1.9 1999/01/04 03:53:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Revised 10 March 1991 to handle overstriking via carriage       */
@@ -61,6 +64,8 @@ static char rcsid[] =
 /*--------------------------------------------------------------------*/
 
 #include "timestmp.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

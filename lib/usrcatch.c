@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.13 1998/03/01 01:25:52 ahd v1-13f ahd $
+ *    $Id: usrcatch.c 1.14 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ *    Revision 1.14  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.13  1998/03/01 01:25:52  ahd
  *    Annual Copyright Update
  *
@@ -81,6 +84,8 @@
 
 #include "timestmp.h"
 #include "usrcatch.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------*/
-/*       l o c a l f n . h                                            */
+/*       l o c a l f n . c                                            */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -15,20 +15,29 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.48 1999/01/04 03:55:03 ahd Exp $
+ *       $Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $
  *
  *       Revision history:
- *       $Log: lib.h $
+ *       $Log: localfnm.c $
+ *       Revision 1.1  1999/01/07 00:58:55  ahd
+ *       Initial revision
+ *
  */
 
-#include <uupcmoah.h>
+#include "uupcmoah.h"
 
-RCSID("$Id$");
+RCSID("$Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $");
+
+/*--------------------------------------------------------------------*/
+/*       l o c a l F N a m e                                          */
+/*                                                                    */
+/*       Convert UUFAR rcsid to near string                           */
+/*--------------------------------------------------------------------*/
 
 const char *
 localFName( const char UUFAR *name)
 {
-   static buffer[FILENAME_MAX +1];
+   static char buffer[FILENAME_MAX +1];
    static char UUFAR *previous = NULL;
    size_t len = STRLEN(name);
    char UUFAR *farP;
@@ -36,11 +45,11 @@ localFName( const char UUFAR *name)
    if (name == previous)
       return buffer;
 
-   char UUFAR *previous = (char UUFAR *) name;
+   previous = (char UUFAR *) name;
 
    /* String must be long enough for our name */
    if (len < 7)                     /* ....+..  */
-   {                                /* $Id: x$  */
+   {                                /* $Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $  */
       /* Not long enough, just put input in near buffer */
       STRCPY(buffer, name);
       return buffer;
@@ -57,7 +66,7 @@ localFName( const char UUFAR *name)
          len = FILENAME_MAX;
    }
 
-   STRNCPY(buffer, name + 6, len);
+   MEMCPY(buffer, name + 6, len);
 
    return buffer;
 

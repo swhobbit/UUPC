@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.19 1998/03/01 01:33:17 ahd v1-13f ahd $
+ *    $Id: mlib.c 1.20 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.20  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.19  1998/03/01 01:33:17  ahd
  *    Annual Copyright Update
  *
@@ -116,6 +119,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "execute.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    Set up for console services                     */
@@ -337,8 +342,8 @@ static int DOSRead( char *buff, const int buflen)
 /*            Set up the address of our read buffer for DOS           */
 /*--------------------------------------------------------------------*/
 
-   sregs.ds = FP_SEG( p );    /* Use segment of the buffer           */
-   regs.x.dx = (unsigned int)(&request);
+   sregs.ds = FP_SEG(p);            /* Use segment of the buffer           */
+   regs.x.dx = FP_OFF(p);
    request.maximum = (unsigned char) min( buflen - 1,
                                           sizeof request.buffer);
    regs.h.ah = 0x0a;          /* Buffered keyboard input             */
@@ -427,8 +432,8 @@ static int DOSKeyRead( char *buff , int buflen )
 /*                   Set up for the DOSKEY read call                  */
 /*--------------------------------------------------------------------*/
 
-   sregs.ds = FP_SEG( p );    /* Use segment of the buffer           */
-   regs.x.dx = (unsigned int)(&request);
+   sregs.ds = FP_SEG(p);
+   regs.x.dx = FP_OFF(p);
    regs.x.ax = 0x4810;
    request.maximum = (unsigned char) min( buflen - 1, sizeof request );
 

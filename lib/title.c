@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title.c 1.9 1998/03/01 01:25:41 ahd v1-13f ahd $
+ *    $Id: title.c 1.10 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: title.c $
+ *    Revision 1.10  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.9  1998/03/01 01:25:41  ahd
  *    Annual Copyright Update
  *
@@ -65,6 +68,9 @@
 #ifdef _Windows
 #include <windows.h>
 #include <winutil.h>
+
+RCSID("$Id$");
+
 #endif
 
 /*--------------------------------------------------------------------*/

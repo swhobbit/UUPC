@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.13 1998/08/29 14:17:11 ahd v1-13f ahd $
+ *       $Id: delivers.c 1.14 1999/01/04 03:54:27 ahd Exp $
  *
  *       $Log: delivers.c $
+ *       Revision 1.14  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.13  1998/08/29 14:17:11  ahd
  *       Add setTitle() commands to report delivery progress
  *
@@ -104,9 +107,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-
-RCSID("$Id: delivers.c 1.13 1998/08/29 14:17:11 ahd v1-13f ahd $");
+RCSID("$Id: delivers.c 1.14 1999/01/04 03:54:27 ahd Exp $");
 
 #define SMTP_PORT_NUMBER 25
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: memstr.c 1.1 1998/04/24 03:30:13 ahd v1-13f ahd $
+ *       $Id: memstr.c 1.2 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision history:
  *       $Log: memstr.c $
+ *       Revision 1.2  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.1  1998/04/24 03:30:13  ahd
  *       Initial revision
  *
@@ -29,6 +32,8 @@
 #include "uupcmoah.h"
 
 #include <string.h>
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m e m s t r                                                     */

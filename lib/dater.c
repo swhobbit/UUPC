@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dater.c 1.10 1998/03/01 01:23:21 ahd v1-13f ahd $
+ *    $Id: dater.c 1.11 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: dater.c $
+ *    Revision 1.11  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.10  1998/03/01 01:23:21  ahd
  *    Annual Copyright Update
  *
@@ -67,6 +70,8 @@
 #include "uupcmoah.h"
 
 #include "dater.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    d a t e r                                                       */

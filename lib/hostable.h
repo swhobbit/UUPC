@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.19 1998/11/04 02:01:17 ahd v1-13f ahd $
+  *   $Id: hostable.h 1.20 1999/01/04 03:55:03 ahd Exp $
   *
   *   $Log: hostable.h $
+  *   Revision 1.20  1999/01/04 03:55:03  ahd
+  *   Annual copyright change
+  *
   *   Revision 1.19  1998/11/04 02:01:17  ahd
   *   Add sanity check field to linked lists
   *   Add assertion macros
@@ -175,19 +178,19 @@ struct  HostTable {
 
 struct HostTable *searchname(const char *name, const size_t namel);
 
-#define checkname(host) checkName(host, __LINE__, cfnptr )
+#define checkname(host) checkName(host, __LINE__, _rcsId )
 
 #define checkself(host) searchname( host, 255 )
 
 struct HostTable *checkName(const char *name,
                             const size_t line,
-                            const char *function);
+                            const char UUFAR *function);
 
-#define checkreal(host) checkReal(host, __LINE__, cfnptr )
+#define checkreal(host) checkReal(host, __LINE__, _rcsId )
 
 struct HostTable *checkReal(const char *name,
                             const size_t line,
-                            const char *function);
+                            const char UUFAR *function);
 
 struct HostTable *nexthost( const KWBoolean start );
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: remove2.c 1.6 1998/03/01 01:25:01 ahd v1-13f ahd $
+ *    $Id: remove2.c 1.7 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: remove2.c $
+ *    Revision 1.7  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.6  1998/03/01 01:25:01  ahd
  *    Annual Copyright Update
  *
@@ -50,6 +53,8 @@
 #define INCL_DOS
 #define INCL_ERRORS
 #include <os2.h>
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       r e m o v e O S 2 F i l e                                    */

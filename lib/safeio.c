@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.19 1998/03/01 01:25:06 ahd v1-13f ahd $
+ *    $Id: safeio.c 1.20 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *    Revision 1.20  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.19  1998/03/01 01:25:06  ahd
  *    Annual Copyright Update
  *
@@ -118,7 +121,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined( WIN32 )
-currentfile();
+RCSID("$Id$");
 #endif
 
 #if defined(WIN32)

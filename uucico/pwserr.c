@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.14 1998/03/16 06:39:32 ahd v1-13f ahd $
+ *    $Id: pwserr.c 1.15 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.15  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.14  1998/03/16 06:39:32  ahd
  *    Allow build under MS VC++ 5.0
  *
@@ -170,6 +173,8 @@ static WSERR wsErrors[] = {
 
 #include "pwserr.h"
 
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*    p W S e r r                                                     */
 /*                                                                    */
@@ -177,7 +182,7 @@ static WSERR wsErrors[] = {
 /*--------------------------------------------------------------------*/
 
 void pWSErr(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              int rc)
 {

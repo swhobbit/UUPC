@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.20 1998/03/01 01:41:04 ahd v1-13f ahd $
+ *    $Id: uuport.c 1.21 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *    Revision 1.21  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/03/01 01:41:04  ahd
  *    Annual Copyright Update
  *
@@ -126,6 +129,9 @@
 #include "winutil.h"
 #include "logger.h"
 #include "ssleep.h"
+
+RCSID("$Id$");
+
 #endif
 
 /*--------------------------------------------------------------------*/

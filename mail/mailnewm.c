@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: mailnewm.c 1.4 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *       $Id: mailnewm.c 1.5 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: mailnewm.c $
+ *       Revision 1.5  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.4  1998/11/04 01:59:55  ahd
  *       Prevent buffer overflows when processing UIDL lines
  *       in POP3 mail.
@@ -51,9 +54,7 @@
 /*                          Local constants                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: mailnewm.c 1.4 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: mailnewm.c 1.5 1999/01/04 03:54:27 ahd Exp $");
 
 static const char sep[] = MESSAGESEP;
 

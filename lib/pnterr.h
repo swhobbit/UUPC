@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.h 1.7 1998/03/01 01:27:02 ahd v1-13f ahd $
+ *    $Id: pnterr.h 1.8 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.h $
+ *    Revision 1.8  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.7  1998/03/01 01:27:02  ahd
  *    Annual Copyright Update
  *
@@ -51,7 +54,7 @@
  */
 
 void pNTErr(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              DWORD rc);
 
@@ -59,4 +62,4 @@ void pNTErr(const size_t lineno,
 /*                 Macro for generic error messages from DOS          */
 /*--------------------------------------------------------------------*/
 
-#define printNTerror( x, rc )  pNTErr( __LINE__, cfnptr, x, rc)
+#define printNTerror( x, rc )  pNTErr( __LINE__, _rcsId, x, rc)

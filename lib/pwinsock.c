@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.16 1998/03/01 01:24:55 ahd v1-13f ahd $
+ *    $Id: pwinsock.c 1.17 1999/01/04 03:52:55 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.17  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.16  1998/03/01 01:24:55  ahd
  *    Annual Copyright Update
  *
@@ -169,7 +172,7 @@ int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 
 static HINSTANCE hWinsock = NULL;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       p W i n S o c k I n i t                                      */

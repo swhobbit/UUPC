@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.6 1998/11/01 20:36:52 ahd v1-13f ahd $
+ *       $Id: smtputil.c 1.7 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.7  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.6  1998/11/01 20:36:52  ahd
  *       *** empty log message ***
  *
@@ -58,9 +61,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.6 1998/11/01 20:36:52 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtputil.c 1.7 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          s t r i p A d d r e s s                                   */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.17 1998/03/09 01:18:19 ahd v1-13f ahd $
+ *    $Id: lock.c 1.18 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.18  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/03/09 01:18:19  ahd
  *    Update copyright
  *
@@ -53,8 +56,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: lock.c 1.17 1998/03/09 01:18:19 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: lock.c 1.18 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.h 1.6 1998/03/01 01:27:05 ahd v1-13f ahd $
+ *    $Id: pos2err.h 1.7 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.h $
+ *    Revision 1.7  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.6  1998/03/01 01:27:05  ahd
  *    Annual Copyright Update
  *
@@ -43,7 +46,7 @@
  */
 
 void pOS2Err(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              unsigned int rc);
 
@@ -51,4 +54,4 @@ void pOS2Err(const size_t lineno,
 /*                 Macro for generic error messages from DOS          */
 /*--------------------------------------------------------------------*/
 
-#define printOS2error( x, rc )  pOS2Err( __LINE__, cfnptr, x, rc)
+#define printOS2error( x, rc )  pOS2Err( __LINE__, _rcsId, x, rc)

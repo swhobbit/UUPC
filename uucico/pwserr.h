@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.h 1.6 1998/03/01 01:42:47 ahd v1-13f ahd $
+ *    $Id: pwserr.h 1.7 1999/01/04 03:55:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwserr.h $
+ *    Revision 1.7  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.6  1998/03/01 01:42:47  ahd
  *    Annual Copyright Update
  *
@@ -49,7 +52,7 @@
  */
 
 void pWSErr(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              int rc);
 
@@ -57,4 +60,4 @@ void pWSErr(const size_t lineno,
 /*                 Macro for generic error messages from DOS          */
 /*--------------------------------------------------------------------*/
 
-#define printWSerror( x, rc )  pWSErr( __LINE__, cfnptr, x, rc)
+#define printWSerror( x, rc )  pWSErr( __LINE__, _rcsId, x, rc)

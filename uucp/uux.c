@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.28 1998/08/02 01:01:27 ahd v1-13f ahd $
+ *    $Id: uux.c 1.29 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.29  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.28  1998/08/02 01:01:27  ahd
  *    Support automatic dial-out after UUX, UUCP
  *
@@ -196,7 +199,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

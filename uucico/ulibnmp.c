@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.26 1998/03/01 01:40:49 ahd v1-13f ahd $
+ *       $Id: ulibnmp.c 1.27 1999/01/04 03:53:57 ahd Exp $
  *       $Log: ulibnmp.c $
+ *       Revision 1.27  1999/01/04 03:53:57  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.26  1998/03/01 01:40:49  ahd
  *       Annual Copyright Update
  *
@@ -141,7 +144,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static KWBoolean hangupNeeded = KWFalse;
 

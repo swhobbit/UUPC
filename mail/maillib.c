@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.30 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: maillib.c 1.31 1999/01/04 03:54:27 ahd Exp $
  *
  *    $Log: maillib.c $
+ *    Revision 1.31  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.30  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -160,7 +163,6 @@
 
 static int PageCount = 0;
 
-
 static char *noResentList[] =
        {
          "Message-ID:",
@@ -173,7 +175,7 @@ static char *noResentList[] =
          NULL
        };
 
-currentfile();                /* Define current file for panic()     */
+RCSID("$Id$");                /* Define current file for panic()     */
 
 /*--------------------------------------------------------------------*/
 /*    P a g e r                                                       */
@@ -744,7 +746,6 @@ void sayOptions( FLAGTABLE *flags, const size_t flagsSize )
          width = 1 + strlen( flags[subscript].sym ) +
                  ( bflag[ flags[subscript].position ] ? 0 : 2 );
 
-
          if ( used )
          {
             if ( (used + width ) > 79 )
@@ -756,7 +757,6 @@ void sayOptions( FLAGTABLE *flags, const size_t flagsSize )
             } /* if ( used > 79 ) */
             else
                fputc( ' ', stdout);
-
 
          } /* if ( subscript > 0 ) */
 

@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.28 1998/03/01 01:30:40 ahd v1-13f ahd $
+ *    $Id: sys.c 1.29 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.29  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.28  1998/03/01 01:30:40  ahd
  *    Annual Copyright Update
  *
@@ -193,7 +196,7 @@
 #include "stater.h"
 #include "arpadate.h"
 
-currentfile();
+RCSID("$Id$");
 
 struct sys *sys_list = NULL;
 
@@ -744,7 +747,6 @@ init_sys( void )
 /*       Report if we had any problems processing the SYS file to     */
 /*       our caller                                                   */
 /*--------------------------------------------------------------------*/
-
 
    return success;
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.28 1998/08/02 01:01:27 ahd v1-13f ahd $
+ *    $Id: uucp.c 1.29 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.29  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.28  1998/08/02 01:01:27  ahd
  *    Support automatic dial-out after UUX, UUCP
  *
@@ -179,7 +182,7 @@ static char           *callSystem;          /* System to we need to
 
 static char  flags[16];
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.32 1998/03/01 01:25:21 ahd v1-13f ahd $
+ *    $Id: security.c 1.33 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.33  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.32  1998/03/01 01:25:21  ahd
  *    Annual Copyright Update
  *
@@ -177,7 +180,7 @@ static struct HostSecurity localSecurity = { 0, 0, 0, 0 };
                               /* We always need it, so statically
                                  allocate it                         */
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    L o a d S e c u r i t y                                         */

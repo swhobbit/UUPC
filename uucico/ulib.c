@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.35 1998/03/01 01:40:31 ahd v1-13f ahd $
+ *    $Id: ulib.c 1.36 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: ulib.c $
+ *    Revision 1.36  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.35  1998/03/01 01:40:31  ahd
  *    Annual Copyright Update
  *
@@ -170,7 +173,7 @@ static void ShowModem( void );
 static BPS current_bps;
 static char current_direct;
 
-currentfile();
+RCSID("$Id$");
 
 /* IBM-PC I/O routines */
 
@@ -303,7 +306,6 @@ unsigned int nsread(char UUFAR *input,
          }
          return 0;
       }
-
 
 #ifdef UDEBUG
       printmsg(20, "nsread: pending=%d, wanted=%d", pending, wanted);

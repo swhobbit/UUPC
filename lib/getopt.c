@@ -1,7 +1,10 @@
 /*
- *       $Id$
+ *       $Id: getopt.c 1.7 1994/02/20 19:05:02 ahd v1-13f $
  *
- *       $Log$
+ *       $Log: getopt.c $
+ *       Revision 1.7  1994/02/20 19:05:02  ahd
+ *       IBM C/Set 2 Conversion, memory leak cleanup
+ *
  */
 
 /*
@@ -47,6 +50,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "getopt.h"
+
+RCSID("$Id$");
 
 int   optind = 1;
 int   optopt;

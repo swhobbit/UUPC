@@ -8,6 +8,11 @@
 #define SID_NM	str_sccsid
 #include "sccsid.h"
 
+
+/* Don't use UUPC/extended definitions */
+#undef STRCHR
+#undef STRLEN
+
 /*
  *	simple in-lining for older compilers...
  */

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.18 1998/03/01 01:40:13 ahd v1-13f ahd $
+ *    $Id: script.c 1.19 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ *    Revision 1.19  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 01:40:13  ahd
  *    Annual Copyright Update
  *
@@ -130,7 +133,7 @@ static KWBoolean slowWrite( char *s, size_t len, char **failure);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static char scriptBuffer[MAXMATCH]; /* Shared between input & output  */
                                  /* Can be shorter then longest send  */

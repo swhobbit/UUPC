@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.12 1998/03/01 01:23:35 ahd v1-13f ahd $
+ *    $Id: filebkup.c 1.13 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *    Revision 1.13  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.12  1998/03/01 01:23:35  ahd
  *    Annual Copyright Update
  *
@@ -74,7 +77,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    f i l e b k u p                                                 */

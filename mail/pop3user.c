@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.15 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *       $Id: pop3user.c 1.16 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.16  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.15  1998/11/04 01:59:55  ahd
  *       Prevent buffer overflows when processing UIDL lines
  *       in POP3 mail.
@@ -98,9 +101,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.15 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: pop3user.c 1.16 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       s el e c t P o p M e s s a g e                               */
@@ -197,7 +198,6 @@ writePopMessage(SMTPClient *client,
       SMTPResponse(client, PR_ERROR_GENERIC, "Seek failed");
       return;
    }
-
 
    /* Allocate our buffer for processing */
    buffer = malloc(bufferLength);

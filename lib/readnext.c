@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.15 1998/03/01 01:24:58 ahd v1-13f ahd $
+ *    $Id: readnext.c 1.16 1999/01/04 03:52:55 ahd Exp $
  *
  *    $Log: readnext.c $
+ *    Revision 1.16  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/03/01 01:24:58  ahd
  *    Annual Copyright Update
  *
@@ -82,7 +85,7 @@
 #include "hostable.h"
 #include "security.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    r e a d n e x t                                                 */

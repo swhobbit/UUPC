@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.10 1998/03/01 01:36:42 ahd v1-13f ahd $
+ *       $Id: uupcdll.c 1.11 1999/01/04 03:53:30 ahd Exp $
  *       $Log: uupcdll.c $
+ *       Revision 1.11  1999/01/04 03:53:30  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.10  1998/03/01 01:36:42  ahd
  *       Annual Copyright Update
  *
@@ -74,6 +77,8 @@
 
 #include <windows.h>
 
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*                      Global #defines                               */
 /*--------------------------------------------------------------------*/
@@ -102,7 +107,6 @@ DllExport BOOL UUPCSendMail(char *message);
 CRITICAL_SECTION UUPCCritSec;
 static char tempDir[FILENAME_MAX];  /* Temp file name */
 static BOOL initialized = KWFalse;
-
 
 DllExport BOOL WINAPI DllMain(HANDLE hInst, ULONG reason, LPVOID reserved)
 {
@@ -165,7 +169,6 @@ DllExport BOOL UUPCInit()
 
     if (hSystemKey != INVALID_HANDLE_VALUE)
         RegCloseKey(hSystemKey);
-
 
 /*
     2) Check for RMAIL on the path
@@ -256,7 +259,6 @@ BOOL UUPCGetSysRCHive(PHKEY hSysKey)
     return KWFalse;
 }
 
-
 DllExport BOOL UUPCGetParm(char *parmName, char *resultBuf, int bufSize)
 {
     LONG result;
@@ -324,7 +326,6 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
     *bytes = totalSize;
     return KWTrue;
 }
-
 
 BOOL UUPCCheckMessage(char *message)
 {

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.19 1998/03/01 01:24:38 ahd v1-13f ahd $
+ *    $Id: normaliz.c 1.20 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.20  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.19  1998/03/01 01:24:38  ahd
  *    Annual Copyright Update
  *
@@ -99,7 +102,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    n o r m a l i z e                                               */

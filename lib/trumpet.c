@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.17 1998/03/16 06:14:04 ahd v1-13f ahd $
+ *    $Id: trumpet.c 1.18 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ *    Revision 1.18  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/03/16 06:14:04  ahd
  *    Control reporting of multiple announcements
  *
@@ -88,6 +91,9 @@
 
 #ifdef SMARTBEEP
 #include "ssleep.h"
+
+RCSID("$Id$");
+
 #endif
 
 /*--------------------------------------------------------------------*/

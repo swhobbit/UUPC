@@ -28,7 +28,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: psos2err.c 1.8 1998/03/01 01:40:07 ahd v1-13f ahd $");
+RCSID("$Id: psos2err.c 1.9 1999/01/04 03:53:30 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -116,7 +116,7 @@ static WSERR wsErrors[] = {
 /*--------------------------------------------------------------------*/
 
 void pSOS2Err(const size_t lineno,
-              const char *fname,
+              const char UUFAR *fname,
               const char *prefix,
               int rc)
 {

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.11 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *       $Id: pop3mbox.c 1.12 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.12  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.11  1998/11/04 01:59:55  ahd
  *       Prevent buffer overflows when processing UIDL lines
  *       in POP3 mail.
@@ -82,9 +85,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.11 1998/11/04 01:59:55 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: pop3mbox.c 1.12 1999/01/04 03:54:27 ahd Exp $");
 
 static const char sep[] = MESSAGESEP;
 static const char uidl[] = UIDL_HEADER;
@@ -325,7 +326,6 @@ popMessageUnload( SMTPClient *client,
                   MailMessage *current )
 {
 
-
    assertSMTP(client);
    assertPOP3Message(current);
 
@@ -457,7 +457,6 @@ popBoxUnload(SMTPClient *client)
          success = popMessageUnload(client, current);
 
       current = current->next;
-
 
    } /* while((current != NULL) && success) */
 

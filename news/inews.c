@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.32 1998/03/01 01:30:25 ahd v1-13f ahd $
+ *       $Id: inews.c 1.33 1999/01/04 03:52:55 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.33  1999/01/04 03:52:55  ahd
+ * Annual copyright change
+ *
  * Revision 1.32  1998/03/01 01:30:25  ahd
  * Annual Copyright Update
  *
@@ -137,7 +140,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: inews.c 1.32 1998/03/01 01:30:25 ahd v1-13f ahd $");
+RCSID("$Id: inews.c 1.33 1999/01/04 03:52:55 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -161,8 +164,6 @@ RCSID("$Id: inews.c 1.32 1998/03/01 01:30:25 ahd v1-13f ahd $");
 #include "execute.h"
 #include "arpadate.h"
 #include "hostable.h"
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*           Internal prototypes and global data                      */

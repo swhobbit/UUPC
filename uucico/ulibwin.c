@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.20 1995/05/07 14:42:15 ahd v1-13f ahd $
+ *    $Id: ulibwin.c 1.21 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ *    Revision 1.21  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1995/05/07 14:42:15  ahd
  *    Use real check for break contained in ssleep.c
  *
@@ -144,7 +147,7 @@ unsigned int windowsBuffer = 2048;
 #include "catcher.h"
 #endif
 
-currentfile();
+RCSID("$Id$");
 
 static int portNum = 0;
 static KWBoolean hangupNeeded = KWFalse;

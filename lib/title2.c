@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.12 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: title2.c 1.13 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.13  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.12  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows
  *
@@ -74,6 +77,8 @@
 #include "timestmp.h"
 #include "title.h"
 
+RCSID("$Id$");
+
 void restoreOriginalTitle( void );
 
 /*--------------------------------------------------------------------*/
@@ -101,7 +106,6 @@ void setTitle( const char *fmt, ... )
       atexit( restoreOriginalTitle );
       memcpy( &swctlSave, &swctl, sizeof swctl );
    }
-
 
    if ( fmt )
    {

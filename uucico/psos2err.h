@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: psos2err.h 1.6 1998/03/01 01:42:44 ahd v1-13f ahd $
+ *    $Id: psos2err.h 1.7 1999/01/04 03:55:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: psos2err.h $
+ *    Revision 1.7  1999/01/04 03:55:33  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.6  1998/03/01 01:42:44  ahd
  *    Annual Copyright Update
  *
@@ -45,7 +48,7 @@
  */
 
 void pSOS2Err(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              int rc);
 
@@ -53,6 +56,6 @@ void pSOS2Err(const size_t lineno,
 /*                 Macro for generic error messages from DOS          */
 /*--------------------------------------------------------------------*/
 
-#define printWSerror( x, rc )  pSOS2Err( __LINE__, cfnptr, x, rc)
+#define printWSerror( x, rc )  pSOS2Err( __LINE__, _rcsId, x, rc)
 
 extern int h_errno;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.29 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: mailblib.c 1.30 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.30  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.29  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -140,7 +143,7 @@
 static int *item_list = NULL;
 static int next_item;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */

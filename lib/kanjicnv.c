@@ -22,6 +22,8 @@
 
 #include "kanjicnv.h"
 
+RCSID("$Id$");
+
 /*
  * On Japanese support:
  *

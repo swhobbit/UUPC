@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: abspath.c 1.4 1998/03/01 01:22:56 ahd v1-13f ahd $
+ *    $Id: abspath.c 1.5 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: abspath.c $
+ *    Revision 1.5  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.4  1998/03/01 01:22:56  ahd
  *    Annual Copyright Update
  *
@@ -37,6 +40,8 @@
 
 #include <uupcmoah.h>
 #include <ctype.h>
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       i s A b s o l u t e P a t h                                  */

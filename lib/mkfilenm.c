@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.14 1998/03/01 01:24:19 ahd v1-13f ahd $
+ *    $Id: mkfilenm.c 1.15 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *    Revision 1.15  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.14  1998/03/01 01:24:19  ahd
  *    Annual Copyright Update
  *
@@ -74,6 +77,7 @@
 
 #include "uupcmoah.h"
 
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    m k f i l e n a m e                                             */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.68 1998/03/01 01:30:32 ahd v1-13f ahd $
+ *       $Id: rnews.c 1.69 1999/01/04 03:52:55 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.69  1999/01/04 03:52:55  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.68  1998/03/01 01:30:32  ahd
  *       Annual Copyright Update
  *
@@ -74,7 +77,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.68 1998/03/01 01:30:32 ahd v1-13f ahd $";
+         "$Id: rnews.c 1.69 1999/01/04 03:52:55 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -109,7 +112,7 @@ static const char rcsid[] =
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       q u e u e N e w s                                            */

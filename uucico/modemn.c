@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modemn.c 1.1 1998/05/11 01:20:48 ahd v1-13f ahd $
+ *    $Id: modemn.c 1.2 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: modemn.c $
+ *    Revision 1.2  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.1  1998/05/11 01:20:48  ahd
  *    Initial revision
  *
@@ -51,3 +54,5 @@
 #endif
 
 #include "modem.c"
+
+RCSID("$Id$");

@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.40 1998/11/05 03:29:03 ahd v1-13f ahd $
+ *    $Id: nbstime.c 1.41 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.41  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.40  1998/11/05 03:29:03  ahd
  *    Move code to determine NT vs. 95 to configur.c
  *    ./
@@ -166,15 +169,13 @@
 #include "commlib.h"
 #include "catcher.h"
 
-#if !defined(__TURBOC__) || defined(__OS2__)
-   currentfile();
-#endif
-
 #ifdef __IBMC__
 #define timezone() _timezone
 #else
 #define timezone() timezone
 #endif
+
+RCSID("$Id$");
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 
@@ -316,7 +317,6 @@ setClock( struct tm *txp )
    /* Open the process token to get permission to adjust the time
       on Windows NT;  on Windows 95, just party on...              */
 
-
    if (isWinNT())
    {
       if (!OpenProcessToken(GetCurrentProcess(),
@@ -383,6 +383,7 @@ setClock( struct tm *txp )
 /*--------------------------------------------------------------------*/
 
 #include <dos.h>
+
 
 /*--------------------------------------------------------------------*/
 /*       s e t C l o c k                                              */
@@ -773,7 +774,6 @@ KWBoolean nbstime( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(3, "nbstime: \"%s\"", buf + 2);
-
 
 /*--------------------------------------------------------------------*/
 /*                Report previous offset of clock to NIST             */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.31 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: mailsend.c 1.32 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.32  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.31  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -173,7 +176,7 @@
 
  static char *GetString( char *input);
 
-currentfile();                /* Define current file for panic()     */
+RCSID("$Id$");                /* Define current file for panic()     */
 
 /*--------------------------------------------------------------------*/
 /*    E x p l o d e A l i a s                                         */

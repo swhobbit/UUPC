@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.20 1998/03/01 01:23:56 ahd v1-13f ahd $
+ *    $Id: hostatus.c 1.21 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *    Revision 1.21  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/03/01 01:23:56  ahd
  *    Annual Copyright Update
  *
@@ -98,7 +101,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

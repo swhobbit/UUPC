@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.20 1998/11/05 03:28:45 ahd v1-13f $
+#       $Id: nmakedos.mak 1.21 1999/01/04 03:51:49 ahd Exp $
 #
 #       Copyright (c) 1989-1999 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.21  1999/01/04 03:51:49  ahd
+#       Annual copyright change
+#
 #       Revision 1.20  1998/11/05 03:28:45  ahd
 #       Correct directory used for ZIP archives
 #
@@ -86,7 +89,7 @@ ERASE    = del
 !endif
 
 !ifndef MODEL
-MODEL   = S
+MODEL   = L
 !endif
 
 !ifndef UDEBUG

@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.41 1998/03/01 01:39:26 ahd v1-13f ahd $
+ *      $Id: dcpgpkt.c 1.42 1999/01/04 03:53:30 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.42  1999/01/04 03:53:30  ahd
+ *      Annual copyright change
+ *
  *      Revision 1.41  1998/03/01 01:39:26  ahd
  *      Annual Copyright Update
  *
@@ -273,7 +276,7 @@ typedef enum {
 /*              Global variables for packet definitions               */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static short irec, lazynak;
 static unsigned rwl, rwu, swl, swu;

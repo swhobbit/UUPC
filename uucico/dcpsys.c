@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.55 1998/03/01 01:39:37 ahd v1-13f ahd $
+ *     $Id: dcpsys.c 1.56 1999/01/04 03:53:57 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.56  1999/01/04 03:53:57  ahd
+ *     Annual copyright change
+ *
  *     Revision 1.55  1998/03/01 01:39:37  ahd
  *     Annual Copyright Update
  *
@@ -245,7 +248,7 @@
 #include "security.h"
 #include "commlib.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                     Define available protocols                     */

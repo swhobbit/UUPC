@@ -21,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.25 1998/03/01 01:30:09 ahd v1-13f ahd $
+ *    $Id: expire.c 1.26 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.26  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.25  1998/03/01 01:30:09  ahd
  *    Annual Copyright Update
  *
@@ -102,7 +105,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.25 1998/03/01 01:30:09 ahd v1-13f ahd $");
+RCSID("$Id: expire.c 1.26 1999/01/04 03:53:30 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -133,8 +136,6 @@ RCSID("$Id: expire.c 1.25 1998/03/01 01:30:09 ahd v1-13f ahd $");
 /*--------------------------------------------------------------------*/
 
 #define ONE_DAY (60L*60L*24L)
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */

@@ -16,10 +16,13 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: idx.c 1.15 1998/03/01 01:30:20 ahd v1-13f ahd $");
+RCSID("$Id: idx.c 1.16 1999/01/04 03:53:30 ahd Exp $");
 
 /*
  * $Log: idx.c $
+ * Revision 1.16  1999/01/04 03:53:30  ahd
+ * Annual copyright change
+ *
  * Revision 1.15  1998/03/01 01:30:20  ahd
  * Annual Copyright Update
  *
@@ -72,8 +75,6 @@ RCSID("$Id: idx.c 1.15 1998/03/01 01:30:20 ahd v1-13f ahd $");
 
 #include "idx.h"
 #include "cache.h"
-
-currentfile();
 
 /* page level primitives */
 

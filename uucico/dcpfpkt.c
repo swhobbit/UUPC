@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.25 1998/03/01 01:39:22 ahd v1-13f ahd $
+ *    $Id: dcpfpkt.c 1.26 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.26  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.25  1998/03/01 01:39:22  ahd
  *    Annual Copyright Update
  *
@@ -147,7 +150,7 @@
 #define MAXMSGLEN BUFSIZ
 #endif /* MAXMSGLEN */
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */

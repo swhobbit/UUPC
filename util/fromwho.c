@@ -29,14 +29,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.8 $
+  $Revision: 1.9 $
 
     $Author: ahd $
-      $Date: 1998/03/01 01:36:29 $
+      $Date: 1999/01/04 03:53:30 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.9  1999/01/04 03:53:30  ahd
+  Annual copyright change
+
   Revision 1.8  1998/03/01 01:36:29  ahd
   Annual Copyright Update
 
@@ -89,7 +92,7 @@
 
 #include "uupcmoah.h"      /* Must be first, includes #pragmas       */
 
-RCSID("$Id: fromwho.c 1.8 1998/03/01 01:36:29 ahd v1-13f ahd $");
+RCSID("$Id: fromwho.c 1.9 1999/01/04 03:53:30 ahd Exp $");
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,9 +102,7 @@ RCSID("$Id: fromwho.c 1.8 1998/03/01 01:36:29 ahd v1-13f ahd $");
 #include <errno.h>
 #include "timestmp.h"
 
-
 #include "getopt.h"
-currentfile();
 
 typedef struct {
   int msgs; int new;
@@ -304,7 +305,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.8 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.9 $");
                   exit(0);
       default :   usage(prog);
     }

@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.34 1998/04/20 02:47:57 ahd v1-13f ahd $
+ *       $Id: ulibnt.c 1.35 1999/01/04 03:53:30 ahd Exp $
  *       $Log: ulibnt.c $
+ *       Revision 1.35  1999/01/04 03:53:30  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.34  1998/04/20 02:47:57  ahd
  *       TAPI/Windows 32 BIT GUI display support
  *
@@ -120,7 +123,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static KWBoolean hangupNeeded = KWFalse;
 

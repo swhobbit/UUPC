@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.10 1998/04/27 01:55:28 ahd v1-13f ahd $
+ *    $Id: regsetup.c 1.11 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.11  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.10  1998/04/27 01:55:28  ahd
  *    Make copyright unconditional, and match configur.c version
  *
@@ -77,7 +80,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.10 1998/04/27 01:55:28 ahd v1-13f ahd $";
+         "$Id: regsetup.c 1.11 1999/01/04 03:53:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -105,7 +108,7 @@ static const char rcsid[] =
 /*                  Prototypes and global variables                   */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 HKEY CreateHive(HKEY topLevel);
 

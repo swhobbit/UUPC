@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.15 1998/03/01 01:25:18 ahd v1-13f ahd $
+ *    $Id: scrsiznt.c 1.16 1999/01/04 03:52:55 ahd Exp $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.16  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/03/01 01:25:18  ahd
  *    Annual Copyright Update
  *
@@ -68,7 +71,7 @@
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    s c r s i z e                                                   */
@@ -95,4 +98,3 @@ unsigned short scrsize( void )
    return (unsigned short) info.dwSize.Y;
 
 } /* scrsize */
-

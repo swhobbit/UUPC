@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.17 1998/03/01 01:24:47 ahd v1-13f ahd $
+ *    $Id: printerr.c 1.18 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.18  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/03/01 01:24:47  ahd
  *    Annual Copyright Update
  *
@@ -87,6 +90,9 @@
 
 #ifndef __32BIT__
 #include <dos.h>
+
+RCSID("$Id$");
+
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -99,7 +105,7 @@
 /*    Perform a perror() with logging                                 */
 /*--------------------------------------------------------------------*/
 
-void prterror(const size_t lineno, const char *fname, const char *prefix)
+void prterror(const size_t lineno, const char UUFAR *fname, const char *prefix)
 {
    char buf[50];
    int myErrno = errno;
@@ -130,7 +136,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
 
    printmsg(2,"Run time library error %d in %s at line %u ...",
                myErrno,
-               fname,
+               localFName(fname),
                lineno);
 
    printmsg(0,"%s: %s", prefix, s);

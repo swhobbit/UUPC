@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.30 1998/03/01 19:40:21 ahd v1-13f ahd $
+ *    $Id: dcplib.c 1.31 1999/01/04 03:53:57 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.31  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.30  1998/03/01 19:40:21  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -186,7 +189,7 @@
 /*--------------------------------------------------------------------*/
 
 #if !defined(_Windows)
-currentfile();
+RCSID("$Id$");
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -223,7 +226,6 @@ KWBoolean login(void)
 /*    Our modem is now connected.  Begin actual login processing      */
 /*    by displaying a banner.                                         */
 /*--------------------------------------------------------------------*/
-
 
    if ( ! bflag[F_SUPPRESSLOGININFO] )
    {

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.14 1998/03/01 01:39:00 ahd v1-13f ahd $
+ *    $Id: checktim.c 1.15 1999/01/04 03:53:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.15  1999/01/04 03:53:57  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.14  1998/03/01 01:39:00  ahd
  *    Annual Copyright Update
  *
@@ -84,7 +87,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Local functions                           */

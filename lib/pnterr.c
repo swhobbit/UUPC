@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.12 1998/03/01 01:24:41 ahd v1-13f ahd $
+ *    $Id: pnterr.c 1.13 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ *    Revision 1.13  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.12  1998/03/01 01:24:41  ahd
  *    Annual Copyright Update
  *
@@ -80,7 +83,7 @@
 
 #include "pnterr.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    p N T e r r                                                     */
@@ -89,7 +92,7 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 void pNTErr(const size_t lineno,
-             const char *fname,
+             const char UUFAR *fname,
              const char *prefix,
              DWORD rc)
 {
@@ -115,7 +118,7 @@ void pNTErr(const size_t lineno,
 
       sprintf(buf, "NT API error %u in %s at line %d, cannot find message",
                    (unsigned int) rc,
-                   fname,
+                   localFName(fname),
                    lineno );
 
    } /* if ( xrc == 0 ) */
@@ -135,7 +138,7 @@ void pNTErr(const size_t lineno,
 /*--------------------------------------------------------------------*/
 
    printmsg(2,"NT API error %d in %s at line %d ...",
-            (int) rc, fname, lineno );
+            (int) rc, localFName(fname), lineno );
 
    printmsg(0,"%s: %s", prefix, buf);
 

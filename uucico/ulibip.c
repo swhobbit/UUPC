@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.37 1998/03/16 06:39:32 ahd v1-13f ahd $
+ *    $Id: ulibip.c 1.38 1999/01/04 03:53:30 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.38  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.37  1998/03/16 06:39:32  ahd
  *    Correct debugging message
  *
@@ -170,7 +173,7 @@ KWBoolean IsFatalSocketError(int err);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 static KWBoolean hangupNeeded = KWTrue;
 
 #if defined(__OS2__)

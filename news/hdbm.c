@@ -16,16 +16,19 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.20 1998/03/01 01:30:15 ahd v1-13f ahd $");
+RCSID("$Id: hdbm.c 1.21 1999/01/04 03:53:30 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.20 1998/03/01 01:30:15 ahd v1-13f ahd $
+ * $Id: hdbm.c 1.21 1999/01/04 03:53:30 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.21  1999/01/04 03:53:30  ahd
+ * Annual copyright change
+ *
  * Revision 1.20  1998/03/01 01:30:15  ahd
  * Annual Copyright Update
  *
@@ -100,8 +103,6 @@ RCSID("$Id: hdbm.c 1.20 1998/03/01 01:30:15 ahd v1-13f ahd $");
 
 #include "hdbm.h"
 #include "idx.h"
-
-currentfile();
 
 datum nullitem = {NULL, 0};
 

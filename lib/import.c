@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.39 1998/07/27 01:03:54 ahd v1-13f ahd $
+ *    $Id: import.c 1.40 1999/01/04 03:52:28 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.40  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.39  1998/07/27 01:03:54  ahd
  *    Revise file name to prevent silly questions
  *
@@ -109,8 +112,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id: import.c 1.39 1998/07/27 01:03:54 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: import.c 1.40 1999/01/04 03:52:28 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -553,7 +555,6 @@ static void ImportName(char *local,
 
    } /* if (best_period == NULL) */
 
-
 /*--------------------------------------------------------------------*/
 /*                Now, clean up any invalid characters                */
 /*--------------------------------------------------------------------*/
@@ -662,7 +663,6 @@ KWBoolean ValidDOSName(const char *s,
          strcat(workBuffer, "." );        /* multiple periods allowed */
          longCharSet = newstr(workBuffer);
       }
-
 
       if (strspn(s, longCharSet) == len)
       {

@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.44 1998/08/02 01:02:46 ahd v1-13f ahd $
+ *    $Id: uutypes.h 1.45 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.45  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.44  1998/08/02 01:02:46  ahd
  *    Add autocall option to support automatic dial-out after UUX, UUCP
  *
@@ -88,12 +91,21 @@
 /*         Define unique FAR keyword for selected memory hogs         */
 /*--------------------------------------------------------------------*/
 
+
+#if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
+#define BIT32ENV 1
+#endif
+
 #if defined(BIT32ENV)
 #define UUFAR
-#elif defined(__TURBOC__)
+#elif defined(_M_I86LM) || defined(_M_I86SM)    /* MS VC 1.x Large or Tiny models */
+#define UUFAR
+#elif defined(__LARGE__) || defined(__TINY__)   /* BC++ Large or Tiny models */
+#define UUFAR
+#elif defined(__TURBOC__)        /* Other BC models */
 #define UUFAR far
 #else
-#define UUFAR _far
+#define UUFAR _far               /* Other MS VC models */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -110,7 +122,11 @@
 #define FREE(p)        free(p)
 #define STRCPY(s1,s2)  strcpy(s1,s2)
 #define STRCAT(s1,s2)  strcat(s1,s2)
+#ifndef STRCHR
 #define STRCMP(s1,s2)  strcmp(s1,s2)
+#define STRCHR(s1,s2)  strchr(s1,s2)
+#define STRLEN(s1)     strlen(s1)
+#endif
 #else
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
@@ -121,7 +137,11 @@
 #define FREE(p)        _ffree(p)
 #define STRCPY(s1,s2)  _fstrcpy(s1,s2)
 #define STRCAT(s1,s2)  _fstrcat(s1,s2)
+#ifndef STRCHR
 #define STRCMP(s1,s2)  _fstrcmp(s1,s2)
+#define STRCHR(s1,s2)  _fstrchr(s1,s2)
+#define STRLEN(s1)     _fstrlen(s1)
+#endif
 #endif
 
 /*--------------------------------------------------------------------*/

@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.h 1.10 1998/03/01 01:27:48 ahd v1-13f ahd $
+ *    $Id: timestmp.h 1.11 1999/01/04 03:55:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.h $
+ *    Revision 1.11  1999/01/04 03:55:03  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.10  1998/03/01 01:27:48  ahd
  *    Annual Copyright Update
  *
@@ -58,10 +61,10 @@
  *                      host.c)  ahd
  */
 
-extern char compilev[];           /* UUPC version number           */
-extern char compilep[];           /* Suite name (UUPC/extended)    */
-extern char compilet[];           /* UUPC compile time             */
-extern char compiled[];           /* UUPC compile date             */
+extern const char *compilev;            /* UUPC version number           */
+extern const char *compilep;            /* Suite name (UUPC/extended)    */
+extern const char *compilet;            /* UUPC compile time             */
+extern const char *compiled;            /* UUPC compile date             */
 extern char *compilen;            /* Current program name          */
 extern char *compilew;            /* Current environment           */
 

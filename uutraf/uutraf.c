@@ -5,6 +5,7 @@
 #define SID "@(#)uutraf:uutraf.c 1.2.2.8  92/10/23 10:23:03 (woods)"
 #include <sccsid.h>
 #ifdef UUPC
+#define STRCHR strchr
 #include "uutypes.h"
 #endif
 
@@ -50,7 +51,7 @@
 #include "hlib.h"
 #include "timestmp.h"
 #include "getopt.h"
-currentfile();
+RCSID("$Id$");
 #endif
 
 #ifndef lint
@@ -1260,7 +1261,6 @@ cmpsys(a, b)
       return((cmp_t) (bw - aw));
 }
 
-
 void
 usage_err(arg0, msg)
    char  *arg0;
@@ -1272,4 +1272,3 @@ usage_err(arg0, msg)
    exit(2);
    /* NOTREACHED */
 }
-

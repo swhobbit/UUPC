@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: importng.c 1.5 1994/02/19 03:52:34 ahd Exp $
+ *    $Id: importng.c 1.6 1994/02/19 04:43:03 ahd v1-13f $
  *
  *    $Log: importng.c $
+ *    Revision 1.6  1994/02/19 04:43:03  ahd
+ *    Use standard first header
+ *
  *     Revision 1.5  1994/02/19  03:52:34  ahd
  *     Use standard first header
  *
@@ -42,6 +45,8 @@
 
 #include "import.h"
 #include "importng.h"
+
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    I m p o r t N e w s G r o u p                                   */

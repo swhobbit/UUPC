@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.49 1998/11/04 01:59:55 ahd v1-13f ahd $
+ *    $Id: mail.c 1.50 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.50  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.49  1998/11/04 01:59:55  ahd
  *    Prevent buffer overflows when processing UIDL lines
  *    in POP3 mail.
@@ -88,7 +91,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: mail.c 1.49 1998/11/04 01:59:55 ahd v1-13f ahd $");
+RCSID("$Id: mail.c 1.50 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -146,8 +149,6 @@ unsigned _stklen = 10 * 1024;
 unsigned _heaplen = 30 * 1024;
 #endif
 
-currentfile();
-
 static char mfilename[FILENAME_MAX];
 int letternum = 0;
 
@@ -171,7 +172,6 @@ static void    Cleanup(void);
 
 static void Interactive_Mail( const KWBoolean PrintOnly,
                               const KWBoolean postoffice );
-
 
 static void    PrintSubject(const int msgnum,
                             const int letternum);

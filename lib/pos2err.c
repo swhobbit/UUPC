@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.15 1998/03/01 01:24:44 ahd v1-13f ahd $
+ *    $Id: pos2err.c 1.16 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.16  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.15  1998/03/01 01:24:44  ahd
  *    Annual Copyright Update
  *
@@ -93,7 +96,7 @@
 
 #include "pos2err.h"
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    p O S 2 e r r                                                   */

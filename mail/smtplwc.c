@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.12 1998/11/01 20:38:15 ahd v1-13f ahd $
+ *       $Id: smtplwc.c 1.13 1999/01/04 03:54:27 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.13  1999/01/04 03:54:27  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.12  1998/11/01 20:38:15  ahd
  *       Correct "Not using HELO protocol" warning message to not crash system
  *
@@ -82,9 +85,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.12 1998/11/01 20:38:15 ahd v1-13f ahd $");
-
-currentfile();
+RCSID("$Id: smtplwc.c 1.13 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */

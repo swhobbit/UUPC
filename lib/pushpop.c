@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.20 1998/03/01 01:24:53 ahd v1-13f ahd $
+ *    $Id: pushpop.c 1.21 1999/01/04 03:52:55 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.21  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.20  1998/03/01 01:24:53  ahd
  *    Annual Copyright Update
  *
@@ -111,7 +114,7 @@ static char *dirstack[MAXDEPTH];
 static int drivestack[MAXDEPTH];
 static depth = 0;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*       P u s h D i r                                                */

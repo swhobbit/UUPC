@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.17 1998/03/01 01:25:09 ahd v1-13f ahd $
+ *    $Id: safeout.c 1.18 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *    Revision 1.18  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.17  1998/03/01 01:25:09  ahd
  *    Annual Copyright Update
  *
@@ -108,7 +111,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(WIN32)
-currentfile();
+RCSID("$Id$");
 #endif
 
 #if defined(WIN32)

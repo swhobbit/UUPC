@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.22 1998/03/01 01:40:21 ahd v1-13f ahd $
+ *    $Id: suspend2.c 1.23 1999/01/04 03:53:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.23  1999/01/04 03:53:30  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.22  1998/03/01 01:40:21  ahd
  *    Annual Copyright Update
  *
@@ -195,7 +198,7 @@ typedef USHORT U_INT;
 
 static U_INT nBytes;
 
-currentfile();
+RCSID("$Id$");
 
 #ifdef __TURBOC__
 #pragma -N-

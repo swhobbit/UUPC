@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.18 1998/03/01 19:40:21 ahd v1-13f ahd $
+ *    $Id: usertabl.c 1.19 1999/01/04 03:52:55 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.19  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.18  1998/03/01 19:40:21  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -60,7 +63,7 @@ char *NextField( char *input );
 
 static char uucpsh[] = UUCPSHELL;
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    u s e r c m p                                                   */

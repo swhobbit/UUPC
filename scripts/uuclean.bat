@@ -18,9 +18,12 @@ REM *    All rights reserved except those explicitly granted by        *
 REM *    the UUPC/extended license agreement.                          *
 REM *------------------------------------------------------------------*
 
-rem     $Id: uuclean.bat 1.6 1998/05/11 01:27:30 ahd v1-13f $
+rem     $Id: uuclean.bat 1.7 1999/01/04 03:57:12 ahd Exp $
 rem
 rem     $Log: uuclean.bat $
+rem     Revision 1.7  1999/01/04 03:57:12  ahd
+rem     Annual copyright change
+rem
 rem     Revision 1.6  1998/05/11 01:27:30  ahd
 rem     Add distrinct log directory
 rem
@@ -77,8 +80,8 @@ REM *------------------------------------------------------------------*
 REM *                  Clean up a single log file                      *
 REM *------------------------------------------------------------------*
 :cleanit
+if exist %2 rename %2 %2.log
 if not exist %2.log goto :exit
-echo Cleaning %2.log files.
 if exist %2.004    del %2.004
 if exist %2.003 rename %2.003 *.004
 if exist %2.002 rename %2.002 *.003

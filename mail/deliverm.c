@@ -34,10 +34,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliverm.c 1.7 1998/11/01 20:38:15 ahd v1-13f ahd $
+ *    $Id: deliverm.c 1.8 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: deliverm.c $
+ *    Revision 1.8  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.7  1998/11/01 20:38:15  ahd
  *    Tweek LF to CR/LF
  *
@@ -79,8 +82,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliverm.c 1.7 1998/11/01 20:38:15 ahd v1-13f ahd $");
-currentfile();
+RCSID("$Id: deliverm.c 1.8 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*    f o r m a t F i l e S i z e                                     */

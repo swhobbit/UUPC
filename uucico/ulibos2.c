@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.48 1998/03/01 01:40:55 ahd v1-13f ahd $
+ *       $Id: ulibos2.c 1.49 1999/01/04 03:53:57 ahd Exp $
  *       $Log: ulibos2.c $
+ *       Revision 1.49  1999/01/04 03:53:57  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.48  1998/03/01 01:40:55  ahd
  *       Annual Copyright Update
  *
@@ -212,7 +215,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 static KWBoolean hangupNeeded = KWFalse;
 

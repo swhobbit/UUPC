@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.40 1998/05/08 02:42:15 ahd v1-13f ahd $
+ *    $Id: imfile.c 1.41 1999/01/04 03:52:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.41  1999/01/04 03:52:28  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.40  1998/05/08 02:42:15  ahd
  *    Clear data structure before free to prevent accident reuse
  *
@@ -134,7 +137,7 @@
 #define UDEBUG2
 #endif
 
-currentfile();
+RCSID("$Id$");
 
 #ifdef UDEBUG
 
@@ -582,7 +585,6 @@ char *imgets(char *userBuffer, int userLength, IMFILE *imf)
       printmsg(0,"imgets: Attempt to return overlength buffer" );
       panic();
    }
-
 
    return userBuffer;
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.30 1998/03/01 01:27:27 ahd v1-13f ahd $
+ *    $Id: address.c 1.31 1999/01/04 03:54:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.31  1999/01/04 03:54:27  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.30  1998/03/01 01:27:27  ahd
  *    Annual Copyright Update
  *
@@ -126,9 +129,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-
-RCSID("$Id: address.c 1.30 1998/03/01 01:27:27 ahd v1-13f ahd $");
+RCSID("$Id: address.c 1.31 1999/01/04 03:54:27 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

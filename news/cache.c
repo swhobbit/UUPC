@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.9 1998/03/01 01:30:06 ahd v1-13f ahd $
+ *    $Id: cache.c 1.10 1999/01/04 03:53:30 ahd Exp $
  *
  * $Log: cache.c $
+ * Revision 1.10  1999/01/04 03:53:30  ahd
+ * Annual copyright change
+ *
  * Revision 1.9  1998/03/01 01:30:06  ahd
  * Annual Copyright Update
  *
@@ -60,15 +63,13 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.9 1998/03/01 01:30:06 ahd v1-13f ahd $");
+RCSID("$Id: cache.c 1.10 1999/01/04 03:53:30 ahd Exp $");
 
 #include <io.h>
 #include <memory.h>
 #include <malloc.h>
 
 #include "cache.h"
-
-currentfile();
 
 /* I/O functions */
 

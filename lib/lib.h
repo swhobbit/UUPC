@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.47 1998/11/24 13:50:22 ahd v1-13f ahd $
+ *       $Id: lib.h 1.48 1999/01/04 03:55:03 ahd Exp $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *       Revision 1.48  1999/01/04 03:55:03  ahd
+ *       Annual copyright change
+ *
  *       Revision 1.47  1998/11/24 13:50:22  ahd
  *       Use BREAKPOINT values for IBM C++, VC++ 5.0
  *
@@ -148,12 +151,12 @@
 #define TCPIP
 #endif
 #endif
+
 /*--------------------------------------------------------------------*/
 /*                 Macro for recording when UUPC dies                 */
 /*--------------------------------------------------------------------*/
 
-#define panic()  bugout( cfnptr, __LINE__)
-
+#define panic()  bugout( _rcsId, __LINE__)
 
 #ifdef UDEBUG
 #define kwassert(condition) if (condition) \
@@ -166,7 +169,7 @@
 /*                 Macro for generic error messages from DOS          */
 /*--------------------------------------------------------------------*/
 
-#define printerr( x )  prterror( __LINE__, cfnptr, x)
+#define printerr( x )  prterror( __LINE__, _rcsId, x)
 
 /*--------------------------------------------------------------------*/
 /*                  Convert hours/minutes to seconds                  */
@@ -175,16 +178,18 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
-#ifdef BIT32ENV
-#define RCSID(x) static const char UUFAR _rcsId[] = x
+
+#if  defined(_M_I86TM)
+#define RCSID(x) static const char _rcsId[] = __FILE__
+#elif defined(_M_I86LM)
+#define RCSID(x) static const char _rcsId[] = x
 #else
-#define RCSID(x)
+#define RCSID(x) static const char UUFAR _rcsId[] = x
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
 /*--------------------------------------------------------------------*/
-
 
 #define B_EXPIRE   0x00000001L
 #define B_GENERIC  0x00000002L /* Generic utilties with no spec vars  */
@@ -266,13 +271,12 @@
 #error __FILE__ must be defined!!!
 #endif
 
-#define currentfile()            static char *cfnptr = __FILE__
-#define checkref(a)              { if (!a) checkptr(cfnptr,__LINE__); }
+#define checkref(a)              { if (!a) checkptr(_rcsId,__LINE__); }
 
-#define newstr(a)                (strpool(a, cfnptr ,__LINE__))
+#define newstr(a)                (strpool(a, _rcsId ,__LINE__))
 
 #ifdef SAFEFREE
-#define free(a)                  (safefree(a, cfnptr ,__LINE__))
+#define free(a)                  (safefree(a, _rcsId ,__LINE__))
 #endif
 
 #define nil(type)               ((type *)NULL)
@@ -310,7 +314,7 @@ typedef struct FlagTable
 #endif
 
 #ifdef SAFEFREE
-void safefree( void *input , const char *file, size_t line);
+void safefree( void *input , const char UUFAR *file, size_t line);
 #endif
 
 extern int debuglevel;
@@ -328,12 +332,12 @@ extern size_t rcTableSize;
 /*--------------------------------------------------------------------*/
 
 #ifdef SAFEFREE
-void safefree( void *input , const char *file, size_t line);
+void safefree( void *input , const char UUFAR *file, size_t line);
 #endif
 
-void prterror(const size_t lineno, const char *fname, const char *prefix);
+void prterror(const size_t lineno, const char UUFAR *fname, const char *prefix);
 
-extern void checkptr(const char *file,
+extern void checkptr(const char UUFAR *file,
                      const size_t line);
 
 extern int MKDIR(const char *path);
@@ -362,6 +366,7 @@ int getargs(char *line,
             char **flds);                                   /* ahd */
 
 void printmsg(int level, char *fmt, ...);
+
 
 /*--------------------------------------------------------------------*/
 /*                      Configuration functions                       */
@@ -396,18 +401,24 @@ resetOptions(FLAGTABLE *flags,
 /*                           Abort function                           */
 /*--------------------------------------------------------------------*/
 
-void bugout(  const char *fname, const size_t lineno);
+void bugout(  const char UUFAR *fname, const size_t lineno);
+
+/*--------------------------------------------------------------------*/
+/*                   Make far RCSID a local string                    */
+/*--------------------------------------------------------------------*/
+
+const char *
+localFName( const char UUFAR *name);
 
 /*--------------------------------------------------------------------*/
 /*                Constant String allocation function                 */
 /*--------------------------------------------------------------------*/
 
-char *strpool( const char *input , const char *file, size_t line);
+char *strpool( const char *input , const char UUFAR *file, size_t line);
 
 #ifdef UDEBUG
 void dump_pool( void );          /* Dump our string pool          */
 #endif
-
 
 KWBoolean IsDOS( void );
 

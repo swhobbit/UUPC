@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.48 1998/09/08 23:21:22 ahd v1-13f ahd $
+ *    $Id: execute.c 1.49 1999/01/04 03:52:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.49  1999/01/04 03:52:55  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.48  1998/09/08 23:21:22  ahd
  *    Prevent buffer overruns
  *
@@ -220,7 +223,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-currentfile();
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
