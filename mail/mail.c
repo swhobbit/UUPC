@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.7 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: mail.c 1.8 1993/09/23 03:26:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.8  1993/09/23  03:26:51  ahd
+ * Use current version variables for Visual C++ under Windows NT
+ *
  * Revision 1.7  1993/09/20  04:39:51  ahd
  * OS/2 2.x support
  *
@@ -70,7 +73,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.7 1993/09/20 04:39:51 ahd Exp $";
+      "$Id: mail.c 1.8 1993/09/23 03:26:51 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -902,7 +905,8 @@ static void Interactive_Mail( const boolean PrintOnly,
 
 static void IncludeNew( const char *target, const char *user)
 {
-   long age, size;
+   time_t age;
+   long size;
    FILE *stream_in;
    FILE *stream_out;
    int  bytes;
@@ -930,7 +934,7 @@ static void IncludeNew( const char *target, const char *user)
 
    age = stater( sysbox , &size );
 
-   if ( age == -1)
+   if ( age == (time_t) -1L)
       panic();
 
    printmsg( 1, "Including mail from %s through %s",

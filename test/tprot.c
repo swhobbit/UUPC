@@ -10,7 +10,7 @@ static char sccsid[] = "@(#)tio.c       4.9     (Berkeley) 5/4/88";
 #include <sys/stat.h>
 #include <netinet/in.h>
 
-extern int pkfail();
+extern int pkfail( int sig );
 #define TPACKSIZE       512
 #define TBUFSIZE        1024
 #define min(a,b)        (((a)<(b))?(a):(b))

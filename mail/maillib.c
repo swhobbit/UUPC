@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.5 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: maillib.c 1.6 1993/09/20 04:41:54 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.6  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.5  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -251,17 +254,13 @@ void PageReset()
 boolean PageLine(char *line)
 {
 
-#ifdef _Windows
-   short pagesize = scrsize() - 3;
-#else
-   short pagesize = scrsize() - 3;
-#endif
+   int pagesize = scrsize() - 3;
 
    fputs(line, stdout);
 
    PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines  */
 
-   if (PageCount > (pagesize))
+   if (PageCount > pagesize)
    {
       int c;
       fputs("More?", stdout);
