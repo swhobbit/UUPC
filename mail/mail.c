@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.46 1998/03/01 01:31:44 ahd Exp $
+ *    $Id: mail.c 1.47 1998/03/03 03:53:54 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.47  1998/03/03 03:53:54  ahd
+ *    Routines to handle messages within a POP3 mailbox
+ *
  *    Revision 1.46  1998/03/01 01:31:44  ahd
  *    Annual Copyright Update
  *
@@ -76,7 +79,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id$");
+RCSID("$Id: mail.c 1.47 1998/03/03 03:53:54 ahd v1-12v $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -210,6 +213,7 @@ static char *defaultIgnoreList[] =
          "Path: ",
          "Lines: ",
          "References: ",
+         UIDL_HEADER,
          NULL,
        };
 
