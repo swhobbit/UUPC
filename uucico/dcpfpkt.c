@@ -31,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.4 1992/11/19 03:01:13 ahd Exp $
+ *    $Id: DCPFPKT.C 1.5 1992/11/20 12:38:26 ahd Exp $
  *
  *    $Log: DCPFPKT.C $
+ * Revision 1.5  1992/11/20  12:38:26  ahd
+ * Drop rcsid
+ *
  * Revision 1.4  1992/11/19  03:01:13  ahd
  * drop rcsid
  *
@@ -100,7 +103,7 @@ int fopenpk(const boolean master)
    if ( M_fPacketSize > MAXPACK)
       M_fPacketSize = MAXPACK;
 
-   pktsize = M_fPacketSize;
+   r_pktsize = s_pktsize = M_fPacketSize;
    ssleep(2); /* Give peer time to perform corresponding port setup */
    return OK;
 } /* fopenpk */
@@ -207,7 +210,7 @@ int fgetpkt(char *packet, int *bytes)
          return FAILED;
    } /* if ( eof ) */
 
-   left = pktsize;
+   left = s_pktsize;
    op = packet;
    sum = chksum;
 
@@ -319,7 +322,7 @@ int fgetpkt(char *packet, int *bytes)
 /*            The packet is full of data, return to caller            */
 /*--------------------------------------------------------------------*/
 
-   *bytes = pktsize;
+   *bytes = s_pktsize;
    printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
    chksum = sum;
    return OK;

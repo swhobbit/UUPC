@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.10 1992/12/01 04:37:03 ahd Exp $
+ *       $Id: DCPXFER.C 1.11 1993/01/23 19:08:09 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.11  1993/01/23  19:08:09  ahd
+ * Don't enable unbuffered I/O twice if not multitask mode
+ *
  * Revision 1.10  1992/12/01  04:37:03  ahd
  * Suppress routine names transfered from debug level 0 and 1
  *
@@ -149,7 +152,7 @@ XFER_STATE sdata( void )
       return XFER_ABORT;            /* Toss file                  */
 
    do {
-      size_t xmit = min( (size_t) S_size - used , pktsize );
+      size_t xmit = min( (size_t) S_size - used , s_pktsize );
 
       if ((*sendpkt)((char *) databuf + used, xmit) != OK)   /* Send data */
       {
@@ -1073,7 +1076,7 @@ XFER_STATE rdata( void )
       else
          used += len;
 
-   }  while (((used + pktsize) <= xfer_bufsize) && len);
+   }  while (((used + r_pktsize) <= xfer_bufsize) && len);
 
 /*--------------------------------------------------------------------*/
 /*                  Write incoming data to the file                   */
@@ -1257,12 +1260,14 @@ static boolean pktgetstr( char *s)
 
 static void buf_init( void )
 {
-   xfer_bufsize = max( pktsize * 4, max( M_xfer_bufsize, BUFSIZ) );
+   xfer_bufsize = max( max(s_pktsize, r_pktsize ) * 4,
+                       max( M_xfer_bufsize, BUFSIZ) );
 
    if (databuf == NULL)
       databuf = malloc( xfer_bufsize );
    else
       databuf = realloc( databuf, xfer_bufsize );
+
    checkref( databuf );
 
 } /* buf_init */
