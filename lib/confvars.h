@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.24 1995/02/20 00:40:44 ahd v1-12q $
+ *    $Id: confvars.h 1.25 1996/01/01 20:56:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.25  1996/01/01 20:56:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.24  1995/02/20 00:40:44  ahd
  *    News index caching support
  *
@@ -142,6 +145,7 @@ extern char **E_replyToList;     /* Primary Addr used to reply to mail  */
 extern char E_firstGrade;        /* First class searched for by UUCICO  */
 extern char E_mailGrade;         /* Default grade for mail              */
 extern char E_newsGrade;         /* Default grade for news              */
+extern char *E_tz;               /* Time zone                           */
 
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */

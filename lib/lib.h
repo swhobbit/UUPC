@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.33 1996/01/02 00:02:08 ahd Exp $
+ *    $Id: lib.h 1.34 1996/01/04 04:01:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.34  1996/01/04 04:01:44  ahd
+ *    Use sorted table for boolean options with binary search
+ *
  *    Revision 1.33  1996/01/02 00:02:08  ahd
  *    Use sorted confifugration file tables with predefined sizes
  *    to allow binary search, rather than previous linear search.
@@ -259,8 +262,11 @@
 #define checkref(a)              { if (!a) checkptr(cfnptr,__LINE__); }
 
 #define newstr(a)                (strpool(a, cfnptr ,__LINE__))
+
 #ifdef SAFEFREE
 #define free(a)                  (safefree(a, cfnptr ,__LINE__))
+
+void safefree( void *input , const char *file, size_t line);
 #endif
 
 #define nil(type)               ((type *)NULL)
@@ -289,15 +295,6 @@ typedef struct FlagTable
    } FLAGTABLE;
 
 /*--------------------------------------------------------------------*/
-/*                            linked list                             */
-/*--------------------------------------------------------------------*/
-
-struct file_queue {
-   char name[FILENAME_MAX];
-   struct file_queue *next_link;
-} ;
-
-/*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
@@ -307,6 +304,9 @@ extern KWBoolean bflag[F_LAST];
 
 extern FLAGTABLE configFlags[];
 extern size_t configFlagsSize;
+
+extern CONFIGTABLE rcTable[];
+extern size_t rcTableSize;
 
 /*--------------------------------------------------------------------*/
 /*                        Function prototypes                         */
@@ -344,6 +344,12 @@ int getargs(char *line,
 
 void printmsg(int level, char *fmt, ...);
 
+/*--------------------------------------------------------------------*/
+/*                      Configuration functions                       */
+/*--------------------------------------------------------------------*/
+
+KWBoolean getrcnames(char **sysp,char **usrp);
+
 KWBoolean configure( CONFIGBITS program );
 
 KWBoolean getconfig(FILE *fp,
@@ -362,15 +368,21 @@ KWBoolean processconfig(char *buff,
                   FLAGTABLE *bTable,
                   const size_t bTableSize );
 
+/*--------------------------------------------------------------------*/
+/*                           Abort function                           */
+/*--------------------------------------------------------------------*/
+
 void bugout( const size_t lineno, const char *fname);
+
+/*--------------------------------------------------------------------*/
+/*                Constant String allocation function                 */
+/*--------------------------------------------------------------------*/
 
 char *strpool( const char *input , const char *file, size_t line);
 
 #ifdef UDEBUG
 void dump_pool( void );          /* Dump our string pool          */
 #endif
-
-void safefree( void *input , const char *file, size_t line);
 
 
 KWBoolean IsDOS( void );
