@@ -969,6 +969,11 @@ static boolean deliver_article(char *art_fname)
       gc_ptr1 = newsgroups;
       while ((gc_ptr = strchr(gc_ptr1, ',')) != NULL) {
          gc_ptr[0] = '\0';
+         if (strlen(gc_ptr1) > MAXGRP - 1) { /* Bounds check the newsgroup len */
+            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
+            gc_ptr1 = gc_ptr + 1;
+            continue; /* Punt the newsgroup history record */
+         }
          strcpy(groupy, gc_ptr1);
          strcat(hist_record, groupy);
          strcat(hist_record, ":");
@@ -1007,6 +1012,11 @@ static boolean deliver_article(char *art_fname)
       while ((gc_ptr = strchr(gc_ptr1, ',')) != NULL)
       {
          gc_ptr[0] = '\0';
+         if (strlen(gc_ptr1) > MAXGRP - 1) { /* Bounds check the newsgroup len */
+            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
+            gc_ptr1 = gc_ptr + 1;
+            continue; /* Punt the newsgroup history record */
+         }
          strcpy(groupy, gc_ptr1);
          strcat(hist_record, groupy);
          strcat(hist_record, ":");
