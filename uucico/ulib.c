@@ -1,25 +1,21 @@
+/*--------------------------------------------------------------------*/
+/*    u l i b . c                                                     */
+/*                                                                    */
+/*    Serial port interface to COMMFIFO.ASM for MS-DOS                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.  Changes    */
+/*    Copyright (c) 1990-1992 by Kendra Electronic Wonderworks;       */
+/*    all rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license.                                          */
+/*--------------------------------------------------------------------*/
+
 /*
-   ibmpc/ulib.c
-
-   DCP system-dependent library
-
-   Services provided by ulib.c:
-
-   - login
-   - UNIX commands simulation
-   - serial I/O
-   - rnews
-
-   Updated:
-
-      14May89  - Added hangup() procedure                               ahd
-      21Jan90  - Replaced code for rnews() from Wolfgang Tremmel
-                 <tremmel@garf.ira.uka.de> to correct failure to
-                 properly read compressed news.                         ahd
-   6  Sep 90   - Change logging of line data to printable               ahd
-      8 Sep 90 - Split ulib.c into dcplib.c and ulib.c                  ahd
-*/
-
+ *    $Id$
+ *
+ *    $Log$
+ */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -463,23 +459,9 @@ void hangup( void )
 void SIOSpeed(BPS bps)
 {
 
-#define IOCTL                 /* Use new COMMFIFO version         */
-
-#ifdef IOCTL
-
    printmsg(4,"SIOSspeed: Changing port speed from %ld BPS to %ld BPS",
                (long) current_bps, (long) bps);
    ioctl_com(0, bps);
-
-#else
-
-   printmsg(4,"SIOSspeed: Closing port at %ld BPS", (long) current_bps);
-   close_com();
-   ShowModem();
-   printmsg(4,"SIOSspeed: Opening port at %ld BPS", (long) bps);
-   open_com(bps, current_direct , 'N', STOPBIT, 'D');
-
-#endif
 
    ShowModem();
    current_bps = bps;
