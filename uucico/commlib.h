@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.5 1993/09/25 03:13:04 ahd Exp $
+ *    $Id: commlib.h 1.6 1993/09/29 04:56:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.6  1993/09/29  04:56:11  ahd
+ * Suspend port by port name, not modem file name
+ *
  * Revision 1.5  1993/09/25  03:13:04  ahd
  * Add priority altering prototypes
  *
@@ -158,7 +161,7 @@ void resetPrty( void );
 /*--------------------------------------------------------------------*/
 
 #if defined(__OS2__) || defined(WIN32) // 32 bit compiler?
-#define MAXPACK 4096          /* Max packet size we can handle       */
+#define MAXPACK 1024          /* Max packet size we can handle       */
 #elif defined(_Windows)
 #define MAXPACK 1024          /* Needed for 't' protocol blocks      */
 #else
