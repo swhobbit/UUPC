@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.10  1993/07/22  23:26:19  ahd
+ *     First pass of changes for Robert Denny's Windows 3.1 support
+ *
  *     Revision 1.9  1993/07/19  02:53:32  ahd
  *     Update copyright year'
  *
@@ -266,6 +269,10 @@ char *strpool( const char *input , const char *file, size_t line);
 void safefree( void *input , const char *file, size_t line);
 
 char *normalize( const char *path );
+
+#define denormalize( path ) { char *xxp = path; \
+   while ((xxp = strchr(xxp,'/')) != NULL)  \
+      *xxp++ = '\\';  }
 
 #ifdef __GNUC__
 char *strlwr( char *s );
