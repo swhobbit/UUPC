@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.8 1993/06/06 15:04:05 ahd Exp $
+ *    $Id: logger.c 1.9 1993/07/22 23:19:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.9  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
  *     Revision 1.8  1993/06/06  15:04:05  ahd
  *     Trap unable to open log file
  *
@@ -113,7 +116,7 @@ void openlog( const char *log )
    if ( bflag[F_MULTITASK] )
    {
       char *savedir = E_tempdir;    /* Save real tempory directory   */
-      short retries = 20;
+      short retries = 15;
 
       E_tempdir = E_spooldir;       /* Create log file in spool dir
                                        to allow for larger files
@@ -122,10 +125,11 @@ void openlog( const char *log )
       {
          mktempname(fname, "LOG");  // Get a temp log file name
 
+         denormalize( fname );
          stream = _fsopen(fname, "at", SH_DENYWR);
 
          if ( stream == NULL )
-            printerr( tempname );
+            printerr( fname );
 
       } /* while */
 
@@ -150,7 +154,6 @@ void openlog( const char *log )
    full_log_file_name = tempname;   /* Tell printmsg() what our log
                                        file name is                  */
    logfile  = stream;               // And of the the stream itself
-
 
 /*--------------------------------------------------------------------*/
 /*               Request the copy function be run later               */

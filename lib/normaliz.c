@@ -9,14 +9,26 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.5 1993/06/16 04:19:31 ahd Exp $
+ *    $Id: normaliz.c 1.6 1993/07/06 10:55:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.6  1993/07/06  10:55:20  ahd
+ *     Drop doubled path delimiters before calling _fullpath
+ *     Abort, not return NULL, if _fullpath fails
+ *
  *     Revision 1.5  1993/06/16  04:19:31  ahd
  *     Copy trailing null when copying slashes
  *
@@ -35,7 +47,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*                   Standard library include files                   */
+/*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -43,6 +55,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
+#include <ctype.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -65,14 +78,38 @@ char *normalize( const char *pathx )
    int column;
    char *p;
 
-   p = strcpy( path, pathx );
+/*--------------------------------------------------------------------*/
+/*                      Normalize the seperators                      */
+/*--------------------------------------------------------------------*/
+
+   strcpy( path, pathx );
+   denormalize( path );
+
+/*--------------------------------------------------------------------*/
+/*                    Add leading path, if needed                     */
+/*--------------------------------------------------------------------*/
+
+   if (  ( E_cwd != NULL ) &&
+         equaln( E_cwd, "//", 2 ) &&               // Network CWD drive
+       ! (isalpha( *path ) && (path[1] == ':')) && // Not explicit drive
+         (*path != '\\'))                          // Not explicit path
+   {
+      column = strlen( E_cwd );
+      memmove( path + column + 1, path, strlen(path) + 1 );
+                                          // Make room for path
+      memcpy( path, E_cwd, column );      // Insert path
+      path[column] = '\\';                // Add directory sep
+   }
+
+   p = path + 1;                 // Allow leading double slash for
+                                 // Network drives
 
    while ((p = strstr(p,"\\\\")) != NULL)  // Drop all double slashes
       memmove(p, p+1, strlen(p));          // Includes trailing NULL
 
-   p = path;
-   while ((p = strstr(p,"//")) != NULL)   // Drop all double slashes
-      memmove(p, p+1, strlen(p));         // Includes trailing NULL
+/*--------------------------------------------------------------------*/
+/*                    Now actually expand the path                    */
+/*--------------------------------------------------------------------*/
 
    p = _fullpath( save, path, sizeof save );
 
@@ -85,9 +122,14 @@ char *normalize( const char *pathx )
    while ((p = strchr(p,'\\')) != NULL)   // Back slashes to slashes
       *p++ = '/';
 
-   column = strlen( save ) - 1;
-   if ((column > 2) && ( save[column] == '/' )) // Zap all but root trailing
-       save[column] = '\0';
+   if ( equaln( save + 1, "://", 3))
+      p = save + 2;                       // Drop drive if really network
+   else
+      p = save;                           // Else use as-is
+
+   column = strlen( p ) - 1;
+   if ((column > 2) && ( p[column] == '/' )) // Zap all but root trailing
+       p[column] = '\0';
 
 /*--------------------------------------------------------------------*/
 /*               Print the results and return to caller               */
@@ -96,8 +138,8 @@ char *normalize( const char *pathx )
    printmsg(5,"Normalize: cwd = %s, input = %s, output = %s",
                (E_cwd == NULL) ? "?" : E_cwd,
                pathx,
-               save );
+               p );
 
-   return save;
+   return p;
 
 } /* normalize */

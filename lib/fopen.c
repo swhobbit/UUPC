@@ -44,19 +44,28 @@ FILE *FSOPEN(const char *name, const char *mode)
 
    char *last;
    FILE *results;
+   char fname[FILENAME_MAX];
 
-   /* are we opening for write or append */
-
-#ifdef SHARE_OPEN
    int share = SH_DENYWR;
    int retries = 0;
 
-   results = _fsopen(name, mode, share );
-#else
-   results = fopen(name, mode );
-#endif
+   strcpy( fname, name );
+   denormalize( fname );
 
-   if ((results != nil(FILE)) || (*mode == 'r'))
+/*--------------------------------------------------------------------*/
+/*                       Open file (first try)                        */
+/*--------------------------------------------------------------------*/
+
+   results = _fsopen(fname, mode, share );
+
+/*--------------------------------------------------------------------*/
+/*       Return if the file opened, or if in read mode (no            */
+/*       directories need to be built) and not in multi-tasking       */
+/*       mode (no retries).                                           */
+/*--------------------------------------------------------------------*/
+
+   if (results != nil(FILE) ||
+      ( (*mode == 'r') && !bflag[ F_MULTITASK ]) && (errno != EACCES) )
       return results;
 
 /*--------------------------------------------------------------------*/
@@ -64,7 +73,7 @@ FILE *FSOPEN(const char *name, const char *mode)
 /*--------------------------------------------------------------------*/
 
 
-   if ((last = strrchr(name, '/')) != nil(char))
+   if ((*mode != 'r') && ((last = strrchr(name, '/')) != nil(char)))
    {
       *last = '\0';
       MKDIR(name);
@@ -75,18 +84,14 @@ FILE *FSOPEN(const char *name, const char *mode)
 /*                         Now try open again                         */
 /*--------------------------------------------------------------------*/
 
-#ifdef SHARE_OPEN
    for ( ;; )
    {
-      results = _fsopen(name, mode, share);
+      results = _fsopen(fname, mode, share);
       if (( results != NULL ) || (!bflag[ F_MULTITASK ]) ||
           (errno != EACCES)   || (retries++ > 10))
          return results;
-      perror( name );
+      perror( fname );
       ssleep( retries * 2);
    }
-#else
-   return fopen(name, mode);
-#endif
 
 } /*FOPEN*/

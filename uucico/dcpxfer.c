@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.18 1993/07/19 02:52:11 ahd Exp $
+ *       $Id: dcpxfer.c 1.19 1993/07/22 23:22:27 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.19  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  *
  * Revision 1.17  1993/05/30  00:04:53  ahd
  * Multiple communications drivers support
@@ -957,7 +960,11 @@ XFER_STATE rrfile( void )
 
    if (spool)
 #ifdef __TURBOC__
-      xfer_stream = fopen( tmpnam( tempname ), "wb");
+   {
+      char *p = tmpnam( tempname );
+      denormalize( p );
+      xfer_stream = fopen( p, "wb");
+   }
 #else
 
 /*--------------------------------------------------------------------*/
@@ -973,6 +980,7 @@ XFER_STATE rrfile( void )
       mktempname(tempname, "TMP");  /* Get the file name             */
       E_tempdir = savetemp;         /* Restore true directory name   */
 
+      denormalize( tempname );
       xfer_stream = fopen( tempname , "wb");
 
    }
@@ -980,8 +988,10 @@ XFER_STATE rrfile( void )
 
    else if (strchr( cmdopts,'d'))
       xfer_stream = FOPEN( spolname, "w", BINARY_MODE);
-   else
+   else {
+      denormalize( spolname );
       xfer_stream = fopen( spolname, "wb");
+   }
 
 
    if (xfer_stream == NULL)

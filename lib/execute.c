@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.2 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: execute.c 1.3 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.3  1993/08/03  03:11:49  ahd
+ * Further Windows 3.x fixes
+ *
  * Revision 1.2  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -346,7 +349,11 @@ int execute( const char *command,
       STARTUPINFO si;
       PROCESS_INFORMATION pi;
       void *oldCtrlCHandler;
-      static char *extensions[] = { ".exe", ".bat", ".com", NULL };
+      const static char *extensions[] = { ".exe",
+                                          ".bat",
+                                          ".cmd",
+                                          ".com",
+                                          NULL };
       char *currentExtension = extensions[0];
       char *filePart;
 
