@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.9 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: dcplib.c 1.10 1993/11/20 14:48:53 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.10  1993/11/20  14:48:53  ahd
+ * Add support for passing port name/port handle/port speed/user id to child
+ *
  * Revision 1.9  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *
@@ -416,7 +419,7 @@ static void LoginShell( const   struct UserTable *userp )
       switch( s[1] )                /* Look at next character        */
       {
          case '%':
-            insert = "%";           /* Literal percent size          */
+            insert = "%";           /* Literal percent sign          */
             break;
 
          case 'l':                  /* Com port handle               */
