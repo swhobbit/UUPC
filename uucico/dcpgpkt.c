@@ -1,9 +1,4 @@
 /*
-   For best results in visual layout while viewing this file, set
-   tab stops to every 4 columns.
-*/
-
-/*
    dcpgpkt.c
 
    Revised edition of dcp
@@ -12,6 +7,8 @@
 
    Copyright (c) Richard H. Lamb 1985, 1986, 1987
    Changes Copyright (c) Stuart Lynne 1987
+   Changes Copyright (c) Andrew H. Derbyshire 1989
+   Changes Copyright (c) Kendra Electronic Wonderworks 1990-1992
 
    Maintenance notes:
 
@@ -27,6 +24,15 @@
              Brown, MS 6.0 and Turbo C++ agree memmove insures
              no overlap
 */
+
+/*
+ *      $Id$
+ *
+ *      $Log$
+ */
+
+static const char rcsid[] =
+        "$Id$";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -114,6 +120,22 @@
 #define MAXWINDOW 7
 #define NBUF   8              /* always SAME as MAXSEQ ? */
 #define MAXSEQ 8
+
+typedef enum {
+      I_CALLEE,
+      I_CALLER,
+      I_COMPLETE,
+      I_EMPTY,
+      I_ERROR,
+      I_GRPACK,
+      I_INITA,
+      I_INITA_SEND,
+      I_INITB,
+      I_INITB_SEND,
+      I_INITC,
+      I_INITC_SEND,
+      I_RESTART }
+      I_STATE;
 
 #define between(a,b,c) ((a<=b && b<c) || \
                         (c<a && a<=b) || \
@@ -212,6 +234,10 @@ int gopenpk(const boolean caller)
 static int initialize(const boolean caller, const char protocol )
 {
    int i, xxx, yyy, len, maxwindows;
+   boolean  sent_inita = FALSE, recv_inita = FALSE;
+   boolean  sent_initb = FALSE, recv_initb = FALSE;
+   boolean  sent_initc = FALSE, recv_initc = FALSE;
+   I_STATE state;
 
 /*--------------------------------------------------------------------*/
 /* Read modem file values for the number of windows and packet sizes  */
@@ -265,73 +291,182 @@ static int initialize(const boolean caller, const char protocol )
 /*    This can still fail, but should usually work, and, after        */
 /*    all, if the initialization packets are received correctly       */
 /*    there will be no problem no matter what we do.                  */
-/*                                        - Ian Taylor                */
+/*                                                                    */
+/*    (The above quoted verbatim from Ian Taylor)                     */
 /*--------------------------------------------------------------------*/
 
-
-   if ( caller )
-      gspack(INITA, 0, 0, 0, pktsize, NULL);
-
-rsrt:
-   if (nerr >= M_MaxErr)
-   {
-      remote_stats.errors += nerr;
-      nerr = 0;
-      printmsg(0,
-         "gopenpk: Consecutive error limit of %ld exceeded, %ld total errors",
-          (long) M_MaxErr, remote_stats.errors);
-      return(FAILED);
-   }
+   state = caller ? I_CALLER : I_CALLEE;
 
 /*--------------------------------------------------------------------*/
 /*    INIT sequence.                                                  */
 /*--------------------------------------------------------------------*/
 
-   switch (grpack(&yyy, &xxx, &len, NULL, M_gPacketTimeout )) {
-   case INITA:
-      printmsg(5, "**got INITA");
-      if (yyy < (int) nwindows)
+   while( state != I_COMPLETE )
+   {
+      switch( state )
       {
-         nwindows = yyy;
-         rwu = nwindows - 1;
-      }
-      gspack(INITB, 0, 0, 0, pktsize, NULL);  /* data segment (packet) size */
-      goto rsrt;
 
-   case INITB:
-      printmsg(5, "**got INITB");
-      i = (int) 8 * (2 << (yyy+1));
-      if (i < (int) pktsize)
-         pktsize = i;
-      gspack(INITC, 0, 0, 0, pktsize, NULL);
+/*--------------------------------------------------------------------*/
+/*                          Receive a packet                          */
+/*--------------------------------------------------------------------*/
 
-      goto rsrt;
+         case I_GRPACK:
+            switch (grpack(&yyy, &xxx, &len, NULL, M_gPacketTimeout ))
+            {
 
-   case INITC:
-      printmsg(5, "**got INITC");
-      if (yyy < (int) nwindows)
-      {
-         nwindows = yyy;
-         rwu = nwindows - 1;
-      }
-      break;
+               case INITA:
+                  printmsg(5, "**got INITA");
+                  state = I_INITA;
+                  break;
 
-   default:
-      nerr++;
-      if (bmodemflag[MODEM_CD] && !CD())
-      {
-         printmsg(0,"gopenpk: Modem carrier lost");
-         return FAILED;
-      }
+               case INITB:
+                  printmsg(5, "**got INITB");
+                  state = I_INITB;
+                  break;
+
+               case INITC:
+                  printmsg(5, "**got INITC");
+                  state = I_INITC;
+                  break;
+
+               case EMPTY:
+                  printmsg(5, "**got EMPTY");
+                  state = I_EMPTY;
+                  break;
+
+               case CLOSE:
+                  printmsg(GDEBUG, "**got CLOSE");
+                  gspack(CLOSE, 0, 0, 0, 0, NULL);
+                  return FAILED;
+                  break;
+
+               default:
+                  printmsg(GDEBUG, "**got SCREW UP");
+                  state = I_ERROR;
+                  break;
+            }
+
+            if (bmodemflag[MODEM_CD] && !CD())
+            {
+               printmsg(0,"gopenpk: Modem carrier lost");
+               return FAILED;
+            }
+            break;
+
+/*--------------------------------------------------------------------*/
+/*                         Initialize states                          */
+/*--------------------------------------------------------------------*/
+
+         case I_CALLER:
+            state = I_INITA_SEND;
+            break;
+
+         case I_CALLEE:
+            state = I_GRPACK;
+            break;
+
+/*--------------------------------------------------------------------*/
+/*                  Process received or sent packets                  */
+/*--------------------------------------------------------------------*/
+
+         case I_INITA:
+            if (yyy < (int) nwindows)
+            {
+               nwindows = yyy;
+               rwu = nwindows - 1;
+            }
+            recv_inita = TRUE;
+            state = sent_inita ? I_INITB_SEND : I_INITA_SEND;
+            break;
+
+         case I_INITA_SEND:
+            gspack(INITA, 0, 0, 0, pktsize, NULL);
+            sent_inita = TRUE;
+            state = I_GRPACK;
+            break;
+
+         case I_INITB:
+            if ( recv_inita &&  sent_inita )
+            {
+               i = (int) 8 * (2 << (yyy+1));
+               if (i < (int) pktsize)
+                  pktsize = i;
+               recv_initb = TRUE;
+               state = sent_initb ? I_INITC_SEND : I_INITB_SEND;
+            } /* if */
+            else
+               state = I_RESTART;
+            break;
+
+         case I_INITB_SEND:
+            gspack(INITB, 0, 0, 0, pktsize, NULL);
+                                       /* Data segment (packet) size    */
+            sent_initb = TRUE;
+            state = I_GRPACK;
+            break;
+
+         case I_INITC:
+            if ( recv_initb &&  sent_initb )
+            {
+               if (yyy < (int) nwindows)
+               {
+                  nwindows = yyy;
+                  rwu = nwindows - 1;
+               }
+               recv_initc = TRUE;
+               state = sent_initc ? I_COMPLETE : I_INITC_SEND;
+            }
+            else
+               state = I_RESTART;
+            break;
+
+         case I_INITC_SEND:
+            gspack(INITC, 0, 0, 0, pktsize, NULL);
+            sent_initc = TRUE;
+            state = recv_initc ? I_COMPLETE : I_GRPACK;
+            break;
+
+/*--------------------------------------------------------------------*/
+/*                            Error states                            */
+/*--------------------------------------------------------------------*/
+
+         case I_EMPTY:
+            timeouts++;
+            state = I_RESTART;
+            break;
+
+         case I_ERROR:
+            screwups++;
+            state = I_RESTART;
+            break;
+
+         case I_RESTART:
+            printmsg(2,"gopenpk: Restarting initialize sequence");
+            nerr++;
+            sent_inita = recv_inita = sent_initb = recv_initb =
+                         sent_initc = recv_initc = FALSE;
+            state = I_INITA_SEND;
+            break;
+
+      } /* switch */
 
       if ( terminate_processing )
+      {
+         printmsg(0,"gopenpk: Terminated by user");
          return FAILED;
+      }
 
-      screwups++;
-      printmsg(GDEBUG, "**got SCREW UP");
-      gspack(INITA, 0, 0, 0, pktsize, NULL);
-      goto rsrt;
-   }
+      if (nerr >= M_MaxErr)
+      {
+         remote_stats.errors += nerr;
+         nerr = 0;
+         printmsg(0,
+            "gopenpk: Consecutive error limit of %ld exceeded, "
+                     "%ld total errors",
+             (long) M_MaxErr, remote_stats.errors);
+         return(FAILED);
+      }
+   } /* while */
 
 /*--------------------------------------------------------------------*/
 /*                    Allocate the needed buffers                     */
