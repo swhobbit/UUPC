@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.12 1993/07/31 16:27:49 ahd Exp $
+ *    $Id: uuxqt.c 1.13 1993/08/03 03:11:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.13  1993/08/03  03:11:49  ahd
+ * Initialize buffer for shell() in non-Windows environment
+ *
  * Revision 1.12  1993/07/31  16:27:49  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -297,7 +300,7 @@ void main( int argc, char **argv)
       char buf[BUFSIZ];
       char *p;
       sprintf(buf,"PATH=%s", E_uuxqtpath);
-      p = newstr(p);
+      p = newstr(buf);
 
       if (putenv( p ))
       {
