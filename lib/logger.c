@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.28 1998/04/20 02:47:57 ahd v1-13a $
+ *    $Id: logger.c 1.29 1998/05/11 01:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.29  1998/05/11 01:20:48  ahd
+ *    Don't close temp log before copying to perm log, just rewind it
+ *    Allow external routines to call copylog
+ *    Remember name of previously used log between calls
+ *
  *    Revision 1.28  1998/04/20 02:47:57  ahd
  *    TAPI/Windows 32 BIT GUI display support
  *
@@ -71,7 +76,7 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id");
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
