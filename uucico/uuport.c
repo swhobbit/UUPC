@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.10 1994/01/06 12:45:33 ahd Exp $
+ *    $Id: uuport.c 1.11 1994/02/19 05:13:11 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.11  1994/02/19  05:13:11  ahd
+ * Use standard first header
+ *
  * Revision 1.10  1994/01/06  12:45:33  ahd
  * Initialize configuration under Windows to get spool directory
  *
@@ -119,7 +122,7 @@ int main(int argc, char **argv)
 
   int file;
   char name[64], pipe[FILENAME_MAX];
-  char *ptr, cmd = SUSPEND_QUERY;
+  char *ptr, cmd = SUSPEND_QUERY, *command = "query";
 
   banner( argv );
 
@@ -143,14 +146,18 @@ int main(int argc, char **argv)
     {
        case 's':
          cmd = SUSPEND_SLEEP;
+         command = "suspend";
          break;
 
        case 'r':
          cmd = SUSPEND_RESUME;
+         command = "resume";
          break;
 
        case 'e':
          cmd = SUSPEND_EXIT;     /* UUCICO should exit            */
+         command = "exit";
+         break;
 
        default:
          usage(argv[0]);
@@ -167,7 +174,7 @@ int main(int argc, char **argv)
     if ( (ptr = strchr(ptr, '\\')) == NULL )
     {
       printf("invalid port '%s' specified.\n", name);
-      return 1;
+      exit(1);
     }
 
     *ptr = '\0';
@@ -198,25 +205,24 @@ int main(int argc, char **argv)
   if ( (file = open(pipe, O_RDWR, 0)) == -1 )
   {
     printf("No port '%s' currently used by any uucico.\n", name);
-    return 2;
+    exit(2);
   }
 
   if ( cmd != SUSPEND_QUERY )
   {
-    printf("Waiting for uucico on port '%s' to %s ... ",
-           name, cmd == SUSPEND_SLEEP ? "suspend" : "resume");
+    printf("Waiting for uucico on port '%s' to %s ... ", name, command);
     fflush(stdout);
   }
 
-  if ( write(file, &cmd, 1) != 1 )
+  if ( write(file, &cmd, sizeof(cmd)) != sizeof(cmd) )
   {
     printf("\nError sending message to uucico.\n");
-    return 3;
+    exit(3);
   }
-  if ( read(file, &cmd, 1) != 1 )
+  if ( read(file, &cmd, sizeof(cmd)) != sizeof(cmd) )
   {
     printf("\nError reading message from uucico.\n");
-    return 3;
+    exit(3);
   }
 
   close(file);
@@ -237,18 +243,18 @@ int main(int argc, char **argv)
 
      case SUSPEND_BUSY:
        printf("\nuucico on port '%s' is busy and rejected request.\n", name);
-       break;
+       exit(4);
 
      case SUSPEND_ERROR:
        printf("\nuucico on port '%s' had a system error processing request.\n",
                name);
-       break;
+       exit(4);
 
      default:
        printf("\nUUCICO returned error code '%c'\n", cmd);
-       return 4;
+       exit(4);
   }
 
-  return 0;
+  exit(0);
 
 } /* main */
