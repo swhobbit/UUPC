@@ -21,8 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.9 1993/11/06 17:57:09 rhg Exp $
- *       $Log: ulibnt.c $
+ *       $Id: ULIBNT.C 1.11 1993/11/30 04:13:30 dmwatt Exp $
+ *       $Log: ULIBNT.C $
+ * Revision 1.11  1993/11/30  04:13:30  dmwatt
+ * Optimize port processing
+ *
+ * Revision 1.11  1993/11/30  04:13:30  dmwatt
+ * Optimize port processing
+ *
  * Revision 1.9  1993/11/06  17:57:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -882,3 +888,16 @@ static void ShowModem( const DWORD status )
       mannounce(MS_CTS_ON,   status, "  Clear to Send"));
 
 } /* ShowModem */
+
+/*--------------------------------------------------------------------*/
+/*          n G e t C o m H a n d l e                                 */
+/*                                                                    */
+/*          Return handle to open port                                */
+/*--------------------------------------------------------------------*/
+
+int nGetComHandle( void )
+{
+
+   return (int) hCom;
+
+}  /* nGetComHandle */
