@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\SSLEEP.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Header: E:\src\uupc\LIB\RCS\SSLEEP.C 1.2 1992/12/07 02:43:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: SSLEEP.C $
+ * Revision 1.2  1992/12/07  02:43:20  ahd
+ * Add DesqView support from David M. Watt
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
@@ -216,10 +219,11 @@ static int RunningUnderDesqview(void)
    inregs.x.dx = 0x5351;
 
    intdos(&inregs, &outregs);
-   if (outregs.h.al == 0x7f) {
+   if (outregs.h.al == 0xff) {
       result = 0;
    } else {
-        printmsg(2, "RunningUnderDesqview:  Running under DesqView");
+      printmsg(4, "RunningUnderDesqview:  Running under DesqView (AX=0x%x)",
+               (int) outregs.x.ax);
       result = 1;
    }
 
