@@ -18,10 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.12 1995/01/29 16:43:03 ahd v1-12n $
+ *    $Id: printerr.c 1.13 1995/05/07 14:38:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.13  1995/05/07 14:38:19  ahd
+ *    Drop automatic aborts under DOS, other systems don't provide
+ *    the function and calling code now issues desired panic()
+ *    directly.
+ *
  *    Revision 1.12  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -125,6 +130,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
 
    if (_osmajor >= 3 )
    {
+
       union REGS regs;
       struct SREGS sregs;
       regs.h.ah = 0x59;       /* Extended error information           */
@@ -146,6 +152,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
                                  second almost duplicate literal str  */
       } /* if ( redirect ) */
 
+   } /*  if (_osmajor >= 3 ) */
 #endif
 
 } /* printerr */
