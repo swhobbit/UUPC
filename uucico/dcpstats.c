@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.14 1995/01/07 16:38:32 ahd v1-12q $
+ *       $Id: dcpstats.c 1.15 1996/01/01 21:21:10 ahd v1-12r $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.15  1996/01/01 21:21:10  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.14  1995/01/07 16:38:32  ahd
  *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -178,7 +181,7 @@ void dcupdate( void )
    PushLock( &savelock );
 
    do {
-      gotlock = LockSystem( "*status", B_UUSTAT );
+      gotlock = LockSystem( "_status", B_UUSTAT );
       if ( ! gotlock )
          ssleep(2);
    } while ( ! gotlock && retries-- );
