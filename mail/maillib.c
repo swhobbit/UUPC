@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.15 1994/03/07 06:09:51 ahd Exp $
+ *    $Id: maillib.c 1.16 1994/03/09 01:55:39 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.16  1994/03/09  01:55:39  ahd
+ * Error check the read which overshoots the buffer with memory files
+ *
  * Revision 1.15  1994/03/07  06:09:51  ahd
  * Additional debugging messages controlled by UDEBUG
  * Shorten ReturnAddress line buffer to correct problem with length
@@ -135,6 +138,7 @@ boolean Pager(const int msgnum,
               copyopt received,
               const boolean reset)
 {
+   boolean exitNow  = FALSE;     /* Flag for PRE-MATURE exit   ahd   */
 
    if (msgnum == -1)
       return FALSE;
@@ -170,7 +174,6 @@ boolean Pager(const int msgnum,
 
       char buf[BUFSIZ];
       long nextloc = letters[msgnum + 1].adr;
-      boolean exit  = FALSE;        /* Flag for PRE-MATURE exit   ahd   */
 
       fseek(fmailbox, letters[msgnum].adr, SEEK_SET);
 
@@ -183,7 +186,7 @@ boolean Pager(const int msgnum,
       PageLine(buf);
 
       while ((ftell(fmailbox) < nextloc) &&
-             (!exit) &&
+             (!exitNow) &&
              (fgets(buf, sizeof buf, fmailbox) != nil(char)))
       {
          boolean print = TRUE;
@@ -223,16 +226,16 @@ boolean Pager(const int msgnum,
                received = seperators;
 
          if (print && PageLine(buf))   /* Exit if the user hits Q    */
-               exit = TRUE;
+               exitNow = TRUE;
 
       } /* while */
 
-      if (equal(buf,"\n") && (!exit))
+      if (equal(buf,"\n") && (!exitNow))
          putchar('\n');
 
    } /* else */
 
-   return ! exit;
+   return ! exitNow;
 
 } /*Pager*/
 
@@ -247,7 +250,7 @@ boolean Pager(const int msgnum,
 void Sub_Pager(const char *tinput,
                      boolean external )
 {
-   boolean exit  = FALSE;        /* Flag for PRE-MATURE exit   ahd   */
+   boolean exitNow  = FALSE;     /* Flag for PRE-MATURE exit   ahd   */
 
    if (bflag[ F_PAGER ])
       external = ! external;
@@ -268,10 +271,10 @@ void Sub_Pager(const char *tinput,
       PageReset();
       ClearScreen();
 
-      while ( (!exit) && fgets(buf, sizeof buf, finput) != nil(char))
+      while ( (!exitNow) && fgets(buf, sizeof buf, finput) != nil(char))
       {
         if (PageLine(buf))         /* Exit if the user hits Q  */
-           exit = TRUE;
+           exitNow = TRUE;
       }
 
       fclose(finput);
