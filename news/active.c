@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.C 1.26 1995/12/12 13:48:54 ahd Exp $
+ *    $Id: active.c 1.27 1995/12/26 16:55:43 ahd Exp $
  *
  *    Revision history:
- *    $Log: active.C $
+ *    $Log: active.c $
+ *    Revision 1.27  1995/12/26 16:55:43  ahd
+ *    Use red/black tree for active entries
+ *
  *    Revision 1.26  1995/12/12 13:48:54  ahd
  *    Use binary tree for news group active file
  *    Use large buffers in news programs to avoid overflow of hist db recs
@@ -65,7 +68,6 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
-#include <types.h>
 #include <malloc.h>
 
 #include "active.h"
@@ -126,13 +128,6 @@
 typedef struct _GROUP
 {
 
-   union
-   {
-      char   *namePtr;              /* Pointer to simple name        */
-      char   name[15];              /* Simple name                   */
-   } n;
-
-   u_char flags;                    /* Bit flags, see above          */
 
    struct _GROUP UUFAR *left;       /* Binary tree at this level     */
    struct _GROUP UUFAR *right;      /* Binary tree at this level     */
@@ -143,6 +138,14 @@ typedef struct _GROUP
 
    long   high;                     /* Next article number to store  */
    long   low;                      /* Lowest unexpired article num  */
+
+   union
+   {
+      char   *namePtr;              /* Pointer to simple name        */
+      char   name[15];              /* Simple name                   */
+   } n;
+
+   unsigned char flags;             /* Bit flags, see above          */
 
 } GROUP;
 
@@ -183,11 +186,11 @@ static long maxPushed = 0;          /* MAx uses of pushGroup         */
 /*                    Moderation/valid group flags                    */
 /*--------------------------------------------------------------------*/
 
-#define bitOn( _group, _bitName ) (_group->flags = (u_char) \
-         (_group->flags | (u_char) _bitName ))
+#define bitOn( _group, _bitName ) (_group->flags = (unsigned char) \
+         (_group->flags | (unsigned char) _bitName ))
 
-#define bitOff( _group, _bitName ) (_group->flags = (u_char) \
-         (_group->flags & (u_char) (0xff - _bitName) ))
+#define bitOff( _group, _bitName ) (_group->flags = (unsigned char) \
+         (_group->flags & (unsigned char) (0xff - _bitName) ))
 
 #define GET_MODERATION( _group )    translateModeration( _group->flags )
 #define SET_MODERATION( _group,_c ) bitOn( _group, encodeModeration( _c ))
@@ -220,22 +223,22 @@ static long maxPushed = 0;          /* MAx uses of pushGroup         */
 /*--------------------------------------------------------------------*/
 ;
 
-u_char
+unsigned char
 encodeModeration( const char moderation )
 {
    switch( moderation )
    {
       case 'y':
-         return (u_char) F_UNMODERATED;
+         return (unsigned char) F_UNMODERATED;
 
       case 'm':
-         return (u_char) F_MODERATED;
+         return (unsigned char) F_MODERATED;
 
       case 'n':
-         return (u_char) F_NOPOSTING;
+         return (unsigned char) F_NOPOSTING;
 
       default:
-         return (u_char) 0;
+         return (unsigned char) 0;
 
    }
 
@@ -248,7 +251,7 @@ encodeModeration( const char moderation )
 /*--------------------------------------------------------------------*/
 
 char
-translateModeration( const u_char flag )
+translateModeration( const unsigned char flag )
 {
    switch( flag & ( F_MODERATED | F_UNMODERATED | F_NOPOSTING ))
    {
