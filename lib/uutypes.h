@@ -16,10 +16,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.8 1993/07/31 16:28:59 ahd Exp $
+ *    $Id: uutypes.h 1.9 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.9  1993/09/20  04:51:31  ahd
+ *     TCP Support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  *     Revision 1.8  1993/07/31  16:28:59  ahd
  *     Changes in support of Robert Denny's Windows Support
  *
@@ -50,14 +55,12 @@
 /*         Define unique FAR keyword for selected memory hogs         */
 /*--------------------------------------------------------------------*/
 
-#if defined(BIT32ENV) || defined(_Windows)
+#if defined(BIT32ENV)
 #define UUFAR
-#else
-#ifdef __TURBOC__
+#elif defined(__TURBOC__)
 #define UUFAR far
 #else
 #define UUFAR _far
-#endif
 #endif
 
 /*--------------------------------------------------------------------*/
