@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.13 1994/12/09 03:51:22 ahd v1-12k $
+ *    $Id: dcp.h 1.14 1994/12/22 00:39:17 ahd Exp $
  *
  *    $Log: dcp.h $
+ *    Revision 1.14  1994/12/22 00:39:17  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1994/12/09 03:51:22  ahd
  *    Add new states for running UUXQT after line closes
  *
@@ -113,6 +116,7 @@ typedef enum {
                                  at our request                      */
       XFER_SENDDATA,          /* Remote accepted our work, send data */
       XFER_SENDEOF,           /* File xfer complete, send EOF        */
+      XFER_NEXTGRADE,         /* Process next lowest grade in local  */
       XFER_NOLOCAL,           /* No local work, remote have any?     */
       XFER_SLAVE,             /* Begin slave mode                    */
       XFER_RECVINIT,          /* Initialize Receive protocol         */

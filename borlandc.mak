@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.66 1994/12/22 00:06:03 ahd Exp $
+#     $Id: makefile 1.67 1994/12/22 00:42:15 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.67  1994/12/22 00:42:15  ahd
+#     Go to version 1.12m (1.12l doesn't exist, because l looks like 1)
+#
 #     Revision 1.66  1994/12/22 00:06:03  ahd
 #     Annual Copyright Update
 #
@@ -422,7 +425,7 @@ SCRIPTS=  $(PROD)\su.bat $(PROD)\uuclean.bat $(PROD)\uuio.bat \
 OPTCOMM = $(PROD)\uucp.exe $(PROD)\uuname.com $(PROD)\uupoll.exe\
           $(PROD)\uustat.com $(PROD)\uusub.com $(PROD)\uuport.com \
           $(PROD)\uux.com $(PROD)\fmt.com $(PROD)\gensig.com \
-          $(PROD)\novrstrk.com
+          $(PROD)\novrstrk.com $(PROD)\fromwho.com
 
 !if $d(__OS2__)
 REQUIRED  = $(REQCOMM:.com=.exe)
@@ -565,7 +568,8 @@ ERASE=DEL
 
 !if $d(__OS2__)
 
-test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe genhist$(PSUFFIX).exe   \
+test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
+         genhist$(PSUFFIX).exe   \
          gensig$(PSUFFIX).exe inews$(PSUFFIX).exe mail$(PSUFFIX).exe    \
          novrstr$(PSUFFIX).exe rmail$(PSUFFIX).exe rnews$(PSUFFIX).exe \
          uucico$(PSUFFIX).exe uucp$(PSUFFIX).exe uuname$(PSUFFIX).exe   \
@@ -575,8 +579,8 @@ test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe genhist$(PSUFFIX).exe   \
 
 !else
 
-test:    comm34.com expire.exe fmt.com genhist.exe gensig.com           \
-         inews.exe mail.exe novrstrk.com rmail.exe rnews.exe            \
+test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
+         gensig.com inews.exe mail.exe novrstrk.com rmail.exe rnews.exe \
          uucico.exe uucp.exe uuname.exe uupoll.exe uuport.exe           \
          uustat.exe uusub.exe uutraf.exe uux.exe uuxqt.exe
 
@@ -1229,6 +1233,9 @@ expire$(PSUFFIX).exe: common
 fmt$(PSUFFIX).exe: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
+fromwho$(PSUFFIX).exe: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
 genhist$(PSUFFIX).exe: commonm
         $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
@@ -1292,6 +1299,9 @@ comm34.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 fmt.com: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+fromwho.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 gensig.com: common

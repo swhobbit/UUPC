@@ -8,10 +8,13 @@
 # *   UUPC/extended license agreement.                                 *
 # *--------------------------------------------------------------------*
 
-#     $Id: util.mak 1.6 1994/01/01 19:17:29 ahd v1-12k $
+#     $Id: util.mak 1.7 1994/12/22 00:31:47 ahd Exp $
 #
 #     Revision history:
 #     $Log: util.mak $
+#     Revision 1.7  1994/12/22 00:31:47  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.6  1994/01/01 19:17:29  ahd
 #     Annual Copyright Update
 #
@@ -51,6 +54,18 @@ fmt$(PSUFFIX).exe:  $(UUPCCFG) $(OBJ)\fmt.obj $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(OBJ)\fmt.obj
+$<
+$(MAP)
+$(LIBRARY)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+fromwho$(PSUFFIX).exe:  $(UUPCCFG) $(OBJ)\fromwho.obj $(LIBRARIES)
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(OBJ)\fromwho.obj
 $<
 $(MAP)
 $(LIBRARY)

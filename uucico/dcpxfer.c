@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.46 1994/08/07 21:45:09 ahd v1-12k $
+ *       $Id: dcpxfer.c 1.47 1994/12/22 00:35:22 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.47  1994/12/22 00:35:22  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.46  1994/08/07 21:45:09  ahd
  *       Initialize process ID properly when receiving files
  *
@@ -241,7 +244,7 @@ static void buf_init( void );
 static int  bufill(char  *buffer);
 static int  bufwrite(char  *buffer,int  len);
 
-/*************** SEND PROTOCOL ***************************/
+/* ************** SEND PROTOCOL ************************** */
 
 /*--------------------------------------------------------------------*/
 /*    s d a t a                                                       */
@@ -278,7 +281,7 @@ XFER_STATE sdata( void )
 
    return XFER_SENDDATA;   /* Remain in send state                */
 
-} /*sdata*/
+} /* sdata */
 
 /*--------------------------------------------------------------------*/
 /*    b u f i l l                                                     */
@@ -303,7 +306,7 @@ static int bufill(char *buffer)
    }
    return count;
 
-} /*bufill*/
+} /* bufill */
 
 /*--------------------------------------------------------------------*/
 /*    b u f w r i t e                                                 */
@@ -326,7 +329,7 @@ static int bufwrite(char *buffer, int len)
 
    return count;
 
-} /*bufwrite*/
+} /* bufwrite */
 
 /*--------------------------------------------------------------------*/
 /*    s b r e a k                                                     */
@@ -351,10 +354,10 @@ static int bufwrite(char *buffer, int len)
 XFER_STATE sbreak( void )
 {
    if (!pktsendstr("H"))      /* Tell slave it can become the master */
-      return XFER_LOST;       /* Xmit fail?  If so, quit transmitting*/
+      return XFER_LOST;       /*  Xmit fail?  If so, quit transmitting */
 
    if (!pktgetstr((char *)databuf)) /* Get their response            */
-      return XFER_LOST;       /* Xmit fail?  If so, quit transmitting*/
+      return XFER_LOST;       /*  Xmit fail?  If so, quit transmitting */
 
    if ((*databuf != 'H') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
@@ -373,7 +376,7 @@ XFER_STATE sbreak( void )
       return XFER_ENDP;       /* Terminate the protocol              */
    } /* else */
 
-} /*sbreak*/
+} /* sbreak */
 
 /*--------------------------------------------------------------------*/
 /*    s e o f                                                         */
@@ -506,7 +509,7 @@ XFER_STATE seof( const boolean purge_file )
 
    return XFER_FILEDONE;    /* go get the next file to process */
 
-} /*seof*/
+} /* seof */
 
 /*--------------------------------------------------------------------*/
 /*    n e w r e q u e s t                                             */
@@ -693,7 +696,7 @@ XFER_STATE ssfile( void )
 
    return XFER_SENDDATA;      /* Enter data transmission mode        */
 
-} /*ssfile*/
+} /* ssfile */
 
 /*--------------------------------------------------------------------*/
 /*    s r f i l e                                                     */
@@ -808,7 +811,7 @@ appending file name \"%s\"", spolName, slash);
 
    return XFER_RECVDATA;      /* Now start receiving the data     */
 
-} /*srfile*/
+} /* srfile */
 
 /*--------------------------------------------------------------------*/
 /*    s i n i t                                                       */
@@ -828,15 +831,15 @@ XFER_STATE sinit( void )
       return XFER_MASTER;
    } /* else */
 
-} /*sinit*/
+} /* sinit */
 
-/*********************** MISC SUB SUB PROTOCOL *************************/
+/* ********************** MISC SUB SUB PROTOCOL ************************ */
 
-/*
-   s c h k d i r
-
-   scan spooling directory for C.* files for the other system
-*/
+/*--------------------------------------------------------------------*/
+/*    s c h k d i r                                                   */
+/*                                                                    */
+/*    Scan spooling directory for C.* files for the other system      */
+/*--------------------------------------------------------------------*/
 
 XFER_STATE schkdir( const boolean outbound, const char callgrade )
 {
@@ -859,6 +862,7 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
       case XFER_ABORT:        /* Internal error opening file         */
          return XFER_ABORT;
 
+      case XFER_NEXTGRADE:    /* No work for host                    */
       case XFER_NOLOCAL:      /* No work for host                    */
          if (! pktsendstr("HY") )
             return XFER_LOST;
@@ -883,7 +887,8 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
          return XFER_ABORT;
 
    } /* switch */
-} /*schkdir*/
+
+} /* schkdir */
 
 /*--------------------------------------------------------------------*/
 /*    e n d p                                                         */
@@ -902,9 +907,9 @@ XFER_STATE endp( void )
    }
    return XFER_EXIT;
 
-} /*endp*/
+} /* endp */
 
-/*********************** RECIEVE PROTOCOL **********************/
+/* ********************** RECIEVE PROTOCOL ********************* */
 
 /*--------------------------------------------------------------------*/
 /*    r i n i t                                                       */
@@ -923,7 +928,7 @@ XFER_STATE rinit( void )
    else
       return XFER_LOST;
 
-} /*rinit*/
+} /* rinit */
 
 /*--------------------------------------------------------------------*/
 /*    r h e a d e r                                                   */
@@ -1165,7 +1170,7 @@ XFER_STATE rrfile( void )
 
    return XFER_RECVDATA;   /* Switch to data state                */
 
-} /*rrfile*/
+} /* rrfile */
 
 /*--------------------------------------------------------------------*/
 /*    r s f i l e                                                     */
@@ -1269,7 +1274,7 @@ XFER_STATE rsfile( void )
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 
-} /*rsfile*/
+} /* rsfile */
 
 /*--------------------------------------------------------------------*/
 /*    r d a t a                                                       */
@@ -1316,7 +1321,7 @@ XFER_STATE rdata( void )
    else
       return XFER_RECVDATA;      /* Remain in data state              */
 
-} /*rdata*/
+} /* rdata */
 
 /*--------------------------------------------------------------------*/
 /*    r e o f                                                         */

@@ -23,29 +23,34 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.3 $
+  $Revision: 1.1 $
 
-    $Author: jearls $
-      $Date: 91/12/03 11:14:33 $
+    $Author: rommel $
+      $Date: 1994/12/26 14:25:23 $
 
   Modification Log:
 
-  $Log:	fromwho.c,v $
+  $Log: fromwho.c $
+  Revision 1.1  1994/12/26 14:25:23  rommel
+  Initial revision
+
     Revision 1.3  91/12/03  11:14:33  jearls
     PATCH3: Added `-v' option to display the version number.
-    
+
     Revision 1.2  91/11/23  12:49:37  jearls
     PATCH2: Fixed miscellanous bugs, added '-n' option to
     PATCH2: list only new mail.
-    
+
     Revision 1.1  91/10/19  17:05:17  jearls
     PATCH1: Added support for AIX and other systems that don't
     PATCH1: use a mail spool.
-    
+
     Revision 1.0  91/10/19  14:40:24  jearls
     Initial revision
-    
+
 */
+
+#include "uupcmoah.h"      /* Must be first, includes #pragmas       */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,7 +59,6 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "lib.h"
 #include "getopt.h"
 currentfile();
 
@@ -95,15 +99,15 @@ char *translate(char *mf, char *n, char *h)
     p = s;
     if (*mf == '~') {
       while (*h)
-	*(p++) = *(h++);
+        *(p++) = *(h++);
       mf++;
     } else
       p = s;
     while (*mf)
       if ((*p = *(mf++)) == '*') {
-	q = n;
-	while (*q)
-	  *(p++) = *(q++);
+        q = n;
+        while (*q)
+          *(p++) = *(q++);
       } else
         p++;
     *p = '\0';
@@ -125,16 +129,16 @@ mailinfo mailstats(FILE *f, userinfo **ui, int addr)
     if ((!stat) && (!strncmp(buf, "From:", 5))) {
       offs = 5;
       if (addr) {
-	while (buf[offs] != '<') 
-	  offs++;
-	for (offs++, lp=0; buf[lp+offs] != '\n' && buf[lp+offs] != '>'; lp++)
-	  buf[lp] = buf[lp+offs];
+        while (buf[offs] != '<')
+          offs++;
+        for (offs++, lp=0; buf[lp+offs] != '\n' && buf[lp+offs] != '>'; lp++)
+          buf[lp] = buf[lp+offs];
       } else {
-	while (isspace(buf[offs]) || buf[offs] == '"') 
-	  offs++;
-	for (lp=0; buf[lp+offs] != '\n' && 
-	     buf[lp+offs] != '"' && buf[lp+offs] != '<'; lp++)
-	  buf[lp] = buf[lp+offs];
+        while (isspace(buf[offs]) || buf[offs] == '"')
+          offs++;
+        for (lp=0; buf[lp+offs] != '\n' &&
+             buf[lp+offs] != '"' && buf[lp+offs] != '<'; lp++)
+          buf[lp] = buf[lp+offs];
       }
       buf[lp] = '\0';
       stat = 1;
@@ -207,6 +211,8 @@ int main(int argc, char **argv)
   char mbox[256], *myname, *prog;
   int c, flag, listflag = 1, subjflag = 1, newflag = 0, addrflag = 0;
 
+  banner( argv );
+
   if (!configure( B_MAIL ))
     panic();
 
@@ -226,11 +232,11 @@ int main(int argc, char **argv)
       case 'l' :  listflag = 0;
                   break;
       case 'n' :  newflag = 1;
-		  break;
+                  break;
       case 'a' :  addrflag = 1;
-	          break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.3 $");
-		  exit(0);
+                  break;
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.1 $");
+                  exit(0);
       default :   usage(prog);
     }
   }
@@ -261,12 +267,12 @@ int main(int argc, char **argv)
     for (sp = ui->subjs; sp; ) {
       if (sp->subj) {
         if (listflag && subjflag)
-	  if (sp->new || !newflag)
+          if (sp->new || !newflag)
             printf("    %c %s\n", (sp->new ? '>' : ' '), sp->subj);
         free(sp->subj);
       } else
         if (listflag && subjflag)
-	  if (sp->new || !newflag)
+          if (sp->new || !newflag)
             printf("    %c <none>\n", (sp->new ? '>' : ' '));
       sp = (tp=sp) -> next;
       free(tp);

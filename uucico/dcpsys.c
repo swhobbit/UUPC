@@ -6,8 +6,6 @@
 /*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
 /*                                                                    */
@@ -39,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.39 1994/12/22 00:35:12 ahd Exp $
+ *     $Id: dcpsys.c 1.40 1994/12/22 04:13:38 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.40  1994/12/22 04:13:38  ahd
+ *     Correct 't' protocol processing to use 512 messages with no header
+ *
  *     Revision 1.39  1994/12/22 00:35:12  ahd
  *     Annual Copyright Update
  *
@@ -265,13 +266,15 @@ int kflds;
 static char protocols[5];
 static char S_sysline[BUFSIZ];
 
+static char bestGrade = 'A';
+
 static void setproto(char wanted);
 
 static char HostGrade( const char *fname, const char *remote );
 
-/****************************************/
+/* ************************************** */
 /*              Sub Systems             */
-/****************************************/
+/* ************************************** */
 
 /*--------------------------------------------------------------------*/
 /*    g e t s y s t e m                                               */
@@ -403,7 +406,7 @@ CONN_STATE getsystem( const char sendgrade )
    else
       return CONN_INITIALIZE;    /* Look for next system to process   */
 
-} /*getsystem*/
+} /* getsystem */
 
 /*--------------------------------------------------------------------*/
 /*    s y s e n d                                                     */
@@ -421,7 +424,7 @@ CONN_STATE sysend()
    ssleep(2);                 /* Wait for it to be transmitted       */
 
    return CONN_DROPLINE;
-} /*sysend*/
+} /* sysend */
 
 /*--------------------------------------------------------------------*/
 /*    w m s g                                                         */
@@ -442,7 +445,7 @@ void wmsg(const char *msg, const boolean synch)
    if (synch)
       swrite("\0", 1);
 
-} /*wmsg*/
+} /* wmsg */
 
 /*--------------------------------------------------------------------*/
 /*    r m s g                                                         */
@@ -531,7 +534,7 @@ int rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len)
                 msg);
    return strlen(msg);
 
-} /*rmsg*/
+} /* rmsg */
 
 /*--------------------------------------------------------------------*/
 /*    s t a r t u p _ s e r v e r                                     */
@@ -694,7 +697,7 @@ CONN_STATE startup_server(const char recvgrade )
 
    return CONN_SERVER;
 
-} /*startup_server*/
+} /* startup_server */
 
 /*--------------------------------------------------------------------*/
 /*    s t a r t u p _ c l i e n t                                     */
@@ -920,7 +923,7 @@ CONN_STATE startup_client( char *sendgrade )
 
    return CONN_CLIENT;
 
-} /*startup_client*/
+} /* startup_client */
 
 /*--------------------------------------------------------------------*/
 /*    s e t p r o t o                                                 */
@@ -955,7 +958,49 @@ static void setproto(char wanted)
    eofpkt  = tproto->eofpkt;
    filepkt = tproto->filepkt;
 
-} /*setproto*/
+} /* setproto */
+
+/*--------------------------------------------------------------------*/
+/*       r e s e t G r a d e                                          */
+/*                                                                    */
+/*       Reset the best grade to one which cannot be satisfied,       */
+/*       insuring failure if the file search doesn't turn up a        */
+/*       better one.                                                  */
+/*--------------------------------------------------------------------*/
+
+void resetGrade( void )
+{
+
+   bestGrade = 0x7f;
+
+} /* resetGrade */
+
+/*--------------------------------------------------------------------*/
+/*       n e x t G r a d e                                            */
+/*                                                                    */
+/*       Return next best grade to process at or above minimum        */
+/*       specified grade.  Returns 0 if no files remain within        */
+/*       requested range.                                             */
+/*--------------------------------------------------------------------*/
+
+char nextGrade( const char grade )
+{
+   char saveGrade = bestGrade;
+
+   resetGrade();           /* Don't allow old grade to be used again  */
+
+/*--------------------------------------------------------------------*/
+/*               Return the status of the previous search             */
+/*--------------------------------------------------------------------*/
+
+   if ( saveGrade > grade )
+      return '\0';
+   else {
+      printmsg(2,"nextGrade: Processing %c grade files", saveGrade );
+      return saveGrade;
+   }
+
+} /* nextGrade */
 
 /*--------------------------------------------------------------------*/
 /*    s c a n d i r                                                   */
@@ -996,6 +1041,7 @@ XFER_STATE scandir(char *remote, const char grade )
          return XFER_NOLOCAL;    /* Yes --> Return to caller      */
 
       sprintf(remotedir,"%s/%.8s/C", E_spooldir, remote);
+
       if ((dirp = opendir(remotedir)) == nil(DIR))
       {
          printmsg(2, "scandir: couldn't opendir() %s", remotedir);
@@ -1013,11 +1059,28 @@ XFER_STATE scandir(char *remote, const char grade )
 
    while ((dp = readdir(dirp)) != nil(struct direct))
    {
+      char fileGrade;
+
       sprintf(workfile, "%s/%s", remotedir, dp->d_name);
 
-      if ( HostGrade( workfile, remote ) > grade )
+      fileGrade = HostGrade( workfile, remote );
+
+      if ( fileGrade > grade )
+      {
          printmsg(5, "scandir: skipped \"%s\" (grade %c not met)",
                      workfile, grade );
+
+         if ( fileGrade < bestGrade )
+         {
+            printmsg(5,"scandir: Previous best grade = %c, new best = %c",
+                        bestGrade,
+                        fileGrade );
+
+            bestGrade = fileGrade;
+
+         }  /* if ( fileGrade < bestGrade ) */
+
+      } /* if ( fileGrade > grade ) */
       else if ((fwork = FOPEN(workfile, "r",TEXT_MODE)) == nil(FILE))
       {
          printmsg(0,"scandir: open failed for %s",workfile);
@@ -1041,9 +1104,10 @@ XFER_STATE scandir(char *remote, const char grade )
    closedir(dirp);
    dirp = NULL;
    SaveRemote = NULL;
-   return XFER_NOLOCAL;
 
-} /*scandir*/
+   return XFER_NEXTGRADE;
+
+} /* scandir */
 
 /*--------------------------------------------------------------------*/
 /*    H o s t G r a d e                                               */

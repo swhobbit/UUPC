@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.49 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: configur.c 1.50 1994/12/22 00:07:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.50  1994/12/22 00:07:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.49  1994/12/09 03:42:09  ahd
  *    All suppressbeep support to allow NOT making any sound
  *
@@ -251,8 +254,11 @@ char *E_vmsQueueDir = NULL;
 char *E_vmail = NULL;
 char **E_ignoreList;           /* Headers not displayed by print      */
 char **E_replyToList;          /* Primary Addr used to reply to mail  */
+char E_firstGrade = 'C';       /* First class (and above) UUCICO
+                                  searches for                        */
 KEWSHORT E_maxhops = 20;                                    /* ahd */
 KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
+
 static char *dummy = NULL;
 static char *E_tz = NULL;
 
@@ -308,7 +314,8 @@ CONFIGTABLE envtable[] = {
    {"folders",      &dummy,          B_PATH|B_MUSH },
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
-   {"ignore",       (char **) &E_ignoreList, B_MUA|B_LIST|B_ALL},
+   {"ignore",       (char **) &E_ignoreList, B_MUA|B_LIST},
+   {"firstGrade",   (char **) &E_firstGrade, B_UUCICO|B_LIST},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
    {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
@@ -336,7 +343,7 @@ CONFIGTABLE envtable[] = {
    {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
-   {"replytoList",  (char **) &E_replyToList, B_MUA|B_LIST|B_ALL},
+   {"replytoList",  (char **) &E_replyToList, B_MUA|B_LIST},
    {"rmail",        &dummy,          B_OBSOLETE },
    {"rnews",        &dummy,          B_OBSOLETE },
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
@@ -346,8 +353,8 @@ CONFIGTABLE envtable[] = {
    {"tz",           &E_tz,           B_TOKEN|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
-   {"vmail",        &E_vmail,        B_MTA|B_PATH|B_ALL},
-   {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA|B_PATH|B_ALL},
+   {"vmail",        &E_vmail,        B_MTA|B_PATH},
+   {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA|B_PATH},
    {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT|B_PATH|B_ALL},
    { nil(char) }
 }; /* table */
@@ -527,6 +534,8 @@ boolean processconfig(char *buff,
          else {
             if (tptr->bits & B_BOOLEAN)
                options(cp, sysmode, btable, (boolean *) tptr->loc);
+
+
 /*--------------------------------------------------------------------*/
 /*                       Handle integer values                        */
 /*--------------------------------------------------------------------*/
@@ -614,13 +623,27 @@ boolean processconfig(char *buff,
                            keyword);
                } /* if */
 
-               if (tptr->bits & B_TOKEN)  /* One word value?      */
+               if (tptr->bits & (B_TOKEN|B_CHAR))  /* One word value?   */
                   cp = strtok(cp,WHITESPACE); /* Yes --> Tokenize */
 
                if (tptr->bits & B_NORMAL)  /* Normalize path?     */
                   cp = normalize( cp );
 
-               if (tptr->bits & B_MALLOC)  /* Allocate normally?  */
+               if (tptr->bits & B_CHAR )   /* Simple character?   */
+               {
+                  if ( strlen( cp ) > 1 )
+                  {
+                     printmsg(0,"Keyword %s value \"%s\" "
+                                "length exceeds one character",
+                                keyword,
+                                cp );
+                     error = TRUE;
+                  }
+                  else
+                     *((char *) tptr->loc) = *cp;
+
+               } /* if (tptr->bits & B_CHAR ) */
+               else if (tptr->bits & B_MALLOC)  /* Allocate normally?  */
                {
                   *(tptr->loc) = strdup(cp); /* Save string           */
                   checkref( *(tptr->loc) );  /* Verify malloc()       */
@@ -629,12 +652,15 @@ boolean processconfig(char *buff,
                   *(tptr->loc) = newstr(cp); /* Save string           */
 
             } /* else */
+
          } /* else */
 
          if (!error)
             tptr->bits |= B_FOUND;
          return TRUE;         /* Report we found the keyword      */
+
       } /* if (equal(keyword, tptr->sym)) */
+
    } /* for */
 
 /*--------------------------------------------------------------------*/

@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.36 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: dcp.c 1.37 1994/12/22 00:34:31 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.37  1994/12/22 00:34:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.36  1994/12/09 03:42:09  ahd
  *    Don't spawn UUXQT with handle open to serial port
  *
@@ -244,7 +247,7 @@ currentfile();
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
 
-static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade );
+static CONN_STATE process( const POLL_MODE poll_mode, const char callGrade );
 
 static boolean master( const char recvGrade,
                        const boolean overrideGrade,
@@ -451,7 +454,7 @@ int dcpmain(int argc, char *argv[])
 
    return terminate_processing ? 100 : (contacted ? 0 : 5);
 
-} /*dcpmain*/
+} /* dcpmain */
 
 /*--------------------------------------------------------------------*/
 /*       m a s t e r                                                  */
@@ -820,7 +823,7 @@ static boolean client( const time_t exitTime,
 /*    The procotol state machine                                      */
 /*--------------------------------------------------------------------*/
 
-static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
+static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
 {
    boolean master  = ( pollMode == POLL_ACTIVE );
    boolean aborted = FALSE;
@@ -829,6 +832,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
                               /* Initialized to any state but the
                                  original value of "state"           */
    XFER_STATE save_state = XFER_EXIT;
+   char currentGrade = 0xff;
 
 /*--------------------------------------------------------------------*/
 /*  Yea old state machine for the high level file transfer procotol   */
@@ -860,6 +864,8 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
          case XFER_MASTER:    /* Begin master mode                   */
             master = TRUE;
             state = XFER_NEXTJOB;
+            resetGrade( );    /* Reset best grade status             */
+            currentGrade = E_firstGrade;
             break;
 
          case XFER_SLAVE:     /* Begin slave mode                    */
@@ -868,7 +874,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
             break;
 
          case XFER_NEXTJOB:   /* Look for work in local queue        */
-            state = scandir( rmtname, callgrade );
+            state = scandir( rmtname, currentGrade );
             break;
 
          case XFER_REQUEST:   /* Process next file in current job
@@ -896,12 +902,21 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
             state = master ? XFER_REQUEST : XFER_RECVHDR;
             break;
 
+         case XFER_NEXTGRADE: /* Process next grade of local files   */
+            currentGrade = nextGrade( callGrade );
+
+            if ( currentGrade )
+               state = XFER_NEXTJOB;
+            else
+               state = XFER_NOLOCAL;
+            break;
+
          case XFER_NOLOCAL:   /* No local work, remote have any?     */
             state = sbreak();
             break;
 
          case XFER_NOREMOTE:  /* No remote work, local have any?     */
-            state = schkdir( pollMode == POLL_ACTIVE, callgrade );
+            state = schkdir( pollMode == POLL_ACTIVE, callGrade );
             break;
 
          case XFER_RECVHDR:   /* Receive header from other host      */
