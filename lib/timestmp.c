@@ -8,17 +8,15 @@
 /*       12/13/89 Add Copyright statements - ahd                      */
 /*--------------------------------------------------------------------*/
 
-#ifndef __GNUC__
 #include <dos.h>
 #include <direct.h>
 #include <io.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifndef __TURBOC__
 #include "win32ver.h"
 #endif
 
@@ -46,11 +44,6 @@ void banner (char **argv)
 /*                     Deterine the program name                      */
 /*--------------------------------------------------------------------*/
 
-#ifdef __GNUC__
-      {
-         strcpy( program, argv[0] );
-#else
-
 #ifdef __TURBOC__
       if (  fnsplit(argv[0],dummy,dummy, program,dummy) && FILENAME )
       {
@@ -60,7 +53,6 @@ void banner (char **argv)
          _splitpath( argv[0], dummy , dummy , program , dummy );
 #endif /* __TURBOC__ */
 
-#endif
          strcpy(argv[0], program);  /* Reset original program name   */
          compilen = argv[0];
 
@@ -91,14 +83,12 @@ void banner (char **argv)
                   compilep,
                   compilev,
 
-#ifdef __GNUC__
-                  "protected",
+#ifdef WIN32
+                  "Windows 32 bit",
 #else
-
 #ifndef __TURBOC__
                   (_osmode == DOS_MODE) ? "real" : "protected",
 #endif
-
 #endif
 
                   &compiled[4],
