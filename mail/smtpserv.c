@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.8 1998/03/01 01:31:59 ahd Exp $
+ *    $Id: smtpserv.c 1.9 1998/03/01 19:40:48 ahd v1-12v $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.9  1998/03/01 19:40:48  ahd
+ *    First compiling POP3 server which accepts user id/password
+ *
  *    Revision 1.8  1998/03/01 01:31:59  ahd
  *    Annual Copyright Update
  *
@@ -49,8 +52,9 @@
 #include "uupcmoah.h"
 #include "smtpserv.h"
 #include "smtpnetw.h"
+#include "execute.h"
 
-RCSID("$Id: smtpserv.c 1.8 1998/03/01 01:31:59 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.9 1998/03/01 19:40:48 ahd v1-12v $");
 
 currentfile();
 
@@ -199,12 +203,13 @@ processReadyClientList(SMTPClient *current)
 /*--------------------------------------------------------------------*/
 
 void
-dropTerminatedClientList(SMTPClient *current)
+dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
 {
 
    static const char mName[] = "dropTerminatedClientList";
    int freed = 0;
    int total = 0;
+   KWBoolean needUUXQT = KWFalse;
 
    while(current != NULL)
    {
@@ -213,6 +218,9 @@ dropTerminatedClientList(SMTPClient *current)
 
       if (! isClientValid(current))
       {
+         if ( getClientQueueRun(current))
+            needUUXQT = KWTrue;
+
          freeClient(current);
          freed++;
       }
@@ -226,7 +234,26 @@ dropTerminatedClientList(SMTPClient *current)
             freed,
             total);
 
+   if ( needUUXQT && runUUXQT )
+      executeQueue();
+
 } /* dropTerminatedClientList */
+
+/*--------------------------------------------------------------------*/
+/*       e x e c u t e Q u e u e                                      */
+/*                                                                    */
+/*       Run UUXQT in background for local host                       */
+/*--------------------------------------------------------------------*/
+
+void
+executeQueue( void )
+{
+   char buf[100];
+
+   printmsg(1,"executeQueue: Spawning UUXQT");
+   sprintf( buf, "-s %s -x %d", E_nodename, debuglevel );
+   execute( "uuxqt", buf, NULL, NULL, KWFalse, KWFalse );
+}
 
 /*--------------------------------------------------------------------*/
 /*       d r o p A l l C l i e n t L i s t                            */
@@ -236,7 +263,7 @@ dropTerminatedClientList(SMTPClient *current)
 /*--------------------------------------------------------------------*/
 
 void
-dropAllClientList(SMTPClient *master)
+dropAllClientList(SMTPClient *master, KWBoolean runUUXQT)
 {
    static const char mName[] = "dropAllClientList";
    SMTPClient *current;
@@ -245,7 +272,7 @@ dropAllClientList(SMTPClient *master)
    printmsg(1,"%s: Dropping all clients prior to program termination.",
                mName);
 
-   dropTerminatedClientList(master);
+   dropTerminatedClientList(master->next, runUUXQT);
 
    current = master->next;
 
@@ -262,9 +289,13 @@ dropAllClientList(SMTPClient *master)
    }
 
    if (count)
-      dropTerminatedClientList(master->next); /* Terminate active clients*/
+   {
+      /* Terminate active clients*/
+      dropTerminatedClientList(master->next, runUUXQT);
+   }
 
-   dropTerminatedClientList(master->next); /* Free all remaining clients */
+   /* Free all remaining clients */
+   dropTerminatedClientList(master->next, runUUXQT);
 
 /*--------------------------------------------------------------------*/
 /*                   Drop the master client itself                    */

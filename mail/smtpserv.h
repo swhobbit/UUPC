@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.4 1997/11/25 05:05:36 ahd v1-12u $
+ *    $Id: smtpserv.h 1.5 1998/03/01 01:28:11 ahd v1-12v $
  *
  *    $Log: smtpserv.h $
+ *    Revision 1.5  1998/03/01 01:28:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1997/11/25 05:05:36  ahd
  *    More robust SMTP daemon
  *
@@ -47,8 +50,10 @@ processReadyClientList( SMTPClient *current );
 void
 timeoutClientList( SMTPClient *current );
 
-void dropTerminatedClientList( SMTPClient *master );
+void dropTerminatedClientList( SMTPClient *master, KWBoolean runUUXQT);
 
-void dropAllClientList( SMTPClient *master );
+void dropAllClientList( SMTPClient *master, KWBoolean runUUXQT);
+
+void executeQueue( void );
 
 #endif  /* _SMTPSERV_H */
