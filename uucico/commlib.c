@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.6 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: commlib.c 1.7 1993/09/24 03:43:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.7  1993/09/24  03:43:27  ahd
+ * Add os/2 named pipes
+ *
  * Revision 1.6  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -70,7 +73,7 @@
 #include "ulibip.h"           // Windows sockets on TCP/IP interface
 #endif
 
-#ifdef __OS2__
+#if defined(__OS2__) || defined(FAMILYAPI)
 #include "ulibnmp.h"          // OS/2 named pipes interface
 #endif
 
@@ -152,7 +155,7 @@ boolean chooseCommunications( const char *name )
         },
 #endif
 
-#if defined(__OS2__)
+#if defined(__OS2__) || defined(FAMILYAPI)
         { "namedpipes",                // OS/2 named pipes
           pactiveopenline, ppassiveopenline, psread, pswrite,
           pssendbrk, pcloseline, pSIOSpeed, pflowcontrol, phangup,
