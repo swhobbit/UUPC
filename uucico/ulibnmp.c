@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.8 1993/10/07 22:51:00 ahd Exp $
+ *       $Id: ulibnmp.c 1.9 1993/10/12 01:33:23 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.9  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.8  1993/10/07  22:51:00  ahd
  * Use dynamically allocated buffer
  *
@@ -122,6 +125,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 {
 
    APIRET rc;
+   static PSZ pipeName = "\\pipe\\uucp";
 
    if (portActive)                  /* Was the port already active?   */
       closeline();                  /* Yes --> Shutdown it before open */
@@ -135,20 +139,20 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef __OS2__
-   rc =  DosCreateNPipe( (PSZ) "\\pipe\\uucp",
+   rc =  DosCreateNPipe( pipeName,
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         32 * 1024 ,
-                         32 * 1024 ,
+                         commBufferLength * 2,
+                         commBufferLength * 2,
                          30000 );
 #else
-   rc =  DosMakeNmPipe(  (PSZ) "\\pipe\\uucp",
+   rc =  DosMakeNmPipe(  pipeName,
                          &pipeHandle,
                          NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
                          NP_NOWAIT | 1,
-                         32 * 1024 ,
-                         32 * 1024 ,
+                         commBufferLength * 2,
+                         commBufferLength * 2,
                          30000 );
 #endif
 
@@ -160,7 +164,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 
    if ( rc )
    {
-      printOS2error("DosCreateNPipe", rc );
+      printOS2error(pipeName, rc );
       return TRUE;
    }
 
@@ -264,7 +268,7 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 
    if ( rc )
    {
-      printOS2error("DosOpen", rc );
+      printOS2error(name , rc );
       return TRUE;
    }
 
@@ -291,23 +295,14 @@ int pactiveopenline(char *name, BPS baud, const boolean direct )
 /*                                                                    */
 /*   Non-blocking read essential to "g" protocol.  See "dcpgpkt.c"    */
 /*   for description.                                                 */
-/*                                                                    */
-/*   This all changes in a multi-tasking system.  Requests for I/O    */
-/*   should get queued and an event flag given.  Then the             */
-/*   requesting process (e.g. gmachine()) waits for the event flag    */
-/*   to fire processing either a read or a write.  Could be           */
-/*   implemented on VAX/VMS or DG but not MS-DOS.                     */
-/*                                                                    */
-/*    OS/2 we could multitask, but we just let the system provide     */
-/*    a timeout for us with very little CPU usage.                    */
 /*--------------------------------------------------------------------*/
 
 unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 {
 #ifdef __OS2__
-      ULONG received;
+   ULONG received;
 #else
-      USHORT received;
+   USHORT received;
 #endif
 
    APIRET rc;
@@ -382,7 +377,6 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 
    do {
       USHORT needed =  (USHORT) wanted - commBufferUsed;
-
 
 /*--------------------------------------------------------------------*/
 /*                     Handle an aborted program                      */
@@ -464,7 +458,7 @@ unsigned int psread(char *output, unsigned int wanted, unsigned int timeout)
 /*         We don't have enough data; report what we do have          */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"psread: User wanted %d bytes in %d seconds, we have %d",
+   printmsg(0,"psread: Wanted %d bytes in %d seconds, only have %d bytes",
               (int) wanted,
               (int) timeout,
               (int) commBufferUsed );
