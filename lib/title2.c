@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.15 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: title2.c 1.16 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.16  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.15  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -83,7 +86,7 @@
 #include "timestmp.h"
 #include "title.h"
 
-RCSID("$Id: title2.c 1.15 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: title2.c 1.16 2001/03/12 13:52:56 ahd v1-13k $");
 
 void restoreOriginalTitle( void );
 

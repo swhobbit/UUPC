@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.18 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: scrsiznt.c 1.19 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.19  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.18  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -51,7 +54,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -77,7 +80,7 @@
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: scrsiznt.c 1.18 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: scrsiznt.c 1.19 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    s c r s i z e                                                   */

@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspendn.c 1.14 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: suspendn.c 1.15 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: suspendn.c $
+ *    Revision 1.15  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.14  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -141,7 +144,7 @@ static HANDLE eventFree = INVALID_HANDLE_VALUE;
 static ULONG postCount;
 static ULONG nBytes;
 
-RCSID("$Id: suspendn.c 1.14 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: suspendn.c 1.15 2001/03/12 13:54:49 ahd v1-13k $");
 
 BOOL AbortComm(void);
 

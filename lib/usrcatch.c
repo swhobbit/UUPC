@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usrcatch.c 1.16 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: usrcatch.c 1.17 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: usrcatch.c $
+ *    Revision 1.17  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.16  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -91,7 +94,7 @@
 #include "timestmp.h"
 #include "usrcatch.h"
 
-RCSID("$Id: usrcatch.c 1.16 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: usrcatch.c 1.17 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

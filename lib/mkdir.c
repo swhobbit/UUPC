@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.18 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: mkdir.c 1.19 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *    Revision 1.19  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.18  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -80,7 +83,7 @@
 
 #include <direct.h>
 
-RCSID("$Id: mkdir.c 1.18 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: mkdir.c 1.19 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

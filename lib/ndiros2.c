@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ndiros2.c 1.22 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: ndiros2.c 1.23 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: ndiros2.c $
+ *    Revision 1.23  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.22  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -134,7 +137,7 @@ static FILEFINDBUF findbuf;
 
 #endif
 
-RCSID("$Id: ndiros2.c 1.22 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: ndiros2.c 1.23 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r                                                   */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.32 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: mailblib.c 1.33 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.33  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.32  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -149,7 +152,7 @@
 static int *item_list = NULL;
 static int next_item;
 
-RCSID("$Id: mailblib.c 1.32 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: mailblib.c 1.33 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */

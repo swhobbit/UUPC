@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.16 2000/05/25 03:41:49 ahd v1-13g ahd $
+ *       $Id: smtplwc.c 1.17 2001/03/12 13:55:29 ahd v1-13k $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.17  2001/03/12 13:55:29  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.16  2000/05/25 03:41:49  ahd
  *       Use more conservative buffering to avoid aborts
  *
@@ -99,7 +102,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.16 2000/05/25 03:41:49 ahd v1-13g ahd $");
+RCSID("$Id: smtplwc.c 1.17 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.31 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: nickname.c 1.32 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.32  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.31  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -155,7 +158,7 @@ static NICKNAME *nickname = NULL;
 
 static size_t loadAliases( void ) ;
 
-RCSID("$Id: nickname.c 1.31 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: nickname.c 1.32 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*   n i c k C o m p a r e                                            */

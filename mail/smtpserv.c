@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.23 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: smtpserv.c 1.24 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.24  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.23  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -106,7 +109,7 @@
 #include "title.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.23 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: smtpserv.c 1.24 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       f l a g R e a d y C l i e n t L i s t                        */

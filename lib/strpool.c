@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.21 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: strpool.c 1.22 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    $Log: strpool.c $
+ *    Revision 1.22  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.21  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -94,7 +97,7 @@
 
 #include <limits.h>
 
-RCSID("$Id: strpool.c 1.21 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: strpool.c 1.22 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

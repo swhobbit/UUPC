@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.22 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: mlib.c 1.23 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.23  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.22  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -126,7 +129,7 @@
 
 #include "execute.h"
 
-RCSID("$Id: mlib.c 1.22 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: mlib.c 1.23 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                    Set up for console services                     */

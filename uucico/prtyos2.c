@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: prtyos2.c 1.14 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: prtyos2.c 1.15 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: prtyos2.c $
+ *    Revision 1.15  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.14  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -88,7 +91,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: prtyos2.c 1.14 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: prtyos2.c 1.15 2001/03/12 13:54:49 ahd v1-13k $");
 
 #ifndef __OS2__
 typedef USHORT APIRET ;  /* Define older API return type              */

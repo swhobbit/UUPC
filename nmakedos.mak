@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.24 2001/03/12 13:58:31 ahd Exp $
+#       $Id: nmakedos.mak 1.25 2001/03/13 02:53:07 ahd v1-13k $
 #
-#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2002 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.25  2001/03/13 02:53:07  ahd
+#       Drop files used for non-native DOS support
+#
 #       Revision 1.24  2001/03/12 13:58:31  ahd
 #       Annual copyright update
 #

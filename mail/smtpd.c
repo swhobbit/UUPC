@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.20 2000/07/04 22:15:35 ahd v1-13g $
+ *    $Id: smtpd.c 1.21 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.21  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.20  2000/07/04 22:15:35  ahd
  *    Force initialization of hostname, and by extension localdomain
  *
@@ -119,7 +122,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.20 2000/07/04 22:15:35 ahd v1-13g $");
+RCSID("$Id: smtpd.c 1.21 2001/03/12 13:56:08 ahd v1-13k $");
 
 int daemonMode(char *port, time_t exitTime, KWBoolean runUUXQT);
 int clientMode(int hotHandle, KWBoolean runUUXQT);

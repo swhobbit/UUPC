@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -24,6 +24,9 @@
 
 /*
  * $Log: history.c $
+ * Revision 1.24  2001/03/12 13:54:49  ahd
+ * Annual copyright update
+ *
  * Revision 1.23  2000/05/12 12:26:40  ahd
  * Annual copyright update
  *
@@ -122,7 +125,7 @@
 #include "importng.h"
 #include "hdbm.h"
 
-RCSID("$Id: history.c 1.23 2000/05/12 12:26:40 ahd v1-13g $" );
+RCSID("$Id: history.c 1.24 2001/03/12 13:54:49 ahd v1-13k $" );
 
 /*--------------------------------------------------------------------*/
 /*    o p e n _ h i s t o r y                                         */

@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -16,10 +16,13 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: idx.c 1.18 2000/05/12 12:26:40 ahd v1-13g $");
+RCSID("$Id: idx.c 1.19 2001/03/12 13:54:49 ahd v1-13k $");
 
 /*
  * $Log: idx.c $
+ * Revision 1.19  2001/03/12 13:54:49  ahd
+ * Annual copyright update
+ *
  * Revision 1.18  2000/05/12 12:26:40  ahd
  * Annual copyright update
  *

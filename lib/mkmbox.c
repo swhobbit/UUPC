@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.18 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: mkmbox.c 1.19 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *    Revision 1.19  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.18  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -84,7 +87,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: mkmbox.c 1.18 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: mkmbox.c 1.19 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    m k m a i l b o x                                               */

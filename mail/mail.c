@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.53 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: mail.c 1.54 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.54  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.53  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -100,7 +103,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: mail.c 1.53 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: mail.c 1.54 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.37 2001/03/12 13:58:31 ahd v1-13j $
+#       $Id: nmakewnt.mak 1.38 2001/05/16 20:55:10 ahd v1-13k $
 #
-#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2002 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.38  2001/05/16 20:55:10  ahd
+#       Support extra zip files for NT GUI build
+#
 #       Revision 1.37  2001/03/12 13:58:31  ahd
 #       Annual copyright update
 #

@@ -11,16 +11,19 @@ REM *    Written by Michael Morrett (ICBJ100@INDYVAX.IUPUI.EDU).       *
 REM *------------------------------------------------------------------*
 
 REM *------------------------------------------------------------------*
-REM *    Changes Copyright (c) 1989-2001 by Kendra Electronic          *
+REM *    Changes Copyright (c) 1989-2002 by Kendra Electronic          *
 REM *    Wonderworks.                                                  *
 REM *                                                                  *
 REM *    All rights reserved except those explicitly granted by        *
 REM *    the UUPC/extended license agreement.                          *
 REM *------------------------------------------------------------------*
 
-rem     $Id: uuclean.bat 1.9 2000/05/12 12:47:51 ahd v1-13g $
+rem     $Id: uuclean.bat 1.10 2001/03/12 13:57:28 ahd v1-13k $
 rem
 rem     $Log: uuclean.bat $
+rem     Revision 1.10  2001/03/12 13:57:28  ahd
+rem     Annual copyright update
+rem
 rem     Revision 1.9  2000/05/12 12:47:51  ahd
 rem     Annual copyright update
 rem

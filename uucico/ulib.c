@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.38 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: ulib.c 1.39 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    $Log: ulib.c $
+ *    Revision 1.39  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.38  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -179,7 +182,7 @@ static void ShowModem( void );
 static BPS current_bps;
 static char current_direct;
 
-RCSID("$Id: ulib.c 1.38 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: ulib.c 1.39 2001/03/12 13:54:49 ahd v1-13k $");
 
 /* IBM-PC I/O routines */
 

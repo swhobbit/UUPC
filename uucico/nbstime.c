@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.43 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: nbstime.c 1.44 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.44  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.43  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -181,7 +184,7 @@
 #define timezone() timezone
 #endif
 
-RCSID("$Id: nbstime.c 1.43 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: nbstime.c 1.44 2001/03/12 13:54:49 ahd v1-13k $");
 
 #if defined(FAMILYAPI) || defined(__OS2__)
 

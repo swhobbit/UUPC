@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.21 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: dcptpkt.c 1.22 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.22  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.21  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -101,7 +104,7 @@
 #include "modem.h"
 #include "commlib.h"
 
-RCSID("$Id: dcptpkt.c 1.21 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: dcptpkt.c 1.22 2001/03/12 13:55:29 ahd v1-13k $");
 
 #define TPACKETSIZE  512
 #define TBUFSIZE     1024

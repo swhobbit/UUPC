@@ -29,14 +29,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.11 $
+  $Revision: 1.12 $
 
     $Author: ahd $
-      $Date: 2000/05/12 12:32:00 $
+      $Date: 2001/03/12 13:54:49 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.12  2001/03/12 13:54:49  ahd
+  Annual copyright update
+
   Revision 1.11  2000/05/12 12:32:00  ahd
   Annual copyright update
 
@@ -89,7 +92,7 @@
 */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -98,7 +101,7 @@
 
 #include "uupcmoah.h"      /* Must be first, includes #pragmas       */
 
-RCSID("$Id: fromwho.c 1.11 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: fromwho.c 1.12 2001/03/12 13:54:49 ahd v1-13k $");
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -311,7 +314,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.11 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.12 $");
                   exit(0);
       default :   usage(prog);
     }

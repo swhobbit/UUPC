@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-2001 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-2002 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.22 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: uusub.c 1.23 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    $Log: uusub.c $
+ *    Revision 1.23  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.22  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -121,7 +124,7 @@ static char *format( unsigned long l);
 static char output[10 * 12];
 static size_t column ;
 
-RCSID("$Id: uusub.c 1.22 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: uusub.c 1.23 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.22 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: normaliz.c 1.23 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.23  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.22  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -108,7 +111,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: normaliz.c 1.22 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: normaliz.c 1.23 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    n o r m a l i z e                                               */

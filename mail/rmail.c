@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.78 2001/03/12 13:52:55 ahd v1-13j $
+ *    $Id: rmail.c 1.79 2002/01/07 21:33:14 ahd v1-13k $
  *
  *    $Log: rmail.c $
+ *    Revision 1.79  2002/01/07 21:33:14  ahd
+ *    Correct spelling in comment.
+ *
  *    Revision 1.78  2001/03/12 13:52:55  ahd
  *    Delete debugging code
  *
@@ -296,7 +299,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rmail.c 1.78 2001/03/12 13:52:55 ahd v1-13j $");
+RCSID("$Id: rmail.c 1.79 2002/01/07 21:33:14 ahd v1-13k $");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;

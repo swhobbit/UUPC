@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.34 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: ssleep.c 1.35 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.35  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.34  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -184,7 +187,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: ssleep.c 1.34 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: ssleep.c 1.35 2001/03/12 13:54:04 ahd v1-13k $");
 
 #ifdef _Windows
 

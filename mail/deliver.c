@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.68 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: deliver.c 1.69 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    $Log: deliver.c $
+ *    Revision 1.69  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.68  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -192,7 +195,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: deliver.c 1.68 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: deliver.c 1.69 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */

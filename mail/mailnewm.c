@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: mailnewm.c 1.7 2000/05/12 12:36:30 ahd v1-13g $
+ *       $Id: mailnewm.c 1.8 2001/03/12 13:56:08 ahd v1-13k $
  *
  *       Revision History:
  *       $Log: mailnewm.c $
+ *       Revision 1.8  2001/03/12 13:56:08  ahd
+ *       Annual Copyright update
+ *
  *       Revision 1.7  2000/05/12 12:36:30  ahd
  *       Annual copyright update
  *
@@ -60,7 +63,7 @@
 /*                          Local constants                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: mailnewm.c 1.7 2000/05/12 12:36:30 ahd v1-13g $");
+RCSID("$Id: mailnewm.c 1.8 2001/03/12 13:56:08 ahd v1-13k $");
 
 static const char sep[] = MESSAGESEP;
 

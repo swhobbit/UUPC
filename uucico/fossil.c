@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fossil.c 1.15 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: fossil.c 1.16 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: fossil.c $
+ *    Revision 1.16  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.15  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -89,7 +92,7 @@
 
 #include "fossil.h"
 
-RCSID("$Id: fossil.c 1.15 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: fossil.c 1.16 2001/03/12 13:54:49 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.15 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: fmt.c 1.16 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.16  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.15  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -76,7 +79,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: fmt.c 1.15 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: fmt.c 1.16 2001/03/12 13:54:49 ahd v1-13k $");
 
 #include <ctype.h>
 

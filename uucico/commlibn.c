@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.10 2000/07/04 22:15:35 ahd v1-13g $
+ *    $Id: commlibn.c 1.11 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: commlibn.c $
+ *    Revision 1.11  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.10  2000/07/04 22:15:35  ahd
  *    Remove redundant RCS definition
  *

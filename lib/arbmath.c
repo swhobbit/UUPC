@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arbmath.c 1.14 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: arbmath.c 1.15 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: arbmath.c $
+ *    Revision 1.15  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.14  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -75,7 +78,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: arbmath.c 1.14 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: arbmath.c 1.15 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    a d i v                                                         */

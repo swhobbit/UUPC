@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.58 2000/05/12 12:32:55 ahd v1-13g $
+ *     $Id: dcpsys.c 1.59 2001/03/12 13:55:29 ahd v1-13k $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.59  2001/03/12 13:55:29  ahd
+ *     Annual copyright update
+ *
  *     Revision 1.58  2000/05/12 12:32:55  ahd
  *     Annual copyright update
  *
@@ -253,7 +256,7 @@
 #include "security.h"
 #include "commlib.h"
 
-RCSID("$Id: dcpsys.c 1.58 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: dcpsys.c 1.59 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                     Define available protocols                     */

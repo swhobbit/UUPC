@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.18 2000/07/04 22:15:35 ahd v1-13g $
+ *    $Id: pwserr.c 1.19 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.19  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.18  2000/07/04 22:15:35  ahd
  *    Examine abort when building with MSDEV environment
  *
@@ -182,7 +185,7 @@ static WSERR wsErrors[] = {
 
 #include "pwserr.h"
 
-RCSID("$Id: pwserr.c 1.18 2000/07/04 22:15:35 ahd v1-13g $");
+RCSID("$Id: pwserr.c 1.19 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    p W S e r r                                                     */

@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.21 2001/03/12 13:56:08 ahd v1-13j $
+ *       $Id: delivers.c 1.22 2002/01/07 21:33:14 ahd v1-13k $
  *
  *       $Log: delivers.c $
+ *       Revision 1.22  2002/01/07 21:33:14  ahd
+ *       Rewrite send data routine to handle unlimited line length
+ *
  *       Revision 1.21  2001/03/12 13:56:08  ahd
  *       Annual Copyright update
  *
@@ -125,7 +128,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.21 2001/03/12 13:56:08 ahd v1-13j $");
+RCSID("$Id: delivers.c 1.22 2002/01/07 21:33:14 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */

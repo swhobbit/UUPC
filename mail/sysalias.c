@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.20 2000/05/12 12:35:45 ahd v1-13g $
+ *    $Id: sysalias.c 1.21 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.21  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.20  2000/05/12 12:35:45  ahd
  *    Annual copyright update
  *
@@ -113,7 +116,7 @@ char *SysAliases = NULL;      /* Name of our system alias file       */
 static ALIASTABLE *aliasTable = NULL;
 static size_t aliases = 0;
 
-RCSID("$Id: sysalias.c 1.20 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: sysalias.c 1.21 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                             Prototypes                             */

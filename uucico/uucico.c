@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.21 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: uucico.c 1.22 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.22  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.21  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -75,7 +78,7 @@
 #include "timestmp.h"
 #include "catcher.h"
 
-RCSID("$Id: uucico.c 1.21 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: uucico.c 1.22 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: remove2.c 1.9 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: remove2.c 1.10 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: remove2.c $
+ *    Revision 1.10  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.9  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -60,7 +63,7 @@
 #define INCL_ERRORS
 #include <os2.h>
 
-RCSID("$Id: remove2.c 1.9 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: remove2.c 1.10 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       r e m o v e O S 2 F i l e                                    */

@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.25 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: suspend2.c 1.26 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.26  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.25  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -204,7 +207,7 @@ typedef USHORT U_INT;
 
 static U_INT nBytes;
 
-RCSID("$Id: suspend2.c 1.25 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: suspend2.c 1.26 2001/03/12 13:54:49 ahd v1-13k $");
 
 #ifdef __TURBOC__
 #pragma -N-

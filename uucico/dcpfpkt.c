@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.28 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: dcpfpkt.c 1.29 2001/03/12 13:55:29 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ *    Revision 1.29  2001/03/12 13:55:29  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.28  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -156,7 +159,7 @@
 #define MAXMSGLEN BUFSIZ
 #endif /* MAXMSGLEN */
 
-RCSID("$Id: dcpfpkt.c 1.28 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: dcpfpkt.c 1.29 2001/03/12 13:55:29 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */

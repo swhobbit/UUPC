@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.18 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: pos2err.c 1.19 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.19  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.18  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -102,7 +105,7 @@
 
 #include "pos2err.h"
 
-RCSID("$Id: pos2err.c 1.18 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: pos2err.c 1.19 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    p O S 2 e r r                                                   */

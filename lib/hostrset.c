@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.20 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: hostrset.c 1.21 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *    Revision 1.21  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.20  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -102,7 +105,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: hostrset.c 1.20 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: hostrset.c 1.21 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       H o s t R e s e t                                            */

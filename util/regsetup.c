@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.13 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: regsetup.c 1.14 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.14  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.13  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -86,7 +89,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.13 2000/05/12 12:32:00 ahd v1-13g $";
+         "$Id: regsetup.c 1.14 2001/03/12 13:54:49 ahd v1-13k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -114,7 +117,7 @@ static const char rcsid[] =
 /*                  Prototypes and global variables                   */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: regsetup.c 1.13 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: regsetup.c 1.14 2001/03/12 13:54:49 ahd v1-13k $");
 
 HKEY CreateHive(HKEY topLevel);
 
@@ -581,7 +584,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
 
       fprintf(stderr,
-"Changes and Compilation Copyright (c) 1989-2001 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-2002 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");

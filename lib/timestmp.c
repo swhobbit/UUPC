@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.24 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: timestmp.c 1.25 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.25  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.24  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -86,7 +89,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: timestmp.c 1.24 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: timestmp.c 1.25 2001/03/12 13:54:04 ahd v1-13k $");
 
 const char *compiled = __DATE__;
 const char *compilet = __TIME__;

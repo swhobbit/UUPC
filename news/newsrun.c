@@ -21,7 +21,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.23 2000/05/12 12:26:40 ahd v1-13g $
+ *       $Id: newsrun.c 1.24 2001/03/12 13:54:04 ahd v1-13k $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.24  2001/03/12 13:54:04  ahd
+ *       Annual Copyright update
+ *
  *       Revision 1.23  2000/05/12 12:26:40  ahd
  *       Annual copyright update
  *
@@ -263,7 +266,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.23 2000/05/12 12:26:40 ahd v1-13g $");
+RCSID("$Id: newsrun.c 1.24 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

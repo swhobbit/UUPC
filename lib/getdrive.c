@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getdrive.c 1.7 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: getdrive.c 1.8 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: getdrive.c $
+ *    Revision 1.8  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.7  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -49,7 +52,7 @@
 #include <direct.h>
 #include <ctype.h>
 
-RCSID("$Id: getdrive.c 1.7 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: getdrive.c 1.8 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t D r i v e                                              */

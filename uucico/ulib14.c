@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.21 2000/05/12 12:32:00 ahd v1-13g $
+ *    $Id: ulib14.c 1.22 2001/03/12 13:54:49 ahd v1-13k $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.22  2001/03/12 13:54:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.21  2000/05/12 12:32:00  ahd
  *    Annual copyright update
  *
@@ -138,7 +141,7 @@ static unsigned char bps_table(int);
 static BPS currentBPS;
 static char currentDirect;
 
-RCSID("$Id: ulib14.c 1.21 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: ulib14.c 1.22 2001/03/12 13:54:49 ahd v1-13k $");
 static KWBoolean hangupNeeded = KWTrue;
 
 /*--------------------------------------------------------------------*/

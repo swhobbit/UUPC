@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.27 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: expath.c 1.28 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.28  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.27  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -113,7 +116,7 @@
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: expath.c 1.27 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: expath.c 1.28 2001/03/12 13:52:56 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*   e x p a n d _ p a t  h                                           */

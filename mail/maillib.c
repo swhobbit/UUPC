@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.33 2000/05/12 12:36:30 ahd v1-13g $
+ *    $Id: maillib.c 1.34 2001/03/12 13:56:08 ahd v1-13k $
  *
  *    $Log: maillib.c $
+ *    Revision 1.34  2001/03/12 13:56:08  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.33  2000/05/12 12:36:30  ahd
  *    Annual copyright update
  *
@@ -181,7 +184,7 @@ static char *noResentList[] =
          NULL
        };
 
-RCSID("$Id: maillib.c 1.33 2000/05/12 12:36:30 ahd v1-13g $");                /* Define current file for panic()     */
+RCSID("$Id: maillib.c 1.34 2001/03/12 13:56:08 ahd v1-13k $");                /* Define current file for panic()     */
 
 /*--------------------------------------------------------------------*/
 /*    P a g e r                                                       */

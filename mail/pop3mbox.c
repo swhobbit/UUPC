@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.14 2000/05/12 12:35:45 ahd v1-13g $
+ *       $Id: pop3mbox.c 1.15 2001/03/12 13:56:08 ahd v1-13k $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.15  2001/03/12 13:56:08  ahd
+ *       Annual Copyright update
+ *
  *       Revision 1.14  2000/05/12 12:35:45  ahd
  *       Annual copyright update
  *
@@ -91,7 +94,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.14 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: pop3mbox.c 1.15 2001/03/12 13:56:08 ahd v1-13k $");
 
 static const char sep[] = MESSAGESEP;
 static const char uidl[] = UIDL_HEADER;

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.26 2000/10/14 12:40:44 ahd Exp ahd $
+ *       $Id: smtprecv.c 1.27 2001/03/12 13:56:08 ahd v1-13k $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.27  2001/03/12 13:56:08  ahd
+ *       Annual Copyright update
+ *
  *       Revision 1.26  2000/10/14 12:40:44  ahd
  *       Never use <> as an internal FROM address; make it look like it
  *       came from UUCP instead.
@@ -135,7 +138,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.26 2000/10/14 12:40:44 ahd Exp ahd $");
+RCSID("$Id: smtprecv.c 1.27 2001/03/12 13:56:08 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.23 2000/05/12 12:30:48 ahd v1-13g $
+ *    $Id: bugout.c 1.24 2001/03/12 13:54:04 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.24  2001/03/12 13:54:04  ahd
+ *    Annual Copyright update
+ *
  *    Revision 1.23  2000/05/12 12:30:48  ahd
  *    Annual copyright update
  *
@@ -115,7 +118,7 @@ int panic_rc = 69;                  /* Actually defined in catcher.h,
                                        but not all routines need the
                                        catcher.                      */
 
-RCSID("$Id: bugout.c 1.23 2000/05/12 12:30:48 ahd v1-13g $");
+RCSID("$Id: bugout.c 1.24 2001/03/12 13:54:04 ahd v1-13k $");
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */

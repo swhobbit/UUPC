@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2002 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.43 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: imfile.c 1.44 2001/03/12 13:52:56 ahd v1-13k $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.44  2001/03/12 13:52:56  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.43  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -143,7 +146,7 @@
 #define UDEBUG2
 #endif
 
-RCSID("$Id: imfile.c 1.43 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: imfile.c 1.44 2001/03/12 13:52:56 ahd v1-13k $");
 
 #ifdef UDEBUG
 

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2002 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.29 2000/05/12 12:32:00 ahd v1-13g $
+ *       $Id: ulibnmp.c 1.30 2001/03/12 13:54:49 ahd v1-13k $
  *       $Log: ulibnmp.c $
+ *       Revision 1.30  2001/03/12 13:54:49  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.29  2000/05/12 12:32:00  ahd
  *       Annual copyright update
  *
@@ -150,7 +153,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: ulibnmp.c 1.29 2000/05/12 12:32:00 ahd v1-13g $");
+RCSID("$Id: ulibnmp.c 1.30 2001/03/12 13:54:49 ahd v1-13k $");
 
 static KWBoolean hangupNeeded = KWFalse;
 
