@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.H 1.2 1992/12/04 01:03:49 ahd Exp $
+ *    $Id: DELIVER.H 1.3 1993/04/11 00:36:13 ahd Exp $
  *
  *    $Log: DELIVER.H $
+ * Revision 1.3  1993/04/11  00:36:13  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/12/04  01:03:49  ahd
  * Add system alias support
  *
@@ -47,3 +50,5 @@ extern char fromnode[];
 extern  char *ruser;
 extern  char *rnode;
 extern  char *uuser;
+
+extern  char *myProgramName;
