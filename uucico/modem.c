@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.16 1993/06/16 04:03:25 ahd Exp $
+ *    $Id: modem.c 1.17 1993/07/05 14:47:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.17  1993/07/05  14:47:05  ahd
+ * Drop obsolete  tag from "variablepacket"
+ * Set default timeout of 30 seconds for answer timeout
+ *
  * Revision 1.16  1993/06/16  04:03:25  ahd
  * Lower max wait time for NT
  *
@@ -398,10 +402,12 @@ configuration file.");
 /*                   Wait for the telephone to ring                   */
 /*--------------------------------------------------------------------*/
 
-   printmsg(1,"callin: Monitoring port %s device %s"
+   printmsg(1,"Monitoring port %s device %s"
                      " for %d minutes until %s",
                      device, E_inmodem , (int) (offset / 60),
-                      dater( exit_time , NULL));
+                     (left > hhmm2sec(10000)) ?
+                              "user hits Ctrl-Break" :
+                              dater( exit_time , NULL));
 
    interactive_processing = FALSE;
 
