@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.16 1995/01/08 21:01:03 ahd Exp $
+#       $Id: lib.mak 1.17 1995/02/12 23:27:23 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#       Revision 1.17  1995/02/12 23:27:23  ahd
+#       split rnews into rnews/news, rename rnews dir to news, make inews COM file
+#
 #       Revision 1.16  1995/01/08 21:01:03  ahd
 #       Add in-memory file support
 #
@@ -73,7 +76,7 @@
 
 #       The names of various object files that we create.
 
-LIBLST1= $(OBJ)\abspath.obj $(OBJ)\active.obj \
+LIBLST1= $(OBJ)\abspath.obj \
          $(OBJ)\arbmath.obj $(OBJ)\arpadate.obj $(OBJ)\bugout.obj\
          $(OBJ)\catcher.obj $(OBJ)\chdir.obj $(OBJ)\checkptr.obj\
          $(OBJ)\configur.obj $(OBJ)\dater.obj $(OBJ)\dos2unix.obj\
@@ -82,7 +85,7 @@ LIBLST2= $(OBJ)\export.obj $(OBJ)\filebkup.obj $(OBJ)\fopen.obj\
          $(OBJ)\getargs.obj $(OBJ)\getdrive.obj\
          $(OBJ)\getopt.obj $(OBJ)\getseq.obj\
          $(OBJ)\hostable.obj $(OBJ)\hostatus.obj $(OBJ)\hostrset.obj
-LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj $(OBJ)\importng.obj\
+LIBLST3= $(OBJ)\imfile.obj $(OBJ)\import.obj \
          $(OBJ)\kanjicnv.obj $(OBJ)\lock.obj $(OBJ)\logger.obj\
          $(OBJ)\mkdir.obj $(OBJ)\mkfilenm.obj $(OBJ)\mkmbox.obj
 LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\

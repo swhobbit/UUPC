@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: news.mak 1.9 1995/01/08 21:01:03 ahd Exp ahd $
+#     $Id: news.mak 1.10 1995/02/12 23:27:23 ahd Exp $
 #
 #     Revision history:
 #     $Log: news.mak $
+#     Revision 1.10  1995/02/12 23:27:23  ahd
+#     split rnews into rnews/news, rename rnews dir to news, make inews COM file
+#
 #     Revision 1.9  1995/01/08 21:01:03  ahd
 #     Drop batch.obj from objects for rnews
 #
@@ -41,105 +44,50 @@ LINKOPT=$(LINKOPTN)
 LINKOPT=$(LINKOPTD)
 !endif
 
+LIBNEWSLIST=\
+    $(OBJ)\active.obj $(OBJ)\cache.obj $(OBJ)\hdbm.obj          \
+    $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\importng.obj $(OBJ)\sys.obj
+
+LIBNEWS=$(LIB)\UUPC$(MODEL)N.lib
+
 .c.obj:
   $(CC) $(CCX) -I$:{ $<}
 
 .obj.com:
         $(CC) -c- -mt -lt -v- $(CCX) -n$(@D) -e$@ $< $(UUPCLIB)
 
-.asm.obj:
-        $(TASM) $(TASMOPT) $<,$(OBJ)\$&;
+.obj.exe:
+        $(CC) -c- -m$(MODEL) -v- $(CCX) -n$(@D) -e$@ $< $(UUPCLIB)
 
 .path.c = $(NEWS)
 
 .path.obj = $(OBJ)
 
-NEWSRUNOBJ = $(OBJ)\newsrun.obj $(OBJ)\history.obj $(OBJ)\idx.obj \
-           $(OBJ)\hdbm.obj $(OBJ)\sys.obj
+SENDBATSOBJ = $(OBJ)\sendbats.obj $(OBJ)\batch.obj
 
-SENDBATSOBJ = $(OBJ)\sendbats.obj $(OBJ)\batch.obj $(OBJ)\sys.obj
-
-EXPIREOBJ = $(OBJ)\expire.obj $(OBJ)\history.obj \
-           $(OBJ)\idx.obj $(OBJ)\hdbm.obj
-
-GENHISTOBJ = $(OBJ)\genhist.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.obj
-
-INEWSOBJ = $(OBJ)\inews.obj
-
-newsrun$(PSUFFIX).exe: $(UUPCCFG)     $(NEWSRUNOBJ) $(LIBRARIES)
-        - erase newsrun.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(NEWSRUNOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
+expire.exe:   expire.obj $(LIBNEWS) $(UUPCLIB)
+        $(CC) -e$@ -v -n$(@D) -c- $**
 !if !$d(__OS2__)
-        tdstrip -s $<
+        -tdstrip -s $<
 !endif
 
-expire$(PSUFFIX).exe: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
-        - erase expire.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(EXPIREOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
+genhist.exe:   genhist.obj $(LIBNEWS) $(UUPCLIB)
+        $(CC) -e$@ -v -n$(@D) -c- $**
 !if !$d(__OS2__)
-        tdstrip -s $<
+        -tdstrip -s $<
 !endif
 
-genhist$(PSUFFIX).exe: $(UUPCCFG)     $(GENHISTOBJ) $(LIBRARIES)
-        - erase genhist.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(GENHISTOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
+newsrun.exe:   newsrun.obj $(LIBNEWS) $(UUPCLIB)
+        $(CC) -e$@ -v -n$(@D) -c- $**
 !if !$d(__OS2__)
-        tdstrip -s $<
+        -tdstrip -s $<
 !endif
 
-inews$(PSUFFIX).exe: $(UUPCCFG)     $(INEWSOBJ) $(LIBRARIES)
-        - erase inews.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(INEWSOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
+sendbats.exe:   $(SENDBATSOBJ) $(LIBNEWS) $(UUPCLIB)
+        $(CC) -e$@ -v -n$(@D) -c- $**
 !if !$d(__OS2__)
-        tdstrip -s $<
+        -tdstrip -s $<
 !endif
 
-rnews$(PSUFFIX).exe: $(UUPCCFG) $(OBJ)\rnews.obj $(LIBRARIES)
-        - erase rnews.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(OBJ)\rnews.obj
-$<
-$(MAP)
-$(LIBRARY)
-|
-!if !$d(__OS2__)
-        tdstrip -s $<
-!endif
-
-sendbats.exe: $(UUPCCFG)     $(SENDBATSOBJ) $(LIBRARIES)
-        - erase sendbats.com
-        $(LINKER) $(LINKOPT) @&&|
-$(STARTUP)+
-$(SENDBATSOBJ)
-$<
-$(MAP)
-$(LIBRARY)
-|
-!if !$d(__OS2__)
-        tdstrip -s $<
-!endif
+$(LIBNEWS): $(LIBNEWSLIST)
+        &TLIB /C /E $< -+$?
