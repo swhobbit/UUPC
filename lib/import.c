@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.7 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: import.c 1.8 1993/09/26 03:32:27 dmwatt Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.8  1993/09/26  03:32:27  dmwatt
+ *     Use Standard Windows NT error message module
+ *
  *     Revision 1.7  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support
@@ -746,6 +749,7 @@ static boolean advancedFS( const char *path )
                           FSAIL_QUERYNAME,
                           dataBuffer,
                           &bufSize );
+   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName);
 #else
    result = DosQFSAttach( driveInfo,
                           0,
@@ -753,6 +757,7 @@ static boolean advancedFS( const char *path )
                           (PBYTE) buf,
                           &bufSize,
                           0L );
+   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName - 1);
 #endif
 
    if ( result != 0 )
@@ -763,7 +768,6 @@ static boolean advancedFS( const char *path )
       return FALSE;
    }
 
-   fileSystem = (char *) (dataBuffer->szFSDName + dataBuffer->cbName);
 
    printmsg(4,"advancedFS: File system %d, name \"%s\", FS name \"%s\"",
                (int) dataBuffer->iType,
