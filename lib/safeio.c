@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.3 1993/07/20 21:42:43 dmwatt Exp $
+ *    $Id: safeio.c 1.4 1993/09/20 04:39:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.4  1993/09/20  04:39:51  ahd
+ *     OS/2 2.x support
+ *
  *     Revision 1.3  1993/07/20  21:42:43  dmwatt
  *     Don't rely on standard I/O under Windows/NT
  *
@@ -64,7 +67,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-#if !defined(_Windows) && !defined(__OS2__)
+#if defined( WIN32 )
 currentfile();
 #endif
 
