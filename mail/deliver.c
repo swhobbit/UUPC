@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.60 1998/03/08 23:10:20 ahd Exp $
+ *    $Id: deliver.c 1.61 1998/03/16 06:41:41 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.61  1998/03/16 06:41:41  ahd
+ *    Support for time stamp controlling trumpt processing
+ *
  *    Revision 1.60  1998/03/08 23:10:20  ahd
  *    Better support for local vs. remote source of messages
  *
@@ -505,7 +508,7 @@ static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
    else
       mkmailbox(mboxname, user);    /* No --> Build normal name      */
 
-   if ( access( mboxname, 0 ))
+   if ( ! access( mboxname, 0 ))
       mboxTime = stater( mboxname, NULL );
 
 #ifdef UDEBUG
