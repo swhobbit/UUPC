@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.4 1992/12/01 04:37:03 ahd Exp $
+ *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.5 1993/01/23 19:08:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.5  1993/01/23  19:08:09  ahd
+ *     Add Windows/NT to allowed environments
+ *
  * Revision 1.4  1992/12/01  04:37:03  ahd
  * Add SpeedOverMemory
  *
@@ -503,7 +506,7 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, boolean *barray)
       boolean negate;
       negate = equaln(token,"no",2) && (strlen(token) > 2);
 
-      for (subscript = 0; (subscript < F_LAST) && !hit; subscript++)
+      for ( subscript=0; (flags[subscript].sym != NULL ) && !hit; subscript++)
       {
          if ((flags[subscript].bits & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
             continue;
