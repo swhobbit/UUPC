@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBFS.C 1.2 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: ulibfs.c 1.3 1993/10/03 22:09:09 ahd Exp $
  *
  *    History:
- *    $Log: ULIBFS.C $
+ *    $Log: ulibfs.c $
+ * Revision 1.3  1993/10/03  22:09:09  ahd
+ * Use unsigned long to display speed
+ *
  * Revision 1.2  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -35,10 +38,10 @@
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include <string.h>        // For memset()
-#include <stdlib.h>        // For max()
-#include <dos.h>           // For FOSSIL interrupt calls
-#include <time.h>          // For sleep.h support
+#include <string.h>        /* For memset() */
+#include <stdlib.h>        /* For max() */
+#include <dos.h>           /* For FOSSIL interrupt calls */
+#include <time.h>          /* For sleep.h support */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -59,9 +62,9 @@ static void showModem( const short );
 
 static void getDriverInfo( FS_INFO *fossilData);
 
-static short blockIO( char *buffer,
-                      const short len,
-                      const char function);
+static unsigned short blockIO( char *buffer,
+                               const unsigned int len,
+                               const char function);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -169,7 +172,7 @@ unsigned int fsread(char *buffer,
       {
          unsigned int moved = blockIO( buffer, wanted, FS_READBLOK );
                                              // Get the data
-         traceData( buffer, moved, FALSE );  // Trace the data
+         traceData( buffer, (short) moved, FALSE );  // Trace the data
 
          if ( moved < wanted)                // Promised data delivered?
          {                                   // NO --> Panic (literally)
@@ -234,7 +237,7 @@ unsigned int fsread(char *buffer,
 int fswrite(const char *data, unsigned int queued)
 {
 
-   int moved;
+   unsigned short moved;
    int total;
    int spin;
    static int const max_spin = 20;
@@ -253,10 +256,10 @@ int fswrite(const char *data, unsigned int queued)
 
   traceData( data, moved, TRUE); // Trace our output
 
-  if ( moved == (int) queued )   // Did it all get written out?
+  if ( moved == queued )         // Did it all get written out?
       return moved;              // Yes --> Return gracefully
 
-   printmsg(4,"fswrite: Wrote %d bytes of %d", moved, queued);
+   printmsg(4,"fswrite: Wrote %u bytes of %u", moved, queued);
 
 /*--------------------------------------------------------------------*/
 /*       The FOSSIL driver didn't have enough room in its buffer;     */
@@ -292,11 +295,11 @@ int fswrite(const char *data, unsigned int queued)
                   ", pass %d",
                   wait, needed, spin);
 
-      ddelay( wait );      /* Actually perform the wait           */
+      ddelay( (KEWSHORT) wait );  /* Actually perform the wait    */
 
       moved = blockIO( (char *) data + total, queued, FS_WRITBLOK );
                                                 // Write the data
-      traceData( data + total, moved, TRUE);    // Trace our output
+      traceData( data + total, (short) moved, TRUE); // Trace our output
 
       if ( moved != 0)
          spin--;           /* No progress, consider timing out    */
@@ -337,7 +340,7 @@ void fssendbrk(unsigned int duration)
 
    FSBreak( TRUE );
    printmsg(4, "fssendbrk: %d", duration);
-   ddelay( duration * 100 );
+   ddelay( (KEWSHORT) (duration * 100) );
    FSBreak( FALSE );
 
 } /* fssendbrk */
@@ -393,10 +396,10 @@ void fSIOSpeed(BPS bps)
 
    if ( rates[speed] < 0 )
    {
+      speed = best;
       printmsg(0,"fSIOSpeed: Invalid modem speed %lu, using %lu",
                   (unsigned long) bps,
                   (unsigned long) rates[speed]);
-      speed = best;
    }
 
    printmsg(4,"fSIOSspeed: Changing port speed from %lu BPS to %lu BPS",
@@ -558,7 +561,9 @@ static void getDriverInfo( FS_INFO *fossilData)
 /*       queues                                                       */
 /*--------------------------------------------------------------------*/
 
-static short blockIO( char *buffer, const short len, const char function)
+static unsigned short blockIO( char *buffer,
+                               const unsigned int len,
+                               const char function)
 {
    union REGS regs;
    struct SREGS sregs;
@@ -567,20 +572,20 @@ static short blockIO( char *buffer, const short len, const char function)
 
    regs.h.ah = FS_STATPORT;            // First, set up to get status
    int86( FS_INTERRUPT, &regs, &regs); // ... get the info ...
-   showModem ( regs.x.ax );            // ... and report it
+   showModem ( (short) regs.x.ax );    // ... and report it
 
    regs.h.ah = function;               // Input or output function
-   regs.x.cx = len;                    // Into buffer this long
+   regs.x.cx = (unsigned short) len;   // Into buffer this long
    sregs.es = FP_SEG( buffer);         // Use segment of the buffer
    regs.x.di = FP_OFF( buffer );       // Use offset of buffer
 
    int86x( FS_INTERRUPT, &regs, &regs, &sregs);
 
-   if ( len > (short) regs.x.ax )
+   if ( len > regs.x.ax )
       printmsg(4,"blockIO: Buffer %d bytes, only moved %d bytes",
                  len,
                  regs.x.ax );
-   else if ( len < (short) regs.x.ax )
+   else if ( len < regs.x.ax )
    {
       printmsg(4,"blockIO: BUFFER (%d bytes) OVERRUN, moved %d bytes",
                  len,
@@ -588,6 +593,6 @@ static short blockIO( char *buffer, const short len, const char function)
       panic();
    }
 
-   return (short) regs.x.ax;           // Return bytes moved
+   return (unsigned short) regs.x.ax;  // Return bytes moved
 
 } /* blockIO */

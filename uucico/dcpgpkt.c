@@ -226,13 +226,14 @@ typedef enum {
 
 currentfile();
 
-static short rwl, swl, swu, rwu, irec, lazynak;
-static unsigned short nbuffers;
-static short rbl, sbl, sbu;
+static short irec, lazynak;
+static unsigned rwl, rwu, swl, swu;
+static unsigned nbuffers;
+static unsigned rbl, sbl, sbu;
 static KEWSHORT nerr;
 static unsigned short outlen[NBUF], inlen[NBUF], xmitlen[NBUF];
 static boolean arrived[NBUF];
-static size_t nwindows;
+static unsigned nwindows;
 
 static char UUFAR outbuf[NBUF][MAXPACK];
 static char UUFAR inbuf[NBUF][MAXPACK];
@@ -255,22 +256,22 @@ static short initialize(const boolean caller, const char protocol );
 
 static short  gmachine(const short timeout);
 
-static void gspack(short  type,
-                   short  yyy,
-                   short  xxx,
-                   short  len,
-                   unsigned short xmit,
+static void gspack(short type,
+                   unsigned yyy,
+                   unsigned xxx,
+                   unsigned len,
+                   unsigned xmit,
                    char UUFAR *data);
 
-static short  grpack(short  *yyy,
-                   short  *xxx,
-                   short  *len,
-                   char UUFAR *data,
-                   const short timeout);
+static short  grpack(unsigned *yyy,
+                     unsigned *xxx,
+                     unsigned *len,
+                     char UUFAR *data,
+                     const short timeout);
 
 static void gstats( void );
 
-static unsigned short checksum(char *data, short len);
+static unsigned checksum(char *data, unsigned len);
 
 /****************** SUB SUB SUB PACKET HANDLER ************/
 
@@ -315,7 +316,7 @@ short gopenpk(const boolean caller)
 
 static short initialize(const boolean caller, const char protocol )
 {
-   short i, xxx, yyy, len, maxwindows;
+   unsigned i, xxx, yyy, len, maxwindows;
 
 #define B_SENT_INITA 0x01
 #define B_SENT_INITB 0x02
@@ -327,7 +328,7 @@ static short initialize(const boolean caller, const char protocol )
 #define B_INITB (B_SENT_INITB | B_RECV_INITB)
 #define B_INITC (B_SENT_INITC | B_RECV_INITC)
 
-   short  flags = 0x00;   /* Init state flags, as defined above  */
+   unsigned flags = 0x00;   /* Init state flags, as defined above  */
 
    I_STATE state;
 
@@ -338,7 +339,7 @@ static short initialize(const boolean caller, const char protocol )
 
    r_pktsize = s_pktsize = GetGPacket( MAXPACK, protocol );
    maxwindows = GetGWindow(
-                     min( MAXWINDOW, RECV_BUF / (s_pktsize+HDRSIZE)),
+                     (KEWSHORT) min( MAXWINDOW, RECV_BUF / (s_pktsize+HDRSIZE)),
                      protocol);
 
    variablepacket = bmodemflag[MODEM_VARIABLEPACKET] || (protocol == 'v');
@@ -356,7 +357,8 @@ static short initialize(const boolean caller, const char protocol )
 /*                    Initialize proto parameters                     */
 /*--------------------------------------------------------------------*/
 
-   nerr = nbuffers = 0;
+   nerr = 0;
+   nbuffers = 0;
    sbl = swl = swu = sbu = 1;
    rbl = rwl = 0;
    nwindows = maxwindows;
@@ -526,7 +528,7 @@ static short initialize(const boolean caller, const char protocol )
 /*--------------------------------------------------------------------*/
 
          case I_INITA_RECV:
-            if (yyy < (short) nwindows)
+            if (yyy < nwindows)
             {
                nwindows = yyy;
                rwu = nwindows - 1;
@@ -545,8 +547,8 @@ static short initialize(const boolean caller, const char protocol )
             if ((flags & (B_RECV_INITA | B_SENT_INITA)) ==
                          (B_RECV_INITA | B_SENT_INITA))
             {
-               i = (short) 8 * (2 << (yyy+1));
-               if (i < (short) s_pktsize)
+               i = 32 << yyy;
+               if (i < s_pktsize)
                   s_pktsize = i;
                flags = (flags & B_SENT_INITB) | B_RECV_INITB;
                state = (flags & B_SENT_INITB) ? I_INITC_SEND : I_INITB_SEND;
@@ -566,7 +568,7 @@ static short initialize(const boolean caller, const char protocol )
             if ((flags & (B_RECV_INITB | B_SENT_INITB)) ==
                            (B_RECV_INITB | B_SENT_INITB))
             {
-               if (yyy < (short) nwindows)
+               if (yyy < nwindows)
                {
                   printmsg(0,"Unexpected INITC window size of %d",
                              nwindows );
@@ -690,7 +692,7 @@ short gfilepkt( void )
 
 short gclosepk()
 {
-   unsigned short i;
+   unsigned i;
 
    for (i = 0; i < MAXTRY; i++)
    {
@@ -798,7 +800,7 @@ short ggetpkt(char *data, short *len)
             start = now;
          } /* if (time( now ) > (start + M_gPacketTimeout) ) */
       } /* if (!arrived[rbl] ) */
-   } /* while (!arrived[rbl] && i) */
+   } /* while (!arrived[rbl] && retry) */
 
 #ifdef _DEBUG
    debuglevel = savedebug;
@@ -844,7 +846,7 @@ short ggetpkt(char *data, short *len)
 
 short gsendpkt(char *data, short len)
 {
-   short delta;
+   int delta;
 #ifdef _DEBUG
    short savedebug = debuglevel;
 #endif
@@ -874,7 +876,7 @@ short gsendpkt(char *data, short len)
 /*                       Handle short packets.                        */
 /*--------------------------------------------------------------------*/
 
-   xmitlen[sbu] = s_pktsize;
+   xmitlen[sbu] = (unsigned short) s_pktsize;
    if (variablepacket)
       while ( ((len * 2) < (short) xmitlen[sbu]) && (xmitlen[sbu] > MINPKT) )
          xmitlen[sbu] /= 2;
@@ -909,7 +911,7 @@ short gsendpkt(char *data, short len)
 /*--------------------------------------------------------------------*/
 
    outlen[sbu] = len;
-   ftimer[sbu] = time(nil(long));
+   ftimer[sbu] = time(nil(time_t));
    nbuffers++;
 
 /*--------------------------------------------------------------------*/
@@ -1010,7 +1012,8 @@ static short gmachine(const short timeout )
       boolean donak  = FALSE;    /* True = NAK the other system      */
       unsigned long packet_no = remote_stats.packets;
 
-      short pkttype, rack, rseq, rlen, rbuf, i1;
+      short pkttype;
+      unsigned rack, rseq, rlen, rbuf, i1;
       time_t now;
 
 #ifdef UDEBUG
@@ -1095,7 +1098,7 @@ static short gmachine(const short timeout )
                rwl = i1;
                rbl = nextbuf( rbl );
                inseq = arrived[rbl] = TRUE;
-               inlen[rbl] = rlen;
+               inlen[rbl] = (unsigned short) rlen;
                printmsg(5, "*** ACK d %d %d", rwl, rbl);
                gspack(ACK, rwl, 0, 0, 0, NULL);
                done = TRUE;   /* return to caller when finished      */
@@ -1209,7 +1212,7 @@ static short gmachine(const short timeout )
             gspack(NAK, rwl, 0, 0, 0, NULL);
             naksout++;
             idletimer = now;
-            lazynak = nwindows + 1;
+            lazynak = (short) (nwindows + 1);
          } /* if ( lazynak < 1 ) */
       } /* if ( donak ) */
 
@@ -1268,17 +1271,17 @@ static short gmachine(const short timeout )
 */
 
 static void gspack(short type,
-                   short yyy,
-                   short xxx,
-                   short len,
-                   unsigned short xmit,
+                   unsigned yyy,
+                   unsigned xxx,
+                   unsigned len,
+                   unsigned xmit,
 #if defined(BIT32ENV)
                    char *data)
 #else
                    char UUFAR *input)
 #endif
 {
-   unsigned short check, i;
+   unsigned check, i;
    unsigned char header[HDRSIZE];
 
 #if !defined(BIT32ENV)
@@ -1319,19 +1322,19 @@ static void gspack(short type,
          break;   /* stop protocol */
 
       case NAK:
-         header[4] += yyy;
+         header[4] += (unsigned char) yyy;
          break;   /* reject */
 
       case SRJ:
          break;
 
       case ACK:
-         header[4] += yyy;
+         header[4] += (unsigned char) yyy;
          break;   /* ack */
 
       case INITA:
       case INITC:
-         header[4] += xmit;
+         header[4] += (unsigned char) xmit;
          break;
 
       case INITB:
@@ -1345,7 +1348,7 @@ static void gspack(short type,
 
       case DATA:
          header[4] = (unsigned char) (0x80 + (xxx << 3) + yyy);
-         if (len < (short) xmit)      /* Short packet?              */
+         if (len < xmit)              /* Short packet?              */
             header[4] |= 0x40;/* Count byte handled at higher level */
 
 #ifdef UDEBUG
@@ -1387,10 +1390,8 @@ static void gspack(short type,
 /*--------------------------------------------------------------------*/
 
       check = checksum(data, xmit);
-      i = header[4]; /* got to do this on PC for ex-or high bits */
-      i &= 0xff;
-      check = (check ^ i) & 0xffff;
-      check = (0xaaaa - check) & 0xffff;
+      i = header[4] & 0xff; /* got to do this on PC for ex-or high bits */
+      check = (0xaaaa - ((check ^ i) & 0xffff)) & 0xffff;
    }
    else {
       header[1] = 9;          /* Control packet size K number (9)    */
@@ -1461,17 +1462,20 @@ static void gspack(short type,
 
 */
 
-static short grpack(short *yyy,
-                  short *xxx,
-                  short *len,
-                  char UUFAR *data,
-                  const short timeout)
+static short grpack(unsigned *yyy,
+                    unsigned *xxx,
+                    unsigned *len,
+                    char UUFAR *data,
+                    const short timeout)
 {
    static short got_hdr  = FALSE;
-   static short received = 0;     /* Bytes already read into buffer */
-   short needed;
+   static int received = 0;       /* Bytes already read into buffer */
+   int needed;
 
-   unsigned short type, check, checkchk, i, total = 0;
+   unsigned short type;
+   unsigned check, checkchk;
+   unsigned char i;
+   unsigned total = 0;
    unsigned char c, c2;
 
    time_t start;
@@ -1499,7 +1503,8 @@ static short grpack(short *yyy,
             wait = timeout;
          } /* if ( start == 0 ) */
          else {
-            wait = (short) (time(NULL) - start) - timeout;
+            wait = (short) (timeout - (short) (time(NULL) - start));
+
             if (wait < 0)     /* Negative timeout?                   */
                wait = 0;      /* Make it no time out                 */
          } /* else */
@@ -1541,9 +1546,8 @@ static short grpack(short *yyy,
 
       if ( received >= HDRSIZE )
       {
-         i = (unsigned short) (grpkt[1] ^ grpkt[2] ^ grpkt[3] ^
-                        grpkt[4] ^ grpkt[5]);
-         i &= 0xff;
+         i = (unsigned char) ((grpkt[1] ^ grpkt[2] ^ grpkt[3] ^
+                               grpkt[4] ^ grpkt[5]) & 0xff);
          printmsg(i ? 2 : 10, "prpkt %02x %02x %02x %02x %02x .. %02x ",
             grpkt[1], grpkt[2], grpkt[3], grpkt[4], grpkt[5], i);
 
@@ -1569,7 +1573,7 @@ static short grpack(short *yyy,
          *data = '\0';
       *len = 0;
       c = grpkt[4];
-      type = c >> 3;
+      type = (unsigned short) (c >> 3);
       *yyy = c & 0x07;
       *xxx = 0;
       check = 0;
@@ -1593,7 +1597,7 @@ get_data:
 /*             Compute the size of the data block desired             */
 /*--------------------------------------------------------------------*/
 
-      total = 8 * (2 << grpkt[1]);
+      total = 16 << grpkt[1];
       if (total > r_pktsize)  /* Within the defined limits?          */
       {                       /* No --> Other system has bad header,
                                  or the header got corrupted         */
@@ -1628,15 +1632,10 @@ get_data:
       c = (unsigned char) (c2 & 0x3f);
       *xxx = c >> 3;
       *yyy = c & 0x07;
-      i = grpkt[3];
-      i = (i << 8) & 0xff00;
-      check = grpkt[2];
-      check = i | (check & 0xff);
+      check = ((grpkt[3] & 0xff) << 8) | (grpkt[2] & 0xff);
       checkchk = checksum( (char *) grpkt + HDRSIZE , total);
-      i = grpkt[4] | 0x80;
-      i &= 0xff;
-      checkchk = 0xaaaa - (checkchk ^ i);
-      checkchk &= 0xffff;
+      i = (unsigned char) ((grpkt[4] | 0x80) & 0xff);
+      checkchk = (0xaaaa - (checkchk ^ i)) & 0xffff;
       if (checkchk != check)
       {
          printmsg(4, "*** checksum error ***");
@@ -1655,7 +1654,7 @@ get_data:
 
       if (c2 & 0x40)
       {
-         short ii;
+         unsigned ii;
          if ( grpkt[HDRSIZE] & 0x80 )
          {
             ii = (grpkt[HDRSIZE] & 0x7f) + ((grpkt[HDRSIZE+1] & 0xff) << 7);
@@ -1694,10 +1693,10 @@ get_data:
    c h e c k s u m
 */
 
-static unsigned short checksum(char *data, short len)
+static unsigned checksum(char *data, unsigned len)
 {
-   short i, j;
-   unsigned short tmp, chk1, chk2;
+   unsigned i, j;
+   unsigned tmp, chk1, chk2;
    chk1 = 0xffff;
    chk2 = 0;
    j = len;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.11 1993/09/20 04:41:54 ahd Exp $
+ *    $Id: dcpfpkt.c 1.12 1993/10/02 19:07:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.12  1993/10/02  19:07:49  ahd
+ * Suppress compiler warning
+ *
  * Revision 1.11  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -172,7 +175,7 @@ short fwrmsg(char *str)
    if (*(s-1) == '\n')
       s--;
    *s++ = '\r';
-   if (swrite(bufr, (unsigned int) (s - bufr)) == (unsigned int)(s - bufr))
+   if (swrite(bufr, (unsigned int) (s - bufr)) == (int)(s - bufr))
       return DCP_OK;
    else
       return DCP_FAILED;
@@ -246,7 +249,7 @@ short fgetpkt(char *packet, short *bytes)
          return DCP_FAILED;
    } /* if ( eof ) */
 
-   left = s_pktsize;
+   left = (short) s_pktsize;
    op = packet;
    sum = chksum;
 
@@ -256,7 +259,7 @@ short fgetpkt(char *packet, short *bytes)
 
    do {
       ip = tbuf;
-      len = sread(ip, 1, M_fPacketTimeout); /* single-byte reads for now */
+      len = (short) sread(ip, 1, M_fPacketTimeout); /* single-byte reads for now */
       if (len == 0) {
          printmsg(0,"fgetpkt: Timeout after %d seconds", M_fPacketTimeout);
          return DCP_FAILED;               /* Fail if timed out */
@@ -273,7 +276,7 @@ short fgetpkt(char *packet, short *bytes)
             len = 0;
 
             while (len < 5) {
-               i = sread(&buf[len], 5 - len, M_fPacketTimeout);
+               i = (short) sread(&buf[len], 5 - len, M_fPacketTimeout);
                if (i == 0) {
                   printmsg(0,
                      "fgetpkt: Timeout reading %d chars after %d seconds",
@@ -295,7 +298,7 @@ short fgetpkt(char *packet, short *bytes)
                goto dcorr;
             }
             sscanf(buf, "%4x", &chksum);
-            *bytes = op - packet;
+            *bytes = (short) (op - packet);
             if (chksum == sum) {
                eof = TRUE;
                printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
@@ -348,7 +351,7 @@ short fgetpkt(char *packet, short *bytes)
             sum++;
          } else
             sum <<= 1;
-         sum += c & 0377;
+         sum += (short) (c & 0377);
          sum &= 0xffff;
          special = 0;
       }
@@ -358,7 +361,7 @@ short fgetpkt(char *packet, short *bytes)
 /*            The packet is full of data, return to caller            */
 /*--------------------------------------------------------------------*/
 
-   *bytes = s_pktsize;
+   *bytes = (short) s_pktsize;
    printmsg(6, "fgetpkt: data=|%.*s|", *bytes , packet);
    chksum = sum;
    return DCP_OK;
@@ -372,7 +375,7 @@ dcorr:
 
    len = 1;
    while (len)
-      len = sread(packet, 1, M_fPacketTimeout);
+      len = (short) sread(packet, 1, M_fPacketTimeout);
 
    fsendresp(DCP_RETRY);
    return DCP_RETRY;
@@ -404,7 +407,7 @@ short fsendpkt(char *ip, short len)
          sum++;
       } else
          sum <<= 1;
-      sum += *ip & 0377;
+      sum += (short) (*ip & 0377);
       sum &= 0xffff;
       if (*ip & 0200) {
          *ip &= 0177;
@@ -438,7 +441,7 @@ short fsendpkt(char *ip, short len)
       }
    } while (--len > 0);
    chksum = sum;
-   ret = swrite(obuf, nl);
+   ret = (short) swrite(obuf, nl);
    if ( ret == nl )
       return DCP_OK;
    else

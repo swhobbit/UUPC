@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FOSSIL.H 1.1 1993/05/30 00:16:35 ahd Exp $
+ *    $Id: FOSSIL.C 1.1 1993/05/30 15:25:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: FOSSIL.H $
+ *    $Log: FOSSIL.C $
+ * Revision 1.1  1993/05/30  15:25:50  ahd
+ * Initial revision
+ *
  * Revision 1.1  1993/05/30  00:16:35  ahd
  * Initial revision
  *
@@ -65,6 +68,6 @@ short portNum;        // Must be set by openline()
                               // cause ES:CX to be twiddled
    int86( FS_INTERRUPT, &regs, &regs );
 
-   return regs.x.ax;          // Return AX to caller
+   return (short) regs.x.ax;  // Return AX to caller
 
  } /* FossilCntl */

@@ -382,7 +382,7 @@ CONN_STATE callin( const time_t exit_time )
    char c;                    /* A character for input buffer        */
 
    int    offset;             /* Time to wait for telephone          */
-   time_t left;
+   time_t now, left;
 
 /*--------------------------------------------------------------------*/
 /*    Determine how long we can wait for the telephone, up to         */
@@ -390,11 +390,10 @@ CONN_STATE callin( const time_t exit_time )
 /*    kick the modem once in a while.                                 */
 /*--------------------------------------------------------------------*/
 
-      left =  exit_time - time(NULL);
-      if ( left < 0 )               /* Any time left?                */
+      if ((now = time(NULL)) > exit_time) /* Any time left?          */
          return CONN_EXIT;             /* No --> shutdown            */
 
-      if ( left > SHRT_MAX)
+      if ( (left = exit_time - now) > SHRT_MAX)
          offset = SHRT_MAX;
       else
          offset = (int) left;
@@ -989,7 +988,7 @@ KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
    while( (ourPacketSize >> (bits+1)) > 0 )
       bits++;
 
-   ourPacketSize = (ourPacketSize >> bits) << bits;
+   ourPacketSize = (KEWSHORT) ((ourPacketSize >> bits) << bits);
    if ( savePacketSize != ourPacketSize )
       printmsg(0,"packetsize for %c protocol rounded down from %d to %d",
                protocol,

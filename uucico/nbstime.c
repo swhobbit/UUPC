@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.9 1993/09/20 04:46:34 ahd Exp $
+ *    $Id: nbstime.c 1.10 1993/09/26 03:32:27 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.10  1993/09/26  03:32:27  dmwatt
+ * Use Standard Windows NT error message module
+ *
  * Revision 1.9  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -116,24 +119,22 @@ boolean nbstime( void )
    int dst= 0;
    time_t delta;
    char sync = '?';
+   unsigned rc;
 
 #ifdef WIN32
 
    SYSTEMTIME DateTime;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
-   USHORT rc;
    DWORD dwError;
 
 #elif defined(FAMILYAPI) || defined(__OS2__)
 
    DATETIME DateTime;
    struct tm *tp;
-   USHORT rc;
 
 #elif !defined(NONDOS) && !defined(__TURBOC__)
 
-   unsigned short rc;
    struct dosdate_t ddate;
    struct dostime_t dtime;
    struct tm *tp;
@@ -374,7 +375,7 @@ boolean nbstime( void )
 #endif
 
    if ( sync == '*' )
-      printmsg(2,"Warning: Was unable to synchonize with NBS master");
+      printmsg(2,"Warning: Was unable to synchronize with NBS master");
 
 /*--------------------------------------------------------------------*/
 /*                Announce new time, return to caller                 */

@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPSTATS.C 1.5 1993/04/11 00:34:11 ahd Exp $
+ *       $Id: dcpstats.c 1.6 1993/09/20 04:41:54 ahd Exp $
  *
- *       $Log: DCPSTATS.C $
+ *       $Log: dcpstats.c $
+ * Revision 1.6  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.5  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -138,8 +141,8 @@ void dcupdate( void )
    FILE *stream;
    char fname[FILENAME_MAX];
    long size;
-   unsigned short len1 = strlen(compilep );
-   unsigned short len2 = strlen(compilev );
+   unsigned short len1 = (unsigned short) strlen(compilep);
+   unsigned short len2 = (unsigned short) strlen(compilev);
    boolean gotlock;
    short retries = 30;
    LOCKSTACK savelock;
@@ -187,16 +190,17 @@ void dcupdate( void )
 
    while  ((host = nexthost( firsthost )) != BADHOST)
    {
-      len1 = strlen( host->hostname );
-      len2 = sizeof *(host->hstats);
+      len1 = (unsigned short) strlen( host->hostname );
+      len2 = (unsigned short) sizeof *(host->hstats);
 
       firsthost = FALSE;
 
       fwrite( &len1, sizeof len1, 1, stream );
       fwrite( &len2, sizeof len2, 1, stream );
       fwrite( host->hostname , sizeof hostp->hostname[0], len1, stream);
-      host->hstats->save_hstatus = ( host->hstatus == called ) ?
-                                    succeeded : host->hstatus;
+      host->hstats->save_hstatus = (unsigned short) ((host->hstatus == called)
+                                                     ? succeeded
+                                                     : host->hstatus);
       fwrite( host->hstats , len2, 1,  stream);
    }
 

@@ -200,7 +200,7 @@ XFER_STATE sdata( void )
       return XFER_ABORT;            /* Toss file                  */
 
    do {
-      short xmit = min( (size_t) S_size - used , s_pktsize );
+      short xmit = (short) min( (size_t) (S_size - used), s_pktsize );
 
       if ((*sendpkt)((char *) databuf + used, xmit) != DCP_OK)
                                     /* Send data fail?            */
