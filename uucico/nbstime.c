@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.21 1994/02/23 04:17:23 ahd Exp $
+ *    $Id: nbstime.c 1.22 1994/02/25 02:32:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.22  1994/02/25  02:32:44  ahd
+ * Correct time constant
+ *
  * Revision 1.21  1994/02/23  04:17:23  ahd
  * More exact matching of input buffer (execute time set after
  * time mark, not two characters later)
@@ -448,7 +451,7 @@ boolean nbstime( void )
    }
 
    time(&today);                 /* Since we didn't set the time via
-                                    today, set it now to compare     */
+                                    today, get it now to compare     */
 
 #elif defined( __TURBOC__ )
 
@@ -470,7 +473,7 @@ boolean nbstime( void )
 #else /* __TURBOC__ */
 
 /*--------------------------------------------------------------------*/
-/*             Set time under DPS with MS C 6.0 compiler              */
+/*             Set time under DOS with MS C 6.0 compiler              */
 /*--------------------------------------------------------------------*/
 
    tp = localtime(&today);    /* Get local time as a record          */
@@ -519,9 +522,9 @@ boolean nbstime( void )
    printmsg(0,"nbstime: Time is %s, delta was %d seconds.%s",
                arpadate(),
                delta,
-               sync == '#' ?
+               (const char *) (sync == '#' ?
                   "  Note: Perfectly in sync with NIST." :
-                  "" );
+                  "") );
    return TRUE;
 
 } /* nbstime */
