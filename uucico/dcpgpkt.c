@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.10 1993/04/13 02:26:30 ahd Exp $
+ *      $Id: DCPGPKT.C 1.11 1993/04/13 03:00:05 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.11  1993/04/13  03:00:05  ahd
+ * Correct gspkt declare
+ *
  * Revision 1.10  1993/04/13  02:26:30  ahd
  * Move buffers to FAR memory
  *
@@ -1234,9 +1237,13 @@ static void gspack(short type,
    unsigned char header[HDRSIZE];
 
 #ifndef WIN32
-   char *data = gspkt;
-   MEMCPY( data, input, xmit );
-   printmsg(5,"Copied %hd bytes from %Fp to %p", len, input, data );
+   char *data;                   // Local data buffer address
+   if ( input == NULL )
+      data = NULL;               // Make consistent with real buffer
+   else {                        // Only copy if non-NULL
+      data = gspkt;
+      MEMCPY( data, input, xmit );
+   }
 #endif
 
 #ifdef   LINKTEST
