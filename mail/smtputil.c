@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.9 2000/05/12 12:35:45 ahd v1-13g ahd $
+ *       $Id: smtputil.c 1.10 2000/09/15 00:18:38 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.10  2000/09/15 00:18:38  ahd
+ *       All relaying to all addresses in "local domain"
+ *
  *       Revision 1.9  2000/05/12 12:35:45  ahd
  *       Annual copyright update
  *
@@ -62,12 +65,13 @@
 #include "hostable.h"
 #include "address.h"
 #include "smtputil.h"
+#include "deliver.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.9 2000/05/12 12:35:45 ahd v1-13g ahd $");
+RCSID("$Id: smtputil.c 1.10 2000/09/15 00:18:38 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          s t r i p A d d r e s s                                   */
@@ -87,7 +91,7 @@ stripAddress(char *address, char response[MAXADDR])
 /*                      Handle our very special case                  */
 /*--------------------------------------------------------------------*/
 
-   if (equal(address, "<>"))        /* Postmaster?                   */
+   if (equal(address, SMTP_BOUNCE_POSTMASTER))        /* Postmaster? */
       return KWTrue;                /* Yes --> Leave intact          */
 
 /*--------------------------------------------------------------------*/
@@ -192,7 +196,7 @@ isValidAddress(const char *address,
 /*                    Perform basic syntax checks                     */
 /*--------------------------------------------------------------------*/
 
-   if (equal(address, "<>"))
+   if (equal(address, SMTP_BOUNCE_POSTMASTER))
    {
       strcpy(response, "SMTP Postmaster");
       *ourProblem = KWFalse;     /* Too generic to trust             */
