@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.6 1993/04/15 03:17:21 ahd Exp $
+ *    $Id: DELIVER.C 1.7 1993/04/16 12:55:36 dmwatt Exp $
  *
  *    $Log: DELIVER.C $
+ * Revision 1.7  1993/04/16  12:55:36  dmwatt
+ * Windows/NT sound support
+ *
  * Revision 1.6  1993/04/15  03:17:21  ahd
  * Basic bounce support
  *
@@ -172,7 +175,8 @@ static char *stats( const char *fname );
 size_t Bounce( const char *input,
                const char *text,
                const char *data,
-               const char *address );
+               const char *address,
+               boolean validate );
 
 /*--------------------------------------------------------------------*/
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
@@ -205,7 +209,11 @@ size_t Deliver(       const char *input,    /* Input file name       */
    struct HostTable *hostp;
 
    if ( strlen( address ) >= MAXADDR )
-      return Bounce( input, "Excessive address length", address, address );
+      return Bounce( input,
+                     "Excessive address length",
+                     address,
+                     address,
+                     validate );
 
    user_at_node(address, path, node, user);
 
@@ -223,7 +231,8 @@ size_t Deliver(       const char *input,    /* Input file name       */
          Bounce( input,
                  "No delivery path for address",
                   address,
-                  address );
+                  address,
+                  validate );
    }  /* if */
 
 /*--------------------------------------------------------------------*/
@@ -231,7 +240,11 @@ size_t Deliver(       const char *input,    /* Input file name       */
 /*--------------------------------------------------------------------*/
 
    if (hops > E_maxhops)
-      Bounce(input, "Excessive number of hops", address, address );
+      Bounce(input,
+             "Excessive number of hops",
+             address,
+             address,
+             validate );
 
 /*--------------------------------------------------------------------*/
 /*                   Deliver to a gateway if needed                   */
@@ -357,7 +370,11 @@ static size_t DeliverLocal( const char *input,
 
       if ( userp == BADUSER )    /* Invalid user id?                 */
       {                          /* Yes --> Dump in trash bin        */
-         return Bounce( input, "Invalid local user", user, user );
+         return Bounce( input,
+                        "Invalid local user",
+                        user,
+                        user,
+                        validate );
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -447,7 +464,11 @@ static int DeliverFile( const char *input,
    if ( fwrd == NULL )
    {
       printerr( fwrdname );
-      return Bounce( input, "Cannot open forward file", fwrdname, user );
+      return Bounce( input,
+                     "Cannot open forward file",
+                     fwrdname,
+                     user,
+                     validate );
    }
 
    if ( start != 0 )
@@ -475,7 +496,8 @@ static int DeliverFile( const char *input,
             return Bounce(input,
                           "Missing forwarding file for alias",
                           fwrdname,
-                          user );
+                          user,
+                          validate );
          }
          else
             c = ':';
@@ -530,7 +552,8 @@ static int DeliverFile( const char *input,
                return Bounce(input,
                              "Invalid path in forwarding file name",
                              s,
-                             user );
+                             user,
+                             validate );
 
             }
             else
@@ -951,7 +974,8 @@ static int CopyData( const boolean remotedelivery,
 size_t Bounce( const char *input,
                const char *text,
                const char *data,
-               const char *address )
+               const char *address ,
+               const boolean validate )
 {
     FILE *newfile, *otherfile;
     char tname[FILENAME_MAX]; /* name of temporary file used */
@@ -983,7 +1007,7 @@ size_t Bounce( const char *input,
      bounce = FALSE;
 
    if ( ! bounce )
-     return Deliver( input, E_postmaster, FALSE, TRUE);
+     return Deliver( input, E_postmaster, FALSE, validate );
 
    mktempname( tname , "TMP");  // Generate a temp file name
 
@@ -1049,7 +1073,7 @@ size_t Bounce( const char *input,
             "postmaster", NULL ) == -1 )
     {
          printerr("spawn");
-         DeliverLocal( input, E_postmaster, FALSE, FALSE);
+         DeliverLocal( input, E_postmaster, FALSE, validate);
     }
 
     return (1);
