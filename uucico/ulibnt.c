@@ -32,6 +32,9 @@
  * Revision 1.11  1993/11/30  04:13:30  dmwatt
  * Optimize port processing
  *
+ * Revision 1.11  1993/11/30  04:13:30  dmwatt
+ * Optimize port processing
+ *
  * Revision 1.9  1993/11/06  17:57:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -125,8 +128,10 @@
 #include "ssleep.h"
 #include "catcher.h"
 
+#include "dcp.h"
 #include "commlib.h"
 #include "pnterr.h"
+#include "suspend.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -134,10 +139,9 @@
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
+static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
-static boolean console = FALSE;
 
 static currentSpeed = 0;
 
@@ -147,7 +151,8 @@ static currentSpeed = 0;
 /*           Definitions of control structures for DOS API            */
 /*--------------------------------------------------------------------*/
 
-static HANDLE hCom;
+static HANDLE hCom = INVALID_HANDLE_VALUE;
+static HANDLE hComEvent = INVALID_HANDLE_VALUE;
 static COMMTIMEOUTS CommTimeout;
 static DCB dcb;
 static DCB save_dcb;
@@ -195,13 +200,18 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
+   hComEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+   if (hComEvent == INVALID_HANDLE_VALUE) {
+      printNTerror("CreateEvent", GetLastError());
+      panic();
+   }
 
    hCom = CreateFile( name,
         GENERIC_READ | GENERIC_WRITE,
         0,
         NULL,
         OPEN_EXISTING,
-        0,
+        FILE_FLAG_OVERLAPPED,
         NULL);
 
 /*--------------------------------------------------------------------*/
@@ -216,20 +226,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
        printNTerror("nopenline", dwError);
        return TRUE;
    }
-
-/*--------------------------------------------------------------------*/
-/*                    Check for special test mode                     */
-/*--------------------------------------------------------------------*/
-
-   if ( equal(name,"CON"))
-   {
-      portActive = TRUE;     /* record status for error handler       */
-      carrierdetect = FALSE;  /* Modem is not connected                */
-      console = TRUE;
-      return 0;
-   }
-
-   console = FALSE;
 
 /*--------------------------------------------------------------------*/
 /*            Reset any errors on the communications port             */
@@ -346,7 +342,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    traceStart( name );     /* Enable logging                          */
 
    portActive = TRUE;     /* record status for error handler        */
-   carrierdetect = FALSE;  /* Modem is not connected                 */
+   carrierDetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -382,8 +378,24 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
    BOOL rc;
    time_t stop_time ;
    time_t now ;
+   OVERLAPPED overlap;
 
-   boolean firstPass = TRUE;
+   boolean firstPass =  ( currentSpeed > 2400 ) || ( wanted == 1 );
+                              /* Perform extended read only on high-
+                                 speed modem links when looking for
+                                 packet data                         */
+
+/*--------------------------------------------------------------------*/
+/*                           Validate input                           */
+/*--------------------------------------------------------------------*/
+
+   if ( wanted > commBufferLength )
+   {
+      printmsg(0,"nsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
+      panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
@@ -438,6 +450,8 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 /*                     Handle an aborted program                      */
 /*--------------------------------------------------------------------*/
+      if ( suspend_processing )
+         return 0;
 
       if ( terminate_processing )
       {
@@ -460,53 +474,25 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          firstPass = FALSE;
       }
       else {
-         portTimeout = (USHORT) (stop_time - now) / needed * 100;
-         if (portTimeout < 100)
-            portTimeout = 100;
+         portTimeout = (USHORT) (stop_time - now) / needed * 1000;
+         if (portTimeout < 1000)
+            portTimeout = 1000;
       } /* else */
 
-      if (!console)
+      CommTimeout.ReadTotalTimeoutConstant = portTimeout;
+      CommTimeout.WriteTotalTimeoutConstant = 0;
+      CommTimeout.ReadIntervalTimeout = (portTimeout != 0) ?
+         0 : MAXDWORD;
+      CommTimeout.ReadTotalTimeoutMultiplier = 0;
+      CommTimeout.WriteTotalTimeoutMultiplier = 0;
+      rc = SetCommTimeouts(hCom, &CommTimeout);
+
+      if ( !rc )
       {
-          portTimeout *= 10; /* OS/2 is in hundredths; NT in msec */
-
-          CommTimeout.ReadTotalTimeoutConstant = 0;
-          CommTimeout.WriteTotalTimeoutConstant = 0;
-
-/*
-   ReadIntervalTimeout has to be set to MAXDWORD to get a ReadFile() to
-   return immediately -- see the description of the COMMTIMEOUT structure
-   in volume 5 of the Win32 API for an explanation.
-
-   Also, we're using ReadIntervalTimeout here instead of ReadTotalTimeout
-   because of an NT bug:  during a non-zero wait, if you want to ^C in the
-   middle of the wait, then both ReadIntervalTimeout <and>
-   ReadTotalTimeoutMultiplier must be non-zero.  Otherwise, the ReadFile()
-   call further down continues executing, even though the user pressing ^C.
-   The bug has been reported to Microsoft.
-
-*/
-
-          CommTimeout.ReadIntervalTimeout = (portTimeout != 0) ?
-             portTimeout : MAXDWORD;
-
-/*
-   ReadTotalTimeoutMultiplier is key.  If the timeout multiplier is 0,
-   then when portTimeout != 0, the ^C bug appears.
-*/
-
-          CommTimeout.ReadTotalTimeoutMultiplier = (portTimeout != 0) ?
-             1 : 0; /* 1 msec/character:  effectively zero. */
-
-          CommTimeout.WriteTotalTimeoutMultiplier = 0;
-          rc = SetCommTimeouts(hCom, &CommTimeout);
-
-          if ( !rc )
-          {
-             dwError = GetLastError();
-             printmsg(0, "sread: unable to set timeout for comm port");
-             printNTerror("sread", dwError);
-             panic();
-          }
+         dwError = GetLastError();
+         printmsg(0, "sread: unable to set timeout for comm port");
+         printNTerror("sread", dwError);
+         panic();
       }
 
 #ifdef UDEBUG
@@ -515,21 +501,43 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 #endif
 
 /*--------------------------------------------------------------------*/
+/*             Reset the event and initialize the overlap struct      */
+/*--------------------------------------------------------------------*/
+      ResetEvent(hComEvent);
+      memset(&overlap, 0, sizeof(OVERLAPPED));
+      overlap.hEvent = hComEvent;
+
+/*--------------------------------------------------------------------*/
 /*                 Read the data from the serial port                 */
 /*--------------------------------------------------------------------*/
-
       rc = ReadFile (hCom,
                      commBuffer + commBufferUsed,
                      portTimeout ? needed : commBufferLength - commBufferUsed,
                      &received,
-                     NULL);
+                     &overlap);
 
-      if (!rc) {
-         printmsg(0,
-            "sread: Read from comm port for %d bytes failed, received = %d.",
-            needed, (int) received);
-         commBufferUsed = 0;
-         return 0;
+      if (!rc)
+      {
+         dwError = GetLastError();
+         
+         if (dwError != ERROR_IO_PENDING)
+         {
+            printmsg(0,
+               "sread: Read from comm port for %d bytes failed, received = %d.",
+               needed, (int) received);
+            printNTerror("ReadFile", dwError);
+            commBufferUsed = 0;
+            return 0;
+         }
+      }
+
+      rc = GetOverlappedResult(hCom, &overlap, &received, TRUE);
+
+      if (!rc)
+      {
+         dwError = GetLastError();
+         if (dwError != ERROR_OPERATION_ABORTED)
+            printNTerror("GetOverlappedResult", GetLastError());
       }
 
 #ifdef UDEBUG
@@ -588,23 +596,47 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
 int nswrite(const char *input, unsigned int len)
 {
+   OVERLAPPED overlap;
 
    char *data = (char *) input;
 
    DWORD bytes;
+   DWORD dwError;
    BOOL rc;
    hangupNeeded = TRUE;      /* Flag that the port is now dirty  */
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
 /*--------------------------------------------------------------------*/
+   rc = ResetEvent(hComEvent);
 
-   rc = WriteFile (hCom, data, len, &bytes, NULL);
+   if (!rc)
+   {
+      printNTerror("ResetEvent", GetLastError());
+   }
+
+   memset(&overlap, 0, sizeof(OVERLAPPED));
+   overlap.hEvent = hComEvent;
+
+   rc = WriteFile (hCom, data, len, &bytes, &overlap);
 
    if (!rc) {
-      printmsg(0,"swrite: Write to communications port failed.");
+      dwError = GetLastError();
+      if (dwError != ERROR_IO_PENDING)
+      {
+         printmsg(0,"nswrite: Write to communications port failed.");
+         printNTerror("WriteFile", dwError);
+         return bytes;
+      }
+   }
 
-      return bytes;
+   rc = GetOverlappedResult(hCom, &overlap, &bytes, TRUE);
+
+   if (!rc)
+   {
+      dwError = GetLastError();
+      if (dwError != ERROR_OPERATION_ABORTED)
+         printNTerror("GetOverlappedResult", GetLastError());
    }
 
 /*--------------------------------------------------------------------*/
@@ -691,6 +723,16 @@ void ncloseline(void)
       printNTerror("ncloseline", dwError);
    }
 
+   if(!CloseHandle(hComEvent))
+   {
+      dwError = GetLastError();
+      printmsg(0, "ncloseline: close of event failed");
+      printNTerror("ncloseline", dwError);
+   }
+
+   hCom = INVALID_HANDLE_VALUE;
+   hComEvent = INVALID_HANDLE_VALUE;
+
 /*--------------------------------------------------------------------*/
 /*                   Stop logging the data to disk                    */
 /*--------------------------------------------------------------------*/
@@ -714,9 +756,6 @@ void nhangup( void )
 
    hangupNeeded = FALSE;
 
-   if ( console )
-      return;
-
 /*--------------------------------------------------------------------*/
 /*                              Drop DTR                              */
 /*--------------------------------------------------------------------*/
@@ -732,7 +771,7 @@ void nhangup( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"hangup: Dropped DTR");
-   carrierdetect = FALSE;  /* Modem is not connected                 */
+   carrierDetect = FALSE;  /* Modem is not connected                 */
    ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
@@ -776,7 +815,7 @@ void nSIOSpeed(BPS baud)
    GetCommState (hCom, &dcb);
    dcb.BaudRate = baud;
    rc = SetCommState (hCom, &dcb);
-   if (!rc && !console) {
+   if (!rc) {
       printmsg(0,"SIOSpeed: Unable to set baud rate for port to %lu",
                   (unsigned long) baud);
       panic();
@@ -798,9 +837,6 @@ void nflowcontrol( boolean flow )
    USHORT rc;
    DCB dcb;
    DWORD dwError;
-
-   if ( console )
-      return;
 
    GetCommState(hCom, &dcb);
    if (flow)
@@ -849,15 +885,12 @@ BPS nGetSpeed( void )
 
 boolean nCD( void )
 {
-   boolean previous_carrierdetect = carrierdetect;
+   boolean previousCarrierDetect = carrierDetect;
    USHORT rc;
 
    DWORD status;
    static DWORD oldstatus = (DWORD) 0xDEADBEEF;
    DWORD dwError;
-
-   if ( console )
-      return feof( stdin ) == 0;
 
    rc = GetCommModemStatus(hCom, &status);
    if ( !rc )
@@ -880,13 +913,12 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   carrierdetect = status & MS_RLSD_ON;
+   carrierDetect = status & MS_RLSD_ON ? TRUE : FALSE;
 
-   if (previous_carrierdetect)
-      return (status & (MS_RLSD_ON | MS_DSR_ON)) ==
-               (MS_RLSD_ON | MS_DSR_ON);
+   if (previousCarrierDetect)
+      return carrierDetect;
    else
-      return (status & MS_DSR_ON);
+      return (status & MS_DSR_ON) ? TRUE : FALSE;
 
 } /* nCD */
 
@@ -924,3 +956,20 @@ int nGetComHandle( void )
    return (int) hCom;
 
 }  /* nGetComHandle */
+
+BOOL AbortComm(void)
+{
+   BOOL retval = FALSE;
+
+   if (hCom != INVALID_HANDLE_VALUE)
+      retval = PurgeComm(hCom, PURGE_TXABORT | PURGE_RXABORT);
+
+   if (terminate_processing) {
+      printmsg(9, "Setting hComEvent");
+      if (hComEvent != INVALID_HANDLE_VALUE)
+         SetEvent(hComEvent);
+   }
+
+   return retval;
+}
+
