@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: COMMLIB.H 1.1 1993/05/30 00:11:03 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: COMMLIB.H $
+ * Revision 1.1  1993/05/30  00:11:03  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -113,7 +116,7 @@ extern boolean (*CDp)( void );
 #define GetSpeed()                     (*GetSpeedp)()
 #define CD()                           (*CDp)()
 
-extern boolean port_active;         // Port active flag for error handler
+extern boolean portActive;          // Port active flag for error handler
 extern boolean traceEnabled;        // Enable comm port trace
 
 #endif
