@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBNMP.C 1.14 1993/11/20 14:48:53 ahd Exp $
- *       $Log: ULIBNMP.C $
+ *       $Id: ulibnmp.c 1.15 1993/12/24 05:12:54 ahd Exp $
+ *       $Log: ulibnmp.c $
+ * Revision 1.15  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.14  1993/11/20  14:48:53  ahd
  * Add support for passing port name/port handle/port speed/user id to child
  *
@@ -482,7 +485,7 @@ unsigned int psread(char UUFAR *output,
 int pswrite(const char UUFAR *input, unsigned int len)
 {
 
-   char *data = (char *) input;
+   char UUFAR *data = (char UUFAR *) input;
    unsigned int left = len;
 
 #ifdef __OS2__
