@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.5 1995/02/20 17:30:32 ahd v1-12q $
+ *    $Id: imfile.h 1.6 1996/01/01 20:58:15 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.6  1996/01/01 20:58:15  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/02/20 17:30:32  ahd
  *    16 bit compiler warning cleanup
  *
@@ -46,6 +49,7 @@
 #define IM_FLAG_WRITE  0x02
 #define IM_FLAG_RW     ( IM_FLAG_READ | IM_FLAG_WRITE )
 #define IM_FLAG_ERROR  0x04
+#define IM_FLAG_TEXT   0x08
 
 typedef struct _IMFILE
 {
@@ -63,7 +67,7 @@ typedef struct _IMFILE
 /*                        Function prototypes                         */
 /*--------------------------------------------------------------------*/
 
-   IMFILE *imopen( const long length );
+   IMFILE *imopen( const long length, const char *mode);
 
    int     imprintf( IMFILE *, const char *, ... );
 

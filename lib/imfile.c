@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.20 1995/12/02 14:18:33 ahd Exp $
+ *    $Id: imfile.c 1.21 1996/01/01 20:54:18 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.21  1996/01/01 20:54:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1995/12/02 14:18:33  ahd
  *    Trap resizing buffer to zero bytes
  *
@@ -211,9 +214,14 @@ static int imReserve( IMFILE *imf, const unsigned long length )
                imf->inUse,
                newLength );
 
-   imf->stream = FOPEN( imf->filename,
-                        "w+",
-                        IMAGE_MODE );
+   if ( imf->flag & IM_FLAG_TEXT )
+      imf->stream = FOPEN( imf->filename,
+                           "w+",
+                           TEXT_MODE );
+   else
+      imf->stream = FOPEN( imf->filename,
+                           "w+",
+                           IMAGE_MODE );
 
    if ( imf->stream == NULL )
    {
@@ -232,8 +240,8 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 /*       Open an in memory file                                       */
 /*--------------------------------------------------------------------*/
 
-IMFILE *imopen( const long length )    /* Longest in memory
-                                          buffer desired          */
+IMFILE *imopen( const long length,
+                const char *mode)
 {
    IMFILE *imf = malloc( sizeof (IMFILE) );
 
@@ -254,6 +262,14 @@ IMFILE *imopen( const long length )    /* Longest in memory
       imclose( imf );
       return NULL;
    }
+
+/*--------------------------------------------------------------------*/
+/*       Determine if the file is image (binary) or text              */
+/*--------------------------------------------------------------------*/
+
+   if ( equal( mode, TEXT_MODE ))
+      imf->flag |= IM_FLAG_TEXT;
+
 
 /*--------------------------------------------------------------------*/
 /*       Grab an imf buffer unless IM files are disabled, the file    */
@@ -286,7 +302,15 @@ IMFILE *imopen( const long length )    /* Longest in memory
    if ( imf->buffer == NULL )
    {
       imf->filename = mktempname( NULL, "TMP" );
-      imf->stream = FOPEN( imf->filename, "w+", IMAGE_MODE );
+
+      if ( imf->flag & IM_FLAG_TEXT )
+         imf->stream = FOPEN( imf->filename,
+                              "w+",
+                              TEXT_MODE );
+      else
+         imf->stream = FOPEN( imf->filename,
+                              "w+",
+                              IMAGE_MODE );
 
       if ( imf->stream == NULL )
       {
@@ -329,6 +353,7 @@ int imclose( IMFILE *imf)
    }
 
    memset( imf, 0, sizeof imf );
+   free( imf );
 
    return result;
 
@@ -934,9 +959,14 @@ int executeIMFCommand( const char *command,
                                synchronous,
                                foreground );
 
-      imf->stream = FOPEN( imf->filename,
-                           "a+",
-                           IMAGE_MODE );
+      if ( imf->flag & IM_FLAG_TEXT )
+         imf->stream = FOPEN( imf->filename,
+                              "w+",
+                              TEXT_MODE );
+      else
+         imf->stream = FOPEN( imf->filename,
+                              "w+",
+                              IMAGE_MODE );
 
       if ( imf->stream == NULL )
       {
@@ -955,7 +985,14 @@ int executeIMFCommand( const char *command,
 
    mktempname( tempName, "TMP" );
 
-   stream = FOPEN( tempName, "w", TEXT_MODE );
+   if ( imf->flag & IM_FLAG_TEXT )
+      stream = FOPEN( imf->filename,
+                           "w+",
+                           TEXT_MODE );
+   else
+      stream = FOPEN( imf->filename,
+                           "w+",
+                           IMAGE_MODE );
 
    if ( stream == NULL )
    {

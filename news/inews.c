@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.27 1995/11/30 12:50:15 ahd v1-12q $
+ *       $Id: inews.c 1.28 1996/01/01 21:08:20 ahd v1-12r $
  *
  * $Log: inews.c $
+ * Revision 1.28  1996/01/01 21:08:20  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.27  1995/11/30 12:50:15  ahd
  * Make header compares case insensitive
  *
@@ -121,7 +124,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.27 1995/11/30 12:50:15 ahd v1-12q $";
+      "$Id: inews.c 1.28 1996/01/01 21:08:20 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -369,7 +372,7 @@ static int complete_header(FILE *input, FILE *output )
 
   if (get_header(input, buf, sizeof(buf), "Newsgroups:") == -1)
   {
-    printmsg(0, "inews: no Newsgroup: line, nothing sent.");
+    printmsg(0, "inews: no Newsgroups: line, nothing sent.");
     return -1;
   }
 

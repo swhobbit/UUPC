@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.11 1995/12/02 14:18:33 ahd Exp $
+ *       $Id: newsrun.c 1.12 1996/01/01 21:07:48 ahd v1-12r $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.12  1996/01/01 21:07:48  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.11  1995/12/02 14:18:33  ahd
  *       Use longer buffers, add new debugging messages
  *
@@ -226,7 +229,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.11 1995/12/02 14:18:33 ahd Exp $";
+         "$Id: newsrun.c 1.12 1996/01/01 21:07:48 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -600,7 +603,7 @@ static int Single( FILE *stream )
    unsigned chars_read;
    unsigned chars_written;
 
-   imf = imopen( filelength( fileno( stream )));
+   imf = imopen( filelength( fileno( stream )), IMAGE_MODE);
 
    if ( imf == NULL )
    {
@@ -764,7 +767,7 @@ static int Batched( FILE *streamIn)
 /*                   Open up our next working file                    */
 /*--------------------------------------------------------------------*/
 
-      imf = imopen( (long) article_size );
+      imf = imopen( (long) article_size, IMAGE_MODE );
 
       if ( imf == NULL )
       {
@@ -1589,11 +1592,14 @@ static KWBoolean deliver_local(IMFILE *imf,
    if (groups_found == 0)
    {
 
-     printmsg(2, "no group to deliver to: %s", messageID );
      memcpy(newsgroups, "junk\0\0", 6);
      b_xref = KWFalse;
 
      snum = getArticleNewest( "junk" );
+     printmsg(1, "No group to deliver to (%s): %s (%.50s)",
+                  messageID,
+                  snum ? "discarded" : "junked",
+                  newsgroups_in );
 
      if (snum == 0 )                   /* Do we maintain junk group? */
      {                                 /* No --> Throw article away  */
