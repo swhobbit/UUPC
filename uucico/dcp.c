@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.18 1993/09/29 13:18:06 ahd Exp $
+ *    $Id: dcp.c 1.19 1993/09/30 03:06:28 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.19  1993/09/30  03:06:28  ahd
+ * Move suspend signal handler into suspend2
+ *
  * Revision 1.18  1993/09/29  13:18:06  ahd
  * Don't call suspend handler under DOS Turbo C++ (not impletemented, anyway)
  *
@@ -421,7 +424,7 @@ int dcpmain(int argc, char *argv[])
 
             case CONN_DIALOUT:
 
-               if ( suspend_other(TRUE, M_device ) < 0 )
+               if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
                {
                   hostp->hstatus =  nodevice;
                   m_state = CONN_INITIALIZE;    // Try next system
