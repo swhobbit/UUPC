@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.16 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: dcplib.c 1.17 1994/02/26 17:20:13 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.17  1994/02/26  17:20:13  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.16  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -276,7 +279,8 @@ boolean login(void)
             printmsg(0,"login: login for user %s failed, bad user id",
                   user);               /* Log the error for ourselves  */
       }
-      else if ( equal(pswd,userp->password))   /* Correct password?    */
+      else if ( equal(pswd, userp->password ? userp->password : "" ))
+                                       /* Correct password?            */
       {                                /* Yes --> Log the user "in"    */
          time_t now;
                    /*   . . ..+....1....  +....2....+....3....  + .   */
@@ -286,7 +290,9 @@ boolean login(void)
 
          time( &now );
          printmsg(0,"login: login user %s (%s) at %.24s",
-                     userp->uid, userp->realname, ctime( &now ));
+                     userp->uid,
+                     userp->realname,
+                     ctime( &now ));
 
          if equal(userp->sh,UUCPSHELL) /* Standard uucp shell?       */
          {
@@ -305,7 +311,9 @@ boolean login(void)
       else {                        /* Password was wrong.  Report   */
          wmsg("\r\nlogin failed",0);
          printmsg(0,"login: login user %s (%s) failed, bad password %s",
-                  userp->uid, userp->realname, pswd);
+                  userp->uid,
+                  userp->realname,
+                  pswd);
       }
    }  /* for */
 
