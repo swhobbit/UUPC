@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.6 1995/01/07 16:20:33 ahd Exp $
+ *    $Id: batch.c 1.7 1995/01/07 20:48:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.7  1995/01/07 20:48:21  ahd
+ *    Correct 16 compile warnings
+ *
  *    Revision 1.6  1995/01/07 16:20:33  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -76,8 +79,6 @@ currentfile();
 
 #define COMPRESS "compress"
 
-static void queue_news( const char *sysName, const char *fname );
-
 /*--------------------------------------------------------------------*/
 /*   q u e u e _ n e w s                                              */
 /*                                                                    */
@@ -89,7 +90,7 @@ static void queue_news( const char *sysName, const char *fname )
    char commandOptions[BUFSIZ];
    int status = 0;
 
-   sprintf(commandOptions, "-p -g%c -n -x %d -C %s!rnews",
+   sprintf(commandOptions, "-anews -p -g%c -n -x %d -C %s!rnews",
            E_newsGrade,
            debuglevel,
            sysName );
@@ -289,17 +290,17 @@ void process_batch(const struct sys *node,
    char batchName[FILENAME_MAX];
    char listCopyName[FILENAME_MAX];
 
-   printmsg(2, "process_batch: batching for %s from %s, batch size %ld",
-                system,
-                articleListName,
-                E_batchsize );
-
    /* compressed batches are generated in the tempdir, with no extension */
 
    names = FOPEN(articleListName, "r+", IMAGE_MODE);
 
    if (names == NULL)  /* there are no article names to read */
      return;
+
+   printmsg(1, "process_batch: batching for %s from %s, batch size %ld",
+                system,
+                articleListName,
+                E_batchsize );
 
    mktempname( listCopyName, "TMP");
 
