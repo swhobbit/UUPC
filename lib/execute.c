@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.28 1994/02/19 04:04:23 ahd Exp $
+ *    $Id: execute.c 1.29 1994/02/19 04:39:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.29  1994/02/19  04:39:30  ahd
+ * Use standard first header
+ *
  * Revision 1.28  1994/02/19  04:04:23  ahd
  * Use standard first header
  *
@@ -332,7 +335,7 @@ int execute( const char *command,
              const boolean foreground )
 {
    int result;
-   int temp;
+   int tempHandle;
    char path[BUFSIZ];
    boolean redirected;
 
@@ -358,30 +361,30 @@ int execute( const char *command,
 
    if (input != NULL)
    {
-     if ((temp = open(input, O_RDONLY|O_BINARY)) == -1)
+     if ((tempHandle = open(input, O_RDONLY|O_BINARY)) == -1)
      {
        printerr(input);
        return -2;
      }
 
-     if (dup2(temp, 0))
+     if (dup2(tempHandle, 0))
      {
          printerr( input );
          panic();
      }
-     close(temp);
+     close(tempHandle);
    }
 
    if (output != NULL)
    {
-     if ((temp = open(output, O_RDWR|O_BINARY|O_CREAT|O_TRUNC, 0666)) == -1)
+     if ((tempHandle = open(output, O_RDWR|O_BINARY|O_CREAT|O_TRUNC, 0666)) == -1)
      {
        printerr( output );
        if ( input != NULL )
        {
-         FILE *temp = freopen("con", "r", stdin);
+         FILE *tempStream = freopen(CONSOLE, "r", stdin);
 
-         if ( (temp == NULL) && (errno != 0) )
+         if ( (tempStream == NULL) && (errno != 0) )
          {
             printerr("stdin");
             panic();
@@ -394,12 +397,12 @@ int execute( const char *command,
 
      }
 
-     if (dup2(temp, 1))
+     if (dup2(tempHandle, 1))
      {
          printerr( input );
          panic();
      }
-     close(temp);
+     close(tempHandle);
 
    } /* if (output != NULL) */
 
@@ -451,17 +454,11 @@ int execute( const char *command,
 /*                  Re-open our standard i/o streams                  */
 /*--------------------------------------------------------------------*/
 
-   if ( output != NULL )
-   {
-      freopen("con", "w", stdout);
-      setvbuf( stdout, NULL, _IONBF, 0);
-   }
-
    if ( input != NULL )
    {
-      FILE *temp = freopen("con", "r", stdin);
+      FILE *tempStream = freopen(CONSOLE, "r", stdin);
 
-      if ( (temp == NULL) && (errno != 0) )
+      if ( (tempStream == NULL) && (errno != 0) )
       {
          printerr("stdin");
          panic();
@@ -469,6 +466,12 @@ int execute( const char *command,
       setvbuf( stdin, NULL, _IONBF, 0);
 
    } /* if ( input != NULL ) */
+
+   if ( output != NULL )
+   {
+      freopen(CONSOLE, "w", stdout);
+      setvbuf( stdout, NULL, _IONBF, 0);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                     Report results of command                      */
