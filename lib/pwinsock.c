@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.13 1993/07/11 14:38:32 ahd Exp $
+ *    $Id: pwinsock.c 1.1 1993/09/20 04:39:51 ahd Exp $
  *
- *    $Log: ulib.c $
+ *    $Log: pwinsock.c $
+ * Revision 1.1  1993/09/20  04:39:51  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -104,6 +107,8 @@ u_long PASCAL FAR (*phtonl) (u_long hostlong);
 
 u_long PASCAL FAR (*pntohl) (u_long netlong);
 
+int PASCAL FAR (*pshutdown) (SOCKET s, int how);
+
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
 /*--------------------------------------------------------------------*/
@@ -159,6 +164,7 @@ boolean pWinSockInit( void )
    precv                  = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 16,0));
    pselect                = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 18,0));
    psend                  = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 19,0));
+   pshutdown              = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 22,0));
    psocket                = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 23,0));
    pgethostbyname         = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 52,0));
    pgetservbyname         = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 55,0));
