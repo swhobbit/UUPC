@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MAILLIB.C 1.2 1992/11/27 14:36:10 ahd Exp $
+ *    $Id: MAILLIB.C 1.3 1993/04/11 00:33:05 ahd Exp $
  *
  *    $Log: MAILLIB.C $
+ * Revision 1.3  1993/04/11  00:33:05  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/27  14:36:10  ahd
  * Use scrsize() for screen size
  *
@@ -57,6 +60,7 @@ static char *ignorelist[] =  { "Message-ID:",
                         "Status: ",
                         "X-Mailer: ",
                         "From " ,
+                        "Precedence: " ,
                         "Path: ",
                         "Lines: ",
                         "References: ",
