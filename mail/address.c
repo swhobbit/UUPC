@@ -550,7 +550,7 @@ char *ExtractAddress(char *result,
 
    if (state == 'A')
    {
-      printmsg(0, "ExtractAddress: Could find not address in \"%s\"",
+      printmsg(0, "ExtractAddress: Could not find address in \"%s\"",
                column);
       panic();
    }
