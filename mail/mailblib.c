@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.13 1994/02/25 02:23:42 ahd Exp $
+ *    $Id: mailblib.c 1.14 1994/02/28 01:02:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.14  1994/02/28  01:02:06  ahd
+ * Cosmetic formatting cleanups
+ *
  * Revision 1.13  1994/02/25  02:23:42  ahd
  * Rename selected copyopt enums to make them more self-documenting
  *
@@ -542,11 +545,20 @@ void subshell( char *command )
 
       } /* if ( new_prompt == NULL ) */
 
+#if defined(__OS2__) || defined(FAMILYAPI)
       executeCommand( getenv( "COMSPEC" ),
                       NULL,
                       NULL,
                       TRUE,
                       FALSE);
+#else
+      executeCommand( getenv( "COMSPEC" ),
+                      NULL,
+                      NULL,
+                      TRUE,
+                      TRUE);
+#endif
+
    } /* if */
    else
       executeCommand( command,

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.9 1994/01/01 19:13:04 ahd Exp $
+ *    $Id: mlib.c 1.10 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.10  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.9  1994/01/01  19:13:04  ahd
  * Annual Copyright Update
  *
@@ -151,7 +154,12 @@ int Invoke(const char *ecmd,
 /*          Execute command, report results if interesting.           */
 /*--------------------------------------------------------------------*/
 
+#if defined(FAMILYAPI) || defined(__OS2__)
    rc = executeCommand(command, NULL, NULL, TRUE, unique );
+#else
+   rc = executeCommand(command, NULL, NULL, TRUE, TRUE );
+#endif
+
    if( rc )
    {
       printf("Invoke: \"%s\" failed, exit code %d.\n",
