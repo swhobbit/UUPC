@@ -16,10 +16,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.32 1995/03/11 02:06:02 ahd Exp $
+ *    $Id: uutypes.h 1.33 1995/04/02 00:04:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.33  1995/04/02 00:04:32  ahd
+ *    Add option to supppress display of selected information by UUCICO
+ *    at remote login.
+ *
  *    Revision 1.32  1995/03/11 02:06:02  ahd
  *    Delete obsolete F_COMPRESSBATCH
  *
@@ -146,6 +150,9 @@
 #define MALLOC(l)      malloc(l)
 #define REALLOC(p,l)   realloc(p,l)
 #define FREE(p)        free(p)
+#define STRCPY(s1,s2)  strcpy(s1,s2)
+#define STRCAT(s1,s2)  strcat(s1,s2)
+#define STRCMP(s1,s2)  strcmp(s1,s2)
 #else
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
@@ -154,6 +161,9 @@
 #define MALLOC(l)      _fmalloc(l)
 #define REALLOC(p,l)   _frealloc(p,l)
 #define FREE(p)        _ffree(p)
+#define STRCPY(s1,s2)  _fstrcpy(s1,s2)
+#define STRCAT(s1,s2)  _fstrcat(s1,s2)
+#define STRCMP(s1,s2)  _fstrcmp(s1,s2)
 #endif
 
 /*--------------------------------------------------------------------*/
