@@ -5,9 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -33,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.9 1993/04/05 04:32:19 ahd Exp $
+ *    $Id: DCP.C 1.10 1993/04/11 00:35:46 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.10  1993/04/11  00:35:46  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.9  1993/04/05  04:32:19  ahd
  * Allow unique send and receive packet sizes
  *
@@ -69,6 +70,7 @@
 /*                 [-x debuglevel]                                    */
 /*                 [-w userid]                                        */
 /*                 [-z bps]                                           */
+/*                 [-t]                                               */
 /*                                                                    */
 /* e.g.                                                               */
 /*                                                                    */
@@ -111,6 +113,7 @@
 #include "modem.h"
 #include "security.h"
 #include "ssleep.h"
+#include "commlib.h"
 
 /*--------------------------------------------------------------------*/
 /*    Define passive and active polling modes; passive is             */
@@ -138,7 +141,6 @@ FILE *syslog = NULL;
 char workfile[FILENAME_MAX];  /* name of current workfile         */
 char *Rmtname = nil(char);    /* system we want to call           */
 char rmtname[20];             /* system we end up talking to      */
-char s_systems[FILENAME_MAX]; /* full-name of systems file        */
 struct HostTable *hostp;
 struct HostStats remote_stats; /* host status, as defined by hostatus */
 
@@ -181,7 +183,7 @@ int dcpmain(int argc, char *argv[])
 /*                        Process our options                         */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "d:g:m:l:r:s:w:x:z:n?")) != EOF)
+   while ((option = getopt(argc, argv, "d:g:m:l:r:s:tw::x:z:n?")) != EOF)
       switch (option)
       {
 
@@ -223,6 +225,10 @@ int dcpmain(int argc, char *argv[])
          Rmtname = optarg;
          break;
 
+      case 't':
+         traceEnabled = TRUE;
+         break;
+
       case 'x':
          debuglevel = atoi(optarg);
          break;
@@ -239,7 +245,7 @@ int dcpmain(int argc, char *argv[])
       case '?':
          puts("\nUsage:\tuucico\t"
          "[-s [all | any | sys]] [-r 1|0] [-x debug] [-d hhmm]\n"
-         "\t\t[-n] [-w user] [-l logfile] [-m modem] [-z bps]");
+         "\t\t[-n] [-t] [-w user] [-l logfile] [-m modem] [-z bps]");
          return 4;
       }
 
@@ -270,9 +276,6 @@ int dcpmain(int argc, char *argv[])
          panic();
       }
    }
-
-   mkfilename(s_systems, E_confdir, SYSTEMS);
-   printmsg(2, "Using system file '%s'",s_systems);
 
    if ( terminate_processing )
       return 100;
@@ -306,8 +309,11 @@ int dcpmain(int argc, char *argv[])
 
       printmsg(2, "calling \"%s\", debug=%d", Rmtname, debuglevel);
 
-      if ((fsys = FOPEN(s_systems, "r",TEXT_MODE)) == nil(FILE))
+      if ((fsys = FOPEN(E_systems, "r",TEXT_MODE)) == nil(FILE))
+      {
+         printerr(E_systems);
          exit(FAILED);
+      }
 
       setvbuf( fsys, NULL, _IONBF, 0);
 
