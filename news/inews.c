@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.17 1995/01/02 05:03:27 ahd Exp $
+ *       $Id: inews.c 1.18 1995/01/03 05:32:26 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.18  1995/01/03 05:32:26  ahd
+ * Further SYS file support cleanup
+ *
  * Revision 1.17  1995/01/02 05:03:27  ahd
  * Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -91,7 +94,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.17 1995/01/02 05:03:27 ahd Exp $";
+      "$Id: inews.c 1.18 1995/01/03 05:32:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -285,7 +288,7 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
 
 static int complete_header(FILE *input, FILE *output )
 {
-  char buf[BUFSIZ], *ptr, *sys;
+  char buf[BUFSIZ], *ptr;
   time_t now;
   int OK, i;
   unsigned lines = 0;

@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.39 1995/01/02 05:03:27 ahd Exp $
+ *       $Id: rnews.c 1.40 1995/01/03 05:32:26 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.40  1995/01/03 05:32:26  ahd
+ *       Further SYS file support cleanup
+ *
  *       Revision 1.39  1995/01/02 05:03:27  ahd
  *       Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -144,7 +147,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.39 1995/01/02 05:03:27 ahd Exp $";
+         "$Id: rnews.c 1.40 1995/01/03 05:32:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -527,7 +530,7 @@ void main( int argc, char **argv)
    {
       struct sys *node = sys_list;
 
-      printmsg(1, "%s: Forwarded %d articles.", argv[0], fwd_articles);
+      printmsg(4, "%s: Forwarded %d articles.", argv[0], fwd_articles);
 
       while( node )
       {

@@ -51,7 +51,6 @@
 /*                                                                    */
 /*           u - transmit only unmoderated groups                     */
 /*                                                                    */
-/*                                                                    */
 /*    command: this field contains either a command thru which to     */
 /*             pipe articles destined for this system, or is used     */
 /*             based on the flags.                                    */
@@ -74,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.2 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: sys.c 1.3 1995/01/03 05:32:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.3  1995/01/03 05:32:26  ahd
+ *    Further SYS file support cleanup
+ *
  *    Revision 1.2  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -134,9 +136,7 @@ void process_sys(const long start, char *buf)
 
   printmsg(3, "process_sys: start %ld, entry: %s", start, buf);
 
-
   memset(node, 0, sizeof(struct sys));
-
 
 /*--------------------------------------------------------------------*/
 /*               Check this entry to the previous entry               */
@@ -387,7 +387,6 @@ void process_sys(const long start, char *buf)
                   node->sysname );
        panic();
     }
-
 
 /*--------------------------------------------------------------------*/
 /*       If the command field was not filled in by the user or        */
@@ -880,17 +879,9 @@ void read_block(long from, long f_to, char *buf)
 boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 {
 
-  char *buf;
+  char buf[BUFSIZ*8];
   boolean bRet = !excluded(entry->sysname, path);
 
-  buf = malloc(BUFSIZ * 8);
-  if (buf == NULL)
-  {
-    printmsg(0, "check_sys:  Unable to allocate memory to read sys entry");
-    panic();
-  }
-
-  printmsg(3, "check_sys: checking!");
   printmsg(5, "check_sys: node: %s", entry->sysname);
   printmsg(5, "check_sys: groups: %s", groups);
   printmsg(5, "check_sys: distrib: %s", distrib);
@@ -920,7 +911,6 @@ boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 
   printmsg(3, "check_sys: returning %s", bRet ? "TRUE" : "FALSE");
 
-  free(buf);
   return bRet;
 
 } /* check_sys */

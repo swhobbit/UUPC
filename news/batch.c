@@ -9,7 +9,7 @@
 /*    to be news articles.  These are batched together into a *.BAT   */
 /*    file in the same directory.  If the F_COMPRESS flag is set,     */
 /*    the batch file is then compressed and the compressed file is    */
-/*    given the filename *.CMP.  Intermediate files as necessary.     */
+/*    given the fileName *.CMP.  Intermediate files as necessary.     */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.2 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: batch.c 1.3 1995/01/03 05:32:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.3  1995/01/03 05:32:26  ahd
+ *    Further SYS file support cleanup
+ *
  *    Revision 1.2  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -75,9 +78,7 @@ static void queue_news( const char *sysName, const char *fname );
 static void queue_news( const char *sysName, const char *fname )
 {
    char commandOptions[BUFSIZ];
-   int status;
-
-   printmsg(1, "Transmitting news to %s", sysName );
+   int status = 0;
 
    sprintf(commandOptions, "-p -g%c -n -x %d -C %s!rnews",
            E_newsGrade,
@@ -106,7 +107,7 @@ static void queue_news( const char *sysName, const char *fname )
 /*    their respective locations.  Input is read till EOF.            */
 /*--------------------------------------------------------------------*/
 
-static void copy_file_s2s(FILE *output, FILE *input, const char *filename)
+static void copy_file_s2s(FILE *output, FILE *input, const char *fileName)
 {
    size_t len;
    char buf[BUFSIZ];
@@ -115,7 +116,7 @@ static void copy_file_s2s(FILE *output, FILE *input, const char *filename)
    {
       if (fwrite( buf, 1, len, output ) != len)     /* I/O error? */
       {
-         printerr(filename);
+         printerr(fileName);
          panic();
       } /* if */
 
@@ -145,6 +146,7 @@ void compress_batch(const char *system, const char *batchName)
    FILE *zfile_stream;
    FILE *finalStream;
    int  status;
+   int  tempHandle;
 
    char command[FILENAME_MAX * 4];
 
@@ -232,29 +234,29 @@ void compress_batch(const char *system, const char *batchName)
 static void build_batchName(char *batchName,
                             const boolean nocompress )
 {
-   char filename[FILENAME_MAX];
-   boolean needtemp = TRUE;
+   char fileName[FILENAME_MAX];
 
    if (nocompress )
-     mktempname( filename, "TMP" );
+     mktempname( batchName, "TMP" );
    else {
+      boolean needtemp = TRUE;
+
       while( needtemp )
       {
-         mktempname( filename , "Z" );          /* Generate "compressed" file
+         mktempname( fileName , "Z" );          /* Generate "compressed" file
                                                    name                       */
-         strcpy( batchName, filename );
+         strcpy( batchName, fileName );
          batchName[ strlen(batchName)-2 ] = '\0';
 
          if ( access( batchName, 0 ))  /* Does the host file exist?       */
             needtemp = FALSE;        /* No, we have a good pair         */
          else
             printmsg(3, "Had compressed name %s, found %s already exists!",
-                     filename, batchName );
+                     fileName, batchName );
 
       } /* while */
 
    }  /* else */
-
 
 } /* build_batchName */
 
@@ -279,12 +281,14 @@ void process_batch(const struct sys *node,
    char batchName[FILENAME_MAX];
    char listCopyName[FILENAME_MAX];
 
-   printmsg(2, "process_batch: batching for %s", system);
-   printmsg(4, "process_batch: batching from %s", articleListName);
+   printmsg(2, "process_batch: batching for %s from %s, batch size %ld",
+                system,
+                articleListName,
+                E_batchsize );
 
    /* compressed batches are generated in the tempdir, with no extension */
 
-   names = FOPEN(articleListName, "r", IMAGE_MODE);
+   names = FOPEN(articleListName, "r+", IMAGE_MODE);
 
    if (names == NULL)  /* there are no article names to read */
      return;
@@ -316,44 +320,60 @@ void process_batch(const struct sys *node,
 
      while (filelength(fileno(batch)) < E_batchsize)
      {
-       char filename[FILENAME_MAX];
+       char articleName[FILENAME_MAX];
+       long length;
 
-      if (fgets(fileNameBuf, sizeof fileNameBuf, names) != NULL)
+      if (fgets(fileNameBuf, sizeof fileNameBuf, names) == NULL)
          break;
 
        strtok(fileNameBuf, WHITESPACE);
-                                    /* filename is first, dont need rest */
-
-       printmsg(3, "Copying article %s", fileNameBuf);
+                                    /* fileName is first, dont need rest */
 
        denormalize( fileNameBuf );
 
        if (( *fileNameBuf == '\\' ) ||    /* Full path name?         */
            ( isalpha(*fileNameBuf) &&
              equalni( fileNameBuf + 1, ":\\", 2 )))
-          strcpy( filename, fileNameBuf );   /* Yes --> Just copy    */
+          strcpy( articleName, fileNameBuf );   /* Yes --> Just copy    */
        else
-          mkfilename(filename, E_newsdir, fileNameBuf);
+          mkfilename(articleName, E_newsdir, fileNameBuf);
 
 /*--------------------------------------------------------------------*/
 /*                      Process a specific article                    */
 /*--------------------------------------------------------------------*/
 
-       article = FOPEN(filename, "r", IMAGE_MODE);
+       article = FOPEN(articleName, "r", IMAGE_MODE);
 
        if (article == NULL)
        {
-         printerr(fileNameBuf);
-         fclose(listCopy);
-         unlink(listCopyName);
-         fclose(batch);
-         unlink(batchName);
-         panic();
+         printmsg(0,"process_batch: Unable to open %s", articleName );
+         printerr(articleName);
+
+         continue;                  /* Non-fatal, since the file is
+                                       not going to magically
+                                       reappear                      */
        }
 
-       fprintf(batch, "#! rnews %ld\n", filelength(fileno(article)));
-       copy_file_s2s(batch, article, batchName);
+       length = (long) filelength(fileno( article ));
+
+       if ( length > 0 )
+       {
+          printmsg(3, "Copying article %s (%ld) to %s (%ld)",
+                       articleName,
+                       length,
+                       batchName,
+                       (long) filelength(fileno( batch )));
+
+          fprintf(batch, "#! rnews %ld\n", length );
+          copy_file_s2s(batch, article, batchName);
+       }
+       else
+          printmsg(0, "process_batch: Ignored empty article %s",
+                      articleName );
+
        fclose(article);
+
+       fflush( batch );
 
      } /* while names and batch small */
 
@@ -377,6 +397,7 @@ void process_batch(const struct sys *node,
 
        /* keep the rest of the names in case of failure */
 
+       fflush(listCopy);
        rewind(listCopy);
        chsize(fileno(listCopy), 0); /* truncate the listCopy file */
        where = ftell(names);
@@ -391,7 +412,7 @@ void process_batch(const struct sys *node,
 
        while (fgets(fileNameBuf, sizeof fileNameBuf, names) != NULL)
        {
-         char filename[FILENAME_MAX];
+         char fileName[FILENAME_MAX];
 
          strtok(fileNameBuf, WHITESPACE);     /* delete eoln chars    */
 
@@ -400,17 +421,17 @@ void process_batch(const struct sys *node,
          if (( *fileNameBuf == '\\' ) ||     /* Full path name?      */
              ( isalpha(*fileNameBuf) &&
                equalni( fileNameBuf+ 1, ":\\", 2 )))
-            strcpy( filename, fileNameBuf );    /* Yes --> Just copy    */
+            strcpy( fileName, fileNameBuf );    /* Yes --> Just copy    */
          else
-            mkfilename(filename, E_newsdir, fileNameBuf);
+            mkfilename(fileName, E_newsdir, fileNameBuf);
 
          /* only delete article files stored in outgoing directory */
 
-         if ((strlen(filename) > strlen(E_newsdir)) &&
-              strstr(filename + strlen(E_newsdir), OUTGOING_NEWS ))
+         if ((strlen(fileName) > strlen(E_newsdir)) &&
+              strstr(fileName + strlen(E_newsdir), OUTGOING_NEWS ))
          {
-           printmsg(3, "Deleting article %s", filename);
-           unlink(filename);
+           printmsg(3, "Deleting article %s", fileName);
+           unlink(fileName);
          }
 
        }
