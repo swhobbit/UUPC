@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.14 1995/01/30 04:08:36 ahd Exp $
+ *    $Id: sys.c 1.15 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.15  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.14  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *
@@ -534,12 +537,12 @@ static void bootStrap( const char *fileName )
 /*         Everyone else gets our full feed sans-local stuff.         */
 /*--------------------------------------------------------------------*/
 
-   if ( E_newsserv )
-   {
-      fprintf( stream, "# Our news feed, not batched to speed our posts\n");
-      fprintf( stream, "%s:all/!local::\n\n", E_newsserv );
+
+
+   fprintf( stream, "# Our news feed, not batched to speed our posts\n");
+   fprintf( stream, "%s:all/!local::\n\n",
+                    E_newsserv ? E_newsserv : E_mailserv );
                            /* Uncompressed feed for speedy posts     */
-   }
 
    if ( sysname != NULL )
    {
