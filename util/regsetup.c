@@ -7,7 +7,8 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright (c) 1994 by Kendra Electronic Wonderworks.         */
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
 /*       the UUPC/extended license agreement.                         */
@@ -32,14 +33,18 @@
 /*                         CURRENT_USER                               */
 /*                                                                    */
 /*--------------------------------------------------------------------*/
+
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.1 1994/04/24 20:24:43 dmwatt v1-12k $
+ *    $Id: regsetup.c 1.2 1995/01/07 16:22:49 ahd Exp $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.2  1995/01/07 16:22:49  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.1  1994/04/24 20:24:43  dmwatt
  *    Initial revision
  *
@@ -52,7 +57,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.1 1994/04/24 20:24:43 dmwatt v1-12k $";
+         "$Id: regsetup.c 1.2 1995/01/07 16:22:49 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -370,20 +375,21 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    for (tptr = envtable; tptr->sym != nil(char); tptr++)
    {
       if (tptr->bits & B_OBSOLETE)
-         continue;	/* Skip obsolete stuff */
-      if (*(tptr->loc) == NULL)
+         continue;      /* Skip obsolete stuff */
+      if (*((char **)(tptr->loc)) == NULL)
          continue;  /* Skip uninitialized */
 
 /* For now, take it easy:  leave out KWBooleans, shorts, longs, and lists */
-      if (tptr->bits & B_BOOLEAN)
+
+     if (tptr->bits & B_BOOLEAN)
          continue;
       if (tptr->bits & (B_SHORT|B_LONG))
-         *(tptr->loc) = NULL;
+         *((char **)(tptr->loc)) = NULL;
       if (tptr->bits & (B_LIST | B_CLIST))
-         *(tptr->loc) = NULL;
+         *((char **)(tptr->loc)) = NULL;
 
 /* All that's left is strings */
-      *(tptr->loc) = NULL;
+      *((char **)(tptr->loc)) = NULL;
    }
 
       success = getconfig(fp, USER_CONFIG, program, envtable, configFlags);
@@ -392,6 +398,7 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*      Copy the user settings into the user hive                     */
 /*--------------------------------------------------------------------*/
       CopyTable(hUserHive, usrrc, envtable);
+      CopyTable(hSystemHive, usrrc, envtable);  /* Put a copy into the system archive for services */
 
       if (!success)
       {
@@ -478,7 +485,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
          /* Skip obsolete stuff */
          continue;
       }
-      else if (*(tptr->loc) == NULL)
+      else if (*((char **)(tptr->loc)) == NULL)
       {
          /* Skip uninitialized */
          continue;
@@ -488,6 +495,14 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
          /* For now, take it easy:  leave out KWBooleans */
          continue;
       }
+          else if (tptr->bits & B_CHAR)
+          {
+             /* characters */
+                 char buf[2];
+                 buf[1] = '\0';
+                 buf[0] = *((char *)tptr->loc);
+                 PutRegistry(hSystemHive, subKey, tptr->sym, buf);
+          }
       else if (tptr->bits & (B_SHORT|B_LONG))
       {
          char buf[BUFSIZ];
@@ -505,7 +520,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
 
          char delimiter[2];
          char buf[BUFSIZ];
-         char **el = (char **)(*(tptr->loc));
+         char **el = (char **)(*((char **)(tptr->loc)));
          int i;
 
          delimiter[1] = '\0';
@@ -523,16 +538,16 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
             strcat(buf, el[i]);
             i++;
             if (el[i] != NULL)
-			   strcat(buf, delimiter);
-			else
-			   break;
-			
+                           strcat(buf, delimiter);
+                        else
+                           break;
+
          }
          PutRegistry(hSystemHive, subKey, tptr->sym, buf);
       } else
       {
          /* All that's left is strings */
-         PutRegistry(hSystemHive, subKey, tptr->sym, *(tptr->loc));
+         PutRegistry(hSystemHive, subKey, tptr->sym, *((char **)(tptr->loc)));
       }
    }
 }
