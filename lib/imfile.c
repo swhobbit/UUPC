@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.13 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: imfile.c 1.14 1995/02/26 02:51:34 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.14  1995/02/26 02:51:34  ahd
+ *    Clean up memory allocations to not require #ifdef
+ *
  *    Revision 1.13  1995/02/20 17:28:43  ahd
  *    16 bit compiler warning message clean up
  *
@@ -163,7 +166,7 @@ static int imReserve( IMFILE *imf, const unsigned long length )
       if ( newLength > IM_MAX_LENGTH )    /* Is the pad allowed?     */
          newLength = IM_MAX_LENGTH; /* No --> Just use max           */
 
-      newBuffer = REALLOC( imf->buffer, newLength );
+      newBuffer = REALLOC( imf->buffer, (size_t) newLength );
 
       if ( newBuffer == NULL )
          printerr( "realloc" );
@@ -244,7 +247,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
       else
          imf->length = (unsigned long) length;
 
-         imf->buffer = MALLOC( imf->length );
+         imf->buffer = MALLOC( (size_t) imf->length );
 
       if ( imf->buffer == NULL )
          printerr( "malloc" );

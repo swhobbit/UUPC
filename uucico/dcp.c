@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.44 1995/02/14 04:38:42 ahd Exp $
+ *    $Id: dcp.c 1.45 1995/02/22 12:14:24 ahd v1-12n $
  *
  *    $Log: dcp.c $
+ *    Revision 1.45  1995/02/22 12:14:24  ahd
+ *    Correct 16 bit compiler warning errors
+ *
  *    Revision 1.44  1995/02/14 04:38:42  ahd
  *    Correct problems with directory processing under NT
  *
@@ -626,6 +629,11 @@ static KWBoolean master( const char recvGrade,
                dcstats();
                needUUXQT = KWTrue;
             }
+            break;
+
+         case CONN_TIMESET:
+            contacted = KWTrue;
+            m_state = CONN_DROPLINE;
             break;
 
          case CONN_DROPLINE:

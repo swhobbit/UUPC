@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.27 1995/01/07 16:39:13 ahd Exp $
+ *    $Id: nbstime.c 1.28 1995/01/30 04:08:36 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.28  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.27  1995/01/07 16:39:13  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -177,6 +180,7 @@ KWBoolean nbstime( void )
    KWBoolean firstPass = KWTrue;
    int dst = 0;
    char sync = '?';
+   char *status;
    unsigned rc;
    int errors = 0;
 
@@ -537,23 +541,33 @@ KWBoolean nbstime( void )
 #endif
 
 /*--------------------------------------------------------------------*/
-/*             Print debugging information, if requested              */
+/*               Print the raw input buffer, if desired               */
 /*--------------------------------------------------------------------*/
 
-   delta = today - delta;
+   printmsg(3,"nbstime: \"%s\"", buf + 2);
+
+   printmsg(0,"nbstime: New system time is %s", arpadate() );
+
+/*--------------------------------------------------------------------*/
+/*                       Format our information                       */
+/*--------------------------------------------------------------------*/
+
+   if ( delta > today )
+      printmsg(1,"nbstime: Local system clock was %ld seconds fast.",
+              (long) (delta - today) );
+   else if ( delta < today )
+      printmsg(1,"nbstime: Local system clock was %ld seconds slow.",
+              (long) (today - delta) );
+   else
+      printmsg(1, "nbstime: Local system clock was already correct.");
 
 /*--------------------------------------------------------------------*/
 /*                Announce new time, return to caller                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(3,"nbstime: \"%s\"", buf + 2);
+   if (sync == '#')
+      printmsg(1, "Note: Modem was able to synchronize with NIST." );
 
-   printmsg(0,"nbstime: Time is %s, delta was %d seconds.%s",
-               arpadate(),
-               delta,
-               (const char *) (sync == '#' ?
-                  "  Note: Perfectly in sync with NIST." :
-                  "") );
    return KWTrue;
 
 } /* nbstime */

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.24 1995/01/02 05:04:25 ahd Exp $
+ *    $Id: uustat.c 1.25 1995/01/07 16:41:40 ahd v1-12n $
  *
  *    $Log: uustat.c $
+ *    Revision 1.25  1995/01/07 16:41:40  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.24  1995/01/02 05:04:25  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -45,7 +48,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.24 1995/01/02 05:04:25 ahd Exp $";
+         "$Id: uustat.c 1.25 1995/01/07 16:41:40 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -223,7 +226,7 @@ static void usage( void );
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main(int  argc, char  **argv)
+main(int  argc, char  **argv)
 {
    int c;
    extern char *optarg;
@@ -398,7 +401,7 @@ void main(int  argc, char  **argv)
 
    } /* switch */
 
-   exit(0);
+   return 0;
 
 } /* main */
 
@@ -434,11 +437,16 @@ void all( const char *system, const char *userid)
 
       while( readnext(fname , hostp->hostname, "C", NULL, &ltime, &size) )
       {
-         KWBoolean display = equali( userid, ALL );
+         KWBoolean display;
          struct data_queue *data_link = NULL;
          char  canon[FILENAME_MAX];
          char user[MAXL];
          char sys[MAXL];
+
+         if ( equali( userid, ALL ))
+            display = KWTrue;
+         else
+            display = KWFalse;
 
          strcpy(user,userid);       /* Nice default for the user      */
                                     /* Generates more output if
@@ -898,7 +906,7 @@ static CALLTYPE open_call( const char *callname,
             *dname = '\0';
             sscanf(buf, "%s %s %s %s %s %s",
                          type, fname, tname, user , flgs, dname);
-            this_call = *type;
+            this_call = (CALLTYPE) (*type);
 
             if ( ! strlen( dname ) )
             {

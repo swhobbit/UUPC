@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.12 1994/12/22 00:44:57 ahd Exp $
+ *    $Id: uusub.c 1.13 1995/01/07 16:41:48 ahd v1-12n $
  *
  *    $Log: uusub.c $
+ *    Revision 1.13  1995/01/07 16:41:48  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.12  1994/12/22 00:44:57  ahd
  *    Annual Copyright Update
  *
@@ -80,7 +83,7 @@ static void showstats( const char *name );
 static void showhost( struct HostTable *host);
 static char *when( time_t t );
 static char *status( hostatus current_status );
-static char *format( long l);
+static char *format( unsigned long l);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -110,7 +113,7 @@ static         void    usage(void)
 #pragma argsused
 #endif
 
-void main( int argc , char **argv)
+main( int argc , char **argv)
 {
 
    int         option;
@@ -182,6 +185,8 @@ void main( int argc , char **argv)
    else
        showstats((const char *)name);
 
+   return 0;
+
 } /* main */
 
 /*--------------------------------------------------------------------*/
@@ -225,8 +230,9 @@ static void showstats( const char *name )
 static void showhost( struct HostTable *host)
 {
    column = 0;
+
    line( host->hostname,
-      status( host->status.hstatus ),
+      status( (hostatus) host->status.hstatus ),
       when( host->status.lconnect ),
       when( host->status.ltime ),
       format( host->status.connect ),
@@ -235,6 +241,7 @@ static void showhost( struct HostTable *host)
       format( host->status.fsent ),
       format( host->status.freceived ),
       format( host->status.errors  ));
+
 } /* showhost */
 
 /*--------------------------------------------------------------------*/
@@ -247,18 +254,20 @@ static char *when( time_t t )
    return dater( t, &output[column]);
 } /* when */
 
-static char *format( long l)
+static char *format( unsigned long l)
 {
    if (l == 0)
       return "";
 
    column += 12;
+
    if ( l <= 99999)
-      sprintf( &output[ column ], "%ld", l);
+      sprintf( &output[ column ], "%lu", l);
    else if ( (l/1000) <= 9999)
-      sprintf( &output[ column ], "%ldK", l / 1000);
+      sprintf( &output[ column ], "%luK", l / 1000);
    else
-      sprintf( &output[ column ], "%ldM", l / 1000000);
+      sprintf( &output[ column ], "%luM", l / 1000000);
+
    return &output[column];
 
 } /* format */

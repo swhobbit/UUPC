@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.38 1995/01/07 16:12:13 ahd v1-12n $
+ *    $Id: execute.c 1.39 1995/03/08 03:00:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.39  1995/03/08 03:00:20  ahd
+ *    Work around IBM C/Set++ bug which generates spurious operand
+ *    when no operands are passed to program.
+ *
  *    Revision 1.38  1995/01/07 16:12:13  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -374,7 +378,6 @@ int execute( const char *command,
    int result;
    int tempHandle;
    char path[BUFSIZ];
-   KWBoolean redirected;
 
    printmsg(3,"Command = %s, parameters = \"%s\"%s%s%s%s, %s, %s.",
                command,
@@ -392,8 +395,6 @@ int execute( const char *command,
 
    if ( (input != NULL) || (output != NULL) )
    {
-      redirected = KWTrue;
-
       if ( ! synchronous )
       {
          printmsg(0, "execute: Internal error, "
@@ -403,8 +404,6 @@ int execute( const char *command,
 
       } /* if ( ! synchronous ) */
    }
-   else
-      redirected = KWFalse;
 
    if (input != NULL)
    {
@@ -724,7 +723,11 @@ static KWBoolean batch( const char *input, char *output)
 #if defined(_DOS) || defined(_Windows)
       return equal( period, ".bat" );
 #else
-      return equali( period, ".cmd" ) || equali( period, ".bat" );
+
+      if (equali( period, ".cmd" ) || equali( period, ".bat" ))
+         return KWTrue;
+      else
+         return KWFalse;
 #endif
 
    } /* if ( p != NULL ) */
@@ -782,8 +785,11 @@ static KWBoolean batch( const char *input, char *output)
 #if defined(_DOS) || defined(_Windows)
             return equal( extensions[extension] , ".bat" );
 #else
-            return equal( extensions[extension] , ".cmd" ) ||
-                   equal( extensions[extension] , ".bat" );
+            if (equal( extensions[extension] , ".cmd" ) ||
+                   equal( extensions[extension] , ".bat" ))
+               return KWTrue;
+            else
+               return KWFalse;
 #endif
          } /* if ( result != NULL ) */
 
@@ -981,7 +987,7 @@ static int executeAsync( const char *command,
    DosFreeSeg( SELECTOROF(queueDataAddress) );
 #endif
 
-   return rc;
+   return (int) rc;
 
 } /* executeAsync */
 

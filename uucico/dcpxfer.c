@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.50 1995/02/14 04:38:42 ahd Exp $
+ *       $Id: dcpxfer.c 1.51 1995/02/21 02:47:44 ahd v1-12n $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.51  1995/02/21 02:47:44  ahd
+ *       The compiler warnings war never ends!
+ *
  *       Revision 1.50  1995/02/14 04:38:42  ahd
  *       Correct problems with directory processing under NT
  *
@@ -306,14 +309,16 @@ static int bufill(char *buffer)
                         xferBufSize,
                         xfer_stream);
 
-   bytes += count;
+   bytes += (int) count;
+
    if ((count < xferBufSize) && ferror(xfer_stream))
    {
       printerr("bufill");
       clearerr(xfer_stream);
       return -1;
    }
-   return count;
+
+   return (int) count;
 
 } /* bufill */
 
@@ -325,9 +330,10 @@ static int bufill(char *buffer)
 
 static int bufwrite(char *buffer, int len)
 {
-   int count = fwrite(buffer, sizeof *buffer, len, xfer_stream);
+   int count = (int) fwrite(buffer, sizeof *buffer, (size_t) len, xfer_stream);
 
    bytes += count;
+
    if (count < len)
    {
       printerr("bufwrite");
@@ -528,7 +534,7 @@ XFER_STATE seof( const KWBoolean purge_file )
 
 XFER_STATE newrequest( void )
 {
-   int i;
+   size_t len;
 
 /*--------------------------------------------------------------------*/
 /*                 Verify we have no work in progress                 */
@@ -544,23 +550,26 @@ XFER_STATE newrequest( void )
 /*    worked on in the file                                           */
 /*--------------------------------------------------------------------*/
 
-   if (fgets(databuf, xferBufSize, fwork) == nil(char)) /* More data? */
+   if (fgets(databuf, (int) xferBufSize, fwork) == nil(char))
+                              /* More data?                          */
    {                          /* No --> clean up list of files       */
       printmsg(3, "newrequest: EOF for workfile %s",workfile);
       fclose(fwork);
       fwork = nil(FILE);
       unlink(workfile);       /* Delete completed call file          */
-      return XFER_NEXTJOB;    /* Get next C.* file to process     */
+      return XFER_NEXTJOB;    /* Get next C.* file to process        */
+
    } /* if (fgets(databuf, xferBufSize, fwork) == nil(char)) */
 
 /*--------------------------------------------------------------------*/
 /*                  We have a new request to process                  */
 /*--------------------------------------------------------------------*/
 
-   i = strlen(databuf) - 1;
-   printmsg(3, "newrequest: got command from %s",workfile);
-   if (databuf[i] == '\n')            /* remove new_line from card */
-      databuf[i] = '\0';
+   printmsg(3, "newrequest: got command from %s", workfile);
+   len = strlen(databuf) - 1;
+
+   if (databuf[len] == '\n')            /* remove new_line from card */
+      databuf[len] = '\0';
 
    *cmdopts = *dName = '\0';
 
@@ -704,8 +713,9 @@ XFER_STATE ssfile( void )
       return XFER_FILEDONE;
    }
 
-   fileSize = filelength( fileno( xfer_stream ) );
-   (*filepkt)(KWTrue, fileSize);/* Init for file transfer             */
+   fileSize = (unsigned long) filelength( fileno( xfer_stream ) );
+   (*filepkt)(KWTrue, fileSize);
+                              /* Init for file transfer             */
 
    return XFER_SENDDATA;      /* Enter data transmission mode        */
 
@@ -1179,9 +1189,9 @@ XFER_STATE rrfile( void )
 
    lName = spool ? tName : spolName;   /* choose name to log          */
 
-   (*filepkt)(KWFalse, 0);     /* Init for file transfer              */
+   (*filepkt)(KWFalse, 0);          /* Init for file transfer         */
 
-   return XFER_RECVDATA;   /* Switch to data state                */
+   return XFER_RECVDATA;            /* Switch to data state           */
 
 } /* rrfile */
 
@@ -1284,8 +1294,9 @@ XFER_STATE rsfile( void )
 
    lName = spolName;       /* Remember name of file to log            */
 
-   fileSize = filelength( fileno( xfer_stream ) );
-   (*filepkt)(KWTrue, fileSize);  /* Init for file transfer            */
+   fileSize = (unsigned long) filelength( fileno( xfer_stream ) );
+   (*filepkt)(KWTrue, fileSize);
+                           /* Init for file transfer            */
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.20 1994/12/22 00:09:18 ahd Exp $
+ *    $Id: logger.c 1.21 1995/01/07 16:13:09 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.21  1995/01/07 16:13:09  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.20  1994/12/22 00:09:18  ahd
  *    Annual Copyright Update
  *
@@ -242,7 +245,7 @@ static void copylog( void )
    FILE *input;
    FILE *output;
    char buf[BUFSIZ];
-   int chars_read, chars_written;
+   size_t chars_read;
 
 /*--------------------------------------------------------------------*/
 /*   If not multitasking, just close the file and exit gracefully     */
@@ -290,9 +293,7 @@ static void copylog( void )
 
    while ((chars_read = fread(buf,sizeof(char), BUFSIZ, input)) != 0)
    {
-      chars_written = fwrite(buf, sizeof(char), chars_read, output );
-
-      if (chars_written != chars_read)
+      if (fwrite(buf, sizeof(char), chars_read, output ) != chars_read)
       {
          printerr( logname );
          clearerr( output );

@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.46 1995/01/30 04:08:36 ahd Exp $
+ *     $Id: dcpsys.c 1.47 1995/02/12 23:37:04 ahd v1-12n $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.47  1995/02/12 23:37:04  ahd
+ *     compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *     Revision 1.46  1995/01/30 04:08:36  ahd
  *     Additional compiler warning fixes
  *
@@ -612,10 +615,12 @@ CONN_STATE startup_server(const char recvgrade )
       {
          hostp->status.hstatus = called;
          time( &hostp->status.lconnect );
+         return CONN_TIMESET;
       }
+      else
+         return CONN_DROPLINE;
 
-      return CONN_DROPLINE;
-   }
+   } /* if (*protocols == '*') */
 
 /*--------------------------------------------------------------------*/
 /*                      Begin normal processing                       */
