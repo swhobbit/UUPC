@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: maillib.h 1.2 1994/03/05 21:15:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: maillib.h $
+ * Revision 1.2  1994/03/05  21:15:49  ahd
+ * Revamp header copyrights, line buffer lengths
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -63,6 +66,6 @@ void sayoptions( FLAGTABLE *flags);
 
 extern FILE* fmailbox;
 
-extern struct ldesc *letters;
+extern struct ldesc UUFAR *letters;
 
 extern int letternum;
