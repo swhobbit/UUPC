@@ -1,11 +1,3 @@
-Here's the SCRSIZE.C for NT that you wanted.
-
-(It assumes that "scrsize.h" defines PAGESIZE, which seemed reasonable,
-given the context.)
-
-- Dave
-
---- Begin SCRSIZEN.C ---
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -44,7 +36,3 @@ short scrsize( void )
 
    return info.dwSize.Y;
 } /* scrsize */
---- End SCRSIZEN.C ---
--- 
-Dave Watt (N1HMB)                              Home: 617-391-6119
-dmwatt@smersh.cambridge.ma.us (But I live in Medford)
