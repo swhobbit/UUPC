@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\LIB\RCS\SSLEEP.C 1.3 1992/12/12 16:12:13 ahd Exp $
+ *    $Id: SSLEEP.C 1.4 1993/04/11 00:32:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: SSLEEP.C $
+ *     Revision 1.4  1993/04/11  00:32:29  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.3  1992/12/12  16:12:13  ahd
  * Correct test for DesqView
  *
@@ -85,20 +88,33 @@ currentfile();
 
 #ifdef _Windows
 
-#include <windows.h>
-
-void WindowsDelay( int milliseconds );
+static void WindowsDelay( int milliseconds );
 
 /*--------------------------------------------------------------------*/
 /*    W i n d o w s D e l a y                                         */
 /*                                                                    */
 /*    Delay processing under Windows                                  */
+/*                                                                    */
+/* NOTE: Minimum resolution is 54.925 ms.                             */
 /*--------------------------------------------------------------------*/
 
-void WindowsDelay( int milliseconds )
+static void WindowsDelay( int milliseconds )
 {
-   WORD TimerId = SetTimer( NULL, 0,
-            milliseconds ? (WORD) milliseconds : (WORD) 1,
+        MSG msg;
+        WORD TimerId = 1;
+        BOOL bTimerDone = FALSE;
+
+        //
+        // A 0-delay call means give up control to Windows
+        //
+        if(milliseconds == 0)
+        {
+                PeekMessage(&msg, NULL, NULL, NULL, PM_NOREMOVE);
+                return;
+        }
+
+        SetTimer( hOurWindow, TimerId,
+            (milliseconds > 55) ? (WORD)milliseconds : (WORD)55 ,
             NULL );
 
    if ( TimerId == 0 )
@@ -107,9 +123,19 @@ void WindowsDelay( int milliseconds )
       return;
    } /* if */
 
-   WaitMessage();
+        //
+        // LOCAL MESSAGE LOOP - Service Windows while waiting for
+        // the timer message.
+   //
+        while(!bTimerDone && GetMessage(&msg, NULL, NULL, NULL))
+        {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+      if(msg.message == WM_TIMER)
+                        bTimerDone = TRUE;
+        }
 
-   if ( !KillTimer( NULL, TimerId ) )
+        if (KillTimer( hOurWindow, TimerId ) == 0)
       printmsg(0, "WindowsDelay: Unable to kill Windows Timer %d",
                   (int) TimerId );
 
@@ -352,6 +378,13 @@ void   ddelay   (int milliseconds)
    Sleep(milliseconds);
 
 /*--------------------------------------------------------------------*/
+/*                           Windows wait                             */
+/*--------------------------------------------------------------------*/
+
+#elif defined(_Windows)
+        WindowsDelay(milliseconds);
+
+/*--------------------------------------------------------------------*/
 /*                             OS/2 wait                              */
 /*--------------------------------------------------------------------*/
 
@@ -365,14 +398,10 @@ void   ddelay   (int milliseconds)
 /*                            MS-DOS wait                             */
 /*--------------------------------------------------------------------*/
 
-#ifndef _Windows
-
 #ifdef __TURBOC__
    enable();
 #else
    _enable();
-#endif
-
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -383,16 +412,11 @@ void   ddelay   (int milliseconds)
    if (milliseconds == 0)     /* Make it compatible with DosSleep    */
    {
 
-#ifdef _Windows
-      WindowsDelay( milliseconds );
-#else
-
       if (RunningUnderWindows())
          WinGiveUpTimeSlice( );
       else if (RunningUnderDesqview())
          DVGiveUpTimeSlice();
 
-#endif
       return;
    } /* if */
 
@@ -403,11 +427,6 @@ void   ddelay   (int milliseconds)
    while( milliseconds > 0)   /* Begin the spin loop                 */
    {
 
-#ifdef _Windows
-
-      WindowsDelay( milliseconds );
-
-#else
       if (RunningUnderWindows())
          WinGiveUpTimeSlice();
       else if (RunningUnderDesqview())
@@ -427,7 +446,6 @@ void   ddelay   (int milliseconds)
 #endif
 
       } /* else */
-#endif /* _Windows */
 
       ftime(&t);              /* Take a new time check               */
 

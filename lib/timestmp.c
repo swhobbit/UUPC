@@ -75,20 +75,20 @@ void banner (char **argv)
 /*    timestamp                                                       */
 /*--------------------------------------------------------------------*/
 
-#ifdef __TURBOC__
-      fprintf(stderr,"%s %s (%2.2s%3.3s%2.2s %5.5s)\n",
-#else
       fprintf(stderr,"%s %s (%s mode, %2.2s%3.3s%2.2s %5.5s)\n",
-#endif
                   compilep,
                   compilev,
 
 #ifdef WIN32
                   "Windows 32 bit",
+#elif defined(_Windows)
+                  "Windows 16 bit",
+#elif defined(__TURBOC__)
+                  "real",
+#elif defined(__OS2__)
+                  "OS/2 2.x",
 #else
-#ifndef __TURBOC__
-                  (_osmode == DOS_MODE) ? "real" : "protected",
-#endif
+                  (_osmode == DOS_MODE) ? "DOS" : "OS/2 1.x",
 #endif
 
                   &compiled[4],

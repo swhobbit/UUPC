@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LOGGER.C 1.7 1993/04/11 00:32:05 ahd Exp $
+ *    $Id: logger.c 1.8 1993/06/06 15:04:05 ahd Exp $
  *
  *    Revision history:
- *    $Log: LOGGER.C $
+ *    $Log: logger.c $
+ *     Revision 1.8  1993/06/06  15:04:05  ahd
+ *     Trap unable to open log file
+ *
  *     Revision 1.7  1993/04/11  00:32:05  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -64,7 +67,6 @@
 #include "logger.h"
 #include "hlib.h"
 #include "timestmp.h"
-#include "ssleep.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Define current file name                      */

@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\LIB\RCS\PRINTERR.C 1.2 1992/11/19 02:57:19 ahd Exp $
+ *    $Id: PRINTERR.C 1.3 1993/04/11 00:32:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: PRINTERR.C $
+ *     Revision 1.3  1993/04/11  00:32:05  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/19  02:57:19  ahd
  * drop rcsid
  *
@@ -80,7 +83,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    if ( redirect )
       fprintf(stdout,"%s: %s\n", prefix, s);
 
-#ifdef __TURBOC__
+#if defined(__TURBOC__) && !defined(_Windows)
    if (_osmajor >= 3 )
    {
       union REGS regs;

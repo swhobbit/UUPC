@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.10 1993/04/19 13:16:20 ahd Exp $
+ *       $Id: RNEWS.C 1.11 1993/05/03 02:41:57 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.11  1993/05/03  02:41:57  ahd
+ * Correct name of file to set into binary mode
+ *
  * Revision 1.10  1993/04/19  13:16:20  ahd
  * Binary mode for snews
  *
@@ -67,7 +70,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.10 1993/04/19 13:16:20 ahd Exp $";
+         "$Id: RNEWS.C 1.11 1993/05/03 02:41:57 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -278,6 +281,14 @@ void main( int argc, char **argv)
          hfile = open_history(history_date);
       else
          hfile = create_history(history_date);
+
+      if (hfile == NULL)
+      {
+         printmsg(0, "Error %s history file", history_exists() ?
+            "opening" : "creating");
+            panic();
+      }
+
    } /* if */
 
 /*--------------------------------------------------------------------*/

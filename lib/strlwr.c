@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\lib\RCS\STRLWR.C 1.3 1992/11/30 03:26:20 ahd Exp $
+ *    $Id: STRLWR.C 1.4 1993/04/11 00:32:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: STRLWR.C $
+ *     Revision 1.4  1993/04/11  00:32:05  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.3  1992/11/30  03:26:20  ahd
  * Much better if strlwr makes the string LOWER case
  *
@@ -61,7 +64,7 @@ char *strlwr( char *s )
    {
       if ( isupper( *s ))
          *s = tolower( *s );
-      *s++;
+      s += 1;
    } /* while */
 
    return save;
