@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.8 1993/10/12 01:33:23 ahd Exp $
+ *    $Id: ulibip.c 1.9 1993/10/16 15:13:17 ahd Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.9  1993/10/16  15:13:17  ahd
+ * Allow parsing target port address when connecting to remote
+ *
  * Revision 1.8  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -209,6 +212,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
 /*--------------------------------------------------------------------*/
 /*                        Parse out port address                      */
 /*--------------------------------------------------------------------*/
+   remotePort = 0;
    portStr = strchr(name, ':');
    if (portStr)
    {
@@ -263,9 +267,9 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
       {
          int wsErr = WSAGetLastError();
 
-         sin.sin_port = 540;
+         sin.sin_port = htons(540);
          printWSerror("getservbyname", wsErr);
-         printmsg(0, "tactiveopenline: using port %d", (int)sin.sin_port);
+         printmsg(0, "tactiveopenline: using port %d", (int)htons(sin.sin_port));
       }
       else
          sin.sin_port = pse->s_port;
@@ -348,10 +352,10 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
    {
       int wsErr = WSAGetLastError();
 
-      sin.sin_port = 540;
+      sin.sin_port = htons(540);
       printWSerror("getservbyname", wsErr);
       printmsg(0, "tpassiveopenline: using port %d",
-                  (int) sin.sin_port);
+                  (int)ntohs(sin.sin_port));
    }
    else
       sin.sin_port = pse->s_port;
