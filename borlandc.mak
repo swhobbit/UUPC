@@ -29,10 +29,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.89 1998/04/19 03:58:06 ahd Exp $
+#     $Id: borlandc.mak 1.90 1998/04/19 15:28:07 ahd v1-13a $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.90  1998/04/19 15:28:07  ahd
+#     Move version number to external file
+#
 #     Revision 1.89  1998/04/19 03:58:06  ahd
 #     *** empty log message ***
 #
@@ -152,24 +155,25 @@ TDSTRIP=tdstrip
 # *--------------------------------------------------------------------*
 
 !if !$d(TMP)
-TMP     = \TMP
+TMP     = \tmp
 !endif
 
-CONF    = $(PRODDRIVE)\UUPC
-DOCS    = $(SRCSLASH)DOCS
-LIB     = $(SRCSLASH)LIB
-MAIL    = $(SRCSLASH)MAIL
-OBJ     = $(SRCSLASH)OBJBC$(SUFFIX)
-HDRCACHE= $(SRCSLASH)TCDEF$(SUFFIX).SYM
-RN      = $(SRCSLASH)RN
-NEWS    = $(SRCSLASH)NEWS
-SCRIPT  = $(SRCSLASH)SCRIPTS
-TEST    = $(SRCSLASH)TEST
-UTIL    = $(SRCSLASH)UTIL
-UUCICO  = $(SRCSLASH)UUCICO
-UUCP    = $(SRCSLASH)UUCP
-UUTRAF  = $(SRCSLASH)UUTRAF
-WINWORD = $(SRCSLASH)WINWORD
+CONF    = $(PRODDRIVE)\uupc
+DOCS    = $(SRCSLASH)docs
+LIB     = $(SRCSLASH)lib
+MAIL    = $(SRCSLASH)mail
+OBJ     = $(SRCSLASH)objbc$(SUFFIX)
+HDRCACHE= $(SRCSLASH)tcdef$(SUFFIX).sym
+RN      = $(SRCSLASH)rn
+NEWS    = $(SRCSLASH)news
+SCRIPT  = $(SRCSLASH)scripts
+TEST    = $(SRCSLASH)test
+UTIL    = $(SRCSLASH)util
+UUCICO  = $(SRCSLASH)uucico
+UUCP    = $(SRCSLASH)uucp
+UUTRAF  = $(SRCSLASH)uutraf
+WINWORD = $(SRCSLASH)winword
+ICONS   = $(SRCSLASH)icons.win
 
 !if !$d(WINSOCK)
 WINSOCK = WINSOCK
@@ -184,11 +188,11 @@ ARCHIVE = $(SRCSLASH)$(VERS)
 !endif
 
 !if !$d(PROD)
-PROD    = $(PRODDRIVE)\UUPC\BIN
+PROD    = $(PRODDRIVE)\uupc\bin
 !endif
 
 !if !$d(WINPROD)
-WINPROD = $(PRODDRIVE)\UUPC\WINBIN
+WINPROD = $(PRODDRIVE)\uupc\winbin
 !endif
 
 !if !$d(BORLANDC)
@@ -270,7 +274,7 @@ INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWSPGM) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\personal.rc $(DOCS)\uupc.rc \
           $(DOCS)\personal.sig $(DOCS)\nickname.txt \
-          $(DOCS)\mail.ico $(DOCS)\uucico.ico $(DOCS)\up-pif.dvp
+          $(ICONS)\mail.ico $(ICONS)\uucico.ico $(DOCS)\up-pif.dvp
 SAMPLEX = SYSTEMS PASSWD HOSTPATH *.RC *.MDM PERSONAL.SIG ALIASES.TXT *.ICO
 
 MAKEFILE = BORLANDC.MAK
