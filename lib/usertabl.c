@@ -12,9 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.14 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: usertabl.c 1.15 1995/02/21 03:30:52 ahd v1-12q $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.15  1995/02/21 03:30:52  ahd
+ *    More compiler warning cleanup, drop selected messages at compile
+ *    time if not debugging.
+ *
  *    Revision 1.14  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -69,19 +73,30 @@
 #include "security.h"
 #include "pushpop.h"
 
-struct UserTable *users = NULL;  /* Public to allow router.c to use it */
+struct UserTable *users = NULL;  /* Public to allow alias.c to use it */
 
-size_t  userElements = 0;        /* Public to allow router.c to use it */
+size_t  userElements = 0;        /* Public to allow alias.c to use it */
 
 static size_t loaduser( void );
-
-static int usercmp( const void *a , const void *b );
 
 char *NextField( char *input );
 
 static char uucpsh[] = UUCPSHELL;
 
 currentfile();
+
+/*--------------------------------------------------------------------*/
+/*    u s e r c m p                                                   */
+/*                                                                    */
+/*    Accepts indirect pointers to two strings and compares           */
+/*    them using stricmp (case insensitive string compare)            */
+/*--------------------------------------------------------------------*/
+
+int usercmp( const void *a , const void *b )
+{
+   return stricmp(((struct UserTable*) a)->uid,
+                  ((struct UserTable*) b)->uid);
+}  /*usercmp*/
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k u s e r                                               */
@@ -151,9 +166,8 @@ struct UserTable *checkuser(const char *name)
 struct UserTable *inituser(char *name)
 {
 
-   static size_t allocUsers = 100;    /* Number of users allocated */
-   size_t hit = userElements;
-   size_t element = 0;
+   static size_t allocUsers = (BUFSIZ / sizeof *users);
+                                    /* Number of users allocated */
 
    if (users == NULL)
    {
@@ -162,41 +176,42 @@ struct UserTable *inituser(char *name)
    }
 
 /*--------------------------------------------------------------------*/
-/*    Add the user to the table.  Note that we must add the user      */
-/*    to the table ourselves (rather than use lsearch) because we     */
-/*    must make a copy of the string; the *token we use for the       */
-/*    search is in the middle of our I/O buffer!                      */
+/*    Return active user point if adding password entry for current   */
+/*    user and it has already been added.                             */
 /*--------------------------------------------------------------------*/
 
-   while ( element < hit )
+   if ( userElements && equali( users[0].uid, name ))
+      return &users[0];
+
+/*--------------------------------------------------------------------*/
+/*                Make the table bigger if we need it                 */
+/*--------------------------------------------------------------------*/
+
+   if ( userElements == allocUsers )
    {
-      if (equali( users[element].uid , name ))
-         hit = element;
-      else
-         element++;
+      allocUsers *= 3;
+      users = realloc(users, allocUsers * sizeof(*users));
+      checkref( users );
+
+#ifdef UDEBUG
+      printmsg(4,"initUser: Reallocated user table to %d entries",
+                  allocUsers );
+#endif
    }
 
-   if (hit == userElements)
-   {
-      if ( (hit-1) == allocUsers)
-      {
-         allocUsers *= 4;
-         users = realloc(users, allocUsers * sizeof(*users));
-         checkref( users );
-      }
+/*--------------------------------------------------------------------*/
+/*                        Add the current user                        */
+/*--------------------------------------------------------------------*/
 
-      users[hit].uid      = newstr(name);
-      users[hit].realname = EMPTY_GCOS;
-      users[hit].beep     = NULL;
-      users[hit].homedir  = E_pubdir;
-      users[hit].hsecure  = NULL;
-      users[hit].password = NULL;
-      users[hit].sh       = uucpsh;
-      userElements++;
+   users[userElements].uid      = newstr(name);
+   users[userElements].realname = EMPTY_GCOS;
+   users[userElements].beep     = NULL;
+   users[userElements].homedir  = E_pubdir;
+   users[userElements].hsecure  = NULL;
+   users[userElements].password = NULL;
+   users[userElements].sh       = uucpsh;
 
-   } /* if */
-
-   return &users[hit];
+   return &users[userElements++];
 
 } /* inituser */
 
@@ -210,8 +225,7 @@ static size_t loaduser( void )
 {
    FILE *stream;
    struct UserTable *userp;
-   size_t hit;
-   char buf[BUFSIZ];
+   size_t subscript;
    char *token;
 
 /*--------------------------------------------------------------------*/
@@ -245,20 +259,34 @@ static size_t loaduser( void )
 /*                 The password file is open; read it                 */
 /*--------------------------------------------------------------------*/
 
-   while (! feof(stream)) {
+   while (! feof(stream))
+   {
+      char buf[BUFSIZ];
+
       if (fgets(buf,BUFSIZ,stream) == NULL)   /* Try to read a line   */
          break;               /* Exit if end of file                  */
+
       if ((*buf == '#') || (*buf == '\0'))
          continue;            /* Line is a comment; loop again        */
+
       if ( buf[ strlen(buf) - 1 ] == '\n')
          buf[ strlen(buf) - 1 ] = '\0';
+
       token = NextField(buf);
+
       if (token    == NULL)   /* Any data?                            */
          continue;            /* No --> read another line             */
+
       userp = inituser(token);/* Initialize record for user           */
+
+      if ( userp->uid == NULL )
+      {
+         panic();
+      }
 
       if (userp->password != NULL)  /* Does the user already exist?   */
       {                       /* Yes --> Report and ignore            */
+
          printmsg(0,"loaduser: Duplicate entry for '%s' in '%s' ignored",
                token,E_passwd);
          continue;            /* System already in /etc/passwd,
@@ -292,14 +320,17 @@ static size_t loaduser( void )
       token = NextField(NULL);   /* Skip UNIX group number            */
 
       token = NextField(NULL);   /* Get the formal user name          */
+
       if (token != NULL)         /* Did they provide user name?       */
          userp->realname = newstr(token); /* Yes --> Copy             */
 
       token = NextField(NULL);   /* Get home directory (optional)     */
+
       if ( token != NULL)
          userp->homedir = newstr(normalize( token ));
 
       token = NextField(NULL);   /* Get user shell (optional)         */
+
       if ( token != NULL )       /* Did we get it?                    */
          userp->sh = newstr(token); /* Yes --> Copy it in             */
 
@@ -313,33 +344,34 @@ static size_t loaduser( void )
 
    qsort(users, userElements ,sizeof(users[0]) , usercmp);
 
-   for (hit = 0 ; hit < userElements; hit ++)
+   for (subscript = 0 ; subscript < userElements; subscript ++)
    {
-      printmsg(8,"loaduser: user[%d] user id(%s) no(%s) name(%s) "
+      KWBoolean duplicate = KWFalse;
+
+      if ( subscript && equali( users[subscript].uid,
+                                users[subscript- 1 ].uid))
+      {
+         printmsg(0,"*error* The user id \"%s\" occurs more than once in %s!"
+                    "  Delete extra entries!",
+                     users[subscript-1].uid,
+                     E_passwd );
+
+         duplicate = KWTrue;
+      }
+
+      printmsg(duplicate ? 0: 8,"loaduser: user[%d] user id(%s) no(%s) name(%s) "
                  "home directory(%s) shell(%s)",
-         hit,
-         users[hit].uid,
-         users[hit].beep == NULL ? "NONE" : users[hit].beep,
-         users[hit].realname,
-         users[hit].homedir,
-         users[hit].sh);
+         subscript,
+         users[subscript].uid,
+         users[subscript].beep == NULL ? "NONE" : users[subscript].beep,
+         users[subscript].realname,
+         users[subscript].homedir,
+         users[subscript].sh);
    } /* for */
 
    return userElements;
+
 } /* loaduser */
-
-/*--------------------------------------------------------------------*/
-/*    u s e r c m p                                                   */
-/*                                                                    */
-/*    Accepts indirect pointers to two strings and compares           */
-/*    them using stricmp (case insensitive string compare)            */
-/*--------------------------------------------------------------------*/
-
-int usercmp( const void *a , const void *b )
-{
-   return stricmp(((struct UserTable*) a)->uid,
-        ((struct UserTable*) b)->uid);
-}  /*usercmp*/
 
 /*--------------------------------------------------------------------*/
 /*    n e x t f i e l d                                               */
