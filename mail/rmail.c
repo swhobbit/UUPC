@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.43 1995/03/11 22:28:40 ahd Exp $
+ *    $Id: rmail.c 1.44 1995/03/12 16:42:24 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.44  1995/03/12 16:42:24  ahd
+ *    Suppress compiler warnings
+ *
  *    Revision 1.43  1995/03/11 22:28:40  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -574,9 +577,14 @@ void main(int argc, char **argv)
    if ( delivered >= addressees )
       Terminate( 0 , imf, datain ); /* All mail delivered            */
    else if ( delivered == 0 )
+   {
+      printmsg(0,"Unable to deliver/bounce to any addresses!");
       Terminate( 2 , imf, datain ); /* No mail delivered             */
-   else
+   }
+   else {
+      printmsg(0,"Unable to deliver/bounce to all addresses!");
       Terminate( 1, imf, datain );  /* Some mail delivered           */
+   }
 
 } /* main */
 
