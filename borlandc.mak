@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.57 1994/02/23 04:16:05 ahd Exp $
+#     $Id: makefile 1.58 1994/03/06 12:24:47 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.58  1994/03/06  12:24:47  ahd
+#         Update makefile names for non-Borland compilers
+#
 #         Revision 1.57  1994/02/23  04:16:05  ahd
 #         Delete TC pre-compiled headers at end of build
 #
@@ -955,7 +958,8 @@ $(WINPROD)\uuxqt.exe: uuxqtw.exe
 # *                           UUPCSRC.ZIP                              *
 # *--------------------------------------------------------------------*
 
-$(SRCZIPV1): $(MAKEFILE) NMAKE.MAK \
+$(SRCZIPV1):  $(MAKEFILE) NMAKE.MAK NMAKEDOS.MAK NMAKEWNT.MAK \
+             NMAKOS21.MAK NMAKOS22.MAK \
              $(DOCS)\rmail.pif $(DOCS)\uuxqt.pif $(DOCS)\uuclean.pif \
              $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
