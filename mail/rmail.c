@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.14 1993/10/12 01:30:23 ahd Exp $
+ *    $Id: rmail.c 1.15 1993/10/28 00:18:10 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.15  1993/10/28  00:18:10  ahd
+ * Correct initialize of arpadate to after implied tzset()
+ *
  * Revision 1.14  1993/10/12  01:30:23  ahd
  * Normalize comments to PL/I style
  *
@@ -176,7 +179,7 @@
 
 static boolean CopyTemp( void );
 
-static void ParseFrom( void );
+static void ParseFrom( const char *forwho);
 
 static char **Parse822( boolean *header,
                         size_t *count);
@@ -385,9 +388,10 @@ void main(int argc, char **argv)
    else if (ReadHeader)
       address = Parse822( &header, &addressees );
    else {
-      ParseFrom();               /* Copy remote header instead       */
       addressees = argc - optind;
       address = &argv[optind];
+      ParseFrom( addressees > 1 ? "multiple addressees" : *address );
+                                 /* Copy remote header instead       */
    } /* if */
 
    if ( addressees == 0 )        /* Can we deliver mail?             */
@@ -471,7 +475,7 @@ static void Terminate( const int rc)
 /*    Read the from address of incoming data from UUCP                */
 /*--------------------------------------------------------------------*/
 
-static void ParseFrom()
+static void ParseFrom( const char *forwho)
 {
    static char from[] = "From ";
    static char remote[] = "remote from ";
@@ -545,9 +549,9 @@ static void ParseFrom()
 /*       Generate required "From " and "Received" header lines        */
 /*--------------------------------------------------------------------*/
 
-   fprintf(dataout,"%-10s from %s by %s (%s %s) with UUCP;\n%-10s %s\n",
+   fprintf(dataout,"%-10s from %s by %s (%s %s) with UUCP\n%-10s for %s; %s\n",
             "Received:", fromnode, E_domain, compilep, compilev,
-            " ", now);
+            " ", forwho, now);
 
 /*--------------------------------------------------------------------*/
 /*    If what we read wasn't a From line, write into the new file     */
@@ -903,9 +907,14 @@ static boolean DaemonMail( const char *subject,
 /*       Date, From, Organization, and Reply-To                       */
 /*--------------------------------------------------------------------*/
 
-   fprintf(dataout,"%-10s by %s (%s %s);\n%-10s %s\n",
-              "Received:",E_domain,compilep, compilev,
-              " ", now );
+   fprintf(dataout,"%-10s by %s (%s %s)\n%-10s for %s; %s\n",
+              "Received:",
+              E_domain,
+              compilep,
+              compilev,
+              " ",
+              count > 1 ? "multiple addressees" : *address,
+              now );
 
 /*--------------------------------------------------------------------*/
 /*                       Generate a message-id                        */
