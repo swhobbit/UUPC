@@ -109,8 +109,6 @@ void main(int  argc, char  **argv)
    if (!configure( B_UUSTAT ))
       exit(1);   /* system configuration failed */
 
-   tzset();                      /* Set up time zone information  */
-
 /*--------------------------------------------------------------------*/
 /*                   Execute the requested command                    */
 /*--------------------------------------------------------------------*/
