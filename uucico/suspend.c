@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.12 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: suspend.c 1.1 1993/09/27 00:48:43 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: suspend.c $
+ * Revision 1.1  1993/09/27  00:48:43  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -35,13 +38,17 @@
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <sys/types.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
+#include "hostable.h"
 #include "dcp.h"
+#include "security.h"
+#include "suspend.h"
 
 boolean suspend_processing = FALSE;
 
@@ -61,8 +68,13 @@ void suspend_init(void)
 /*       Request another UUCICO give up a modem                       */
 /*--------------------------------------------------------------------*/
 
-void suspend_other(boolean suspend)
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+int suspend_other(boolean suspend)
 {
+   return 1;
 }
 
 /*--------------------------------------------------------------------*/
