@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.20 1993/09/29 04:52:03 ahd Exp $
+ *       $Id: ulibos2.c 1.21 1993/09/29 05:25:21 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.21  1993/09/29  05:25:21  ahd
+ * Don't die after duplicate port close
+ *
  * Revision 1.20  1993/09/29  04:52:03  ahd
  * Use unique handler for port suspending
  *
@@ -206,12 +209,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*    report the raw error code.                                      */
 /*--------------------------------------------------------------------*/
 
-   if ( rc == ERROR_SHARING_VIOLATION)
-   {
-      printmsg(0,"Port %s already in use", name);
-      return TRUE;
-   }
-   else if ( rc != 0 )
+   if ( rc )
    {
       printOS2error( name, rc );
       return TRUE;
