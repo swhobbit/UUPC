@@ -21,15 +21,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.19 1994/02/26 17:20:37 ahd Exp $
+ *    $Id: uustat.c 1.20 1994/03/13 17:23:33 ahd Exp $
  *
- *    $Log$
+ *    $Log: uustat.c $
+ * Revision 1.20  1994/03/13  17:23:33  ahd
+ * Lower memory usage under DOS
+ *
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.19 1994/02/26 17:20:37 ahd Exp $";
+         "$Id: uustat.c 1.20 1994/03/13 17:23:33 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -620,7 +623,7 @@ static void long_stats( const char *system )
       static const char *prefix[2] = { "C","X" };
 
       char fname[FILENAME_MAX];
-      char summary[FILENAME_MAX];
+      char summary[30];          /* Generous, really only need ~ 20  */
       boolean work = FALSE;
       size_t subscript;
 
