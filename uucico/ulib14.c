@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.3 1993/10/03 22:09:09 ahd Exp $
+ *    $Id: ulib14.c 1.5 1993/11/06 17:56:09 rhg Exp $
  *
  *    $Log: ulib14.c $
+ * Revision 1.5  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.3  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -69,6 +72,9 @@
 #include "commlib.h"       /* Trace functions, etc. */
 
 #include "dcp.h"           /* defines RECV_BUF */
+#include "hostable.h"      /* Needed for structures in dcp.h   */
+#include "usertabl.h"      /* Needed for structures in dcp.h   */
+#include "security.h"      /* Needed for structures in dcp.h   */
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
