@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.77 1997/05/11 04:27:40 ahd Exp $
+ *    $Id: configur.c 1.78 1997/05/11 18:15:50 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.78  1997/05/11 18:15:50  ahd
+ *    Allow faster SMTP delivery via fastsmtp flag
+ *    Move TCP/IP dependent code from rmail.c to deliver.c
+ *    Allow building rmail without SMTP or TCP/IP support
+ *
  *    Revision 1.77  1997/05/11 04:27:40  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -469,7 +474,8 @@ size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
 /*               Boolean options shared by all programs               */
 /*--------------------------------------------------------------------*/
 
-FLAGTABLE configFlags[] = {
+FLAGTABLE configFlags[] =
+{
  { "askcc",                   F_ASKCC,                 B_LOCAL},
  { "autoedit",                F_AUTOEDIT,              B_LOCAL},
  { "autoinclude",             F_AUTOINCLUDE,           B_LOCAL},
@@ -480,6 +486,7 @@ FLAGTABLE configFlags[] = {
  { "bounce",                  F_BOUNCE,                B_GLOBAL},
  { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
+ { "domainfrom",              F_DOMAINFROM,            B_GLOBAL },
  { "doskey",                  F_DOSKEY,                B_LOCAL},
  { "dot",                     F_DOT,                   B_LOCAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
@@ -504,6 +511,7 @@ FLAGTABLE configFlags[] = {
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
  { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
  { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
+ { "smtprelay",               F_SMTPRELAY,             B_GLOBAL},
  { "snews",                   F_SNEWS,                 B_GLOBAL},
  { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
  { "suppressbeep",            F_SUPPRESSBEEP,          B_LOCAL},
@@ -514,6 +522,7 @@ FLAGTABLE configFlags[] = {
  { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
  { "syslog",                  F_SYSLOG,                B_GLOBAL},
  { "undelete",                F_UNDELETE,              B_LOCAL},
+ { "uniquemailbox",           F_UNIQUEMBOX,            B_GLOBAL},
  { "verbose",                 F_VERBOSE,               B_LOCAL},
  { "windows",                 F_WINDOWS,               B_LOCAL}
 };
