@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.24 1993/10/03 22:34:33 ahd Exp $
+ *     $Id: dcpsys.c 1.25 1993/10/07 22:51:00 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.25  1993/10/07  22:51:00  ahd
+ * Suppress displaying login script on multiple lines
+ *
  * Revision 1.24  1993/10/03  22:34:33  ahd
  * Alter format of numbers printed
  *
@@ -283,16 +286,19 @@ CONN_STATE getsystem( const char sendgrade )
 /*                   Display the send/expect fields                   */
 /*--------------------------------------------------------------------*/
 
-   if (debuglevel >= 4) {
-      int   i;
+#ifdef UDEBUG
+   if (debuglevel >= 4)
+   {
+      size_t i;
+
       flds[ kflds ] = "";     /* Insure valid send string            */
 
-#ifdef UDEBUG
       for (i = FLD_EXPECT; i < kflds; i += 2)
          printmsg(6, "expect [%02d]:\t%s\nsend   [%02d]:\t%s",
             i, flds[i], i + 1, flds[i + 1]);
-#endif
+
    }
+#endif
 
 /*--------------------------------------------------------------------*/
 /*               Determine if we want to call this host               */
