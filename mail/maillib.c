@@ -1,19 +1,30 @@
+/*--------------------------------------------------------------------*/
+/*    m a i l l i b . c                                               */
+/*                                                                    */
+/*    Mail user agent subroutine library for UUPC/extended            */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks; all rights reserved except those explicitly        */
+/*    granted by the UUPC/extended license.                           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Change History:                                                 */
+/*                                                                    */
+/*       3 May 90 Create from mail.c                                  */
+/*       16 Jun 90:  Added support for mail (~) subcommands      pdm  */
+/*                   chgd calling seq of Collect_Mail to support      */
+/*                         above                                      */
+/*                   chges to CopyMsg to support ~i subcmd            */
+/*                   mods to SendMail to support autosign option      */
+/*                   broke out signature append code to seperate fn   */
+/*                   added support for alternate signature file       */
+/*--------------------------------------------------------------------*/
+
 /*
-      maillib.c
-
-      mail user agent subroutine library for UUPC/extended
-
-      Changes copyright 1990, Andrew H. Derbyshire
-
-      Change History:
-
-         3 May 90 Create from mail.c
- *       16 Jun 90:  Added support for mail (~) subcommands          pdm
- *                   chgd calling seq of Collect_Mail to support above
- *                   chges to CopyMsg to support ~i subcmd
- *                   mods to SendMail to support autosign option
- *                   broke out signature append code to seperate fn
- *                   added support for alternate signature file
+ *    $Id$
+ *
+ *    $Log$
  */
 
 #include <ctype.h>
@@ -28,8 +39,8 @@
 #include "alias.h"
 #include "mail.h"
 #include "maillib.h"
+#include "scrsize.h"
 
-#define  PAGESIZE 23
 #define  INDENT "> "
 
 /*--------------------------------------------------------------------*/
@@ -50,16 +61,16 @@ static char *ignorelist[] =  { "Message-ID:",
 
 currentfile();                /* Define current file for panic()     */
 
-/*------------------------------------------------------------------*/
-/*    P a g e r                                                     */
-/*                                                                  */
-/*    Page through a message                                        */
-/*                                                                  */
-/* There are hooks here to let the user use his/her own pager, like */
-/* LIST, MORE, or LESS.  We just write the message out to a         */
-/* temporary file and invoke the appropriate external program to do */
-/* the browsing.                                                    */
-/*------------------------------------------------------------------*/
+/*--------------------------------------------------------------------*/
+/*    P a g e r                                                       */
+/*                                                                    */
+/*    Page through a message                                          */
+/*                                                                    */
+/*    There are hooks here to let the user use his/her own pager,     */
+/*    like LIST, MORE, or LESS.  We just write the message out to     */
+/*    a temporary file and invoke the appropriate external program    */
+/*    to do the browsing.                                             */
+/*--------------------------------------------------------------------*/
 
 boolean Pager(const int msgnum,
               boolean external,
@@ -157,14 +168,13 @@ boolean Pager(const int msgnum,
 } /*Pager*/
 
 
-/*
-      S u b _ P a g e r
-         pager for the ~p mail subcommand
-         page through a mail message currently being entered
-
-      Clone of the Pager function
-
- */
+/*--------------------------------------------------------------------*/
+/*    S u b _ P a g e r                                               */
+/*       pager for the ~p mail subcommand                             */
+/*       page through a mail message currently being entered          */
+/*                                                                    */
+/*    Clone of the Pager function                                     */
+/*--------------------------------------------------------------------*/
 
 void Sub_Pager(const char *tinput,
                      boolean external )
@@ -197,48 +207,57 @@ void Sub_Pager(const char *tinput,
 
 } /*Sub_Pager*/
 
-/*
-      P a g e R e s e t
-
-      Reset page function to top of page
- */
+/*--------------------------------------------------------------------*/
+/*    P a g e R e s e t                                               */
+/*                                                                    */
+/*    Reset page function to top of page                              */
+/*--------------------------------------------------------------------*/
 
 void PageReset()
 {
    PageCount = 0;
 } /*PageReset*/
 
-/*
-      P a g e L i n e
-
-      Print one line when paging through a file
- */
+/*--------------------------------------------------------------------*/
+/*    P a g e L i n e                                                 */
+/*                                                                    */
+/*    Print one line when paging through a file                       */
+/*--------------------------------------------------------------------*/
 
 boolean PageLine(char *line)
 {
 
+   short pagesize = scrsize() - 3;
    fputs(line, stdout);
 
    PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines  */
 
-   if (PageCount > PAGESIZE) {
+   if (PageCount > (pagesize))
+   {
       int c;
-      PageCount = 0;
       fputs("More?", stdout);
       c = Get_One();
-      switch (tolower(c)) {
-      case 'q':
-      case '\003':
-      case 'n':                     /* Because that's what I keep Pressing */
-      case 'x':
-         puts("\rAborted.\n");
-         return TRUE;
 
-      case 'd':
-         PageCount = PAGESIZE / 2;        /* Half a Page More */
-         break;
-      case '\r':                                                  /* ahd   */
-         PageCount = PAGESIZE;        /* Only print one line  */  /* ahd   */
+      switch (tolower(c))
+      {
+         case 'q':
+         case '\003':
+         case 'n':                        /* Because that's what I
+                                             keep Pressing           */
+         case 'x':
+            fputs("\rAborted.\n", stdout);
+            return TRUE;
+
+         case 'd':
+            PageCount = pagesize / 2;     /* Half a Page More */
+            break;
+
+         case '\r':
+            PageCount = pagesize;         /* Only print one line  */
+            break;
+
+         default:
+            PageCount = 0;                /* Print full screen    */
       }
       fputs("\r      \r",stdout);
    }
@@ -247,16 +266,15 @@ boolean PageLine(char *line)
 
 } /*PageLine*/
 
+/*--------------------------------------------------------------------*/
+/*    C o p y M s g                                                   */
+/*                                                                    */
+/*    Copy a message                                                  */
+/*                                                                    */
+/*    Allows copying message with one or more of the options          */
+/*    specified in the copyopt data type.                             */
+/*--------------------------------------------------------------------*/
 
-/*
-   C o p y M s g
-
-   Copy a message
-
-   Allows copying message with one or more of the options specified
-   in the copyopt data type.
-*/
-                                                /* added indent arg  pdm */
 boolean CopyMsg(int msgnum, FILE *f, copyopt headers, boolean indent)
 {
    long nextloc;
@@ -482,7 +500,7 @@ boolean RetrieveLine(long adr, char *line, const size_t len)
 /*--------------------------------------------------------------------*/
 /*    R e t u r n A d d r e s s                                       */
 /*                                                                    */
-/*    Returns the user name (if available and requested or            */
+/*    Returns the user name (if available and requested) or           */
 /*    E-mail address of the user                                      */
 /*                                                                    */
 /*    Written by ahd 15 July 1989                                     */
@@ -550,5 +568,7 @@ void sayoptions( FLAGTABLE *flags)
             flags[subscript].sym );
 
    } /* for */
+
    putchar('\n');
+
 } /* sayoptions */
