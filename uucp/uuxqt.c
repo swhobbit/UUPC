@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.21 1993/10/24 19:42:48 rhg Exp $
+ *    $Id: uuxqt.c 1.22 1993/10/24 21:51:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.22  1993/10/24  21:51:14  ahd
+ * Drop unmigrated changes
+ *
  * Revision 1.21  1993/10/24  19:42:48  rhg
  * Generalized support for UUX'ed commands
  *
@@ -520,8 +523,6 @@ static void process( const char *fname,
       char *xqtname;
    } *F_list = NULL;
 
-   struct F_list *p;
-
    boolean xflag[UU_LAST - 1] = { 0 };
    time_t jtime = time(NULL);
 
@@ -617,8 +618,8 @@ static void process( const char *fname,
             strcpy(hostfile, cp);
             expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
 
-            /* Should the following "if (...)" be deleted?  --RHG */
             if (!equal(remote, E_nodename))
+            /* Should the preceding "if (...)" be deleted?  --RHG */
                if (!ValidateFile( hostfile, ALLOW_READ))
                {
                   reject = xflag[S_NOREAD] = TRUE;
@@ -646,8 +647,8 @@ static void process( const char *fname,
 
          strcpy(hostfile, cp);
 
-         if ( (cp = strtok(NULL, WHITESPACE)) != NULL
-              && !equal(cp, E_nodename) )
+         cp = strtok(NULL, WHITESPACE);
+         if ( cp != NULL && !equal(cp, E_nodename) )
          {                /* Did we get a string indicating ANOTHER host? */
             outnode = strdup(cp);
             checkref(outnode);
@@ -657,9 +658,12 @@ static void process( const char *fname,
          {
             expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
 
-            /* Should the following "if (...)" be deleted?  --RHG */
             if (!equal(remote, E_nodename))
+            /* Should the preceding "if (...)" be deleted?  --RHG */
                if (ValidateFile( hostfile, ALLOW_WRITE))
+               /* Taylor/GNU uuxqt also rejects it if the output would be in
+                  E_spooldir (to keep people from setting up phony requests).
+                  I am not sure whether we want to do likewise.  --RHG */
                {
                   reject = xflag[S_NOWRITE] = TRUE;
                   break;
@@ -905,19 +909,27 @@ static void process( const char *fname,
 /*           Copy the input files to the execution directory          */
 /*--------------------------------------------------------------------*/
 
+         /* Make sure the directory exists before we copy the files */
          PushDir(executeDirectory);
 
-         for (p = F_list; p != NULL; p = p->next)
          {
-            if (p->xqtname != NULL)
-               if (!copylocal(p->spoolname, p->xqtname))
-               {
-                  printmsg(0, "Copy \"%s\" to \"%s\" failed",
-                              p->spoolname, p->xqtname);
-                  reject = xflag[F_NOCOPY] = TRUE;
-                  break;
-               }
-         } /* for ( ;; ) */
+            struct F_list *p;
+
+            for (p = F_list; p != NULL; p = p->next)
+            {
+               if (p->xqtname != NULL)
+                  if (!copylocal(p->spoolname, p->xqtname))
+                  {
+                     /* Should we try again later in case its a temporary
+                        error like execute directory on a full disk?  For
+                        now, just reject it completely. */
+                     printmsg(0, "Copy \"%s\" to \"%s\" failed",
+                                 p->spoolname, p->xqtname);
+                     reject = xflag[F_NOCOPY] = TRUE;
+                     break;
+                  }
+            } /* for ( ;; ) */
+        }
 
 /*--------------------------------------------------------------------*/
 /*            Create the environment and run the command(s)           */
@@ -925,8 +937,10 @@ static void process( const char *fname,
 
          if (!reject)
          {
-            char **envp = create_environment("uucp", requestor);
             char *pipe;
+            char **envp = create_environment("uucp", requestor);
+            char *cmd = strdup(command);        /* shell clobbers its arg */
+            checkref(cmd);
 
             /* The following code INTENTIONALLY ignores quoting of '|'
                (with \ or "..." or '...') because we can't count on the DOS
@@ -935,45 +949,45 @@ static void process( const char *fname,
                for similar reasons.  (By the way, uux should have changed
                I/O redirecting '<' and '>' to I and O lines, respectively.) */
 
-            if (strchr(command, '<') != NULL || strchr(command, '>') != NULL)
+            if (strchr(cmd, '<') != NULL || strchr(cmd, '>') != NULL)
             {
                printmsg(0,"The characters \'<\' and \'>\' are not supported in remote commands");
                reject = xflag[F_CORRUPT] = TRUE;
             }
-            else if ((pipe = strchr(command, '|')) == NULL) /* Any pipes? */
-               status = shell(command, input, output, remote, xflag); /* No */
+            else if ((pipe = strchr(cmd, '|')) == NULL) /* Any pipes? */
+               status = shell(cmd, input, output, remote, xflag); /* No */
             else
             { /* We currently do pipes by simulating them using files */
-               char *cmd = command;
-
                char *pipefile = mktempname(NULL, "PIP");
+               char *next_cmd = cmd; /* initialized ONLY to suppress compiler warning */
 
                *pipe = '\0';
-               status = shell(command, input, pipefile, remote, xflag );
-               *pipe = '|';
+               status = shell(cmd, input, pipefile, remote, xflag);
+               /* *pipe = '|'; */
 
                while (status == 0
-                      && (pipe = strchr(cmd = pipe + 1, '|')) != NULL)
+                      && (pipe = strchr(next_cmd = pipe + 1, '|')) != NULL)
                {
                   /* Swap the output and pipe files for the next pass */
                   char *p = pipefile; pipefile = output; output = p;
 
                   xflag[E_NORMAL] = FALSE;
                   *pipe = '\0';
-                  status = shell(cmd, output, pipefile, remote, xflag);
-                  *pipe = '|';
+                  status = shell(next_cmd, output, pipefile, remote, xflag);
+                  /* *pipe = '|'; */
                }
 
                if (status == 0)
                {
                   xflag[E_NORMAL] = FALSE;
-                  status = shell(cmd, pipefile, output, remote, xflag);
+                  status = shell(next_cmd, pipefile, output, remote, xflag);
                }
 
                unlink(pipefile);
                free(pipefile);
             }
 
+            free(cmd);
             delete_environment(envp);
          }
 
@@ -991,16 +1005,7 @@ static void process( const char *fname,
                   unlink(p->xqtname);
          }
 
-         unlink(output);
-
       } /* if (!reject) */
-
-
-      ReportResults( status, input, output, command, job_id,
-                     jtime, requestor, outnode, outname, xflag,
-                     statfil, machine, user);
-
-      unlink(fname);
 
       {
          struct F_list *p;
@@ -1008,6 +1013,15 @@ static void process( const char *fname,
          for (p = F_list; p != NULL; p = p->next)
             unlink(p->spoolname);
       }
+
+      ReportResults( status, input, output, command, job_id,
+                     jtime, requestor, outnode, outname, xflag,
+                     statfil, machine, user);
+
+      if (!reject)
+         unlink(output);
+
+      unlink(fname);
 
    } /* (!skip) */
 
@@ -1080,7 +1094,16 @@ static int shell(char *command,
             do for this access check?  Maybe check for READ access if a path
             is specified but accept anything that isn't a pathname (such as a
             username for an RMAIL command)?  I'm not yet completely sure.
-                                                                     --RHG */
+
+            Taylor/GNU uuxqt seems to check for both READ and WRITE access
+            if it starts with a '/' and also rejects most (but not all) names
+            containing "..".
+
+            Also, what quoting conventions should we follow when parsing?
+            The DOS COMMAND.COM certainly does not handle \-style quoting,
+            for example, so we don't want to get fooled by handling such here.
+
+                                                                      --RHG */
       }
    } /* if ( parameters != NULL ) */
 
@@ -1222,7 +1245,7 @@ static int shell(char *command,
 
    } /* if (equal(cmdname,RMAIL) && ( inname != NULL )) */
    else
-      result = execute( command,
+      result = execute( cmdname,
                         parameters,
                         inname,
                         outname,
