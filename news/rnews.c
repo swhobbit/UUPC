@@ -34,13 +34,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: RNEWS.C 1.2 1992/11/22 21:14:21 ahd Exp $
  *
- *       $Log$
+ *       $Log: RNEWS.C $
+ * Revision 1.2  1992/11/22  21:14:21  ahd
+ * Reformat selected sections of code
+ * Check for premature end of articles in batched news
+ *
  */
 
 static const char rcsid[] =
-         "$Id$";
+         "$Id: RNEWS.C 1.2 1992/11/22 21:14:21 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -598,13 +602,12 @@ static int Compressed( char *filename , FILE *in_stream )
 static int Batched( char *filename, FILE *stream)
 {
 
-   char buf[BUFSIZ];
+   char buf[BUFSIZ * 2];
    int status = 0;
    long article_size;
-   int last_block;
    int articles = 0;
    int ignored  = 0;
-   unsigned chars_read = BUFSIZ;
+   unsigned chars_read;
    unsigned chars_written;
 
 /*--------------------------------------------------------------------*/
@@ -631,6 +634,7 @@ static int Batched( char *filename, FILE *stream)
    while (fscanf(stream, "#! rnews %ld \n", &article_size) == 1)
    {
       long article_left = article_size;
+      long maxread = sizeof buf;
 
       FILE *tmpf = FOPEN(filename, "w", BINARY);
       if ( tmpf == NULL )
@@ -643,10 +647,13 @@ static int Batched( char *filename, FILE *stream)
  /*   Copy this article to the temp file (except for the last block)   */
  /*--------------------------------------------------------------------*/
 
-      while (article_left > sizeof buf)
-      {
-         chars_read = fread(buf,sizeof(char), sizeof buf, stream);
-         if ( (chars_read < sizeof buf) && ferror( stream ))
+      do {
+         if ( article_left < maxread )
+            maxread = article_left;
+
+         chars_read = fread(buf,sizeof(char), maxread, stream);
+
+         if ( (chars_read < maxread) && ferror( stream ))
          {
             printerr("STDIN");
             panic();
@@ -664,29 +671,16 @@ static int Batched( char *filename, FILE *stream)
                   chars_read, chars_written , articles + 1);
             printerr(filename);
          }
+
          article_left -= chars_read;
-      }
+
+      } while (article_left > 0);
 
  /*--------------------------------------------------------------------*/
  /*                   Handle the last block of data                    */
  /*--------------------------------------------------------------------*/
 
-      if ( chars_read == sizeof buf )
-      {
-         last_block = (int) article_left;  /* It's now less than BUFSIZ */
-         chars_read = fread(buf,sizeof(char), last_block, stream);
-         fixEOF( buf , chars_read );
-
-         chars_written = fwrite(buf, sizeof(char), last_block, tmpf);
-
-         if (chars_read != chars_written)
-         {
-            printmsg(0,"Read %d bytes, only wrote %d bytes of article %d",
-                     chars_read, chars_written , articles + 1);
-            printerr( filename );
-         }
-      }
-      else
+      if ( article_left )
          printmsg(0,"Unexpected EOF for article %d, "
                   "read %ld bytes of expected %ld",
                    articles + 1,
