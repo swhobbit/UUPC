@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.14 1995/09/04 18:42:59 ahd v1-12p $
+#       $Id: nmakewnt.mak 1.15 1995/11/08 01:03:13 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.15  1995/11/08 01:03:13  ahd
+#       Allow copying between drives during install
+#
 #       Revision 1.14  1995/09/04 18:42:59  ahd
 #       Add -DUDEBUG flag to NT build
 #

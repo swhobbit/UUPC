@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.10 1995/09/11 00:19:01 ahd v1-12p $
+#       $Id: nmakedos.mak 1.11 1995/11/08 01:03:13 ahd v1-12p $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.11  1995/11/08 01:03:13  ahd
+#       Allow copying between drives during install
+#
 #       Revision 1.10  1995/09/11 00:19:01  ahd
 #       Go to version 1.12p
 #       Add support for Word for Windows source archive, PIF files
