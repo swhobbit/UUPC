@@ -2,9 +2,26 @@
 /*    s t a t e r . c                                                 */
 /*                                                                    */
 /*    File time and size routines                                     */
-/*                                                                    */
-/*    Copyright (c) 1991, Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */
@@ -59,7 +76,7 @@ time_t stater(const char *file, long *size)
       *size = statbuf.st_size;
 
    printmsg(5,"stater: \"%s\" is %ld bytes; updated %s",
-         file, *size, ctime( &statbuf.st_ctime));
-   return(statbuf.st_ctime);
+         file, *size, ctime( &statbuf.st_mtime));
+   return(statbuf.st_mtime);
 
 } /* stater */
