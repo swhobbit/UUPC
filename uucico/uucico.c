@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.12 1995/02/14 04:38:42 ahd v1-12q $
+ *    $Id: uucico.c 1.13 1996/01/01 21:20:09 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.13  1996/01/01 21:20:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/02/14 04:38:42  ahd
  *    Correct problems with directory processing under NT
  *
@@ -128,6 +131,17 @@ void main( int argc, char *argv[])
     {
         printerr("signal");
         printmsg( 0, "Couldn't set SIGTERM\n" );
+        panic();
+    }
+
+#endif
+
+#if defined(__OS2__)
+
+    if( signal( SIGBREAK , ctrlchandler ) == SIG_ERR )
+    {
+        printerr("signal");
+        printmsg( 0, "Couldn't set SIGBREAK\n" );
         panic();
     }
 
