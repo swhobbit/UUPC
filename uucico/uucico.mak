@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.14 1993/10/02 23:27:59 ahd Exp $
+#     $Id: uucico.mak 1.15 1993/10/03 20:36:50 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.15  1993/10/03  20:36:50  ahd
+# Use real suspend module under OS/2
+#
 # Revision 1.14  1993/10/02  23:27:59  ahd
 # Add continue character
 #
@@ -110,6 +113,11 @@ $(MAP)
 $(LIBRARY)
 $(DEFFILE)
 |
+!if $(WINDOWS)
+        rc -I$(UUCICO) &&|
+uucicow  ICON uucicow.ico
+| $<
+!endif
 !if !$d(__OS2__)
         tdstrip -s $<
 !endif
