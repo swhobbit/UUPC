@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.14 1996/01/01 20:47:36 ahd Exp $
+#       $Id: nmakedos.mak 1.15 1996/01/07 14:12:17 ahd v1-12r $
 #
 #       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.15  1996/01/07 14:12:17  ahd
+#       Lower stack under DOS to 0x2000 (8K)
+#
 #       Revision 1.14  1996/01/01 20:47:36  ahd
 #       Annual Copyright Update
 #
@@ -95,7 +98,6 @@ EXTRA1  = $(PROD)\rmail.pif $(PROD)\uuxqt.pif\
 EXTRA2  = $(PROD)\uuclean.pif
 LINKER  = link
 
-LINKOPT = /batch /map:nul /far /noig /stack:0x$(STACKSIZE)
 ZIPID   = d
 
 # *--------------------------------------------------------------------*
@@ -117,11 +119,15 @@ ZIPID   = d
 !ifdef NODEBUG
 #       Use this CCOPT for productiom
 DBGOPT  = -Ocegilt
+LDBGOPT =
 !else
 #       Use this CCOPT for debugging; the -FR is optional.
 DBGOPT  = -Odr -Zi -DUDEBUG # -FR$(SBR)\$(@B).sbr
+LDBGOPT = /CO
 !endif
 
 COMMOPT = -nologo -W4 -A$(MODEL) $(DBGOPT)
 CCOPT   = $(COMMOPT) -I$(UULIB) -c -Fo$@
 LDOPT   = $(COMMOPT) -F $(STACKSIZE) -Fmnul -Fe$@
+
+LINKOPT = /batch $(LDBGOPT) /map:nul /far /noig /stack:0x$(STACKSIZE)
