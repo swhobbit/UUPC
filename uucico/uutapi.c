@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutapi.c 1.1 1998/04/19 23:55:58 ahd Exp $
+ *    $Id: uutapi.c 1.2 1998/04/20 02:47:57 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: uutapi.c $
+ *    Revision 1.2  1998/04/20 02:47:57  ahd
+ *    TAPI/Windows 32 BIT GUI display support
+ *
  *    Revision 1.1  1998/04/19 23:55:58  ahd
  *    Initial revision
  *
@@ -61,7 +64,7 @@
 #include "pnterr.h"
 #include "uutapi.h"
 
-RCSID("$Id: uutapi.c 1.1 1998/04/19 23:55:58 ahd Exp $");
+RCSID("$Id: uutapi.c 1.2 1998/04/20 02:47:57 ahd v1-13a $");
 
 extern HWND     hFrame;             /* handle of main window */
 extern HANDLE   hInst;              /* our instance */

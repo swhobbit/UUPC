@@ -2,7 +2,7 @@
 /*       c o m m l i b n . C                                          */
 /*                                                                    */
 /*       Generic communications library interface for UUPC/extended   */
-/*       without TCP/IP support                                       */
+/*       without TCP/IP support (OS/2) or TAPI support (Windows NT)   */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlibn.c 1.4 1997/04/24 01:33:05 ahd v1-12u $
+ *    $Id: commlibn.c 1.5 1998/03/01 01:39:07 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: commlibn.c $
+ *    Revision 1.5  1998/03/01 01:39:07  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1997/04/24 01:33:05  ahd
  *    Annual Copyright Update
  *
@@ -36,6 +39,12 @@
  *
  */
 
+#if defined(__OS2__)
 #define NOTCPIP            /* Don't include the TCP/IP suite      */
+#endif
+
+#if defined(WIN32)
+#undef NOTAPI_SUPPORT      /* Don't include TAPI SUPPORT          */
+#endif
 
 #include "commlib.c"
