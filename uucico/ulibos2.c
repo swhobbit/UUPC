@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.11 1993/04/11 00:34:11 ahd Exp $
+ *       $Id: ULIBOS2.C 1.12 1993/05/09 03:41:47 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.12  1993/05/09  03:41:47  ahd
+ * Make swrite accept constant input strings
+ *
  * Revision 1.11  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -94,22 +97,16 @@
 #include "ssleep.h"
 #include "catcher.h"
 
+#include "commlib.h"
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
 currentfile();
 
-boolean   port_active = FALSE;  /* TRUE = port handler handler active  */
 static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
 
-#define LINELOG "LineData.Log"      /* log serial line data here */
-
-static int log_handle;
-static int logmode = 0;             /* Not yet logging            */
-#define WRITING 1
-#define READING 2
-static FILE *log_stream;
 static boolean hangup_needed = FALSE;
 static boolean console = FALSE;
 
@@ -151,12 +148,12 @@ static void ShowModem( const BYTE status );
 #endif
 
 /*--------------------------------------------------------------------*/
-/*    o p e n l i n e                                                 */
+/*    n o p e n l i n e                                               */
 /*                                                                    */
 /*    Open the serial port for I/O                                    */
 /*--------------------------------------------------------------------*/
 
-int openline(char *name, BPS baud, const boolean direct )
+int nopenline(char *name, BPS baud, const boolean direct )
 {
 #ifdef WIN32
    DWORD dwError;
@@ -350,7 +347,6 @@ int openline(char *name, BPS baud, const boolean direct )
 
    rc = SetCommState(hCom, &dcb);
    if (!rc)
-
    {
 
       printmsg(0,"openline: Unable to set line attributes for %s",name);
@@ -483,19 +479,7 @@ int openline(char *name, BPS baud, const boolean direct )
 
 #endif
 
-/*--------------------------------------------------------------------*/
-/*        Log serial line data only if log file already exists        */
-/*--------------------------------------------------------------------*/
-
-   log_handle = open(LINELOG, O_WRONLY | O_TRUNC | O_BINARY);
-   if (log_handle != -1) {
-
-#ifdef UDEBUG
-      printmsg(15, "openline: logging serial line data to %s", LINELOG);
-#endif
-
-      log_stream = fdopen(log_handle, "wb");
-   }
+   traceStart( name );     // Enable logging
 
    port_active = TRUE;     /* record status for error handler        */
    carrierdetect = FALSE;  /* Modem is not connected                 */
@@ -549,7 +533,7 @@ int openline(char *name, BPS baud, const boolean direct )
 } /*openline*/
 
 /*--------------------------------------------------------------------*/
-/*    s r e a d                                                       */
+/*    n s r e a d                                                     */
 /*                                                                    */
 /*    Read from the serial port                                       */
 /*                                                                    */
@@ -566,7 +550,7 @@ int openline(char *name, BPS baud, const boolean direct )
 /*    a timeout for us with very little CPU usage.                    */
 /*--------------------------------------------------------------------*/
 
-unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
+unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
 #ifdef WIN32
    static LPVOID psave;
@@ -782,27 +766,7 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-      if (log_handle != -1)
-      {
-#ifdef VERBOSE
-         size_t column;
-#endif
-         if (logmode != READING)
-         {
-            fputs("\nRead:  ", log_stream);
-            logmode = READING;
-         } /* if */
-#ifdef VERBOSE
-         for (column = 0; column < received; column++) {
-            char s[18];
-            itoa(0x100 | (unsigned) save[bufsize + column], s, 16);
-                                          /* Make it printable hex   */
-            fwrite(s, 1, 2, log_stream);  /* Write hex to the log    */
-         } /* for */
-#else
-         fwrite(&save[bufsize], 1, received, log_stream);
-#endif
-      } /* if */
+      traceData( &save[bufsize], received, FALSE );
 
 /*--------------------------------------------------------------------*/
 /*            If we got the data, return it to the caller             */
@@ -835,16 +799,16 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
 
    return bufsize;
 
-} /*sread*/
+} /*nsread*/
 
 
 /*--------------------------------------------------------------------*/
-/*    s w r i t e                                                     */
+/*    n s w r i t e                                                   */
 /*                                                                    */
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int swrite(const char *input, unsigned int len)
+int nswrite(const char *input, unsigned int len)
 {
 
    char *data = (char *) input;
@@ -891,26 +855,7 @@ int swrite(const char *input, unsigned int len)
 /*                        Log the data written                        */
 /*--------------------------------------------------------------------*/
 
-   if (log_handle != -1) {
-#ifdef VERBOSE
-      char s[18];
-#endif
-      if (logmode != WRITING)
-      {
-         fputs("\nWrite: ", log_stream);
-         logmode = WRITING;
-      }
-#ifdef VERBOSE
-      for (bytes = 0; bytes < len; bytes++) {
-         itoa(0x100 | (unsigned) *data++, s, 16);
-                                        /* Make it printable hex  ahd */
-         fputc(s[1], log_stream);       /* Put it in the log    */
-         fputc(s[2], log_stream);       /* Put it in the log    */
-      }
-#else
-      fwrite(data, 1, len, log_stream);
-#endif
-   }
+   traceData( data, len, TRUE);
 
 /*--------------------------------------------------------------------*/
 /*            Return bytes written to the port to the caller          */
@@ -918,16 +863,16 @@ int swrite(const char *input, unsigned int len)
 
    return len;
 
-} /*swrite*/
+} /*nswrite*/
 
 
 /*--------------------------------------------------------------------*/
-/*    s s e n d b r k                                                 */
+/*    n s s e n d b r k                                               */
 /*                                                                    */
 /*    send a break signal out the serial port                         */
 /*--------------------------------------------------------------------*/
 
-void ssendbrk(unsigned int duration)
+void nssendbrk(unsigned int duration)
 {
 
 #ifdef UDEBUG
@@ -964,16 +909,16 @@ void ssendbrk(unsigned int duration)
 
 #endif
 
-} /*ssendbrk*/
+} /*nssendbrk*/
 
 
 /*--------------------------------------------------------------------*/
-/*    c l o s e l i n e                                               */
+/*    n c l o s e l i n e                                             */
 /*                                                                    */
 /*    Close the serial port down                                      */
 /*--------------------------------------------------------------------*/
 
-void closeline(void)
+void ncloseline(void)
 {
    USHORT rc;
 #ifdef WIN32
@@ -1031,7 +976,6 @@ void closeline(void)
    com_signals.fbModemOn  = 0x00;
    com_signals.fbModemOff = DTR_OFF | RTS_OFF;
 
-
    if (DosDevIOCtl( &com_error, &com_signals, ASYNC_SETMODEMCTRL,
                     IOCTL_ASYNC, com_handle))
    {
@@ -1067,28 +1011,24 @@ void closeline(void)
 /*                   Stop logging the data to disk                    */
 /*--------------------------------------------------------------------*/
 
-   if (log_handle != -1) {    /* close serial line log file */
-      fclose(log_stream);
-      close(log_handle);
-   };
+   traceStop();
 
-   printmsg(3,"Serial port closed");
-
-} /* closeline */
+} /* ncloseline */
 
 
 /*--------------------------------------------------------------------*/
-/*    H a n g u p                                                     */
+/*    n h a n g u p                                                   */
 /*                                                                    */
 /*    Hangup the telephone by dropping DTR.  Works with HAYES and     */
 /*    many compatibles.                                               */
 /*    14 May 89 Drew Derbyshire                                       */
 /*--------------------------------------------------------------------*/
 
-void hangup( void )
+void nhangup( void )
 {
    if (!hangup_needed)
       return;
+
    hangup_needed = FALSE;
 
    if ( console )
@@ -1159,11 +1099,11 @@ void hangup( void )
 #endif
    ddelay(2000);           /* Now wait for the poor thing to recover    */
 
-} /* hangup */
+} /* nhangup */
 
 
 /*--------------------------------------------------------------------*/
-/*    S I O S p e e d                                                 */
+/*    n S I O S p e e d                                               */
 /*                                                                    */
 /*    Re-specify the speed of an opened serial port                   */
 /*                                                                    */
@@ -1177,7 +1117,7 @@ void hangup( void )
 /*    command state because it is at the wrong speed or whatever.)    */
 /*--------------------------------------------------------------------*/
 
-void SIOSpeed(BPS baud)
+void nSIOSpeed(BPS baud)
 {
    USHORT rc;
 
@@ -1214,16 +1154,16 @@ void SIOSpeed(BPS baud)
 
    current_baud = baud;
 
-} /* SIOSpeed */
+} /* nSIOSpeed */
 
 
 /*--------------------------------------------------------------------*/
-/*    f l o w c o n t r o l                                           */
+/*    n f l o w c o n t r o l                                         */
 /*                                                                    */
 /*    Enable/Disable in band (XON/XOFF) flow control                  */
 /*--------------------------------------------------------------------*/
 
-void flowcontrol( boolean flow )
+void nflowcontrol( boolean flow )
 {
    USHORT rc;
 #ifdef WIN32
@@ -1287,26 +1227,26 @@ void flowcontrol( boolean flow )
 
 #endif
 
-} /*flowcontrol*/
+} /* nflowcontrol */
 
 /*--------------------------------------------------------------------*/
-/*    G e t S p e e d                                                 */
+/*    n G e t S p e e d                                               */
 /*                                                                    */
 /*    Report current speed of communications connection               */
 /*--------------------------------------------------------------------*/
 
-BPS GetSpeed( void )
+BPS nGetSpeed( void )
 {
    return current_baud;
-} /* GetSpeed */
+} /* nGetSpeed */
 
 /*--------------------------------------------------------------------*/
-/*   C D                                                              */
+/*   n C D                                                            */
 /*                                                                    */
 /*   Return status of carrier detect                                  */
 /*--------------------------------------------------------------------*/
 
-boolean CD( void )
+boolean nCD( void )
 {
    boolean previous_carrierdetect = carrierdetect;
    USHORT rc;
@@ -1381,7 +1321,7 @@ boolean CD( void )
 
 #endif
 
-} /* CD */
+} /* nCD */
 
 /*--------------------------------------------------------------------*/
 /*    S h o w M o d e m                                               */
