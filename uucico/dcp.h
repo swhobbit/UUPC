@@ -24,7 +24,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.H 1.4 1993/05/30 00:19:06 ahd Exp $
+ *    $Id: dcp.h 1.5 1993/07/22 23:26:19 ahd Exp $
  *      Mon May 15 19:54:43 1989 change portactive to port_active
  *      Mon May 15 19:51:13 1989 Add portactive flag
  *      19 Mar 1990  Add hostable.h header                           ahd
@@ -37,11 +37,17 @@
 */
 
 
+#if defined(__OS2__) || defined(WIN32) // 32 bit compiler?
+#define MAXPACK 4096          /* Max packet size we can handle       */
+#else
 #define MAXPACK 512           /* Max packet size we can handle       */
+#endif
+
 #define SMALL_PACKET 64       /* Max packet size most UUCP's can
                                  handle                              */
 #ifndef RECV_BUF
-#define RECV_BUF 4096         /* COMMFIFO Buffer size                */
+#define RECV_BUF (MAXPACK*8)  // 512 * 8 = 4096 = COMMFIFO buffer size
+                              // for DOS
 #endif
 
 #define DCP_ERROR   10
@@ -116,6 +122,7 @@ typedef struct {
         char type;
         procref getpkt, sendpkt, openpk, closepk, rdmsg, wrmsg, eofpkt,
                   filepkt;
+        boolean network;
 } Proto;
 
 

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: ULIB.H 1.3 1993/05/30 00:11:03 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: ULIB.H $
+ * Revision 1.3  1993/05/30  00:11:03  ahd
+ * Multiple communications drivers support
+ *
  */
 
 extern int nopenline(char *name, BPS baud, const boolean direct);

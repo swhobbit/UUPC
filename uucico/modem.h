@@ -4,11 +4,22 @@
 /*    Prototypes for high level modem support routines                */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
 /*
- *    $Id: E:\src\uupc\UUCICO\RCS\MODEM.H 1.4 1992/11/28 19:53:22 ahd Exp $
+ *    $Id: MODEM.H 1.5 1993/04/11 00:36:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.H $
+ * Revision 1.5  1993/04/11  00:36:13  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.4  1992/11/28  19:53:22  ahd
  * Make callin time parameter const
  *
@@ -42,22 +53,22 @@ CONN_STATE callhot( const BPS speed );
 
 void slowwrite( char *s, int len);
 
-void shutdown( void );
+void shutDown( void );
 
-INTEGER  GetGPacket( INTEGER maxvalue, const char protocol );
+KEWSHORT GetGPacket( KEWSHORT maxvalue, const char protocol );
 
-INTEGER  GetGWindow( INTEGER maxvalue, const char protocol );
-
+KEWSHORT GetGWindow( KEWSHORT maxvalue, const char protocol );
 
 /*--------------------------------------------------------------------*/
 /*                       Environment variables                        */
 /*--------------------------------------------------------------------*/
 
-extern INTEGER M_gPacketTimeout;
-extern INTEGER M_fPacketTimeout;
-extern INTEGER M_fPacketSize;
-extern INTEGER M_PortTimeout;
-extern INTEGER M_MaxErr;
-extern INTEGER M_xfer_bufsize;
+extern KEWSHORT M_gPacketTimeout;
+extern KEWSHORT M_fPacketTimeout;
+extern KEWSHORT M_tPacketTimeout;
+extern KEWSHORT M_fPacketSize;
+extern KEWSHORT M_PortTimeout;
+extern KEWSHORT M_MaxErr;
+extern KEWSHORT M_xfer_bufsize;
 extern boolean bmodemflag[MODEM_LAST];
 extern char *device;

@@ -77,7 +77,7 @@ typedef enum {  M_ALIAS,
 
 #define AUTOPRINT     0x0001
 #define FILE_OP       0x0002
-#define INTEGER_OP    0x0004
+#define KEWSHORT_OP   0x0004
 #define LETTER_OP     0x0008
 #define NO_OPERANDS   0x0010
 #define NOPRINT       0x0020
