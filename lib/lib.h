@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.45 1998/11/04 02:01:17 ahd v1-12d $
+ *       $Id: lib.h 1.46 1998/11/05 03:30:26 ahd v1-13e $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *       Revision 1.46  1998/11/05 03:30:26  ahd
+ *       Allow determining NT vs. 95 on the fly
+ *
  *       Revision 1.45  1998/11/04 02:01:17  ahd
  *       Add sanity check field to linked lists
  *       Add assertion macros
@@ -423,7 +426,11 @@ extern   long *lowcore;
 /*     This triggers a "nice" break into the debugger under BC++      */
 /*--------------------------------------------------------------------*/
 
-#ifdef __TURBOC__
+#if    defined(__IBMC__)
+#define BREAKPOINT   { int *p = NULL; *(p) = 5; }
+#elif defined(WIN32)
+#define BREAKPOINT   DebugBreak();
+#else
 #define BREAKPOINT   _asm INT 3
 #endif
 
