@@ -32,6 +32,14 @@
 
 */
 
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
+static const char rcsid[] =
+         "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -69,9 +77,8 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static unsigned char *rpacket = NULL, *spacket = NULL;
-
-static int S_size;   /* number of bytes in the spacket buffer */
+static unsigned char *databuf = NULL;
+static unsigned int xfer_bufsize;
 
 static char fname[FILENAME_MAX], tname[FILENAME_MAX], dname[FILENAME_MAX];
 static char type, cmdopts[16];
@@ -112,18 +119,32 @@ static int  bufwrite(char  *buffer,int  len);
 
 XFER_STATE sdata( void )
 {
+   int S_size;
+   int used = 0;
 
-   if ((*sendpkt)((char *) spacket, S_size) != OK) /* send data */
-   {
-      fclose( xfer_stream );
-      xfer_stream = NULL;
-      return XFER_LOST;    /* Trouble!                               */
-   }
+   S_size = bufill((char *) databuf);
 
-   if ((S_size = bufill((char *) spacket)) == 0)  /* get data from file */
-      return XFER_SENDEOF; /* if EOF set state to that               */
+   if (S_size == 0)                 /* Get data from file         */
+      return XFER_SENDEOF;          /* if EOF set state to that   */
+   else if (S_size == -1)           /* If error ...               */
+      return XFER_ABORT;            /* Toss file                  */
 
-   return XFER_SENDDATA;   /* Remain in send state                   */
+   do {
+      size_t xmit = min( (size_t) S_size - used , pktsize );
+
+      if ((*sendpkt)((char *) databuf + used, xmit) != OK)   /* Send data */
+      {
+         fclose( xfer_stream );
+         xfer_stream = NULL;
+         return XFER_LOST;    /* Trouble!                            */
+      }
+      else
+         used += xmit;
+
+   } while( S_size > used );
+
+   return XFER_SENDDATA;   /* Remain in send state                */
+
 } /*sdata*/
 
 
@@ -136,10 +157,13 @@ XFER_STATE sdata( void )
 
 static int bufill(char *buffer)
 {
-   size_t count = fread(buffer, sizeof *buffer, pktsize, xfer_stream);
+   size_t count = fread(buffer,
+                        sizeof *buffer,
+                        xfer_bufsize,
+                        xfer_stream);
 
    bytes += count;
-   if ((count < pktsize) && ferror(xfer_stream))
+   if ((count < xfer_bufsize) && ferror(xfer_stream))
    {
       printerr("bufill");
       clearerr(xfer_stream);
@@ -195,16 +219,16 @@ XFER_STATE sbreak( void )
    if (!pktsendstr("H"))      /* Tell slave it can become the master */
       return XFER_LOST;       /* Xmit fail?  If so, quit transmitting*/
 
-   if (!pktgetstr((char *)spacket)) /* Get their response            */
+   if (!pktgetstr((char *)databuf)) /* Get their response            */
       return XFER_LOST;       /* Xmit fail?  If so, quit transmitting*/
 
-   if ((*spacket != 'H') || ((spacket[1] != 'N') && (spacket[1] != 'Y')))
+   if ((*databuf != 'H') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",spacket);
+      printmsg(0,"Invalid response from remote: %s",databuf);
       return XFER_ABORT;
    }
 
-   if (spacket[1] == 'N')     /* "HN" (have work) message from host? */
+   if (databuf[1] == 'N')     /* "HN" (have work) message from host? */
    {                          /* Yes --> Enter Receive mode          */
       printmsg( 2, "sbreak: Switch into slave mode" );
       return XFER_SLAVE;
@@ -242,9 +266,6 @@ XFER_STATE seof( const boolean purge_file )
          printmsg(0, "Remote system asks that the file be resent");
          fseek(xfer_stream, 0L, SEEK_SET);
          bytes = 0;
-         S_size = bufill((char *)spacket);
-         if ( S_size == -1 )
-            return XFER_ABORT;   /* cannot send file */
          (*filepkt)();           /* warmstart file-transfer protocol */
          return XFER_SENDDATA;   /* stay in data phase */
 
@@ -264,17 +285,17 @@ XFER_STATE seof( const boolean purge_file )
          return XFER_LOST;
    }
 
-   if (!pktgetstr((char *)spacket)) /* Receive CY or CN              */
+   if (!pktgetstr((char *)databuf)) /* Receive CY or CN              */
       return XFER_LOST;       /* Bomb the connection if no packet    */
 
-   if ((*spacket != 'C') || ((spacket[1] != 'N') && (spacket[1] != 'Y')))
+   if ((*databuf != 'C') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
       printmsg(0,"Invalid response from remote: %s",
-                  ( char *) spacket);
+                  ( char *) databuf);
       return XFER_ABORT;
    }
 
-   if (!equaln((char *) spacket, "CY", 2))
+   if (!equaln((char *) databuf, "CY", 2))
       printmsg(0,"seof: Host was unable to save file after transmission");
 
 /*--------------------------------------------------------------------*/
@@ -438,12 +459,9 @@ XFER_STATE ssfile( void )
 /*              The file is open, now set its buffering               */
 /*--------------------------------------------------------------------*/
 
-   if ((M_xfer_bufsize != BUFSIZ ) &&
-        setvbuf( xfer_stream, NULL, _IOFBF, M_xfer_bufsize))
+   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
-      printmsg(0, "ssfile: Cannot change buffer from %d to %d"
-                  " for file %s (%s).",
-                  (int) BUFSIZ, (int) M_xfer_bufsize,
+      printmsg(0, "ssfile: Cannot unbuffer file %s (%s).",
                   filename, hostfile);
       printerr(hostfile);
       fclose(xfer_stream);
@@ -463,37 +481,29 @@ XFER_STATE ssfile( void )
       return XFER_LOST;
    }
 
-   if (!pktgetstr((char *)spacket))
+   if (!pktgetstr((char *)databuf))
    {
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_LOST;
    }
 
-   if ((*spacket != 'S') || ((spacket[1] != 'N') && (spacket[1] != 'Y')))
+   if ((*databuf != 'S') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",spacket);
+      printmsg(0,"Invalid response from remote: %s",databuf);
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_ABORT;
    }
 
-   if (spacket[1] != 'Y')     /* Otherwise reject file transfer?     */
+   if (databuf[1] != 'Y')     /* Otherwise reject file transfer?     */
    {                          /* Yes --> Look for next file          */
       printmsg(0, "ssfile: Remote host rejected file %s, reason %s",
                    tname,
-                   spacket[2] ? (char *) &spacket[2] : "unknown" );
+                   databuf[2] ? (char *) &databuf[2] : "unknown" );
       fclose( xfer_stream );
       xfer_stream = NULL;
       return XFER_FILEDONE;
-   }
-
-   S_size = bufill((char *) spacket);
-   if ( S_size == -1 )
-   {
-      fclose(xfer_stream);
-      xfer_stream = NULL;
-      return XFER_ABORT;   /* cannot send file */
    }
 
    return XFER_SENDDATA;      /* Enter data transmission mode        */
@@ -546,20 +556,20 @@ appending filename \"%s\"", hostfile, slash);
    if (!pktsendstr( command ))
       return XFER_LOST;
 
-   if (!pktgetstr((char *)spacket))
+   if (!pktgetstr((char *)databuf))
       return XFER_LOST;
 
-   if ((*spacket != 'R') || ((spacket[1] != 'N') && (spacket[1] != 'Y')))
+   if ((*databuf != 'R') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
       printmsg(0,"Invalid response from remote: %s",
-                  spacket);
+                  databuf);
       return XFER_ABORT;
    }
 
-   if (spacket[1] != 'Y')     /* Otherwise reject file transfer?     */
+   if (databuf[1] != 'Y')     /* Otherwise reject file transfer?     */
    {                          /* Yes --> Look for next file          */
       printmsg(0, "srfile: Remote host denied access to file %s, reason %s",
-         fname, spacket[2] ? (char *) &spacket[2] : "unknown" );
+         fname, databuf[2] ? (char *) &databuf[2] : "unknown" );
       return XFER_FILEDONE;
    }
 
@@ -582,10 +592,9 @@ appending filename \"%s\"", hostfile, slash);
 /*                     Set buffering for the file                     */
 /*--------------------------------------------------------------------*/
 
-   if ((M_xfer_bufsize != BUFSIZ ) &&
-       setvbuf( xfer_stream, NULL, _IOFBF, M_xfer_bufsize))
+   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
-      printmsg(0, "srfile: Cannot buffer file %s (%s).",
+      printmsg(0, "srfile: Cannot unbuffer file %s (%s).",
           tname, hostfile);
       printerr(hostfile);
       fclose(xfer_stream);
@@ -607,7 +616,7 @@ appending filename \"%s\"", hostfile, slash);
 
 XFER_STATE sinit( void )
 {
-   if ((*openpk)())
+   if ((*openpk)( TRUE ))     /* Initialize in caller mode           */
       return XFER_ABORT;
    else {
       buf_init();
@@ -650,7 +659,7 @@ XFER_STATE schkdir( const boolean outbound, const char callgrade )
          if (! pktsendstr("HY") )
             return XFER_LOST;
 
-         if (!pktgetstr((char *)rpacket))
+         if (!pktgetstr((char *)databuf))
             return XFER_LOST; /* Didn't get response, die quietly    */
          else {
             hostp->hstatus = called;/* Update host status flags            */
@@ -703,7 +712,7 @@ XFER_STATE endp( void )
 XFER_STATE rinit( void )
 {
 
-   if ((*openpk)() == OK )
+   if ((*openpk)( FALSE ) == OK )   /* Initialize in callee mode     */
    {
       buf_init();
       return XFER_SLAVE;
@@ -879,10 +888,9 @@ XFER_STATE rrfile( void )
 /*               The file is open, now try to buffer it               */
 /*--------------------------------------------------------------------*/
 
-   if ((M_xfer_bufsize != BUFSIZ ) &&
-       setvbuf( xfer_stream, NULL, _IOFBF, M_xfer_bufsize))
+   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
-      printmsg(0, "rrfile: cannot buffer file %s (%s).",
+      printmsg(0, "rrfile: Cannot unbuffer file %s (%s).",
           filename, spool ? tempname : spolname);
       printerr(spool ? tempname : spolname);
       fclose(xfer_stream);
@@ -985,10 +993,9 @@ XFER_STATE rsfile( void )
          return XFER_FILEDONE;   /* Tell them to send next file   */
    } /* if */
 
-   if ((M_xfer_bufsize != BUFSIZ ) &&
-       setvbuf( xfer_stream, NULL, _IOFBF, M_xfer_bufsize))
+   if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
-      printmsg(0, "rsfile: Cannot buffer file %s (%s).", fname, hostname);
+      printmsg(0, "rsfile: Cannot unbuffer file %s (%s).", fname, hostname);
       pktsendstr("RN2");         /* Tell them we cannot handle it */
       printerr(hostname);
       fclose(xfer_stream);
@@ -1008,13 +1015,6 @@ XFER_STATE rsfile( void )
    }
 
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, hostname, tname);
-   S_size = bufill((char *) spacket);
-   if ( S_size == -1 )
-   {
-      fclose(xfer_stream);
-      xfer_stream = NULL;
-      return XFER_ABORT;   /* cannot send file */
-   }
 
    return XFER_SENDDATA;   /* Switch to send data state        */
 
@@ -1028,13 +1028,32 @@ XFER_STATE rsfile( void )
 
 XFER_STATE rdata( void )
 {
-   int   len;
+   size_t len;
+   size_t used = 0;
 
-   if ((*getpkt)((char *) rpacket, &len) != OK)
-   {
+   do {
+
+      if ((*getpkt)((char *) databuf + used, &len) != OK)
+      {
+         fclose(xfer_stream);
+         xfer_stream = NULL;
+         return XFER_LOST;
+      }
+      else
+         used += len;
+
+   }  while (((used - pktsize) <= xfer_bufsize) && len);
+
+/*--------------------------------------------------------------------*/
+/*                  Write incoming data to the file                   */
+/*--------------------------------------------------------------------*/
+
+   if (used && (bufwrite((char *) databuf, used) < (int) used))
+   {                                                        /* ahd   */
+      printmsg(0, "rdata: Error writing data to file.");
       fclose(xfer_stream);
       xfer_stream = NULL;
-      return XFER_LOST;
+      return XFER_ABORT;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1043,19 +1062,8 @@ XFER_STATE rdata( void )
 
    if (len == 0)
       return XFER_RECVEOF;
-
-/*--------------------------------------------------------------------*/
-/*                  Write incoming data to the file                   */
-/*--------------------------------------------------------------------*/
-
-   if (bufwrite((char *) rpacket, len) < len) {                   /* ahd   */
-      printmsg(0, "rdata: Error writing data to file.");
-      fclose(xfer_stream);
-      xfer_stream = NULL;
-      return XFER_ABORT;
-   }
-
-   return XFER_RECVDATA;      /* Remain in data state                */
+   else
+      return XFER_RECVDATA;      /* Remain in data state                */
 
 } /*rdata*/
 
@@ -1164,7 +1172,8 @@ XFER_STATE reof( void )
 static boolean pktsendstr( char *s )
 {
    printmsg(2, ">>> %s", s);
-   fflush( logfile );         /* Known safe place  to flush log      */
+   if ( ! bflag[ F_MULTITASK ] )
+      fflush( logfile );         /* Known safe place  to flush log      */
 
    if((*wrmsg)(s) != OK )
       return FALSE;
@@ -1199,19 +1208,12 @@ static boolean pktgetstr( char *s)
 
 static void buf_init( void )
 {
+   xfer_bufsize = max( pktsize * 4, max( M_xfer_bufsize, BUFSIZ) );
 
-   M_xfer_bufsize = max( pktsize, M_xfer_bufsize );
-
-   if (spacket == NULL)
-      spacket = malloc( pktsize );
+   if (databuf == NULL)
+      databuf = malloc( xfer_bufsize );
    else
-      spacket = realloc( spacket, pktsize );
-   checkref( spacket );
-
-   if (rpacket == NULL)
-      rpacket = malloc( pktsize );
-   else
-      rpacket = realloc( rpacket, pktsize );
-   checkref( rpacket );
+      databuf = realloc( databuf, xfer_bufsize );
+   checkref( databuf );
 
 } /* buf_init */
