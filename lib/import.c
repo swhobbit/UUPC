@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.37 1998/02/18 06:17:28 ahd Exp $
+ *    $Id: import.c 1.38 1998/03/01 01:23:16 ahd v1-13b $
  *
  *    $Log: import.c $
+ *    Revision 1.38  1998/03/01  01:23:16  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.37  1998/02/18 06:17:28  ahd
  *    Don't remap uppercase names
  *
@@ -103,7 +106,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id: import.c 1.37 1998/02/18 06:17:28 ahd Exp $");
+RCSID("$Id: import.c 1.38 1998/03/01 01:23:16 ahd v1-13b $");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -811,7 +814,7 @@ static KWBoolean advancedFS(const char *input)
       default:                         /* No cache, determine answer */
          strcpy(fname, fdrive);
          strcat(fname, fpath);
-         strcat(fname, ".DUMB.TEST.NAME");
+         strcat(fname, ".test.only-do.not.ask.questions.about.failures.to.open.this.file");
 
          cache[ (unsigned char) *fdrive ] =
                      (char) (IsFileNameValid(fname) ? CACHE_LONG_NAME_SUPPORT : CACHE_SHORT_NAME_ONLY);
