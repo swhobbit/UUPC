@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.11 1995/01/07 16:15:48 ahd Exp $
+  *   $Id: hostable.h 1.12 1995/01/29 16:43:42 ahd v1-12n $
   *
   *   $Log: hostable.h $
+  *   Revision 1.12  1995/01/29 16:43:42  ahd
+  *   IBM C/Set compiler warnings
+  *
   *   Revision 1.11  1995/01/07 16:15:48  ahd
   *   Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
   *
@@ -101,7 +104,7 @@ typedef enum
                   wrong_time,       /* Unable to call because of time  */
                   called,           /* success this run of UUCICO      */
                   last_status }
-                        hostatus;
+                        HOSTSTATUS;
 
 /*--------------------------------------------------------------------*/
 /*                          Status information                        */
@@ -114,14 +117,14 @@ typedef enum
 struct HostStats {
       time_t ltime;              /* Last time this host was called     */
       time_t lconnect;           /* Last time we actually connected    */
-      unsigned long calls;       /* Total number of calls to host      */
-      unsigned long connect;     /* Total length of connections to host */
-      unsigned long fsent;       /* Total files sent to this host      */
-      unsigned long freceived;   /* Total files received from this host */
-      unsigned long bsent;       /* Total bytes sent to this host      */
-      unsigned long breceived;   /* Total bytes received from this host */
-      unsigned long errors;      /* Total transmission errors noted    */
-      unsigned long packets;     /* Total packets exchanged            */
+      unsigned long  calls;      /* Total number of calls to host      */
+      unsigned long  connect;    /* Total length of connections to host*/
+      unsigned long  fsent;      /* Total files sent to this host      */
+      unsigned long  freceived;  /* Total files received from this host*/
+      unsigned long  bsent;      /* Total bytes sent to this host      */
+      unsigned long  breceived;  /* Total bytes received from this host*/
+      unsigned long  errors;     /* Total transmission errors noted    */
+      unsigned long  packets;    /* Total packets exchanged            */
       unsigned short hstatus;    /* Status information                 */
    };
 
@@ -141,10 +144,10 @@ struct  HostTable {
       char  *realname;           /* Alias of this host name            */
       struct HostSecurity *hsecure; /* Security Information, real hosts
                                        only                            */
-      KWBoolean anylogin;         /* KWTrue = Can login with any generic
+      KWBoolean anylogin;        /* KWTrue = Can login with any generic
                                     user id                            */
-      KWBoolean  aliased;         /* KWTrue = alias has been optimized   */
-      KWBoolean  routed;          /* KWTrue = route has been optimized   */
+      KWBoolean  aliased;        /* KWTrue = alias has been optimized  */
+      KWBoolean  routed;         /* KWTrue = route has been optimized  */
       struct HostStats status;   /* Status info for real hosts only    */
    };
 

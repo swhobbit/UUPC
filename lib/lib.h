@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.30 1995/01/30 04:05:39 ahd Exp $
+ *    $Id: lib.h 1.31 1995/02/12 23:39:45 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.31  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.30  1995/01/30 04:05:39  ahd
  *    Additional compiler warning fixes, optimize path normalizing
  *
@@ -236,10 +239,10 @@
 /*    Equality macros                                                 */
 /*--------------------------------------------------------------------*/
 
-#define equal(a,b)               (!strcmp(a,b))
-#define equali(a,b)              (!stricmp(a,b))                     /*ahd */
-#define equalni(a,b,n)           (!strnicmp(a,b,n))                  /*ahd */
-#define equaln(a,b,n)            (!strncmp(a,b,n))
+#define equal(a,b)               ((KWBoolean) !strcmp(a,b))
+#define equali(a,b)              ((KWBoolean) !stricmp(a,b))
+#define equalni(a,b,n)           ((KWBoolean) !strnicmp(a,b,n))
+#define equaln(a,b,n)            ((KWBoolean) !strncmp(a,b,n))
 
 #ifndef __FILE__
 #error __FILE__ must be defined!!!

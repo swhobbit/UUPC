@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uundir.h 1.7 1994/01/01 19:10:14 ahd v1-12k $
+ *    $Id: uundir.h 1.8 1994/12/22 00:14:26 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uundir.h $
+ *    Revision 1.8  1994/12/22 00:14:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/01/01 19:10:14  ahd
  *    Annual Copyright Update
  *
@@ -65,7 +68,12 @@ struct direct {
    char d_name[MAXNAMLEN];
 };
 
-#ifndef FAMILY_API
+#if defined(FAMILYAPI) || defined(__OS2__)
+
+#define INCL_BASE
+#include <os2.h>
+
+#else
 
 #if _MSC_VER >= 800
 #pragma warning(disable:4214)   /* suppress non-standard bit-field warnings */
