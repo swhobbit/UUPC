@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.8 1993/04/15 03:17:21 ahd Exp $
+ *    $Id: RMAIL.C 1.9 1993/05/09 03:41:47 ahd Exp $
  *
  *    $Log: RMAIL.C $
+ * Revision 1.9  1993/05/09  03:41:47  ahd
+ * Don't use debuglevel -1, it suppresses important configuration errors
+ *
  * Revision 1.8  1993/04/15  03:17:21  ahd
  * Correct conditions under which name in userp structure used
  *
@@ -181,6 +184,7 @@ static boolean DaemonMail( const char *subject,
  char fromuser[MAXADDR] = ""; /* User id of originator               */
  char fromnode[MAXADDR] = ""; /* Node id of originator               */
  char *now;                   /* Time stamp for Received: banner     */
+ char *myProgramName = NULL;  // Name for recursive invocation
 
  static char received[] = "Received:";
  static char receivedlen = sizeof( received) - 1;
@@ -207,6 +211,7 @@ void main(int argc, char **argv)
    boolean daemon = FALSE;
 
    char *subject = NULL;
+   myProgramName = newstr( argv[0] );   // Copy before banner() mangles it
 
 /*--------------------------------------------------------------------*/
 /*    Make a copy of the Borland copyright for debugging purposes     */
