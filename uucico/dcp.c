@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.40 1995/01/07 16:37:55 ahd Exp $
+ *    $Id: dcp.c 1.41 1995/01/07 17:40:36 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.41  1995/01/07 17:40:36  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.40  1995/01/07 16:37:55  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -847,7 +850,7 @@ static CONN_STATE process( const POLL_MODE pollMode, const char callGrade )
                               /* Initialized to any state but the
                                  original value of "state"           */
    XFER_STATE save_state = XFER_EXIT;
-   char currentGrade = 0xff;
+   char currentGrade = (char) 0xff;
 
 /*--------------------------------------------------------------------*/
 /*  Yea old state machine for the high level file transfer procotol   */
