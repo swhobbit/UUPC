@@ -13,9 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.14 1993/04/11 00:34:11 ahd Exp $
+ *       $Id: DCPXFER.C 1.15 1993/05/06 03:41:48 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.15  1993/05/06  03:41:48  ahd
+ * Reformat syslog output into readable format
+ * parse userids off incoming commands again
+ *
  * Revision 1.14  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -380,8 +384,11 @@ XFER_STATE seof( const boolean purge_file )
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
-            fclose( syslog );
-            syslog = NULL;
+            if ( bflag[F_MULTITASK] )
+            {
+               fclose( syslog );
+               syslog = NULL;
+            }
          }
 
       } /* if (bflag[F_SYSLOG]) */
@@ -864,10 +871,18 @@ XFER_STATE rrfile( void )
 /*       Determine if the file can go into the spool directory        */
 /*--------------------------------------------------------------------*/
 
-   spool = ((*tname == 'D') || (*tname == 'X')) && tname[1] == '.';
+   if ( isupper(*tname) &&
+        (tname[1] == '.') &&
+        (strchr(tname,'/') == NULL ) &&
+        (strchr(tname,'\\') == NULL ))
+      spool = TRUE;
+   else
+      spool = FALSE;
 
-   expand_path( strcpy( filename, tname),
-      spool ? "." : securep->pubdir, securep->pubdir , NULL );
+   strcpy( filename, tname );
+
+   if ( ! spool )
+      expand_path( filename, securep->pubdir, securep->pubdir , NULL );
 
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
@@ -1014,7 +1029,9 @@ XFER_STATE rsfile( void )
 /*               Let host munge filename as appropriate               */
 /*--------------------------------------------------------------------*/
 
-   strcpy( spolname, filename );    // Assume remote can type
+   strcpy( spolname, filename );    // Assume remote can type ...
+                                    // don't munge the file they want
+                                    // sent
 
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
@@ -1231,8 +1248,12 @@ XFER_STATE reof( void )
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
-            fclose( syslog );
-            syslog = NULL;
+
+            if ( bflag[F_MULTITASK] )
+            {
+               fclose( syslog );
+               syslog = NULL;
+            }
          }
 
       } /* if (bflag[F_SYSLOG]) */
