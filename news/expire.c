@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.12 1995/01/30 04:08:36 ahd Exp $
+ *    $Id: expire.c 1.13 1995/02/12 23:37:04 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.13  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.12  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *
@@ -54,7 +57,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.12 1995/01/30 04:08:36 ahd Exp $";
+      "$Id: expire.c 1.13 1995/02/12 23:37:04 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -190,8 +193,13 @@ main( int argc, char **argv)
    openlog( NULL );
 
 /*--------------------------------------------------------------------*/
-/*                       Load the active file                         */
+/*                 Load the history and active files                  */
 /*--------------------------------------------------------------------*/
+
+  mkfilename(file_old, E_newsdir, "newhist.dir");
+  unlink(file_old);                 /* Delete any junk history       */
+  mkfilename(file_old, E_newsdir, "newhist.pag");
+  unlink(file_old);                 /* Delete any junk history       */
 
    history = open_history("history");
    new_history = open_history("newhist");
