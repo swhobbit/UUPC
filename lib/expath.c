@@ -5,14 +5,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.6 1993/08/08 17:39:09 ahd Exp $
+ *    $Id: expath.c 1.7 1993/10/12 00:43:34 ahd Exp rhg $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *     Revision 1.7  1993/10/12  00:43:34  ahd
+ *     Normalize comments
+ *
  *     Revision 1.6  1993/08/08  17:39:09  ahd
  *     Denormalize path for opening on selected networks
  *
@@ -28,9 +39,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#ifndef __GNUC__
 #include <direct.h>
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                     UUPC/extended header files                     */
@@ -43,6 +52,12 @@
 #include "security.h"
 #include "usertabl.h"
 #include "pushpop.h"
+
+/*--------------------------------------------------------------------*/
+/*                          Local variables                           */
+/*--------------------------------------------------------------------*/
+
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*   e x p a n d _ p a t  h                                           */
@@ -91,13 +106,19 @@ char *expand_path(char *input,         /* Input/output path name      */
 
    if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
-      boolean push = ((cur_dir != NULL ) && ( path[1] != ':' ));
+      boolean push = (cur_dir != NULL );
       strcpy( save, path );
 
       if (push)
          PushDir( cur_dir );
 
       p = _fullpath( path, save, sizeof save );
+
+      if ( p == NULL )
+      {
+         printerr( path );
+         return NULL;
+      }
 
       if (push)
          PopDir();
