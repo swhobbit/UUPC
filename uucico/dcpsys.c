@@ -39,12 +39,16 @@
 */
 
 /*
- *     $Id$
- *     $Log$
+ *     $Id: DCPSYS.C 1.2 1992/11/15 20:11:07 ahd Exp $
+ *
+ *     $Log: DCPSYS.C $
+ * Revision 1.2  1992/11/15  20:11:07  ahd
+ * Clean up modem file support for different protocols
+ *
  */
 
- const static char rcsid[] =
-      "$Id";
+ static const char rcsid[] =
+      "$Id$";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -785,7 +789,7 @@ static void setproto(char wanted)
 XFER_STATE scandir(char *remote, const char grade )
 {
    static DIR *dirp;
-   static char SaveRemote[HOSTLEN+1];
+   static char SaveRemote[HOSTLEN+1] = "";
    static char remotedir[FILENAME_MAX];
 
    struct direct *dp;
