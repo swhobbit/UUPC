@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.34 1994/01/01 19:19:30 ahd Exp $
+ *     $Id: dcpsys.c 1.35 1994/01/24 03:04:16 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.35  1994/01/24  03:04:16  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.34  1994/01/01  19:19:30  ahd
  * Annual Copyright Update
  *
@@ -531,6 +534,7 @@ CONN_STATE startup_server(const char recvgrade )
 {
    char msg[80];
    char *s;
+   int hostlen;
 
    hostp->hstatus = startup_failed;
    hostp->via     = hostp->hostname;   /* Save true hostname           */
@@ -576,7 +580,11 @@ CONN_STATE startup_server(const char recvgrade )
 /*    we allow either.                                                */
 /*--------------------------------------------------------------------*/
 
-   if ((msg[5] == '=') && !equaln(&msg[6], rmtname, HOSTLEN))
+   hostlen = strlen( msg + 6 );
+   if ( hostlen < 7 )
+      hostlen = 7;
+
+   if ((msg[5] == '=') && !equaln(&msg[6], rmtname, hostlen))
    {
       printmsg(0,"Startup: Wrong host %s, expected %s",
                &msg[6], rmtname);
