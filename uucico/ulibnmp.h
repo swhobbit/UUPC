@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnmp.h 1.3 1994/01/01 19:24:45 ahd Exp $
+ *    $Id: ulibnmp.h 1.4 1994/01/24 02:58:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibnmp.h $
+ * Revision 1.4  1994/01/24  02:58:14  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1994/01/01  19:24:45  ahd
  * Annual Copyright Update
  *
@@ -59,5 +62,9 @@ BPS pGetSpeed( void );
 boolean pCD( void );
 
 boolean pWaitForNetConnect(const unsigned int timeout);
+
+int pGetComHandle( void );
+
+void pSetComHandle( const int );
 
 #endif

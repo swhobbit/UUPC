@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.12 1993/12/30 03:26:49 ahd Exp $
+ *    $Id: modem.h 1.13 1994/01/01 19:23:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ * Revision 1.13  1994/01/01  19:23:47  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.12  1993/12/30  03:26:49  ahd
  * Add timeout parameter for 'e' procotol
  *
@@ -78,7 +81,7 @@ CONN_STATE callup(void );
 
 CONN_STATE callin( const time_t exit_time );
 
-CONN_STATE callhot( const BPS speed );
+CONN_STATE callhot( const BPS speed, const int hotHandle );
 
 void shutDown( void );
 

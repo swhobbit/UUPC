@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.4 1994/01/01 19:24:40 ahd Exp $
+ *    $Id: ulibip.h 1.5 1994/01/24 02:58:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ * Revision 1.5  1994/01/24  02:58:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1994/01/01  19:24:40  ahd
  * Annual Copyright Update
  *
@@ -67,5 +70,9 @@ BPS tGetSpeed( void );
 boolean tCD( void );
 
 boolean tWaitForNetConnect(const unsigned int timeout);
+
+int tGetComHandle( void );
+
+void tSetComHandle( const int );
 
 #endif

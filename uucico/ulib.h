@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.H 1.6 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: ulib.h 1.7 1994/01/01 19:24:19 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIB.H $
+ *    $Log: ulib.h $
+ * Revision 1.7  1994/01/01  19:24:19  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.6  1993/12/24  05:22:49  ahd
  * Use UUFAR pointer for comm buffers
  *
@@ -65,6 +68,8 @@ boolean nCD( void );
 #if defined(BIT32ENV) || defined(FAMILYAPI)
 
 int nGetComHandle( void );
+
+void nSetComHandle( const int );
 
 #endif
 
