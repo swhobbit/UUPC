@@ -23,9 +23,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.5 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: ULIB14.C 1.6 1993/11/21 02:45:50 ahd Exp $
  *
- *    $Log: ulib14.c $
+ *    $Log: ULIB14.C $
+ * Revision 1.6  1993/11/21  02:45:50  ahd
+ * Add missing header files to suppress missing structure def warnings
+ *
+ * Revision 1.6  1993/11/21  02:45:50  ahd
+ * Add missing header files to suppress missing structure def warnings
+ *
  * Revision 1.5  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -80,7 +86,6 @@
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout);
 static void modemControl( char mask, boolean on);
 static void ShowModem( void );
 static unsigned char bps_table(int);
@@ -190,7 +195,9 @@ int iopenline(char *name, BPS bps, const boolean direct)
 /*    or DG but not MS-DOS.                                           */
 /*--------------------------------------------------------------------*/
 
-unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
+unsigned int isread(char UUFAR *buffer,
+                    unsigned int wanted,
+                    unsigned int timeout)
 {
    union REGS rcvregs, outregs;
    time_t quit = time( NULL ) + timeout;
@@ -267,7 +274,7 @@ unsigned int isread(char *buffer, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int iswrite(char *data, unsigned int len)
+int iswrite(const char UUFAR *data, unsigned int len)
 {
    unsigned int i;
    union REGS xmtregs;

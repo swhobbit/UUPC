@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.19 1993/10/12 01:33:59 ahd Exp $
+ *    $Id: ULIB.C 1.20 1993/11/06 17:56:09 rhg Exp $
  *
- *    $Log: ulib.c $
+ *    $Log: ULIB.C $
+ * Revision 1.20  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
+ * Revision 1.20  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.19  1993/10/12  01:33:59  ahd
  * Normalize comments to PL/I style
  *
@@ -220,7 +226,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
 /*    or DG but not MS-DOS.                                           */
 /*--------------------------------------------------------------------*/
 
-unsigned int nsread(char *input,
+unsigned int nsread(char UUFAR *input,
                     unsigned int wanted,
                     unsigned int timeout)
 {
@@ -302,7 +308,7 @@ unsigned int nsread(char *input,
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int nswrite(const char *input, unsigned int len)
+int nswrite(const char UUFAR *input, unsigned int len)
 {
    unsigned int i;
    char *data = (char *) input;

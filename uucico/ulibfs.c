@@ -18,10 +18,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.5 1993/10/12 01:33:23 ahd Exp $
+ *    $Id: ULIBFS.C 1.6 1993/11/06 17:56:09 rhg Exp $
  *
  *    History:
- *    $Log: ulibfs.c $
+ *    $Log: ULIBFS.C $
+ * Revision 1.6  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
+ * Revision 1.6  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.5  1993/10/12  01:33:23  ahd
  * Normalize comments to PL/I style
  *
@@ -68,7 +74,7 @@ static void showModem( const short );
 
 static void getDriverInfo( FS_INFO *fossilData);
 
-static unsigned short blockIO( char *buffer,
+static unsigned short blockIO( char UUFAR *buffer,
                                const unsigned int len,
                                const char function);
 
@@ -153,7 +159,7 @@ int fopenline(char *name, BPS baud, const boolean direct)
 /*       Read a specified number of bytes from the serial port        */
 /*--------------------------------------------------------------------*/
 
-unsigned int fsread(char *buffer,
+unsigned int fsread(char UUFAR *buffer,
                           unsigned int wanted,
                           unsigned int timeout)
 {
@@ -240,7 +246,7 @@ unsigned int fsread(char *buffer,
 /*       Write data to a FOSSIL controled serial port                 */
 /*--------------------------------------------------------------------*/
 
-int fswrite(const char *data, unsigned int queued)
+int fswrite(const char UUFAR *data, unsigned int queued)
 {
 
    unsigned moved;
@@ -257,7 +263,7 @@ int fswrite(const char *data, unsigned int queued)
 /*                            Perform the I/O                         */
 /*--------------------------------------------------------------------*/
 
-  moved = blockIO( (char *) data, queued, FS_WRITBLOK );
+  moved = blockIO( (char UUFAR *) data, queued, FS_WRITBLOK );
                                  /* Write the data to port            */
 
   traceData( data, moved, TRUE); /* Trace our output                  */
@@ -303,7 +309,7 @@ int fswrite(const char *data, unsigned int queued)
 
       ddelay( (KEWSHORT) wait );  /* Actually perform the wait    */
 
-      moved = blockIO( (char *) data + total, queued, FS_WRITBLOK );
+      moved = blockIO( (char UUFAR *) data + total, queued, FS_WRITBLOK );
                                                 /* Write the data     */
       traceData( data + total, moved, TRUE);    /* Trace our output   */
 
@@ -567,7 +573,7 @@ static void getDriverInfo( FS_INFO *fossilData)
 /*       queues                                                       */
 /*--------------------------------------------------------------------*/
 
-static unsigned short blockIO( char *buffer,
+static unsigned short blockIO( char UUFAR *buffer,
                                const unsigned int len,
                                const char function)
 {
@@ -582,7 +588,7 @@ static unsigned short blockIO( char *buffer,
 
    regs.h.ah = function;               /* Input or output function     */
    regs.x.cx = (unsigned short) len;   /* Into buffer this long        */
-   sregs.es = FP_SEG( buffer);         /* Use segment of the buffer   */
+   sregs.es = FP_SEG( buffer );        /* Use segment of the buffer   */
    regs.x.di = FP_OFF( buffer );       /* Use offset of buffer        */
 
    int86x( FS_INTERRUPT, &regs, &regs, &sregs);
