@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.18 1994/02/14 00:29:49 ahd Exp $
+ *    $Id: confvars.h 1.19 1994/02/20 19:16:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.19  1994/02/20  19:16:21  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.18  1994/02/14  00:29:49  ahd
  *     Use quotes, not angle brackets, for local includes
  *
@@ -119,6 +122,8 @@ extern char *E_version;
 extern char *E_xqtRootDir;
 extern char *E_vmsQueueDir;
 extern char *E_vmail;
+extern char **E_ignoreList;      /* Headers not displayed by print      */
+extern char **E_replyToList;     /* Primary Addr used to reply to mail  */
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 
