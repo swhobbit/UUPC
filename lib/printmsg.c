@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.20 1998/04/08 11:32:07 ahd Exp $
+ *    $Id: printmsg.c 1.21 1998/04/27 01:55:28 ahd v1-13a $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.21  1998/04/27 01:55:28  ahd
+ *    Timestamp all output to GUI window
+ *
  *    Revision 1.20  1998/04/08 11:32:07  ahd
  *    Allow shared libraries for NT
  *
@@ -323,11 +326,8 @@ void printmsg(int level, char *fmt, ...)
             time(&now);
             lt = *localtime(&now);
             strftime(timeBuffer, sizeof(timeBuffer), format, &lt);
+            fprintf(stderr, timeBuffer);
          }
-
-#ifdef UUGUI
-         fprintf(stderr, timeBuffer);
-#endif
 
          vfprintf(stderr, fmt, arg_ptr);
          fputc('\n',stderr);
