@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.10 1995/01/02 05:03:27 ahd Exp $";
+         "$Id: genhist.c 1.11 1995/01/07 16:21:14 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.11  1995/01/07 16:21:14  ahd
+/* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+/*
 /* Revision 1.10  1995/01/02 05:03:27  ahd
 /* Pass 2 of integrating SYS file support from Mike McLagan
 /*
@@ -163,7 +166,7 @@ void main( int argc, char **argv)
    PushDir( E_newsdir );
    atexit( PopDir );
 
-   get_active();
+   get_active( KWTrue );
 
    mkfilename(file_old, E_newsdir, "oldhist.dir");
    mkfilename(file_new, E_newsdir, "history.dir");

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.55 1995/01/07 15:43:07 ahd Exp $
+ *    $Id: configur.c 1.56 1995/01/07 16:12:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.56  1995/01/07 16:12:03  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.55  1995/01/07 15:43:07  ahd
  *    Add in-memory file flag
  *
@@ -409,7 +412,6 @@ FLAGTABLE configFlags[] = {
  { "compressbatch",           F_COMPRESSBATCH,         B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
- { "fullbatch",               F_FULLBATCH,             B_GLOBAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},

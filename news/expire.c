@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.8 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: expire.c 1.9 1995/01/07 16:21:07 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.9  1995/01/07 16:21:07  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.8  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -40,7 +43,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.8 1995/01/02 05:03:27 ahd Exp $";
+      "$Id: expire.c 1.9 1995/01/07 16:21:07 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -166,8 +169,6 @@ void main( int argc, char **argv)
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
 
-   tzset();                      /* Set up time zone information  */
-
    if (!configure( B_NEWS ))
       exit(1);   /* system configuration failed */
 
@@ -191,7 +192,7 @@ void main( int argc, char **argv)
    history = open_history("history");
    new_history = open_history("newhist");
 
-   get_active();              /* Get sequence numbers for groups from
+   get_active( KWTrue );      /* Get sequence numbers for groups from
                                  active file                      */
 
 /*--------------------------------------------------------------------*/
@@ -217,22 +218,7 @@ void main( int argc, char **argv)
 /*    history database                                                */
 /*--------------------------------------------------------------------*/
 
-   if ( groups != NULL )
-   {
-
-#ifndef KWFalse
-      printmsg(0,"Cannot expire by group name!  (yet!)" );
-      panic();
-#else
-      while( argc-- > optind )
-      {
-         HistoryExpireGroup( *groups++, expire_date );
-      }
-#endif
-
-   }
-   else
-      HistoryExpireAll(groups, expire_date );
+   HistoryExpireAll(groups, expire_date );
 
 /*--------------------------------------------------------------------*/
 /*                         Clean up and exit                          */

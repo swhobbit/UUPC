@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.48 1995/01/14 14:08:59 ahd Exp $
+ *       $Id: rnews.c 1.49 1995/01/14 15:06:16 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.49  1995/01/14 15:06:16  ahd
+ *       Trap end of DOS headers as well as proper UNIX headers
+ *
  *       Revision 1.48  1995/01/14 14:08:59  ahd
  *       Always reopen input stream in batched mode to prevent loss of
  *       information when running commands
@@ -173,7 +176,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.48 1995/01/14 14:08:59 ahd Exp $";
+         "$Id: rnews.c 1.49 1995/01/14 15:06:16 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -241,7 +244,7 @@ static void *history;
 static int articles     = 0;
 static int bad_articles = 0;
 static int no_delivery  = 0;
-static int junked       = 0;   /* counts SNEWS articles copied to JUNK */
+static int junked       = 0;
 static int ignored      = 0;
 static int loc_articles = 0;  /* How many articles were for me */
 static int fwd_articles = 0;  /* How many articles were for others? */
@@ -297,6 +300,9 @@ static KWBoolean batch_remote(const struct sys *node,
                             IMFILE *imf,
                             const char *msgID );
 
+static KWBoolean batch_NNS( const char *directory,
+                            IMFILE *imf );
+
 static KWBoolean copy_file(IMFILE *imf,
                       const char *group,
                       const char *xref);      /* Copy file (f) to newsgroup */
@@ -324,6 +330,9 @@ void main( int argc, char **argv)
 
    FILE *input;
    char inputName[FILENAME_MAX];
+   KWBoolean deleteInput = KWFalse;
+   KWBoolean localNews;
+   struct sys *localNode;
    int c;
    int status;
 
@@ -349,18 +358,22 @@ void main( int argc, char **argv)
 
    checkname( E_nodename );      /* Fill in fdomain                   */
 
+/*--------------------------------------------------------------------*/
+/*                      Parse arguments, if any.                      */
+/*--------------------------------------------------------------------*/
+
    if (argc > 1)
    {
       int option;
 
-    /*------------------------------------------------------------*/
-    /*                          parse arguments                   */
-    /*------------------------------------------------------------*/
-
-       while ((option = getopt(argc, argv, "f:x:")) != EOF)
+       while ((option = getopt(argc, argv, "F:f:x:")) != EOF)
        {
            switch (option)
            {
+               case 'F':
+                  deleteInput = KWTrue;
+                  /* Fall through to regular case for file input  */
+
                case 'f':
                   strcpy(inputName, optarg);
 
@@ -408,29 +421,44 @@ void main( int argc, char **argv)
    }
 
 /*--------------------------------------------------------------------*/
-/*             Load the active file and validate its data             */
-/*--------------------------------------------------------------------*/
-
-   get_active();           /* Get sequence numbers for groups
-                              from active file                 */
-
-/*--------------------------------------------------------------------*/
-/*                 Open (or create) the history file                  */
-/*--------------------------------------------------------------------*/
-
-   history = open_history("history");
-   if ( history == NULL )
-      panic();
-
-/*--------------------------------------------------------------------*/
 /*                   Initialize sys file processing                   */
 /*--------------------------------------------------------------------*/
 
-  init_sys();                 /* Program aborts if init fails        */
+   if ( ! init_sys() )
+   {
+     printmsg(0,"Cannot initialize from SYS file, program aborting");
+     exit( 1 );
+   }
+
+   localNode = get_sys( canonical_news_name() );
+
+   if ( localNode != NULL )
+      localNews = localNode->flag.local;
+   else
+      localNews = KWFalse;
 
 /*--------------------------------------------------------------------*/
-/*    This loop copies the file to the NEWS directory.                */
-/*                                                                    */
+/*       If the local news is to be processed normally, open up       */
+/*       the history file.  Note if the file doesn't exist, it        */
+/*       will be created automatically.                               */
+/*--------------------------------------------------------------------*/
+
+   if ( localNews )
+   {
+      history = open_history("history");
+
+      if ( history == NULL )
+         panic();
+   }
+
+
+/*--------------------------------------------------------------------*/
+/*       Get sequence numbers for groups from active file.  The       */
+/*       file is optional only if we are not updating it.             */
+/*--------------------------------------------------------------------*/
+
+   get_active( localNews );
+/*--------------------------------------------------------------------*/
 /*    A news article/batch either has a '#' character as its first    */
 /*    character or it does not.                                       */
 /*                                                                    */
@@ -568,18 +596,25 @@ void main( int argc, char **argv)
    } /* if ( fwd_articles ) */
 
 /*--------------------------------------------------------------------*/
-/*                     Clean up and return to caller                  */
+/*       Clean up shop and exit.  We only have to update the          */
+/*       active and history files if processing local news into       */
+/*       discrete files.                                              */
 /*--------------------------------------------------------------------*/
 
-   put_active();
-
-   close_history(history);
+   if ( localNews )
+   {
+      put_active();
+      close_history(history);
+   }
 
    exit_sys();
 
+   if ( deleteInput && (status == 0 ))
+      remove( inputName );
+
    exit(status);
 
-} /*main*/
+} /* main */
 
 /*--------------------------------------------------------------------*/
 /*    S i n g l e                                                     */
@@ -1006,6 +1041,8 @@ static int Batched( FILE *streamIn)
 
    } /* while */
 
+   fclose( inStream );
+
    return status;
 
 } /* Batched */
@@ -1255,7 +1292,8 @@ static void deliver_article( IMFILE *imf )
    }
 
 /*--------------------------------------------------------------------*/
-/*           We have the header fields, deliver the article           */
+/*       Loop through all defined systems to deliver the article      */
+/*       as desired                                                   */
 /*--------------------------------------------------------------------*/
 
   while (sysnode != NULL)
@@ -1268,13 +1306,23 @@ static void deliver_article( IMFILE *imf )
                   getHeader(table, DISTRIBUTION, NULL),
                   getHeader(table, PATH, NULL)))
     {
-      if (equal(sysnode->sysname, canonical_news_name()))
+
+      if ( sysnode->flag.J )
+      {
+         if ( batch_NNS( sysnode->command, imf ) )
+            delivered = KWTrue;
+         sysnode->processed ++;
+      }
+      else if (sysnode->flag.local )
       {
         if (deliver_local( imf,
                            getHeader(table, NEWSGROUPS, NULL),
                            getHeader(table, MESSAGEID, NULL),
                            getHeader(table, CONTROL, NULL)))
+        {
           delivered = KWTrue;
+          sysnode->processed ++;
+        }
         else
           ignored++;
       }
@@ -1293,6 +1341,10 @@ static void deliver_article( IMFILE *imf )
     sysnode = sysnode -> next;
 
   } /* while (sysnode != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                  Report on any dead-end articles                   */
+/*--------------------------------------------------------------------*/
 
   if (!delivered)
   {
@@ -1685,8 +1737,6 @@ static KWBoolean deliver_local(IMFILE *imf,
          return KWFalse;
       }
 
-      ignored++;
-
    } /* if (get_histentry(history, messageID) != NULL) */
 
 /*--------------------------------------------------------------------*/
@@ -1918,13 +1968,13 @@ static void copy_rmt_article(const char *filename,
 /*       uncompressed local batch for speed.                          */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean batch_NNS( const char *node,
+static KWBoolean batch_NNS( const char *directory,
                             IMFILE *imf )
 {
    static char *fileName = NULL;
 
    if ( fileName == NULL )    /* Generate name for all NNS output    */
-      fileName = mkdirfilename( NULL, E_newsdir, "NNS" );
+      fileName = mkdirfilename( NULL, directory, "NNS" );
 
    copy_rmt_article( fileName, imf, KWTrue );
 
@@ -2082,9 +2132,7 @@ static KWBoolean deliver_remote(const struct sys *node,
 /*         Are we batching data or processing it immediately?         */
 /*--------------------------------------------------------------------*/
 
-  if ( node->flag.J )
-     return batch_NNS( node->sysname, imf );
-  else if ( node->flag.F || node->flag.f || node->flag.n || node->flag.I )
+  else if ( node->flag.batch )
      return batch_remote( node, imf, msgID );
   else {
 

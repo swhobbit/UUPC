@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.39 1995/01/08 21:02:02 ahd Exp $
+ *    $Id: rmail.c 1.40 1995/01/09 01:39:22 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.40  1995/01/09 01:39:22  ahd
+ *    Optimize UUCP processing for remote mail, break out logical
+ *    queuing from actually writing the files, and don't write call
+ *    file (which UUCICO could see by mistake) until we're writing
+ *    it for the final time.
+ *
  *    Revision 1.39  1995/01/08 21:02:02  ahd
  *    Correct BC++ 3.1 compiler warnings
  *
@@ -353,7 +359,6 @@ void main(int argc, char **argv)
 
       case 'f':
          namein = optarg;
-         datain = FOPEN(namein , "r",TEXT_MODE);
          break;
 
       case 'g':
@@ -442,6 +447,9 @@ void main(int argc, char **argv)
 /*               Verify we have input stream available                */
 /*--------------------------------------------------------------------*/
 
+   if ( ! equal( namein, CONSOLE ))
+      datain = FOPEN(namein , "r",TEXT_MODE);
+
    if (datain == NULL )
    {
       printerr(namein);
@@ -451,7 +459,6 @@ void main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 /*                   Open up the output data stream                   */
 /*--------------------------------------------------------------------*/
-
 
    fflush(datain);
    imf = imopen( filelength( fileno( datain )) + 512 );
@@ -542,7 +549,6 @@ void main(int argc, char **argv)
          else
             delivered += Deliver(imf, address[count], KWTrue);
    }
-
 
    DeliverRemote( imf, NULL, NULL );   /* Flush any lingering remote
                                           addresses                  */

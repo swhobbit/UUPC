@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.15 1995/01/07 16:11:41 ahd Exp $
+ *    $Id: active.c 1.16 1995/01/07 16:31:34 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.16  1995/01/07 16:31:34  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.15  1995/01/07 16:11:41  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -125,8 +128,6 @@
 
 currentfile();
 
-static KWBoolean fallback = KWFalse;
-
 struct grp *group_list = NULL;      /* List of all groups */
 
 /*--------------------------------------------------------------------*/
@@ -136,63 +137,53 @@ struct grp *group_list = NULL;      /* List of all groups */
 /*    information about the newsgroup we currently maintain           */
 /*--------------------------------------------------------------------*/
 
-void get_active( void )
+void get_active( const KWBoolean mustExist )
 {
    char active_filename[FILENAME_MAX];
-   char grp_name_tmp[51];     /* Space to hold the group field being read in */
+   char grp_name_tmp[MAXGRP];
+
    FILE *g;
    struct grp *cur_grp;
-   struct grp *prev_grp;
+   struct grp *prev_grp = NULL;
    int i;
    int line = 0;
-
-/*--------------------------------------------------------------------*/
-/*    Open the active file and extract all the newsgroups and         */
-/*    their next number.                                              */
-/*--------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------*/
-/*     Try configuration directory first, then try news directory     */
-/*--------------------------------------------------------------------*/
 
    mkfilename(active_filename, E_confdir, ACTIVE);
    g = FOPEN(active_filename,"r",TEXT_MODE);
 
-   if (g == NULL)
-   {
-      printerr(active_filename);
-
-      mkfilename(active_filename, E_newsdir, ACTIVE);
-      fallback= KWTrue;
-      g = FOPEN(active_filename,"r",TEXT_MODE);
-   } /* if */
-
 /*--------------------------------------------------------------------*/
-/*               No active file, die young, stay pretty               */
+/*       If we have no active file, we will allow processing to       */
+/*       continue only if we were not expecting it to exist, such     */
+/*       as it was being used for for remote batching only.           */
 /*--------------------------------------------------------------------*/
 
    if ( g == NULL )
    {
+      if ( mustExist || (debuglevel > 1 ))
+         printerr(active_filename);
 
-      printerr(active_filename);
-      panic();
+      if ( mustExist )
+         panic();
+      else
+         return;
 
    }  /* if ( g == NULL ) */
 
-/*--------------------------------------------------------------------*/
-/*            Build the list of groups in the active file             */
-/*--------------------------------------------------------------------*/
 
-   prev_grp = NULL;
+/*--------------------------------------------------------------------*/
+/*              Initialize the first group to be processed            */
+/*--------------------------------------------------------------------*/
 
    group_list = (struct grp *) malloc(sizeof(struct grp));
    cur_grp = group_list;
 
-   cur_grp->grp_next = NULL;
-   cur_grp->grp_name = NULL;
-   cur_grp->grp_low  = 0;
-   cur_grp->grp_high = 0;
-   cur_grp->grp_can_post = ' ';
+   memset( cur_grp, 0, sizeof cur_grp );
+
+/*--------------------------------------------------------------------*/
+/*       Loop to read in all groups in the file.  Note at the top     */
+/*       of the loop we always have one extra link in the list        */
+/*       allocated to accept the new entry.                           */
+/*--------------------------------------------------------------------*/
 
    while ((i = fscanf(g, "%s %ld %ld %1s\n", &grp_name_tmp[0],
             &cur_grp->grp_high,
@@ -220,14 +211,13 @@ void get_active( void )
       checkref(cur_grp);
       prev_grp->grp_next = cur_grp;
 
-      cur_grp->grp_next = NULL;
-      cur_grp->grp_name = NULL;
-      cur_grp->grp_low  = 0;
-      cur_grp->grp_high = 0;
-      cur_grp->grp_can_post = ' ';
+      memset( cur_grp, 0, sizeof cur_grp );
 
    } /* while */
 
+/*--------------------------------------------------------------------*/
+/*           Done loading groups, close up the active file            */
+/*--------------------------------------------------------------------*/
 
    if (fclose(g))
       printerr( active_filename );
@@ -248,6 +238,7 @@ void get_active( void )
    }
 
    return;
+
 } /* get_active */
 
 /*--------------------------------------------------------------------*/
@@ -260,27 +251,32 @@ void put_active()
 {
    char active_filename[FILENAME_MAX];
    FILE *g;
-   struct grp *cur_grp;
+   struct grp *cur_grp = group_list;
+
+   if ( cur_grp == NULL )
+   {
+      printmsg(0, "put_active: Attempt to update empty ACTIVE file");
+      panic();
+   }
 
    mkfilename(active_filename, E_confdir, ACTIVE);
 
    filebkup( active_filename );
 
-   g = FOPEN(active_filename,"w",TEXT_MODE);
+   g = FOPEN(active_filename, "w", TEXT_MODE);
 
-   if (g == NULL) {
-      printmsg(0, "rnews: Cannot update active %s", active_filename );
+   if (g == NULL)
+   {
+      printmsg(0, "rnews: Cannot open active %s", active_filename );
       printerr(active_filename);
       panic();
    }
-
-   cur_grp = group_list;
 
 /*--------------------------------------------------------------------*/
 /*           Loop to actually write out the updated groups            */
 /*--------------------------------------------------------------------*/
 
-   while ((cur_grp != NULL) && (cur_grp->grp_name != NULL))
+   while (cur_grp != NULL)
    {
       fprintf(g, "%s %ld %ld %c\n", cur_grp->grp_name,
                               cur_grp->grp_high-1,
@@ -290,16 +286,6 @@ void put_active()
    }
 
    fclose(g);
-
-/*--------------------------------------------------------------------*/
-/*    Delete old (now obsolete) active file in the news directory     */
-/*--------------------------------------------------------------------*/
-
-   if ( fallback )
-   {
-      mkfilename(active_filename, E_newsdir, ACTIVE);
-      filebkup( active_filename );
-   }
 
 } /* put_active */
 

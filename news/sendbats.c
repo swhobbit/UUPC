@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.2 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: sendbats.c 1.3 1995/01/03 05:32:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.3  1995/01/03 05:32:26  ahd
+ *    Further SYS file support cleanup
+ *
  *    Revision 1.2  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -34,7 +37,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.2 1995/01/02 05:03:27 ahd Exp $";
+            "$Id: sendbats.c 1.3 1995/01/03 05:32:26 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -91,7 +94,7 @@ currentfile();
 int main( int argc, char **argv)
 {
 
-   struct sys *sysnode;
+   struct sys *node;
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
@@ -105,62 +108,53 @@ int main( int argc, char **argv)
 
    openlog( NULL );                 /* Begin logging to disk         */
 
-   if (bflag[F_FULLBATCH] && (E_batchsize == 0))
-   {
-      E_batchsize = 60L * 1024L;    /* Provide reasonable default    */
 
-      printmsg(0, "%s: Conflicting options fullbatch and batchsize = 0, "
-                   "using %ld for batch size",
-                   argv[0],
-                   E_batchsize );
+   if ( ! init_sys() )
+   {
+      printmsg(0,"Cannot load news configuration (SYS) file" );
+      exit(2);
    }
 
-   init_sys();
+   node = sys_list;
 
-   sysnode = sys_list;
+/*--------------------------------------------------------------------*/
+/*       Walk the list of known systems looking for systems to        */
+/*       batch.  We can't handle batching by message id (well,        */
+/*       we're too lazy to), all others we pass along.                */
+/*--------------------------------------------------------------------*/
 
-   while (sysnode != NULL)
+   while (node != NULL)
    {
 
-
-     /* skip us! */
-
-     if (equal(E_domain, sysnode->sysname))
+     if (node->flag.I)           /* Unsupported on this end?      */
      {
-       sysnode = sysnode -> next;
-       continue;
+         printmsg(0,"Flag I is not supported for system %s",
+                    node->sysname);
+         panic();
      }
 
-     /*
-      * lets see...  check the flags, if there are none, we shouldn't be
-      * here for this system, so continue! (news is either sent one
-      * article at a time, or by batch!
-      */
-
-     /*
-      * the only flags of interest are 'fFIn' and only 1 can be set, or
-      * we wouldn't be here!!
-      * the other flags 'muLn' are RNEWS's problem, not ours!
-      */
-
-     if (sysnode->flag.f || sysnode->flag.F || sysnode->flag.n)
+     if (node->flag.B && (E_batchsize == 0))
      {
-       setTitle( "Batching news for %s", sysnode->sysname );
-       printmsg(0,"SENDBATS: Batching news for system %s",
-                  sysnode->sysname);
+        E_batchsize = 60L * 1024L;    /* Provide reasonable default    */
 
-       process_batch(sysnode, sysnode->sysname, sysnode->command);
+        printmsg(0, "%s: Conflicting options fullbatch (B) and batchsize = 0, "
+                     "using %ld for batch size",
+                     argv[0],
+                     E_batchsize );
      }
-     else if (sysnode->flag.I)   /* Unsupported on this end?         */
+
+     if (node->flag.batch)
      {
-            printmsg(0,"Flag I is not supported for system %s",
-                       sysnode->sysname);
-            panic();
-    }
+         setTitle( "Batching news for %s", node->sysname );
+         printmsg(0,"SENDBATS: Batching news for system %s",
+                  node->sysname);
 
-    sysnode = sysnode -> next;
+         process_batch(node, node->sysname, node->command);
+     }
 
-   } /* while (sysnode != NULL) */
+     node = node -> next;
+
+   } /* while (node != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                 Clean up and terminate processing                  */

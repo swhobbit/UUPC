@@ -5,8 +5,6 @@
 /*                                                                    */
 /*    Written by Mike McLagan <mmclagan@invlogic.com>                 */
 /*                                                                    */
-/*    This requires USESYSFILE option set in the UUPC.RC file.        */
-/*                                                                    */
 /*    The sys file is stored in [confdir]/sys.  The file is main-     */
 /*    tained by the system administrator, and directs RNEWS where     */
 /*    to send articles recieved from other systems.  Note that the    */
@@ -16,7 +14,7 @@
 /*                                                                    */
 /*    Interpretation:                                                 */
 /*                                                                    */
-/*    node[/exclusions]:  A node in the systems file.  Also 'me',     */
+/*    node[/exclusions]:  A node in the systems file.  Also 'ME',     */
 /*                        which is the same as the current node.      */
 /*                        Exclusions specify sites which may appear   */
 /*                        on the path line as this system.  News with */
@@ -51,6 +49,8 @@
 /*                                                                    */
 /*           u - transmit only unmoderated groups                     */
 /*                                                                    */
+/*           J - Batch news for NNS                                   */
+/*                                                                    */
 /*    command: this field contains either a command thru which to     */
 /*             pipe articles destined for this system, or is used     */
 /*             based on the flags.                                    */
@@ -73,10 +73,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.9 1995/01/08 21:02:02 ahd Exp $
+ *    $Id: sys.c 1.10 1995/01/13 14:02:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.10  1995/01/13 14:02:36  ahd
+ *    News debugging fixes from Dave Watt
+ *    Add new checks for possible I/O errors
+ *
  *    Revision 1.9  1995/01/08 21:02:02  ahd
  *    Correct BC++ 3.1 compiler warnings
  *
@@ -178,13 +182,17 @@ static char *trim( char *buf )
 /*       into memory                                                  */
 /*--------------------------------------------------------------------*/
 
-void process_sys( char *buf)
+KWBoolean
+process_sys( char *buf)
 {
   static struct sys *previous = NULL;
 
   struct sys *node = malloc(sizeof(struct sys));
   char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
   size_t tempLen;
+
+  KWBoolean success = KWTrue;
+  int batchOptions = 0;
 
   memset(node, 0, sizeof(struct sys));
 
@@ -255,6 +263,9 @@ void process_sys( char *buf)
      node->sysname = canonical_news_name();
   else
      node->sysname = newstr( trim(f1) );
+
+   if ( equal( node->sysname, canonical_news_name() ) )
+      node->flag.local = KWTrue;
 
   if (s1 != NULL)
   {
@@ -385,19 +396,35 @@ void process_sys( char *buf)
       printmsg(0, "process_sys: Invalid flags field %s for system %s",
                   f3,
                   f1);
-      panic();
+      success = KWFalse;
     }
 
-    if ((node->flag.J && (node->flag.f || node->flag.F ||
-                          node->flag.I || node->flag.n)) ||
-        (node->flag.f && (node->flag.F || node->flag.I || node->flag.n)) ||
-        (node->flag.F && (node->flag.I || node->flag.n)) ||
-        (node->flag.I && (node->flag.n)))
+    if ( node->flag.J )    /* Not a normal batch, but okay for       */
+      batchOptions++;      /* conflict management                    */
+
+    if ( node->flag.f )
+      batchOptions++;
+
+    if ( node->flag.F )
+      batchOptions++;
+
+    if ( node->flag.I )
+      batchOptions++;
+
+    if ( node->flag.n )
+      batchOptions++;
+
+    if ( batchOptions > 1 )
     {
       printmsg(0, "process_sys: Can't specify more than one of 'fFIJn' "
                   "flags in system %s", f1);
-      panic();
+      success = KWFalse;
     }
+    else if ( batchOptions )
+       node->flag.batch = KWTrue;
+
+    if ( node->flag.J )             /* Now ignore for true batch     */
+       batchOptions--;
 
 /*--------------------------------------------------------------------*/
 /*       If we are batching, then the default "command" is            */
@@ -405,8 +432,7 @@ void process_sys( char *buf)
 /*       processed.                                                   */
 /*--------------------------------------------------------------------*/
 
-    if ((node->flag.f || node->flag.F || node->flag.I || node->flag.n) &&
-        (node->command == NULL))
+    if (node->flag.batch && (node->command == NULL))
     {
       char dirname[FILENAME_MAX];
 
@@ -422,25 +448,46 @@ void process_sys( char *buf)
   } /* flags */
 
 /*--------------------------------------------------------------------*/
-/*       If we are batching or using the default UUX command, then    */
-/*       verify the system name is valid.                             */
+/*           Validate options versus the type of the system           */
 /*--------------------------------------------------------------------*/
 
-    if (node->command != NULL )
-      ;                       /* no op, no need to check for bad host */
-    else if ( node->flag.J )
-      ;                       /* no op, no need to check for bad host */
-    else if ( equal( node->sysname, canonical_news_name() ))
-      ;                       /* no op, no need to check for bad host */
-    else if ((node->flag.f ||
-              node->flag.F ||
-              node->flag.I ||
-              node->flag.n ) &&
+    if ( node->flag.J )
+    {
+       if ( node->command == NULL )
+          node->command = newstr( E_newsdir );
+
+      node->flag.local = KWFalse;      /* Not treated as local system   */
+    }
+    else if ( node->flag.local )
+    {
+
+      if ( node->flag.batch )
+      {
+         printmsg(0,"Invalid batching requested for local system %s; only "
+                    "NNS batching (J flag) is allowed",
+                    canonical_news_name() );
+         success = KWFalse;
+      }
+
+      if ( node->command != NULL )
+      {
+
+         printmsg(0,"Command/file/directory \"%s\""
+                    "specified for local system %s; only "
+                    "allowed if NNS batching (J flag)"
+                    " is specified" ,
+                    node->command,
+                    canonical_news_name() );
+         success = KWFalse;
+      }
+
+    } /* else if ( node->flag.local ) */
+    else if ( (node->flag.batch || (node->command == NULL )) &&
              (checkreal( node->sysname ) == BADHOST))
     {
        printmsg(0,"Invalid host %s listed for news batching in SYS file",
                   node->sysname );
-       panic();
+       success = KWFalse;
     }
 
 /*--------------------------------------------------------------------*/
@@ -449,7 +496,7 @@ void process_sys( char *buf)
 /*       command to send news onto the next system.                   */
 /*--------------------------------------------------------------------*/
 
-   if ( node->command == NULL )
+   if (( node->command == NULL ) && ! node->flag.local)
    {
       char command[ FILENAME_MAX * 4 ];
 
@@ -460,6 +507,8 @@ void process_sys( char *buf)
       node->command = newstr( command );
 
    }
+
+   return success;
 
 } /* process_sys */
 
@@ -495,7 +544,8 @@ static void bootStrap( const char *fileName )
    fprintf( stream, "# The local system, %s (%s)\n",
             E_domain,
             E_nodename );
-   fprintf( stream, "ME:all\n" );
+
+   fprintf( stream, "ME:all\n\n" );
 
 /*--------------------------------------------------------------------*/
 /*         Everyone else gets our full feed sans-local stuff.         */
@@ -504,7 +554,7 @@ static void bootStrap( const char *fileName )
    if ( E_newsserv )
    {
       fprintf( stream, "# Our news feed, not batched to speed our posts\n");
-      fprintf( stream, "%s:all/!local::\n", E_newsserv );
+      fprintf( stream, "%s:all/!local::\n\n", E_newsserv );
                            /* Uncompressed feed for speedy posts     */
    }
 
@@ -546,7 +596,14 @@ static void bootStrap( const char *fileName )
 
 } /* bootStrap */
 
-void init_sys()
+/*--------------------------------------------------------------------*/
+/*       i n i t _ s y s                                              */
+/*                                                                    */
+/*       Primary entry point for initializing SYS list                */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+init_sys( void )
 {
 
   FILE       *sysFileStream = NULL;
@@ -555,6 +612,7 @@ void init_sys()
   char       *t;
   char       buf[BUFSIZ * 8];
   KWBoolean   wantMore = KWTrue;
+  KWBoolean   success  = KWTrue;
 
   mkfilename(sysFileName, E_confdir, "SYS");
 
@@ -578,78 +636,87 @@ void init_sys()
 
   memset(buf, 0, sizeof buf);
 
-  while (fgets(line, sizeof line, sysFileStream) != NULL)
-  {
+   while (fgets(line, sizeof line, sysFileStream) != NULL)
+   {
 
 /*--------------------------------------------------------------------*/
 /*       Trim trailing spaces and cr/lf.  (Prevents empty lines in    */
 /*       the log file).                                               */
 /*--------------------------------------------------------------------*/
 
-   t = line + strlen(line) - 1;
+      t = line + strlen(line) - 1;
 
-   while ((t >= line) && isspace(*t))
-     *t-- = '\0';
+      while ((t >= line) && isspace(*t))
+         *t-- = '\0';
 
 /*--------------------------------------------------------------------*/
 /*                      Also trim leading spaces                      */
 /*--------------------------------------------------------------------*/
 
-   t = line;
+      t = line;
 
-   while (t && isspace(*t))
-      t++;
+      while (t && isspace(*t))
+         t++;
 
-   printmsg(6, "init_sys: read line length %u, \"%s\"",
-               strlen(t),
-               t);
+      printmsg(6, "init_sys: read line length %u, \"%s\"",
+                  strlen(t),
+                  t);
 
 /*--------------------------------------------------------------------*/
 /*       Process any buffered data if this line is empty (which       */
 /*       terminates the entry)                                        */
 /*--------------------------------------------------------------------*/
 
-    if ( *buf && (! strlen(t) || ! wantMore ))
+      if ( *buf && (! strlen(t) || ! wantMore ))
                                     /* Previous entry complete?      */
-    {
-       process_sys( buf );          /* Yes --> end of entry, process */
-       *buf = '\0';                 /* Also, reset buffer to empty   */
-    }
+      {
+         if (! process_sys( buf ))  /* Yes --> end of entry, process */
+            success = KWFalse;
+
+         *buf = '\0';               /* Also, reset buffer to empty   */
+      }
 
 /*--------------------------------------------------------------------*/
 /*           Buffer the new data if this is not a comment line        */
 /*--------------------------------------------------------------------*/
 
-    if (*t != '#')                  /* Comment line?                 */
-    {                               /* No --> Add it to our buffer   */
+      if (*t != '#')                /* Comment line?                 */
+      {                             /* No --> Add it to our buffer   */
 
-       strcat(buf, t);
+         strcat(buf, t);
+         wantMore = (*t == '\\') ? KWTrue : KWFalse;
+                                    /* End of entry if not explicitly
+                                       continued                     */
 
-       /*
-        * does line end with continuation character? lenient search, allows
-        * spaces after '\' before end of line.
-        */
+      }  /* else if (*t != '#') */
 
-       wantMore = (*t == '\\') ? KWTrue : KWFalse;
-
-    }  /* else if (*t != '#') */
-
-  } /* while (fgets(line, sizeof line, sysFileStream) != NULL) */
+   } /* while (fgets(line, sizeof line, sysFileStream) != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                Process the final system entry, if any              */
 /*--------------------------------------------------------------------*/
 
-   if ( *buf )
-      process_sys( buf );
+   if (( *buf ) && ! process_sys( buf ) )
+      success = KWFalse;
 
    fclose( sysFileStream );
+
+/*--------------------------------------------------------------------*/
+/*              Create a cache buffer for use by check_sys            */
+/*--------------------------------------------------------------------*/
 
    if ( cacheLength )
    {
       cache = malloc( cacheLength );
       checkref( cache );
    }
+
+/*--------------------------------------------------------------------*/
+/*       Report if we had any problems processing the SYS file to     */
+/*       our caller                                                   */
+/*--------------------------------------------------------------------*/
+
+   return success;
 
 } /* init_sys */
 
@@ -1004,6 +1071,30 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
   return bRet;
 
 } /* check_sys */
+
+/*--------------------------------------------------------------------*/
+/*       g e t _ s y s                                                */
+/*                                                                    */
+/*       Given a system name, return the SYS structure for it.        */
+/*       Returns NULL on system not found or error.                   */
+/*--------------------------------------------------------------------*/
+
+struct sys *
+get_sys( const char *name )
+{
+   struct sys *current = sys_list;
+
+   while( current != NULL )
+   {
+      if ( equal( current->sysname, name ) )
+         return current;
+      else
+         current = current->next;
+   }
+
+   return NULL;                     /* We didn't find the entry      */
+
+} /* get_sys */
 
 /*--------------------------------------------------------------------*/
 /*       e x i t _ s y s                                              */
