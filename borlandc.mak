@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.59 1994/03/12 13:40:47 ahd Exp $
+#     $Id: makefile 1.60 1994/03/12 14:27:25 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.60  1994/03/12  14:27:25  ahd
+#         Allow easy use of short path names to speed compiles
+#
 #         Revision 1.59  1994/03/12  13:40:47  ahd
 #         Add NMAKE included files to ZIP dependents
 #
@@ -283,7 +286,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12i
+VERS = 1.12j
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
