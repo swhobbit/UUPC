@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.6 1998/03/09 01:18:19 ahd Exp $
+ *       $Id: POP3MBOX.C 1.7 1998/03/16 06:41:41 ahd Exp $
  *
  *       Revision History:
- *       $Log: pop3mbox.c $
+ *       $Log: POP3MBOX.C $
+ *       Revision 1.7  1998/03/16 06:41:41  ahd
+ *       Perform better counting of bytes in buffer
+ *
  *       Revision 1.6  1998/03/09 01:18:19  ahd
  *       Handle locked mailboxes correctly
  *
@@ -58,7 +61,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.6 1998/03/09 01:18:19 ahd Exp $");
+RCSID("$Id: POP3MBOX.C 1.7 1998/03/16 06:41:41 ahd Exp $");
 
 currentfile();
 
@@ -119,6 +122,7 @@ popBoxLoad(SMTPClient *client)
    static const char mName[] = "popBoxLoad";
    static const char fromString[] = "From ";
    static const char commentString[] = "Comment: ";
+   static const size_t fromStringLength = sizeof fromString - 1;
    MailMessage *current = NULL;
    KWBoolean firstHeader = KWTrue;
    long position = -1;
@@ -201,9 +205,9 @@ popBoxLoad(SMTPClient *client)
 
       /* Make From ... line a comment to prevent Netscape from
          indenting all headers absurdly  */
-      if ( firstHeader && equaln(client->transmit.data,
-                                 fromString,
-                                 strlen( fromString )))
+      if ( firstHeader &&
+           bflag[F_COMMENTFROM] &&
+           equaln(client->transmit.data, fromString, fromStringLength))
       {
          imputs( commentString, client->transaction->imf );
          current->octets += strlen( commentString );
