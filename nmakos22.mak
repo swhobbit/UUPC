@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.12 1995/02/20 00:07:07 ahd Exp $
+#       $Id: nmakos22.mak 1.13 1995/02/20 17:24:05 ahd v1-12n $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.13  1995/02/20 17:24:05  ahd
+#       ooops, we did need that OS=1
+#
 #       Revision 1.12  1995/02/20 00:07:07  ahd
 #       Move various common news subroutines into own library
 #       Break common library into two parts to prevent NMAKE failures
@@ -58,7 +61,7 @@ EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
-           $(OBJ)\title2.obj
+           $(OBJ)\remove2.obj $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case
 
 !ifndef PROD
