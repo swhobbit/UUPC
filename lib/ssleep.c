@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.7 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: ssleep.c 1.8 1993/09/20 04:39:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.8  1993/09/20  04:39:51  ahd
+ *     OS/2 2.x support
+ *
  *     Revision 1.7  1993/08/02  03:24:59  ahd
  *     Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -86,9 +89,18 @@
 #include "winutil.h"
 #endif
 
+
+#if defined(FAMILYAPI) || defined(__OS2__)
+#include "pos2err.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
+
+#if defined(FAMILYAPI) || defined(__OS2__)
+currentfile();
+#endif
 
 
 /*--------------------------------------------------------------------*/
@@ -418,9 +430,8 @@ void   ddelay   (KEWSHORT milliseconds)
 #elif defined(FAMILYAPI) || defined(__OS2__)
 
    result = DosSleep(milliseconds);
-   if (result != 0)
-      printmsg(0,"ddelay: Sleep for %d milliseconds failed, error %d",
-                 milliseconds, result);
+   if (result)
+      printOS2error( "DosSleep", result );
 #else
 
 /*--------------------------------------------------------------------*/
