@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: WAITING.CMD 1.2 1992/11/28 23:08:07 ahd Exp $
+ *       $Id: WAITING.CMD 1.3 1993/01/01 16:44:04 ahd Exp $
  *
  *       $Log: WAITING.CMD $
+*     Revision 1.3  1993/01/01  16:44:04  ahd
+*     Correct seven digit date bug
+*
  * Revision 1.2  1992/11/28  23:08:07  ahd
  * Tweak order of procedures, add comments
  *
@@ -40,7 +43,7 @@
 '@echo off'
 signal on novalue
 parse upper arg who;
-if who == '' then
+if words(who) = 0 then
    who = '*';
 maildir = getuupc("maildir" );
 mailext = getuupc("mailext" );
