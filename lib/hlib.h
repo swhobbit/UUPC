@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.10 1995/01/30 04:05:39 ahd Exp $
+ *    $Id: hlib.h 1.11 1995/02/12 23:39:45 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.11  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.10  1995/01/30 04:05:39  ahd
  *    Additional compiler warning fixes, optimize path normalizing
  *
@@ -107,8 +110,18 @@ char *mkmailbox(char *buf, const char *userid);
 
 int filebkup( const char *input );
 
-#ifdef __IBMC__
-#define _fsopen(n, m, s) fopen(n, m)
+/*--------------------------------------------------------------------*/
+/*          Handle special file removal processing for OS/2           */
+/*--------------------------------------------------------------------*/
+
+#if defined(__OS2__)
+
+#define REMOVE(x) removeOS2File(x, __FILE__, __LINE__ )
+
+int removeOS2File( const char *fname, const char *file, const size_t line );
+
+#else
+#define REMOVE(x) unlink(x)
 #endif
 
 #endif /* _HLIB_H */
