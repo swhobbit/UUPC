@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.28 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: deliver.c 1.29 1994/02/25 03:45:46 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.29  1994/02/25  03:45:46  ahd
+ * Don't attempt to de-reference user pointer if NULL in deliverfile.
+ *
  * Revision 1.28  1994/02/20  19:07:38  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -859,7 +862,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    importpath( msname, ixfile, path);
    mkfilename( msfile, E_spooldir, msname);
 
-   stream = FOPEN(msfile, "w", BINARY_MODE);
+   stream = FOPEN(msfile, "w", IMAGE_MODE);
    if ( stream == NULL )
    {
       printerr(msfile);
@@ -882,7 +885,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    importpath(msname, idfile, path);
    mkfilename( msfile, E_spooldir, msname);
 
-   stream = FOPEN(msfile, "w", BINARY_MODE);
+   stream = FOPEN(msfile, "w", IMAGE_MODE);
    if (stream == NULL )
    {
       printerr(msfile);

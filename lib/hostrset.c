@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.10 1994/02/19 04:42:36 ahd Exp $
+ *    $Id: hostrset.c 1.11 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *     Revision 1.11  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.10  1994/02/19  04:42:36  ahd
  *     Use standard first header
  *
@@ -95,7 +98,7 @@ void HostReset( const char *name )
 
    mkfilename( fname, E_confdir, DCSTATUS );
 
-   if ((stream  = FOPEN(fname , "w", BINARY_MODE)) == NULL)
+   if ((stream  = FOPEN(fname , "w", IMAGE_MODE)) == NULL)
    {
       printmsg(1,"HostReset: Unable to open host status file");
       printerr( fname );

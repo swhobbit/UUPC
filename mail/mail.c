@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.18 1994/02/20 19:07:38 ahd Exp $
+ *    $Id: mail.c 1.19 1994/02/25 03:17:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.19  1994/02/25  03:17:43  ahd
+ * Allow configurable ignore and reply to search lists
+ *
  * Revision 1.18  1994/02/20  19:07:38  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -102,7 +105,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.18 1994/02/20 19:07:38 ahd Exp $";
+      "$Id: mail.c 1.19 1994/02/25 03:17:43 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -551,7 +554,7 @@ static void Interactive_Mail( const boolean PrintOnly,
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
-   fmailbox = FOPEN(tmailbox, "w", BINARY_MODE);
+   fmailbox = FOPEN(tmailbox, "w", IMAGE_MODE);
 
    if ( fmailbox == NULL )
    {
@@ -590,7 +593,7 @@ static void Interactive_Mail( const boolean PrintOnly,
    letters = realloc( letters, (letternum + 1) *  sizeof(letters[0]));
    checkref(letters);
 
-   fmailbox = FOPEN(tmailbox, "r", BINARY_MODE);
+   fmailbox = FOPEN(tmailbox, "r", IMAGE_MODE);
 
    if (fmailbox == NULL)
    {
@@ -977,7 +980,7 @@ static void IncludeNew( const char *target, const char *user)
 /*      Return semi-quietly if we can't open the system mailbox       */
 /*--------------------------------------------------------------------*/
 
-   stream_in   = FOPEN( sysbox, "r", BINARY_MODE);
+   stream_in   = FOPEN( sysbox, "r", IMAGE_MODE);
    if ( stream_in == NULL )
    {
       if ( debuglevel > 1 )
@@ -1002,7 +1005,7 @@ static void IncludeNew( const char *target, const char *user)
 /*                    Now open up the output file                     */
 /*--------------------------------------------------------------------*/
 
-   stream_out  = FOPEN( target, "a+", BINARY_MODE);
+   stream_out  = FOPEN( target, "a+", IMAGE_MODE);
 
    if ( stream_out == NULL )
    {

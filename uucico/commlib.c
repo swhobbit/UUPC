@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.20 1994/02/19 05:13:33 ahd Exp $
+ *    $Id: commlib.c 1.21 1994/02/22 02:59:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.21  1994/02/22  02:59:10  ahd
+ * Always insure buffer is at least BUFSIZ long, in case any
+ * random buffer wants to snarf BUFSIZ data.
+ *
  * Revision 1.20  1994/02/19  05:13:33  ahd
  * Use standard first header
  *
@@ -403,7 +407,7 @@ boolean traceStart( const char *port )
       panic();
    }
 
-   traceStream = FOPEN( linelog ,"a", BINARY_MODE);
+   traceStream = FOPEN( linelog ,"a", IMAGE_MODE);
 
    if ( traceStream == NULL )
    {

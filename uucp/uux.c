@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.13 1994/01/01 19:27:52 ahd Exp $
+ *    $Id: uux.c 1.14 1994/02/19 05:15:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.14  1994/02/19  05:15:54  ahd
+ * Use standard first header
+ *
  * Revision 1.13  1994/01/01  19:27:52  ahd
  * Annual Copyright Update
  *
@@ -313,7 +316,7 @@ static boolean CopyData( const char *input, const char *output)
    boolean  status = TRUE;
    size_t   len;
 
-   if ( (dataout = FOPEN(output, "w", BINARY_MODE)) == NULL )
+   if ( (dataout = FOPEN(output, "w", IMAGE_MODE)) == NULL )
    {
       printerr(output);
       printmsg(0,"uux: Cannot open spool file \"%s\" for output",
@@ -333,7 +336,7 @@ static boolean CopyData( const char *input, const char *output)
       setmode(fileno(datain), O_BINARY);   /* Don't die on control-Z, etc  */
    }
    else
-      datain = FOPEN(input, "r", BINARY_MODE);
+      datain = FOPEN(input, "r", IMAGE_MODE);
 
    if (datain == NULL) {
       printerr(input);
@@ -524,7 +527,7 @@ static boolean do_uuxqt(char *job_name,
    importpath( msname, ixfile, E_nodename);
    mkfilename( msfile, E_spooldir, msname);
 
-   if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
+   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
       return FALSE;
@@ -830,7 +833,7 @@ static boolean do_remote(int optind, int argc, char **argv)
    importpath( msname, lxfile, dest_system);
    mkfilename( msfile, E_spooldir, msname);
 
-   if ( (stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL ) {
+   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
       return FALSE;

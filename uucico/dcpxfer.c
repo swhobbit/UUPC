@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.41 1994/02/19 05:08:15 ahd Exp $
+ *       $Id: dcpxfer.c 1.42 1994/02/20 19:11:18 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.42  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.41  1994/02/19  05:08:15  ahd
  * Use standard first header
  *
@@ -607,7 +610,7 @@ XFER_STATE ssfile( void )
 /*    way through this job                                            */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN( hostFile, "r", BINARY_MODE);
+   xfer_stream = FOPEN( hostFile, "r", IMAGE_MODE);
                                     /* Open stream to send           */
    if (xfer_stream == NULL)
    {
@@ -761,7 +764,7 @@ appending file name \"%s\"", spolName, slash);
 /*    week; we'll just auto-create using FOPEN()                      */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN(spolName, "w", BINARY_MODE);
+   xfer_stream = FOPEN(spolName, "w", IMAGE_MODE);
                            /* Allow auto-create of directory      */
    if (xfer_stream == NULL)
    {
@@ -1081,7 +1084,7 @@ XFER_STATE rrfile( void )
 #endif
 
    else if (strchr( cmdopts,'d'))
-      xfer_stream = FOPEN( spolName, "w", BINARY_MODE);
+      xfer_stream = FOPEN( spolName, "w", IMAGE_MODE);
    else {
       denormalize( spolName );
       xfer_stream = fopen( spolName, "wb");
@@ -1201,7 +1204,7 @@ XFER_STATE rsfile( void )
 /*            The filename is transformed, try to open it             */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN( spolName, "r" , BINARY_MODE);
+   xfer_stream = FOPEN( spolName, "r" , IMAGE_MODE);
                               /* Open stream to transmit       */
    if (xfer_stream == NULL)
    {

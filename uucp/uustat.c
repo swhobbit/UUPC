@@ -21,13 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.17 1994/02/19 05:15:21 ahd Exp $
+ *    $Id: uustat.c 1.18 1994/02/20 19:11:18 ahd Exp $
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.17 1994/02/19 05:15:21 ahd Exp $";
+         "$Id: uustat.c 1.18 1994/02/20 19:11:18 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -503,7 +503,7 @@ static void poll(const char *callee)
 
          if ( access( msname , 0 ))   /* Does the host file exist?     */
          {
-            stream = FOPEN( msname ,"w", BINARY_MODE);
+            stream = FOPEN( msname ,"w", IMAGE_MODE);
 
             if ( stream == NULL )
             {
@@ -968,7 +968,7 @@ static void open_data(const char *file,
    *f_name = '\0';
 
    printmsg(1,"OPENING(%s)",file);
-   data_fp = FOPEN(file, "r", BINARY_MODE);
+   data_fp = FOPEN(file, "r", IMAGE_MODE);
    if(data_fp ==  NULL){
       printerr( file );
       panic();

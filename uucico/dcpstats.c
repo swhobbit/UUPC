@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.9 1994/02/19 05:07:18 ahd Exp $
+ *       $Id: dcpstats.c 1.10 1994/02/20 19:11:18 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ * Revision 1.10  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.9  1994/02/19  05:07:18  ahd
  * Use standard first header
  *
@@ -183,7 +186,7 @@ void dcupdate( void )
 
    filebkup( fname );      /* Rename the file if desired       */
 
-   if ((stream  = FOPEN(fname, "w", BINARY_MODE)) == NULL)
+   if ((stream  = FOPEN(fname, "w", IMAGE_MODE)) == NULL)
    {
       printerr( fname );
       return;

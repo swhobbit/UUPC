@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.33 1994/01/06 12:45:33 ahd Exp $
+ *    $Id: uuxqt.c 1.34 1994/02/19 05:16:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.34  1994/02/19  05:16:25  ahd
+ * Use standard first header
+ *
  * Revision 1.33  1994/01/06  12:45:33  ahd
  * Correct error message via mail when file is rejected
  *
@@ -572,7 +575,7 @@ static void process( const char *fname,
 /*                         Open the X.* file                          */
 /*--------------------------------------------------------------------*/
 
-   if ( (fxqt = FOPEN(fname, "r", BINARY_MODE)) == NULL)
+   if ( (fxqt = FOPEN(fname, "r", IMAGE_MODE)) == NULL)
    {
       printerr(fname);
       return;
@@ -1594,7 +1597,7 @@ static void ReportResults(const int status,
 
    mktempname(tempmail, "tmp");
 
-   if ((mailtmp = FOPEN(tempmail, "w+", BINARY_MODE)) == NULL) {
+   if ((mailtmp = FOPEN(tempmail, "w+", IMAGE_MODE)) == NULL) {
       printerr(tempmail);
       return;
    }

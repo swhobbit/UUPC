@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.28 1994/02/20 19:11:18 ahd Exp $
+ *       $Id: rnews.c 1.29 1994/02/22 04:18:46 rommel Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.29  1994/02/22  04:18:46  rommel
+ * Correct message ID for duplicate articles
+ *
  * Revision 1.28  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -126,7 +129,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.28 1994/02/20 19:11:18 ahd Exp $";
+         "$Id: rnews.c 1.29 1994/02/22 04:18:46 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -469,7 +472,7 @@ static int Single( char *filename , FILE *stream )
 /* Make a file name and then open the file to write the article into  */
 /*--------------------------------------------------------------------*/
 
-   tmpf = FOPEN(filename, "w", BINARY_MODE);
+   tmpf = FOPEN(filename, "w", IMAGE_MODE);
 
    if ( tmpf == NULL )
    {
@@ -554,7 +557,7 @@ static int Compressed( char *filename , FILE *in_stream ,
 /*                 Open the file, with error recovery                 */
 /*--------------------------------------------------------------------*/
 
-   if ((work_stream = FOPEN(zfile, "w", BINARY_MODE)) == nil(FILE))
+   if ((work_stream = FOPEN(zfile, "w", IMAGE_MODE)) == nil(FILE))
    {
       printmsg(0, "Compressed: Can't open %s (%d)", zfile, errno);
       printerr(zfile);
@@ -649,7 +652,7 @@ static int Compressed( char *filename , FILE *in_stream ,
 
                               /* Create uncompressed output file name  */
 
-   work_stream = FOPEN( unzfile, "r", BINARY_MODE);
+   work_stream = FOPEN( unzfile, "r", IMAGE_MODE);
    if ( work_stream == NULL )
    {
       printerr( unzfile );
@@ -750,7 +753,7 @@ static int Batched( char *filename, FILE *stream)
 /*                   Open up our next working file                    */
 /*--------------------------------------------------------------------*/
 
-      tmpf = FOPEN(filename, "w", BINARY_MODE);
+      tmpf = FOPEN(filename, "w", IMAGE_MODE);
       if ( tmpf == NULL )
       {
          printerr( filename );
@@ -925,7 +928,7 @@ static boolean deliver_article(char *art_fname, long art_size)
    char message_buf[DISNEY];
    char snum[10];
 
-   tfile = FOPEN(art_fname, "r", BINARY_MODE);
+   tfile = FOPEN(art_fname, "r", IMAGE_MODE);
    if ( tfile == NULL )
    {
       printerr( art_fname );
@@ -1418,7 +1421,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    importpath( msname, ixfile, sysname);
    mkfilename( msfile, E_spooldir, msname);
 
-   out_stream = FOPEN(msfile, "w", BINARY_MODE);
+   out_stream = FOPEN(msfile, "w", IMAGE_MODE);
    if ( out_stream == NULL )
    {
       printmsg(0, "xmit_news: cannot open X file %s", msfile);
@@ -1447,7 +1450,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    importpath(msname, idfile, sysname);
    mkfilename( msfile, E_spooldir, msname);
 
-   out_stream = FOPEN(msfile, "w", BINARY_MODE);
+   out_stream = FOPEN(msfile, "w", IMAGE_MODE);
    if (out_stream == NULL )
    {
       printerr(msfile);
@@ -1515,7 +1518,7 @@ static int copy_snews( char *filename, FILE *stream )
    char buf[BUFSIZ];
    size_t len;
 
-   FILE *out_stream = FOPEN(filename, "w", BINARY_MODE);
+   FILE *out_stream = FOPEN(filename, "w", IMAGE_MODE);
 
    if ( out_stream == NULL )
    {

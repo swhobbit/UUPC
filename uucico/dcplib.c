@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.15 1994/01/04 03:56:38 ahd Exp $
+ *    $Id: dcplib.c 1.16 1994/02/20 19:11:18 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.16  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.15  1994/01/04  03:56:38  ahd
  * Add missing break after modem insert
  *
@@ -516,7 +519,7 @@ static void LoginShell( const   struct UserTable *userp )
 
 void motd( const char *fname, char *buf, const int bufsiz )
 {
-   FILE *stream = FOPEN( fname, "r", BINARY_MODE );  /* Leave CRLF in data */
+   FILE *stream = FOPEN( fname, "r", IMAGE_MODE );    /* Leave CRLF in data */
 
    if ( stream == NULL )
    {

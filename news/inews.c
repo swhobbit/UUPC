@@ -11,10 +11,13 @@
 #include "uupcmoah.h"
 
 static char *rcsid =
-"$Id: inews.c 1.5 1994/02/19 04:22:52 ahd Exp $";
-static char *rcsrev = "$Revision: 1.5 $";
+"$Id: inews.c 1.6 1994/02/20 19:11:18 ahd Exp $";
+static char *rcsrev = "$Revision: 1.6 $";
 
 /* $Log: inews.c $
+ * Revision 1.6  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.5  1994/02/19  04:22:52  ahd
  * Use standard first header
  *
@@ -144,7 +147,7 @@ void main( int argc, char **argv)
 
   mktempname(tempname, "tmp");
 
-  if ((article = FOPEN(tempname, "w", BINARY_MODE)) == NULL) {
+  if ((article = FOPEN(tempname, "w", IMAGE_MODE)) == NULL) {
     printmsg(0,"inews: cannot create temporary file \"%s\"", tempname);
     panic();
   }
@@ -479,7 +482,7 @@ static int spool_news(char *sysname, FILE *article, char *command)
   importpath(msname, ixfile, sysname);
   mkfilename(msfile, E_spooldir, msname);
 
-  if ( (out_stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL )
+  if ( (out_stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
   {
     printmsg(0, "spool_news: cannot create X file %s", msfile);
     printerr(msfile);
@@ -501,7 +504,7 @@ static int spool_news(char *sysname, FILE *article, char *command)
   importpath(msname, idfile, sysname);
   mkfilename(msfile, E_spooldir, msname);
 
-  if ((out_stream = FOPEN(msfile, "w", BINARY_MODE)) == NULL )
+  if ((out_stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
   {
     printmsg(0, "spool_news: Cannot create D file %s", msfile);
     printerr(msfile);
