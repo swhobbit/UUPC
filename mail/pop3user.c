@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: POP3USER.C 1.8 1998/03/16 06:40:49 ahd Exp $
+ *       $Id: pop3user.c 1.9 1998/04/08 11:32:07 ahd Exp $
  *
  *       Revision History:
- *       $Log: POP3USER.C $
+ *       $Log: pop3user.c $
+ *       Revision 1.9  1998/04/08 11:32:07  ahd
+ *       Correct processing of continued lines when sending messages
+ *       to POP client
+ *
  *       Revision 1.8  1998/03/16 06:40:49  ahd
  *       Buffer up lines for sending
  *
@@ -64,7 +68,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: POP3USER.C 1.8 1998/03/16 06:40:49 ahd Exp $");
+RCSID("$Id: pop3user.c 1.9 1998/04/08 11:32:07 ahd Exp $");
 
 currentfile();
 
@@ -143,14 +147,16 @@ writePopMessage(SMTPClient *client,
 {
    static const char mName[] = "writePopMessage";
    static const char crlf[] = "\r\n";
-   long octets = 0;
 
-   char buffer[BUFSIZ];
-   long bufferUsed = 0;
-   const long bufferLength = sizeof buffer;
+   KWBoolean networkError = KWFalse;   /* We're dead, Jim            */
    KWBoolean continued = KWFalse;      /* Previous line incomplete   */
    KWBoolean wasPeriods = KWFalse;     /* Previous incomplete line
                                           all periods                */
+   long octets = 0;
+
+   const long bufferLength = min(32, (current->octets / 1024) + 1) * 1024;
+   char *buffer;
+   long bufferUsed = 0;
 
    if (imseek(client->transaction->imf,
                current->startPosition,
@@ -163,12 +169,21 @@ writePopMessage(SMTPClient *client,
 
    /* Send the header line announcing a message follows */
    sprintf( client->transmit.data, "%ld Octets", current->octets );
-   SMTPResponse(client, PR_OK_GENERIC, client->transmit.data );
+   if ( !SMTPResponse(client, PR_OK_GENERIC, client->transmit.data ))
+      return;
+
+   /* Allocate our buffer for processing */
+   buffer = malloc( bufferLength );
+   checkref(buffer);
+
 
    /* Loop for entire header and as many lines of body as required */
    for (;;)
    {
       KWBoolean incomplete = KWFalse;
+#ifdef UDEBUG
+      KWBoolean quotedPeriod = KWFalse;
+#endif
       long position = imtell(client->transaction->imf);
       char *linePointer = buffer + bufferUsed;
       size_t length;
@@ -196,7 +211,7 @@ writePopMessage(SMTPClient *client,
          incomplete = KWTrue;
       }
 
-      if (((length > 0) && isAllPeriods(linePointer, length)) &&
+      if (((length > 0) && isAllPeriods(linePointer, length)) ||
           ((length == 0) && wasPeriods ))
       {
          if (incomplete)
@@ -208,16 +223,21 @@ writePopMessage(SMTPClient *client,
          else if (wasPeriods || !continued)
          {
             strcat(linePointer, ".");
+            length++;
             wasPeriods = KWFalse;
+#ifdef UDEBUG
+            quotedPeriod = KWTrue;
+#endif
          }
       }
       else
          wasPeriods = KWFalse;
 
 #ifdef UDEBUG
-      printmsg(5,"--> [%03d] s%s%s",
+      printmsg(5,"--> [%03d] %s%s%s%s",
                   bufferUsed,
                   linePointer,
+                  quotedPeriod ? " (quoted period)" : "",
                   continued ? " (continued)" : "",
                   incomplete ? " (incomplete)" : "" );
 #endif
@@ -236,10 +256,17 @@ writePopMessage(SMTPClient *client,
       /* Determine if we wand to flush buffer */
       if ((bufferLength - bufferUsed) < 80)
       {
-         SMTPResponse(client, PR_TEXT, buffer);
-         octets += bufferUsed;
-         bufferUsed = 0;
-      }
+         if (SMTPResponse(client, PR_TEXT, buffer))
+         {
+            octets += bufferUsed;
+            bufferUsed = 0;
+         }
+         else {
+            networkError = KWTrue;
+            break;
+         }
+
+      } /* if ((bufferLength - bufferUsed) < 80) */
 
       /* If this cycle is incomplete, we continue next cycle ... */
       continued = incomplete;
@@ -251,25 +278,44 @@ writePopMessage(SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
    /* Flush final information in buffer */
-   if (bufferUsed > 0)
+   if (!networkError && (bufferUsed > 0))
    {
-      SMTPResponse(client, PR_TEXT, buffer);
-      octets += bufferUsed;
-      bufferUsed = 0;
-   }
+      if (SMTPResponse(client, PR_TEXT, buffer))
+      {
+         octets += bufferUsed;
+         bufferUsed = 0;
+      }
+      else
+         networkError = KWTrue;
+
+   } /* if (bufferUsed > 0) */
 
    if (imerror(client->transaction->imf))
       printerr(client->transaction->mailboxName);
 
-   /* Terminate the message */
-   SMTPResponse(client, PR_DATA, ".");
+   /* Drop allocated resources */
+   free(buffer);
 
-   printmsg(3, "%s: Sent message %ld to %s (%ld of %ld octets)",
-               mName,
-               current->sequence,
-               client->clientName,
-               octets,
-               current->octets );
+   /* Terminate the message */
+   if (!networkError && !SMTPResponse(client, PR_DATA, "."))
+      networkError = KWTrue;
+
+   if (networkError)
+   {
+      printmsg(3, "%s: Unable to send message %ld to %s "
+                  "because of network error.",
+                  mName,
+                  current->sequence,
+                  client->clientName );
+   }
+   else {
+      printmsg(3, "%s: Sent message %ld to %s (%ld of %ld octets)",
+                  mName,
+                  current->sequence,
+                  client->clientName,
+                  octets,
+                  current->octets );
+   }
 
 } /* writePopMessage */
 
