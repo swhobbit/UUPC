@@ -46,14 +46,26 @@ void HostStatus( void )
 
    time_t age;
 
-   mkfilename( fname, E_spooldir, DCSTATUS );
+   mkfilename( fname, E_confdir, DCSTATUS );
 
 /*--------------------------------------------------------------------*/
-/*             If the file doesn't exist, return quietly              */
+/*    If the file does not exist but does exist in the spool          */
+/*    directory, attempt to move it, else use the spool directory.    */
+/*    If the file doesn't exist at all, return quietly.               */
 /*--------------------------------------------------------------------*/
 
    if ( access( fname, 0 ))
-      return;
+   {
+      mkfilename( buf, E_spooldir, DCSTATUS );
+      if ( access( buf, 0 ))
+         return;
+
+      if (rename( buf, fname ))
+      {
+         printerr( buf );
+         strcpy( fname, buf );
+      }
+   }
 
 /*--------------------------------------------------------------------*/
 /*              Get the age of the file to avoid reloads              */

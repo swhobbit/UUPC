@@ -111,17 +111,19 @@ void dcupdate( void )
    boolean firsthost = TRUE;
    struct HostTable *host;
    FILE *stream;
+   char fname[FILENAME_MAX];
    long size;
    size_t len1 = strlen(compilep );
    size_t len2 = strlen(compilev );
 
    HostStatus();              /* Get new data, if needed          */
+   mkfilename( fname, E_confdir, DCSTATUS );
 
-   filebkup( DCSTATUS );      /* Rename the file if desired       */
+   filebkup( fname );      /* Rename the file if desired       */
 
-   if ((stream  = FOPEN(DCSTATUS, "w", BINARY)) == NULL)
+   if ((stream  = FOPEN(fname, "w", BINARY)) == NULL)
    {
-      printerr( DCSTATUS );
+      printerr( fname );
       return;
    }
 
@@ -152,12 +154,12 @@ void dcupdate( void )
 
    if (ferror( stream ))
    {
-      printerr( DCSTATUS );
+      printerr( fname );
       clearerr( stream );
    }
 
    fclose( stream );
 
-   hstatus_age = stater( DCSTATUS , &size );
+   hstatus_age = stater( fname , &size );
 
 } /* dcupdate */
