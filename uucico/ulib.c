@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.20 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: ulib.c 1.21 1993/12/24 05:12:54 ahd Exp $
  *
- *    $Log: ULIB.C $
+ *    $Log: ulib.c $
+ * Revision 1.21  1993/12/24  05:12:54  ahd
+ * Use far buffer in 16 bit compilers
+ *
  * Revision 1.20  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -267,7 +270,7 @@ unsigned int nsread(char UUFAR *input,
       if (pending >= wanted) {   /* got enough in the buffer? */
          unsigned int i;
 
-         char *buffer = input;
+         char UUFAR *buffer = input;
 
          for (i = 0; i < wanted; i++)
          {
