@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.72 1996/01/02 00:00:24 ahd Exp $
+ *    $Id: configur.c 1.73 1996/01/04 04:00:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.73  1996/01/04 04:00:46  ahd
+ *    Use sorted list of boolean options with binary search and computed
+ *    table size.
+ *
  *    Revision 1.72  1996/01/02 00:00:24  ahd
  *    Break out search loop for configuration file keywords from
  *    processing of them.
@@ -339,7 +343,7 @@ KEWSHORT E_newsCache = 4;     /* Pages of news index to cache        */
 
 long     E_batchsize = 65536L;
 
-static char *E_tz = NULL;
+char *E_tz = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                       Local emumerated types                       */
@@ -445,7 +449,7 @@ CONFIGTABLE rcTable[] = {
    {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT,   B_PATH }
 }; /* table */
 
-static size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
+size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
 
 /*--------------------------------------------------------------------*/
 /*               Boolean options shared by all programs               */
