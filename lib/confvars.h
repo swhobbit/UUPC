@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.10 1993/09/29 23:30:28 ahd Exp $
+ *    $Id: confvars.h 1.11 1993/10/12 01:21:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.11  1993/10/12  01:21:25  ahd
+ *     Normalize comments to PL/I style
+ *
  *     Revision 1.10  1993/09/29  23:30:28  ahd
  *     Add xqtRootDir for UUXQT
  *
@@ -72,7 +75,7 @@ extern char *E_editor, *E_pager;
 extern char *E_mailext, *E_backup;
 extern char *E_filesent, *E_signature;
 extern char *E_altsignature;                                   /* pdm  */
-extern char *E_aliases;                                        /* ahd  */
+extern char *E_nickname;      /* Nickname (user alias) file          */
 extern char *E_organization, *E_replyto;                       /* ahd  */
 extern char *E_localdomain;                                    /* ahd  */
 extern char *E_postmaster;                                     /* ahd  */
