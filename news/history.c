@@ -25,35 +25,39 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.13 1995/12/02 14:18:33 ahd Exp $";
+      "$Id: history.c 1.14 1995/12/03 13:51:44 ahd Exp $";
 
-/* $Log: history.c $
-/* Revision 1.13  1995/12/02 14:18:33  ahd
-/* Use longer buffers, add new debugging messages
 /*
-/* Revision 1.12  1995/03/11 22:29:41  ahd
-/* Use macro for file delete to allow special OS/2 processing
-/*
-/* Revision 1.11  1995/03/11 01:59:57  ahd
-/* Return result of cancel to caller to allow message
-/*
-/* Revision 1.10  1995/01/29 14:03:29  ahd
-/* Clean up IBM C/Set compiler warnings
-/*
-/* Revision 1.9  1995/01/07 16:21:23  ahd
-/* Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
-/*
-/* Revision 1.8  1995/01/03 05:32:26  ahd
-/* Further SYS file support cleanup
-/*
-/* Revision 1.7  1994/12/27 23:35:28  ahd
-/* Various contributed news fixes; make processing consistent, improve logging,
-/* use consistent host names
-/*
-/* Revision 1.6  1994/06/14 01:19:24  ahd
-/* Clean yp RCS information
-/* patches from Kai Uwe Rommel
-/*
+ * $Log: history.c $
+ * Revision 1.14  1995/12/03 13:51:44  ahd
+ * Additional debugging cleanup
+ *
+ * Revision 1.13  1995/12/02 14:18:33  ahd
+ * Use longer buffers, add new debugging messages
+ *
+ * Revision 1.12  1995/03/11 22:29:41  ahd
+ * Use macro for file delete to allow special OS/2 processing
+ *
+ * Revision 1.11  1995/03/11 01:59:57  ahd
+ * Return result of cancel to caller to allow message
+ *
+ * Revision 1.10  1995/01/29 14:03:29  ahd
+ * Clean up IBM C/Set compiler warnings
+ *
+ * Revision 1.9  1995/01/07 16:21:23  ahd
+ * Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
+ * Revision 1.8  1995/01/03 05:32:26  ahd
+ * Further SYS file support cleanup
+ *
+ * Revision 1.7  1994/12/27 23:35:28  ahd
+ * Various contributed news fixes; make processing consistent, improve logging,
+ * use consistent host names
+ *
+ * Revision 1.6  1994/06/14 01:19:24  ahd
+ * Clean yp RCS information
+ * patches from Kai Uwe Rommel
+ *
  * Revision 1.5  1994/02/19  04:21:49  ahd
  * Use standard first header
  *
