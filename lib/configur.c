@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.41 1994/02/19 04:40:04 ahd Exp $
+ *    $Id: configur.c 1.42 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.42  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.41  1994/02/19  04:40:04  ahd
  *     Use standard first header
  *
@@ -222,6 +225,8 @@ char *E_cwd = NULL;
 char *E_xqtRootDir = NULL;
 char *E_vmsQueueDir = NULL;
 char *E_vmail = NULL;
+char **E_ignoreList;           /* Headers not displayed by print      */
+char **E_replyToList;          /* Primary Addr used to reply to mail  */
 KEWSHORT E_maxhops = 20;                                    /* ahd */
 KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
 static char *dummy = NULL;
@@ -275,6 +280,7 @@ static CONFIGTABLE envtable[] = {
    {"folders",      &dummy,          B_PATH|B_MUSH },
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
+   {"ignore",       (char **) &E_ignoreList, B_MUA|B_LIST|B_ALL},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
    {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
@@ -287,21 +293,22 @@ static CONFIGTABLE envtable[] = {
    {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
-   {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
    {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
+   {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
    {"nodename",     &E_nodename,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"options",      (char **) bflag, B_ALL|B_BOOLEAN},
    {"organization", &E_organization, B_STRING|B_MAIL|B_NEWS},
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
+   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
    {"permissions",  &E_permissions,  B_GLOBAL|B_PATH|B_ALL},
    {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"priority",     &dummy,          B_OBSOLETE },
-   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
+   {"replytoList",  (char **) &E_replyToList, B_MUA|B_LIST|B_ALL},
    {"rmail",        &dummy,          B_OBSOLETE },
    {"rnews",        &dummy,          B_OBSOLETE },
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
