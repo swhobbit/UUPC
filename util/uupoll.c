@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.29 1995/11/30 12:50:15 ahd v1-12q $
+ *    $Id: uupoll.c 1.30 1996/01/01 21:18:22 ahd v1-12r $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.30  1996/01/01 21:18:22  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.29  1995/11/30 12:50:15  ahd
  *    Use normal file open for log file when debugging to allow
  *    multiple UUPOLLs to log at once.
@@ -191,7 +194,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.29 1995/11/30 12:50:15 ahd v1-12q $";
+         "$Id: uupoll.c 1.30 1996/01/01 21:18:22 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -557,13 +560,6 @@ currentfile();
       }
       else
          next = exittime;
-
-/*--------------------------------------------------------------------*/
-/*              Disable OS/2 undelete support if desired              */
-/*--------------------------------------------------------------------*/
-
-   if ( !bflag[ F_UNDELETE ] )
-      putenv( "DELDIR=");
 
 /*--------------------------------------------------------------------*/
 /*    Begin passive polling (with optional active calls system        */

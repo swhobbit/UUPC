@@ -29,14 +29,19 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.4 $
+  $Revision: 1.5 $
 
     $Author: ahd $
-      $Date: 1995/01/30 04:08:36 $
+      $Date: 1996/11/18 04:46:49 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.5  1996/11/18 04:46:49  ahd
+  Normalize arguments to bugout
+  Reset title after exec of sub-modules
+  Normalize host status names to use HS_ prefix
+
   Revision 1.4  1995/01/30 04:08:36  ahd
   Additional compiler warning fixes
 
@@ -75,7 +80,7 @@
 
 #include "uupcmoah.h"      /* Must be first, includes #pragmas       */
 
-RCSID("$Id");
+RCSID("$Id$");
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -290,7 +295,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.4 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.5 $");
                   exit(0);
       default :   usage(prog);
     }
