@@ -22,10 +22,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arpadate.c 1.7 1993/11/30 04:18:14 ahd Exp $
+ *    $Id: arpadate.c 1.8 1994/01/01 19:00:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: arpadate.c $
+ *     Revision 1.8  1994/01/01  19:00:21  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.7  1993/11/30  04:18:14  ahd
  *     Correct for TZ computations crossing day boundaries
  *
@@ -66,67 +69,21 @@ char *arpadate( void )
 {
    static char format[] = "%a, %d %b %Y %H:%M:%S";
    static char adate[64], zone[32];
-   time_t t;
+   time_t t, ut;
    struct tm lt, gm;
 
-   time( &t );
+   time(&t);
    lt = *localtime(&t);
 
 /*--------------------------------------------------------------------*/
 /*       Make time zone name, if necessary                            */
 /*--------------------------------------------------------------------*/
 
-   if (zone[0] == 0) {            /* adjust for daylight savings time */
-      int offset;
-
-      gm = *gmtime(&t);
-      offset = - (gm.tm_hour - lt.tm_hour) * 100;
-                                 /* This doesn't handle minutes, but
-                                    guess what ... the BC library
-                                    doesn't either.  AST doesn't
-                                    work, so what?                   */
-
-/*--------------------------------------------------------------------*/
-/*         Correct offset if time zones are in different days         */
-/*--------------------------------------------------------------------*/
-
-      switch( gm.tm_year - lt.tm_year )
-      {
-         case -1:
-            offset += 2400;   /* New year in local zone, GMT behind  */
-            break;
-
-         case  1:
-            offset -= 2400;   /* New year in GMT, local zone behind  */
-            break;
-
-         case 0:
-            switch( gm.tm_yday - lt.tm_yday )
+   if (zone[0] == 0)              /* adjust for daylight savings time */
             {
-               case -1:
-                  offset += 2400;   /* New day in local zone, GMT behind  */
-                  break;
-
-               case  1:
-                  offset -= 2400;   /* New day in GMT, local zone behind  */
-                  break;
-
-               case 0:
-                  break;
-
-               default:
-                  panic();
-                  break;
-            } /* switch( gm.tm_yday - lt.tm_yday ) */
-            break;
-
-         default:
-            panic();
-            break;
-
-      } /* switch( gm.tm_year - lt.tm_year ) */
-
-      sprintf(zone, " %+05d", offset );
+      gm = *gmtime(&t);
+      ut = mktime(&gm);
+      sprintf(zone, " %+03d00", (t - ut) / 3600);
    }
 
 /*--------------------------------------------------------------------*/
