@@ -95,9 +95,10 @@ typedef enum {  M_ALIAS,
 
 typedef enum { noheader,         /* Don't copy RFC-822 header or sep lines */
                fromheader,       /* Generate one line "From" description  */
-               noreceived,       /* Copy header, but not ignorelist    */
+               ignoresome,       /* Copy header, but not ignorelist       */
+               autoresent,       /* Prefix selected Resent- headers w/-X  */
                nocontinue,       /* Do not copy next line if contination  */
-               noseperator,      /* Copy all but binary seperator lines */
-               seperators } copyopt;   /* Copy everything!             */
+               noseperator,      /* Copy all but binary seperator lines   */
+               seperators } copyopt;   /* Copy everything!                */
 
 #endif
