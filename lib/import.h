@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: import.h 1.2 1993/09/02 12:08:49 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: import.h $
+ *     Revision 1.2  1993/09/02  12:08:49  ahd
+ *     HPFS Support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -40,8 +43,8 @@
 /*--------------------------------------------------------------------*/
 
 void importpath(char *host,
-                char const *canon,
-                char const *remote);
+                const char *canon,
+                const char *remote);
 
 boolean ValidDOSName( const char *s,
                       const boolean longname );

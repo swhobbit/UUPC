@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.12 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp rhg $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.13  1993/09/29  04:56:11  ahd
+ *     Revise B_KEWSHORT to B_SHORT
+ *
  *     Revision 1.12  1993/09/20  04:51:31  ahd
  *     1.12OS/2 2.x support
  *
@@ -284,6 +287,8 @@ char *normalize( const char *path );
 #define denormalize( path ) { char *xxp = path; \
    while ((xxp = strchr(xxp,'/')) != NULL)  \
       *xxp++ = '\\';  }
+
+boolean IsDOS( void );
 
 #ifdef __GNUC__
 char *strlwr( char *s );
