@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.33 1995/04/02 00:04:32 ahd Exp $
+ *    $Id: uutypes.h 1.34 1995/09/04 02:14:34 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.34  1995/09/04 02:14:34  ahd
+ *    Add strcat, strcmp, strcpy functions in FAR form
+ *
  *    Revision 1.33  1995/04/02 00:04:32  ahd
  *    Add option to supppress display of selected information by UUCICO
  *    at remote login.
@@ -177,25 +180,28 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
                F_ASKCC,       /* True = ask for Carbon copies         */
-               F_DOSKEY,      /* True = Use DOSKEY under when available*/
-               F_BACKUP,      /* True = Backup mailbox before rewriting */
-               F_DOT,         /* True = period ends a message         */
-               F_AUTOPRINT,   /* True = print next msg automatically  */
                F_AUTOEDIT,    /* True = no line prompt, always edit   */
-               F_AUTOINCLUDE, /* True = Perform automatic INCLUDE cmd  */
+               F_AUTOINCLUDE, /* True = Perform automatic INCLUDE cmd */
+               F_AUTOPRINT,   /* True = print next msg automatically  */
+               F_AUTORECEIPT, /* True = Request receipt               */
                F_AUTOSIGN,    /* True = append the signature file     */
+               F_BACKUP,      /* True = Backup various files before
+                                        rewriting                     */
+               F_DOSKEY,      /* True = Use DOSKEY under DOS when
+                                        available                     */
+               F_DOT,         /* True = period ends a message         */
                F_EXPERT,      /* True = Let user shoot self in foot
-                                        w/o a message.                 */
+                                        w/o a message.                */
                F_FROMSEP,     /* True = Allow From to split messages  */
                F_IMFILE,      /* True = Use in memory files           */
-               F_PAGER,       /* True = Invert meaning of P/p T/t cmds */
+               F_PAGER,       /* True = Invert meaning of P/p T/t cmds*/
                F_PURGE,       /* True = Delete mailbox, if empty      */
                F_SAVE,        /* True = Save read messages in =mbox
-                                        when reading new mail.         */
-               F_SAVERESENT,  /* True = Save forwarded mail second time*/
+                                        when reading new mail.        */
+               F_SAVERESENT,  /* True = Save forwarded mail 2nd time  */
                F_SUPPRESSCOPYRIGHT,
-                              /* Skip copyright message                */
-               F_SUPPRESSBEEP,/* Never beep at the user                */
+                              /* Skip copyright message               */
+               F_SUPPRESSBEEP, /* Never beep at the user              */
                F_SPEEDOVERMEMORY,
                               /* True = Be lazy in strpool()          */
                F_VERBOSE,     /* True = Verbose RMAIL output          */
