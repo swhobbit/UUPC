@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPCMOAH.H 1.9 1998/03/08 23:12:28 ahd Exp $
+ *    $Id: uupcmoah.h 1.10 1998/04/20 02:48:54 ahd v1-13a $
  *
  *    Revision history:
- *    $Log: UUPCMOAH.H $
+ *    $Log: uupcmoah.h $
+ *    Revision 1.10  1998/04/20 02:48:54  ahd
+ *    Windows 32 bit GUI environment/TAPI support
+ *
  *    Revision 1.9  1998/03/08 23:12:28  ahd
  *    Support debugging statements in 32 bit code only
  *
@@ -62,7 +65,6 @@
                                    only in C7; Visual C fixed the problem. */
 #endif /* _MSC_VER == 700 */
 
-
 #ifdef __TURBOC__
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 #else
@@ -96,9 +98,6 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(WIN32) && defined(UUGUI)
-
-#define TAPI_SUPPORT
-
 #include <io.h>
 #include <process.h>
 #include "winstdio.h"
