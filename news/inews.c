@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.21 1995/02/12 23:37:04 ahd Exp $
+ *       $Id: inews.c 1.22 1995/02/20 17:28:43 ahd v1-12n $
  *
  * $Log: inews.c $
+ * Revision 1.22  1995/02/20 17:28:43  ahd
+ * in-memory file support, 16 bit compiler clean up
+ *
  * Revision 1.21  1995/02/12 23:37:04  ahd
  * compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -103,7 +106,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.21 1995/02/12 23:37:04 ahd Exp $";
+      "$Id: inews.c 1.22 1995/02/20 17:28:43 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -151,7 +154,7 @@ void main( int argc, char **argv)
   int c;
 
   char tempname[FILENAME_MAX];  /* temporary input file     */
-  const char *command = bflag[ F_NEWSRUN ] ? "newsrun" : "uux";
+  const char *command;
   char commandOptions[FILENAME_MAX];
 
   FILE *article;
@@ -244,14 +247,20 @@ void main( int argc, char **argv)
 /*                         deliver locally                            */
 /*--------------------------------------------------------------------*/
 
-
    if ( bflag[ F_NEWSRUN ] )
-      *commandOptions = '\0';
-   else
+   {
+      command = "newsrun";
+      sprintf(commandOptions, "-x %d", debuglevel );
+   }
+   else {
+
+      command = "uux";
       sprintf(commandOptions, "-p -g%c -n -x %d -C %s!newsrun",
               E_newsGrade,
               debuglevel,
               E_nodename );
+   }
+
 
    result = execute( command,
                      commandOptions,
