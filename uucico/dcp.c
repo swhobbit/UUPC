@@ -1,67 +1,75 @@
-/*
-   For best results in visual layout while viewing this file, set
-   tab stops to every 4 columns.
-*/
+/*--------------------------------------------------------------------*/
+/* d c p . c                                                          */
+/*                                                                    */
+/* Main routines for UUCICO                                           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
+/*    Changes Copyright (c) Stuart Lynne 1987                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/* Maintenance Notes:                                                 */
+/*                                                                    */
+/* 25Aug87 - Added a version number - Jal                             */
+/* 25Aug87 - Return 0 if contact made with host, or 5 otherwise.      */
+/* 04Sep87 - Bug causing premature sysend() fixed. - Randall Jessup   */
+/* 13May89 - Add date to version message  - Drew Derbyshire           */
+/* 17May89 - Add '-u' (until) option for login processing             */
+/* 01 Oct 89      Add missing function prototypes                     */
+/* 28 Nov 89      Add parse of incoming user id for From record       */
+/* 18 Mar 90      Change checktime() calls to Microsoft C 5.1         */
+/*--------------------------------------------------------------------*/
 
 /*
-   dcp.c
-
-   Revised edition of dcp
-
-   Stuart Lynne May/87
-
-   Copyright (c) Richard H. Lamb 1985, 1986, 1987
-   Changes Copyright (c) Stuart Lynne 1987
-   Changes Copyright (c) Andrew H. (Drew) Derbyshire 1989, 1990
-
-   Maintenance Notes:
-
-   25Aug87 - Added a version number - Jal
-   25Aug87 - Return 0 if contact made with host, or 5 otherwise.
-   04Sep87 - Bug causing premature sysend() fixed. - Randall Jessup.
-   13May89 - Add date to version message  - Drew Derbyshire
-   17May89 - Add '-u' (until) option for login processing
-   01 Oct 89      Add missing function prototypes                    ahd
-   28 Nov 89      Add parse of incoming user id for From record      ahd
-   18 Mar 90      Change checktime() calls to Microsoft C 5.1        ahd
-*/
-
-/*
- *    $Id: DCP.C 1.4 1992/11/22 21:30:55 ahd Exp $
+ *    $Id: DCP.C 1.5 1992/11/28 19:51:16 ahd Exp $
  *
  *    $Log: DCP.C $
+ * Revision 1.5  1992/11/28  19:51:16  ahd
+ * If in multitask mode, only open syslog on demand basis
+ *
  * Revision 1.4  1992/11/22  21:30:55  ahd
  * Do not bother to strdup() string arguments
  *
  */
 
-/* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
+/*--------------------------------------------------------------------*/
+/* This program implements a uucico type file transfer and remote     */
+/* execution protocol.                                                */
+/*                                                                    */
+/* Usage:   UUCICO [-s sys]                                           */
+/*                 [-r 0|1]                                           */
+/*                 [-x debug]                                         */
+/*                 [-d hhmm]                                          */
+/*                 [-m modem]                                         */
+/*                 [-l logfile]                                       */
+/*                 [-x debuglevel]                                    */
+/*                 [-w userid]                                        */
+/*                 [-z bps]                                           */
+/*                                                                    */
+/* e.g.                                                               */
+/*                                                                    */
+/* UUCICO [-x n] -r 0 [-d hhmm]    client mode, wait for an incoming  */
+/*                                 call for 'hhmm'.                   */
+/* UUCICO [-x n] -s HOST     call the host "HOST".                    */
+/* UUCICO [-x n] -s all      call all known hosts in the systems      */
+/*                           file.                                    */
+/* UUCICO [-x n] -s any      call any host we have work queued for.   */
+/* UUCICO [-x n]             same as the above.                       */
+/*--------------------------------------------------------------------*/
 
-/*
-   This program implements a uucico type file transfer and remote
-   execution protocol.
-
-   Usage:   UUCICO [-s sys]
-                   [-r 0|1]
-                   [-x debug]
-                   [-d hhmm]
-                   [-m modem]
-                   [-l logfile]
-                   [-x debuglevel]
-                   [-w userid]
-                   [-z bps]
-
-   e.g.
-
-   UUCICO [-x n] -r 0 [-d hhmm]    client mode, wait for an incoming call
-             for 'hhmm'.
-   UUCICO [-x n] -s HOST     call the host "HOST".
-   UUCICO [-x n] -s all      call all known hosts in the systems file.
-   UUCICO [-x n] -s any      call any host we have work queued for.
-   UUCICO [-x n]             same as the above.
-*/
-
-#include <stdio.h>                                                /* ahd   */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
