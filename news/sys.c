@@ -60,7 +60,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.24 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: sys.c 1.25 1997/04/24 00:56:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.25  1997/04/24 00:56:54  ahd
+ *    Delete MAKEBUF/FREEBUF support
+ *
  *    Revision 1.24  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,9 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.49 1996/01/01 21:19:54 ahd v1-12r $
+ *    $Id: dcp.c 1.50 1996/11/18 04:46:49 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.50  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.49  1996/01/01 21:19:54  ahd
  *    Annual Copyright Update
  *

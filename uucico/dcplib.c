@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.26 1996/01/01 21:20:56 ahd v1-12r $
+ *    $Id: dcplib.c 1.27 1996/03/18 03:52:46 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.27  1996/03/18 03:52:46  ahd
+ *    Allow binary rmsg() processing without translation of CR/LF into \0
+ *    Use enumerated list for synch types on rmsg() call
+ *
  *    Revision 1.26  1996/01/01 21:20:56  ahd
  *    Annual Copyright Update
  *

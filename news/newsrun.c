@@ -21,7 +21,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.17 1996/11/22 03:12:25 ahd Exp $
+ *       $Id: newsrun.c 1.18 1997/04/24 00:56:54 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.18  1997/04/24 00:56:54  ahd
+ *       Delete MAKEBUF/FREEBUF support
+ *
  *       Revision 1.17  1996/11/22 03:12:25  ahd
  *       Don't use length of pointer for buffer read, use buffer length
  *
@@ -245,7 +248,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: newsrun.c 1.17 1996/11/22 03:12:25 ahd Exp $");
+RCSID("$Id: newsrun.c 1.18 1997/04/24 00:56:54 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

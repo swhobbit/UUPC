@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.17 1995/01/07 16:48:06 ahd v1-12q $
+ *    $Id: modem.h 1.18 1996/01/01 21:25:28 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: modem.h $
+ *    Revision 1.18  1996/01/01 21:25:28  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1995/01/07 16:48:06  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

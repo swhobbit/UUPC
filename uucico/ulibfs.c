@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.15 1996/01/01 21:22:49 ahd v1-12r $
+ *    $Id: ulibfs.c 1.16 1996/01/20 12:53:59 ahd Exp $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.16  1996/01/20 12:53:59  ahd
+ *    Add debugging output for FOSSIL driver information retrieve
+ *    Use assembler function for retrieving driver info with MS C compiler
+ *
  *    Revision 1.15  1996/01/01 21:22:49  ahd
  *    Annual Copyright Update
  *

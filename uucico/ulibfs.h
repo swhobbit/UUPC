@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.h 1.6 1995/01/07 16:50:25 ahd v1-12q $
+ *    $Id: ulibfs.h 1.7 1996/01/01 21:24:39 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: ulibfs.h $
+ *    Revision 1.7  1996/01/01 21:24:39  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1995/01/07 16:50:25  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

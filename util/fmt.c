@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.7 1995/02/20 00:40:12 ahd v1-12q $
+ *    $Id: fmt.c 1.8 1996/01/01 21:17:40 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.8  1996/01/01 21:17:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -53,7 +56,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: fmt.c 1.7 1995/02/20 00:40:12 ahd v1-12q $";
+      "$Id: fmt.c 1.8 1996/01/01 21:17:40 ahd v1-12r $";
 
 #include <ctype.h>
 

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.26 1996/01/01 21:22:56 ahd v1-12r $
+ *    $Id: ulibip.c 1.27 1996/03/18 03:52:46 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.27  1996/03/18 03:52:46  ahd
+ *    Cleanup compiler warnings
+ *    Add additional debugging/status output for TCP/IP connections
+ *
  *    Revision 1.26  1996/01/01 21:22:56  ahd
  *    Annual Copyright Update
  *

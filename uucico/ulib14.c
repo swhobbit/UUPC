@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.15 1995/02/22 12:14:24 ahd v1-12q $
+ *    $Id: ulib14.c 1.16 1996/01/01 21:22:43 ahd v1-12r $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.16  1996/01/01 21:22:43  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1995/02/22 12:14:24  ahd
  *    Correct 16 bit compiler warning errors
  *

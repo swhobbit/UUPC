@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.16 1996/03/18 03:55:08 ahd Exp $
+ *       $Id: dcpstats.c 1.17 1996/11/18 04:46:49 ahd Exp $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.17  1996/11/18 04:46:49  ahd
+ *       Normalize arguments to bugout
+ *       Reset title after exec of sub-modules
+ *       Normalize host status names to use HS_ prefix
+ *
  *       Revision 1.16  1996/03/18 03:55:08  ahd
  *       Use character which doesn't need mapping lock name
  *

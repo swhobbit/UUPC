@@ -22,7 +22,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.6 1995/12/12 13:52:11 ahd Exp $
+ *    $Id: pnews.cmd 1.7 1996/01/01 21:16:47 ahd v1-12r $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.7  1996/01/01 21:16:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1995/12/12 13:52:11  ahd
  *    Delete generation of ANY path from the pnews.cmd; inews will add it
  *

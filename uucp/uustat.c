@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.30 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: uustat.c 1.31 1996/11/19 00:14:35 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.31  1996/11/19 00:14:35  ahd
+ *    Add more debugging information
+ *
  *    Revision 1.30  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -65,7 +68,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.30 1996/11/18 04:46:49 ahd Exp $";
+         "$Id: uustat.c 1.31 1996/11/19 00:14:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */

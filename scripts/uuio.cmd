@@ -1,7 +1,10 @@
 /*
- *       $Id: uuio.cmd 1.4 1994/12/22 00:29:41 ahd v1-12q $
+ *       $Id: uuio.cmd 1.5 1996/01/01 21:16:26 ahd v1-12r $
  *
  *       $Log: uuio.cmd $
+ *       Revision 1.5  1996/01/01 21:16:26  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.4  1994/12/22 00:29:41  ahd
  *       Annual Copyright Update
  *
@@ -15,7 +18,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1989-1996 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1997 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */

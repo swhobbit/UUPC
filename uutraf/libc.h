@@ -7,7 +7,7 @@
 #include <sccsid.h>
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: libc.h 1.5 1995/02/24 00:40:55 ahd v1-12q $
+ *    $Id: libc.h 1.6 1996/01/01 21:35:47 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: libc.h $
+ *    Revision 1.6  1996/01/01 21:35:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1995/02/24 00:40:55  ahd
  *    correct compile error
  *

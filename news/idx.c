@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -16,10 +16,15 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: idx.c 1.12 1996/01/01 21:07:15 ahd v1-12r $");
+RCSID("$Id: idx.c 1.13 1996/11/18 04:46:49 ahd Exp $");
 
 /*
  * $Log: idx.c $
+ * Revision 1.13  1996/11/18 04:46:49  ahd
+ * Normalize arguments to bugout
+ * Reset title after exec of sub-modules
+ * Normalize host status names to use HS_ prefix
+ *
  * Revision 1.12  1996/01/01 21:07:15  ahd
  * Annual Copyright Update
  *

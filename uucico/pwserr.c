@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.10 1995/01/07 16:39:36 ahd v1-12q $
+ *    $Id: pwserr.c 1.11 1996/01/01 21:22:05 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: pwserr.c $
+ *    Revision 1.11  1996/01/01 21:22:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1995/01/07 16:39:36  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.h 1.2 1995/01/02 05:04:57 ahd v1-12q $
+ *    $Id: batch.h 1.3 1996/01/01 21:09:16 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: batch.h $
+ *    Revision 1.3  1996/01/01 21:09:16  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.2  1995/01/02 05:04:57  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.29 1995/01/09 12:35:15 ahd v1-12q $
+ *       $Id: ulibnt.c 1.30 1996/01/01 21:20:49 ahd v1-12r $
  *       $Log: ulibnt.c $
+ *       Revision 1.30  1996/01/01 21:20:49  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.29  1995/01/09 12:35:15  ahd
  *       Correct VC++ compiler warnings
  *

@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.6 1996/01/01 21:18:06 ahd Exp $
+ *    $Id: regsetup.c 1.7 1996/01/07 14:14:40 ahd v1-12r $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.7  1996/01/07 14:14:40  ahd
+ *    Bring up level to new format of configuration tables
+ *
  *    Revision 1.6  1996/01/01 21:18:06  ahd
  *    Annual Copyright Update
  *
@@ -65,7 +68,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.6 1996/01/01 21:18:06 ahd Exp $";
+         "$Id: regsetup.c 1.7 1996/01/07 14:14:40 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

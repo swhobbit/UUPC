@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.10 1995/01/07 16:49:42 ahd v1-12q $
+ *    $Id: ulib.h 1.11 1996/01/01 21:24:18 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: ulib.h $
+ *    Revision 1.11  1996/01/01 21:24:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1995/01/07 16:49:42  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *

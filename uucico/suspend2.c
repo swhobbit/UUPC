@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.19 1995/07/21 13:27:00 ahd v1-12q $
+ *    $Id: suspend2.c 1.20 1996/01/01 21:22:30 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ *    Revision 1.20  1996/01/01 21:22:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.19  1995/07/21 13:27:00  ahd
  *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
  *

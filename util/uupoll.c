@@ -10,7 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.30 1996/01/01 21:18:22 ahd v1-12r $
+ *    $Id: uupoll.c 1.31 1996/11/18 04:51:56 ahd Exp $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.31  1996/11/18 04:51:56  ahd
+ *    Clean up OS/2 undelete support
+ *
  *    Revision 1.30  1996/01/01 21:18:22  ahd
  *    Annual Copyright Update
  *
@@ -194,7 +197,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.30 1996/01/01 21:18:22 ahd v1-12r $";
+         "$Id: uupoll.c 1.31 1996/11/18 04:51:56 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */

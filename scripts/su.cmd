@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1989-1996 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1997 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: su.cmd 1.9 1995/01/02 00:32:29 ahd v1-12q $
+ *       $Id: su.cmd 1.10 1996/01/01 21:16:32 ahd v1-12r $
  *
  *       $Log: su.cmd $
+ *       Revision 1.10  1996/01/01 21:16:32  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.9  1995/01/02 00:32:29  ahd
  *       Handle environment without UUPCUSRRC set (use LOGNAME)
  *
@@ -68,7 +71,7 @@ Call 'SysLoadFuncs'
 parse arg who what;
 if words(who) = 0 then
 do;
-   say 'SU.CMD Copyright 1989-1996 Kendra Electronic Wonderworks';
+   say 'SU.CMD Copyright 1989-1997 Kendra Electronic Wonderworks';
    say 'No user specified to SU to';
    exit 1;
 end;

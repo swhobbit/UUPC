@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.33 1996/01/27 16:49:22 ahd Exp $
+ *    $Id: active.c 1.34 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.34  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.33  1996/01/27 16:49:22  ahd
  *    Correct display moderation for duplicate groups
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.13 1996/01/01 21:20:09 ahd v1-12r $
+ *    $Id: uucico.c 1.14 1996/01/27 16:49:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.14  1996/01/27 16:49:22  ahd
+ *    Add SIGBREAK handler
+ *
  *    Revision 1.13  1996/01/01 21:20:09  ahd
  *    Annual Copyright Update
  *

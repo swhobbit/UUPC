@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h 1.3 1996/01/01 21:10:08 ahd v1-12r $ */
+/* $Id: cache.h 1.4 1996/11/19 00:23:52 ahd Exp $ */
 
 /*
  * $Log: cache.h $
+ * Revision 1.4  1996/11/19 00:23:52  ahd
+ * Revamp memory management, remove compile warnings
+ *
  * Revision 1.3  1996/01/01 21:10:08  ahd
  * Annual Copyright Update
  *

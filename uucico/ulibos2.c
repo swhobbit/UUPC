@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.45 1995/02/25 18:21:44 ahd v1-12q $
+ *       $Id: ulibos2.c 1.46 1996/01/01 21:21:03 ahd v1-12r $
  *       $Log: ulibos2.c $
+ *       Revision 1.46  1996/01/01 21:21:03  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.45  1995/02/25 18:21:44  ahd
  *       Prevent UUCICO from looping without time limit
  *

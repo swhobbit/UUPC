@@ -29,14 +29,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.5 $
+  $Revision: 1.6 $
 
     $Author: ahd $
-      $Date: 1996/11/18 04:46:49 $
+      $Date: 1996/11/18 04:51:56 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.6  1996/11/18 04:51:56  ahd
+  Clean up OS/2 undelete support
+
   Revision 1.5  1996/11/18 04:46:49  ahd
   Normalize arguments to bugout
   Reset title after exec of sub-modules
@@ -71,7 +74,7 @@
 */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -80,7 +83,7 @@
 
 #include "uupcmoah.h"      /* Must be first, includes #pragmas       */
 
-RCSID("$Id$");
+RCSID("$Id: fromwho.c 1.6 1996/11/18 04:51:56 ahd Exp $");
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -295,7 +298,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.5 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.6 $");
                   exit(0);
       default :   usage(prog);
     }

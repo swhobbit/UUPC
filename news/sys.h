@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.11 1996/01/01 21:10:39 ahd v1-12r $
+ *    $Id: sys.h 1.12 1996/11/19 00:23:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.12  1996/11/19 00:23:52  ahd
+ *    Revamp memory management, remove compile warnings
+ *
  *    Revision 1.11  1996/01/01 21:10:39  ahd
  *    Annual Copyright Update
  *

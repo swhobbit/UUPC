@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.38 1995/01/29 14:08:40 ahd v1-12q $
+ *      $Id: dcpgpkt.c 1.39 1996/01/01 21:20:39 ahd v1-12r $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.39  1996/01/01 21:20:39  ahd
+ *      Annual Copyright Update
+ *
  *      Revision 1.38  1995/01/29 14:08:40  ahd
  *      Use long counters to avoid overflow on really lousy phone lines
  *

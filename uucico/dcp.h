@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.18 1995/03/11 15:50:10 ahd v1-12q $
+ *    $Id: dcp.h 1.19 1996/01/01 21:25:20 ahd v1-12r $
  *
  *    $Log: dcp.h $
+ *    Revision 1.19  1996/01/01 21:25:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1995/03/11 15:50:10  ahd
  *    Add unique set for after clock being set
  *

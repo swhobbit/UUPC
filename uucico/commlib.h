@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.19 1995/02/12 23:39:45 ahd v1-12q $
+ *    $Id: commlib.h 1.20 1996/01/01 21:25:36 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.20  1996/01/01 21:25:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.19  1995/02/12 23:39:45  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *

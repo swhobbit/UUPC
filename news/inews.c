@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.29 1996/01/20 13:09:56 ahd Exp $
+ *       $Id: inews.c 1.30 1996/11/18 04:46:49 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.30  1996/11/18 04:46:49  ahd
+ * Normalize arguments to bugout
+ * Reset title after exec of sub-modules
+ * Normalize host status names to use HS_ prefix
+ *
  * Revision 1.29  1996/01/20 13:09:56  ahd
  * Allow specifying text/binary mode when processing an in-memory file
  *
@@ -126,7 +131,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: inews.c 1.29 1996/01/20 13:09:56 ahd Exp $");
+RCSID("$Id: inews.c 1.30 1996/11/18 04:46:49 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

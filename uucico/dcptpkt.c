@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.13 1995/02/23 04:27:54 ahd v1-12q $
+ *    $Id: dcptpkt.c 1.14 1996/01/01 21:21:30 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.14  1996/01/01 21:21:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1995/02/23 04:27:54  ahd
  *    Explicitly report timeouts, compiler warning cleanup
  *

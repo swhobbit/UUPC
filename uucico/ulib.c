@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.32 1995/02/21 03:30:52 ahd v1-12q $
+ *    $Id: ulib.c 1.33 1996/01/01 21:19:28 ahd v1-12r $
  *
  *    $Log: ulib.c $
+ *    Revision 1.33  1996/01/01 21:19:28  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.32  1995/02/21 03:30:52  ahd
  *    More compiler warning cleanup, drop selected messages at compile
  *    time if not debugging.

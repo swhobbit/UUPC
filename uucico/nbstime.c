@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.34 1995/09/26 03:11:36 ahd v1-12q $
+ *    $Id: nbstime.c 1.35 1996/01/01 21:21:51 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.35  1996/01/01 21:21:51  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.34  1995/09/26 03:11:36  ahd
  *    Add missing BREAK after case 50:
  *

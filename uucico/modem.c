@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.65 1996/03/18 03:52:46 ahd Exp $
+ *    $Id: modem.c 1.66 1996/11/18 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.66  1996/11/18 04:46:49  ahd
+ *    Normalize arguments to bugout
+ *    Reset title after exec of sub-modules
+ *    Normalize host status names to use HS_ prefix
+ *
  *    Revision 1.65  1996/03/18 03:52:46  ahd
  *    Don't suspend/resume network ports
  *

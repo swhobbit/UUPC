@@ -8,7 +8,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,6 +20,9 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
+/* Revision 1.21  1996/11/22 03:12:25  ahd
+/* Correct compile warning
+/*
 /* Revision 1.20  1996/11/18 04:46:49  ahd
 /* Normalize arguments to bugout
 /* Reset title after exec of sub-modules
@@ -91,7 +94,7 @@
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.20 1996/11/18 04:46:49 ahd Exp $");
+RCSID("$Id: genhist.c 1.21 1996/11/22 03:12:25 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

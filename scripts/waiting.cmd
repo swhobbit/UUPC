@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1989-1996 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1997 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: waiting.cmd 1.9 1994/12/22 00:29:47 ahd v1-12q $
+ *       $Id: waiting.cmd 1.10 1996/01/01 21:16:38 ahd v1-12r $
  *
  *       $Log: waiting.cmd $
+ *       Revision 1.10  1996/01/01 21:16:38  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.9  1994/12/22 00:29:47  ahd
  *       Annual Copyright Update
  *

@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.53 1995/09/24 19:10:36 ahd v1-12q $
+ *    $Id: uuxqt.c 1.54 1996/01/01 21:34:38 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.54  1996/01/01 21:34:38  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.53  1995/09/24 19:10:36  ahd
  *    Correct compiler warning
  *

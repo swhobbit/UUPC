@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.4 1995/03/24 04:17:22 ahd v1-12q $
+ *    $Id: ulibnb.c 1.5 1996/01/01 21:23:03 ahd v1-12r $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.5  1996/01/01 21:23:03  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.30 1995/02/26 02:51:34 ahd v1-12q $
+ *    $Id: commlib.c 1.31 1996/01/01 21:19:46 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.31  1996/01/01 21:19:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.30  1995/02/26 02:51:34  ahd
  *    Clean up memory allocations to not require #ifdef
  *    Enable buffering for ulibwin.C
