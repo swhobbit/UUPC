@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.15 1994/04/26 23:56:16 ahd Exp $
+ *    $Id: mailblib.c 1.16 1994/05/23 22:48:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.16  1994/05/23  22:48:48  ahd
+ * Require at least one operand for commands with tokenized
+ * operands (i.e. alias)
+ *
  * Revision 1.15  1994/04/26  23:56:16  ahd
  * Allow for unique use of foreground flag under OS/2
  *
@@ -511,6 +515,7 @@ boolean ForwardItem( const int item , const char *string )
    remove(tmailbag);
 
    return success;
+
 } /* ForwardItem */
 
 /*--------------------------------------------------------------------*/
@@ -548,19 +553,11 @@ void subshell( char *command )
 
       } /* if ( new_prompt == NULL ) */
 
-#if defined(__OS2__) || defined(FAMILYAPI)
-      executeCommand( getenv( "COMSPEC" ),
-                      NULL,
-                      NULL,
-                      TRUE,
-                      FALSE);
-#else
       executeCommand( getenv( "COMSPEC" ),
                       NULL,
                       NULL,
                       TRUE,
                       TRUE);
-#endif
 
    } /* if */
    else
