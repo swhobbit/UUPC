@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\STRLWR.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\strlwr.c 1.2 1992/11/19 02:58:39 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: STRLWR.C $
+ *    $Log: strlwr.c $
+ * Revision 1.2  1992/11/19  02:58:39  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
@@ -53,8 +56,8 @@ char *strlwr( char *s )
 
    while ( *s != '\0' )
    {
-      if ( islower( *s ))
-         *s = toupper( *s );
+      if ( isupper( *s ))
+         *s = tolower( *s );
       *s++;
    } /* while */
 
