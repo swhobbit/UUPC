@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.30 1994/02/26 17:20:16 ahd Exp $
+ *       $Id: rnews.c 1.31 1994/03/05 21:12:05 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.31  1994/03/05  21:12:05  ahd
+ * Correct logging of control messages
+ *
  * Revision 1.30  1994/02/26  17:20:16  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -132,7 +135,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.30 1994/02/26 17:20:16 ahd Exp $";
+         "$Id: rnews.c 1.31 1994/03/05 21:12:05 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -341,7 +344,11 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    if ( bflag[F_HISTORY] )
+   {
      history = open_history("history");
+     if ( history == NULL )
+        panic();
+   }
 
 /*--------------------------------------------------------------------*/
 /*    This loop copies the file to the NEWS directory.                */
@@ -1075,9 +1082,9 @@ static boolean deliver_article(char *art_fname, long art_size)
          if (get_snum(groupy,snum)) {
            if (groups_found)
            strcat(hist_record, ",");
-      strcat(hist_record, groupy);
-      strcat(hist_record, ":");
-      strcat(hist_record, snum);
+           strcat(hist_record, groupy);
+           strcat(hist_record, ":");
+           strcat(hist_record, snum);
            groups_found++;
          }
       }
@@ -1149,6 +1156,7 @@ static boolean deliver_article(char *art_fname, long art_size)
    fclose(tfile);
 
    return b_saved;
+
 } /* deliver_article */
 
 /*--------------------------------------------------------------------*/
@@ -1161,7 +1169,7 @@ static struct grp *find_newsgroup(const char *grp)
 {
    struct grp *cur = group_list;
 
-   while (equal(grp,cur->grp_name))
+   while (!equal(grp,cur->grp_name))
    {
       if (cur->grp_next != NULL)
       {
@@ -1445,7 +1453,7 @@ static int get_snum(const char *group, char *snum)
    strcpy(snum, "0");
    cur = find_newsgroup(group);
    if (cur == NULL)
-   return FALSE;
+      return FALSE;
 
    sprintf(snum, "%ld", cur->grp_high);
    return TRUE;

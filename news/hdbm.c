@@ -16,14 +16,20 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: hdbm.c 1.3 1994/01/18 13:29:22 ahd Exp $";
-static char *rcsrev = "$Revision: 1.3 $";
+static char *rcsid = "$Id: hdbm.c 1.4 1994/02/19 04:21:38 ahd Exp $";
+static char *rcsrev = "$Revision: 1.4 $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+ * Revision 1.4  1994/02/19  04:21:38  ahd
+ * Use standard first header
+ *
+ * Revision 1.4  1994/02/19  04:21:38  ahd
+ * Use standard first header
+ *
  * Revision 1.3  1994/01/18  13:29:22  ahd
  * Add standard UUPC/extended error logging routines for run time
  * library errors
@@ -76,6 +82,7 @@ DBM *dbm_open(char *name, int flags, int mode)
 
   if ((db -> idx = idx_init(db -> idxfile)) == NULL)
   {
+    printmsg(0,"Unable to initialize index");
     close(db -> dbffile);
     close(db -> idxfile);
     free(db);
