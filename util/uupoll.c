@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.14 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: uupoll.c 1.15 1993/10/12 01:31:06 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.15  1993/10/12  01:31:06  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.14  1993/09/27  00:45:20  ahd
  * Make command syncs to get around bug in execute() under OS/2
  *
@@ -136,7 +139,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.14 1993/09/27 00:45:20 ahd Exp $";
+         "$Id: uupoll.c 1.15 1993/10/12 01:31:06 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -212,7 +215,7 @@ static void    usage( char *name );
 
 static hhmm    firstpoll(hhmm interval);
 
-static void    uuxqt( const int debuglevel, boolean sync);
+static void    uuxqt( const int debuglevel, const boolean sync);
 
 static time_t LifeSpan( time_t duration, time_t stoptime );
 
@@ -541,7 +544,7 @@ currentfile();
                                    (now >= autonext) &&
                                    (now < next);
 
-                  uuxqt( debuglevel, poll );
+                  uuxqt( debuglevel, TRUE );
 
                   if ( poll )
                   {
@@ -594,7 +597,7 @@ currentfile();
 /*                          End of main loop                          */
 /*--------------------------------------------------------------------*/
 
-   uuxqt( debuglevel, FALSE );   /* One last call to UUXQT            */
+   uuxqt( debuglevel, TRUE  );   /* One last call to UUXQT            */
 
 #ifndef NOCBREAK
    if (!cbrk)
@@ -713,7 +716,7 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
 
       result = runCommand(buf, TRUE);
       if ( result == 0 )
-         uuxqt( debuglevel, equal(Rmtname, "all") ? TRUE : FALSE );
+         uuxqt( debuglevel, TRUE );
 
       printmsg(2,"active: Return code = %d", result );
 
@@ -935,18 +938,12 @@ static hhmm firstpoll(hhmm interval)
 /*    Execute the UUXQT program to run files received by UUCICO       */
 /*--------------------------------------------------------------------*/
 
- static void uuxqt( const int debuglevel, boolean sync)
+ static void uuxqt( const int debuglevel, const boolean sync)
  {
    int result;
    char buf[128];             /* Buffer for runCommand() commands     */
 
    sprintf(buf,"uuxqt -x %d", debuglevel);
-
-#ifdef _Windows
-   sync = sync && bflag[F_WINDOWS];
-#else
-   sync = TRUE;               /* Silly hack                           */
-#endif
 
    result = runCommand( buf, sync );
 
