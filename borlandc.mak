@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.79 1995/11/08 01:02:37 ahd v1-12p $
+#     $Id: makefile 1.80 1995/11/30 12:44:23 ahd v1-12q $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.80  1995/11/30 12:44:23  ahd
+#     Clean up for build of 1.12q samples
+#
 #     Revision 1.79  1995/11/08 01:02:37  ahd
 #     Use B for Borland DOS executable ZIP files
 #
@@ -305,6 +308,19 @@
 
 WINMODEL=m
 
+SRC=\src\uupc/
+#       Silly hack to allow back slash as last character in variable
+!if !$d(SRCSLASH) && !$d(SHORTPATH)
+!if $d(__OS2__)
+SRCSLASH=
+!else
+!if !$d(SRC)
+SRC      = ./
+!endif
+SRCSLASH = $(SRC:/=\)
+!endif
+!endif
+
 !if $d(__OS2__)
 MODEL=2
 SUFFIX   = $(MODEL)
@@ -329,17 +345,6 @@ ENVIRONMENT=MS-DOS
 TDSTRIP=tdstrip
 !endif
 
-#       Silly hack to allow back slash as last character in variable
-!if !$d(SRCSLASH) && !$d(SHORTPATH)
-!if $d(__OS2__)
-SRCSLASH=
-!else
-!if !$d(SRC)
-SRC      = ./
-!endif
-SRCSLASH = $(SRC:/=\)
-!endif
-!endif
 
 # *--------------------------------------------------------------------*
 # *   Our release number.  This is updated each time we ship it        *
@@ -351,7 +356,7 @@ SRCSLASH = $(SRC:/=\)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12q
+VERS = 1.12r
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
@@ -1603,6 +1608,7 @@ $(MODELOPT)
 $(OPTMIZEOPT)
 -c
 -d
+-DUDEBUG
 -DUUPCV="$(VERS)"
 -f
 -G
@@ -1666,6 +1672,7 @@ OBJ        = $(OBJ)
 PSUFFIX    = $(PSUFFIX)
 RN         = $(RN)
 SRC        = $(SRC)
+SRCSLASH   = $(SRCSLASH)
 STARTUP    = $(STARTUP)
 STARTUPT   = $(STARTUPT)
 SUFFIX     = $(SUFFIX)
