@@ -12,11 +12,9 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <time.h>
-
-#define SHARE_OPEN
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <share.h>
@@ -28,6 +26,9 @@
 
 #include "lib.h"
 #include "hlib.h"
+#include "ssleep.h"
+
+#define SHARE_OPEN
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */
@@ -44,11 +45,11 @@ FILE *FSOPEN(const char *name, const char *mode)
    char *last;
    FILE *results;
 
-
    /* are we opening for write or append */
 
 #ifdef SHARE_OPEN
    int share = SH_DENYWR;
+   int retries = 0;
 
    printmsg(4, "Opening %s for %s, share flags %d",
             name, mode, share );
@@ -70,11 +71,19 @@ FILE *FSOPEN(const char *name, const char *mode)
       *last = '/';
    }
 
-   /* now try open again */
+/*--------------------------------------------------------------------*/
+/*                         Now try open again                         */
+/*--------------------------------------------------------------------*/
 
-
-#ifdef __SHAREOPEN__
-   return _fsopen(name, mode, share);
+#ifdef SHARE_OPEN
+   for ( ;; )
+   {
+      results = _fsopen(name, mode, share);
+      if (( results != NULL ) || (!bflag[ F_MULTITASK ]) ||
+          (errno != EACCES)   || (retries++ < 10))
+         return results;
+      ssleep( retries * 2);
+   }
 #else
    return fopen(name, mode);
 #endif
