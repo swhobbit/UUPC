@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.28 1997/04/24 01:35:43 ahd Exp $
+ *    $Id: ulibip.c 1.29 1997/05/11 04:28:26 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.29  1997/05/11 04:28:26  ahd
+ *    SMTP client support for RMAIL/UUXQT
+ *
  *    Revision 1.28  1997/04/24 01:35:43  ahd
  *    Annual Copyright Update
  *
@@ -452,6 +455,7 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 {
    SOCKADDR_IN sin;
    LPSERVENT pse;
+   int sockopt = 1;
 
    if (!InitWinsock())           /* Initialize library?               */
       return KWTrue;              /* No --> Report error               */
@@ -534,6 +538,18 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
       return KWTrue;                     /* report failure            */
    }
 
+   printmsg(NETDEBUG + 1, "tpassiveopen: doing setsockopt()");
+
+   if (setsockopt( pollingSock, SOL_SOCKET, SO_REUSEADDR,
+         (char FAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0, "tpassiveopen: setsockopt() failed");
+      printWSerror("setsockopt", wsErr);
+      return KWTrue;
+   }
+
    printmsg(NETDEBUG, "tpassiveopen: doing listen()");
 
    if (listen(pollingSock, 2) == SOCKET_ERROR)
@@ -547,9 +563,9 @@ int tpassiveopenline(char *name, BPS bps, const KWBoolean direct)
 
    traceStart( name );
 
-   portActive = KWTrue;    /* record status for error handler */
+   portActive = KWTrue;             /* record status for err handler */
 
-   return KWFalse;         /* Return success to caller                 */
+   return KWFalse;                  /* Return success to caller      */
 
 } /* tpassiveopen */
 
