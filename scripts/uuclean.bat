@@ -5,11 +5,15 @@ REM *    (ICBJ100@INDYVAX.IUPUI.EDU).  Support for by Snuffles P.      *
 REM *    Bear (Snuffles@kew.com).  Comments by Drew Derbyshire         *
 REM *    (help@kew.com); delete the comments to make this run faster.  *
 REM *------------------------------------------------------------------*
-REM *   Define your spool and temp directories on following line       *
+rem     $Id$
+rem
+rem     $log$
 REM *------------------------------------------------------------------*
-if "%1" == "cleanit" goto cleanit:
+REM *   Define your spool and temp directories on following lines      *
+REM *------------------------------------------------------------------*
 if "%1" == "" %0 \uupc\spool %temp%
 if "%2" == "" %0 %1 %temp%
+if "%1" == "cleanit" goto cleanit:
 echo Cleaning UUPC/extended directories %1 and %2
 REM *------------------------------------------------------------------*
 REM *     Temporary files created by UUCICO in spool directory         *
@@ -36,7 +40,7 @@ call %0 cleanit %1\syslog
 REM *------------------------------------------------------------------*
 REM *                      Clean up old news                           *
 REM *------------------------------------------------------------------*
-expire
+if exist %1\..\active expire
 goto exit
 REM *------------------------------------------------------------------*
 REM *                  Clean up a single log file                      *
@@ -49,6 +53,7 @@ if exist %2.003 rename %2.003 *.004
 if exist %2.002 rename %2.002 *.003
 if exist %2.001 rename %2.001 *.002
 if exist %2.log rename %2.log *.001
+goto exit
 REM *------------------------------------------------------------------*
 REM *                        All done, exit                            *
 REM *------------------------------------------------------------------*
