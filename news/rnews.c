@@ -30,6 +30,19 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
+static const char rcsid[] =
+         "$Id$";
+
+/*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
@@ -74,28 +87,26 @@ extern struct grp *group_list;   /* List of all groups */
 
 FILE *hfile = NULL;           /* History file */
 char history_date[12];        /* dd/mm/yyyy + null + 1 for no good reason */
-char snum[10];             /* Article number (in ASCII) for copy_file */
 char hbuff[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
 /*                       Functions in this file                       */
 /*--------------------------------------------------------------------*/
 
-void deliver_article(char *art_fname);
+static boolean deliver_article(char *art_fname);
                               /* Distribute the article to the
                                  proper newsgroups                   */
 
-void copy_file(FILE *f,
+static void copy_file(FILE *f,
             char *group,
-            long start_xref,
-            long stop_xref,
             char *xref);      /* Copy file (f) to newsgroup          */
 
-struct grp *find_newsgroup(char *grp);
+static struct grp *find_newsgroup(const char *grp);
                               /* Get the grp struct for the newsgroup */
 
-void get_snum(char *group);   /* Get (and format) the next article
-                                 number in group                     */
+static void get_snum(const char *group, char *snum);
+                                    /* Get (and format) the next article
+                                       number in group                     */
 
 static void fixEOF( char *buf, int bytes );
 
@@ -355,6 +366,7 @@ static int Single( char *filename , FILE *stream )
 
    while ((chars_read = fread(buf,sizeof(char), BUFSIZ, stream)) != 0)
    {
+
       chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
       if (chars_written != chars_read)
       {
@@ -546,7 +558,8 @@ static int Compressed( char *filename , FILE *in_stream )
           printerr( program );
       }
       else
-          printmsg(0, "%s command failed (exit code %d)", UNCOMPRESS, status);
+          printmsg(0, "%s command failed (exit code %d)",
+                        UNCOMPRESS, status);
       panic();
    } /* if status != 0 */
 
@@ -590,7 +603,8 @@ static int Batched( char *filename, FILE *stream)
    long article_size;
    int last_block;
    int articles = 0;
-   unsigned chars_read;
+   int ignored  = 0;
+   unsigned chars_read = BUFSIZ;
    unsigned chars_written;
 
 /*--------------------------------------------------------------------*/
@@ -616,55 +630,75 @@ static int Batched( char *filename, FILE *stream)
 
    while (fscanf(stream, "#! rnews %ld \n", &article_size) == 1)
    {
+      long article_left = article_size;
+
       FILE *tmpf = FOPEN(filename, "w", BINARY);
+      if ( tmpf == NULL )
+      {
+         printerr( filename );
+         panic();
+      }
 
  /*--------------------------------------------------------------------*/
  /*   Copy this article to the temp file (except for the last block)   */
  /*--------------------------------------------------------------------*/
 
-      errno = 0;
-
-      while (article_size > sizeof buf)
+      while (article_left > sizeof buf)
       {
          chars_read = fread(buf,sizeof(char), sizeof buf, stream);
+         if ( (chars_read < sizeof buf) && ferror( stream ))
+         {
+            printerr("STDIN");
+            panic();
+         }
+
+         if ( chars_read == 0)
+            break;
 
          fixEOF( buf , chars_read );
 
-         chars_written = fwrite(buf, sizeof(char), sizeof buf, tmpf);
+         chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
          if (chars_read != chars_written)
          {
-            printmsg(0,"Read %d characters, only wrote %d characters",
-                  chars_read,
-                  chars_written );
+            printmsg(0,"Read %d bytes, only wrote %d bytes of article %d",
+                  chars_read, chars_written , articles + 1);
             printerr(filename);
          }
-         article_size -= sizeof buf;
+         article_left -= chars_read;
       }
 
  /*--------------------------------------------------------------------*/
  /*                   Handle the last block of data                    */
  /*--------------------------------------------------------------------*/
 
-      last_block = (int) article_size;  /* It's now less than BUFSIZ */
-      chars_read = fread(buf,sizeof(char), last_block, stream);
-      fixEOF( buf , chars_read );
-
-      chars_written = fwrite(buf, sizeof(char), last_block, tmpf);
-
-      if (chars_read != chars_written)
+      if ( chars_read == sizeof buf )
       {
-         printmsg(0,"Read %d characters, only wrote %d characters",
-               chars_read,
-               chars_written );
-         printerr( filename );
+         last_block = (int) article_left;  /* It's now less than BUFSIZ */
+         chars_read = fread(buf,sizeof(char), last_block, stream);
+         fixEOF( buf , chars_read );
+
+         chars_written = fwrite(buf, sizeof(char), last_block, tmpf);
+
+         if (chars_read != chars_written)
+         {
+            printmsg(0,"Read %d bytes, only wrote %d bytes of article %d",
+                     chars_read, chars_written , articles + 1);
+            printerr( filename );
+         }
       }
+      else
+         printmsg(0,"Unexpected EOF for article %d, "
+                  "read %ld bytes of expected %ld",
+                   articles + 1,
+                   article_size - article_left, article_size );
 
  /*--------------------------------------------------------------------*/
  /*      Close the file, deliver its contents, and get rid of it       */
  /*--------------------------------------------------------------------*/
 
       fclose(tmpf);
-      deliver_article(filename);
+      if ( ! deliver_article(filename) )
+         ignored ++;
       unlink( filename );
       articles ++;
 
@@ -674,7 +708,11 @@ static int Batched( char *filename, FILE *stream)
 /*                          Return to caller                          */
 /*--------------------------------------------------------------------*/
 
-   printmsg(1,"Batched: Unbatched %d articles", articles );
+   if ( ignored )
+      printmsg(1,"Batched: Unbatched %d articles (discarded %d of these)",
+               articles , ignored);
+   else
+      printmsg(1,"Batched: Unbatched %d articles", articles );
    return status;
 
 } /* Batched */
@@ -710,7 +748,7 @@ static void fixEOF( char *buf, int bytes )
 /*    Determine delivery of a posting                                 */
 /*--------------------------------------------------------------------*/
 
-void deliver_article(char *art_fname)
+static boolean deliver_article(char *art_fname)
 {
 
    char groupy[MAXGRP];
@@ -724,18 +762,15 @@ void deliver_article(char *art_fname)
    FILE *tfile;            /* The article file */
 
    int n_hdrs;             /* Number of desired headers seen */
+   int b_xref;
 
-   long start_this_line;
-   long start_xref=-1L;       /* Where in the file the Xref: line starts */
-   long stop_xref=0L;         /* Where the next line starts */
-
-   int full_line;
    int line_len;
 
    char hist_record[BUFSIZ];  /* buffer for history file
                                  (also used for article)             */
    char groups[BUFSIZ];
    char message_buf[BUFSIZ];
+   char snum[10];
 
    tfile = FOPEN(art_fname, "r", BINARY);
    if ( tfile == NULL )
@@ -747,14 +782,13 @@ void deliver_article(char *art_fname)
 /*--------------------------------------------------------------------*/
 /*    Get fields necessary for distribution (Newsgroups:)  and the    */
 /*    history file (Message-ID:).  Also, if the article is going      */
-/*    to more than one newsgroup, get the Xref:  fields.              */
+/*    to more than one newsgroup, flag the creation of Xref: fields.  */
 /*--------------------------------------------------------------------*/
 
-   n_hdrs = 0;
-   while (n_hdrs < 3)
+   n_hdrs = b_xref = 0;
+   while (n_hdrs < 2)
    {
       /* Get the next line */
-      start_this_line = ftell(tfile);
       gc_ptr = fgets(hist_record, sizeof(hist_record), tfile);
 
 /*--------------------------------------------------------------------*/
@@ -764,42 +798,31 @@ void deliver_article(char *art_fname)
       if ((gc_ptr == NULL) || (strlen(hist_record) == 1))
       {
          /* Ooops.  Missing Message-ID: or Newsgroups: */
-         if (messageID == NULL) {
+         if (messageID == NULL)
             printmsg(0, "Article has no Message-ID:, discarded");
-         } else {
-            if (newsgroups == NULL) {
+         else {
+            if (newsgroups == NULL)
+            {
                printmsg(0,
                     "Article %s has no Newsgroups: line, discarded",
                     messageID);
-            } else {
-               printmsg(2,
-                    "Article %s is missing the Xref: line, ignored",
-                    messageID);
-               n_hdrs++;
-               start_xref = start_this_line;
-               stop_xref = start_xref;
+            } /* if */
+            else
                break;
-            }
-         }
+         } /* else */
 
          fclose(tfile);
 
-         return;
+         return FALSE;
       } /* if ((gc_ptr == NULL) || (strlen(hist_record) == 1)) */
 
-      full_line = FALSE;
       line_len = strlen(hist_record);
 
       if (hist_record[line_len-1] == '\n')
-      {
-         full_line = TRUE;
          hist_record[(line_len--)-1] = '\0';
-      }
 
-      if (hist_record[line_len-1] == '\r') {
+      if (hist_record[line_len-1] == '\r')
          hist_record[(line_len--)-1] = '\0';
-      }
-
 
       if (equalni(hist_record, "Newsgroups:", strlen("Newsgroups:")))
       {
@@ -810,14 +833,8 @@ void deliver_article(char *art_fname)
             newsgroups = strcpy(groups, gc_ptr);
             newsgroups[strlen(newsgroups)+1] = '\0';  /* Guard char for rescan */
             n_hdrs++;
-
-            if (strchr(newsgroups, ',') == NULL)
-            {
-               /* Don't expect an Xref: line */
-               if (start_xref == -1L)
-                  n_hdrs++;         /* Otherwise there was one -- oops */
-            }
-         }
+            b_xref = (strchr(newsgroups, ',') != NULL); /* more than 1 group */
+     }                     /* i.e. do we need to create a Xrefs: line ? */
          else
             printmsg(0, "Article has multiple Newsgroups: lines");
       }
@@ -835,21 +852,8 @@ void deliver_article(char *art_fname)
                strcat(messageID,">");
             n_hdrs++;
          } /* if (messageID == NULL) */
-
       }
-      else if (equalni(hist_record, "Xref:", strlen("Xref:")))
-      {
-         if (start_xref == -1L)
-         {
-            start_xref = start_this_line;
-            if (!full_line) {
-               printmsg(0, "Xref: line too long");
-            }
-            stop_xref = ftell(tfile);
-            n_hdrs++;
-         } /* if (start_xref == -1L) */
-      }
-   }  /* while getting Newsgroups: and Message-ID: and Xref: */
+   }  /* while getting Newsgroups: and Message-ID: */
 
 /*--------------------------------------------------------------------*/
 /*           Check whether article has been received before           */
@@ -861,7 +865,7 @@ void deliver_article(char *art_fname)
       {
          printmsg(2, "rnews: Duplicate article %s", messageID);
          fclose(tfile);
-         return;
+         return FALSE;
       }
 
       /* Start building the history record for this article */
@@ -877,14 +881,14 @@ void deliver_article(char *art_fname)
          strcat(hist_record, groupy);
          strcat(hist_record, ":");
          gc_ptr1 = gc_ptr + 1;
-         get_snum(groupy);
+         get_snum(groupy,snum);
          strcat(hist_record, snum);
            strcat(hist_record, ",");
       }
       strcpy(groupy, gc_ptr1);
       strcat(hist_record, groupy);
       strcat(hist_record, ":");
-      get_snum(groupy);
+      get_snum(groupy,snum);
       strcat(hist_record, snum);
       strcat(hist_record, "\n");
 
@@ -898,12 +902,11 @@ void deliver_article(char *art_fname)
       fwrite(hist_record, sizeof(char), strlen(hist_record), hfile);
    } /* if ( bflag[ F_HISTORY ] ) */
 
-
 /*--------------------------------------------------------------------*/
 /*              Now build the Xref: line (if we need to)              */
 /*--------------------------------------------------------------------*/
 
-   if (start_xref != -1L) {
+   if (b_xref) {
       strcpy(hist_record, "Xref: ");
       strcat(hist_record, E_nodename);
       strcat(hist_record, " ");
@@ -916,7 +919,7 @@ void deliver_article(char *art_fname)
          strcat(hist_record, groupy);
          strcat(hist_record, ":");
          gc_ptr1 = gc_ptr + 1;
-         get_snum(groupy);
+         get_snum(groupy,snum);
          strcat(hist_record, snum);
          strcat(hist_record, " ");
       }
@@ -924,7 +927,7 @@ void deliver_article(char *art_fname)
       strcpy(groupy, gc_ptr1);
       strcat(hist_record, groupy);
       strcat(hist_record, ":");
-      get_snum(groupy);
+      get_snum(groupy,snum);
       strcat(hist_record, snum);
       strcat(hist_record, "\n");
 
@@ -945,14 +948,14 @@ void deliver_article(char *art_fname)
       gc_ptr[0] = '\0';
       strcpy(groupy, gc_ptr1);
       gc_ptr1 = gc_ptr + 1;
-      copy_file(tfile, groupy, start_xref, stop_xref, hist_record);
+      copy_file(tfile, groupy, b_xref ? hist_record : NULL);
    }
 
    strcpy(groupy, gc_ptr1);
-   copy_file(tfile, groupy, start_xref, stop_xref, hist_record);
+   copy_file(tfile, groupy, b_xref ? hist_record : NULL);
    fclose(tfile);
 
-   return;
+   return TRUE;
 } /* deliver_article */
 
 /*--------------------------------------------------------------------*/
@@ -961,11 +964,9 @@ void deliver_article(char *art_fname)
 /*    Locate a news group in our list                                 */
 /*--------------------------------------------------------------------*/
 
-struct grp *find_newsgroup(char *grp)
+static struct grp *find_newsgroup(const char *grp)
 {
-   struct grp *cur;
-
-   cur = group_list;
+   struct grp *cur = group_list;
 
    while ((strcmp(grp,cur->grp_name) != 0)) {
       if (cur->grp_next != NULL) {
@@ -978,20 +979,20 @@ struct grp *find_newsgroup(char *grp)
    return cur;
 }
 
+/*--------------------------------------------------------------------*/
+/*    c o p y _ f i l e                                               */
+/*                                                                    */
+/*    Write an article to it's final resting place                    */
+/*--------------------------------------------------------------------*/
 
-void copy_file(FILE *f,
-               char *group,
-               long start_xref,
-               long stop_xref,
-               char *xref)
+static void copy_file(FILE *input,
+                      char *group,
+                      char *xref)
 {
    struct grp *cur;
    char filename[FILENAME_MAX];
    char buf[BUFSIZ];
-   FILE *g;
-   int chars_read, chars_written;
-   int rd_amt;
-   long cur_loc;
+   FILE *output;
 
 /*--------------------------------------------------------------------*/
 /*           Determine if the news has been already posted            */
@@ -1017,59 +1018,65 @@ void copy_file(FILE *f,
    printmsg(2, "rnews: Saving %s article in %s",
                cur->grp_name, filename);
 
-   if ((g = FOPEN(filename, "w", TEXT)) == nil(FILE))
+   if ((output = FOPEN(filename, "w", TEXT)) == nil(FILE))
    {
-      printmsg(0, "rnews: Unable to save article");
       printerr( filename );
+      printmsg(0, "rnews: Unable to save article");
       return;
    }
 
-   rewind(f);
-   if (start_xref != -1L) {
-      /* Need to update the Xref: line.
-       *
-       * Copy the headers up to the Xref: line, copy the
-       * new Xref: line, skip over the old one, and then
-       * copy the rest of the file.
-       */
-      while ((cur_loc = ftell(f)) < start_xref) {
-         rd_amt = BUFSIZ;
-         if ((start_xref-cur_loc) < (long)rd_amt) rd_amt = (int) (start_xref-cur_loc);
-         chars_read = fread(buf, sizeof(char), rd_amt, f);
-         chars_written = fwrite(buf, sizeof(char), chars_read, g);
-         if (chars_written != chars_read) {
-            printmsg(0,"rnews: Error writing article to newsgroup");
-            printerr( filename );
-         }
-      }
+   rewind(input);
 
-      fwrite(xref, sizeof(char), strlen(xref), g);
-      fseek(f, stop_xref, SEEK_SET);
-   }
-
-   while ((chars_read =  fread(buf, sizeof(char), sizeof buf, f)) > 0)
+   if (xref) /* write new Xref: line first */
    {
-      chars_written = fwrite(buf, sizeof(char), chars_read, g);
-      if (chars_written != chars_read) {
-         printmsg(0,"rnews: Error writing article to newsgroup");
-       }
+      if (fputs(xref, output) == EOF)
+      {
+         printerr( filename );
+         panic();
+      }
    }
 
-   fclose(g);
+   while (fgets(buf, sizeof buf, input) != NULL)
+   {
+
+      if (equalni(buf, "Path:", strlen("Path:")))
+      {
+         fprintf(output, "Path: %s!%s", E_nodename,
+                         buf + strlen("Path:") + 1);
+         continue;
+      }
+      else if (equalni(buf, "Xref:", strlen("Xref:")))
+         continue; /* skip possibly old Xref: line */
+
+      if (fputs(buf, output) == EOF)
+      {
+         printerr( filename );
+         panic();
+      }
+   } /* while */
+
+   fclose(output);
 
 } /* copy_file */
 
-void get_snum(char *group)
+/*--------------------------------------------------------------------*/
+/*    g e t _ s n u m                                                 */
+/*                                                                    */
+/*    Get highest article number of newsgroup                         */
+/*--------------------------------------------------------------------*/
+
+static void get_snum(const char *group, char *snum)
 {
    struct grp *cur;
 
-
    strcpy(snum, "0");
    cur = find_newsgroup(group);
-   if (cur == NULL) return;
+   if (cur == NULL)
+   return;
+
    sprintf(snum, "%d", cur->grp_high);
 
-}
+} /* snum */
 
 /*--------------------------------------------------------------------*/
 /*    x m i t _ n e w s                                               */
@@ -1129,6 +1136,14 @@ static void xmit_news( char *sysname, FILE *in_stream )
       return ;
    } /* if */
 
+   if (setvbuf( out_stream, NULL, _IONBF, 0))
+   {
+      printmsg(0, "xmit_news: Cannot unbuffer file %s (%s).",
+                  ixfile, msfile);
+      printerr(msfile);
+      panic();
+   } /* if */
+
    fprintf(out_stream, "R %s %s\nU %s %s\nF %s\nI %s\nC rnews\n",
                "uucp", E_domain,
                "uucp", E_nodename,
@@ -1152,6 +1167,14 @@ static void xmit_news( char *sysname, FILE *in_stream )
       return;
    }
 
+   if (setvbuf( out_stream, NULL, _IONBF, 0))
+   {
+      printmsg(0, "xmit_news: Cannot unbuffer file %s (%s).",
+                  idfile, msfile);
+      printerr(msfile);
+      panic();
+   } /* if */
+
 /*--------------------------------------------------------------------*/
 /*                       Loop to copy the data                        */
 /*--------------------------------------------------------------------*/
@@ -1161,7 +1184,6 @@ static void xmit_news( char *sysname, FILE *in_stream )
       if (fwrite( buf, 1, len, out_stream ) != len)     /* I/O error?               */
       {
          printerr(msfile);
-         printmsg(0,"I/O error on \"%s\"", msfile);
          fclose(out_stream);
          return;
       } /* if */
@@ -1207,6 +1229,13 @@ static int copy_snews( char *filename, FILE *stream )
 
    if ( out_stream == NULL )
    {
+      printerr(filename);
+      panic();
+   } /* if */
+
+   if (setvbuf( out_stream, NULL, _IONBF, 0))
+   {
+      printmsg(0, "copy_snews: Cannot unbuffer file %s.", filename);
       printerr(filename);
       panic();
    } /* if */
