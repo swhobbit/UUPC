@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: ulib.c 1.2 1992/11/21 06:17:42 ahd Exp ahd $
  *
- *    $Log$
+ *    $Log: ulib.c $
+ * Revision 1.2  1992/11/21  06:17:42  ahd
+ * Delete old (pre-COMMFIFO) autobaud function
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -27,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <share.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -57,7 +61,6 @@ static boolean carrierdetect;
 
 currentfile();
 
-
 /* IBM-PC I/O routines */
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
@@ -80,7 +83,7 @@ static int logmode = 0;             /* Not yet logging            */
 #define WRITING 1
 #define READING 2
 static FILE *log_stream;
-static FILE *com_stream;
+static int com_handle;
 static boolean hangup_needed = TRUE;
 
 /*--------------------------------------------------------------------*/
@@ -111,8 +114,9 @@ int openline(char *name, BPS bps, const boolean direct)
 
    norecovery = FALSE;
 
-   com_stream = FOPEN( name, "w", BINARY );  /* Used solely for lock */
-   if ( com_stream == NULL )
+   com_handle = sopen( name, O_BINARY | O_RDWR, SH_DENYRW );
+                                 /* Used soly for lock abilities  */
+   if ( com_handle == -1 )
    {
       printerr( name );
       return 1;
@@ -397,7 +401,7 @@ void closeline(void)
    ddelay(500);               /* Required for V.24             */
    close_com();
    restore_com();
-   fclose( com_stream );
+   close( com_handle );
    norecovery = TRUE;
 
    if (log_handle != -1) {    /* close serial line log file */
