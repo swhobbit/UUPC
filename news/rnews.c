@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.58 1995/02/20 17:28:43 ahd Exp $
+ *       $Id: rnews.c 1.59 1995/02/21 02:47:44 ahd v1-12n $
  *
  *       $Log: rnews.c $
+ *       Revision 1.59  1995/02/21 02:47:44  ahd
+ *       The compiler warnings war never ends!
+ *
  *       Revision 1.58  1995/02/20 17:28:43  ahd
  *       in-memory file support, 16 bit compiler clean up
  *
@@ -43,7 +46,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.58 1995/02/20 17:28:43 ahd Exp $";
+         "$Id: rnews.c 1.59 1995/02/21 02:47:44 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -83,9 +86,8 @@ currentfile();
 /*--------------------------------------------------------------------*/
 /*       q u e u e N e w s                                            */
 /*                                                                    */
-/*       Queue news for its next step of processing.  NNS or SNEWS    */
-/*       batches just get dumped in the news directory, and/or        */
-/*       data is queued for by processing by newsrun.                 */
+/*       Queue uncompressed (batched or unbatched) news for the       */
+/*       newsrun program.                                             */
 /*--------------------------------------------------------------------*/
 
 static void
@@ -97,20 +99,26 @@ queueNews( const char *inputName )
    const char *command = bflag[ F_NEWSRUN ] ? "newsrun" : "uux";
 
 /*--------------------------------------------------------------------*/
-/*       Perform SYS file based processing.                           */
-/*                                                                    */
+/*       Amazing but true, the IBM C/Set++ compiler may pass an       */
+/*       extra (invalid) argument when using the spawn() system       */
+/*       call if no arguments are passed.  Our workaround is to       */
+/*       always pass an argument (debug level) to newsrun.            */
+/*--------------------------------------------------------------------*/
+
+   if ( bflag[ F_NEWSRUN ] )
+      sprintf( commandOptions, "-x %d", debuglevel );
+   else
+      sprintf(commandOptions, "-anews -p -g%c -n -x %d -C %s!newsrun -x %d",
+              E_newsGrade,
+              debuglevel,
+              E_nodename,
+              debuglevel );
+
+/*--------------------------------------------------------------------*/
 /*       We play a trick with the input file -- if it's NULL when     */
 /*       passed to us, we leave it that way and let the default       */
 /*       standard input passed to us be used.                         */
 /*--------------------------------------------------------------------*/
-
-   if ( bflag[ F_NEWSRUN ] )
-      *commandOptions = '\0';
-   else
-      sprintf(commandOptions, "-anews -p -g%c -n -x %d -C %s!newsrun",
-              E_newsGrade,
-              debuglevel,
-              E_nodename );
 
    status = execute( command,
                      commandOptions,
@@ -586,7 +594,6 @@ main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 /*                     Clean up and exit gracefully                   */
 /*--------------------------------------------------------------------*/
-
 
    if ( deleteInput && unlink( inputName ))
       printerr( inputName );
