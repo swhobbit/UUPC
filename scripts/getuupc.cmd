@@ -11,42 +11,45 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: getuupc.cmd 1.1 1993/04/04 05:01:49 ahd Exp $
+ *       $Id: GETUUPC.CMD 1.2 1993/05/04 00:25:58 ahd Exp $
  *
- *       $Log: getuupc.cmd $
+ *       $Log: GETUUPC.CMD $
+ *      Revision 1.2  1993/05/04  00:25:58  ahd
+ *      Support personal.rc to allow su.cmd
+ *
 *        Revision 1.1  1993/04/04  05:01:49  ahd
 *        Initial revision
 *
  */
 
 signal on novalue
-trace i
-parse upper arg keyword,answer,uupcusrc
+parse upper arg keyword,answer,uupcusrrc
 
 /*--------------------------------------------------------------------*/
 /*                     Get the UUPC.RC file name                      */
 /*--------------------------------------------------------------------*/
 
 uupcrc = value('UUPCSYSRC',,'OS2ENVIRONMENT')
-uupcusrc = value('UUPCUSRRC',,'OS2ENVIRONMENT')
 if  uupcrc == '' then
 do
    'UUPCSYSRC not set, cannot continue'
-   exit 44
+   exit
 end
 
 confdir = translate(filespec('D',uupcrc) || filespec('P',uupcrc),'\','/');
 
 answer = search( keyword, answer, confdir, uupcrc );
-if uupcusrc <> '' then
+
+if uupcusrrc <> '' then
 do;
-   uupcusrc = translate( uupcusrc , '\', '/');
+   uupcusrrc = translate( uupcusrrc , '\', '/');
 
-   if verify( uupcusrc, '\/', 'N') == 0 then
-      uupcusrc = confdir || '\' || uupcusrc;
+   if verify( uupcusrrc, '\/', 'N') == 0 then
+      uupcusrrc = confdir || '\' || uupcusrrc;
 
-   answer = search( keyword, answer, confdir, uupcusrc );
+   answer = search( keyword, answer, confdir, uupcusrrc );
 end;
+
 if left(answer,1) == '\' then
    answer = filespec('D',uupcrc) || answer;
 return answer;
@@ -61,7 +64,10 @@ xrc = SysFileSearch( keyword || '=',uupcrc,'data.')
 if xrc \= 0 then
 do
    say 'SysFileSearch error' xrc 'searching' uupcrc 'for' keyword
-   exit xrc
+   if ( answer == '' ) then
+      exit
+   else
+      return answer
 end
 
 do count = 1 to data.0
@@ -90,6 +96,15 @@ select;
       return confdir || 'archive';
    when ( keyword = 'MAILDIR' ) then
       return confdir || 'mail';
+   when ( keyword = 'TEMPDIR' ) then
+   do;
+      tempdir = value('TEMP',,'OS2ENVIRONMENT')
+      if tempdir = '' then
+         tempdir = value('TMP',,'OS2ENVIRONMENT')
+      if tempdir = '' then
+         tempdir = confdir || 'tmp';
+      return tempdir;
+   end;
    otherwise
       return translate(answer,'\','/')
 end;
