@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.2 1998/03/03 03:53:54 ahd v1-12v $
+ *       $Id: pop3lwc.c 1.3 1998/03/06 06:51:28 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.3  1998/03/06 06:51:28  ahd
+ *       Add commands to make Netscape happy
+ *
  *       Revision 1.2  1998/03/03 03:53:54  ahd
  *       Routines to handle messages within a POP3 mailbox
  *
@@ -47,7 +50,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.2 1998/03/03 03:53:54 ahd v1-12v $");
+RCSID("$Id: pop3lwc.c 1.3 1998/03/06 06:51:28 ahd Exp $");
 
 currentfile();
 
@@ -73,6 +76,8 @@ commandInit(SMTPClient *client,
             arpadate());
 
    SMTPResponse(client, verb->successResponse, client->transmit.data);
+
+   setClientTimeout( client, 600 );
 
    return KWTrue;
 }
