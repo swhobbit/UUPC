@@ -12,53 +12,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.15 1995/02/21 03:30:52 ahd v1-12q $
+ *    $Id: usertabl.c 1.16 1995/12/26 16:55:43 ahd v1-12u $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.16  1995/12/26 16:55:43  ahd
+ *    Don't scan table for every user
+ *    Correct failure user table reallocation
+ *
  *    Revision 1.15  1995/02/21 03:30:52  ahd
  *    More compiler warning cleanup, drop selected messages at compile
  *    time if not debugging.
  *
  *    Revision 1.14  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
- *
- *    Revision 1.13  1994/05/07 21:45:33  ahd
- *    Handle empty passwords different from blocked (asterisk) passwords
- *
- *     Revision 1.12  1994/04/24  20:35:08  ahd
- *     Change case of userElement
- *
- *     Revision 1.11  1994/02/20  19:05:02  ahd
- *     IBM C/Set 2 Conversion, memory leak cleanup
- *
- *     Revision 1.10  1993/11/06  16:56:13  ahd
- *     Correct reference to userid in password warning message
- *
- *     Revision 1.9  1993/11/06  13:04:13  ahd
- *     Trap NULL user passwords
- *
- *     Revision 1.8  1993/10/12  00:49:39  ahd
- *     Normalize comments
- *
- *     Revision 1.7  1993/10/02  19:07:49  ahd
- *     Drop unneeded checkref()
- *
- *     Revision 1.6  1993/05/29  15:19:59  ahd
- *     Allow configured systems, passwd files
- *
- *     Revision 1.5  1993/05/06  03:41:48  ahd
- *     Use expand_path to get reasonable correct drive for aliases file
- *
- *     Revision 1.4  1993/04/15  03:17:21  ahd
- *     Use standard define for undefined user names
- *
- *     Revision 1.3  1993/04/11  00:31:04  ahd
- *     Global edits for year, TEXT, etc.
- *
- * Revision 1.2  1992/11/22  20:58:55  ahd
- * Use strpool to allocate const strings
- * Normalize directories as read
- *
  */
 
 #include "uupcmoah.h"
@@ -327,7 +293,11 @@ static size_t loaduser( void )
       token = NextField(NULL);   /* Get home directory (optional)     */
 
       if ( token != NULL)
+      {
          userp->homedir = newstr(normalize( token ));
+         if ( equal( userp->uid, E_mailbox ))
+            E_homedir = userp->homedir;
+      }
 
       token = NextField(NULL);   /* Get user shell (optional)         */
 
