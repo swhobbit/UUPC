@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3cmds.c 1.2 1998/03/03 03:51:53 ahd Exp $
+ *       $Id: pop3cmds.c 1.3 1998/03/03 07:36:28 ahd v1-12v $
  *
  *       $Log: pop3cmds.c $
+ *       Revision 1.3  1998/03/03 07:36:28  ahd
+ *       Delete unused commands, correct states for others
+ *
  *       Revision 1.2  1998/03/03 03:51:53  ahd
  *       First POP3 which responses to data commands
  *
@@ -52,7 +55,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3cmds.c 1.2 1998/03/03 03:51:53 ahd Exp $");
+RCSID("$Id: pop3cmds.c 1.3 1998/03/03 07:36:28 ahd v1-12v $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */
@@ -132,6 +135,18 @@ SMTPVerb verbTable[] =
       P3_DELETE_PENDING,
    },
    {
+      commandAUTH,
+      commandSequenceIgnore,
+      "AUTH",
+      KWFalse,
+      P3_AUTHORIZATION,
+      P3_SAME_MODE,
+
+      PR_OK_GENERIC,
+      PR_ERROR_GENERIC,
+      SV_OPTIONAL_OPERANDS
+   },
+   {
       commandDELE,
       commandSequenceIgnore,
       "DELE",
@@ -147,6 +162,18 @@ SMTPVerb verbTable[] =
       commandLIST,
       commandSequenceIgnore,
       "LIST",
+      KWFalse,
+      P3_TRANSACTION,
+      P3_SAME_MODE,
+
+      PR_OK_GENERIC,
+      PR_ERROR_GENERIC,
+      SV_OPTIONAL_OPERANDS
+   },
+   {
+      commandLIST,
+      commandSequenceIgnore,
+      "XAUTHLIST",
       KWFalse,
       P3_TRANSACTION,
       P3_SAME_MODE,
@@ -263,6 +290,19 @@ SMTPVerb verbTable[] =
       PR_ERROR_GENERIC,
       1
    },
+   {
+      commandXSENDER,
+      commandSequenceIgnore,
+      "XSENDER",
+      KWFalse,
+      P3_TRANSACTION,
+      P3_SAME_MODE,
+
+      PR_OK_GENERIC,
+      PR_ERROR_GENERIC,
+      1,
+   },
+
    /* Command for syntax errors MUST BE LAST */
    {
       commandSyntax,             /* Fall through for syntax errs  */
