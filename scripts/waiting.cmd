@@ -29,10 +29,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: WAITING.CMD 1.2 1992/11/28 23:08:07 ahd Exp $
  *
- *       $Log$
+ *       $Log: WAITING.CMD $
+ * Revision 1.2  1992/11/28  23:08:07  ahd
+ * Tweak order of procedures, add comments
+ *
  */
+
 '@echo off'
 signal on novalue
 parse upper arg who;
@@ -52,16 +56,16 @@ do;
       say 'No mail waiting for' who;
 end;
 else  do i = 1 to data.0
-   parse var data.i mmddyy hhmmss bytes attr fname;
-
+   parse value space(data.i) with mmddyy hhmmss bytes attr fname;
    if bytes > 0 then
    do
+      if length(mmddyy) == 7 then
+         mmddyy = '0' || mmddyy
       parse value filespec( "name", fname ) with id'.';
       if mmddyy = date('U') then
          when = hhmmss
       else
          when = substr(mmddyy,1,5) hhmmss;
-
       items = CountItems( space(fname) );
       say 'Mail waiting for' id 'since' when '(' || items 'items,' ,
                bytes 'bytes).'
