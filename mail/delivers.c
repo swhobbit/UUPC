@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.18 1999/01/22 01:25:46 ahd Exp $
+ *       $Id: delivers.c 1.19 2000/05/12 12:36:30 ahd v1-13g ahd $
  *
  *       $Log: delivers.c $
+ *       Revision 1.19  2000/05/12 12:36:30  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.18  1999/01/22 01:25:46  ahd
  *       Improve tracing of SMTP info
  *
@@ -115,7 +118,7 @@
 #include "title.h"
 #include "../uucico/commlib.h"
 
-RCSID("$Id: delivers.c 1.18 1999/01/22 01:25:46 ahd Exp $");
+RCSID("$Id: delivers.c 1.19 2000/05/12 12:36:30 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                       Local type definitions                       */
@@ -666,10 +669,13 @@ SendSMTPMailCmd(
    s = buffer + strlen(buffer);
 
    /* Reformat as RFC-822 only if needed */
-   if (equal(sender->address , "<>")       ||
+   if (equal(sender->address , SMTP_BOUNCE_POSTMASTER)       ||
        equali(sender->user, "mailer-daemon") ||
-       equali(sender->user, "uucp"))
-      strcpy(s, "<>");            /* Special postmaster address   */
+       equali(sender->user, UUCP_BOUNCE_POSTMASTER))
+   {
+       /* Special postmaster address   */
+      strcpy(s, SMTP_BOUNCE_POSTMASTER);            
+   }
    else if (strchr(sender->address , '@') != NULL)
       sprintf(s, "<%s>", sender->address);
    else if (strchr(sender->host, '.') != NULL)
