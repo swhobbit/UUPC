@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.7 1998/03/09 01:18:19 ahd Exp $
+ *       $Id: POP3USER.C 1.8 1998/03/16 06:40:49 ahd Exp $
  *
  *       Revision History:
- *       $Log: pop3user.c $
+ *       $Log: POP3USER.C $
+ *       Revision 1.8  1998/03/16 06:40:49  ahd
+ *       Buffer up lines for sending
+ *
  *       Revision 1.7  1998/03/09 01:18:19  ahd
  *       Normalize function names
  *
@@ -61,7 +64,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.7 1998/03/09 01:18:19 ahd Exp $");
+RCSID("$Id: POP3USER.C 1.8 1998/03/16 06:40:49 ahd Exp $");
 
 currentfile();
 
@@ -211,14 +214,23 @@ writePopMessage(SMTPClient *client,
       else
          wasPeriods = KWFalse;
 
+#ifdef UDEBUG
+      printmsg(5,"--> [%03d] s%s%s",
+                  bufferUsed,
+                  linePointer,
+                  continued ? " (continued)" : "",
+                  incomplete ? " (incomplete)" : "" );
+#endif
+
+      bufferUsed += length;
+
       /* Terminate the line */
       if ( ! incomplete )
       {
          strcat( linePointer, crlf );
 
          /* Update our running total */
-         bufferUsed += length + 2;
-
+         bufferUsed += 2;
       }
 
       /* Determine if we wand to flush buffer */
@@ -252,11 +264,12 @@ writePopMessage(SMTPClient *client,
    /* Terminate the message */
    SMTPResponse(client, PR_DATA, ".");
 
-   printmsg(3, "%s: Sent message %ld to %s (%ld octets)",
+   printmsg(3, "%s: Sent message %ld to %s (%ld of %ld octets)",
                mName,
                current->sequence,
                client->clientName,
-               octets );
+               octets,
+               current->octets );
 
 } /* writePopMessage */
 
