@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: PRINTMSG.C 1.2 1992/11/20 12:39:37 ahd Exp $
  *
- *    $Log$
+ *    $Log: PRINTMSG.C $
+ * Revision 1.2  1992/11/20  12:39:37  ahd
+ * Move heapcheck to check heap *EVERY* call
+ *
  */
 
 #include <stdarg.h>
@@ -133,13 +136,14 @@ void printmsg(int level, char *fmt, ...)
 
       if (stream != stdout)
       {
+         char now[DATEBUF];
          vfprintf(stderr, fmt, arg_ptr);
          fputc('\n',stderr);
 
          if ( debuglevel > 1 )
             fprintf(stream, "(%d) ", level);
          else
-            fprintf(stream, "%s ", dater( time( NULL ), NULL));
+            fprintf(stream, "%s ", dater( time( NULL ), now));
 
       } /* if (stream != stdout) */
 
