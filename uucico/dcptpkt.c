@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.16 1998/03/01 01:39:41 ahd v1-13b $
+ *    $Id: dcptpkt.c 1.17 1998/07/27 01:03:54 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *    Revision 1.17  1998/07/27 01:03:54  ahd
+ *    Correct compile error under MS VC++ 5.0
+ *
  *        Revision 1.16  1998/03/01  01:39:41  ahd
  *        Annual Copyright Update
  *
@@ -89,7 +92,7 @@
 #define TPACKETSIZE  512
 #define TBUFSIZE     1024
 
-#ifndef _WINSOCKAPI_
+#if !defined(_WINSOCKAPI_) && !defined(__OS2__)
 
 /*--------------------------------------------------------------------*/
 /*     Network functions needed when no winsock functions available   */
