@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.6 1993/09/23 03:26:51 ahd Exp $
+ *    $Id: execute.c 1.7 1993/09/26 03:32:27 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.7  1993/09/26  03:32:27  dmwatt
+ * Use Standard Windows NT error message module
+ *
  * Revision 1.6  1993/09/23  03:26:51  ahd
  * Use common file search routine
  *
@@ -113,7 +116,7 @@ int execute( const char *command,
 {
    int result;
 
-   boolean usebat = (input != NULL) || (output != NULL );
+   boolean useBat = (input != NULL) || (output != NULL );
 
    char path[FILENAME_MAX];         /* String for executable file   */
    char batchFile[FILENAME_MAX];    /* String for batch driver file */
@@ -130,7 +133,7 @@ int execute( const char *command,
    if ( internal( command ) )
    {
       strcpy( path , command );
-      usebat = TRUE;
+      useBat = TRUE;
    }
    else if (batch( command, path ))
    {
@@ -148,7 +151,7 @@ int execute( const char *command,
 /*     Generate a batch file for redirected DOS programs, if needed   */
 /*--------------------------------------------------------------------*/
 
-   if ( usebat )
+   if ( useBat )
    {
       FILE *stream ;
 
@@ -189,7 +192,7 @@ int execute( const char *command,
 
       strcpy( path, batchFile );             // Run the batch command
 
-   } /* if ( usebat ) */
+   } /* if ( useBat ) */
 
 /*--------------------------------------------------------------------*/
 /*                       Actually run the command                     */
@@ -206,7 +209,7 @@ int execute( const char *command,
 /*       time.                                                        */
 /*--------------------------------------------------------------------*/
 
-   if ( usebat )
+   if ( useBat )
    {
       int unlinkResult = unlink( perfect );
 
@@ -216,7 +219,7 @@ int execute( const char *command,
       if (unlink( batchFile ))
          printerr( batchFile );
 
-   } /* if ( usebat ) */
+   } /* if ( useBat ) */
 
 /*--------------------------------------------------------------------*/
 /*                     Report results of command                      */
@@ -481,6 +484,12 @@ int execute( const char *command,
 
       if ( *path )
       {
+         printmsg(4," spawnlp(%d, %s, %s, %s)",
+                              synchronous ? P_WAIT : P_NOWAIT,
+                              path,
+                              command,
+                              parameters == NULL ? "(null)" : parameters );
+
          result = spawnlp( synchronous ? P_WAIT : P_NOWAIT,
                            (char *) path,
                            (char *) command,
