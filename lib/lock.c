@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.8 1993/04/11 00:31:04 ahd Exp $
+ *    $Id: lock.c 1.9 1993/10/28 12:19:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *     Revision 1.9  1993/10/28  12:19:01  ahd
+ *     Cosmetic time formatting twiddles and clean ups
+ *
  *     Revision 1.8  1993/04/11  00:31:04  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -174,7 +177,7 @@ boolean LockSystem( const char *system , long program )
    setvbuf( locket, NULL, _IONBF, 0);
 
    time( &age );
-   fprintf( locket, "%s locked by process %ld at %.24s",
+   fprintf( locket, "%s locked by process %ld at %.24s\n",
                     system, (long) getpid(), ctime( &age ));
    fflush( locket );          /* Force the file to exist on disk  */
 
