@@ -15,9 +15,14 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#     $Id: mail.mak 1.3 1993/07/31 16:21:21 ahd Exp $
+#     $Id: mail.mak 1.4 1993/09/20 04:36:42 ahd v1-12r $
 #
 #     $Log: mail.mak $
+#     Revision 1.4  1993/09/20 04:36:42  ahd
+#     TCP/IP support from Dave Watt
+#     't' protocol support
+#     BC++ 1.0 for OS/2 support
+#
 # Revision 1.3  1993/07/31  16:21:21  ahd
 # Windows 3.x support
 #
@@ -40,7 +45,7 @@ LINKOPT=$(LINKOPTD)
 
 .path.c = $(MAIL)
 
-MAILOBJ = $(OBJ)\alias.obj $(OBJ)\mail.obj $(OBJ)\mailblib.obj\
+MAILOBJ = $(OBJ)\nickname.obj $(OBJ)\mail.obj $(OBJ)\mailblib.obj\
           $(OBJ)\maillib.obj $(OBJ)\mailsend.obj $(OBJ)\mlib.obj\
           $(OBJ)\address.obj
 
