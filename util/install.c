@@ -11,13 +11,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Id: E:\SRC\UUPC\UTIL\RCS\INSTALL.C 1.1 1992/11/15 04:29:22 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: INSTALL.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  */
 
-static char rscid[] = "$Id$";
+static char rscid[] =
+      "$Id: INSTALL.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                      Standard C include files                      */
@@ -59,4 +63,15 @@ void main( int argc, char **argv )
    if (getenv(UUPCSYSRC) == NULL )
       installed = FALSE;
 
-}
+   if (installed)
+      update();
+   else
+      install();
+
+} /* main */
+
+/*--------------------------------------------------------------------*/
+/*       i n s t a l l                                                */
+/*                                                                    */
+/*       Perform a basic install of UUPC/extended                     */
+/*--------------------------------------------------------------------*/
