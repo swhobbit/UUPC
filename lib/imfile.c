@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.27 1997/12/13 18:06:38 ahd v1-12u $
+ *    $Id: imfile.c 1.28 1998/03/01 01:24:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.28  1998/03/01 01:24:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.27  1997/12/13 18:06:38  ahd
  *    Correct reopening of disk based file to use append mode,
  *    not write mode, to prevent clobbering contents.
@@ -289,7 +292,6 @@ IMFILE *imopen( const long length,
    if ( equal( mode, TEXT_MODE ))
       imf->flag |= IM_FLAG_TEXT;
 
-
 /*--------------------------------------------------------------------*/
 /*       Grab an imf buffer unless IM files are disabled, the file    */
 /*       is too large, or we cannot allocate the buffer.              */
@@ -303,7 +305,7 @@ IMFILE *imopen( const long length,
       else
          imf->length = (unsigned long) length;
 
-         imf->buffer = MALLOC( (size_t) imf->length );
+      imf->buffer = MALLOC( (size_t) imf->length );
 
       if ( imf->buffer == NULL )
          printerr( "malloc" );
