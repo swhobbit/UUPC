@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.18 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: deliver.c 1.19 1993/12/02 02:25:12 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.19  1993/12/02  02:25:12  ahd
+ * Add max generated UUXQT command line length
+ *
  * Revision 1.18  1993/11/13  17:43:26  ahd
  * Add call grading support
  * Add suppressfrom, shortfrom options
@@ -848,23 +851,23 @@ static int CopyData( const boolean remotedelivery,
    switch( (int) remoteMail * 2 + (int) remotedelivery )
    {
       case 3:                 /* Remote sender, remote delivery       */
-         strcpy( buf, fromuser );
+         strcpy( buf, fromUser );
          strtok( buf, "!");   /* Get first host in list               */
 
 
          if ( bflag[ F_SUPPRESSFROM ] )
             ;                 /* No operation                        */
-         else if ( equal(HostAlias( buf ), fromnode ))
+         else if ( equal(HostAlias( buf ), fromNode ))
                               /* Host already in list?                */
          {                    /* Yes --> Don't do it twice            */
             fprintf(dataout, "From %s%s\n",
-                    fromuser,
+                    fromUser,
                     trailer );
          }
          else {                /* No --> Insert it                    */
             fprintf(dataout, "From %s!%s%s\n",
-                    fromnode,
-                    fromuser,
+                    fromNode,
+                    fromUser,
                     trailer );
          }
          break;
@@ -877,7 +880,7 @@ static int CopyData( const boolean remotedelivery,
 
          if ( ! bflag[ F_SUPPRESSFROM ] )
             fprintf(dataout, "From %s%s\n",
-                    fromuser,
+                    fromUser,
                     trailer );
 
          break;
@@ -894,14 +897,14 @@ static int CopyData( const boolean remotedelivery,
             if ((column > 0) && equali(&E_domain[column],".UUCP"))
                               /* UUCP domain?                         */
                fprintf(dataout, "From %s%s\n",
-                                fromuser,
+                                fromUser,
                                 trailer );
 
                               /* Yes --> Use simple address           */
             else
                fprintf(dataout, "From %s!%s%s\n",
                        E_domain,
-                       fromuser,
+                       fromUser,
                        trailer );
                               /* No --> Use domain address            */
          }
@@ -919,13 +922,13 @@ static int CopyData( const boolean remotedelivery,
                               /* UUCP domain?                         */
                fprintf(dataout,
                        "From %s%s\n",
-                       fromuser,
+                       fromUser,
                        trailer );
                               /* Yes --> Use simple address           */
             else
                fprintf(dataout, "From %s!%s%s\n",
                       E_domain,
-                      fromuser,
+                      fromUser,
                       trailer );
                               /* No --> Use domain address            */
          }
@@ -933,7 +936,7 @@ static int CopyData( const boolean remotedelivery,
 
       case 0:                 /* Local sender, local delivery         */
          if ( ! bflag[ F_SUPPRESSFROM ] )
-            fprintf(dataout, "From %s%.25s\n", fromuser, trailer );
+            fprintf(dataout, "From %s%.25s\n", fromUser, trailer );
          break;
 
    } /* switch */
