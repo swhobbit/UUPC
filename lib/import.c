@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.30 1995/01/29 16:43:03 ahd v1-12o $
+ *    $Id: import.c 1.31 1995/09/24 19:07:05 ahd v1-12q $
  *
  *    $Log: import.c $
+ *    Revision 1.31  1995/09/24 19:07:05  ahd
+ *    Trap invalid input names with spaces
+ *
  *    Revision 1.30  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -492,7 +495,7 @@ void importpath(char *local, const char *canon, const char *remote)
 
    } /* else */
 
-   printmsg( equali(canon,local) ? 8 : 3,
+   printmsg( equali(canon,local) ? 8 : 4,
             "ImportPath: Mapped %s to %s", canon, local );
 
 } /*importpath*/
@@ -771,7 +774,9 @@ KWBoolean ValidDOSName( const char *s,
 
    if (strspn(tempname, E_charset ) == len)
    {
+#ifdef UDEBUG2
       printmsg(9,"ValidDOSName: \"%s\" is valid", s);
+#endif
       return KWTrue;
    }
    else
