@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.94 2001/03/12 13:52:56 ahd v1-13j $
+ *    $Id: configur.c 1.95 2001/03/13 14:36:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.95  2001/03/13 14:36:08  ahd
+ *    Correct copyright to normal form
+ *
  *    Revision 1.94  2001/03/12 13:52:56  ahd
  *    Annual copyright update
  *
@@ -182,7 +185,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.94 2001/03/12 13:52:56 ahd v1-13j $");
+RCSID("$Id: configur.c 1.95 2001/03/13 14:36:08 ahd Exp $");
 
 #define HOMEDIRLIT "*HOME*"
 
@@ -313,7 +316,7 @@ CONFIGTABLE rcTable[] = {
    {"domain",       &E_domain,       B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
    {"editor",       &E_editor,       B_MUA,     B_STRING },
    {"filesent",     &E_filesent,     B_MUA,     B_TOKEN },
-   {"firstGrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
+   {"firstgrade",   &E_firstGrade,   B_UUCICO,  B_CHAR },
    {"folders",      0     ,          B_MUSH,    B_PATH  },
    {"fromdomain",   &E_fdomain,      B_ALL,     B_GLOBAL|B_TOKEN },
    {"home",         &E_homedir,      B_ALL,     B_PATH },
