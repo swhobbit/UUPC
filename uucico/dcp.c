@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.26 1994/02/19 05:06:20 ahd Exp $
+ *    $Id: dcp.c 1.27 1994/02/20 19:11:18 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.27  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.26  1994/02/19  05:06:20  ahd
  * Use standard first header
  *
@@ -109,15 +112,18 @@
 /* execution protocol.                                                */
 /*                                                                    */
 /* Usage:   UUCICO [-s sys]                                           */
-/*                 [-r 0|1]                                           */
-/*                 [-x debug]                                         */
 /*                 [-d hhmm]                                          */
-/*                 [-m modem]                                         */
+/*                 [-g grade]                                         */
+/*                 [-h handle]                                        */
 /*                 [-l logfile]                                       */
-/*                 [-x debuglevel]                                    */
-/*                 [-w userid]                                        */
-/*                 [-z bps]                                           */
+/*                 [-m modem]                                         */
+/*                 [-r 0|1]                                           */
 /*                 [-t]                                               */
+/*                 [-U]                                               */
+/*                 [-w userid]                                        */
+/*                 [-x debug]                                         */
+/*                 [-x debuglevel]                                    */
+/*                 [-z bps]                                           */
 /*                                                                    */
 /* e.g.                                                               */
 /*                                                                    */
@@ -164,6 +170,7 @@
 #include "ssleep.h"
 #include "suspend.h"
 #include "commlib.h"
+#include "title.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -208,12 +215,15 @@ currentfile();
 
 static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade );
 
-static boolean master( const char recvgrade,
-                       const boolean overrideGrade);
+static boolean master( const char recvGrade,
+                       const boolean overrideGrade,
+                       const boolean runUUXQT );
 
-static boolean client( const time_t exit_time,
-                       const char *hotuser,
-                       const BPS hotbaud );
+static boolean client( const time_t exitTime,
+                       const char *hotUser,
+                       const BPS hotBPS,
+                       const int hotHandle,
+                       const boolean runUUXQT );
 
 /*--------------------------------------------------------------------*/
 /*    d c p m a i n                                                   */
@@ -228,14 +238,16 @@ int dcpmain(int argc, char *argv[])
    boolean  contacted = FALSE;
 
    int option;
-   int poll_mode = POLL_ACTIVE;   /* Default = dial out to system     */
-   time_t exit_time = LONG_MAX;
+   int pollMode = POLL_ACTIVE;   /* Default = dial out to system     */
+   time_t exitTime = LONG_MAX;
 
-   char recvgrade = ALL_GRADES;
+   char recvGrade = ALL_GRADES;
    boolean overrideGrade = FALSE;
+   boolean runUUXQT = FALSE;
 
-   char *hotuser = NULL;
-   BPS  hotbaud = 0;
+   char *hotUser = NULL;
+   BPS  hotBPS = 0;
+   int  hotHandle = -1;
 
    fwork = nil(FILE);
 
@@ -243,31 +255,36 @@ int dcpmain(int argc, char *argv[])
 /*                        Process our options                         */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "d:g:m:l:r:s:tw:x:z:n?")) != EOF)
+   while ((option = getopt(argc, argv, "d:g:h:m:l:r:s:tUw:x:z:n?")) != EOF)
       switch (option)
       {
 
       case 'd':
-         exit_time = atoi( optarg );
-         exit_time = time(NULL) + hhmm2sec(exit_time);
-         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
+         exitTime = atoi( optarg );
+         exitTime = time(NULL) + hhmm2sec(exitTime);
+         pollMode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
       case 'g':
          if (strlen(optarg) == 1 )
-            recvgrade = *optarg;
+            recvGrade = *optarg;
          else {
-            recvgrade = checktime( optarg );
+            recvGrade = checktime( optarg );
                                  /* Get restriction for this hour */
-            if ( ! recvgrade )   /* If no class, use the default  */
-               recvgrade = ALL_GRADES;
+            if ( ! recvGrade )   /* If no class, use the default  */
+               recvGrade = ALL_GRADES;
          }
          overrideGrade = TRUE;
          break;
 
+      case 'h':
+         hotHandle = atoi( optarg );   /* Handle opened for us       */
+         pollMode = POLL_PASSIVE;  /* Implies passive polling       */
+         break;
+
       case 'm':                     /* Override in modem name     */
          E_inmodem = optarg;
-         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
+         pollMode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
       case 'l':                     /* Log file name              */
@@ -279,7 +296,7 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 'r':
-         poll_mode = atoi(optarg);
+         pollMode = atoi(optarg);
          break;
 
       case 's':
@@ -290,23 +307,29 @@ int dcpmain(int argc, char *argv[])
          traceEnabled = TRUE;
          break;
 
+      case 'U':
+         runUUXQT = TRUE;
+         break;
+
       case 'x':
          debuglevel = atoi(optarg);
          break;
 
       case 'z':
-         hotbaud = atoi(optarg);
+         hotBPS = atoi(optarg);
+         pollMode = POLL_PASSIVE;  /* Implies passive polling       */
          break;
 
       case 'w':
-         poll_mode = POLL_PASSIVE;  /* Implies passive polling       */
-         hotuser = optarg;
+         pollMode = POLL_PASSIVE;  /* Implies passive polling       */
+         hotUser = optarg;
          break;
 
       case '?':
          puts("\nUsage:\tuucico\t"
-         "[-s [all | any | sys]] [-r 1|0] [-x debug] [-d hhmm]\n"
-         "\t\t[-n] [-t] [-w user] [-l logfile] [-m modem] [-z bps]");
+         "[-s [all | any | sys]] [-r 1|0] [-d hhmm]\n"
+         "\t\t[-l logfile] [-n] [-t] [-U] [-x debug]\n"
+         "\t\t[-h handle] [-m modem] [-z bps]");
          return 4;
       }
 
@@ -364,10 +387,14 @@ int dcpmain(int argc, char *argv[])
 /*                     Begin main processing loop                     */
 /*--------------------------------------------------------------------*/
 
-   if (poll_mode == POLL_ACTIVE)
-      contacted = master(recvgrade, overrideGrade);
-   else if (poll_mode == POLL_PASSIVE)
-      contacted = client(exit_time, hotuser, hotbaud);
+   if (pollMode == POLL_ACTIVE)
+      contacted = master(recvGrade, overrideGrade, runUUXQT );
+   else if (pollMode == POLL_PASSIVE)
+      contacted = client(exitTime,
+                         hotUser,
+                         hotBPS,
+                         hotHandle,
+                         runUUXQT);
    else {
       printmsg(0,"Invalid -r flag, must be 0 or 1");
       panic();
@@ -377,7 +404,7 @@ int dcpmain(int argc, char *argv[])
 /*                         Report our results                         */
 /*--------------------------------------------------------------------*/
 
-   if (!contacted && (poll_mode == POLL_ACTIVE))
+   if (!contacted && (pollMode == POLL_ACTIVE))
    {
       if (dialed)
          printmsg(0, "Could not connect to remote system.");
@@ -401,8 +428,9 @@ int dcpmain(int argc, char *argv[])
 /*       Call out to other sites                                      */
 /*--------------------------------------------------------------------*/
 
-static boolean master( const char recvgrade,
-                       const boolean overrideGrade)
+static boolean master( const char recvGrade,
+                       const boolean overrideGrade,
+                       const boolean runUUXQT )
 {
 
    CONN_STATE m_state = CONN_INITSTAT;
@@ -450,12 +478,13 @@ static boolean master( const char recvgrade,
             break;
 
          case CONN_INITIALIZE:
+            setTitle("Determining system to call");
             hostp = NULL;
 
             if ( locked )
                UnlockSystem();
 
-            m_state = getsystem(recvgrade);
+            m_state = getsystem(recvGrade);
             if ( hostp != NULL )
                remote_stats.hstatus = hostp->status.hstatus;
             break;
@@ -464,7 +493,7 @@ static boolean master( const char recvgrade,
             sendgrade = checktime(flds[FLD_CCTIME]);
 
             if ( (overrideGrade && sendgrade) || callnow )
-               sendgrade = recvgrade;
+               sendgrade = recvGrade;
 
             if ( !CallWindow( sendgrade ))
                m_state = CONN_INITIALIZE;
@@ -491,26 +520,32 @@ static boolean master( const char recvgrade,
             break;
 
          case CONN_DIALOUT:
-
-            if ( !IsNetwork() && suspend_other(TRUE, M_device ) < 0 )
+            if ( !IsNetwork() )
             {
-               hostp->status.hstatus =  nodevice;
-               m_state = CONN_INITIALIZE;    /* Try next system     */
-            }
-            else
-               m_state = callup( );
+               setTitle( "Allocating modem on %s", M_device);
+               if (suspend_other(TRUE, M_device ) < 0 )
+               {
+                  hostp->status.hstatus =  nodevice;
+                  m_state = CONN_INITIALIZE;    /* Try next system     */
+                  break;
+               }
+            } /* if */
+
+            setTitle( "Calling %s on %s", rmtname, M_device );
+            m_state = callup( );
             break;
 
          case CONN_PROTOCOL:
             m_state = startup_server( (char)
                                        (bflag[F_SYMMETRICGRADES] ?
-                                       sendgrade  : recvgrade) );
+                                       sendgrade  : recvGrade) );
             break;
 
          case CONN_SERVER:
             if (bflag[F_MULTITASK])
                dcupdate();
-            m_state = process( POLL_ACTIVE, recvgrade );
+            setTitle("Connected to %s", rmtname );
+            m_state = process( POLL_ACTIVE, recvGrade );
             contacted = TRUE;
             break;
 
@@ -521,10 +556,19 @@ static boolean master( const char recvgrade,
                if (hostp->status.hstatus == inprogress)
                   hostp->status.hstatus = call_failed;
                dcstats();
+
+               if ( runUUXQT )
+               {
+                  char buf[100];
+                  sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+
+                  execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+               }
             }
             break;
 
          case CONN_DROPLINE:
+            setTitle("Not connected");
             shutDown();
             UnlockSystem();
             if (!IsNetwork())
@@ -546,6 +590,9 @@ static boolean master( const char recvgrade,
 
    } /* while */
 
+
+   setTitle("Exiting");
+
    fclose(fsys);
 
    return contacted;
@@ -558,9 +605,11 @@ static boolean master( const char recvgrade,
 /*       Allow other systems to call us                               */
 /*--------------------------------------------------------------------*/
 
-static boolean client( const time_t exit_time,
-                       const char *hotuser,
-                       const BPS hotbaud )
+static boolean client( const time_t exitTime,
+                       const char *hotUser,
+                       const BPS hotBPS,
+                       const int hotHandle,
+                       const boolean runUUXQT )
 {
 
    CONN_STATE s_state = CONN_INITIALIZE;
@@ -582,9 +631,10 @@ static boolean client( const time_t exit_time,
                "S state = %c", s_state);
       old_state = s_state;
 
-      switch (s_state) {
+      switch (s_state)
+      {
          case CONN_INITIALIZE:
-            if ( hotuser == NULL )
+            if (( hotUser == NULL ) && (hotHandle == -1 ))
                s_state = CONN_ANSWER;
             else
                s_state = CONN_HOTMODEM;
@@ -592,6 +642,7 @@ static boolean client( const time_t exit_time,
 
          case CONN_WAIT:
 #if !defined(__TURBOC__) || defined(BIT32ENV)
+            setTitle("Suspended for port %s", M_device);
            s_state = suspend_wait();
 #else
            panic();                 /* Why are we here?!           */
@@ -599,21 +650,26 @@ static boolean client( const time_t exit_time,
            break;
 
          case CONN_ANSWER:
-            s_state = callin( exit_time );
+            setTitle("Waiting for port %s", M_device);
+            s_state = callin( exitTime );
             break;
 
          case CONN_HOTMODEM:
-            s_state = callhot( hotbaud );
+            s_state = callhot( hotBPS, hotHandle );
             break;
 
          case CONN_HOTLOGIN:
-            if ( loginbypass( hotuser ) )
+            if ( hotUser == NULL )        /* User specified to login? */
+               s_state = CONN_LOGIN;      /* No --> Process normally  */
+            else if ( loginbypass( hotUser ) )
                s_state = CONN_INITSTAT;
             else
                s_state = CONN_DROPLINE;
             break;
 
          case CONN_LOGIN:
+            setTitle("Processing login on %s",
+                      M_device );
             if ( login( ) )
                s_state = CONN_INITSTAT;
             else
@@ -626,6 +682,8 @@ static boolean client( const time_t exit_time,
             break;
 
          case CONN_PROTOCOL:
+            setTitle("Establishing connection for %s",
+                      M_device);
             s_state = startup_client(&sendgrade);
             break;
 
@@ -633,13 +691,25 @@ static boolean client( const time_t exit_time,
             contacted = TRUE;
             if (bflag[F_MULTITASK])
                dcupdate();
+            setTitle("Connected to %s on %s",
+                      rmtname,
+                      M_device);
             s_state = process( POLL_PASSIVE, sendgrade );
             break;
 
          case CONN_TERMINATE:
             s_state = sysend();
             if ( hostp != NULL )
+            {
                dcstats();
+               if ( runUUXQT )
+               {
+                  char buf[100];
+                  sprintf( buf, "-s %s -x %d", rmtname, debuglevel );
+
+                  execute( "uuxqt", buf, NULL, NULL, FALSE, FALSE );
+               }
+            }
             break;
 
          case CONN_DROPLINE:
@@ -674,9 +744,9 @@ static boolean client( const time_t exit_time,
 /*    The procotol state machine                                      */
 /*--------------------------------------------------------------------*/
 
-static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade )
+static CONN_STATE process( const POLL_MODE pollMode, const char callgrade )
 {
-   boolean master  = ( poll_mode == POLL_ACTIVE );
+   boolean master  = ( pollMode == POLL_ACTIVE );
    boolean aborted = FALSE;
    XFER_STATE state =  master ? XFER_SENDINIT : XFER_RECVINIT;
    XFER_STATE old_state = XFER_EXIT;
@@ -755,7 +825,7 @@ static CONN_STATE process( const POLL_MODE poll_mode, const char callgrade )
             break;
 
          case XFER_NOREMOTE:  /* No remote work, local have any?     */
-            state = schkdir( poll_mode == POLL_ACTIVE, callgrade );
+            state = schkdir( pollMode == POLL_ACTIVE, callgrade );
             break;
 
          case XFER_RECVHDR:   /* Receive header from other host      */

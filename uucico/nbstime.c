@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.22 1994/02/25 02:32:44 ahd Exp $
+ *    $Id: nbstime.c 1.23 1994/03/05 21:12:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.23  1994/03/05  21:12:05  ahd
+ * Correct display of (null) string in status messages
+ *
  * Revision 1.22  1994/02/25  02:32:44  ahd
  * Correct time constant
  *
@@ -88,6 +91,7 @@
  */
 
 #include "uupcmoah.h"
+#include "title.h"
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -184,6 +188,8 @@ boolean nbstime( void )
    struct tm *tp;
 
 #endif
+
+   setTitle("Determining current time");
 
    memset( &tx , '\0', sizeof tx);        /* Clear pointers          */
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */

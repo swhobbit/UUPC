@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.38 1994/02/23 04:17:23 ahd Exp $
+ *       $Id: ulibos2.c 1.39 1994/03/09 04:17:41 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.39  1994/03/09  04:17:41  ahd
+ * Correct query of port speed under 32 bit API
+ *
  * Revision 1.38  1994/02/23  04:17:23  ahd
  * Only go into extended character (buffering) mode if reading one
  * character AND over 2400 bps, not either!
@@ -195,7 +198,7 @@ static BPS saveSpeed = 0;
 /*           Definitions of control structures for DOS API            */
 /*--------------------------------------------------------------------*/
 
-static HFILE com_handle;
+static HFILE commHandle = -1;
 static LINECONTROL com_attrib;
 static MODEMSTATUS com_signals;
 static DCBINFO com_dcbinfo;
@@ -254,7 +257,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 /*--------------------------------------------------------------------*/
 
    rc = DosOpen( name,
-                 &com_handle,
+                 &commHandle,
                  &action,
                  0L,
                  0 ,
@@ -280,14 +283,14 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_error);
-   rc = DosDevIOCtl( com_handle, IOCTL_ASYNC, ASYNC_GETCOMMERROR,
+   rc = DosDevIOCtl( commHandle, IOCTL_ASYNC, ASYNC_GETCOMMERROR,
       NULL,0L,&ParmLengthInOut,(PVOID) &com_error,sizeof(com_error),
       &DataLengthInOut);
 
 #else
 
    rc = DosDevIOCtl( &com_error, FAR_NULL, ASYNC_GETCOMMERROR ,
-                     IOCTL_ASYNC, com_handle);
+                     IOCTL_ASYNC, commHandle);
 
 #endif
 
@@ -304,7 +307,9 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 /*--------------------------------------------------------------------*/
 
    saveSpeed = GetSpeed();    /* Save original speed                 */
-   SIOSpeed(portSpeed);
+
+   if ( portSpeed )           /* Don't set it we're a hot open       */
+      SIOSpeed(portSpeed);
 
 /*--------------------------------------------------------------------*/
 /*                        Set line attributes                         */
@@ -318,7 +323,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_attrib);
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_GETLINECTRL,
                      NULL,
@@ -334,7 +339,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                      FAR_NULL,
                      ASYNC_GETLINECTRL,
                      IOCTL_ASYNC,
-                     com_handle);   /* Get old attributes from device  */
+                     commHandle);   /* Get old attributes from device  */
 #endif
 
    if (rc)
@@ -358,7 +363,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    ParmLengthInOut = sizeof(com_attrib);
    DataLengthInOut = 0;
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETLINECTRL,
                      (PVOID) &com_attrib,
@@ -374,7 +379,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                      &com_attrib,
                      ASYNC_SETLINECTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 #endif
 
    if (rc)
@@ -396,7 +401,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_dcbinfo);
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_GETDCBINFO,
                      NULL,
@@ -412,7 +417,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                      FAR_NULL,
                      ASYNC_GETDCBINFO,
                      IOCTL_ASYNC,
-                     com_handle);    /* Get old attributes from device  */
+                     commHandle);    /* Get old attributes from device  */
 
 #endif
 
@@ -446,7 +451,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
 
    ParmLengthInOut = sizeof(com_dcbinfo);
    DataLengthInOut = 0;
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETDCBINFO,
                      (PVOID) &com_dcbinfo,
@@ -462,7 +467,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                      &com_dcbinfo,
                      ASYNC_SETDCBINFO,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -488,7 +493,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
    ParmLengthInOut = sizeof(com_signals);
    DataLengthInOut = sizeof(com_error);
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETMODEMCTRL,
                      (PVOID)&com_signals,
@@ -504,7 +509,7 @@ int nopenline(char *name, BPS portSpeed, const boolean direct )
                      &com_signals,
                      ASYNC_SETMODEMCTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -598,7 +603,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
 
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_error);
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_GETCOMMERROR,
                      NULL,
@@ -614,7 +619,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
                      FAR_NULL,
                      ASYNC_GETCOMMERROR ,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -695,7 +700,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
 
          ParmLengthInOut = sizeof(com_dcbinfo);
          DataLengthInOut = 0;
-         rc = DosDevIOCtl( com_handle,
+         rc = DosDevIOCtl( commHandle,
                            IOCTL_ASYNC,
                            ASYNC_SETDCBINFO,
                            (PVOID) &com_dcbinfo,
@@ -711,7 +716,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
                           &com_dcbinfo,
                           ASYNC_SETDCBINFO,
                           IOCTL_ASYNC,
-                          com_handle);
+                          commHandle);
 
 #endif
          if ( rc )
@@ -730,7 +735,7 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
 /*                 Read the data from the serial port                 */
 /*--------------------------------------------------------------------*/
 
-      rc = DosRead( com_handle,
+      rc = DosRead( commHandle,
                     commBuffer + commBufferUsed,
                     portTimeout ? needed : commBufferLength - commBufferUsed,
                     &received );
@@ -820,7 +825,7 @@ int nswrite(const char UUFAR *input, unsigned int len)
 /*         Write the data out as the queue becomes available          */
 /*--------------------------------------------------------------------*/
 
-   rc = DosWrite( com_handle, data , len, &bytes);
+   rc = DosWrite( commHandle, data , len, &bytes);
    if (rc)
    {
       printOS2error( "DosWrite", rc );
@@ -865,7 +870,7 @@ void nssendbrk(unsigned int duration)
 
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_error);
-   DosDevIOCtl( com_handle,
+   DosDevIOCtl( commHandle,
                 IOCTL_ASYNC,
                 ASYNC_SETBREAKON,
                 NULL,
@@ -881,7 +886,7 @@ void nssendbrk(unsigned int duration)
                 FAR_NULL,
                 ASYNC_SETBREAKON,
                 IOCTL_ASYNC,
-                com_handle);
+                commHandle);
 
 #endif
 
@@ -893,7 +898,7 @@ void nssendbrk(unsigned int duration)
 #ifdef __OS2__
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(com_error);
-   DosDevIOCtl( com_handle,
+   DosDevIOCtl( commHandle,
                 IOCTL_ASYNC,
                 ASYNC_SETBREAKOFF,
                 NULL,
@@ -908,7 +913,7 @@ void nssendbrk(unsigned int duration)
                 FAR_NULL,
                 ASYNC_SETBREAKOFF,
                 IOCTL_ASYNC,
-                com_handle);
+                commHandle);
 #endif
 
    if ( com_error )
@@ -956,7 +961,7 @@ void ncloseline(void)
    ParmLengthInOut = sizeof(com_signals);
    DataLengthInOut = sizeof(com_error);
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETMODEMCTRL,
                      (PVOID)&com_signals,
@@ -972,7 +977,7 @@ void ncloseline(void)
                      &com_signals,
                      ASYNC_SETMODEMCTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -985,7 +990,7 @@ void ncloseline(void)
 
    ParmLengthInOut = sizeof(save_com_attrib);
    DataLengthInOut = 0;
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETLINECTRL,
                      (PVOID) &save_com_attrib,
@@ -1001,7 +1006,7 @@ void ncloseline(void)
                      &save_com_attrib,
                      ASYNC_SETLINECTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 #endif
 
    if (rc)
@@ -1015,7 +1020,7 @@ void ncloseline(void)
 
    ParmLengthInOut = sizeof(save_com_dcbinfo);
    DataLengthInOut = 0;
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETDCBINFO,
                      (PVOID) &save_com_dcbinfo,
@@ -1031,7 +1036,7 @@ void ncloseline(void)
                      &save_com_dcbinfo,
                      ASYNC_SETDCBINFO,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -1048,7 +1053,7 @@ void ncloseline(void)
 /*                      Actually close the port                       */
 /*--------------------------------------------------------------------*/
 
-   rc = DosClose( com_handle );
+   rc = DosClose( commHandle );
 
    if ( rc != 0 )
       printOS2error( "DosClose", rc );
@@ -1096,7 +1101,7 @@ void nhangup( void )
    ParmLengthInOut = sizeof(com_signals);
    DataLengthInOut = sizeof(com_error);
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETMODEMCTRL,
                      (PVOID)&com_signals,
@@ -1112,7 +1117,7 @@ void nhangup( void )
                      &com_signals,
                      ASYNC_SETMODEMCTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -1144,7 +1149,7 @@ void nhangup( void )
    ParmLengthInOut = sizeof(com_signals);
    DataLengthInOut = sizeof(com_error);
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC, ASYNC_SETMODEMCTRL,
                      (PVOID)&com_signals,
                      sizeof(com_signals),
@@ -1159,7 +1164,7 @@ void nhangup( void )
                      &com_signals,
                      ASYNC_SETMODEMCTRL,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -1223,7 +1228,7 @@ void nSIOSpeed(BPS portSpeed)
    ParmLengthInOut = sizeof(comPortSpeed);
    DataLengthInOut = 0;
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                     IOCTL_ASYNC,
                     0x43,           /* Not defined in header file!   */
                     (PVOID) &comPortSpeed,
@@ -1238,7 +1243,7 @@ void nSIOSpeed(BPS portSpeed)
                      &speed,
                      ASYNC_SETBAUDRATE,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 #endif
 
    if (rc)
@@ -1281,7 +1286,7 @@ void nflowcontrol( boolean flow )
 
    ParmLengthInOut = sizeof(com_dcbinfo);
    DataLengthInOut = 0;
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_SETDCBINFO,
                      (PVOID) &com_dcbinfo,
@@ -1297,7 +1302,7 @@ void nflowcontrol( boolean flow )
                      &com_dcbinfo,
                      ASYNC_SETDCBINFO,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -1362,7 +1367,7 @@ BPS nGetSpeed( void )
    DataLengthInOut = sizeof(comPortSpeed);
    ParmLengthInOut = 0;
 
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                     IOCTL_ASYNC,
                     0x63,           /* Not defined in header file!   */
                     NULL,
@@ -1379,7 +1384,7 @@ BPS nGetSpeed( void )
                      FAR_NULL,
                      ASYNC_GETBAUDRATE,
                      IOCTL_ASYNC,
-                     com_handle);
+                     commHandle);
 
 #endif
 
@@ -1419,7 +1424,7 @@ boolean nCD( void )
 #ifdef __OS2__
    ParmLengthInOut = 0;
    DataLengthInOut = sizeof(status);
-   rc = DosDevIOCtl( com_handle,
+   rc = DosDevIOCtl( commHandle,
                      IOCTL_ASYNC,
                      ASYNC_GETMODEMINPUT,
                      NULL,
@@ -1434,7 +1439,7 @@ boolean nCD( void )
                      0L,
                      ASYNC_GETMODEMINPUT,
                      IOCTL_ASYNC,
-                     com_handle );
+                     commHandle );
 
 #endif
 
@@ -1512,6 +1517,17 @@ static void ShowError( const USHORT status )
 int nGetComHandle( void )
 {
 
-   return (int) com_handle;
+   return (int) commHandle;
 
 }  /* nGetComHandle */
+
+/*--------------------------------------------------------------------*/
+/*       n S e t C o m m H a n d l e                                  */
+/*                                                                    */
+/*       Set current port handle                                      */
+/*--------------------------------------------------------------------*/
+
+void nSetComHandle( const int handle )
+{
+   commHandle = (HFILE) handle;
+}

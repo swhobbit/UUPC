@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.17 1994/01/01 19:21:51 ahd Exp $
+ *       $Id: ulibnmp.c 1.18 1994/02/19 05:12:04 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.18  1994/02/19  05:12:04  ahd
+ * Use standard first header
+ *
  * Revision 1.17  1994/01/01  19:21:51  ahd
  * Annual Copyright Update
  *
@@ -130,7 +133,7 @@ static boolean passive;
 /*           Definitions of control structures for DOS API            */
 /*--------------------------------------------------------------------*/
 
-static HPIPE pipeHandle;
+static HPIPE pipeHandle = -1;
 
 static USHORT writeWait = 200;
 static USHORT readWait = 50;
@@ -164,22 +167,24 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*                          Perform the open                          */
 /*--------------------------------------------------------------------*/
 
+   if ( pipeHandle == -1 )
+   {
 #ifdef __OS2__
-   rc =  DosCreateNPipe( (PSZ) pipeName,
-                         &pipeHandle,
-                         NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
-                         NP_NOWAIT | 1,
-                         PIPE_BUFFER,
-                         PIPE_BUFFER,
-                         30000 );
+      rc =  DosCreateNPipe( (PSZ) pipeName,
+                            &pipeHandle,
+                            NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
+                            NP_NOWAIT | 1,
+                            PIPE_BUFFER,
+                            PIPE_BUFFER,
+                            30000 );
 #else
-   rc =  DosMakeNmPipe(  (PSZ) pipeName,
-                         &pipeHandle,
-                         NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
-                         NP_NOWAIT | 1,
-                         PIPE_BUFFER,
-                         PIPE_BUFFER,
-                         30000 );
+      rc =  DosMakeNmPipe(  (PSZ) pipeName,
+                            &pipeHandle,
+                            NP_ACCESS_DUPLEX | NP_INHERIT | NP_NOWRITEBEHIND,
+                            NP_NOWAIT | 1,
+                            PIPE_BUFFER,
+                            PIPE_BUFFER,
+                            30000 );
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -188,10 +193,11 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*    report the raw error code.                                      */
 /*--------------------------------------------------------------------*/
 
-   if ( rc )
-   {
-      printOS2error(pipeName, rc );
-      return TRUE;
+      if ( rc )
+      {
+         printOS2error(pipeName, rc );
+         return TRUE;
+      }
    }
 
 /*--------------------------------------------------------------------*/
@@ -589,6 +595,8 @@ void pcloseline(void)
    if ( rc )
       printOS2error("DosClose", rc );
 
+   pipeHandle = -1;
+
 /*--------------------------------------------------------------------*/
 /*                   Stop logging the data to disk                    */
 /*--------------------------------------------------------------------*/
@@ -672,5 +680,26 @@ BPS pGetSpeed( void )
 boolean pCD( void )
 {
    return carrierDetect;
-
 } /* pCD */
+
+/*--------------------------------------------------------------------*/
+/*       p G e t C o m H a n d l e                                    */
+/*                                                                    */
+/*       Return current handle number to caller                       */
+/*--------------------------------------------------------------------*/
+
+int pGetComHandle( void )
+{
+   return (int) pipeHandle;
+}
+
+/*--------------------------------------------------------------------*/
+/*       n S e t C o m H a n d l e                                    */
+/*                                                                    */
+/*       Set handle number for hot login (start by INETD)             */
+/*--------------------------------------------------------------------*/
+
+void pSetComHandle( const int handle )
+{
+   pipeHandle =  handle;
+}

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.22 1994/02/26 17:21:15 ahd Exp $
+ *    $Id: commlib.c 1.23 1994/03/11 01:49:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *        Revision 1.23  1994/03/11  01:49:45  ahd
+ *        Move the Mother of All Headers out of #ifdef
+ *
  * Revision 1.22  1994/02/26  17:21:15  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -143,6 +146,7 @@ typedef struct _COMMSUITE {
         ref_CD                  CD;
         ref_WaitForNetConnect   WaitForNetConnect;
         ref_GetComHandle        GetComHandle;
+        ref_SetComHandle        SetComHandle;
         boolean  network;
         boolean  buffered;
         char     *netDevice;           /* Network device name         */
@@ -153,7 +157,7 @@ typedef struct _COMMSUITE {
 /*       have WINSOCK.H                                               */
 /*--------------------------------------------------------------------*/
 
-#if defined(WIN32) || defined(_Windows)
+#if defined(WIN32) || defined(_Windows) || defined(__OS2__)
 #ifndef NOTCPIP
 #include "ulibip.h"           /* Windows sockets on TCP/IP interface  */
 #define TCPIP
@@ -189,6 +193,7 @@ ref_GetSpeed GetSpeedp;
 ref_CD CDp;
 ref_WaitForNetConnect WaitForNetConnectp;
 ref_GetComHandle GetComHandlep;
+ref_SetComHandle SetComHandlep;
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -206,6 +211,10 @@ currentfile();
 
 int dummyGetComHandle( void );
 
+void dummySetComHandle( const int );
+
+boolean dummyWaitForNetConnect(const unsigned int timeout);
+
 /*--------------------------------------------------------------------*/
 /*       c h o o s e C o m m u n i c a t i o n s                      */
 /*                                                                    */
@@ -221,13 +230,15 @@ boolean chooseCommunications( const char *name )
           nssendbrk, ncloseline, nSIOSpeed, nflowcontrol, nhangup,
           nGetSpeed,
           nCD,
-          (ref_WaitForNetConnect) 0,
+          dummyWaitForNetConnect,
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
+          nSetComHandle,
           FALSE,                       /* Not network based           */
           TRUE,                        /* Buffered under OS/2 and Windows NT  */
 #else
           dummyGetComHandle,
+          dummySetComHandle,
           FALSE,                       /* Not network based           */
           TRUE,                        /* Unbuffered for DOS, Windows 3.x  */
 #endif
@@ -239,8 +250,9 @@ boolean chooseCommunications( const char *name )
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
           fGetSpeed,
           fCD,
-          (ref_WaitForNetConnect) 0,
+          dummyWaitForNetConnect,
           dummyGetComHandle,
+          dummySetComHandle,
           FALSE,                       /* Not network oriented        */
           FALSE,                       /* Not buffered                 */
           NULL                         /* No network device name      */
@@ -251,8 +263,9 @@ boolean chooseCommunications( const char *name )
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD,
-          (ref_WaitForNetConnect) 0,
+          dummyWaitForNetConnect,
           dummyGetComHandle,
+          dummySetComHandle,
           FALSE,                       /* Not network oriented        */
           TRUE,                        /* Buffered                    */
           NULL                         /* No network device name      */
@@ -263,8 +276,9 @@ boolean chooseCommunications( const char *name )
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
           iGetSpeed,
           iCD,
-          (ref_WaitForNetConnect) 0,
+          dummyWaitForNetConnect,
           dummyGetComHandle,
+          dummySetComHandle,
           FALSE,                       /* Not network oriented        */
           TRUE,                        /* Buffered                    */
           NULL                         /* No network device name      */
@@ -281,7 +295,8 @@ boolean chooseCommunications( const char *name )
           tGetSpeed,
           tCD,
           tWaitForNetConnect,
-          dummyGetComHandle,
+          tGetComHandle,
+          tSetComHandle,
           TRUE,                        /* Network oriented            */
           TRUE,                        /* Uses internal buffer        */
           "tcptty",                    /* Network device name         */
@@ -295,7 +310,8 @@ boolean chooseCommunications( const char *name )
           pGetSpeed,
           pCD,
           pWaitForNetConnect,
-          dummyGetComHandle,
+          pGetComHandle,
+          pSetComHandle,
           TRUE,                        /* Network oriented            */
           TRUE,                        /* Uses internal buffer        */
           "pipe",                      /* Network device name         */
@@ -343,6 +359,7 @@ boolean chooseCommunications( const char *name )
    CDp                = suite[subscript].CD;
    WaitForNetConnectp = suite[subscript].WaitForNetConnect;
    GetComHandlep      = suite[subscript].GetComHandle;
+   SetComHandlep      = suite[subscript].SetComHandle;
    network            = suite[subscript].network;
 
 /*--------------------------------------------------------------------*/
@@ -530,4 +547,15 @@ boolean IsNetwork(void)
 int dummyGetComHandle( void )
 {
    return -1;
+}
+
+
+void dummySetComHandle( const int foo )
+{
+}
+
+
+boolean dummyWaitForNetConnect(const unsigned int timeout)
+{
+   return FALSE;
 }

@@ -21,8 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.19 1994/02/23 04:17:23 ahd Exp $
+ *       $Id: ulibnt.c 1.20 1994/02/28 00:55:12 dmwatt Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.20  1994/02/28  00:55:12  dmwatt
+ * Flush serial port before changing to speed to insure data is
+ * delivered at correct speed.
+ *
  * Revision 1.19  1994/02/23  04:17:23  ahd
  * Only go into extended character (buffering) mode if reading one
  * character AND over 2400 bps, not either!
@@ -958,7 +962,7 @@ static void ShowModem( const DWORD status )
       mannounce(MS_RLSD_ON,  status, "  Carrier Detect"),
       mannounce(MS_RING_ON,  status, "  Ring Indicator"),
       mannounce(MS_DSR_ON,   status, "  Data Set Ready"),
-      mannounce(MS_CTS_ON,   status, "  Clear to Send"));
+      mannounce(MS_CTS_ON,   status, "  Clear to Send");
 
 } /* ShowModem */
 
@@ -974,6 +978,23 @@ int nGetComHandle( void )
    return (int) hCom;
 
 }  /* nGetComHandle */
+
+/*--------------------------------------------------------------------*/
+/*       n S e t C o m m H a n d l e                                  */
+/*                                                                    */
+/*       Set current port handle                                      */
+/*--------------------------------------------------------------------*/
+
+void nSetComHandle( const int handle )
+{
+   hCom = (HANDLE) handle;
+}
+
+/*--------------------------------------------------------------------*/
+/*          A b o r t C o m m                                         */
+/*                                                                    */
+/*          Abort communications processing                           */
+/*--------------------------------------------------------------------*/
 
 BOOL AbortComm(void)
 {

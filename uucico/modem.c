@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.44 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: modem.c 1.45 1994/03/09 04:17:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.45  1994/03/09  04:17:41  ahd
+ * Don't force interactive mode when modem is sleeping
+ *
  * Revision 1.44  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -194,6 +197,7 @@
 #include "ssleep.h"
 #include "suspend.h"
 #include "usrcatch.h"
+#include "title.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -348,12 +352,14 @@ CONN_STATE callup( void )
 /*                         Dial the telephone                         */
 /*--------------------------------------------------------------------*/
 
-   if (! dial(flds[FLD_PHONE],speed))
+   if (! dial(flds[FLD_PHONE], speed))
       return CONN_DROPLINE;
 
 /*--------------------------------------------------------------------*/
 /*             The modem is connected; now login the host             */
 /*--------------------------------------------------------------------*/
+
+   setTitle("Logging in to %s", rmtname );
 
    for (i = FLD_EXPECT; i < kflds; i += 2)
    {
@@ -385,7 +391,7 @@ CONN_STATE callup( void )
 /*    Initialize processing when phone is already off the hook        */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE callhot( const BPS xspeed )
+CONN_STATE callhot( const BPS xspeed, const int hotHandle )
 {
    BPS speed;
 
@@ -403,7 +409,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*                        Set the modem speed                         */
 /*--------------------------------------------------------------------*/
 
-   if ( xspeed == 0)
+   if (( xspeed == 0 ) && ( hotHandle == -1 ))
       speed = inspeed;
    else
       speed = xspeed;
@@ -414,7 +420,10 @@ CONN_STATE callhot( const BPS xspeed )
 
    norecovery = FALSE;           /* Shutdown gracefully as needed     */
 
-   if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT] ))
+   if ( hotHandle != -1 )
+      SetComHandle( hotHandle );
+
+   if (passiveopenline(M_device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
 /*--------------------------------------------------------------------*/

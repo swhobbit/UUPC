@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.17 1994/02/19 05:11:47 ahd Exp $
+ *    $Id: ulibip.c 1.18 1994/03/28 02:18:45 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *        Revision 1.18  1994/03/28  02:18:45  ahd
+ *        Cleanup header files
+ *
  * Revision 1.17  1994/02/19  05:11:47  ahd
  * Use standard first header
  *
@@ -86,6 +89,24 @@
 
 #include "uupcmoah.h"
 
+#if defined(__OS2__)
+#define OS2
+#define BSD_SELECT
+#include <types.h>
+#include <sys\select.h>
+#include <sys\socket.h>
+#include <netinet\in.h>
+#include <netdb.h>
+#include <utils.h>
+#include <sys\time.h>
+#include <nerrno.h>
+
+#define WSAGetLastError() sock_errno()
+#define closesocket(s) soclose(s)
+#include "psos2err.h"        /* Windows sockets error messages        */
+#include "catcher.h"         /* For norecovery declaration            */
+
+#else /* DOS and Windows */
 #include <windows.h>
 #include "winsock.h"
 
@@ -96,8 +117,8 @@
 #include "ulibip.h"
 #include "catcher.h"
 
-#include "commlib.h"       /* Trace functions, etc.                    */
 #include "pwserr.h"        /* Windows sockets error messages           */
+
 
 #ifdef WIN32
 #include "pnterr.h"
@@ -107,11 +128,21 @@
 #include "pwinsock.h"      /* definitions for 16 bit Winsock functions  */
 #endif
 
+#endif
+#include "commlib.h"       /* Trace functions, etc.                    */
+
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
+#ifdef __OS2__
+typedef int SOCKET;
+void tcloseline(void);
+#endif
+
+#if !defined(__OS2__)
 void AtWinsockExit(void);
+#endif
 boolean IsFatalSocketError(int err);
 
 /*--------------------------------------------------------------------*/
@@ -122,7 +153,15 @@ static boolean carrierDetect = FALSE;
 
 currentfile();
 static boolean hangupNeeded = TRUE;
+
+#if defined(__OS2__)
+boolean winsockActive = FALSE;    /* Initialized here -- <not> in catcher.c
+                                     No need for catcher -- no WSACleanup() of
+                                     OS/2 sockets required                  */
+#else
 extern boolean winsockActive;                   /* Initialized in catcher.c  */
+#endif
+
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */
 static SOCKET connectedSock = INVALID_SOCKET;   /* The currently connected socket  */
 
@@ -144,7 +183,9 @@ static boolean connectionDied = FALSE;          /* The current connection failed
 
 boolean InitWinsock(void)
 {
+#if !defined(__OS2__)
    WSADATA WSAData;
+#endif
    int status;
    static boolean firstPass = TRUE;
 
@@ -156,11 +197,13 @@ boolean InitWinsock(void)
 /*       FreeLibrary() call gets done                                 */
 /*--------------------------------------------------------------------*/
 
+#if !defined(__OS2__)
    if ( firstPass )
    {
       firstPass = FALSE;
       atexit(AtWinsockExit);
    }
+#endif
 
 #ifdef _Windows
    if (!pWinSockInit())
@@ -168,11 +211,20 @@ boolean InitWinsock(void)
 #endif
 
 /* status = WSAStartup(MAKEWORD(1,1), &WSAData); */
+
+#if defined(__OS2__)
+   status = sock_init();
+#else
    status = WSAStartup(0x0101, &WSAData);
+#endif
 
    if (status != 0)
    {
+#if defined(__OS2__)
+      printf("sock_init Error: %d", status);
+#else
       printf("WSAStartup Error: %d", status);
+#endif
       return FALSE;
    }
 
@@ -181,6 +233,7 @@ boolean InitWinsock(void)
 
 } /* InitWinsock */
 
+#if !defined(__OS2__)
 /*--------------------------------------------------------------------*/
 /*       A t W i n s o c k E x i t                                    */
 /*                                                                    */
@@ -198,6 +251,8 @@ void AtWinsockExit(void)
    winsockActive = FALSE;
 
 }  /* AtWinsockExit */
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    t o p e n a c t i v e                                           */
@@ -241,9 +296,21 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
    {
          *portStr = '\0';
          portStr++;
-         remotePort = (u_short)atoi(portStr);
-         printmsg(4, "tactiveopenline: connecting to remote port %d",
-            (int)remotePort);
+
+         pse = getservbyname(portStr, "tcp");
+         if (pse == NULL)
+         {
+            remotePort = (u_short)atoi(portStr);
+            printmsg(4, "tactiveopenline: connecting to remote port %d",
+               (int)remotePort);
+
+            /* Remember to invert byte order! */
+
+            remotePort = htons(remotePort);
+         } else {
+            remotePort = pse->s_port;
+         }
+
    }
 
 /*--------------------------------------------------------------------*/
@@ -290,7 +357,7 @@ int tactiveopenline(char *name, BPS bps, const boolean direct)
          sin.sin_port = pse->s_port;
    }
    else /* Remember to invert byte order! */
-      sin.sin_port = htons(remotePort);
+      sin.sin_port = remotePort;
 
    connectedSock = socket( AF_INET, SOCK_STREAM, 0);
    if (connectedSock == INVALID_SOCKET)
@@ -343,12 +410,21 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
 
    printmsg(15, "tpassiveopenline: opening passive connection");
 
-   norecovery = FALSE;     /* Flag we need a graceful shutdown after  */
-                           /* Ctrl-BREAK                              */
+   norecovery = FALSE;     /* Flag we need a graceful shutdown after */
+                           /* Ctrl-BREAK                             */
+   carrierDetect = FALSE;  /* No network connection yet              */
+   connectionDied = FALSE; /* The connection hasn't failed yet       */
 
-   carrierDetect = FALSE;  /* No network connection yet             */
+/*--------------------------------------------------------------------*/
+/*      Handle being started from INET, we already have a socket      */
+/*--------------------------------------------------------------------*/
 
-   connectionDied = FALSE; /* The connection hasn't failed yet */
+   if ( connectedSock != INVALID_SOCKET )
+   {
+      traceStart( name );
+      portActive = TRUE;     /* record status for error handler      */
+      return FALSE;          /* Return success to caller             */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                    Fill in host and family info                    */
@@ -399,7 +475,7 @@ int tpassiveopenline(char *name, BPS bps, const boolean direct)
    printmsg(15, "tpassiveopen: doing bind()");
 
    if (bind(pollingSock,
-           (struct sockaddr FAR *) &sin,
+           (struct sockaddr UUFAR *) &sin,
            sizeof(sin)) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
@@ -544,7 +620,8 @@ unsigned int tsread(char UUFAR *output,
 /*                 Read the data from the socket                      */
 /*--------------------------------------------------------------------*/
 
-      nReady = select(1, &readfds, NULL, NULL, &tm);
+      nReady = select(connectedSock + 1, &readfds, NULL, NULL, &tm);
+
       if (nReady == SOCKET_ERROR)
       {
          int err = WSAGetLastError();
@@ -649,7 +726,7 @@ int tswrite(const char UUFAR *data, unsigned int len)
    if (connectionDied || connectedSock == INVALID_SOCKET)
       return 0;
 
-   status = send(connectedSock, data, len, 0);
+   status = send(connectedSock, (char UUFAR *)data, len, 0);
 
    if (status == SOCKET_ERROR)
    {
@@ -835,7 +912,7 @@ boolean tWaitForNetConnect(const unsigned int timeout)
    FD_ZERO(&readfds);
    FD_SET(pollingSock, &readfds);
 
-   nReady = select(1, &readfds, NULL, NULL, &tm);
+   nReady = select(pollingSock + 1, &readfds, NULL, NULL, &tm);
 
    if (nReady == SOCKET_ERROR)
    {
@@ -877,6 +954,17 @@ boolean tWaitForNetConnect(const unsigned int timeout)
 
 boolean IsFatalSocketError(int err)
 {
+#if defined(__OS2__)
+   if (err == ENOTSOCK     ||
+       err == ENETDOWN     ||
+       err == ENETRESET    ||
+       err == ECONNABORTED ||
+       err == ECONNRESET   ||
+       err == ENOTCONN     ||
+       err == ECONNREFUSED ||
+       err == EHOSTDOWN    ||
+       err == EHOSTUNREACH)
+#else
    if (err == WSAENOTSOCK     ||
        err == WSAENETDOWN     ||
        err == WSAENETRESET    ||
@@ -886,6 +974,7 @@ boolean IsFatalSocketError(int err)
        err == WSAECONNREFUSED ||
        err == WSAEHOSTDOWN    ||
        err == WSAEHOSTUNREACH)
+#endif
        return TRUE;
     else
        return FALSE;
@@ -908,3 +997,25 @@ BOOL AbortNetwork(void)
    return FALSE;
 }
 #endif
+
+/*--------------------------------------------------------------------*/
+/*       t G e t C o m H a n d l e                                    */
+/*                                                                    */
+/*       Return current socket number to caller                       */
+/*--------------------------------------------------------------------*/
+
+int tGetComHandle( void )
+{
+   return (int) connectedSock;
+}
+
+/*--------------------------------------------------------------------*/
+/*       t S e t C o m H a n d l e                                    */
+/*                                                                    */
+/*       Set socket number for hot login (start by INETD)             */
+/*--------------------------------------------------------------------*/
+
+void tSetComHandle( const int sock )
+{
+   connectedSock = sock;
+}
