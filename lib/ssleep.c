@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.8 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: ssleep.c 1.9 1993/09/24 03:43:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.9  1993/09/24  03:43:27  ahd
+ *     Use OS/2 error messages
+ *
  *     Revision 1.8  1993/09/20  04:39:51  ahd
  *     OS/2 2.x support
  *
@@ -364,7 +367,7 @@ void ssleep(time_t interval)
 /*    Delay for an interval of milliseconds                           */
 /*--------------------------------------------------------------------*/
 
-void   ddelay   (KEWSHORT milliseconds)
+void   ddelay   (KEWSHORT interval )
 {
 
 #if defined(FAMILYAPI) || defined(__OS2__)
@@ -376,6 +379,7 @@ void   ddelay   (KEWSHORT milliseconds)
    struct timeb t;
    time_t seconds;
    unsigned last;
+   time_t milliseconds = interval;
 
 #endif
 
@@ -414,14 +418,14 @@ void   ddelay   (KEWSHORT milliseconds)
 /*--------------------------------------------------------------------*/
 
 #ifdef WIN32
-   Sleep(milliseconds);
+   Sleep(interval);
 
 /*--------------------------------------------------------------------*/
 /*                           Windows wait                             */
 /*--------------------------------------------------------------------*/
 
 #elif defined(_Windows)
-   WindowsDelay(milliseconds);
+   WindowsDelay(interval);
 
 /*--------------------------------------------------------------------*/
 /*                             OS/2 wait                              */
@@ -429,7 +433,7 @@ void   ddelay   (KEWSHORT milliseconds)
 
 #elif defined(FAMILYAPI) || defined(__OS2__)
 
-   result = DosSleep(milliseconds);
+   result = DosSleep(interval);
    if (result)
       printOS2error( "DosSleep", result );
 #else
@@ -475,7 +479,7 @@ void   ddelay   (KEWSHORT milliseconds)
 
 #ifdef __TURBOC__
 
-         delay( milliseconds );
+         delay( (short) milliseconds );
 
 #else
 
