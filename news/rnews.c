@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.15 1993/09/21 01:42:13 ahd Exp $
+ *       $Id: rnews.c 1.16 1993/09/24 03:43:27 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.16  1993/09/24  03:43:27  ahd
+ * Double buffers to avoid crashes during Disney Stock Flame War
+ *
  * Revision 1.15  1993/09/21  01:42:13  ahd
  * Suppress changes to body of delivered news
  *
@@ -82,7 +85,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.15 1993/09/21 01:42:13 ahd Exp $";
+         "$Id: rnews.c 1.16 1993/09/24 03:43:27 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -119,7 +122,11 @@ static const char rcsid[] =
 /*--------------------------------------------------------------------*/
 
 #define UNCOMPRESS "uncompre"
+#ifdef BIT32ENV
 #define DISNEY (BUFSIZ*2)
+#else
+#define DISNEY (BUFSIZ*4/3)
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -131,7 +138,6 @@ extern struct grp *group_list;   /* List of all groups */
 
 FILE *hfile = NULL;           /* History file */
 char history_date[12];        /* dd/mm/yyyy + null + 1 for no good reason */
-char hbuff[DISNEY];
 
 /*--------------------------------------------------------------------*/
 /*                       Functions in this file                       */
@@ -355,7 +361,7 @@ void main( int argc, char **argv)
    }
    else {
 
-      char buf[DISNEY];
+      char buf[BUFSIZ];
       int fields = fscanf(stdin, "#! %s ", &buf);
       if ((fields == 1) && (strcmp(buf, "cunbatch") == 0))
       {
@@ -400,7 +406,7 @@ static int Single( char *filename , FILE *stream )
 {
    char tmp_fname[FILENAME_MAX];
    FILE *tmpf;
-   char buf[DISNEY];
+   char buf[BUFSIZ];
    unsigned chars_read;
    unsigned chars_written;
 
@@ -421,7 +427,7 @@ static int Single( char *filename , FILE *stream )
 /*              Now copy the input into our holding bin               */
 /*--------------------------------------------------------------------*/
 
-   while ((chars_read = fread(buf,sizeof(char), DISNEY, stream)) != 0)
+   while ((chars_read = fread(buf,sizeof(char), BUFSIZ, stream)) != 0)
    {
 
       chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
@@ -460,7 +466,7 @@ static int Compressed( char *filename , FILE *in_stream )
 
    char zfile[FILENAME_MAX];
    char unzfile[FILENAME_MAX];
-   char buf[DISNEY];
+   char buf[BUFSIZ];
 
    boolean first_time = TRUE;
    char *program, *args;
@@ -510,7 +516,7 @@ static int Compressed( char *filename , FILE *in_stream )
 /*                 Main loop to copy compressed file                  */
 /*--------------------------------------------------------------------*/
 
-   while ((chars_read = fread(buf,sizeof(char), DISNEY, in_stream)) != 0)
+   while ((chars_read = fread(buf,sizeof(char), BUFSIZ, in_stream)) != 0)
    {
       char *t_buf = buf;
       if (first_time)
@@ -654,7 +660,7 @@ static int Compressed( char *filename , FILE *in_stream )
 static int Batched( char *filename, FILE *stream)
 {
 
-   char buf[DISNEY * 2];
+   char buf[BUFSIZ * 2];
    int status = 0;
    long article_size;
    int articles = 0;
@@ -1127,7 +1133,7 @@ static void copy_file(FILE *input,
 {
    struct grp *cur;
    char filename[FILENAME_MAX];
-   char buf[DISNEY];
+   char buf[BUFSIZ];
    FILE *output;
    boolean header = TRUE;
 
@@ -1233,7 +1239,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
    static long seqno = 0;
    FILE *out_stream;          /* For writing out data                */
 
-   char buf[DISNEY];
+   char buf[BUFSIZ];
    unsigned len;
 
    char msfile[FILENAME_MAX]; /* MS-DOS format name of files         */
@@ -1363,7 +1369,7 @@ static void xmit_news( char *sysname, FILE *in_stream )
 
 static int copy_snews( char *filename, FILE *stream )
 {
-   char buf[DISNEY];
+   char buf[BUFSIZ];
    size_t len;
 
    FILE *out_stream = FOPEN(filename, "w", BINARY_MODE);
