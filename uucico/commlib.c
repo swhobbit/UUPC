@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.19 1994/02/13 04:54:35 ahd Exp $
+ *    $Id: commlib.c 1.20 1994/02/19 05:13:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.20  1994/02/19  05:13:33  ahd
+ * Use standard first header
+ *
  * Revision 1.19  1994/02/13  04:54:35  ahd
  * Report address when tracing data
  *
@@ -346,6 +349,8 @@ boolean chooseCommunications( const char *name )
    {
 
       commBufferLength = (MAXPACK * 3);   /* 3 buffers, reduces overhead */
+      if ( BUFSIZ > commBufferLength )
+         commBufferLength = BUFSIZ;
 
 #ifdef BIT32ENV
       commBuffer = malloc( commBufferLength );
