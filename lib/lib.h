@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.4 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.5  1993/04/04  21:51:00  ahd
+ *     Update copyright
+ *
  *     Revision 1.4  1993/03/06  23:09:50  ahd
  *     Break variable names out of master lib.h
  *
@@ -74,6 +77,8 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
+#define RCSID(x) static const char rcsid[] = x
+
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
 /*--------------------------------------------------------------------*/
@@ -122,11 +127,11 @@
 #define  MESSAGESEP "\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\n"
 
 #define DCSTATUS    "hostatus"
-#define PASSWD      "passwd"
+#define PASSNAME    "passwd"
 #define PATHS       "hostpath"
 #define PERMISSIONS "permissn"
 #define SYSLOG      "syslog"
-#define SYSTEMS     "systems"
+#define SYSNAME     "systems"
 #define ACTIVE      "active"
 
 #define WHITESPACE " \t\n\r"
@@ -147,7 +152,7 @@
 #define currentfile()            static char *cfnptr = __FILE__
 #define checkref(a)              (checkptr(a, cfnptr ,__LINE__))     /*ahd */
 #define newstr(a)                (strpool(a, cfnptr ,__LINE__))
-#ifndef NOSAFEFREE
+#ifdef SAFEFREE
 #define free(a)                  (safefree(a, cfnptr ,__LINE__))
 #endif
 
