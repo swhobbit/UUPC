@@ -31,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.5 1992/11/20 12:38:26 ahd Exp $
+ *    $Id: DCPFPKT.C 1.6 1993/04/05 04:35:40 ahd Exp $
  *
  *    $Log: DCPFPKT.C $
+ * Revision 1.6  1993/04/05  04:35:40  ahd
+ * Allow unique send/receive packet sizes
+ *
  * Revision 1.5  1992/11/20  12:38:26  ahd
  * Drop rcsid
  *
@@ -82,13 +85,13 @@ currentfile();
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static int fsendresp(int state);
+static short fsendresp(short state);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static int chksum;
+static short chksum;
 
 /*--------------------------------------------------------------------*/
 /*    f o p e n p k                                                   */
@@ -96,7 +99,7 @@ static int chksum;
 /*    Open "f" protocol to other system                               */
 /*--------------------------------------------------------------------*/
 
-int fopenpk(const boolean master)
+short fopenpk(const boolean master)
 {
    flowcontrol(TRUE);
 
@@ -114,7 +117,7 @@ int fopenpk(const boolean master)
 /*    Shutdown "f" procotol with other system                         */
 /*--------------------------------------------------------------------*/
 
-fclosepk()
+short fclosepk()
 {
    flowcontrol(FALSE);
    return OK;
@@ -126,7 +129,7 @@ fclosepk()
 /*    Send a control message to remote system with "f" procotol       */
 /*--------------------------------------------------------------------*/
 
-int fwrmsg(char *str)
+short fwrmsg(char *str)
 {
    char bufr[MAXMSGLEN];
    char *s = bufr;
@@ -148,7 +151,7 @@ int fwrmsg(char *str)
 /*    Read a control message from remote host with "f" protocol       */
 /*--------------------------------------------------------------------*/
 
-int frdmsg(char *str)
+short frdmsg(char *str)
 {
    char *smax;
    char *s = str;
@@ -186,12 +189,12 @@ msgerr:
 /*    Receive an "f" protocol packet of data from the other system    */
 /*--------------------------------------------------------------------*/
 
-int fgetpkt(char *packet, int *bytes)
+short fgetpkt(char *packet, short *bytes)
 {
    char *op, c, *ip;
-   int sum, len, left;
+   short sum, len, left;
    char buf[5], tbuf[1];
-   int i;
+   short i;
    static char special = 0;
    static boolean eof = FALSE;
 
@@ -231,7 +234,7 @@ int fgetpkt(char *packet, int *bytes)
             if (*ip++ != '\176')
             {
                printmsg(0,"fgetpkt: Did not expect character ^%c (x%02x)",
-                  (char) (*(ip-1) + 'A') , (int) *(ip-1));
+                  (char) (*(ip-1) + 'A') , (short) *(ip-1));
                goto dcorr;
             }
             len = 0;
@@ -255,7 +258,7 @@ int fgetpkt(char *packet, int *bytes)
                    "not %s%c (x%02x)",
                   (buf[4] < ' ') ? "^" : "" ,
                   (char) (buf[4] + ((buf[4] < ' ') ? 'A' : 0)),
-                  (int) buf[4]);
+                  (short) buf[4]);
                goto dcorr;
             }
             sscanf(buf, "%4x", &chksum);
@@ -275,7 +278,7 @@ int fgetpkt(char *packet, int *bytes)
       } else {
          if (*ip < '\040') {
             printmsg(0,"fgetpkt: error: got control character ^%c (%x)",
-                  (char) (*ip + 'A') , (int) *ip);
+                  (char) (*ip + 'A') , (short) *ip);
             goto dcorr;
          }
 
@@ -300,7 +303,7 @@ int fgetpkt(char *packet, int *bytes)
                break;
             default:
                printmsg(0,"fgetpkt: Invalid special chracter 0x%2x",
-                          (int) special );
+                          (short) special );
                panic();
                c = '\0';
          }
@@ -348,11 +351,11 @@ dcorr:
 /*    Send an "f" protocol packet to the other system                 */
 /*--------------------------------------------------------------------*/
 
-fsendpkt(char *ip, int len)
+short fsendpkt(char *ip, short len)
 {
    char *op;
-   int sum, nl;
-   int ret;
+   short sum, nl;
+   short ret;
    char obuf[MAXPACK * 2];
    op = obuf;
    nl = 0;
@@ -415,7 +418,7 @@ fsendpkt(char *ip, int len)
 /*    Prepare for processing an "f" procotol file transfer            */
 /*--------------------------------------------------------------------*/
 
-int ffilepkt( void)
+short ffilepkt( void)
 {
    chksum = 0xffff;
    printmsg(3,"ffilepkt: Checksum reset");
@@ -428,7 +431,7 @@ int ffilepkt( void)
 /*    Transmit "f" protocol end of file to the other system           */
 /*--------------------------------------------------------------------*/
 
-int feofpkt( void )
+short feofpkt( void )
 {
    char ibuf[MAXMSGLEN];
 
@@ -475,7 +478,7 @@ int feofpkt( void )
 /*    Send result to a file transfer to other host                    */
 /*--------------------------------------------------------------------*/
 
-static int fsendresp(int state)
+static short fsendresp(short state)
 {
    char *s;
    switch (state)
