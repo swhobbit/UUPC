@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.30 1995/02/20 17:30:32 ahd v1-12n $
+ *    $Id: uutypes.h 1.31 1995/02/26 02:53:34 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.31  1995/02/26 02:53:34  ahd
+ *    Add FREE() macro to allow single path 16 bit/32 bit code
+ *
  *    Revision 1.30  1995/02/20 17:30:32  ahd
  *    16 bit compiler warning cleanup
  *
@@ -193,8 +196,6 @@ typedef enum {
                F_BOUNCE,      /* True = Bounce bad mail to sender     */
                F_COLLECTSTATS,/* True = Report additional information in
                                         various logs                   */
-               F_COMPRESSBATCH,
-                              /* True = Compress outgoing news batches */
                F_DIRECT,      /* True = Deliver to subdirectories, not
                                         files                          */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
