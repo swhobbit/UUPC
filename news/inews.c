@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.22 1995/02/20 17:28:43 ahd v1-12n $
+ *       $Id: inews.c 1.23 1995/03/07 23:33:38 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.23  1995/03/07 23:33:38  ahd
+ * Correct fast news run processing
+ *
  * Revision 1.22  1995/02/20 17:28:43  ahd
  * in-memory file support, 16 bit compiler clean up
  *
@@ -106,7 +109,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.22 1995/02/20 17:28:43 ahd v1-12n $";
+      "$Id: inews.c 1.23 1995/03/07 23:33:38 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -255,10 +258,11 @@ void main( int argc, char **argv)
    else {
 
       command = "uux";
-      sprintf(commandOptions, "-p -g%c -n -x %d -C %s!newsrun",
+      sprintf(commandOptions, "-p -g%c -n -x %d -C %s!newsrun -x %d",
               E_newsGrade,
               debuglevel,
-              E_nodename );
+              E_nodename,
+              debuglevel );
    }
 
 
