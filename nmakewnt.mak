@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.34 1999/01/04 03:51:49 ahd Exp $
+#       $Id: nmakewnt.mak 1.35 2000/05/12 12:08:51 ahd v1-13g $
 #
 #       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.35  2000/05/12 12:08:51  ahd
+#       Annual copyright update
+#
 #       Revision 1.34  1999/01/04 03:51:49  ahd
 #       Annual copyright change
 #
@@ -145,7 +148,7 @@ PROD    = $(PRODDRIVE)\uupc\ntbin
 
 WIN32ENV=1
 COMMOPT = -nologo  -MT $(cdebug)
-CCOPT   = $(COMMOPT) $(GUIOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
+CCOPT   = $(cflags:-W3=-W4) $(cvarsmt) $(COMMOPT) $(GUIOPT) $(UDEBUGFLAG) -I$(UULIB) -Fo$@
 ZIPID   = n
 ERASE   = del
 SMTP    = 1
@@ -169,6 +172,7 @@ OTHERLIBS= ADVAPI32.LIB WSOCK32.LIB tapi32.lib user32.lib gdi32.lib  \
            kernel32.lib OLDNAMES.LIB winmm.lib $(MYUULIBS) $(WIN32APP)
 
 EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
-EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe
+EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe \
+       $(PROD)\mail.ico $(PROD)\uucico.ico
 EXTRA2=$(PROD)\regsetup.exe
 EXTRA3=$(PROD)\uupcdll.dll
