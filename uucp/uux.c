@@ -945,10 +945,10 @@ static boolean do_remote(int optind, int argc, char **argv)
              return FALSE;
           }
 
-          fprintf(stream, send_cmd, lxfile, rxfile, E_mailbox, lxfile);
-
           if (flags[FLG_READ_STDIN])
               fprintf(stream, send_cmd, lifile, rifile, E_mailbox, lifile);
+
+          fprintf(stream, send_cmd, lxfile, rxfile, E_mailbox, lxfile);
 
           fclose(stream);
      }
