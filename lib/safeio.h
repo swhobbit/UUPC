@@ -10,3 +10,9 @@ int  safein( void );
 boolean safepeek( void );
 void safeout( char *str );
 void safeflush( void );
+
+#if defined(WIN32)
+void InitConsoleInputHandle(void);
+void InitConsoleOutputHandle(void);
+#endif
+
