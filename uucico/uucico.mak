@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.8 1993/09/20 04:36:42 ahd Exp $
+#     $Id: uucico.mak 1.9 1993/09/24 03:42:24 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.9  1993/09/24  03:42:24  ahd
+# Add OS/2 named pipes support
+#
 # Revision 1.8  1993/09/20  04:36:42  ahd
 # TCP/IP support from Dave Watt
 # 't' protocol support
@@ -53,7 +56,7 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
 
 !if $d(__OS2__)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
-            $(OBJ)\dcptpkt.obj
+            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj
 !elif $d(WINDOWS)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
             $(OBJ)\ulibwin.obj $(OBJ)\ulibip.obj
