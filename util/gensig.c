@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.16 1997/04/24 01:31:09 ahd v1-12u $
+ *    $Id: gensig.c 1.17 1998/03/01 01:36:31 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.17  1998/03/01 01:36:31  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.16  1997/04/24 01:31:09  ahd
  *    Annual Copyright Update
  *
@@ -52,37 +55,12 @@
  *
  *    Revision 1.9  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
- *
- *    Revision 1.8  1994/12/09 03:42:09  ahd
- *    Include configuration to allow suppressing beep
- *
- * Revision 1.7  1994/02/26  15:47:42  ahd
- * Correct fopen() to work with IBM C/Set 2 compiler
- *
- * Revision 1.6  1994/02/19  05:01:57  ahd
- * Use standard first header
- *
- * Revision 1.5  1993/12/23  03:16:03  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.4  1993/09/27  04:04:06  ahd
- * Suppress compiler warning message
- *
- * Revision 1.3  1993/04/11  00:33:54  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.2  1993/03/06  23:04:54  ahd
- * Alter message to include output files
- *
- * Revision 1.1  1992/11/15  04:29:22  ahd
- * Initial revision
- *
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: gensig.c 1.16 1997/04/24 01:31:09 ahd v1-12u $";
+      "$Id: gensig.c 1.17 1998/03/01 01:36:31 ahd v1-13a $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -191,6 +169,7 @@ main( int argc, char **argv)
 
       fclose( stream );
       exit(0);
+      return 0;
 
 } /* main */
 
