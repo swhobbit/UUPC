@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.37 1998/03/16 07:50:52 ahd Exp $
+ *    $Id: imfile.c 1.38 1998/04/08 11:32:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.38  1998/04/08 11:32:07  ahd
+ *    Add new debugging for imgets()
+ *
  *    Revision 1.37  1998/03/16 07:50:52  ahd
  *    correct compile warning
  *
@@ -156,7 +159,16 @@ static void imStatus(IMFILE *imf)
                   imerror(imf) ? ", ERROR" : "");
 #endif
    else if (imf->filename != NULL)
-      printmsg(20,"imStatus: File resides on disk as %s", imf->filename);
+   {
+      /* Only report the file is on disk once */
+      if ((imf->flag & IM_FLAG_DISKR) == 0)
+      {
+         imf->flag |= IM_FLAG_DISKR;
+         printmsg(5,"imStatus: File resides on disk as %s with %ld bytes",
+                  imf->filename,
+                  imlength( imf ));
+      }
+   }
    else
       printmsg(5,"imstatus: No backing store exists for file");
 
@@ -804,6 +816,9 @@ void imrewind(IMFILE *imf)
    {
       fflush(imf->stream);
       rewind(imf->stream);
+
+      /* Report file length on next call to imstatus */
+      imf->flag &= (IM_FLAG_ALL - IM_FLAG_DISKR);
    }
    else {
 
