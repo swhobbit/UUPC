@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.39 1995/03/08 02:58:08 ahd Exp $
+ *    $Id: deliver.c 1.40 1995/03/11 02:04:36 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.40  1995/03/11 02:04:36  ahd
+ *    Correct gateway processing for local system
+ *    If copydate always returns KWTrue/KWFalse, it ought to be KWBoolean
+ *    Correct various compiler warnings
+ *
  *    Revision 1.39  1995/03/08 02:58:08  ahd
  *    Use specific sequence numbers for VMS queue support
  *
@@ -774,7 +779,7 @@ static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
 
    if (!CopyData( KWFalse, imf , stream ))
    {
-      remove( dname );
+      REMOVE( dname );
       return 0;
    }
 
@@ -983,7 +988,7 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
 
    if (!CopyData( KWTrue, imf , stream ))
    {
-      remove( msfile );
+      REMOVE( msfile );
       return 0;
    }
 

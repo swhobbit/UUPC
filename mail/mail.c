@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.36 1995/02/21 02:47:44 ahd v1-12n $
+ *    $Id: mail.c 1.37 1995/03/08 02:58:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.37  1995/03/08 02:58:08  ahd
+ *    Delete KW from literal boolean strings
+ *
  *    Revision 1.36  1995/02/21 02:47:44  ahd
  *    The compiler warnings war never ends!
  *
@@ -160,7 +163,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.36 1995/02/21 02:47:44 ahd v1-12n $";
+      "$Id: mail.c 1.37 1995/03/08 02:58:08 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1163,7 +1166,7 @@ static void IncludeNew( const char *target, const char *user)
    fclose( stream_out );
 
    filebkup( sysbox );
-   unlink(sysbox);
+   REMOVE(sysbox);
 
 } /* IncludeNew */
 
@@ -1652,7 +1655,7 @@ void UpdateMailbox(int letternum, KWBoolean postoffice)
             (psave > 1) ? "s" : "", mfilename);
    else if (bflag[F_PURGE] )
    {
-      remove(mfilename);
+      REMOVE(mfilename);
       printf("Empty mail box %s has been deleted.\n", mfilename);
    }
 

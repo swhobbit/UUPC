@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.22 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: mailsend.c 1.23 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.23  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.22  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -470,7 +473,7 @@ KWBoolean Send_Mail(FILE *datain,
 /*                   Clean up and return to caller                    */
 /*--------------------------------------------------------------------*/
 
-   remove(pipename);
+   REMOVE(pipename);
    free(pipename);
 
    if (status == 0 )
@@ -753,7 +756,7 @@ KWBoolean Collect_Mail(FILE *stream,
       } /*switch*/
    } while (!done);
 
-   remove(tmailbag);
+   REMOVE(tmailbag);
    free(tmailbag);
 
    return KWTrue;
@@ -1061,7 +1064,7 @@ static void filter( char *tmailbag, char *command)
    else if( statbuf.st_size == 0 )  /* Anything in the file?      */
       printf("Output file %s is empty!\n", pipename);
    else {                  /* Good output, replace input file     */
-      remove( tmailbag );
+      REMOVE( tmailbag );
       if (rename( pipename, tmailbag ))
          printerr( pipename );
    } /* else */
@@ -1070,7 +1073,7 @@ static void filter( char *tmailbag, char *command)
 /*                   Clean up and return to caller                    */
 /*--------------------------------------------------------------------*/
 
-   remove( pipename );
+   REMOVE( pipename );
 
 } /* filter */
 

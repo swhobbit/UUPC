@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.19 1995/02/20 00:40:12 ahd Exp $
+ *    $Id: uux.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.20  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.19  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -1087,7 +1090,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
       mkfilename(msfile, E_spooldir, msname);
 
       if (!CopyData( NULL, msfile )) {
-         remove( msfile );
+         REMOVE( msfile );
          return KWFalse;
       }
 

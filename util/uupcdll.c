@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.4 1995/01/07 16:22:53 ahd Exp $
+ *       $Id: uupcdll.c 1.5 1995/01/07 16:37:24 ahd v1-12n $
  *       $Log: uupcdll.c $
+ *       Revision 1.5  1995/01/07 16:37:24  ahd
+ *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.4  1995/01/07 16:22:53  ahd
  *       Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -412,7 +415,7 @@ DllExport BOOL UUPCSendMail(char *message)
         NULL, NULL, &si, &pi);
 
     if (!result) {
-        _unlink(tempFileName);
+        _REMOVE(tempFileName);
         return KWFalse;
     }
 
@@ -420,7 +423,7 @@ DllExport BOOL UUPCSendMail(char *message)
     GetExitCodeProcess(pi.hProcess, &result);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-    _unlink(tempFileName);
+    _REMOVE(tempFileName);
 
     if (result != 0)
         return KWFalse;

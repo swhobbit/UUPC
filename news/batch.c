@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.14 1995/03/11 01:59:57 ahd Exp $
+ *    $Id: batch.c 1.15 1995/03/11 12:39:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.15  1995/03/11 12:39:24  ahd
+ *    Add missing header for stater
+ *
  *    Revision 1.14  1995/03/11 01:59:57  ahd
  *    Add batch length debugging information
  *    Delete uncompressed data before queuing compressed data via UUX
@@ -303,7 +306,7 @@ void compress_batch(const char *system, const char *batchName)
 
    fclose(zfile_stream);
 
-   if (unlink(zfile))
+   if (REMOVE(zfile))
       printerr( zfile );
 
 /*--------------------------------------------------------------------*/
@@ -312,7 +315,7 @@ void compress_batch(const char *system, const char *batchName)
 
    queue_news(system, finalName );
 
-   if (unlink(finalName))
+   if (REMOVE(finalName))
       printerr( finalName );
 
 } /* compress_batch */
@@ -469,7 +472,7 @@ deleteBatchedFiles( FILE *names, const long lastPosition )
        printmsg(3, "deleteBatchedFiles: Deleting article %s",
                fileName);
 
-       if ( unlink(fileName) )
+       if ( REMOVE(fileName) )
           printerr( fileName );
      }
 
@@ -652,7 +655,7 @@ void process_batch(const struct sys *node,
 /*       batch compressed.                                            */
 /*--------------------------------------------------------------------*/
 
-     if ( !access( batchName, 0) && unlink(batchName) )
+     if ( !access( batchName, 0) && REMOVE(batchName) )
         printerr( batchName );
 
    } while (articleCount && ! done);
@@ -676,7 +679,7 @@ void process_batch(const struct sys *node,
       filebkup( articleListName );  /* Mostly for debugging          */
 #endif
 
-      if ( !access( articleListName, 0 ) && unlink(articleListName) )
+      if ( !access( articleListName, 0 ) && REMOVE(articleListName) )
          printerr( articleListName );
 
    } /* if (!done) */

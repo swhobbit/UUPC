@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.19 1995/01/07 16:18:55 ahd Exp $
+ *    $Id: mailblib.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.20  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.19  1995/01/07 16:18:55  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -526,7 +529,7 @@ KWBoolean ForwardItem( const int item, const char *string )
    if (letters[item].status < M_FORWARDED)
       letters[item].status = M_FORWARDED;
 
-   remove(tmailbag);
+   REMOVE(tmailbag);
 
    return success;
 

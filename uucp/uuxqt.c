@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.47 1995/02/25 18:21:44 ahd v1-12n $
+ *    $Id: uuxqt.c 1.48 1995/03/08 03:01:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.48  1995/03/08 03:01:54  ahd
+ *    Always pass debuglevel to rnews under OS/2 to avoid C/Set++
+ *    bug with spawns for with no program args
+ *
  *    Revision 1.47  1995/02/25 18:21:44  ahd
  *    Don't require MAILSERV to be defined
  *
@@ -1136,7 +1140,7 @@ static void process( const char *fname,
                   status = shell(next_cmd, pipefile, outputName, remote, xflag);
                }
 
-               unlink(pipefile);
+               REMOVE(pipefile);
                free(pipefile);
             }
 
@@ -1151,12 +1155,12 @@ static void process( const char *fname,
 
          for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
             if (qPtr->xqtname != NULL)
-               unlink(qPtr->xqtname);
+               REMOVE(qPtr->xqtname);
 
       } /* if (!reject) */
 
       for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
-         unlink(qPtr->spoolname);
+         REMOVE(qPtr->spoolname);
 
       ReportResults( status,
                      inputName,
@@ -1173,9 +1177,9 @@ static void process( const char *fname,
                      user);
 
       if (!reject)
-         unlink(outputName);
+         REMOVE(outputName);
 
-      unlink(fname);
+      REMOVE(fname);
 
    } /* (!skip) */
 
@@ -1789,7 +1793,7 @@ static void ReportResults(const int status,
 
    }
 
-   unlink(tempmail);
+   REMOVE(tempmail);
    return;
 
 } /* ReportResults */
@@ -1929,7 +1933,7 @@ static void purify( const char *where )
       sprintf(fname, "%s/%s", where, dp->d_name);
 
       printmsg(0,"purify: Deleting file %s", fname );
-      if ( chmod( fname, S_IREAD | S_IWRITE ) || unlink( fname ))
+      if ( chmod( fname, S_IREAD | S_IWRITE ) || REMOVE( fname ))
       {
          printerr( fname );
          panic();

@@ -25,9 +25,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.10 1995/01/29 14:03:29 ahd v1-12n $";
+      "$Id: history.c 1.11 1995/03/11 01:59:57 ahd Exp $";
 
 /* $Log: history.c $
+/* Revision 1.11  1995/03/11 01:59:57  ahd
+/* Return result of cancel to caller to allow message
+/*
 /* Revision 1.10  1995/01/29 14:03:29  ahd
 /* Clean up IBM C/Set compiler warnings
 /*
@@ -322,7 +325,7 @@ char *purge_article(char *histentry, char **groups)
       if ((article = atol(num)) != 0)
       {
         ImportNewsGroup(filename, group, article);
-        unlink(filename);
+        REMOVE(filename);
       }
     }
     else

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.14 1995/02/26 02:51:34 ahd v1-12n $
+ *    $Id: imfile.c 1.15 1995/03/11 15:49:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.15  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.14  1995/02/26 02:51:34  ahd
  *    Clean up memory allocations to not require #ifdef
  *
@@ -303,7 +306,7 @@ int imclose( IMFILE *imf)
    if ( imf->stream != NULL )
    {
       result = fclose( imf->stream );
-      unlink( imf->filename );
+      REMOVE( imf->filename );
       free( imf->filename );
    }
 
@@ -922,7 +925,7 @@ int executeIMFCommand( const char *command,
                             synchronous,
                             foreground );
 
-   unlink( tempName );
+   REMOVE( tempName );
 
    return status;
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.21 1995/01/07 16:13:09 ahd v1-12n $
+ *    $Id: logger.c 1.22 1995/03/11 15:49:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.22  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.21  1995/01/07 16:13:09  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -322,6 +325,6 @@ static void copylog( void )
    fclose( output );
    logfile  = stdout;
 
-   unlink( tempname );
+   REMOVE( tempname );
 
 } /* copylog */

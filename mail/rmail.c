@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.41 1995/01/15 19:48:35 ahd Exp $
+ *    $Id: rmail.c 1.42 1995/01/28 22:07:13 ahd v1-12n $
  *
  *    $Log: rmail.c $
+ *    Revision 1.42  1995/01/28 22:07:13  ahd
+ *    Correctly trap no From line on remote mail
+ *
  *    Revision 1.41  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -528,7 +531,7 @@ void main(int argc, char **argv)
       fclose(datain);
 
    if (DeleteInput)                 /* Make room for data on disk    */
-      remove(namein);
+      REMOVE(namein);
 
    if ((tempHandle = open(BIT_BUCKET, O_RDONLY | O_BINARY)) == -1)
    {

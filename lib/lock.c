@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.14 1994/02/19 04:43:20 ahd v1-12k $
+ *    $Id: lock.c 1.15 1995/01/07 16:13:03 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.15  1995/01/07 16:13:03  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.14  1994/02/19 04:43:20  ahd
  *    Use standard first header
  *
@@ -170,7 +173,7 @@ KWBoolean LockSystem( const char *system , long program )
 /*    failed open.                                                    */
 /*--------------------------------------------------------------------*/
 
-   if ( access( lname, 0 ) || !unlink( lname ))
+   if ( access( lname, 0 ) || !REMOVE( lname ))
       locket = FOPEN( lname, "w",TEXT_MODE );
 
    if ( locket == NULL )
@@ -235,7 +238,7 @@ void UnlockSystem( void )
    locket = NULL;
    locked = KWFalse;
 
-   unlink( lname );
+   REMOVE( lname );
 
 } /* UnlockSystem */
 

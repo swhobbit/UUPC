@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.51 1995/02/21 02:47:44 ahd v1-12n $
+ *       $Id: dcpxfer.c 1.52 1995/03/11 15:49:23 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.52  1995/03/11 15:49:23  ahd
+ *       Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *       Revision 1.51  1995/02/21 02:47:44  ahd
  *       The compiler warnings war never ends!
  *
@@ -458,7 +461,7 @@ XFER_STATE seof( const KWBoolean purge_file )
    {
      char hostName[FILENAME_MAX];
      importpath(hostName, dName, rmtname);
-     unlink( hostName );
+     REMOVE( hostName );
      printmsg(4,"seof: Deleted file %s (%s)", dName, hostName );
    } /* if (purge_file && !equal(dName,"D.0")) */
 
@@ -556,7 +559,7 @@ XFER_STATE newrequest( void )
       printmsg(3, "newrequest: EOF for workfile %s",workfile);
       fclose(fwork);
       fwork = nil(FILE);
-      unlink(workfile);       /* Delete completed call file          */
+      REMOVE(workfile);       /* Delete completed call file          */
       return XFER_NEXTJOB;    /* Get next C.* file to process        */
 
    } /* if (fgets(databuf, xferBufSize, fwork) == nil(char)) */
@@ -821,7 +824,7 @@ appending file name \"%s\"", spolName, slash);
       printmsg(0, "srfile: Cannot unbuffer file %s (%s).",
           tName, spolName);
       printerr(spolName);
-      unlink(spolName);
+      REMOVE(spolName);
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_ABORT;
@@ -925,7 +928,7 @@ XFER_STATE endp( void )
 
    if (spool)
    {
-      unlink(tempName);
+      REMOVE(tempName);
       spool = KWFalse;
    }
    return XFER_EXIT;
@@ -1385,7 +1388,7 @@ XFER_STATE reof( void )
 
    if (spool && equal(response,cy))
    {
-      unlink( spolName );     /* Should be safe, since we only do it
+      REMOVE( spolName );     /* Should be safe, since we only do it
                                  for spool files                     */
 
       if ( RENAME(tempName, spolName ))
@@ -1404,7 +1407,7 @@ XFER_STATE reof( void )
    if ( !equal(response, cy) )   /* If we had an error, delete file  */
    {
       printmsg(0,"reof: Deleting corrupted file %s", rName );
-      unlink(rName );
+      REMOVE(rName );
       return XFER_ABORT;
    } /* if ( !equal(response, cy) ) */
 

@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.13 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: expire.c 1.14 1995/02/20 00:03:07 ahd v1-12n $
  *
  *    $Log: expire.c $
+ *    Revision 1.14  1995/02/20 00:03:07  ahd
+ *    Drop previous work history file before creating new one
+ *
  *    Revision 1.13  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -57,7 +60,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.13 1995/02/12 23:37:04 ahd Exp $";
+      "$Id: expire.c 1.14 1995/02/20 00:03:07 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -197,9 +200,9 @@ main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
   mkfilename(file_old, E_newsdir, "newhist.dir");
-  unlink(file_old);                 /* Delete any junk history       */
+  REMOVE(file_old);                 /* Delete any junk history       */
   mkfilename(file_old, E_newsdir, "newhist.pag");
-  unlink(file_old);                 /* Delete any junk history       */
+  REMOVE(file_old);                 /* Delete any junk history       */
 
    history = open_history("history");
    new_history = open_history("newhist");
@@ -243,14 +246,14 @@ main( int argc, char **argv)
 
    mkfilename(file_old, E_newsdir, "oldhist.dir");
    mkfilename(file_new, E_newsdir, "history.dir");
-   unlink(file_old);
+   REMOVE(file_old);
    rename(file_new, file_old);
    mkfilename(file_old, E_newsdir, "newhist.dir");
    rename(file_old, file_new);
 
    mkfilename(file_old, E_newsdir, "oldhist.pag");
    mkfilename(file_new, E_newsdir, "history.pag");
-   unlink(file_old);
+   REMOVE(file_old);
    rename(file_new, file_old);
    mkfilename(file_old, E_newsdir, "newhist.pag");
    rename(file_old, file_new);

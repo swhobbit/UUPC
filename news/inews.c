@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.23 1995/03/07 23:33:38 ahd Exp $
+ *       $Id: inews.c 1.24 1995/03/11 12:39:24 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.24  1995/03/11 12:39:24  ahd
+ * Always pass at least one argument to newsrun, even when running via uux
+ *
  * Revision 1.23  1995/03/07 23:33:38  ahd
  * Correct fast news run processing
  *
@@ -109,7 +112,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.23 1995/03/07 23:33:38 ahd Exp $";
+      "$Id: inews.c 1.24 1995/03/11 12:39:24 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -284,7 +287,7 @@ void main( int argc, char **argv)
 /*                             cleanup                                */
 /*--------------------------------------------------------------------*/
 
-  unlink(tempname);
+  REMOVE(tempname);
 
   exit( result );
 

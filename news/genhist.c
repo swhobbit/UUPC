@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.13 1995/01/29 14:03:29 ahd Exp $";
+         "$Id: genhist.c 1.14 1995/01/30 04:08:36 ahd v1-12n $";
 
 /* $Log: genhist.c $
+/* Revision 1.14  1995/01/30 04:08:36  ahd
+/* Additional compiler warning fixes
+/*
 /* Revision 1.13  1995/01/29 14:03:29  ahd
 /* Clean up IBM C/Set compiler warnings
 /*
@@ -177,11 +180,11 @@ main( int argc, char **argv)
 
    mkfilename(file_old, E_newsdir, "oldhist.dir");
    mkfilename(file_new, E_newsdir, "history.dir");
-   unlink(file_old);
+   REMOVE(file_old);
    rename(file_new, file_old);
    mkfilename(file_old, E_newsdir, "oldhist.pag");
    mkfilename(file_new, E_newsdir, "history.pag");
-   unlink(file_old);
+   REMOVE(file_old);
    rename(file_new, file_old);
 
    history = open_history("history");

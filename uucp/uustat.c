@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.25 1995/01/07 16:41:40 ahd v1-12n $
+ *    $Id: uustat.c 1.26 1995/03/11 15:49:23 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.26  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.25  1995/01/07 16:41:40  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -48,7 +51,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.25 1995/01/07 16:41:40 ahd v1-12n $";
+         "$Id: uustat.c 1.26 1995/03/11 15:49:23 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -819,7 +822,7 @@ static void kill_job(const char *jobid)
    importpath( host, canon, system );
                               /* Get the local name of the file        */
    open_call(host, system, NULL, user, sys, JOB_KILL);
-   if ( unlink( host ) )
+   if ( REMOVE( host ) )
    {
       printmsg(0,"Unable to delete file %s (%s)", canon, host );
       printerr(host);
@@ -976,7 +979,7 @@ static CALLTYPE open_call( const char *callname,
                   case JOB_KILL:
                      if ((created != -1) && !equal(dname, "D.0"))
                      {
-                        if ( unlink( host ) )
+                        if ( REMOVE( host ) )
                         {
                            printmsg(0,"Unable to delete %s (%s) -- %s",
                                       dname,

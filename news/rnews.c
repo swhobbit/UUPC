@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.60 1995/03/07 23:36:50 ahd Exp $
+ *       $Id: rnews.c 1.61 1995/03/11 01:59:57 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.61  1995/03/11 01:59:57  ahd
+ *       Delete redundant copy message
+ *
  *       Revision 1.60  1995/03/07 23:36:50  ahd
  *       Add options to newsrun to avoid aborts from bogus args under OS/2
  *
@@ -49,7 +52,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.60 1995/03/07 23:36:50 ahd Exp $";
+         "$Id: rnews.c 1.61 1995/03/11 01:59:57 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -272,7 +275,7 @@ static char *Compressed( FILE *in_stream ,
          fclose( workStream );
          printerr( zfile );
 
-         if ( unlink( zfile ) )  /* Kill the compressed input file   */
+         if ( REMOVE( zfile ) )  /* Kill the compressed input file   */
             printerr( zfile );
 
          panic();
@@ -290,7 +293,7 @@ static char *Compressed( FILE *in_stream ,
 
    if (cfile_size == 3)
    {
-      if ( unlink(zfile) )
+      if ( REMOVE(zfile) )
          printerr( zfile );
       printmsg(1, "Compressed: %s empty, deleted",
                    zfile);
@@ -313,7 +316,7 @@ static char *Compressed( FILE *in_stream ,
    printmsg(4, "Executing command: %s", buf );
    status = executeCommand( buf, NULL, NULL, KWTrue, KWFalse);
 
-   if ( (! access( zfile, 0 )) && unlink( zfile ) )
+   if ( (! access( zfile, 0 )) && REMOVE( zfile ) )
       printerr( zfile );
 
    if (status != 0)
@@ -572,7 +575,7 @@ main( int argc, char **argv)
          if ( useSYSFile && ( tempName != NULL ))
             queueNews( tempName );
 
-         if ( (! bflag[F_NNS] ) && unlink( tempName ) )
+         if ( (! bflag[F_NNS] ) && REMOVE( tempName ) )
             printerr( tempName );
 
       }
@@ -596,7 +599,7 @@ main( int argc, char **argv)
 /*                     Clean up and exit gracefully                   */
 /*--------------------------------------------------------------------*/
 
-   if ( deleteInput && unlink( inputName ))
+   if ( deleteInput && REMOVE( inputName ))
       printerr( inputName );
 
    return 0;

@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.10 1995/02/20 00:40:12 ahd Exp $
+ *    $Id: gensig.c 1.11 1995/02/21 02:47:44 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.11  1995/02/21 02:47:44  ahd
+ *    The compiler warnings war never ends!
+ *
  *    Revision 1.10  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -61,7 +64,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.10 1995/02/20 00:40:12 ahd Exp $";
+static char rcsid[] = "$Id: gensig.c 1.11 1995/02/21 02:47:44 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -328,7 +331,7 @@ static long chooseit( struct stat *current_status,
 /*               We have to rewrite the lookaside file                */
 /*--------------------------------------------------------------------*/
 
-   unlink( quoteused );          /* Make all quotes available        */
+   REMOVE( quoteused );          /* Make all quotes available        */
 
    data   = fopen( fname, "r");           /* Open data file to scan  */
 
