@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.16 1993/09/21 01:42:13 ahd Exp $
+ *       $Id: ulibos2.c 1.17 1993/09/24 03:43:27 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.17  1993/09/24  03:43:27  ahd
+ * Use OS/2 error message routine
+ *
  * Revision 1.16  1993/09/21  01:42:13  ahd
  * Use standard MAXPACK limit for save buffer size
  *
@@ -86,6 +89,8 @@
 
 #define INCL_DOSDEVIOCTL
 #define INCL_BASE
+#define INCL_NOPMAPI
+
 #include <os2.h>
 #include <limits.h>
 
@@ -129,12 +134,6 @@ static struct _LINECONTROL com_attrib;
 static struct _MODEMSTATUS com_signals;
 static struct _DCBINFO com_dcbinfo;
 
-#ifdef __OS2__
-static ULONG usPrevPriority;
-#else
-static USHORT usPrevPriority;
-#endif
-
 static void ShowError( const USHORT status );
 
 static void ShowModem( const BYTE status );
@@ -155,20 +154,11 @@ int nopenline(char *name, BPS baud, const boolean direct )
    ULONG ParmLengthInOut;
    ULONG DataLengthInOut;
 
-   PTIB ptib;
-   PPIB ppib;
-
    ULONG action;
 
 #else
    USHORT action;
 #endif
-
-
-   USHORT priority = (E_priority == 999) ?
-                           PRTYC_FOREGROUNDSERVER : (USHORT) E_priority;
-   USHORT prioritydelta = (E_prioritydelta == 999) ?
-                           0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
 
    if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
@@ -344,8 +334,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
    } /*if */
 
 /*--------------------------------------------------------------------*/
-/*                     Disable XON/XOFF flow control                  */
-/*                     Enable CTS handling for flow control           */
+/*       Disable software (XON/XOFF) flow control and enable          */
+/*       hardware (CTS) for flow control                              */
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
@@ -475,34 +465,6 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    portActive = TRUE;     /* record status for error handler        */
    carrierDetect = FALSE;  /* Modem is not connected                 */
-
-/*--------------------------------------------------------------------*/
-/*                     Up our processing priority                     */
-/*--------------------------------------------------------------------*/
-
-#ifdef __OS2__
-   rc = DosGetInfoBlocks( &ptib, &ppib);
-   if ( !rc ) usPrevPriority = (ptib->tib_ptib2)->tib2_ulpri;
-#else
-   rc = DosGetPrty(PRTYS_PROCESS, &usPrevPriority, 0);
-#endif
-
-   if (rc)
-   {
-      printmsg(0,"nopenline: Unable to get priority for task");
-      printOS2error( "DosDevIOCtl", rc );
-      panic();
-   } /*if */
-
-   rc = DosSetPrty(PRTYS_PROCESS, priority, prioritydelta, 0);
-
-   if (rc)
-   {
-      printmsg(0,"nopenline: Unable to set priority %u,%u for task",
-                   priority, prioritydelta);
-      printOS2error( "DosDevIOCtl", rc );
-
-   } /*if */
 
 /*--------------------------------------------------------------------*/
 /*                     Wait for port to stablize                      */
@@ -899,18 +861,6 @@ void ncloseline(void)
    portActive = FALSE; /* flag port closed for error handler  */
    hangupNeeded = FALSE;  /* Don't fiddle with port any more  */
 
-/*--------------------------------------------------------------------*/
-/*                           Lower priority                           */
-/*--------------------------------------------------------------------*/
-
-   rc = DosSetPrty(PRTYS_PROCESS,
-                   usPrevPriority >> 8 ,
-                   usPrevPriority & 0xff, 0);
-   if (rc)
-   {
-      printmsg(0,"closeline: Unable to set priority for task");
-      printOS2error( "DosSetPrty", rc );
-   } /*if */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
