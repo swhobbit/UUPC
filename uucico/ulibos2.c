@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.15 1993/09/20 04:46:34 ahd Exp $
+ *       $Id: ulibos2.c 1.16 1993/09/21 01:42:13 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.16  1993/09/21  01:42:13  ahd
+ * Use standard MAXPACK limit for save buffer size
+ *
  * Revision 1.15  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -98,6 +101,7 @@ typedef USHORT APIRET ;  // Define older API return type
 #include "ulib.h"
 #include "ssleep.h"
 #include "catcher.h"
+#include "pos2err.h"
 
 #include "commlib.h"
 
@@ -161,16 +165,16 @@ int nopenline(char *name, BPS baud, const boolean direct )
 #endif
 
 
-   USHORT priority = (E_priority == -99) ?
+   USHORT priority = (E_priority == 999) ?
                            PRTYC_FOREGROUNDSERVER : (USHORT) E_priority;
-   USHORT prioritydelta = (E_prioritydelta == -99) ?
+   USHORT prioritydelta = (E_prioritydelta == 999) ?
                            0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
 
    if (portActive)              /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
-   printmsg(15, "openline: %s, %d", name, baud);
+   printmsg(15, "nopenline: %s, %d", name, baud);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -179,7 +183,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (!equal(name,"CON") && !equaln(name, "COM", 3 ))
    {
-      printmsg(0,"openline: Communications port begin with COM, was %s",
+      printmsg(0,"nopenline: Communications port begin with COM, was %s",
          name);
       panic();
    }
@@ -210,8 +214,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    }
    else if ( rc != 0 )
    {
-      printmsg(0,"openline: DosOpen error %d on port %s",
-                  (int) rc, name );
+      printOS2error( name, rc );
       return TRUE;
    }
 
@@ -251,10 +254,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if (rc)
    {
       printmsg(0,
-            "openline: Unable to read errors for %s, error bits %x",
+            "nopenline: Unable to read errors for %s, error bits %x",
                name, (int) com_error );
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosDevIOCtl", rc );
    } /*if */
    else if ( com_error )
       ShowError( com_error );
@@ -270,7 +272,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Getting attributes");
+   printmsg(15,"nopenline: Getting attributes");
 #endif
 
 #ifdef __OS2__
@@ -298,9 +300,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"openline: Unable to get line attributes for %s",name);
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nopenline: Unable to get line attributes for %s",name);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -309,7 +310,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    com_attrib.bStopBits = 0x00; /* 1 Stop Bit                       */
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Setting attributes");
+   printmsg(15,"nopenline: Setting attributes");
 #endif
 
 #ifdef __OS2__
@@ -337,9 +338,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"openline: Unable to set line attributes for %s",name);
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nopenline: Unable to set line attributes for %s",name);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -349,7 +349,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Getting flow control information");
+   printmsg(15,"nopenline: Getting flow control information");
 #endif
 
 #ifdef __OS2__
@@ -378,9 +378,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"openline: Unable to get line attributes for %s",name);
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nopenline: Unable to get line attributes for %s",name);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -393,7 +392,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    com_dcbinfo.fbTimeout = MODE_READ_TIMEOUT | MODE_NO_WRITE_TIMEOUT;
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Setting dcb information");
+   printmsg(15,"nopenline: Setting dcb information");
 #endif
 
 #ifdef __OS2__
@@ -422,9 +421,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( rc )
    {
-      printmsg(0,"openline: Unable to set flow control for %s",name);
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nopenline: Unable to set flow control for %s",name);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -436,7 +434,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    com_signals.fbModemOff = 0xff;
 
 #ifdef UDEBUG
-   printmsg(15,"openline: Raising RTS/DTR");
+   printmsg(15,"nopenline: Raising RTS/DTR");
 #endif
 
 #ifdef __OS2__
@@ -467,10 +465,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
    if (rc)
    {
       printmsg(0,
-            "openline: Unable to raise DTR/RTS for %s, error bits %#x",
+            "nopenline: Unable to raise DTR/RTS for %s, error bits %#x",
                   name, (int) com_error );
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -492,9 +489,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"openline: Unable to get priority for task");
-      printmsg(0,"Return code from DosGetPrty was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nopenline: Unable to get priority for task");
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -502,11 +498,10 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"openline: Unable to set priority %u,%u for task",
+      printmsg(0,"nopenline: Unable to set priority %u,%u for task",
                    priority, prioritydelta);
+      printOS2error( "DosDevIOCtl", rc );
 
-      printmsg(0,"Return code from DosSetPrty was %#04x (%d)",
-               (int) rc , (int) rc);
    } /*if */
 
 /*--------------------------------------------------------------------*/
@@ -516,7 +511,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
    ddelay(500);            /* Allow port to stablize          */
    return 0;
 
-} /*openline*/
+} /*nopenline*/
 
 /*--------------------------------------------------------------------*/
 /*    n s r e a d                                                     */
@@ -593,9 +588,8 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
    if (rc && ! console )
    {
-      printmsg(0,"sread: Unable to read port errors");
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printmsg(0,"nsread: Unable to read port errors");
+      printOS2error( "DosDevIOCtl", rc );
    } /*if */
    else if ( com_error )
       ShowError( com_error );
@@ -638,7 +632,7 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
          static boolean recurse = FALSE;
          if ( ! recurse )
          {
-            printmsg(2,"sread: User aborted processing");
+            printmsg(2,"nsread: User aborted processing");
             recurse = TRUE;
          }
          return 0;
@@ -686,15 +680,14 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 #endif
          if ( rc )
          {
-            printmsg(0,"sread: Unable to set timeout for comm port");
-            printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-                     (int) rc , (int) rc);
+            printmsg(0,"nsread: Unable to set timeout for comm port");
+            printOS2error( "DosDevIOCtl", rc );
             panic();
          } /* if */
       } /* if */
 
 #ifdef UDEBUG
-      printmsg(15,"sread: Port time out is %ud seconds/100",
+      printmsg(15,"nsread: Port time out is %ud seconds/100",
                port_timeout);
 #endif
 
@@ -711,16 +704,15 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       }
       else if ( rc != 0 )
       {
-         printmsg(0,"sread: Read from comm port for %d bytes failed.",
+         printmsg(0,"nsread: Read from comm port for %d bytes failed.",
                   needed);
-         printmsg(0,"Return code from DosRead was %#04x (%d)",
-                  (int) rc , (int) rc);
+         printOS2error( "DosRead", rc );
          bufsize = 0;
          return 0;
       }
 
 #ifdef UDEBUG
-      printmsg(15,"sread: Want %d characters, received %d, total %d in buffer",
+      printmsg(15,"nsread: Want %d characters, received %d, total %d in buffer",
             (int) wanted, (int) received, (int) bufsize + received);
 #endif
 
@@ -791,8 +783,7 @@ int nswrite(const char *input, unsigned int len)
    rc = DosWrite( com_handle, data , len, &bytes);
    if (rc)
    {
-      printmsg(0,"swrite: Write to communications port failed.");
-      printmsg(0,"Return code from DosWrite was %#04x (%d)",
+      printmsg(0,"nswrite: Return code from DosWrite was %#04x (%d)",
                (int) rc , (int) rc);
       return bytes;
    } /*if */
@@ -809,7 +800,7 @@ int nswrite(const char *input, unsigned int len)
 
    return len;
 
-} /*nswrite*/
+} /* nswrite */
 
 /*--------------------------------------------------------------------*/
 /*    n s s e n d b r k                                               */
@@ -918,8 +909,7 @@ void ncloseline(void)
    if (rc)
    {
       printmsg(0,"closeline: Unable to set priority for task");
-      printmsg(0,"Return code from DosSetPrty was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosSetPrty", rc );
    } /*if */
 
 /*--------------------------------------------------------------------*/
@@ -955,7 +945,10 @@ void ncloseline(void)
 #endif
 
    if ( rc )
+   {
       printmsg(0,"ncloseline: Unable to lower DTR/RTS for port");
+      printOS2error( "DosDevIOCtl", rc );
+   }
    else if ( com_error )
          ShowError( com_error );
 
@@ -966,7 +959,7 @@ void ncloseline(void)
    rc = DosClose( com_handle );
 
    if ( rc != 0 )
-      printmsg( 0,"Close of serial port failed, reason %d", (int) rc);
+      printOS2error( "DosClose", rc );
 
 /*--------------------------------------------------------------------*/
 /*                   Stop logging the data to disk                    */
@@ -1038,7 +1031,7 @@ void nhangup( void )
    if ( rc )
    {
       printmsg(0,"hangup: Unable to lower DTR for comm port");
-      panic();
+      printOS2error( "DosDevIOCtl", rc );
    } /*if */
    else if ( com_error )
          ShowError( com_error );
@@ -1085,7 +1078,7 @@ void nhangup( void )
    if ( rc )
    {
       printmsg(0,"hangup: Unable to raise DTR for comm port");
-      panic();
+      printOS2error( "DosDevIOCtl", rc );
    } /*if */
    else if ( com_error )
          ShowError( com_error );
@@ -1169,8 +1162,7 @@ void nSIOSpeed(BPS baud)
    {
       printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",
                baud);
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -1232,8 +1224,7 @@ void nflowcontrol( boolean flow )
    if ( rc )
    {
       printmsg(0,"flowcontrol: Unable to set flow control");
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosDevIOCtl", rc );
       panic();
    } /*if */
 
@@ -1297,9 +1288,7 @@ boolean nCD( void )
    if ( rc )
    {
       printmsg(0,"CD: Unable to get modem status");
-      printmsg(0,"Return code from DosDevIOCtl was %#04x (%d)",
-               (int) rc , (int) rc);
-      panic();
+      printOS2error( "DosDevIOCtl", rc );
    } /*if */
 
    if ( status != oldstatus )
