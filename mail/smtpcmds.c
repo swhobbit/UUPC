@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.3 1998/01/03 05:24:17 ahd Exp $
+ *       $Id: smtpcmds.c 1.4 1998/03/01 01:31:39 ahd Exp $
  *
  *       $Log: smtpcmds.c $
+ *       Revision 1.4  1998/03/01 01:31:39  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.3  1998/01/03 05:24:17  ahd
  *       Correct name in header
  *
@@ -37,13 +40,20 @@
 
 #include "uupcmoah.h"
 #include "smtprecv.h"
+#include "smtpcmmn.h"
 #include "smtplwc.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.3 1998/01/03 05:24:17 ahd Exp $");
+RCSID("$Id: smtpcmds.c 1.4 1998/03/01 01:31:39 ahd Exp $");
+
+/*--------------------------------------------------------------------*/
+/*          External variables for used by various routines           */
+/*--------------------------------------------------------------------*/
+
+char *defaultPortName = "smtp";
 
 /*--------------------------------------------------------------------*/
 /*       Master command verb table for SMTP                           */
