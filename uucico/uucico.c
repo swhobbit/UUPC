@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.7 1994/01/01 19:22:29 ahd Exp $
+ *    $Id: uucico.c 1.8 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ * Revision 1.8  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.7  1994/01/01  19:22:29  ahd
  * Annual Copyright Update
  *
@@ -102,9 +105,21 @@ void main( int argc, char *argv[])
 
     if( signal( SIGINT, ctrlchandler ) == SIG_ERR )
     {
+        printerr("signal");
         printmsg( 0, "Couldn't set SIGINT\n" );
         panic();
     }
+
+#if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
+
+    if( signal( SIGTERM, ctrlchandler ) == SIG_ERR )
+    {
+        printerr("signal");
+        printmsg( 0, "Couldn't set SIGTERM\n" );
+        panic();
+    }
+
+#endif
 
    PushDir(E_spooldir);
    atexit( PopDir );
