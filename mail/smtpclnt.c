@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.9 1998/03/01 01:32:44 ahd Exp $
+ *       $Id: smtpclnt.c 1.10 1998/03/01 19:40:21 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.10  1998/03/01 19:40:21  ahd
+ *       First compiling POP3 server which accepts user id/password
+ *
  *       Revision 1.9  1998/03/01 01:32:44  ahd
  *       Annual Copyright Update
  *
@@ -70,7 +73,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.9 1998/03/01 01:32:44 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.10 1998/03/01 19:40:21 ahd v1-12v $");
 
 static size_t clientSequence = 0;
 
@@ -399,6 +402,7 @@ isClientTimedOut(const SMTPClient *client)
 
    time(&now);
 
+   /* If past absolute termination time, client is timed out */
    if (client->terminationTime > 0 &&
        (client->terminationTime <= now))
       return KWTrue;
@@ -407,7 +411,12 @@ isClientTimedOut(const SMTPClient *client)
    if (getClientTimeout(client) > now)
       return KWFalse;
 
-   if ((getClientTimeout(client) + client->lastTransactionTime) < now)
+   /* Not fair to timeout ignored client */
+   if (isClientIgnored(client))
+      return KWFalse;
+
+   if ((getClientTimeout(client) +
+       max(client->lastTransactionTime, client->ignoreUntilTime)) < now)
    {
 #ifdef UDEBUG
       printmsg(2, "%s: Client %d last transaction time was %.24s "
@@ -592,8 +601,7 @@ getClientTimeout(const SMTPClient *client)
       time(&now);
 
       if (client->ignoreUntilTime > now)
-         return client->ignoreUntilTime - now +
-                getModeTimeout(client->mode);
+         return client->ignoreUntilTime - now;
    }
 
    /* All other sockets timeout according to current client mode */
