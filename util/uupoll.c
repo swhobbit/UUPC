@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.6 1993/04/10 21:25:16 dmwatt Exp $
+ *    $Id: UUPOLL.C 1.7 1993/04/14 10:29:53 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.7  1993/04/14  10:29:53  ahd
+ * Correct invalid exit time if both -e and -f flags specified
+ *
  * Revision 1.6  1993/04/10  21:25:16  dmwatt
  * Add Windows/NT support
  *
@@ -88,7 +91,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.6 1993/04/10 21:25:16 dmwatt Exp $";
+         "$Id: UUPOLL.C 1.7 1993/04/14 10:29:53 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -443,7 +446,7 @@ currentfile();
       while ((now < next) && ! done )
       {
 
-         if ( cleannext < now )
+         if ( cleannext <= now )
          {
             printf("Performing auto-clean with command: %s\n",
                      CleanCommand );
@@ -470,7 +473,7 @@ currentfile();
                wait = 10;
 
                if ((returncode == 0) && (autowait != -1) &&
-                   (now > autonext) && (now < next))
+                   (now >= autonext) && (now < next))
                {
                   returncode = active("any",debuglevel, logname);
                   autonext = now + autowait;
