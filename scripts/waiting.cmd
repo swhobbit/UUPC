@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: WAITING.CMD 1.4 1993/01/01 16:47:07 ahd Exp $
+ *       $Id: waiting.cmd 1.5 1993/01/23 19:15:47 ahd Exp ahd $
  *
- *       $Log: WAITING.CMD $
+ *       $Log: waiting.cmd $
+*     Revision 1.5  1993/01/23  19:15:47  ahd
+*     Load required subroutine packages before using them
+*
 *     Revision 1.4  1993/01/01  16:47:07  ahd
 *     Ignore totally blank arguments
 *
@@ -99,38 +102,6 @@ do;
 end;
 else
    return data.0;
-
-/*--------------------------------------------------------------------*/
-/*       g e t u u p c                                                */
-/*                                                                    */
-/*       Get UUPC/extended configuration variable                     */
-/*--------------------------------------------------------------------*/
-
-getuupc:procedure;
-trace n
-parse upper arg keyword,answer;
-
-uupcrc = value('UUPCSYSRC',,'OS2ENVIRONMENT');
-if  uupcrc == '' then
-do;
-   'UUPCSYSRC not set, cannot continue'
-   exit 44;
-end;
-
-xrc = SysFileSearch( keyword || '=',uupcrc,'data.');
-if xrc \= 0 then
-do;
-   say 'SysFileSearch error' xrc 'searching' uupcrc 'for' keyword;
-   exit xrc;
-end;
-
-do count = 1 to data.0
-   parse var data.count newkey'='string;
-
-   if translate(newkey) = keyword then
-      answer = string;
-end;
-return translate(answer,'\','/');
 
 /*--------------------------------------------------------------------*/
 /*    n o v a l u e                                                   */

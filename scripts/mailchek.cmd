@@ -57,7 +57,7 @@ pos.bottom = 0
 pos.right = 100
 pos.top = 3
 
-title = 'Mailcheck [92-11-10]' /* title w/version number */
+title = 'Mailcheck [04 Apr 93]' /* title w/version number */
 
 mailcheckID = VOpenWindow(title, colour, 'pos')
 info.   = '';                 /* Flag we have no mailbox info  */
@@ -108,38 +108,6 @@ do forever /* start checking */
       end i /* do */
    end;
 end /* do */
-
-/*--------------------------------------------------------------------*/
-/*       g e t u u p c                                                */
-/*                                                                    */
-/*       Get UUPC/extended configuration variable                     */
-/*--------------------------------------------------------------------*/
-
-getuupc:procedure;
-trace n
-parse upper arg keyword,answer;
-
-uupcrc = value('UUPCSYSRC',,'OS2ENVIRONMENT');
-if  uupcrc == '' then
-do;
-   'UUPCSYSRC not set, cannot continue'
-   exit 44;
-end;
-
-xrc = SysFileSearch( keyword || '=',uupcrc,'data.');
-if xrc \= 0 then
-do;
-   say 'SysFileSearch error' xrc 'searching' uupcrc 'for' keyword;
-   exit xrc;
-end;
-
-do count = 1 to data.0
-   parse var data.count newkey'='string;
-
-   if translate(newkey) = keyword then
-      answer = string;
-end;
-return translate(answer,'\','/');
 
 SAYINFO:
 parse arg xwho, xwhen, xbytes, xitems

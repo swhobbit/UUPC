@@ -15,15 +15,18 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1992 by Kendra Electronic Wonderworks, all        */
+/*    Copyright (c) 1992-1993 by Kendra Electronic Wonderworks, all   */
 /*    rights reserved except those granted by the UUPC/extended       */
 /*    license.                                                        */
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: UUCLEAN.CMD 1.4 1992/12/01 04:35:12 ahd Exp $
+ *       $Id: uuclean.cmd 1.5 1993/01/23 19:15:47 ahd Exp ahd $
  *
- *       $Log: UUCLEAN.CMD $
+ *       $Log: uuclean.cmd $
+*     Revision 1.5  1993/01/23  19:15:47  ahd
+*     Load required subroutine packages before using them
+*
 *     Revision 1.4  1992/12/01  04:35:12  ahd
 *     Add new messages for processing status
 *
@@ -78,7 +81,9 @@ end
 /*                    Disable UNDELETE processing                     */
 /*--------------------------------------------------------------------*/
 
+call setlocal;
 deldir = value('DELDIR','','OS2ENVIRONMENT')
+call value 'UUPCDEBUG','','OS2ENVIRONMENT';
 
 /*--------------------------------------------------------------------*/
 /*    Process odd logfiles which may have been left around by         */
@@ -271,37 +276,6 @@ if data.0 == 0 then
    return 0
 else
    return 1
-
-/*--------------------------------------------------------------------*/
-/*       g e t u u p c                                                */
-/*                                                                    */
-/*       Get UUPC/extended configuration variable                     */
-/*--------------------------------------------------------------------*/
-
-getuupc:procedure
-parse upper arg keyword,answer
-
-uupcrc = value('UUPCSYSRC',,'OS2ENVIRONMENT')
-if  uupcrc == '' then
-do
-   'UUPCSYSRC not set, cannot continue'
-   exit 44
-end
-
-xrc = SysFileSearch( keyword || '=',uupcrc,'data.')
-if xrc \= 0 then
-do
-   say 'SysFileSearch error' xrc 'searching' uupcrc 'for' keyword
-   exit xrc
-end
-
-do count = 1 to data.0
-   parse var data.count newkey'='string
-
-   if translate(newkey) = keyword then
-      answer = string
-end
-return translate(answer,'\','/')
 
 /*--------------------------------------------------------------------*/
 /*    n o v a l u e                                                   */
