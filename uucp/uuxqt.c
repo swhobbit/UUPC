@@ -28,10 +28,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.27 1993/11/13 17:43:26 ahd Exp $
+ *    $Id: uuxqt.c 1.28 1993/12/06 01:59:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.28  1993/12/06  01:59:07  ahd
+ * Delete all unneeded environment variable resets to reduce
+ * environment mangling
+ *
  * Revision 1.27  1993/11/13  17:43:26  ahd
  * Update command line limit of RMAIL for 32 bit operating systems
  *
@@ -356,13 +360,6 @@ void main( int argc, char **argv)
       } /* if (putenv( p )) */
 
    } /* if ( E_uuxqtpath != NULL ) */
-
-/*--------------------------------------------------------------------*/
-/*              Disable OS/2 undelete support if desired              */
-/*--------------------------------------------------------------------*/
-
-   if ( !bflag[ F_UNDELETE ] )
-      putenv( "DELDIR=");
 
 /*--------------------------------------------------------------------*/
 /*                  Define the current user as UUCP                   */
@@ -1344,7 +1341,10 @@ static boolean copylocal(const char *from, const char *to)
 
 static void create_environment(const char *requestor)
 {
-   static char buffer[MAXADDR + 20];
+   static char buffera[MAXADDR + 20];
+   static char bufferb[MAXADDR + 20];
+   static char *buffer = buffera;
+
    int subscript = 0;
    char *envp[3];
 
@@ -1352,13 +1352,17 @@ static void create_environment(const char *requestor)
 /*               user id/nodename of original requestor               */
 /*--------------------------------------------------------------------*/
 
+   if ( buffer == buffera )
+      buffer = bufferb;
+   else
+      buffer = buffera;
+
    if ( requestor == NULL )
       panic();
    else if ( ! strlen( requestor ))
-      sprintf(buffer,"%s=%s %s", UU_USER, "uucp", E_nodename );
-   else {
-      sprintf(buffer,"%s=%s",UU_USER, requestor);
-   }
+      sprintf( buffer, "%s=%s %s", UU_USER, "uucp", E_nodename );
+   else
+      sprintf( buffer, "%s=%s", UU_USER, requestor);
 
    envp[subscript++] =  buffer;
 
@@ -1377,6 +1381,7 @@ static void create_environment(const char *requestor)
       }
       else
          printmsg(6,"Set environment string %s", envp[subscript] );
+
    } /* while */
 
 } /* create_environment */
