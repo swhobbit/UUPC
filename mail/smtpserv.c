@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.13 1998/04/24 03:30:13 ahd Exp $
+ *    $Id: smtpserv.c 1.14 1998/04/27 01:45:15 ahd v1-13a $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.14  1998/04/27 01:45:15  ahd
+ *    *** empty log message ***
+ *
  *    Revision 1.13  1998/04/24 03:30:13  ahd
  *    Use local buffers, not client->transmit.buffer, for output
  *    Rename receive buffer, use pointer into buffer rather than
@@ -71,8 +74,9 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 #include "execute.h"
+#include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.13 1998/04/24 03:30:13 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.14 1998/04/27 01:45:15 ahd v1-13a $");
 
 currentfile();
 
@@ -241,6 +245,7 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
    static const char mName[] = "dropTerminatedClientList";
    int freed = 0;
    int total = 0;
+   int masters = 0;
    KWBoolean needUUXQT = KWFalse;
 
    while(current != NULL)
@@ -248,9 +253,13 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
       SMTPClient *next = current->next;
       total++;
 
+      /* Keep count of master sockets in list */
+      if (getClientMode(current) == SM_MASTER)
+         masters++;
+
       if (! isClientValid(current))
       {
-         if ( getClientQueueRun(current))
+         if (getClientQueueRun(current))
             needUUXQT = KWTrue;
 
          freeClient(current);
@@ -268,6 +277,34 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
 
    if (needUUXQT && runUUXQT )
       executeQueue();
+
+/*--------------------------------------------------------------------*/
+/*       Consider spinning the log off if we dropped our last         */
+/*       active client                                                */
+/*--------------------------------------------------------------------*/
+
+   if (freed && ((freed+masters) == total))
+   {
+      static time_t nextSpin = 0;
+      time_t now;
+
+      time(&now);
+      if (nextSpin < now)
+      {
+         /* Spin off the log if we are initialized */
+         if (nextSpin > 0)
+         {
+            printmsg(0,"Spinning off log file");
+            openlog(NULL);
+            printmsg(4,"Started new log file");
+         }
+
+         nextSpin = now + 3600;     /* Start clock ticking        */
+      }
+      else
+         nextSpin -= 200;           /* More clients, more often
+                                       we spin                    */
+   }
 
 } /* dropTerminatedClientList */
 
