@@ -15,13 +15,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\UTIL\RCS\GENSIG.C 1.1 1992/11/15 04:29:22 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: GENSIG.C $
+ * Revision 1.1  1992/11/15  04:29:22  ahd
+ * Initial revision
+ *
  */
 
-static char rcsid[] = "$Id$";
+static char rcsid[] = "$Id: GENSIG.C 1.1 1992/11/15 04:29:22 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -66,9 +69,10 @@ static void usage( void );
 static long chooseit( struct stat *current_status,
        const char *lookaside,
                  const char *quoteused,
-                 const char *fname );
+                 const char *fname ,
+                 const char *target);
 
-static long getquote( const char *data);
+static long getquote( const char *data, const char *target);
 
 static void CopyQuote( const char *fname, long where, FILE *stream);
 
@@ -104,7 +108,7 @@ void main( int argc, char **argv)
 /*    select one                                                      */
 /*--------------------------------------------------------------------*/
 
-      where = getquote( argv[2] );
+      where = getquote( argv[2], argv[3] );
 
 /*--------------------------------------------------------------------*/
 /*                      Open up our output file                       */
@@ -154,14 +158,17 @@ static void usage( void )
 /*    Select a quote to process                                       */
 /*--------------------------------------------------------------------*/
 
-static long getquote( const char *data)
+static long getquote( const char *data, const char *target)
 {
    struct stat current_status;
    long where;
 
    char lookaside[FILENAME_MAX];
    char quoteused[FILENAME_MAX];
-   char drive[FILENAME_MAX], dir[FILENAME_MAX], file[FILENAME_MAX], ext[FILENAME_MAX];
+   char drive[FILENAME_MAX],
+        dir[FILENAME_MAX],
+        file[FILENAME_MAX],
+        ext[FILENAME_MAX];
 
 /*--------------------------------------------------------------------*/
 /*       Get size and data information on the quotes data file        */
@@ -193,10 +200,10 @@ static long getquote( const char *data)
 /*    again                                                           */
 /*--------------------------------------------------------------------*/
 
-   where = chooseit( &current_status, lookaside, quoteused, data );
+   where = chooseit( &current_status, lookaside, quoteused, data , target);
    if  (where == -1 )
    {
-      where = chooseit( &current_status, lookaside, quoteused, data );
+      where = chooseit( &current_status, lookaside, quoteused, data, target );
       if ( where == - 1)
       {
          printf("Unable to create lookaside file \"%s\"!\n",
@@ -222,7 +229,8 @@ static long getquote( const char *data)
 static long chooseit( struct stat *current_status,
                  const char *lookaside,
                  const char *quoteused,
-                 const char *fname )
+                 const char *fname,
+                 const char *target)
 {
    FILE *stream;
    FILE *data;
@@ -264,8 +272,8 @@ static long chooseit( struct stat *current_status,
                                  into the file                       */
          fread( &where, sizeof where, 1, stream);
                               /* Read offset in data file of quote   */
-         printf("Chose quote %ld of %ld starting at byte %ld of file %s:\n\n",
-                  quote + 1 , quotes, where, fname);
+         printf("Chose quote %ld of %ld from %s for %s:\n\n",
+                  quote + 1 , quotes, fname, target);
                               /* Announce number of quote of the day */
          fclose( stream );    /* Done with lookaside file, of course */
          return where;        /* Return position in file to caller   */
