@@ -1,13 +1,15 @@
-#       $Id$
+#       $Id: NMAKEDOS.MAK 1.1 1994/03/05 21:09:21 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
-#       $Log$
+#       $Log: NMAKEDOS.MAK $
+#     Revision 1.1  1994/03/05  21:09:21  ahd
+#     Initial revision
+#
 #
 
-OBJ     = $(SRCSLASH)objms$(MODEL)D
 PROD    = \uupc\bin
 MASM    = masm.exe
 MODEL   = M
@@ -16,8 +18,8 @@ MASMOPTS = /DUUPC /n /v /t /z /W2 /ZI /ZD /Mx
 LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj
 UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
-LIBLIST   =$(MODEL)libce+$(LIBCOMM)+$(LIBDOS)
-
+LIBLIST   =$(MODEL)libce+$(LIBCOMM)
+EXTRAT  = comm34.exe
 LINKER  = link
 LINKOPT = /batch /far /noignorecase /stack:20000
 ZIPID   = d
@@ -38,8 +40,13 @@ ZIPID   = d
 # *   Delete the /G2 if building for an 8086 based system.             *
 # *--------------------------------------------------------------------*
 
-#       Use this CCOPT for debugging; the /FR is optional.
-# CCOPT   = /I$(UULIB) /A$(MODEL) /c /W4 /Od /Zi /Or /DUDEBUG /Fo$@  /FR$(SBR)\$(@B).sbr
-
+!ifdef NODEBUG
 #       Use this CCOPT for productiom
-CCOPT   = /I$(UULIB) /A$(MODEL) /c /W4 /nologo /Ocegilt /Fo$@
+DBGOPT  = -Ocegilt  -nologo
+!else
+#       Use this CCOPT for debugging; the -FR is optional.
+DBGOPT  = -Odr -Zi -DUDEBUG # -FR$(SBR)\$(@B).sbr
+!endif
+
+CCOPT   = $(DBGOPT) -I$(UULIB) -A$(MODEL) -Gd -c -W4 -nologo -Fo$@
+LDOPT   = $(DBGOPT) -nologo -A$(MODEL) -F 4000 $(DBGOPT) -Fe$@

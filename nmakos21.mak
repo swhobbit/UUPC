@@ -1,25 +1,27 @@
-#       $Id$
+#       $Id: NMAKOS21.MAK 1.1 1994/03/05 21:09:21 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
-#       $Log$
+#       $Log: NMAKOS21.MAK $
+#     Revision 1.1  1994/03/05  21:09:21  ahd
+#     Initial revision
+#
 #
 
 ERASE    = del /f
 EXTRA2   = $(PROD)\mail.ico $(PROD)\uucico.ico
-EXTRA4   = $(PROD)\pnews.cmd
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
 LIBLIST  = $(MODEL)libcep+$(LIBCOMM)+os2
 LIBOS    = $(LIBDIR)\$(MODEL)uupcmsc1.lib
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj
 LINKOPT  = /exepack /far /noignorecase /nod /batch
 MODEL    = M                    # Really OS/2 version in this case
-OBJ      = $(SRCSLASH)objmsc2$(MODEL)
 PROD     = \uupc\os2bin
-STACKSIZE= 0x03000
+STACKSIZE= 0x02A00
 WIDTH    = 16
+OS2      = 1
 ZIPID    = 1
 
 UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
