@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.49 1995/03/11 22:31:15 ahd Exp $
+ *    $Id: uuxqt.c 1.50 1995/03/12 16:42:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.50  1995/03/12 16:42:24  ahd
+ *    Don't pass NULL pointers to file delete routines, they get annoyed
+ *
  *    Revision 1.49  1995/03/11 22:31:15  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -1389,7 +1392,7 @@ static int shell(char *command,
             else {                     /* Not option, add to param list  */
                strcat( commandBuf, " ");
                strcat( commandBuf, parameters );
-               rlen -= strlen( parameters ) + 1;
+               left -= strlen( parameters ) + 1;
                firstPass = KWFalse;
             }
 
@@ -1414,27 +1417,28 @@ static int shell(char *command,
                       left );
 
             panic();
-         } /* if (*commandBuf = '\0') */
 
-      } /* while */
+         } /* if (*commandBuf = '\0') */
 
 /*--------------------------------------------------------------------*/
 /*               Execute one command line of addresses                */
 /*--------------------------------------------------------------------*/
 
-      result = execute( RMAIL,
-                        commandBuf,
-                        bflag[F_WINDOWS] ? NULL : inname,
-                        outputName,
-                        KWTrue,
-                        KWFalse );
+         result = execute( RMAIL,
+                           commandBuf,
+                           bflag[F_WINDOWS] ? NULL : inname,
+                           outputName,
+                           KWTrue,
+                           KWFalse );
 
-      if ( result != 0 )    /* Did command execution fail?            */
-      {
-         printmsg(0,"shell: command \"%s %s\" returned error code %d",
-               cmdname, commandBuf, result);
-         panic();
-      }
+         if ( result != 0 )    /* Did command execution fail?            */
+         {
+            printmsg(0,"shell: command \"%s %s\" returned error code %d",
+                  cmdname, commandBuf, result);
+            panic();
+         }
+
+      } /* while */
 
    } /* if (equal(cmdname,RMAIL) && ( inname != NULL )) */
    else
