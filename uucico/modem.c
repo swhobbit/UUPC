@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.37 1993/11/15 05:43:29 ahd Exp $
+ *    $Id: modem.c 1.38 1993/12/24 05:12:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: MODEM.C $
+ *    $Log: modem.c $
+ * Revision 1.38  1993/12/24  05:12:54  ahd
+ * Support for checking echoing of transmitted characters
+ *
  * Revision 1.37  1993/11/15  05:43:29  ahd
  * Drop BPS rate from connect messages
  *
@@ -200,6 +203,7 @@ static KEWSHORT GWindowSize, GPacketSize;
 KEWSHORT M_charDelay;
 KEWSHORT M_fPacketSize;
 KEWSHORT M_gPacketTimeout;       /* "g" procotol                  */
+KEWSHORT M_ePacketTimeout;       /* "e" procotol                  */
 KEWSHORT M_fPacketTimeout;       /* "f" procotol                  */
 KEWSHORT M_tPacketTimeout;       /* "t" procotol                  */
 KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
@@ -230,9 +234,10 @@ static CONFIGTABLE modemtable[] = {
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
    { "description",   &dummy,                  B_TOKEN  },
    { "device",        &M_device,               B_TOKEN| B_UUCICO | B_REQUIRED },
-   { "dialprefix",    &dialPrefix,B_STRING | B_UUCICO | B_REQUIRED },
+   { "dialprefix",    &dialPrefix,             B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
    { "dialtimeout",   (char **) &dialTimeout,  B_SHORT| B_UUCICO },
+   { "epackettimeout",(char **) &M_ePacketTimeout, B_SHORT | B_UUCICO },
    { "fpacketsize",   (char **) &M_fPacketSize,B_SHORT| B_UUCICO },
    { "fpackettimeout",(char **) &M_fPacketTimeout, B_SHORT | B_UUCICO },
    { "gpacketsize",   (char **) &gPacketSize,  B_SHORT| B_UUCICO },
@@ -246,8 +251,8 @@ static CONFIGTABLE modemtable[] = {
    { "noconnect",     (char **) &noconnect,    B_LIST   | B_UUCICO },
    { "options",       (char **) bmodemflag,    B_ALL    | B_BOOLEAN},
    { "porttimeout",   NULL,                    B_OBSOLETE },
-   {"priority",       (char **) &M_priority,     B_SHORT |B_UUCICO},
-   {"prioritydelta",  (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
+   { "priority",      (char **) &M_priority,     B_SHORT |B_UUCICO},
+   { "prioritydelta", (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
    { "scripttimeout", (char **) &scriptTimeout,B_SHORT| B_UUCICO },
    { "scriptechotimeout", (char **) &scriptEchoTimeout,B_SHORT| B_UUCICO },
@@ -616,6 +621,7 @@ boolean getmodem( const char *brand)
    M_fPacketSize = MAXPACK;
    M_fPacketTimeout = 20;
    M_gPacketTimeout = 10;
+   M_ePacketTimeout = 60;
    M_tPacketTimeout = 60;
    modemTimeout  = 3;         /* Default is 3 seconds for modem cmds  */
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
