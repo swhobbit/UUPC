@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.27 1995/03/11 02:04:36 ahd Exp $
+ *    $Id: uupoll.c 1.28 1995/07/21 13:23:19 ahd v1-12p $
  *
  *    $Log: uupoll.c $
+ *    Revision 1.28  1995/07/21 13:23:19  ahd
+ *    Spread out parameters on generated command line a little
+ *
  *    Revision 1.27  1995/03/11 02:04:36  ahd
  *    If running in autoUUXQT mode, still run UUXQT for local system
  *    in support of newsrun.
@@ -184,7 +187,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.27 1995/03/11 02:04:36 ahd Exp $";
+         "$Id: uupoll.c 1.28 1995/07/21 13:23:19 ahd v1-12p $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -861,16 +864,14 @@ static void busywork( time_t next)
 
 #ifdef UDEBUG                  /* ahd */
 
-   stream = fopen("UUPOLL.LOG","a");
+   stream = FOPEN("UUPOLL.LOG","a",TEXT_MODE);
 
    if (stream == NULL)
-   {
       printerr("UUPOLL.LOG");
-      panic();
-   } /* if */
-
-   fprintf(stream, "%s: %s\n",arpadate(), command);
-   fclose(stream);
+   else {
+      fprintf(stream, "%s: %s\n",arpadate(), command);
+      fclose(stream);
+   }
 
 #endif /* UDEBUG */
 
