@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.3 1993/06/13 14:06:00 ahd Exp $
+ *    $Id: pushpop.c 1.4 1993/06/15 12:18:06 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *     Revision 1.4  1993/06/15  12:18:06  ahd
+ *     Save pushed directory name for debugging
+ *
  *     Revision 1.3  1993/06/13  14:06:00  ahd
  *     Insure directories PUSHED are POPPED
  *
@@ -28,11 +31,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#ifdef __GNUC__
-#include <unistd.h>
-#else
 #include <direct.h>
-#endif
+#include <string.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -77,13 +77,17 @@ void PushDir( const char *directory )
 
    if (dirstack[depth] == NULL )
    {
-      printerr("PushDir");
+      printerr("getcwd");
       panic();
    }
+
    CHDIR( directory );
-   E_cwd = directory;
+
+   E_cwd = equal(directory,".") ? dirstack[depth] : (char *) directory;
+
    depth++;
    return;
+
 } /* PushDir */
 
 /*--------------------------------------------------------------------*/
