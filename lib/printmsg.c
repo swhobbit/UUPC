@@ -9,6 +9,12 @@
 /*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,6 +96,16 @@ void printmsg(int level, char *fmt, ...)
    unsigned nowfree;
 #endif
 
+#ifdef __HEAPCHECK__
+      static boolean recurse = FALSE;
+      int heapstatus;
+
+      heapstatus = heapcheck();
+      if (heapstatus == _HEAPCORRUPT)
+         printf("\a*** HEAP IS CORRUPTED ***\a\n");
+
+#endif
+
 #ifdef __CORE__
    if (*lowcore != 0L)
    {
@@ -112,15 +128,6 @@ void printmsg(int level, char *fmt, ...)
    {
 
       FILE *stream = (logfile == NULL) ? stdout : logfile;
-
-#ifdef __HEAPCHECK__
-      static boolean recurse = FALSE;
-      int heapstatus;
-
-      heapstatus = heapcheck();
-      if (heapstatus == _HEAPCORRUPT)
-         printf("\a*** HEAP IS CORRUPTED ***\a\n");
-#endif
 
       va_start(arg_ptr,fmt);
 
