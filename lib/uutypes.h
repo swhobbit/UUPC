@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.23 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: uutypes.h 1.24 1995/01/02 05:04:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.24  1995/01/02 05:04:57  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.23  1994/12/31 03:51:25  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -132,68 +135,68 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
                F_ASKCC,       /* TRUE = ask for Carbon copies          */
-               F_DOSKEY,      /* TRUE = Use DOSKEY under DOS 5 if available*/
+               F_DOSKEY,      /* TRUE = Use DOSKEY under when available*/
                F_BACKUP,      /* TRUE = Backup mailbox before rewriting */
                F_DOT,         /* TRUE = period ends a message          */
-               F_AUTOPRINT,   /* TRUE = print next message automatically  */
+               F_AUTOPRINT,   /* TRUE = print next msg automatically   */
                F_AUTOEDIT,    /* TRUE = no line prompt, always edit    */
-               F_AUTOINCLUDE, /* TRUE = Perform automatic INCLUDE command */
+               F_AUTOINCLUDE, /* TRUE = Perform automatic INCLUDE cmd  */
                F_AUTOSIGN,    /* TRUE = append the signature file      */
-               F_EXPERT,      /* TRUE = Let user shoot self in foot w/o
-                                        a message.                     */
+               F_EXPERT,      /* TRUE = Let user shoot self in foot
+                                        w/o a message.                 */
                F_FROMSEP,     /* TRUE = Allow From to split messages   */
-               F_PAGER,       /* TRUE = Invert meaning of P/p T/t commands */
+               F_IMFILE,      /* TRUE = Use in memory files            */
+               F_PAGER,       /* TRUE = Invert meaning of P/p T/t cmds */
                F_PURGE,       /* TRUE = Delete mailbox, if empty       */
-               F_SAVE,        /* TRUE = Save read messages in =mbox when
-                                        reading new mail.              */
-               F_SAVERESENT,  /* TRUE = Save forwarded mail a second time */
+               F_SAVE,        /* TRUE = Save read messages in =mbox
+                                        when reading new mail.         */
+               F_SAVERESENT,  /* TRUE = Save forwarded mail second time*/
                F_SUPPRESSCOPYRIGHT,
                               /* Skip copyright message                */
                F_SUPPRESSBEEP,/* Never beep at the user                */
                F_SPEEDOVERMEMORY,
                               /* TRUE = Be lazy in strpool()           */
                F_VERBOSE,     /* TRUE = Verbose RMAIL output           */
-               F_WINDOWS,     /* TRUE = Run RMAIL/RNEWS as Windows programs*/
+               F_WINDOWS,     /* TRUE = Run RMAIL/RNEWS as Windows pgms*/
 
 /*--------------------------------------------------------------------*/
 /*                    Per system (GLOBAL) options                     */
 /*--------------------------------------------------------------------*/
 
-               F_BANG,        /* TRUE = re-write addresses in bang (!) form*/
+               F_BANG,        /* TRUE = re-write addrs in bang (!) form*/
                F_BOUNCE,      /* TRUE = Bounce bad mail to sender      */
                F_COLLECTSTATS,/* TRUE = Report additional information in
                                         various logs                   */
                F_COMPRESSBATCH,
-                              /* TRUE = Compress outgoing news batches  */
+                              /* TRUE = Compress outgoing news batches */
                F_DIRECT,      /* TRUE = Deliver to subdirectories, not
                                         files                          */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
                F_ESCAPE,      /* TRUE = ESCAPE acts as Ctrl-Break      */
-               F_FULLBATCH,   /* TRUE = Batch only sends batches that are
-                                 full size.                             */
-               F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
-               F_LONGNAME,    /* TRUE = Exploit OS/2 and NT long names  */
-               F_MULTI,       /* TRUE = Deliver to multiple addresses on
-                                        remote host at once             */
+               F_FULLBATCH,   /* TRUE = Batch only sends batches that
+                                 are full size.                        */
+               F_KANJI,       /* TRUE = enable Kanji (Japanese) support*/
+               F_LONGNAME,    /* TRUE = Exploit OS/2 and NT long names */
+               F_MULTI,       /* TRUE = Deliver to multiple addresses
+                                        on one remote host at once     */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
-                                        for race conditions             */
-               F_ONECASE,     /* TRUE = Remote host is case insensitive */
-               F_SENDDEBUG,   /* True = Send -x flag to remote systems  */
-               F_SHORTFROM,   /* TRUE = Use short From remote header    */
-               F_SHOWSPOOL,   /* TRUE = Print files xferred from spool  */
-               F_SNEWS,       /* TRUE = Use Simple news delivery        */
-               F_SUPPRESSFROM,
-                              /* Suppress writing From lines in Mail    */
+                                        for race conditions            */
+               F_ONECASE,     /* TRUE = Remote host is case insensitive*/
+               F_SENDDEBUG,   /* True = Send -x flag to remote systems */
+               F_SHORTFROM,   /* TRUE = Use short From remote header   */
+               F_SHOWSPOOL,   /* TRUE = Print files xferred from spool */
+               F_SNEWS,       /* TRUE = Use Simple news delivery       */
+               F_SUPPRESSFROM,/* Suppress writing From lines in Mail   */
                F_SYMMETRICGRADES,
-                              /* TRUE = Use send grade as receive grade */
-               F_SYSLOG,      /* TRUE = Write syslog with name and time
-                                        of each file transferred        */
+                              /* TRUE = Use send grade as receive grade*/
+               F_SYSLOG,      /* TRUE = Write syslog with name and
+                                        time of each file transferred  */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
                                  support                               */
                F_SUPPRESSEMPTYPASSWORD,
-                              /* Don't prompt if user password is empty */
-               F_LAST }       /* Dummy - Must be last - defines array size */
+                              /* Don't prompt for null passwords       */
+               F_LAST }       /* Dummy - Must be last - sets array size*/
                B_FLAG;        /* Boolean flag array - ahd              */
 
 /*--------------------------------------------------------------------*/
