@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.7 1996/01/01 21:04:52 ahd Exp $
+ *    $Id: maillib.h 1.8 1996/01/04 04:01:44 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.8  1996/01/04 04:01:44  ahd
+ *    Use sorted table for boolean options with binary search
+ *
  *    Revision 1.7  1996/01/01 21:04:52  ahd
  *    Annual Copyright Update
  *
@@ -83,6 +86,6 @@ void sayOptions( FLAGTABLE *flags, const size_t size);
 
 extern IMFILE *imBox;
 
-extern struct ldesc UUFAR *letters;
+extern LDESC UUFAR  *letters;
 
 extern int letternum;

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.h 1.7 1994/12/22 00:20:16 ahd v1-12q $
+ *    $Id: mail.h 1.8 1996/01/01 21:04:30 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: mail.h $
+ *    Revision 1.8  1996/01/01 21:04:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/12/22 00:20:16  ahd
  *    Annual Copyright Update
  *
@@ -56,7 +59,8 @@ typedef enum {
       M_DELETED }
       MSTATUS;
 
-static struct ldesc {
+typedef struct _LDESC
+{
    MSTATUS status;         /* status of this message  */
    long adr;               /* address of From line    */
    long date;              /* address of Date: line   */
@@ -64,7 +68,7 @@ static struct ldesc {
    long from;              /* address of From: line   */
    long replyto;           /* address of Reply-To: line   */
    long lines;             /* number of lines         */
-};
+} LDESC;
 
 /*--------------------------------------------------------------------*/
 /*                        Enumerated Verb list                        */

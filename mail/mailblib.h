@@ -12,7 +12,7 @@ KWBoolean Reply( const int current );
 int Position(int absolute, int relative, int letter);
 
 KWBoolean SaveItem( const int letter,
-               const KWBoolean delete,
+               const KWBoolean remove,
                copyopt headers,
                char *fname,
                const ACTION verb);
