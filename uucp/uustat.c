@@ -368,7 +368,7 @@ void all( const char *system, const char *userid)
 
       while( readnext(fname , hostp->hostname, "C", NULL, &ltime, &size) )
       {
-         boolean display = equal( userid, ALL );
+         boolean display = equali( userid, ALL );
          struct data_queue *data_link = NULL;
          char user[MAXL];
          char sys[MAXL];
@@ -399,7 +399,7 @@ void all( const char *system, const char *userid)
 
             case SEND_CALL:
             case RECEIVE_CALL:
-               if( equal(userid , ALL) || equal(userid, user))
+               if( equal(userid , ALL) || equali(userid, user))
                   display = TRUE;
 
                if(display)
