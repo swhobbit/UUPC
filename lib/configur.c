@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.44 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: configur.c 1.45 1994/03/05 21:12:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.45  1994/03/05  21:12:05  ahd
+ *     Correct spelling of LONGNAME flag
+ *
  *     Revision 1.44  1994/02/28  01:02:06  ahd
  *     Add 'HonorControl' boolean option
  *
@@ -177,7 +180,9 @@
 #include "pushpop.h"
 
 #ifdef WIN32
+#include <windows.h>
 #include "setstdin.h"
+#include "pnterr.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -265,13 +270,14 @@ static ENV_TYPE active_env = ENV_OS2_32BIT | ENV_OS2 | ENV_BIT32;
 static ENV_TYPE active_env = ENV_DOS | ENV_BIT16;
 #endif
 
-static boolean getrcnames(char **sysp,char **usrp);
+boolean getrcnames(char **sysp,char **usrp);
+static char *getregistry(char *envName, char **value);
 
 /*--------------------------------------------------------------------*/
 /*  The following table controls the configuration files processing   */
 /*--------------------------------------------------------------------*/
 
-static CONFIGTABLE envtable[] = {
+CONFIGTABLE envtable[] = {
    {"aliases",      &E_nickname,     B_TOKEN|B_MUA},
    {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
    {"anonymouslogin", &E_anonymous,  B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
@@ -981,17 +987,26 @@ boolean configure( CONFIGBITS program)
 /*    Return the name of the configuration files                      */
 /*--------------------------------------------------------------------*/
 
-static boolean getrcnames(char **sysp,char **usrp)
+boolean getrcnames(char **sysp,char **usrp)
 {
    char *debugp = NULL;      /* Pointer to debug environment variable */
 
-   if ((*sysp = getenv(SYSRCSYM)) == nil(char))
+   if ((*sysp = getenv(SYSRCSYM)) == nil(char)
+#if defined(WIN32)
+      && (getregistry(SYSRCSYM, sysp) == nil(char))
+#endif
+   )
    {
       printf("environment variable %s must be specified\n", SYSRCSYM);
       return FALSE;
    }
 
    *usrp = getenv(USRRCSYM);
+
+#if defined(WIN32)
+   if (*usrp == nil(char))
+      getregistry(USRRCSYM, usrp);
+#endif
 
    debugp = getenv(SYSDEBUG);
 
@@ -1016,3 +1031,66 @@ boolean IsDOS( void )
       return FALSE;
 
 } /* IsDOS */
+
+
+#if defined(WIN32)
+static HKEY uupcMachineKey = INVALID_HANDLE_VALUE;
+static HKEY uupcUserKey = INVALID_HANDLE_VALUE;
+
+char *getregistry(char *envName, char **value)
+{
+   LONG result;
+   DWORD dwType;
+   char bData[BUFSIZ];
+   DWORD cbData = BUFSIZ;
+
+   *value = NULL;
+
+   if (uupcMachineKey == INVALID_HANDLE_VALUE)
+   {
+      result = RegOpenKey(HKEY_LOCAL_MACHINE, REGISTRYHIVE, &uupcMachineKey);
+      if (result != ERROR_SUCCESS)
+      {
+         printmsg(2, "getregistry: could not open LOCAL_MACHINE hive");
+         if (debuglevel > 1)
+            printNTerror("RegOpenKey", result);
+      }
+   }
+
+   if (uupcUserKey == INVALID_HANDLE_VALUE)
+   {
+      result = RegOpenKey(HKEY_CURRENT_USER, REGISTRYHIVE, &uupcUserKey);
+      if (result != ERROR_SUCCESS)
+      {
+         printmsg(2, "getregistry: could not open CURRENT_USER hive");
+         if (debuglevel > 1)
+            printNTerror("RegOpenKey", result);
+      }
+   }
+
+/*--------------------------------------------------------------------*/
+/*   Check the user's hive first, then the machine's hive             */
+/*--------------------------------------------------------------------*/
+
+   result = RegQueryValueEx(uupcUserKey, envName, NULL, &dwType, bData, &cbData);
+   if (result == ERROR_SUCCESS && dwType == REG_SZ)
+   {
+      printmsg(2, "Found user registry entry %s, value %s", envName, bData);
+      *value = newstr(bData);
+      return *value;
+   }
+
+   result = RegQueryValueEx(uupcMachineKey, envName, NULL, &dwType, bData, &cbData);
+
+   if (result == ERROR_SUCCESS && dwType == REG_SZ)
+   {
+      printmsg(2, "Found machine registry entry %s, value %s", envName, bData);
+      *value = newstr(bData);
+      return *value;
+   }
+
+   *value = NULL;
+   return *value;
+}
+
+#endif
