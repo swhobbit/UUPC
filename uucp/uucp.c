@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.21 1995/02/24 00:38:58 ahd v1-12o $
+ *    $Id: uucp.c 1.22 1995/09/26 00:37:40 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.22  1995/09/26 00:37:40  ahd
+ *    Use unsigned sequence number for jobs to prevent mapping errors
+ *
  *    Revision 1.21  1995/02/24 00:38:58  ahd
  *    Reduce memory usage, reformat source
  *

@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.27 1995/03/11 22:30:54 ahd Exp $
+ *    $Id: uustat.c 1.28 1995/07/21 13:18:16 ahd v1-12q $
  *
  *    $Log: uustat.c $
+ *    Revision 1.28  1995/07/21 13:18:16  ahd
+ *    Improved time reporting for queued files
+ *
  *    Revision 1.27  1995/03/11 22:30:54  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -54,7 +57,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.27 1995/03/11 22:30:54 ahd Exp $";
+         "$Id: uustat.c 1.28 1995/07/21 13:18:16 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */

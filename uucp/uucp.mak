@@ -1,17 +1,20 @@
 # *--------------------------------------------------------------------*
 # *     u u c p . m a k                                                *
 # *                                                                    *
-# *     Changes Copyright (c) 1989-1995 by Kendra Electronic           *
+# *     Changes Copyright (c) 1989-1996 by Kendra Electronic           *
 # *     Wonderworks.                                                   *
 # *                                                                    *
 # *     All rights reserved except those explicitly granted by the     *
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucp.mak 1.6 1994/12/22 00:45:39 ahd Exp $
+#     $Id: uucp.mak 1.7 1995/02/12 23:27:23 ahd v1-12q $
 #
 #     Revision history:
 #     $Log: uucp.mak $
+#     Revision 1.7  1995/02/12 23:27:23  ahd
+#     split rnews into rnews/news, rename rnews dir to news, make inews COM file
+#
 #     Revision 1.6  1994/12/22 00:45:39  ahd
 #     Annual Copyright Update
 #

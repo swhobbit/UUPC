@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.52 1995/09/11 00:20:45 ahd Exp $
+ *    $Id: uuxqt.c 1.53 1995/09/24 19:10:36 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.53  1995/09/24 19:10:36  ahd
+ *    Correct compiler warning
+ *
  *    Revision 1.52  1995/09/11 00:20:45  ahd
  *    Use "--" on RMAIL commands to prevent destructive behavior from
  *    untrusted nodes, make loop to process overlength RMAIL lines

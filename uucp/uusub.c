@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1989-1995 by Kendra Electronic Wonderworks        */
+/*    Copyright (c) 1989-1996 by Kendra Electronic Wonderworks        */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusub.c 1.14 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: uusub.c 1.15 1995/07/21 13:18:16 ahd v1-12q $
  *
  *    $Log: uusub.c $
+ *    Revision 1.15  1995/07/21 13:18:16  ahd
+ *    Change hostatus type to HOSTSTATUS
+ *
  *    Revision 1.14  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *

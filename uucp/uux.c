@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.22 1995/03/24 04:17:22 ahd v1-12o $
+ *    $Id: uux.c 1.23 1995/09/26 00:37:40 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.23  1995/09/26 00:37:40  ahd
+ *    Use unsigned sequence number for jobs to prevent mapping errors
+ *
  *    Revision 1.22  1995/03/24 04:17:22  ahd
  *    Compiler warning message cleanup, optimize for low memory processing
  *
