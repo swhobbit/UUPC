@@ -16,16 +16,20 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: hdbm.c 1.17 1997/04/24 00:56:54 ahd v1-12u $");
+RCSID("$Id: hdbm.c 1.18 1997/12/22 14:12:44 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id: hdbm.c 1.17 1997/04/24 00:56:54 ahd v1-12u $
+ * $Id: hdbm.c 1.18 1997/12/22 14:12:44 ahd Exp $
  *
  * $Log: hdbm.c $
+ * Revision 1.18  1997/12/22 14:12:44  ahd
+ * Correct off-by-2 error in computing length of string to allocate
+ * Add debugging information for failure to backup/rename files
+ *
  * Revision 1.17  1997/04/24 00:56:54  ahd
  * Delete MAKEBUF/FREEBUF support
  *
@@ -341,7 +345,7 @@ datum dbm_nextkey(DBM *db)
   {
     if (fgets(db -> buffer, sizeof(db -> buffer), db -> stream) == NULL)
     {
-      flose(db -> stream);
+      fclose(db -> stream);
       db -> stream = NULL;
       return nullitem;
     }
