@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.15 1998/05/11 01:20:48 ahd Exp $
+ *    $Id: smtpserv.c 1.16 1998/05/11 13:55:28 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.16  1998/05/11 13:55:28  ahd
+ *    When client times out, don't try to read buffer
+ *
  *    Revision 1.15  1998/05/11 01:20:48  ahd
  *    Spin off log on regular basis
  *
@@ -79,7 +82,7 @@
 #include "execute.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.15 1998/05/11 01:20:48 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.16 1998/05/11 13:55:28 ahd Exp $");
 
 currentfile();
 
@@ -200,7 +203,7 @@ timeoutClientList(SMTPClient *current)
                   mName,
                   getClientSequence(current));
          setClientMode(current, SM_TIMEOUT);
-         setClientFlag(client, SF_NO_READ);
+         setClientFlag(current, SF_NO_READ);
          setClientProcess(current, KWTrue);
 
       } /* if (isClientTimedOut(current)) */
@@ -355,7 +358,7 @@ dropAllClientList(SMTPClient *top, KWBoolean runUUXQT)
       if (isClientValid(current))
       {
          setClientMode(current, SM_EXITING);
-         setClientFlag(client, SF_NO_READ);
+         setClientFlag(current, SF_NO_READ);
          processClient(current);
          count ++;
       }
