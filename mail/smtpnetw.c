@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.12 1998/03/08 23:10:20 ahd Exp $
+ *    $Id: smtpnetw.c 1.13 1998/03/16 06:42:49 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.13  1998/03/16 06:42:49  ahd
+ *    Allow larger receive buffers
+ *
  *    Revision 1.12  1998/03/08 23:10:20  ahd
  *    Allow raw message transmission for POP messages
  *    Make all receive errors fatal
@@ -87,7 +90,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.12 1998/03/08 23:10:20 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.13 1998/03/16 06:42:49 ahd Exp $");
 
 currentfile();
 
@@ -209,10 +212,12 @@ SMTPGetLine(SMTPClient *client)
                   client->receive.used);
       }
 
+#ifdef LAZY_NETSCAPE
       /* Silly hack to handle NETSPACE being lazy about
          terminating QUIT commands                       */
       if ((client->receive.used > 3) &&
            (client->receive.used < 6) &&
+           client->stalledReads &&
            equalni(client->receive.data, "QUIT", 4))
       {
          printmsg(1, "%s: Client %d requires CR/LF after QUIT",
@@ -221,6 +226,7 @@ SMTPGetLine(SMTPClient *client)
          strcpy(client->receive.data + 4, crlf);
          client->receive.used = 6;
       }
+#endif
 
    } /* if (getClientMode(client) != SM_DATA) */
 
