@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.11 1993/10/12 00:43:34 ahd Exp rommel $
+ *    $Id: logger.c 1.12 1993/12/23 03:11:17 rommel Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.12  1993/12/23  03:11:17  rommel
+ *     OS/2 32 bit support for additional compilers
+ *
  *     Revision 1.11  1993/10/12  00:43:34  ahd
  *     Normalize comments
  *
@@ -109,6 +112,10 @@ void openlog( const char *log )
 
    logname =  (char*) ((log == NULL) ? compilen : log);
    tempname = strchr( logname, '.');
+
+   if ( E_spooldir == NULL )     /* We DID call configure, didn't we? */
+      panic();                   /* Ooopps --> I guess not.           */
+
    mkfilename( fname, E_spooldir, logname );
 
    if ( tempname == NULL )
