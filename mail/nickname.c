@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nickname.c 1.28 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: nickname.c 1.29 1999/01/08 02:21:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: nickname.c $
+ *    Revision 1.29  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.28  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -145,7 +148,7 @@ static NICKNAME *nickname = NULL;
 
 static size_t loadAliases( void ) ;
 
-RCSID("$Id$");
+RCSID("$Id: nickname.c 1.29 1999/01/08 02:21:05 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*   n i c k C o m p a r e                                            */
@@ -179,7 +182,7 @@ KWBoolean InitRouter()
    if (hostP == BADHOST)
    {
       printmsg(0, "mail server '%s' must be listed in SYSTEMS or HOSTPATH file",
-         hostP->hostname);
+                  E_mailserv);
       success = KWFalse;
    }
    else if ( hostP->status.hstatus >= HS_NOCALL )
