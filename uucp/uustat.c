@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.35 1999/01/04 03:53:57 ahd Exp $
+ *    $Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.36  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.35  1999/01/04 03:53:57  ahd
  *    Annual copyright change
  *
@@ -81,7 +84,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.35 1999/01/04 03:53:57 ahd Exp $";
+         "$Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -177,7 +180,7 @@ typedef enum {
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: uustat.c 1.36 1999/01/08 02:21:01 ahd Exp $");
 
 static const char *host_status[] = {
       "(invalid - entry not properly initialized)",
@@ -273,6 +276,8 @@ main(int  argc, char  **argv)
    char *system = NULL;
    char *userid = NULL;
    char *job    = NULL;
+
+   logfile = stdout;       /* Harmless, allows redirection */
 
 /*--------------------------------------------------------------------*/
 /*     Report our version number and date/time compiled               */
