@@ -5,11 +5,10 @@
 /*                                                                    */
 /*    Written by Mike McLagan <mmclagan@invlogic.com>                 */
 /*                                                                    */
-/*    Scans directory given for files named *.ART which are assumed   */
-/*    to be news articles.  These are batched together into a *.BAT   */
-/*    file in the same directory.  If the F_COMPRESS flag is set,     */
-/*    the batch file is then compressed and the compressed file is    */
-/*    given the fileName *.CMP.  Intermediate files as necessary.     */
+/*    Processes specified input list of news articles to send         */
+/*    to the remote system, automatically handling compression        */
+/*    and underlength batches.  Actual queuing for the remote         */
+/*    system is handled via UUX.                                      */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -25,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.10 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: batch.c 1.11 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.11  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.10  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -584,7 +586,6 @@ void process_batch(const struct sys *node,
        fseek(names, firstPosition, SEEK_SET);
        deleteBatchedFiles( names, lastPosition );
 
-
      } /* if ((!node->flag.B) || (batchLength >= E_batchsize)) */
      else {
 
@@ -610,7 +611,13 @@ void process_batch(const struct sys *node,
 
      } /* else */
 
-     if ( unlink(batchName) )
+/*--------------------------------------------------------------------*/
+/*       Delete the input batch file if it still exists.  (It may     */
+/*       have been deleted by the compress program if we sent the     */
+/*       batch compressed.                                            */
+/*--------------------------------------------------------------------*/
+
+     if ( access( batchName, 0) && unlink(batchName) )
         printerr( batchName );
 
    } while (articleCount && ! done);
