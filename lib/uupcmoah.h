@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.14 1999/01/04 03:55:03 ahd Exp $
+ *    $Id: uupcmoah.h 1.15 2000/05/12 12:40:50 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.15  2000/05/12 12:40:50  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.14  1999/01/04 03:55:03  ahd
  *    Annual copyright change
  *
@@ -86,6 +89,10 @@
 #endif
 
 #endif /* __TURBOC__ */
+
+#if defined(_WIN32) && !defined(WIN32)
+#define WIN32  1
+#endif
 
 #if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
 

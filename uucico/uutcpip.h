@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutcpip.h 1.6 1999/01/04 03:55:33 ahd Exp $
+ *    $Id: uutcpip.h 1.7 2000/05/12 12:41:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutcpip.h $
+ *    Revision 1.7  2000/05/12 12:41:43  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.6  1999/01/04 03:55:33  ahd
  *    Annual copyright change
  *
@@ -82,7 +85,7 @@ typedef int SOCKET;
 #include "pnterr.h"
 #endif
 
-#ifdef _Windows
+#if defined(_Windows) && !defined(WIN32)
 #include "pwinsock.h"      /* definitions for 16 bit Winsock functions  */
 #endif
 
