@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.16 1994/12/31 03:40:35 ahd Exp $
+ *    $Id: dcp.h 1.17 1995/02/12 23:39:45 ahd v1-12n $
  *
  *    $Log: dcp.h $
+ *    Revision 1.17  1995/02/12 23:39:45  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.16  1994/12/31 03:40:35  ahd
  *    Correct processing for systems with grade restrictions when
  *    calling system "any"
@@ -102,6 +105,7 @@ typedef enum {
       CONN_SERVER,            /* Process files after dialing out     */
       CONN_CLIENT,            /* Process files after being called    */
       CONN_TERMINATE,         /* Terminate procotol                  */
+      CONN_TIMESET,           /* Set of system clock complete        */
       CONN_DROPLINE,          /* Hangup the telephone                */
       CONN_CLEANUP,           /* Cleanup after line termination      */
       CONN_UUXQT,             /* Execute UUXQT                       */
