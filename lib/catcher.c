@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.27 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: catcher.c 1.28 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.28  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.27  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -61,7 +64,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: catcher.c 1.27 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: catcher.c 1.28 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */

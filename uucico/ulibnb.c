@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.9 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: ulibnb.c 1.10 2000/05/12 12:32:00 ahd v1-13g $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.10  2000/05/12 12:32:00  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.9  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -76,7 +79,7 @@ KWBoolean IsFatalSocketError(int err);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: ulibnb.c 1.9 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: ulibnb.c 1.10 2000/05/12 12:32:00 ahd v1-13g $");
 static KWBoolean hangupNeeded = KWTrue;
 extern KWBoolean winsockActive;                  /* Initialized in catcher.c  */
 static SOCKET pollingSock = INVALID_SOCKET;     /* The current polling socket  */

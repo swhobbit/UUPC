@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: abspath.c 1.7 2000/05/12 12:29:45 ahd Exp ahd $
+ *    $Id: abspath.c 1.8 2000/05/25 03:41:49 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: abspath.c $
+ *    Revision 1.8  2000/05/25 03:41:49  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.7  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -47,7 +50,7 @@
 #include "uupcmoah.h"
 #include <ctype.h>
 
-RCSID("$Id: abspath.c 1.7 2000/05/12 12:29:45 ahd Exp ahd $");
+RCSID("$Id: abspath.c 1.8 2000/05/25 03:41:49 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       i s A b s o l u t e P a t h                                  */

@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.46 1999/01/08 02:21:16 ahd Exp $
+ *    $Id: uutypes.h 1.47 2000/05/12 12:40:50 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.47  2000/05/12 12:40:50  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.46  1999/01/08 02:21:16  ahd
  *    Convert currentfile() to RCSID()
  *

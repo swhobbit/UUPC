@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    System support functions for UUCICO                             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.57 1999/01/08 02:20:56 ahd Exp $
+ *     $Id: dcpsys.c 1.58 2000/05/12 12:32:55 ahd v1-13g $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.58  2000/05/12 12:32:55  ahd
+ *     Annual copyright update
+ *
  *     Revision 1.57  1999/01/08 02:20:56  ahd
  *     Convert currentfile() to RCSID()
  *
@@ -245,13 +248,12 @@
 #include "hostatus.h"
 #include "modem.h"
 #include "lock.h"
-#include "nbstime.h"
 #include "uundir.h"
 #include "ssleep.h"
 #include "security.h"
 #include "commlib.h"
 
-RCSID("$Id: dcpsys.c 1.57 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: dcpsys.c 1.58 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                     Define available protocols                     */
@@ -294,7 +296,7 @@ Proto Protolst[] = {
               grdmsg,  gwrmsg,   geofpkt, gfilepkt,
               KWFalse,
        } ,
-#if defined(_Windows) || defined(BIT32ENV) || defined(FAMILYAPI)
+#if defined(_Windows) || defined(BIT32ENV)
        { 'e', egetpkt, esendpkt, eopenpk, eclosepk,
               erdmsg,  ewrmsg,   eeofpkt, efilepkt,
               KWTrue,
@@ -673,24 +675,6 @@ CONN_STATE startup_server(const char recvgrade )
 
    hostp->status.hstatus= HS_STARTUP_FAILED;
    hostp->via     = hostp->hostname;   /* Save true hostname           */
-
-/*--------------------------------------------------------------------*/
-/*    Handle the special case of '*' protocol, which is really our    */
-/*    NBS time setting support                                        */
-/*--------------------------------------------------------------------*/
-
-   if (*protocols == '*')
-   {
-      if (nbstime())
-      {
-         hostp->status.hstatus = HS_CALLED;
-         time( &hostp->status.lconnect );
-         return CONN_TIMESET;
-      }
-      else
-         return CONN_DROPLINE;
-
-   } /* if (*protocols == '*') */
 
 /*--------------------------------------------------------------------*/
 /*                      Begin normal processing                       */

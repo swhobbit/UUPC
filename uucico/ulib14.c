@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib14.c 1.20 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: ulib14.c 1.21 2000/05/12 12:32:00 ahd v1-13g $
  *
  *    $Log: ulib14.c $
+ *    Revision 1.21  2000/05/12 12:32:00  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.20  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -135,7 +138,7 @@ static unsigned char bps_table(int);
 static BPS currentBPS;
 static char currentDirect;
 
-RCSID("$Id: ulib14.c 1.20 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: ulib14.c 1.21 2000/05/12 12:32:00 ahd v1-13g $");
 static KWBoolean hangupNeeded = KWTrue;
 
 /*--------------------------------------------------------------------*/

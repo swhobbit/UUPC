@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.32 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: address.c 1.33 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.33  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.32  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -132,7 +135,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: address.c 1.32 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: address.c 1.33 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */

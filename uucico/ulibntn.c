@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibntn.c 1.4 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: ulibntn.c 1.5 2000/07/04 22:15:35 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: ulibntn.c $
+ *    Revision 1.5  2000/07/04 22:15:35  ahd
+ *    Remove redundant RCS definition
+ *
  *    Revision 1.4  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *

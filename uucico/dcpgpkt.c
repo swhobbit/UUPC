@@ -12,7 +12,7 @@
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.43 1999/01/08 02:20:56 ahd Exp $
+ *      $Id: dcpgpkt.c 1.44 2000/05/12 12:32:00 ahd v1-13g $
  *
  *      $Log: dcpgpkt.c $
+ *      Revision 1.44  2000/05/12 12:32:00  ahd
+ *      Annual copyright update
+ *
  *      Revision 1.43  1999/01/08 02:20:56  ahd
  *      Convert currentfile() to RCSID()
  *
@@ -279,7 +282,7 @@ typedef enum {
 /*              Global variables for packet definitions               */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: dcpgpkt.c 1.43 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: dcpgpkt.c 1.44 2000/05/12 12:32:00 ahd v1-13g $");
 
 static short irec, lazynak;
 static unsigned rwl, rwu, swl, swu;

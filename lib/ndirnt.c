@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.22 1999/01/08 02:20:48 ahd Exp $
+ *       $Id: ndirnt.c 1.23 2000/05/12 12:29:45 ahd v1-13g ahd $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.23  2000/05/12 12:29:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.22  1999/01/08 02:20:48  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -123,7 +126,7 @@ static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
 
-RCSID("$Id: ndirnt.c 1.22 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: ndirnt.c 1.23 2000/05/12 12:29:45 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r                                                   */
@@ -173,17 +176,20 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 /*    Get next entry in a directory                                   */
 /*--------------------------------------------------------------------*/
 
-struct direct *readdir(DIR *dirp)
+struct direct
+*readdir(DIR *dirp)
 {
 
-   BOOL rc;
+   BOOL rc = KWTrue;
 
    assert(strcmp(dirp->dirid, "DIR") == 0);
    if (dirp->dirfirst)
    {
       printmsg(5,"readdir: Opening directory %s", pathname );
       dirp->dirfirst = 0;
-   } else {
+   }
+   else
+   {
       printmsg(5, "dirhandle = %d",dirHandle);
       strcpy( dirData.cFileName, "." );
    }
@@ -192,6 +198,7 @@ struct direct *readdir(DIR *dirp)
           equal(dirData.cFileName,".."))
    {
       rc = FindNextFile(dirHandle, &dirData);
+
       if ( rc )
          printmsg(9, "file = %s", dirData.cFileName);
       else
@@ -208,7 +215,8 @@ struct direct *readdir(DIR *dirp)
       printmsg(9, "%d",dirp->dirent.d_namlen);
       dirp->dirent.d_modified = nt2unix(&dirData.ftLastWriteTime);
 
-      if (dirData.nFileSizeHigh > 0) {
+      if (dirData.nFileSizeHigh > 0)
+      {
          printmsg(0, "readdir:  File %s larger than 2^32 bits?!",
             dirData.cFileName);
          panic();
@@ -218,7 +226,9 @@ struct direct *readdir(DIR *dirp)
       dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
       return &(dirp->dirent);
-   } else {
+   }
+   else
+   {
 
       printmsg(5,"readdir: Error on directory %s",pathname );
       return NULL;

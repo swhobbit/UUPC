@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.12 1999/01/08 02:20:52 ahd Exp $
+ *       $Id: uupcdll.c 1.13 2000/05/12 12:32:00 ahd v1-13g $
  *       $Log: uupcdll.c $
+ *       Revision 1.13  2000/05/12 12:32:00  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.12  1999/01/08 02:20:52  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -80,7 +83,7 @@
 
 #include <windows.h>
 
-RCSID("$Id: uupcdll.c 1.12 1999/01/08 02:20:52 ahd Exp $");
+RCSID("$Id: uupcdll.c 1.13 2000/05/12 12:32:00 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                      Global #defines                               */

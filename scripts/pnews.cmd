@@ -22,7 +22,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.11 1999/01/04 03:56:38 ahd Exp $
+ *    $Id: pnews.cmd 1.12 2000/05/12 12:46:40 ahd v1-13g $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.12  2000/05/12 12:46:40  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.11  1999/01/04 03:56:38  ahd
  *    checkin
  *

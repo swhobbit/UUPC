@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checkptr.c 1.15 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: checkptr.c 1.16 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: checkptr.c $
+ *    Revision 1.16  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.15  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -74,7 +77,7 @@
 
 #include "uupcmoah.h"
 
-RCSID( "$Id: checkptr.c 1.15 1999/01/08 02:20:43 ahd Exp $" );
+RCSID( "$Id: checkptr.c 1.16 2000/05/12 12:29:45 ahd v1-13g $" );
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k p t r                                                 */

@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.22 1999/01/08 02:20:42 ahd Exp $
+#       $Id: nmakedos.mak 1.23 2000/05/12 12:08:51 ahd v1-13g $
 #
-#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.23  2000/05/12 12:08:51  ahd
+#       Annual copyright update
+#
 #       Revision 1.22  1999/01/08 02:20:42  ahd
 #       Convert currentfile() to RCSID()
 #

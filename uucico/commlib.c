@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.40 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: commlib.c 1.41 2000/05/12 12:32:00 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.41  2000/05/12 12:32:00  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.40  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -161,10 +164,6 @@ typedef struct _COMMSUITE {
 #endif
 #endif
 
-#if defined(__OS2__) || defined(FAMILYAPI)
-#include "ulibnmp.h"          /* OS/2 named pipes interface           */
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
@@ -199,7 +198,7 @@ ref_terminateCommunications   terminateCommunicationsp;
 
 static FILE *traceStream;    /* Stream used for trace file            */
 
-static short   traceMode;    /* Flag for last data (input/output)     */
+static int     traceMode;    /* Flag for last data (input/output)     */
                              /* written to trace log                  */
 
 static KWBoolean network = KWFalse;  /* Current communications suite is  */
@@ -208,7 +207,7 @@ static KWBoolean network = KWFalse;  /* Current communications suite is  */
 static KWBoolean tapi = KWFalse; /* Current communications suite is  */
                                  /* based on MS Windows TAPI         */
 
-RCSID("$Id: commlib.c 1.40 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: commlib.c 1.41 2000/05/12 12:32:00 ahd v1-13g $");
 
 int dummyGetComHandle( void );
 
@@ -331,22 +330,6 @@ KWBoolean chooseCommunications( const char *name,
 
 #endif
 
-#if defined(__OS2__) || defined(FAMILYAPI)
-        { "namedpipes",                /* OS/2 named pipes            */
-          pactiveopenline, ppassiveopenline, psread, pswrite,
-          pssendbrk, pcloseline, pSIOSpeed, pflowcontrol, phangup,
-          pGetSpeed,
-          pCD,
-          pWaitForNetConnect,
-          pGetComHandle,
-          pSetComHandle,
-          dummyTerminateCommunications,
-          KWTrue,                      /* Network oriented            */
-          KWTrue,                      /* Uses internal buffer        */
-          KWFalse,                  /* Not MS-Windows TAPI           */
-          "pipe",                      /* Network device name         */
-        },
-#endif
 #endif /* not defined TCPIP_ONLY */
 
 #if defined(TCPIP)
@@ -538,7 +521,7 @@ void traceData( const char UUFAR *data,
 #if defined(VERBOSE) || !defined(BIT32ENV)
    unsigned subscript;
 #endif
-   short newMode;
+   int newMode;
 
    if ( ! traceEnabled || ! len )
       return;
@@ -623,6 +606,10 @@ int dummyGetComHandle( void )
 
 #if defined(__TURBOC__)
 #pragma argsused
+#endif
+
+#if     _MSC_VER > 1000
+#pragma warning(disable:4100) /* Ignore unused formal parameters */
 #endif
 
 void dummySetComHandle( const int foo )

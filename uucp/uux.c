@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.30 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: uux.c 1.31 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.31  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.30  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -202,7 +205,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: uux.c 1.30 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: uux.c 1.31 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmds.c 1.8 1999/01/04 03:54:27 ahd Exp $
+ *       $Id: smtpcmds.c 1.9 2000/05/12 12:35:45 ahd v1-13g $
  *
  *       $Log: smtpcmds.c $
+ *       Revision 1.9  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.8  1999/01/04 03:54:27  ahd
  *       Annual copyright change
  *
@@ -65,7 +68,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmds.c 1.8 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpcmds.c 1.9 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*          External variables for used by various routines           */

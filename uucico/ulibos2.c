@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.50 1999/01/08 02:20:56 ahd Exp $
+ *       $Id: ulibos2.c 1.51 2000/05/12 12:32:00 ahd v1-13g $
  *       $Log: ulibos2.c $
+ *       Revision 1.51  2000/05/12 12:32:00  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.50  1999/01/08 02:20:56  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -218,7 +221,7 @@ typedef USHORT APIRET ;  /* Define older API return type              */
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: ulibos2.c 1.50 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: ulibos2.c 1.51 2000/05/12 12:32:00 ahd v1-13g $");
 
 static KWBoolean hangupNeeded = KWFalse;
 

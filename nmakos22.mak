@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.28 1999/01/04 03:51:49 ahd Exp $
+#       $Id: nmakos22.mak 1.29 2000/05/12 12:08:51 ahd v1-13g $
 #
-#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.29  2000/05/12 12:08:51  ahd
+#       Annual copyright update
+#
 #       Revision 1.28  1999/01/04 03:51:49  ahd
 #       Annual copyright change
 #
@@ -72,7 +75,7 @@
 ICONS    = icons.os2
 ERASE    = del /f
 EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
-           $(PROD)\uucicon.exe $(PROD)\rmailn.exe $(PROD)\uusmtpd.exe  \
+           $(PROD)\uusmtpd.exe  \
            $(PROD)\uupopd.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.35 2000/05/12 12:29:45 ahd v1-13g $
+  *      $Id: hostable.c 1.36 2000/07/04 22:15:35 ahd v1-13g $
   *
   *      $Log: hostable.c $
+  *      Revision 1.36  2000/07/04 22:15:35  ahd
+  *      Twiddle host initialize for SMTP
+  *
   *      Revision 1.35  2000/05/12 12:29:45  ahd
   *      Annual copyright update
   *
@@ -135,7 +138,7 @@
 #include "hostable.h"
 #include "security.h"
 
-RCSID("$Id: hostable.c 1.35 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: hostable.c 1.36 2000/07/04 22:15:35 ahd v1-13g $");
 
 static struct HostTable *hosts = NULL;
 

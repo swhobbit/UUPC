@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.10 2000/09/15 00:18:38 ahd Exp $
+ *       $Id: smtputil.c 1.11 2000/10/14 12:40:44 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.11  2000/10/14 12:40:44  ahd
+ *       Use #define for postmaster address
+ *
  *       Revision 1.10  2000/09/15 00:18:38  ahd
  *       All relaying to all addresses in "local domain"
  *
@@ -71,7 +74,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.10 2000/09/15 00:18:38 ahd Exp $");
+RCSID("$Id: smtputil.c 1.11 2000/10/14 12:40:44 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*          s t r i p A d d r e s s                                   */

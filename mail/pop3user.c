@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.18 2000/05/12 12:35:45 ahd v1-13g $
+ *       $Id: pop3user.c 1.19 2000/10/14 12:40:44 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.19  2000/10/14 12:40:44  ahd
+ *       Correctly strip byte stuffed periods from ANY line beginning with
+ *       a period (.).
+ *
  *       Revision 1.18  2000/05/12 12:35:45  ahd
  *       Annual copyright update
  *
@@ -107,7 +111,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.18 2000/05/12 12:35:45 ahd v1-13g $");
+RCSID("$Id: pop3user.c 1.19 2000/10/14 12:40:44 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       s el e c t P o p M e s s a g e                               */

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivern.c 1.3 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: delivern.c 1.4 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: delivern.c $
+ *    Revision 1.4  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.3  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *

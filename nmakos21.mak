@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.14 1999/01/04 03:51:49 ahd Exp $
+#       $Id: nmakos21.mak 1.15 2000/05/12 12:08:51 ahd v1-13g $
 #
-#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.15  2000/05/12 12:08:51  ahd
+#       Annual copyright update
+#
 #       Revision 1.14  1999/01/04 03:51:49  ahd
 #       Annual copyright change
 #
@@ -70,8 +73,8 @@ STACKSIZE= 0x03000
 ZIPID    = 1
 OS2=1                   # Enables generation of .DEF file
 
-UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
-             $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
+UUCICOOBJ3 = $(OBJ)\ulibos2.obj \
+             $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
 
 !ifdef NODEBUG
 #       Use this for production

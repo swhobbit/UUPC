@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.31 1999/02/03 23:40:51 ahd Exp $
+ *    $Id: uucp.c 1.32 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.32  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.31  1999/02/03 23:40:51  ahd
  *    Additional debugging statements
  *
@@ -188,7 +191,7 @@ static char           *callSystem;          /* System to we need to
 
 static char  flags[16];
 
-RCSID("$Id: uucp.c 1.31 1999/02/03 23:40:51 ahd Exp $");
+RCSID("$Id: uucp.c 1.32 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */

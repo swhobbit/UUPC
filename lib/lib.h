@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: lib.h 1.49 1999/01/08 02:21:16 ahd Exp $
+ *       $Id: lib.h 1.50 2000/05/12 00:42:05 ahd v1-13g $
  *
  *       Revision history:
  *       $Log: lib.h $
+ *       Revision 1.50  2000/05/12 00:42:05  ahd
+ *       Yearly copyright update
+ *
  *       Revision 1.49  1999/01/08 02:21:16  ahd
  *       Convert currentfile() to RCSID()
  *

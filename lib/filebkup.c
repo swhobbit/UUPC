@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.14 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: filebkup.c 1.15 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *    Revision 1.15  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.14  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -80,7 +83,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: filebkup.c 1.14 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: filebkup.c 1.15 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    f i l e b k u p                                                 */

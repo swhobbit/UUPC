@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.92 2000/09/15 00:18:38 ahd Exp ahd $
+ *    $Id: configur.c 1.93 2000/12/29 00:07:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.93  2000/12/29 00:07:56  ahd
+ *    Support for relay by domain and IP address
+ *
  *    Revision 1.92  2000/09/15 00:18:38  ahd
  *    Annual copyright update
  *
@@ -176,7 +179,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.92 2000/09/15 00:18:38 ahd Exp ahd $");
+RCSID("$Id: configur.c 1.93 2000/12/29 00:07:56 ahd Exp $");
 
 #define HOMEDIRLIT "*HOME*"
 
@@ -1393,8 +1396,8 @@ char
 {
    LONG result;
    DWORD dwType;
-   char bData[BUFSIZ];
-   DWORD cbData = BUFSIZ;
+   unsigned char bData[BUFSIZ];
+   DWORD cbData = sizeof bData;
 
    *value = NULL;
 
@@ -1425,20 +1428,30 @@ char
 /*   Check the user's hive first, then the machine's hive             */
 /*--------------------------------------------------------------------*/
 
-   result = RegQueryValueEx(uupcUserKey, envName, NULL, &dwType, bData, &cbData);
+   result = RegQueryValueEx(uupcUserKey,
+                            envName,
+                            NULL,
+                            &dwType,
+                            bData,
+                            &cbData);
    if (result == ERROR_SUCCESS && dwType == REG_SZ)
    {
       printmsg(2, "Found user registry entry %s, value %s", envName, bData);
-      *value = newstr(bData);
+      *value = newstr((const char *) bData);
       return *value;
    }
 
-   result = RegQueryValueEx(uupcMachineKey, envName, NULL, &dwType, bData, &cbData);
+   result = RegQueryValueEx(uupcMachineKey,
+                            envName,
+                            NULL,
+                            &dwType,
+                            bData,
+                            &cbData);
 
    if (result == ERROR_SUCCESS && dwType == REG_SZ)
    {
       printmsg(2, "Found machine registry entry %s, value %s", envName, bData);
-      *value = newstr(bData);
+      *value = newstr((const char *) bData);
       return *value;
    }
 

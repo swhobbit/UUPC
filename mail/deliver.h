@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.27 2000/05/12 12:42:31 ahd v1-13g $
+ *    $Id: deliver.h 1.28 2000/10/14 12:05:14 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.28  2000/10/14 12:05:14  ahd
+ *    Add bounce addresses
+ *
  *    Revision 1.27  2000/05/12 12:42:31  ahd
  *    Annual copyright update
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutcpip.h 1.7 2000/05/12 12:41:43 ahd Exp $
+ *    $Id: uutcpip.h 1.8 2000/05/25 03:43:59 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uutcpip.h $
+ *    Revision 1.8  2000/05/25 03:43:59  ahd
+ *    Correct support for WIN32 (VC++ IDE)
+ *
  *    Revision 1.7  2000/05/12 12:41:43  ahd
  *    Annual copyright update
  *

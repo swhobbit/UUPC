@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: localfnm.c 1.3 1999/01/17 19:17:28 ahd Exp $
+ *       $Id: localfnm.c 1.4 2000/05/12 12:29:45 ahd v1-13g $
  *
  *       Revision history:
  *       $Log: localfnm.c $
+ *       Revision 1.4  2000/05/12 12:29:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.3  1999/01/17 19:17:28  ahd
  *       Correct parsing of file name
  *
@@ -32,7 +35,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: localfnm.c 1.3 1999/01/17 19:17:28 ahd Exp $");
+RCSID("$Id: localfnm.c 1.4 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       l o c a l F N a m e                                          */
@@ -55,7 +58,7 @@ localFName( const char UUFAR *name)
 
    /* String must be long enough for our name */
    if (len < 7)                     /* ....+..  */
-   {                                /* $Id: localfnm.c 1.3 1999/01/17 19:17:28 ahd Exp $  */
+   {                                /* $Id: localfnm.c 1.4 2000/05/12 12:29:45 ahd v1-13g $  */
       /* Not long enough, just put input in near buffer */
       STRCPY(buffer, name);
       return buffer;

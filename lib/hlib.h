@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.19 1999/01/04 03:55:03 ahd Exp $
+ *    $Id: hlib.h 1.20 2000/05/12 12:40:50 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.20  2000/05/12 12:40:50  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.19  1999/01/04 03:55:03  ahd
  *    Annual copyright change
  *

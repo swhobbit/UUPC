@@ -17,9 +17,11 @@
 
 #include <io.h>
 
-RCSID("$Id$");
+RCSID("$Id: creat.c 1.7 1999/01/08 02:20:43 ahd v1-13g ahd $");
 
 #endif
+
+void FILEMODE();        /* Suppress error message for phantom routine */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

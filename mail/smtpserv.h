@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.7 1999/01/04 03:56:09 ahd Exp $
+ *    $Id: smtpserv.h 1.8 2000/05/12 12:44:47 ahd v1-13g $
  *
  *    $Log: smtpserv.h $
+ *    Revision 1.8  2000/05/12 12:44:47  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.7  1999/01/04 03:56:09  ahd
  *    Annual copyright change
  *

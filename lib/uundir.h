@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uundir.h 1.15 1999/01/04 03:55:03 ahd Exp $
+ *    $Id: uundir.h 1.16 2000/05/12 12:40:50 ahd v1-13g ahd $
  *
  *    Revision history:
  *    $Log: uundir.h $
+ *    Revision 1.16  2000/05/12 12:40:50  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.15  1999/01/04 03:55:03  ahd
  *    Annual copyright change
  *
@@ -76,8 +79,8 @@ struct direct {
    long d_ino;
    time_t d_modified;
    long  d_size;
-   short d_reclen;
-   short d_namlen;
+   size_t d_reclen;
+   size_t d_namlen;
    char d_name[MAXNAMLEN];
 };
 

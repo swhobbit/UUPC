@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.12 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: titlen.c 1.13 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: titlen.c $
+ *    Revision 1.13  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.12  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -68,7 +71,7 @@
 #include "title.h"
 #include "timestmp.h"
 
-RCSID("$Id: titlen.c 1.12 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: titlen.c 1.13 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       s e t T i t l e                                              */

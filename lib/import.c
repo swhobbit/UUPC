@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.41 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: import.c 1.42 2000/05/12 12:29:45 ahd v1-13g ahd $
  *
  *    $Log: import.c $
+ *    Revision 1.42  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.41  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -115,7 +118,7 @@
 #define CACHE_LONG_NAME_SUPPORT  'L'
 #define CACHE_SHORT_NAME_ONLY    'S'
 
-RCSID("$Id: import.c 1.41 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: import.c 1.42 2000/05/12 12:29:45 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -867,6 +870,8 @@ advancedFS(const char *path)
    if (!path || *path == '\0')         /* Name not supplied          */
    {                                   /* Yes --> Abort              */
       printmsg(0,"advancedFS: Missing path name");
+      panic();
+      return KWFalse;
    }
    else if (isalpha(*path) && (path[1] == ':'))
    {                                   /* It's a local drive          */
@@ -951,9 +956,9 @@ advancedFS(const char *path)
       longNamesSupported = KWFalse;
 
    if ( cacheable )
-      cache[ (unsigned char) driveInfo[0] ] =
-               longNamesSupported ? CACHE_LONG_NAME_SUPPORT :
-                                    CACHE_SHORT_NAME_ONLY;
+      cache[ (unsigned char) driveInfo[0] ] = (char)
+               (longNamesSupported ? CACHE_LONG_NAME_SUPPORT :
+                                    CACHE_SHORT_NAME_ONLY);
 
    printmsg(4,"advancedFS: File system \"%s\" is type \"%s\""
               " with maximum name length %d",

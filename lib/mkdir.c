@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.17 1999/01/08 02:20:48 ahd Exp $
+ *    $Id: mkdir.c 1.18 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *    Revision 1.18  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.17  1999/01/08 02:20:48  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -77,7 +80,7 @@
 
 #include <direct.h>
 
-RCSID("$Id: mkdir.c 1.17 1999/01/08 02:20:48 ahd Exp $");
+RCSID("$Id: mkdir.c 1.18 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

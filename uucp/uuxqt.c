@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.64 2000/05/12 12:32:55 ahd v1-13g $
+ *    $Id: uuxqt.c 1.65 2000/07/04 22:15:35 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.65  2000/07/04 22:15:35  ahd
+ *    Don't execute files newer than UUXQT time to avoid loops
+ *
  *    Revision 1.64  2000/05/12 12:32:55  ahd
  *    Annual copyright update
  *
@@ -110,7 +113,7 @@
 #include "winutil.h"
 #endif
 
-RCSID("$Id: uuxqt.c 1.64 2000/05/12 12:32:55 ahd v1-13g $");
+RCSID("$Id: uuxqt.c 1.65 2000/07/04 22:15:35 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                      Execution flag defines                        */

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.35 2000/05/12 12:08:51 ahd v1-13g $
+#       $Id: nmakewnt.mak 1.36 2000/12/29 00:10:08 ahd Exp $
 #
-#       Copyright (c) 1989-2000 by Kendra Electronic Wonderworks;
+#       Copyright (c) 1989-2001 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.36  2000/12/29 00:10:08  ahd
+#       Tweak warning level
+#
 #       Revision 1.35  2000/05/12 12:08:51  ahd
 #       Annual copyright update
 #

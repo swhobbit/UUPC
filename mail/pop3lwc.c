@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by the   */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.9 1999/01/08 02:21:01 ahd Exp $
+ *       $Id: pop3lwc.c 1.10 2000/05/12 12:35:45 ahd v1-13g $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.10  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.9  1999/01/08 02:21:01  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -77,7 +80,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.9 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: pop3lwc.c 1.10 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */

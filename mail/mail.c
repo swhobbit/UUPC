@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.52 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: mail.c 1.53 2000/05/12 12:35:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.53  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.52  1999/02/21 04:09:32  ahd
  *    Print better message router init fails
  *
@@ -97,7 +100,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: mail.c 1.52 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: mail.c 1.53 2000/05/12 12:35:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */

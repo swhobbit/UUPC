@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.26 1999/02/21 04:05:55 ahd Exp $
+ *    $Id: printmsg.c 1.27 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.27  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.26  1999/02/21 04:05:55  ahd
  *    Don't spit out timestamps to console, they confuse the GUI version scroller
  *
@@ -133,7 +136,7 @@
 /*--------------------------------------------------------------------*/
 
 #if defined(__HEAPCHECK__)
-RCSID("$Id: printmsg.c 1.26 1999/02/21 04:05:55 ahd Exp $");
+RCSID("$Id: printmsg.c 1.27 2000/05/12 12:29:45 ahd v1-13g $");
 #endif
 
 int debuglevel = 1;

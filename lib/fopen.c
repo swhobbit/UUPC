@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fopen.c 1.22 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: fopen.c 1.23 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: fopen.c $
+ *    Revision 1.23  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.22  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -80,7 +83,7 @@
 #include "ssleep.h"
 #include "stater.h"
 
-RCSID("$Id: fopen.c 1.22 1999/01/04 03:52:28 ahd Exp $");
+RCSID("$Id: fopen.c 1.23 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    F O P E N                                                       */

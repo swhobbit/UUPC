@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.38 1999/01/08 02:20:52 ahd Exp $
+ *    $Id: active.c 1.39 2000/05/12 12:26:40 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.39  2000/05/12 12:26:40  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.38  1999/01/08 02:20:52  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -141,7 +144,7 @@ static GROUP UUFAR *cachedGroup = NULL;   /* Last group walked       */
 
 static GROUP UUFAR *topNode;        /* Top of group tree             */
 
-RCSID("$Id: active.c 1.38 1999/01/08 02:20:52 ahd Exp $");
+RCSID("$Id: active.c 1.39 2000/05/12 12:26:40 ahd v1-13g $");
 
 static long groups = 0;             /* Total groups loaded           */
 static long deletes = 0;            /* Deletes during processing     */

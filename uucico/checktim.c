@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.16 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: checktim.c 1.17 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.17  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.16  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -90,7 +93,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: checktim.c 1.16 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: checktim.c 1.17 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local functions                           */

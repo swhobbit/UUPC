@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: export.c 1.16 1999/01/08 02:20:43 ahd Exp $
+ *    $Id: export.c 1.17 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: export.c $
+ *    Revision 1.17  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.16  1999/01/08 02:20:43  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -87,7 +90,7 @@
 #include "hostable.h"
 #include "security.h"
 
-RCSID("$Id: export.c 1.16 1999/01/08 02:20:43 ahd Exp $");
+RCSID("$Id: export.c 1.17 2000/05/12 12:29:45 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       e x p o r t p a t h                                          */

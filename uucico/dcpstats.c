@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpstats.c 1.21 1999/01/08 02:20:56 ahd Exp $
+ *       $Id: dcpstats.c 1.22 2000/05/12 12:32:55 ahd v1-13g $
  *
  *       $Log: dcpstats.c $
+ *       Revision 1.22  2000/05/12 12:32:55  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.21  1999/01/08 02:20:56  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -104,7 +107,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: dcpstats.c 1.21 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: dcpstats.c 1.22 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*    d c s t a t s                                                   */

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.18 2000/05/12 12:44:47 ahd Exp $
+ *    $Id: smtpclnt.h 1.19 2000/05/25 03:43:59 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.19  2000/05/25 03:43:59  ahd
+ *    More conservative buffering to avoid aborts
+ *
  *    Revision 1.18  2000/05/12 12:44:47  ahd
  *    Annual copyright update
  *

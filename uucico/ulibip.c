@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-2000 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-2001 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.39 1999/01/08 02:20:56 ahd Exp $
+ *    $Id: ulibip.c 1.40 2000/05/12 12:32:00 ahd v1-13g ahd $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.40  2000/05/12 12:32:00  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.39  1999/01/08 02:20:56  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -176,7 +179,7 @@ KWBoolean IsFatalSocketError(int err);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: ulibip.c 1.39 1999/01/08 02:20:56 ahd Exp $");
+RCSID("$Id: ulibip.c 1.40 2000/05/12 12:32:00 ahd v1-13g ahd $");
 static KWBoolean hangupNeeded = KWTrue;
 
 #if defined(__OS2__)
@@ -291,6 +294,10 @@ void AtWinsockExit(void)
 
 #ifdef __TURBOC__
 #pragma argsused
+#endif
+
+#if     _MSC_VER > 1000
+#pragma warning(disable:4100) /* Ignore unused formal parameters */
 #endif
 
 int tactiveopenline(char *name, BPS bps, const KWBoolean direct)

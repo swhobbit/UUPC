@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.70 1999/01/08 02:20:52 ahd Exp $
+ *       $Id: rnews.c 1.71 2000/05/12 12:26:40 ahd v1-13g $
  *
  *       $Log: rnews.c $
+ *       Revision 1.71  2000/05/12 12:26:40  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.70  1999/01/08 02:20:52  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -80,7 +83,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.70 1999/01/08 02:20:52 ahd Exp $";
+         "$Id: rnews.c 1.71 2000/05/12 12:26:40 ahd v1-13g $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -115,7 +118,7 @@ static const char rcsid[] =
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: rnews.c 1.70 1999/01/08 02:20:52 ahd Exp $");
+RCSID("$Id: rnews.c 1.71 2000/05/12 12:26:40 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*       q u e u e N e w s                                            */

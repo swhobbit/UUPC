@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.15 2000/05/12 12:40:50 ahd Exp ahd $
+ *    $Id: uupcmoah.h 1.16 2000/05/25 03:43:59 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.16  2000/05/25 03:43:59  ahd
+ *    Correct support for WIN32 (VC++ IDE)
+ *
  *    Revision 1.15  2000/05/12 12:40:50  ahd
  *    Annual copyright update
  *
@@ -79,6 +82,11 @@
                                    another function!  The bug appears to be
                                    only in C7; Visual C fixed the problem. */
 #endif /* _MSC_VER == 700 */
+
+#if     _MSC_VER > 1000
+#pragma warning(disable:4115) /* name (struct) efined in paren */
+#pragma once
+#endif
 
 #ifdef __TURBOC__
 #define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
@@ -138,6 +146,11 @@
 /*--------------------------------------------------------------------*/
 /*    Force our standard I/O into GUI functions if doing a GUI        */
 /*--------------------------------------------------------------------*/
+
+#if     _MSC_VER > 1000
+#pragma warning(disable:4231) /* the extern before template is a non-standard extension */
+#pragma once
+#endif
 
 #if defined(WIN32) && defined(UUGUI)
 #include <io.h>

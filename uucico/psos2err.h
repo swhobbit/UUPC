@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-2000 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-2001 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: psos2err.h 1.8 1999/01/08 02:21:16 ahd Exp $
+ *    $Id: psos2err.h 1.9 2000/05/12 12:41:43 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: psos2err.h $
+ *    Revision 1.9  2000/05/12 12:41:43  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.8  1999/01/08 02:21:16  ahd
  *    Convert currentfile() to RCSID()
  *
