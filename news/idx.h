@@ -18,9 +18,12 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: idx.h 1.4 1995/01/29 14:04:21 ahd Exp $ */
+/* $Id: idx.h 1.5 1995/02/20 00:05:26 ahd v1-12o $ */
 
 /* $Log: idx.h $
+/* Revision 1.5  1995/02/20 00:05:26  ahd
+/* Kai Uwe Rommel's cache support
+/*
  * Revision 1.4  1995/01/29 14:04:21  ahd
  * Clean up IBM C/Set compiler warnings
  *
@@ -56,7 +59,7 @@ ITEM;
 
 typedef struct
 {
-  short items;
+  unsigned short items;
   ITEM item[IDX_MAXITEM];
   long child_0;
 }
