@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $
+ *       $Id: localfnm.c 1.2 1999/01/08 02:20:43 ahd Exp $
  *
  *       Revision history:
  *       $Log: localfnm.c $
+ *       Revision 1.2  1999/01/08 02:20:43  ahd
+ *       Convert currentfile() to RCSID()
+ *
  *       Revision 1.1  1999/01/07 00:58:55  ahd
  *       Initial revision
  *
@@ -26,7 +29,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $");
+RCSID("$Id: localfnm.c 1.2 1999/01/08 02:20:43 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       l o c a l F N a m e                                          */
@@ -49,24 +52,25 @@ localFName( const char UUFAR *name)
 
    /* String must be long enough for our name */
    if (len < 7)                     /* ....+..  */
-   {                                /* $Id: localfnm.c 1.1 1999/01/07 00:58:55 ahd Exp $  */
+   {                                /* $Id: localfnm.c 1.2 1999/01/08 02:20:43 ahd Exp $  */
       /* Not long enough, just put input in near buffer */
       STRCPY(buffer, name);
       return buffer;
    }
 
    /* Determine end of file name */
-   farP = STRCHR(name + 6, ' ');
+   farP = STRCHR(name + 5, ' ');
 
    if (farP == NULL)
       len = FILENAME_MAX;
    else {
-      len = name - farP;
+      len = farP - (name + 5);
       if (len > FILENAME_MAX)
          len = FILENAME_MAX;
    }
 
-   MEMCPY(buffer, name + 6, len);
+   MEMCPY(buffer, name + 5, len);
+   buffer[len] = '\0';
 
    return buffer;
 
