@@ -20,6 +20,11 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
+/* Revision 1.20  1996/11/18 04:46:49  ahd
+/* Normalize arguments to bugout
+/* Reset title after exec of sub-modules
+/* Normalize host status names to use HS_ prefix
+/*
  * Revision 1.19  1996/01/01 21:08:50  ahd
  * Annual Copyright Update
  *
@@ -86,7 +91,7 @@
 #include "uupcmoah.h"
 #include <direct.h>
 
-RCSID("$Id: genhist.c 1.19 1996/01/01 21:08:50 ahd v1-12r $");
+RCSID("$Id: genhist.c 1.20 1996/11/18 04:46:49 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -447,7 +452,7 @@ static void IndexDirectory( const char *groupName,
    if ((bflag[F_PURGE] && ( files == 0 )) )
    {
       CHDIR( E_newsdir );           /* Can't delete directory if CWD  */
-      if ( rmdir( directory ))
+      if ( rmdir( (char *) directory ))
          printerr( directory );
       else {
          printmsg(1,"Deleted directory for empty group %s (directory %s)",
