@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.1 1994/04/24 20:35:08 ahd Exp $
+ *    $Id: title2.c 1.2 1994/05/04 02:02:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ * Revision 1.2  1994/05/04  02:02:19  ahd
+ * Blank out title upon program exit
+ *
  * Revision 1.1  1994/04/24  20:35:08  ahd
  * Initial revision
  *
@@ -58,19 +61,22 @@ void setTitle( const char *fmt, ... )
 {
    HSWITCH hSwitch;
    SWCNTRL swctl;
+   static SWCNTRL swctlSave;
    int pid = getpid();
    va_list arg_ptr;
 
    static boolean firstPass = TRUE;
 
+   hSwitch = WinQuerySwitchHandle(NULL, pid );
+   WinQuerySwitchEntry(hSwitch, &swctl);
+
    if ( firstPass )
    {
       firstPass = FALSE;
       atexit( restoreOriginalTitle );
+      memcpy( &swctlSave, &swctl, sizeof swctl );
    }
 
-   hSwitch = WinQuerySwitchHandle(NULL, pid );
-   WinQuerySwitchEntry(hSwitch, &swctl);
 
    if ( fmt )
    {
@@ -83,14 +89,14 @@ void setTitle( const char *fmt, ... )
                arg_ptr);
 
       va_end( arg_ptr );
+
+      memset( swctl.szSwtitle + strlen(swctl.szSwtitle),
+              ' ',
+              MAXNAMEL - strlen(swctl.szSwtitle));
+                                       /* Clear old title         */
    }
    else
-      *(swctl.szSwtitle) = '\0';
-
-   memset( swctl.szSwtitle + strlen(swctl.szSwtitle),
-           ' ',
-           MAXNAMEL - strlen(swctl.szSwtitle));
-                                       /* Clear old title         */
+      memcpy( &swctl, &swctlSave, sizeof swctl );
 
    WinChangeSwitchEntry(hSwitch, &swctl);
 
