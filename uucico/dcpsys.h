@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpsys.h 1.11 1995/02/12 23:39:45 ahd v1-12q $
+ *    $Id: dcpsys.h 1.12 1996/01/01 21:23:36 ahd v1-12r $
  *
  *    Revision history:
  */
@@ -38,6 +38,16 @@ typedef enum {
    FLD_EXPECT
    } FLDS;
 
+typedef enum
+   {
+      SYNCH_NONE,
+      SYNCH_DLE,
+      SYNCH_ECHO,
+      SYNCH_BINARY
+
+   } SYNCH;
+
+
 
 extern char *flds[60];
 extern int  kflds;
@@ -56,7 +66,7 @@ char nextGrade( const char grade );
 
 XFER_STATE scandir(char *remote, const char grade );
 
-int   rmsg(char *msg, const char synch, unsigned int msgtime, int max_len);
+int   rmsg(char *msg, const SYNCH synch, unsigned int msgtime, int max_len);
 
 void  wmsg(const char *msg, const KWBoolean synch);
 
