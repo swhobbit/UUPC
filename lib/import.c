@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.12 1993/11/06 17:54:55 rhg Exp $
+ *    $Id: import.c 1.13 1993/12/06 01:59:07 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.13  1993/12/06  01:59:07  ahd
+ *     Delete debug message from inner loop for search for internal commands
+ *
  *     Revision 1.12  1993/11/06  17:54:55  rhg
  *     Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -428,7 +431,8 @@ void importpath(char *local, const char *canon, const char *remote)
 
    } /* else */
 
-   printmsg( 3, "ImportPath: Mapped %s to %s", canon, local );
+   printmsg( equali(canon,local) ? 5 : 3,
+            "ImportPath: Mapped %s to %s", canon, local );
 
 } /*importpath*/
 
