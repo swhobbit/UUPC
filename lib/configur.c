@@ -10,9 +10,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +22,40 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFIGUR.C 1.12 1993/05/29 15:19:59 ahd Exp $
+ *    $Id: configur.c 1.21 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
- *    $Log: CONFIGUR.C $
+ *    $Log: configur.c $
+ *     Revision 1.21  1993/09/29  04:49:20  ahd
+ *     Move priority variables to modem file
+ *
+ *     Revision 1.20  1993/09/24  03:43:27  ahd
+ *     Use positive defaults for unsigned priority values
+ *
+ *     Revision 1.19  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
+ *     Revision 1.18  1993/07/31  16:22:16  ahd
+ *     Changes in support of Robert Denny's Windows 3.x support
+ *
+ *     Revision 1.17  1993/07/22  23:19:50  ahd
+ *     First pass for Robert Denny's Windows 3.x support changes
+ *
+ *     Revision 1.16  1993/07/05  14:45:29  ahd
+ *     Correct message-of-the-day variable name
+ *     Correct WIN32 prefix support
+ *
+ *     Revision 1.15  1993/06/16  04:03:25  ahd
+ *     Special case root directories for UUPC/extended variable default
+ *
+ *     Revision 1.14  1993/06/15  12:18:06  ahd
+ *     Saved changed directory name for debugging
+ *
+ *     Revision 1.13  1993/05/30  15:25:50  ahd
+ *     Multiple driver support
+ *
  *     Revision 1.12  1993/05/29  15:19:59  ahd
  *     Add systems file, passwd files
  *
@@ -135,26 +163,37 @@ char *E_tempdir = NULL;
 char *E_uncompress = NULL;
 char *E_uuxqtpath = NULL;
 char *E_version = NULL;
-INTEGER E_maxhops = 20;                                     /* ahd */
-INTEGER E_priority = -99;
-INTEGER E_prioritydelta = -99;
+char *E_cwd = NULL;
+char *E_xqtRootDir = NULL;
+KEWSHORT E_maxhops = 20;                                    /* ahd */
 static char *dummy = NULL;
+static char *E_tz = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                       Local emumerated types                       */
 /*--------------------------------------------------------------------*/
 
 typedef enum {
-      OS2_ENV,
-      DOS_ENV,
-      WIN32_ENV,
-      UNKNOWN_ENV
+      ENV_UNKNOWN    = 0x0001,
+      ENV_DOS        = 0x0002,
+      ENV_BIT32      = 0x0004,
+      ENV_BIT16      = 0x0008,
+      ENV_OS2        = 0x0010,
+      ENV_OS2_32BIT  = 0x0020,
+      ENV_OS2_16BIT  = 0x0040,
+      ENV_WIN        = 0x0080,
+      ENV_WIN_32BIT  = 0x0100,
+      ENV_WIN_16BIT  = 0x0200
       } ENV_TYPE;
 
 #ifdef WIN32
-static ENV_TYPE active_env = WIN32_ENV;
+static ENV_TYPE active_env = ENV_WIN_32BIT | ENV_WIN | ENV_BIT32;
+#elif defined(_Windows)
+static ENV_TYPE active_env = ENV_WIN_16BIT | ENV_WIN | ENV_BIT16;
+#elif defined(__OS2__)
+static ENV_TYPE active_env = ENV_OS2_32BIT | ENV_OS2 | ENV_BIT32;
 #else
-static ENV_TYPE active_env = DOS_ENV;
+static ENV_TYPE active_env = ENV_DOS | ENV_BIT16;
 #endif
 
 static boolean getrcnames(char **sysp,char **usrp);
@@ -166,7 +205,7 @@ static boolean getrcnames(char **sysp,char **usrp);
 static CONFIGTABLE envtable[] = {
    {"aliases",      &E_aliases,      B_TOKEN|B_MUA},
    {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
-   {"anonymouslogin", &E_anonymous,    B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
+   {"anonymouslogin", &E_anonymous,  B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
    {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
    {"backupext",    &E_backup,       B_TOKEN|B_MUA},
    {"banner",       &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
@@ -179,14 +218,14 @@ static CONFIGTABLE envtable[] = {
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_MAIL|B_NEWS|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
-   {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_UUXQT},
+   {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
    {"mailbox",      &E_mailbox,      B_REQUIRED|B_TOKEN|B_ALL},
    {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
    {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"maximumhops",  (char **) &E_maxhops, B_MTA | B_INTEGER | B_GLOBAL},
-   {"motd",         &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
+   {"maximumhops",  (char **) &E_maxhops, B_MTA | B_SHORT | B_GLOBAL},
+   {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
@@ -197,8 +236,8 @@ static CONFIGTABLE envtable[] = {
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
    {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
    {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_MTA},
-   {"priority",     (char **) &E_priority, B_INTEGER |B_UUCICO},
-   {"prioritydelta",(char **) &E_prioritydelta, B_INTEGER |B_UUCICO},
+   {"priority",     &dummy,          B_OBSOLETE },
+   {"prioritydelta",&dummy,          B_OBSOLETE },
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
    {"rmail",        &dummy,          B_OBSOLETE },
@@ -208,8 +247,10 @@ static CONFIGTABLE envtable[] = {
    {"systems",      &E_systems,      B_GLOBAL|B_PATH|B_ALL},
    {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
+   {"tz",           &E_tz,           B_TOKEN|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
+   {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT|B_PATH|B_ALL},
    { nil(char) }
 }; /* table */
 
@@ -238,8 +279,9 @@ FLAGTABLE configFlags[] = {
  { "speedovermemory",
                   F_SPEEDOVERMEMORY,
                                  B_LOCAL},
- { "verbose",     F_VERBOSE,     B_LOCAL},
  { "undelete",    F_UNDELETE,    B_LOCAL},
+ { "verbose",     F_VERBOSE,     B_LOCAL},
+ { "windows",     F_WINDOWS,     B_LOCAL},
 
  { "bang",        F_BANG,        B_GLOBAL},
  { "bounce",      F_BOUNCE,      B_GLOBAL},
@@ -249,7 +291,7 @@ FLAGTABLE configFlags[] = {
  { "history",     F_HISTORY,     B_GLOBAL},
  { "honordebug",  F_HONORDEBUG,  B_GLOBAL},
  { "kanji",       F_KANJI,       B_GLOBAL},
- { "longname",    F_LONGNAME,    B_GLOBAL},
+ { "longname",    B_LONGNAME,      B_GLOBAL},
  { "monocase",    F_ONECASE,     B_GLOBAL},
  { "multiqueue",  F_MULTI,       B_GLOBAL},
  { "multitask",   F_MULTITASK,   B_GLOBAL},
@@ -305,19 +347,50 @@ boolean processconfig(char *buff,
       target_env = active_env;
    }
    else {
-      *keyword++ = '\0';      /* Terminate environment string        */
 
-      if ( equal( buff, "dos" ))
-         target_env = DOS_ENV;
-      else if ( equal( buff, "os2" ))
-         target_env = OS2_ENV;
-      else if ( equal( buff, "win32" ))
-         target_env = WIN32_ENV;
-      else {
+      typedef struct _ENVLIST {
+            char *name;
+            int value;
+      } ENVLIST;
+
+      static ENVLIST envtable[] = {
+         { "dos",      ENV_DOS      },
+         { "16bit",    ENV_BIT16    },
+         { "32bit",    ENV_BIT32    },
+         { "32bitos2", ENV_OS2_16BIT},
+         { "16bitos2", ENV_OS2_32BIT},
+         { "os2",      ENV_OS2      },
+         { "win32",    ENV_WIN_32BIT},
+         { "win16",    ENV_WIN_16BIT},
+         { "32bitwin", ENV_WIN_32BIT},
+         { "16bitwin", ENV_WIN_16BIT},
+         { "win",      ENV_WIN      },
+         { NULL,       ENV_UNKNOWN  }
+       };
+
+      short subscript = 0;
+
+      *keyword++ = '\0';      /* Terminate environment string        */
+      target_env = ENV_UNKNOWN;
+
+      while( envtable[subscript].name != NULL)
+      {
+         if (equal( envtable[subscript].name, buff ))
+         {
+            target_env = envtable[subscript].value;
+            break;
+         }
+         else
+            subscript ++;
+      } /* while */
+
+      if ( target_env == ENV_UNKNOWN )
+      {
          printmsg(0,"Unknown environment \"%s\", keyword \"%s\" ignored",
                buff, keyword );
          return FALSE;
-      } /* else */
+      }
+
    } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -331,9 +404,9 @@ boolean processconfig(char *buff,
 /*--------------------------------------------------------------------*/
 /*            Skip the keyword because of the environment?            */
 /*--------------------------------------------------------------------*/
-        if (active_env != target_env )
-            printmsg(2,"%s-only keyword \"%s\" skipped.",
-                        buff, keyword);
+        if (!(active_env & target_env) )
+            printmsg(2,"%s-environment keyword \"%s\" skipped.",
+                        strupr(buff), keyword);
 /*--------------------------------------------------------------------*/
 /*                      Handle obsolete options                       */
 /*--------------------------------------------------------------------*/
@@ -355,15 +428,16 @@ boolean processconfig(char *buff,
 /*--------------------------------------------------------------------*/
 /*                       Handle integer values                        */
 /*--------------------------------------------------------------------*/
-            else if (tptr->bits & B_INTEGER)
+            else if (tptr->bits & (B_SHORT|B_LONG))
             {
-               int *value = (int *) tptr->loc;
+               long foo;
                cp = strtok(cp,WHITESPACE);
                if ( equal(cp,"0"))
-                  *value = 0;
+                  foo = 0;
                else {
-                  *value = atoi(cp);
-                  if ( *value == 0)
+                  foo = atol(cp);
+
+                  if ( foo == 0)
                   {
                      printmsg(0,
                         "Unable to convert \"%s\" value \"%s\" to integer",
@@ -371,6 +445,11 @@ boolean processconfig(char *buff,
                      error = TRUE;
                   } /* if */
                } /* else */
+
+               if (tptr->bits & B_LONG)
+                  *((long *) tptr->loc) = foo;
+               else
+                  *((KEWSHORT *) tptr->loc) = (KEWSHORT) foo;
             } /* else */
 /*--------------------------------------------------------------------*/
 /*                       Handle lists of tokens                       */
@@ -607,6 +686,7 @@ boolean configure( CONFIGBITS program)
         {&E_tempdir,      "tmp"     },
         {&E_systems,      "systems" },
         {&E_passwd,       "passwd"  },
+        {&E_tz,           "tz"      },
         { NULL  }
         } ;
 
@@ -619,25 +699,12 @@ boolean configure( CONFIGBITS program)
 #endif
 
 /*--------------------------------------------------------------------*/
-/*                         Set our time zone                          */
-/*--------------------------------------------------------------------*/
-
-   if (getenv("TZ") == NULL )
-   {
-      printmsg(0,"Environment variable TZ must be set!");
-      panic();
-   }
-   tzset();                      /* Set up time zone information  */
-
-/*--------------------------------------------------------------------*/
 /*                  Determine the active environment                  */
 /*--------------------------------------------------------------------*/
 
-#ifndef __TURBOC__
-#ifndef __GNUC__
+#if !defined(__TURBOC__) && !defined(BIT32ENV)
    if (_osmode != DOS_MODE)
-      active_env = OS2_ENV;
-#endif
+      active_env = ENV_OS2 | ENV_BIT16;
 #endif
 
    if (!getrcnames(&sysrc, &usrrc))
@@ -673,8 +740,10 @@ boolean configure( CONFIGBITS program)
       panic();
    }
 
-   *s = '\0';                          // Terminate for Config Directory
-   E_confdir = newstr( E_confdir );    // Save in permanent pool
+   *(s+1) = '\0';                      // Terminate for Config Directory
+   E_confdir = newstr(normalize( E_confdir ));
+                                       // Drop trailing slash unless
+                                       // root directory and save
 
 /*--------------------------------------------------------------------*/
 /*               Process the system configuration file                */
@@ -765,7 +834,21 @@ boolean configure( CONFIGBITS program)
       subscript++;
    }
 
+/*--------------------------------------------------------------------*/
+/*                         Set our time zone                          */
+/*--------------------------------------------------------------------*/
+
+   if ((getenv("TZ") == NULL) && (E_tz != NULL))
+   {
+      sprintf( buf, "TZ=%s", E_tz );
+      E_tz = newstr( E_tz );
+      putenv( E_tz );
+   }
+
+   tzset();                      /* Set up time zone information  */
+
    PopDir();
+
    return success;
 
 } /*configure*/

@@ -24,10 +24,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.14 1993/08/03 03:35:58 ahd Exp $
+ *    $Id: uuxqt.c 1.15 1993/09/20 04:48:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.15  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  * Revision 1.14  1993/08/03  03:35:58  ahd
  * Correct path pointer to initialized variable
  *
@@ -162,7 +167,9 @@ static boolean copylocal(const char *from, const char *to);
 
 static boolean do_uuxqt( const char *sysname );
 
-static void process( const char *fname, const char *remote );
+static void process( const char *fname,
+                     const char *remote,
+                     const char *executeDirectory);
 
 char **create_environment(const char *logname,
                           const char *requestor);
@@ -343,6 +350,8 @@ static boolean do_uuxqt( const char *sysname )
    struct HostTable *hostp;
    static char uu_machine[] = UU_MACHINE "=";
    char hostenv[sizeof uu_machine + 25 + 2];
+   char executeDirectory[FILENAME_MAX];
+   char *pattern;
 
 /*--------------------------------------------------------------------*/
 /*                 Determine if we have a valid host                  */
@@ -361,6 +370,20 @@ static boolean do_uuxqt( const char *sysname )
 
    } else
         hostp = nexthost( TRUE );
+
+/*--------------------------------------------------------------------*/
+/*                Define mask for execution directory                 */
+/*--------------------------------------------------------------------*/
+
+   if (( E_xqtRootDir == NULL ) || equali( E_xqtRootDir, E_spooldir ))
+      sprintf( executeDirectory, "%s/%%s/XQT", E_spooldir );
+                                 // Nice parallel construction
+   else
+      sprintf( executeDirectory, "%s/XQT/%%s", E_xqtRootDir);
+                                 // Fewer directories than if we
+                                 // use the spool version
+
+   pattern = newstr( executeDirectory );  // Save pattern for posterity
 
 /*--------------------------------------------------------------------*/
 /*             Outer loop for processing different hosts              */
@@ -386,26 +409,32 @@ static boolean do_uuxqt( const char *sysname )
 /*              Set up environment for the machine name               */
 /*--------------------------------------------------------------------*/
 
-      sprintf(hostenv,"%s%.25s", uu_machine, hostp->hostname);
+         sprintf(hostenv,"%s%.25s", uu_machine, hostp->hostname);
 
-      if (putenv( hostenv ))
-      {
-         printmsg(0,"Unable to set environment \"%s\"",hostenv);
-         panic();
-      }
+         if (putenv( hostenv ))
+         {
+            printmsg(0,"Unable to set environment \"%s\"",hostenv);
+            panic();
+         }
+
+         sprintf(executeDirectory , pattern, hostp->hostname );
+         printmsg(5,"Execute directory is %s", executeDirectory );
 
 /*--------------------------------------------------------------------*/
 /*           Inner loop for processing files from one host            */
 /*--------------------------------------------------------------------*/
 
          while (readnext(fname, hostp->hostname, "X", NULL, NULL, NULL) )
+         {
             if ( locked || LockSystem( hostp->hostname , B_UUXQT ))
             {
-               process( fname , hostp->hostname );
+               process( fname , hostp->hostname, executeDirectory );
                locked = TRUE;
             }
             else
                break;               /* We didn't get the lock        */
+
+         } /* while */
 
          if ( locked )
             UnlockSystem();
@@ -439,7 +468,9 @@ static boolean do_uuxqt( const char *sysname )
 /*    Process a single execute file                                   */
 /*--------------------------------------------------------------------*/
 
-static void process( const char *fname, const char *remote )
+static void process( const char *fname,
+                     const char *remote,
+                     const char *executeDirectory)
 {
    char *command = NULL,
         *input = NULL,
