@@ -17,16 +17,19 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.11 1995/03/11 12:39:24 ahd v1-12o $";
+      "$Id: hdbm.c 1.12 1995/09/24 19:10:36 ahd v1-12q $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- * $Id:$
+ * $Id: hdbm.c 1.12 1995/09/24 19:10:36 ahd v1-12q $
  *
  * $Log: hdbm.c $
+ * Revision 1.12  1995/09/24 19:10:36  ahd
+ * Use standard buffer length for processing in all environments
+ *
  * Revision 1.11  1995/03/11 12:39:24  ahd
  * Correct compiler warnings for size mismatches
  *
@@ -148,7 +151,10 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
     return -1;
 
   if ((offset = lseek(db -> dbffile, 0, SEEK_END)) == -1L)
-    return -1;
+  {
+     printerr( "dbm_store");
+     return -1;
+  }
 
   memcpy(buffer, key.dptr, key.dsize);
   size = key.dsize;
@@ -158,7 +164,13 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
   buffer[size - 1] = '\n';
 
   if (idx_addkey(db -> idx, key.dptr, offset, size) == -1)
+  {
+#ifdef UDEBUG
+     printmsg(10,"dbm_store: idx_addkey failed for key %s", key.dptr );
+#endif
+
     return -1;
+  }
 
   if (write(db -> dbffile, buffer, size) != (int) size)
   {
@@ -167,7 +179,8 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
   }
 
   return 0;
-}
+
+} /* dbm_store */
 
 #if _MSC_VER >= 700
 #pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
