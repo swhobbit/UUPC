@@ -6,15 +6,25 @@
  * Created: Sun Oct 03 1993
  */
 
-/* todo: moderated groups, shadow systems delivery */
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
 
-#include "uupcmoah.h"
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
 
-static char *rcsid =
-"$Id: inews.c 1.8 1994/03/15 03:02:26 ahd Exp rommel $";
-static char *rcsrev = "$Revision: 1.8 $";
-
-/* $Log: inews.c $
+/*
+ *       $Id$
+ *
+ * $Log: inews.c $
+ * Revision 1.9  1994/03/20  14:22:01  rommel
+ * Add grade option to allow different call grades
+ *
  * Revision 1.8  1994/03/15  03:02:26  ahd
  * Add error messages after RTL errors
  *
@@ -44,6 +54,13 @@ static char *rcsrev = "$Revision: 1.8 $";
  * Revision 1.1  1993/10/30  11:40:00  rommel
  * Initial revision
  * */
+
+/* todo: moderated groups, shadow systems delivery */
+
+#include "uupcmoah.h"
+
+const static char rcsid[] =
+      "$Id: inews.c 1.9 1994/03/20 14:22:01 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -114,15 +131,15 @@ void main( int argc, char **argv)
 /*        Process our arguments                                       */
 /*--------------------------------------------------------------------*/
 
-  while ((c = getopt(argc, argv, "g:x:h")) !=  EOF)
+  while ((c = getopt(argc, argv, "g:x:h?")) !=  EOF)
     switch(c) {
 
     case 'g':
       if (isalnum(*optarg) && (strlen(optarg) == 1))
-	grade = *optarg;
+        grade = *optarg;
       else {
-	printmsg(0,"Invalid grade for news: %s", optarg);
-	usage();
+        printmsg(0,"Invalid grade for news: %s", optarg);
+        usage();
       }
       break;
 
