@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.3 1994/03/11 01:49:00 ahd v1-12k $
+#       $Id: nmakedos.mak 1.4 1994/12/22 00:05:21 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.4  1994/12/22 00:05:21  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.3  1994/03/11 01:49:00  ahd
 #       Lower stack size
 #
@@ -18,14 +21,28 @@
 
 PROD    = \uupc\bin
 MASM    = masm.exe
-MODEL   = M
+!ifndef ERASE
+ERASE    = del
+!endif
+
+!ifndef MODEL
+MODEL   = S
+!endif
+
+!if "$(MODEL)" == "T"
+NODEBUG=1
+!endif
+
 #MASMOPTS = /DUUPC /DDEBUG /n /v /t /z /W2 /ZD /Mx
 MASMOPTS = /DUUPC /n /v /t /z /W2 /ZI /ZD /Mx
-LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj
+
+LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj \
+            $(OBJ)\title.obj
+
 UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
-LIBLIST   =$(MODEL)libce+$(LIBCOMM)
-EXTRAT  = comm34.exe
+
+EXTRAT  = comm34.com
 LINKER  = link
 STACKSIZE=3000                  # In hex, because /F below is brain dead
 LINKOPT = /batch /far /noignorecase /stack:0x$(STACKSIZE)
@@ -49,11 +66,12 @@ ZIPID   = d
 
 !ifdef NODEBUG
 #       Use this CCOPT for productiom
-DBGOPT  = -Ocegilt  -nologo
+DBGOPT  = -Ocegilt
 !else
 #       Use this CCOPT for debugging; the -FR is optional.
 DBGOPT  = -Odr -Zi -DUDEBUG # -FR$(SBR)\$(@B).sbr
 !endif
 
-CCOPT   = $(DBGOPT) -I$(UULIB) -A$(MODEL) -Gd -c -W4 -nologo -Fo$@
-LDOPT   = $(DBGOPT) -nologo -A$(MODEL) -F $(STACKSIZE) $(DBGOPT) -Fe$@
+COMMOPT = -nologo -W4 -A$(MODEL) $(DBGOPT)
+CCOPT   = $(COMMOPT) -I$(UULIB) -c -Fo$@
+LDOPT   = $(COMMOPT) -F $(STACKSIZE) -Fe$@

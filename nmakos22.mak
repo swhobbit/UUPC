@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.10 1995/01/22 04:15:00 ahd Exp $
+#       $Id: nmakos22.mak 1.11 1995/01/29 14:04:46 ahd Exp $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.11  1995/01/29 14:04:46  ahd
+#       Enable most IBM C/Set++ compiler warnings
+#
 #       Revision 1.10  1995/01/22 04:15:00  ahd
 #       Convert internal zip names to match external names
 #
@@ -50,39 +53,44 @@ EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
            $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case
-OS2      = 1
+
 !ifndef PROD
 PROD     = \uupc\os2bin32
 !endif
+
 STACKSIZE= 0x50000
-WIDTH    = 32
 ZIPID    = 2
+
 !ifndef MSGFILE
 MSGFILE  =\ibmcpp\help\dde4.msg
 !endif
+
 !ifndef DLLDIR
 DLLDIR   =\ibmcpp\dll
 !endif
+
 !ifndef DLLPROD
 DLLPROD=$(PROD)
 !endif
+
 RTLDLL   = dde4sbs.dll
 DLLNAME  = UPCR$(VERS:1.=).dll
 
-!ifdef NODEBUG
-#       Use this for production
-DBGOPT = -O -Gs
-!else
-#       Use this for debugging
-DBGOPT  = -Ti -DUDEBUG -Tx -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wtrd -Wuni- # -D__DEBUG_ALLOC__
-!endif
-
-COMMOPT = -Sv -Q $(DBGOPT) -Gd
-CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@
-LDOPT   = -b"/A:4 /BAT" $(COMMOPT) -Fe $@
 UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
              $(OBJ)\psos2err.obj
 UUCICOOBJ3 = $(UUCICOOBJX) $(OBJ)\ulibip.obj
 
 OTHERLIBS=   so32dll.lib tcp32dll.lib
+
+!ifdef NODEBUG
+#       Use this for production
+DBGOPT = -O -Gs -Wtrd- -Wuse- -Wpar-
+!else
+#       Use this for debugging
+DBGOPT  =-Ti -Tx -DUDEBUG# -D__DEBUG_ALLOC__
+!endif
+
+COMMOPT = -Q -Gd+
+CCOPT   = $(COMMOPT) -Wall -Wcnv- -Wext- -Wgen- -Wlan- -Wppc- -Wppt- -Wuni- $(DBGOPT) -c -Si -I$(UULIB) -Fo$@
+LDOPT   = $(COMMOPT)  $(DBGOPT) -b"/A:4 /BAT" -Fe $@
