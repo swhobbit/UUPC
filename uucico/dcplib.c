@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPLIB.C 1.3 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: dcplib.c 1.4 1993/07/22 23:22:27 ahd Exp $
  *
- *    $Log: DCPLIB.C $
+ *    $Log: dcplib.c $
+ * Revision 1.4  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.3  1993/05/30  00:01:47  ahd
  * Multiple commuications drivers support
  *
@@ -152,7 +155,7 @@ boolean login(void)
 #ifdef WIN32
             "Windows/NT(TM)",
             _osmajor,
-#ifif defined(__OS2__)
+#elif defined(__OS2__)
             "OS/2(R)",
             _osmajor,
 #elif defined( __TURBOC__ )
