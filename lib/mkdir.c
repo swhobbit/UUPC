@@ -43,18 +43,17 @@ int MKDIR(const char *inpath)
    if (*inpath == '\0')
       return 0;
 
-   path = strdup(inpath);
-   checkref(path);
-   cp = path ;
+   cp = path = normalize(inpath );
 
-   while ((cp = strchr(cp, '\\')) != nil(char)) {
-      *cp = '/';
-   }
 
-   /* see if we need to make any intermediate directories */
+/*--------------------------------------------------------------------*/
+/*        See if we need to make any intermediate directories         */
+/*--------------------------------------------------------------------*/
+
    cp = path ;
    while ((cp = strchr(cp, '/')) != nil(char)) {
       *cp = '\0';
+
 #ifndef __GNUC__
       mkdir(path);
 #else
@@ -64,9 +63,10 @@ int MKDIR(const char *inpath)
       cp++;
    }
 
-   free(path);
+/*--------------------------------------------------------------------*/
+/*                           Make last dir                            */
+/*--------------------------------------------------------------------*/
 
-   /* make last dir */
    return mkdir(inpath);
 
 } /*MKDIR*/
