@@ -10,6 +10,8 @@
 ;; Add Plummer's fix for bad TASM assemble of com_errors
 ;;
 ;
+; 14-Jun-93 plummer	Add RET to spinloop routine
+; 14-Jun-93 plummer	Set FIFO thresholds to 8 rather than 16 bytes
 ; 18-May-93 plummer	Define IO$DELAY and use in UART type determination
 ; 16-May-93 plummer	Debug code to printout UART type
 ; 22-Apr-93 plummer	Make case consistent in "TBuff" so it links properly
@@ -216,13 +218,13 @@ FCR		EQU	IIR	; FIFO Control Register (WO)
  ; Commands used in code to operate FIFO.  Made up as combinations of above
  ;
  FIFO_CLEAR	EQU	0	; Turn off FIFO
- FIFO_SETUP	EQU	FIFO_SZ_14 OR FIFO_ENABLE
+ FIFO_SETUP	EQU	FIFO_SZ_8 OR FIFO_ENABLE
  FIFO_INIT	EQU	FIFO_SETUP OR FIFO_CLR_RCV OR FIFO_CLR_XMT
  ;
  ; Miscellaneous FIFO-related stuff
  ;
 FIFO_ENABLED	EQU	0C0H	; 16550 makes these equal FIFO_ENABLE
-FIFO_LEN	EQU	16	; Length of the FIFOs in a 16550A
+FIFO_LEN	EQU	8	; Length of the transmit FIFO in a 16550A
 	PAGE;
 ;	put the data in the DGROUP segment
 ;	far calls enter with DS pointing to DGROUP
@@ -281,6 +283,7 @@ IFDEF DEBUG
 	 PUBLIC SEND1, SENDX
 	 PUBLIC WaitN, WaitN1, WaitN2
 	 PUBLIC SENDII, SENDII2, SENDII4, SENDIIX
+	 PUBLIC SPINLOOP
 	 PUBLIC CHROUT, CHROUX
 	 PUBLIC BREAKX
 	 PUBLIC INT_HNDLR1, INT_HNDLR2, INT_HNDLR3, INT_HNDLR4
@@ -1268,14 +1271,15 @@ SENDII	ENDP
 ;*	Waste time to allow slow UART chips to catch up 	       *
 ;*---------------------------------------------------------------------*
 
-spinloop proc near
-	 PUSH CX
-	 MOV CX,400
-wasters:
-	 NOP
-	 LOOP WASTERS
-	 POP  CX
-spinloop endp
+SPINLOOP PROC NEAR
+	PUSH CX
+	MOV CX,100
+WASTERS:
+	CALL CRET		; Better time waster than a 1-byte NOP
+	LOOP WASTERS
+	POP  CX
+CRET:	RET
+SPINLOOP ENDP
 
 ; CHROUT()	Process level routine to remove a chr from the buffer,
 ;		give it to the UART and adjust the pointer and count.
@@ -1542,7 +1546,7 @@ MSI1:	MOV SEND_OK[SI],AL		; Put where TXI and send_com can see
 	JMP REPOLL			; Check for other interrupts
 	PAGE;
 ;
-; Tranmit interrupt
+; Transmit interrupt
 ;
 TXI:	CMP SEND_OK[SI],1		; Harware (CTS & DSR on) OK?
 	 JNE TXI9			; No.  Must wait 'til cable right!
