@@ -1,10 +1,14 @@
-#       $Id: nmakewnt.mak 1.5 1994/05/23 21:40:46 dmwatt Exp $
+#       $Id: nmakewnt.mak 1.6 1994/05/30 02:19:23 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.6  1994/05/30  02:19:23  ahd
+#       Normalize options
+#       Delete build of uupcdll.dll in prod
+#
 #       Revision 1.5  1994/05/23  21:40:46  dmwatt
 #       Add Windows NT utilities
 #       Add UUCICO without TCP/IP for OS/2 32 bit
@@ -47,6 +51,6 @@ LDOPT    = $(COMMOPT) -Fe$@
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib $(MYUULIBS)
 
-EXTRAT=regsetup.exe uupcdll.dll
+#EXTRAT=regsetup.exe uupcdll.dll
 EXTRA3=$(PROD)\regsetup.exe
 # EXTRA4=$(PROD)\uupcdll.dll
