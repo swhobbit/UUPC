@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.1 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: suspend.h 1.2 1993/09/29 04:56:11 ahd Exp $
  *
  *    Revision history:
- *    $Log: suspend2.c $
+ *    $Log: suspend.h $
+ * Revision 1.2  1993/09/29  04:56:11  ahd
+ * Suspend port by port name, not modem file name
+ *
  */
 
 #ifndef NO_SUSPEND_FUNCTIONS
@@ -45,4 +48,25 @@ CONN_STATE suspend_wait(void);
 
 #define SUSPEND_PIPE "\\PIPE\\UUCICO\\ZZ"
 
+#ifdef WIN32
+#define SUSPEND_LOCAL "\\\\." /* Windows NT requires explicit local node   */
+#else
+#define SUSPEND_LOCAL ""      /* But OS/2 doesn't.                         */
+#endif
+
+typedef enum suspendCommands
+   {
+      /* Commands */
+      SUSPEND_EXIT    = 'E',        /* Terminate UUCICO completely   */
+      SUSPEND_QUERY   = 'Q',        /* Request UUCICO report status  */
+      SUSPEND_RESUME  = 'R',        /* Resume use of port now        */
+      SUSPEND_SLEEP   = 'S',        /* Surrender port now            */
+
+      /* Responses */
+      SUSPEND_ACTIVE  = 'A',        /* UUCICO currently running      */
+      SUSPEND_BUSY    = 'B',        /* Busy, cannot suspend          */
+      SUSPEND_ERROR   = 'E',        /* System error, suspend failed  */
+      SUSPEND_OKAY    = 'O',        /* UUCICO has honored command    */
+      SUSPEND_WAITING = 'W'         /* UUCICO currently suspended    */
+   }; /* suspendCommands */
 #endif
