@@ -12,13 +12,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpconn.h 1.1 1997/11/28 23:13:35 ahd Exp $
  *
- *    $Log: smtpnetw.c $
+ *    $Log: smtpconn.h $
+ *    Revision 1.1  1997/11/28 23:13:35  ahd
+ *    Initial revision
+ *
  */
 
 #include "../uucico/uutcpip.h"
-#include "smtpconn.h"
 
 typedef struct _SMTPConnection
 {
