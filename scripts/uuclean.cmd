@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.10 1993/11/14 18:16:11 ahd Exp $
+ *       $Id: UUCLEAN.CMD 1.11 1994/01/01 19:16:25 ahd Exp $
  *
- *       $Log: uuclean.cmd $
+ *       $Log: UUCLEAN.CMD $
+ *Revision 1.11  1994/01/01  19:16:25  ahd
+ *Annual Copyright Update
+ *
  *      Revision 1.10  1993/11/14  18:16:11  ahd
  *      Use del /f to nuke files dead
  *
@@ -199,16 +202,17 @@ do count = 1 to data.0
    do
       if \ aged then             /* Only age older files per run     */
          aged = process(spooldir, newgen , archive, defaultmax, generation)
-      say 'Aging' input 'to' target
 
       if generation > maxgen then      /* Really old files go away   */
          call Purge fname
       else if exist( target ) then     /* Else append if needed      */
       do
+         say 'Merging' input 'with' target
          'COPY' target || '+' || fname '/B'
          '@DEL /F' fname
       end
       else do;
+         say 'Aging' input 'to' target
          if substr(target,2,1) = ':' then
             moveto = substr( target, 3 );
          else
