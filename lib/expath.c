@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.18 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: expath.c 1.19 1995/01/30 04:05:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.19  1995/01/30 04:05:08  ahd
+ *    Additional compiler warning fixes, optimize path normalizing
+ *
  *    Revision 1.18  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -109,8 +112,7 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*--------------------------------------------------------------------*/
 
    strcpy(path, input);
-   p = path;
-   renormalize( p );
+   renormalize( path );
 
 /*--------------------------------------------------------------------*/
 /*                 Add optional extension, if needed                  */
@@ -140,8 +142,9 @@ char *expand_path(char *input,         /* Input/output path name      */
       {
          if (( path[0] == '/' ) && ( path[1] != '/' ))
          {
-            memmove( path + 2, path, strlen( path ));
-            path[0] = (char) (_getdrive() + 'A' - 1);
+            memmove( path + 2, path, strlen( path ) + 1);
+
+            path[0] = getDrive( cur_dir );
             path[1] = ':';
          }
       }
@@ -174,7 +177,8 @@ char *expand_path(char *input,         /* Input/output path name      */
       renormalize( path );
 
       printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
-                  E_cwd, input, path );
+                  cur_dir ? cur_dir : E_cwd,
+                  input, path );
       return strcpy( input, path );
 
    } /* if */
@@ -185,6 +189,7 @@ char *expand_path(char *input,         /* Input/output path name      */
 
    p = path;                  /* Copy entire path                     */
    strcpy(save, p);
+
    if (save[0] == '~')
    {
       if (save[1] == '/')
@@ -230,10 +235,13 @@ char *expand_path(char *input,         /* Input/output path name      */
    else {
          fname = save;              /* Save entire file name          */
 
-         if ( cur_dir == NULL )
-            getcwd( path, FILENAME_MAX);
-         else
+         if ( cur_dir != NULL )
             strcpy( path, cur_dir );
+         else if ( E_cwd != NULL )
+            strcpy( path, E_cwd );
+         else
+            getcwd( path, FILENAME_MAX);
+
    } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -256,7 +264,9 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*--------------------------------------------------------------------*/
 
    printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
-               E_cwd, input, path );
+               cur_dir ? cur_dir : E_cwd,
+               input,
+               path );
    return strcpy( input, path );
 
 } /* expand_path */

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.19 1995/01/05 03:43:49 ahd Exp $
+ *       $Id: inews.c 1.20 1995/01/07 16:21:30 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.20  1995/01/07 16:21:30  ahd
+ * Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  * Revision 1.19  1995/01/05 03:43:49  ahd
  * rnews SYS file support
  *
@@ -97,7 +100,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.19 1995/01/05 03:43:49 ahd Exp $";
+      "$Id: inews.c 1.20 1995/01/07 16:21:30 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -160,7 +163,7 @@ void main( int argc, char **argv)
 
   banner( argv );
 
-  if (!configure( B_NEWS ))
+  if (!configure( B_INEWS ))
     exit(1);                    /* system configuration failed */
 
   checkname( E_nodename );      /* Fill in fdomain                  */
@@ -234,7 +237,7 @@ void main( int argc, char **argv)
 /*                         deliver locally                            */
 /*--------------------------------------------------------------------*/
 
-  result = execute(RNEWS, NULL, tempname, NULL, KWTrue, KWFalse);
+  result = execute("NEWSRUN", NULL, tempname, NULL, KWTrue, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*                             cleanup                                */

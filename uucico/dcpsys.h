@@ -17,7 +17,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpsys.h 1.9 1994/12/27 20:46:08 ahd Exp $
+ *    $Id: dcpsys.h 1.10 1995/01/07 16:46:46 ahd Exp $
  *
  *    Revision history:
  */
@@ -56,7 +56,7 @@ char nextGrade( const char grade );
 
 XFER_STATE scandir(char *remote, const char grade );
 
-int   rmsg(char *msg, const KWBoolean synch, unsigned int msgtime, int max_len);
+int   rmsg(char *msg, const char synch, unsigned int msgtime, int max_len);
 
 void  wmsg(const char *msg, const KWBoolean synch);
 

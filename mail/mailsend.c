@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.20 1995/01/07 16:35:47 ahd Exp $
+ *    $Id: mailsend.c 1.21 1995/01/30 04:08:36 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.21  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.20  1995/01/07 16:35:47  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -253,7 +256,7 @@ currentfile();                /* Define current file for panic()     */
 /*    Returns:  0 on success, 1 if signature file not found           */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean Append_Signature(FILE *mailbag_fp ,
+static KWBoolean Append_Signature(FILE *mailStream ,
                      const KWBoolean alternate)
 {
    FILE *sigfp;
@@ -270,10 +273,10 @@ static KWBoolean Append_Signature(FILE *mailbag_fp ,
 
       if ((sigfp = FOPEN(sigfile, "r",TEXT_MODE)) != nil(FILE))
       {
-         fputs("-- \n", mailbag_fp);
+         fputs("-- \n", mailStream);
 
          while (fgets(buf, BUFSIZ, sigfp) != nil(char))
-            fputs(buf, mailbag_fp);
+            fputs(buf, mailStream);
 
          fclose(sigfp);
 
@@ -726,8 +729,10 @@ KWBoolean Collect_Mail(FILE *stream,
             fputs("Abort\nAre you sure? ", stdout);
             fflush(stdout);
             safeflush();
-            c = Get_One();             /* for QuickC */          /* pdm */
-            switch (tolower(c)) {      /* unravel these two calls */
+
+            c = Get_One();
+            switch (tolower(c))
+            {
             case 'y':
                puts("Yes");
                done = KWTrue;
@@ -861,17 +866,17 @@ static KWBoolean Subcommand( char *buf,
             if (fmailbox == NULL)
                puts("Mailbox not accessible!");
             else {
-               int *item_list;
-               int next_item = PushItemList( &item_list );
-               KWBoolean first_pass = KWTrue;
+               int *itemList;
+               int nextItem = PushItemList( &itemList );
+               KWBoolean firstPass = KWTrue;
 
                token = GetString( &buf[2] );
 
                if (SelectItems( &token, current_msg, LETTER_OP ))
-               while( Get_Operand( &message, &token, LETTER_OP, first_pass))
+               while( Get_Operand( &message, &token, LETTER_OP, firstPass))
                {
                   copyopt option;
-                  KWBoolean fileMode;
+                  KWBoolean indent;
 
                   if ( islower(buf[1]) )
                      option = fromheader;
@@ -879,19 +884,20 @@ static KWBoolean Subcommand( char *buf,
                      option = noseperator;
 
                   if ( tolower(buf[1]) == 'f' )
-                     fileMode = KWTrue;
+                     indent = KWFalse;
                   else
-                     fileMode = KWFalse;
+                     indent = KWTrue;
 
-                  CopyMsg( message , fmailbag, option, fileMode );
+                  CopyMsg( message , fmailbag, option, indent );
 
                   fprintf(stdout, "Message %d included\n", message + 1);
 
-                  first_pass = KWFalse;
+                  firstPass = KWFalse;
 
                } /* while */
 
-               PopItemList( item_list, next_item );
+               PopItemList( itemList, nextItem );
+
             } /* else */
             break;
 

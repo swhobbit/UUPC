@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.24 1995/01/29 14:07:59 ahd Exp $
+ *    $Id: security.c 1.25 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.25  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.24  1995/01/29 14:07:59  ahd
  *    Clean up most IBM C/Set Compiler Warnings
  *
@@ -188,8 +191,7 @@ KWBoolean LoadSecurity( void )
 /*              Get current drive for normalizing names               */
 /*--------------------------------------------------------------------*/
 
-   getcwd( buffer, sizeof buffer );
-   *drive = *buffer;
+   *drive = getDrive( NULL );
 
 /*--------------------------------------------------------------------*/
 /*               Begin processing the PERMISSIONS file                */
@@ -290,20 +292,21 @@ static KWBoolean InitEntry( char *buf, const char *fname)
   static char *callback, *xpubdir, *machine, *noread, *nowrite;
   static char *request, *read, *sendfiles,  *write, *logname;
 
-  static CONFIGTABLE securetable[] = {
-     { "callback",      &callback,     B_TOKEN  | B_UUXQT } ,
-     { "commands",      &commands,     B_CLIST  | B_UUXQT } ,
-     { "logname",       &logname,      B_TOKEN  | B_UUXQT } ,
-     { "machine",       &machine,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
-     { "myname",        &myname,       B_TOKEN  | B_UUXQT } ,
-     { "pubdir",        &xpubdir,      B_TOKEN  | B_UUXQT } ,
-     { "noread",        &noread,       B_TOKEN  | B_UUXQT | B_MALLOC } ,
-     { "nowrite",       &nowrite,      B_TOKEN  | B_UUXQT | B_MALLOC } ,
-     { "read",          &read,         B_TOKEN  | B_UUXQT | B_MALLOC} ,
-     { "request",       &request,      B_TOKEN  | B_UUXQT } ,
-     { "sendfiles",     &sendfiles,    B_TOKEN  | B_UUXQT } ,
-     { "validate",      &validate,     B_CLIST  | B_UUXQT } ,
-     { "write",         &write,        B_TOKEN  | B_UUXQT | B_MALLOC } ,
+  static CONFIGTABLE securetable[] =
+  {
+     { "callback",      &callback,     0, B_TOKEN  } ,
+     { "commands",      &commands,     0, B_CLIST  } ,
+     { "logname",       &logname,      0, B_TOKEN  } ,
+     { "machine",       &machine,      0, B_TOKEN  | B_MALLOC } ,
+     { "myname",        &myname,       0, B_TOKEN  } ,
+     { "pubdir",        &xpubdir,      0, B_TOKEN  } ,
+     { "noread",        &noread,       0, B_TOKEN  | B_MALLOC } ,
+     { "nowrite",       &nowrite,      0, B_TOKEN  | B_MALLOC } ,
+     { "read",          &read,         0, B_TOKEN  | B_MALLOC} ,
+     { "request",       &request,      0, B_TOKEN  } ,
+     { "sendfiles",     &sendfiles,    0, B_TOKEN  } ,
+     { "validate",      &validate,     0, B_CLIST  } ,
+     { "write",         &write,        0, B_TOKEN  | B_MALLOC } ,
      { nil(char) }
 }; /* securetable */
 
@@ -339,7 +342,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 /*--------------------------------------------------------------------*/
 
    for (tptr = securetable; tptr->sym != nil(char); tptr++)
-      if (tptr->bits & (B_TOKEN | B_STRING | B_LIST| B_CLIST))
+      if (tptr->flag & (B_TOKEN | B_STRING | B_LIST| B_CLIST))
          *((char **) tptr->loc) = nil(char);
 
 /*--------------------------------------------------------------------*/
@@ -359,7 +362,11 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 
 #endif
 
-      if (!processconfig(parameter, SYSTEM_CONFIG,B_UUXQT,securetable,NULL))
+      if (!processconfig(parameter,
+                         SYSTEM_CONFIG,
+                         0,
+                         securetable,
+                         NULL))
       {
          printmsg(0, "Unknown keyword \"%s\" in %s ignored",
                     parameter,

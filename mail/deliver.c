@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.35 1995/01/08 19:52:44 ahd Exp $
+ *    $Id: deliver.c 1.36 1995/01/09 01:39:22 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.36  1995/01/09 01:39:22  ahd
+ *    Optimize UUCP processing for remote mail, break out logical
+ *    queuing from actually writing the files, and don't write call
+ *    file (which UUCICO could see by mistake) until we're writing
+ *    it for the final time.
+ *
  *    Revision 1.35  1995/01/08 19:52:44  ahd
  *    Add in memory files to RMAIL, including additional support and
  *    bug fixes.
@@ -905,7 +911,7 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
    static char *dataf_fmt = DATAFFMT;
    static char *send_cmd  = "S %s %s %s - %s 0666\n";
 
-   char *seq = JobNumber( getseq() );
+   char *seq = jobNumber( getSeq(), 3, bflag[F_ONECASE] );
    FILE *stream;              /* For writing out data                 */
 
    char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */

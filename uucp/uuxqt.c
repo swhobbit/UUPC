@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.40 1994/12/22 00:45:25 ahd Exp $
+ *    $Id: uuxqt.c 1.41 1995/01/07 16:42:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.41  1995/01/07 16:42:05  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.40  1994/12/22 00:45:25  ahd
  *    Annual Copyright Update
  *
@@ -230,19 +233,12 @@ typedef enum {
         } UU_FLAGS;
 
 /*--------------------------------------------------------------------*/
-/*                          Global Variables                          */
-/*--------------------------------------------------------------------*/
-
-static char *spool_fmt = SPOOLFMT;
-static char *dataf_fmt = DATAFFMT;
-
-/*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
 static void usage( void );
 
-static KWBoolean copylocal(const char *from, const char *to);
+static KWBoolean copyLocal(const char *from, const char *to);
 
 static KWBoolean do_uuxqt( const char *sysname );
 
@@ -252,9 +248,9 @@ static void process( const char *fname,
 
 static void create_environment(const char *requestor);
 
-static KWBoolean AppendData( const char *input, FILE* dataout);
+static void appendData( const char *input, FILE* dataout);
 
-static KWBoolean do_copy( char *localfile,
+static void do_copy(   const char *localfile,
                        const char *rmtsystem,
                        const char *remotefile,
                        const char *requestor,
@@ -280,19 +276,19 @@ static int shell(char *command,
                  const char *remoteName,
                  KWBoolean xflag[]);
 
-static KWBoolean MailStatus(char *tempfile,
-                          char *address,
-                          char *subject);
+static void mailStatus(const char *tempfile,
+                       const char *address,
+                       const char *subject);
 
 static void purify( const char *where );
 
 /*--------------------------------------------------------------------*/
-/*    m a i n                                                         */
+/*       m a i n                                                      */
 /*                                                                    */
-/*    Main program                                                    */
+/*       Main program                                                 */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char **argv)
+main( int argc, char **argv)
 {
    int c;
    extern char *optarg;
@@ -313,14 +309,28 @@ void main( int argc, char **argv)
 #endif
 
 /*--------------------------------------------------------------------*/
+/*                             Initialize                             */
+/*--------------------------------------------------------------------*/
+
+   if (!configure( B_UUXQT ))
+      exit(1);   /* system configuration failed */
+
+/*--------------------------------------------------------------------*/
+/*                     Initialize logging file                        */
+/*--------------------------------------------------------------------*/
+
+   openlog( logname );
+
+/*--------------------------------------------------------------------*/
 /*        Process our arguments                                       */
 /*--------------------------------------------------------------------*/
 
    while ((c = getopt(argc, argv, "l:s:x:")) !=  EOF)
-      switch(c) {
+      switch(c)
+      {
 
       case 'l':
-         logname = optarg;
+         openlog( optarg );
          break;
 
       case 's':
@@ -343,18 +353,12 @@ void main( int argc, char **argv)
          break;
       }
 
-   if (optind != argc) {
+   if (optind != argc)
+   {
       fputs("Extra parameter(s) at end.\n", stderr);
       usage();
       exit(2);
    }
-
-/*--------------------------------------------------------------------*/
-/*                             Initialize                             */
-/*--------------------------------------------------------------------*/
-
-   if (!configure( B_UUXQT ))
-      exit(1);   /* system configuration failed */
 
 /*--------------------------------------------------------------------*/
 /*                  Switch to the spooling directory                  */
@@ -362,12 +366,6 @@ void main( int argc, char **argv)
 
    PushDir( E_spooldir );
    atexit( PopDir );
-
-/*--------------------------------------------------------------------*/
-/*                     Initialize logging file                        */
-/*--------------------------------------------------------------------*/
-
-   openlog( logname );
 
    checkuser( E_mailbox  );   /* Force User Table to initialize        */
    checkreal( E_mailserv );   /* Force Host Table to initialize        */
@@ -416,10 +414,11 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    do_uuxqt( sysname );
+
    if( equal( sysname , "all" ) )
        do_uuxqt( E_nodename );
 
-   exit(0);
+   return 0;
 
 } /* main */
 
@@ -441,18 +440,21 @@ static KWBoolean do_uuxqt( const char *sysname )
 /*                 Determine if we have a valid host                  */
 /*--------------------------------------------------------------------*/
 
-   if( !equal( sysname , "all" ) ) {
+   if( !equal( sysname , "all" ) )
+   {
       if (equal( sysname , E_nodename ))
           hostp = checkname( sysname );
       else
           hostp = checkreal( sysname );
 
-      if (hostp  ==  BADHOST) {
+      if (hostp  ==  BADHOST)
+      {
          printmsg(0, "Unknown host %s.", sysname );
          exit(1);
       }
 
-   } else
+   }
+   else
         hostp = nexthost( KWTrue );
 
 /*--------------------------------------------------------------------*/
@@ -590,8 +592,10 @@ static void process( const char *fname,
       char *xqtname;
    } *F_list = NULL;
 
-   KWBoolean xflag[UU_LAST - 1] = { 0 };
+   KWBoolean xflag[UU_LAST - 1];
    time_t jtime = time(NULL);
+
+   memset( &xflag, 0, sizeof xflag );
 
 /*--------------------------------------------------------------------*/
 /*                         Open the X.* file                          */
@@ -609,7 +613,7 @@ static void process( const char *fname,
 /*                  Begin loop to read the X.* file                   */
 /*--------------------------------------------------------------------*/
 
-   while (!skip & (fgets(line, sizeof line, fxqt) != NULL))
+   while (!skip && (fgets(line, sizeof line, fxqt) != NULL))
    {
       char *cp;
 
@@ -1029,7 +1033,7 @@ static void process( const char *fname,
          for (qPtr = F_list; qPtr != NULL; qPtr = qPtr->next)
          {
             if (qPtr->xqtname != NULL)
-               if (!copylocal(qPtr->spoolname, qPtr->xqtname))
+               if (!copyLocal(qPtr->spoolname, qPtr->xqtname))
                {
                   /* Should we try again later in case its a temporary
                      error like execute directory on a full disk?  For
@@ -1268,7 +1272,7 @@ static int shell(char *command,
          KWBoolean firstPass = KWTrue;
          int left;
 
-         int rlen = IsDOS() ? 126 : sizeof commandBuf - 2;
+         size_t rlen = (size_t) (IsDOS() ? 126 : sizeof commandBuf) - 2;
 
 #ifdef _Windows
          if ( bflag[F_WINDOWS] )
@@ -1282,13 +1286,14 @@ static int shell(char *command,
 #else
          *commandBuf = '\0';
 #endif
+
          rlen -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
 
 /*--------------------------------------------------------------------*/
 /*                   Copy addresses into the buffer                   */
 /*--------------------------------------------------------------------*/
 
-         left = rlen - strlen( parameters );
+         left = (int) (rlen - strlen( parameters ));
 
          while ((parameters != NULL) && (left > 0))
          {
@@ -1395,12 +1400,12 @@ static void usage( void )
 /*    Copy Local Files                                                */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean copylocal(const char *from, const char *to)
+static KWBoolean copyLocal(const char *from, const char *to)
 {
       int  fd_from, fd_to;
       int  nr;
       int  nw = -1;
-      char buf[BUFSIZ];            /* faster if we alloc a big buffer  */
+      char buf[BUFSIZ*2];        /* faster if we alloc a big buffer  */
 
       /* This would be even faster if we determined that both files
          were on the same device, dos >= 3.0, and used the dos move
@@ -1412,14 +1417,15 @@ static KWBoolean copylocal(const char *from, const char *to)
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
 
-      if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
+      if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1)
+      {
          close(fd_from);
          return KWFalse;       /* failed                                */
          /* NOTE - this assumes all the required directories exist!  */
       }
 
       while  ((nr = read(fd_from, buf, sizeof buf)) > 0 &&
-         (nw = write(fd_to, buf, nr)) == nr)
+         (nw = write(fd_to, buf, (unsigned) nr)) == nr)
          ;
 
       close(fd_to);
@@ -1427,8 +1433,10 @@ static KWBoolean copylocal(const char *from, const char *to)
 
       if (nr != 0 || nw == -1)
          return KWFalse;       /* failed in copy                       */
+
       return KWTrue;
-} /* copylocal */
+
+} /* copyLocal */
 
 /*--------------------------------------------------------------------*/
 /*    c r e a t e _ e n v i r o n m e n t                             */
@@ -1489,64 +1497,50 @@ static void create_environment(const char *requestor)
 /*    Send a file to remote node via uucp                             */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean do_copy(char *localfile,
+static void     do_copy(const char *localfile,
                        const char *rmtsystem,
                        const char *remotefile,
                        const char *requestor,
                        const KWBoolean success )
 {
-      if (rmtsystem == NULL) {
-          copylocal(localfile, remotefile);
-      } else {
-          char    tmfile[FILENAME_MAX];  /* Unix style name for c file  */
-          char    idfile[FILENAME_MAX];  /* Unix style name for data file copy  */
-          char    work[FILENAME_MAX]; /* temp area for filename hacking  */
-          char    icfilename[FILENAME_MAX];  /* our hacked c file path  */
-          char    idfilename[FILENAME_MAX];  /* our hacked d file path  */
+      if (rmtsystem == NULL)
+      {
+          copyLocal(localfile, remotefile);
+      }
+      else {
 
-          struct  stat    statbuf;
+          char commandOptions[FILENAME_MAX * 2];
+          int status;
 
-          long    int     sequence;
-          static  char    subseq = 'A';
-          char   *sequence_s;
-          FILE   *cfile;
+          sprintf( commandOptions,
+                   "-C %s -a%s %s %s!%s",
+                   (char *) (success ? "-n" : ""),
+                   requestor,
+                   localfile,
+                   rmtsystem,
+                   remotefile );
 
-          sequence = getseq();
-          sequence_s = JobNumber( sequence );
 
-          sprintf(tmfile, spool_fmt, 'C', rmtsystem, 'Z', sequence_s);
-          importpath(work, tmfile, rmtsystem);
-          mkfilename(icfilename, E_spooldir, work);
+/*--------------------------------------------------------------------*/
+/*       We don't have a good response to UUCP failing, so we         */
+/*       pretty much ignore it if it fails                            */
+/*--------------------------------------------------------------------*/
 
-          if (stat((char *) localfile, &statbuf) != 0)  {
-              printerr( localfile );
-              return KWFalse;
-          }
+          status = execute( "UUCP",
+                            commandOptions,
+                            NULL,
+                            NULL,
+                            KWTrue,
+                            KWFalse );
 
-          sprintf(idfile , dataf_fmt, 'D', E_nodename, sequence_s,
-                  (char) subseq++ );
-          importpath(work, idfile, rmtsystem);
-          mkfilename(idfilename, E_spooldir, work);
+         if ( status > 0 )
+               printmsg(0,"Command %s %s failed, status = %d",
+                           "UUCP",
+                           commandOptions,
+                           status );
 
-          if (!copylocal(localfile, idfilename))  {
-             printmsg(0, "Copy \"%s\" to \"%s\" failed", localfile, idfilename);
-             return KWFalse;
-          }
-
-          if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
-             printerr( icfilename );
-             printf("cannot append to %s\n", icfilename);
-             return KWFalse;
-          }
-
-          fprintf(cfile, success ? "S %s %s uucp -n %s 0666 %s\n"
-                                 : "S %s %s uucp - %s 0666\n",
-                         localfile, remotefile, idfile, requestor);
-
-          fclose(cfile);
     };
 
-    return KWTrue;
 } /* do_copy */
 
 /*--------------------------------------------------------------------*/
@@ -1577,8 +1571,8 @@ static void ReportResults(const int status,
    char *hisUser, *hisNode;
    char tempmail[FILENAME_MAX];
 
-   if (!(xflag[X_FAILED] | xflag[X_SUCCESS] |
-         xflag[X_INPUT]  | xflag[X_STATFIL] ))
+   if (!(xflag[X_FAILED] || xflag[X_SUCCESS] ||
+         xflag[X_INPUT]  || xflag[X_STATFIL] ))
    {  /* default actions */
       return;
    }
@@ -1617,7 +1611,8 @@ static void ReportResults(const int status,
 
    mktempname(tempmail, "tmp");
 
-   if ((mailtmp = FOPEN(tempmail, "w+", IMAGE_MODE)) == NULL) {
+   if ((mailtmp = FOPEN(tempmail, "w+", IMAGE_MODE)) == NULL)
+   {
       printerr(tempmail);
       return;
    }
@@ -1637,36 +1632,50 @@ static void ReportResults(const int status,
 
       fclose(mailtmp);
 
-      if (xflag[X_SUCCESS]) {
-         if (xflag[X_STATFIL]) {
+      if (xflag[X_SUCCESS])
+      {
+         if (xflag[X_STATFIL])
+         {
             do_copy(tempmail, outnode, statfil, requestor, xflag[X_SUCCESS]);
-         } else {
-            MailStatus(tempmail, address, subject);
+         }
+         else {
+            mailStatus(tempmail, address, subject);
          }
       }
 
-   } else {            /* command failed, process appropriate flags   */
+   }
+   else {            /* command failed, process appropriate flags   */
      if (xflag[F_CORRUPT])
         fprintf(mailtmp,"the X file was badly formatted\n");
+
      if (xflag[S_NOREAD])
         fprintf(mailtmp,"stdin was denied read permission\n");
+
      if (xflag[S_NOWRITE])
         fprintf(mailtmp,"stdout was denied write permission\n");
+
      if (xflag[F_NOCHDIR])
         fprintf(mailtmp,"unable to change directory to the execution directory\n");
+
      if (xflag[F_NOCOPY])
         fprintf(mailtmp,"unable to copy file(s) to the execution directory\n");
+
      if (xflag[F_BADF])
         fprintf(mailtmp,"invalid file name\n");
+
      if (xflag[E_NOACC])
          fprintf(mailtmp,"file access denied to %s!%s\n", machine, user);
+
      if (xflag[E_NOEXE])
         fprintf(mailtmp,"execution permission denied to %s!%s\n",
                 machine, requestor);
+
      if (xflag[E_SIGNAL])
         fprintf(mailtmp,"terminated by signal\n");
+
      if (xflag[E_STATUS])
         fprintf(mailtmp,"exited with status %d\n", status);
+
      if (xflag[E_FAILED])
         fprintf(mailtmp,"failed completely\n");
 
@@ -1683,7 +1692,7 @@ static void ReportResults(const int status,
               else if (!xflag[S_NOREAD])
               {
                   fprintf(mailtmp,"=====\n");
-                  AppendData( input, mailtmp);
+                  appendData( input, mailtmp);
               };
 
            }
@@ -1694,10 +1703,12 @@ static void ReportResults(const int status,
 
      fclose(mailtmp);
 
-     if (xflag[X_STATFIL]) {
+     if (xflag[X_STATFIL])
+     {
          do_copy(tempmail, outnode, statfil, requestor, xflag[X_SUCCESS]);
-     } else {
-         MailStatus(tempmail, address, subject);
+     }
+     else {
+         mailStatus(tempmail, address, subject);
      }
 
    }
@@ -1708,29 +1719,29 @@ static void ReportResults(const int status,
 } /* ReportResults */
 
 /*--------------------------------------------------------------------*/
-/* A p p e n d D a t a                                                */
+/*       a p p e n d D a t a                                          */
 /*                                                                    */
-/* Append data to output file                                         */
+/*       Append data to output file                                   */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean AppendData( const char *input, FILE* dataout)
+static void appendData( const char *input, FILE* dataout)
 {
    FILE    *datain;
    char     buf[BUFSIZ];
-   KWBoolean  status = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                      Verify the input opened                       */
 /*--------------------------------------------------------------------*/
 
    if (input == NULL)
-      return KWFalse;
+      return;
    else
       datain = FOPEN(input, "r",TEXT_MODE);
 
-   if (datain == NULL) {
+   if (datain == NULL)
+   {
       printerr(input);
-      return KWFalse;
+      return;
    } /* datain */
 
 /*--------------------------------------------------------------------*/
@@ -1741,11 +1752,12 @@ static KWBoolean AppendData( const char *input, FILE* dataout)
    {
       if (fputs(buf, dataout) == EOF)     /* I/O error?               */
       {
-         printmsg(0,"AppendData: I/O error on output file");
+         printmsg(0,"appendData: I/O error on output file");
          printerr("dataout");
          fclose(datain);
-         return KWFalse;
+         return;
       } /* if */
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -1756,13 +1768,11 @@ static KWBoolean AppendData( const char *input, FILE* dataout)
    {
       printerr(input);
       clearerr(datain);
-      status = KWFalse;
    }
 
    fclose(datain);
-   return status;
 
-} /* AppendData */
+} /* appendData */
 
 /*--------------------------------------------------------------------*/
 /*    M a i l S t a t u s                                             */
@@ -1770,11 +1780,12 @@ static KWBoolean AppendData( const char *input, FILE* dataout)
 /*    Send text in a mailbag file to address(es) specified by line.   */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean MailStatus(char *tempfile,
-                          char *address,
-                          char *subject)
+static
+void mailStatus(const char *tempfile,
+                const char *address,
+                const char *subject)
 {
-   KWBoolean status;
+   int status;
    char buf[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
@@ -1808,13 +1819,7 @@ static KWBoolean MailStatus(char *tempfile,
       printmsg(0, "Rmail returned error; "
                   "status delivery may be incomplete.");
 
-/*--------------------------------------------------------------------*/
-/*                          Return to caller                          */
-/*--------------------------------------------------------------------*/
-
-   return (status == 0 );
-
-} /*MailStatus*/
+} /* mailStatus */
 
 /*--------------------------------------------------------------------*/
 /*       p u r i f y                                                  */

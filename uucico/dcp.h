@@ -24,9 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.15 1994/12/27 20:46:08 ahd Exp $
+ *    $Id: dcp.h 1.16 1994/12/31 03:40:35 ahd Exp $
  *
  *    $Log: dcp.h $
+ *    Revision 1.16  1994/12/31 03:40:35  ahd
+ *    Correct processing for systems with grade restrictions when
+ *    calling system "any"
+ *
  *    Revision 1.15  1994/12/27 20:46:08  ahd
  *    Smoother call grading'
  *
@@ -142,8 +146,6 @@ typedef enum {
 #define DCP_RETRY   (-2)
 #define DCP_FAILED  (-1)
 #define DCP_OK      0
-
-typedef short   (*procref)();
 
 extern size_t s_pktsize;        /* send packet size for this protocol  */
 extern size_t r_pktsize;        /* receive packet size for this protocol*/

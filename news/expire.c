@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.11 1995/01/29 14:03:29 ahd Exp $
+ *    $Id: expire.c 1.12 1995/01/30 04:08:36 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.12  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.11  1995/01/29 14:03:29  ahd
  *    Clean up IBM C/Set compiler warnings
  *
@@ -51,7 +54,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.11 1995/01/29 14:03:29 ahd Exp $";
+      "$Id: expire.c 1.12 1995/01/30 04:08:36 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -170,7 +173,7 @@ main( int argc, char **argv)
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
 
-   if (!configure( B_NEWS ))
+   if (!configure( B_EXPIRE ))
       exit(1);   /* system configuration failed */
 
 /*--------------------------------------------------------------------*/

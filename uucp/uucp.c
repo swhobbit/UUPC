@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.16 1994/12/22 00:44:15 ahd Exp $
+ *    $Id: uucp.c 1.17 1995/01/07 16:41:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.17  1995/01/07 16:41:26  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.16  1994/12/22 00:44:15  ahd
  *    Annual Copyright Update
  *
@@ -351,8 +354,9 @@ int   do_copy(char *src_syst,
       FILE        *cfile;
       static  char    *spool_fmt = SPOOLFMT;
 
-      sequence = getseq();
-      sequence_s = JobNumber( sequence );
+      sequence = getSeq();
+      sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
+
       remote_syst =  equal(src_syst, E_nodename) ? dest_syst : src_syst;
       sprintf(tmfile, spool_fmt, 'C', remote_syst, grade, sequence_s);
       importpath(work, tmfile, remote_syst);

@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.5 1995/01/22 04:16:52 ahd Exp $
+ *    $Id: sendbats.c 1.6 1995/01/29 14:03:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.6  1995/01/29 14:03:29  ahd
+ *    Clean up IBM C/Set compiler warnings
+ *
  *    Revision 1.5  1995/01/22 04:16:52  ahd
  *    Batching cleanup
  *
@@ -45,7 +48,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.5 1995/01/22 04:16:52 ahd Exp $";
+            "$Id: sendbats.c 1.6 1995/01/29 14:03:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -91,7 +94,6 @@ currentfile();
 /*    69 - We paniced, usually because of error in system call        */
 /*--------------------------------------------------------------------*/
 
-void
 main( int argc, char **argv)
 {
 
@@ -104,7 +106,7 @@ main( int argc, char **argv)
 
    banner( argv );
 
-   if (!configure( B_BATCH ))
+   if (!configure( B_SENDBATS ))
       exit(1);    /* system configuration failed */
 
    openlog( NULL );                 /* Begin logging to disk         */
@@ -192,6 +194,6 @@ main( int argc, char **argv)
 
    exit_sys();
 
-   exit(0);
+   return 0;
 
 } /* main */

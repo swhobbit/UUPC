@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.11 1994/12/22 00:08:40 ahd Exp $
+ *    $Id: getseq.c 1.12 1995/01/09 01:39:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.12  1995/01/09 01:39:22  ahd
+ *    Optimize retrieval of UUCP sequence number
+ *
  *    Revision 1.11  1994/12/22 00:08:40  ahd
  *    Annual Copyright Update
  *
@@ -76,12 +79,12 @@
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*    g e t s e q                                                     */
+/*    g e t S e q                                                     */
 /*                                                                    */
 /*    Return next available sequence number for UUPC processing       */
 /*--------------------------------------------------------------------*/
 
-long getseq()
+long getSeq()
 {
    char seqfile[FILENAME_MAX];
    FILE *stream;
@@ -125,30 +128,32 @@ long getseq()
 } /* getseq */
 
 /*--------------------------------------------------------------------*/
-/*    J o b N u m b e r                                               */
+/*       j o b N u m b e r                                            */
 /*                                                                    */
-/*    Given a job sequence number, returns a character string for use */
-/*    in file names                                                   */
+/*       Given a job sequence number, returns a character string      */
+/*       for use in file names                                        */
 /*--------------------------------------------------------------------*/
 
-char *JobNumber( long sequence )
+char *jobNumber( long sequence,
+                 size_t length,
+                 const KWBoolean monocase )
 {
-      static char buf[4];
-      const long base = bflag[F_ONECASE] ? 36 : 62;
-      static const char set[] =
-         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-      size_t count = sizeof buf - 1;
+   static char buf[10];
+   static const char set[] =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-      buf[count] = '\0';
+   const int base = (sizeof set - 1) - (monocase ? 26 : 0);
+   char *p = buf + sizeof buf - 2;
 
-      sequence %= (base*base*base);
+   if ( length >= sizeof buf )      /* User want too many digits?    */
+      length = sizeof buf - 1;      /* Yes --> Limit the string      */
 
-      while( count-- > 0 )
-      {
-         buf[count] = set[ (int) (sequence % base) ];
-         sequence /= base ;
-      } /* while */
+   while( length-- > 0 )
+   {
+      *p-- = set[ (size_t) (sequence % base) ];
+      sequence /= base ;
+   } /* while */
 
-      return buf;
+   return p + 1;
 
-} /* JobNumber */
+} /* jobNumber */

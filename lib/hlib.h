@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.9 1995/01/28 23:13:37 ahd Exp $
+ *    $Id: hlib.h 1.10 1995/01/30 04:05:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.10  1995/01/30 04:05:39  ahd
+ *    Additional compiler warning fixes, optimize path normalizing
+ *
  *    Revision 1.9  1995/01/28 23:13:37  ahd
  *    Add isAbsolutePath()
  *
@@ -59,6 +62,8 @@
 #endif
 
 char *normalize( const char *path );
+
+char getDrive( const char *currentDirectory );
 
 KWBoolean isAbsolutePath( const char *path);
 

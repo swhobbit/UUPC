@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.7 1994/12/31 03:39:56 ahd Exp $
+ *    $Id: checktim.c 1.8 1995/01/07 16:37:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.8  1995/01/07 16:37:40  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.7  1994/12/31 03:39:56  ahd
  *    Correct processing for systems with grade restrictions in the
  *    systems file when calling system "any"
@@ -212,7 +215,7 @@ static char checkone( char *input, size_t hhmm, int weekday )
    size_t istart;
    size_t iend;
    struct Table *tptr;
-   KWBoolean dial = KWFalse;    /* Assume we cannot dial               */
+   int dial = KWFalse;        /* Assume we cannot dial               */
    char  found = 0;           /* Did not yet find current keyword    */
    char grade = ALL_GRADES;   /* Default grade if none specified     */
 

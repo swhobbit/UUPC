@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.29 1995/01/29 14:09:13 ahd Exp $
+ *    $Id: lib.h 1.30 1995/01/30 04:05:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.30  1995/01/30 04:05:39  ahd
+ *    Additional compiler warning fixes, optimize path normalizing
+ *
  *    Revision 1.29  1995/01/29 14:09:13  ahd
  *    IBM C/Set++ warnings cleanup
  *
@@ -163,43 +166,55 @@
 /*                     Configuration file defines                     */
 /*--------------------------------------------------------------------*/
 
+
+#define B_EXPIRE   0x00000001L
+#define B_GENERIC  0x00000002L /* Generic utilties with no spec vars  */
+#define B_GENHIST  B_EXPIRE
+#define B_INEWS    0x00000004L
+#define B_INSTALL  0x00000008L /* Used by install program only        */
+#define B_MTA      0x00000010L /* Used by Mail Delivery (RMAIL)       */
+#define B_MUA      0x00000020L /* Used by Mail User Agent (MAIL)      */
+#define B_MUSH     0x00000040L /* Used by MUSH - Not used by UUPC     */
+#define B_NEWSRUN  0x00000080L
+#define B_RNEWS    0x00000100L
+#define B_SENDBATS 0x00000200L /* Used by news batching program - GMM */
+#define B_UUCICO   0x00000400L /* Used by transport program UUCICO    */
+#define B_UUCP     0x00000800L /* Used by UUCP command                */
+#define B_UUPOLL   0x00001000L /* UUPOLL program                      */
+#define B_UUSTAT   0x00002000L /* UUSTAT, UUSUB, UUNAME programs      */
+#define B_UUNAME   B_UUSTAT
+#define B_UUSUB    B_UUSTAT
+#define B_UUXQT    0x00004000L /* Used by queue processor UUXQT       */
+
+#define B_NEWS     (B_RNEWS | B_SENDBATS | B_NEWSRUN | B_EXPIRE | B_INEWS )
+#define B_MAIL     (B_MUA | B_MTA | B_MUSH)
+#define B_SPOOL    (B_MTA | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
+#define B_ALL      (B_MAIL | B_SPOOL | B_NEWS | B_UUPOLL | B_GENERIC | B_INSTALL)
+
+/*--------------------------------------------------------------------*/
+/*               Flags in configuration table flag word               */
+/*--------------------------------------------------------------------*/
+
 #define B_REQUIRED 0x00000001L /* Line must appear in configuration   */
 #define B_FOUND    0x00000002L /* We found the token                  */
 
 #define B_GLOBAL   0x00000004L /* Must not appear in PERSONAL.RC      */
 #define B_LOCAL    0x00000008L /* The opposite of B_GLOBAL, sort of   */
-
-#define B_MTA      0x00000010L /* Used by Mail Delivery (RMAIL)       */
-#define B_MUA      0x00000020L /* Used by Mail User Agent (MAIL)      */
-#define B_MUSH     0x00000040L /* Used by MUSH - Not used by UUPC     */
-#define B_NEWS     0x00000080L /* Used by NEWS software               */
-#define B_UUCICO   0x00000100L /* Used by transport program UUCICO    */
-#define B_UUCP     0x00000200L /* Used by UUCP command                */
-#define B_UUPOLL   0x00000400L /* UUPOLL program                      */
-#define B_UUSTAT   0x00000800L /* UUSTAT, UUSUB, UUNAME programs      */
-#define B_UUXQT    0x00001000L /* Used by queue processor UUXQT       */
-#define B_INSTALL  0x00002000L /* Used by install program only        */
-#define B_BATCH    0x00004000L /* Used by news batching program - GMM */
-#define B_GENERIC  0x00008000L /* Generic utilties with no spec vars  */
-#define B_MAIL     (B_MUA | B_MTA | B_MUSH)
-#define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
-#define B_ALL      (B_MAIL | B_SPOOL | B_NEWS | B_UUPOLL | B_BATCH | B_GENERIC)
-
-#define B_SHORT    0x80000000L /* Pointer is to short int, not string */
-#define B_TOKEN    0x40000000L /* Pointer is one word, ignore blanks  */
-#define B_BOOLEAN  0x20000000L /* Pointer is to KWBoolean keywords     */
-#define B_LIST     0x10000000L /* Pointer to array of char pointers   */
-#define B_CLIST    0x08000000L /* Pointer to array of char pointers,
+#define B_SHORT    0x00000010L /* Pointer is to short int, not string */
+#define B_TOKEN    0x00000020L /* Pointer is one word, ignore blanks  */
+#define B_BOOLEAN  0x00000040L /* Pointer is to KWBoolean keywords     */
+#define B_LIST     0x00000080L /* Pointer to array of char pointers   */
+#define B_CLIST    0x00000100L /* Pointer to array of char pointers,
                                   using colon delimiter               */
-#define B_CHAR     0x04000000L /* Single character                    */
-#define B_STRING   0x02000000L /* String value (same as original UUPC
-                                  configuration processor             */
-#define B_NORMAL   0x01000000L /* Normalize backslashes to slashes in
+#define B_CHAR     0x00000200L /* Single character                    */
+#define B_STRING   0x00000400L /* String value (same as original UUPC
+                                  configuration processor)            */
+#define B_NORMAL   0x00000800L /* Normalize backslashes to slashes in
                                   in this variable                    */
-#define B_OBSOLETE 0x00800000L /* Option is obsolete, should be
+#define B_OBSOLETE 0x00001000L /* Option is obsolete, should be
                                   deleted                             */
-#define B_MALLOC   0x00400000L  /* Use malloc(), not newstr()         */
-#define B_LONG     0x00200000L  /* Pointer is to long, not string     */
+#define B_MALLOC   0x00002000L  /* Use malloc(), not newstr()         */
+#define B_LONG     0x00004000L  /* Pointer is to long, not string     */
 #define B_PATH     (B_TOKEN | B_NORMAL)
                                /* DOS Path name                       */
 
@@ -244,21 +259,24 @@
 /*                     Configuration table layout                     */
 /*--------------------------------------------------------------------*/
 
-typedef struct ConfigTable {
-   char *sym;
-   void *loc;
-   CONFIGBITS bits;
-} CONFIGTABLE;
+typedef struct ConfigTable
+   {
+      char *sym;
+      void *loc;
+      CONFIGBITS program;
+      CONFIGBITS flag;
+   } CONFIGTABLE;
 
 /*--------------------------------------------------------------------*/
 /*                    Boolean options table layout                    */
 /*--------------------------------------------------------------------*/
 
-typedef struct FlagTable {
-   char *sym;
-   int position;
-   CONFIGBITS bits;
-} FLAGTABLE;
+typedef struct FlagTable
+   {
+      char *sym;
+      int position;
+      CONFIGBITS bits;
+   } FLAGTABLE;
 
 /*--------------------------------------------------------------------*/
 /*                            linked list                             */

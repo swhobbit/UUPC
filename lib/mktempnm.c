@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.13 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: mktempnm.c 1.14 1995/01/07 16:13:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.14  1995/01/07 16:13:22  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.13  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -83,15 +86,16 @@ currentfile();
 
 char *mktempname( char *buf, const char *extension)
 {
-   static size_t file = 0;
+   static size_t tempSequence = 0;
    KWBoolean slash;
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize the file name counter                 */
 /*--------------------------------------------------------------------*/
 
-   if ( file == 0 )
-      file = getpid() & 0x7FFF;  /* Make unique number less than 32K  */
+   if ( tempSequence == 0 )
+      tempSequence = (unsigned) getpid() % 32767;
+                              /* Make unique number less than 32K  */
 
 /*--------------------------------------------------------------------*/
 /*                Allocate a file name buffer if required             */
@@ -120,12 +124,12 @@ char *mktempname( char *buf, const char *extension)
 /*        Loop looking for the non-existent file of our dreams        */
 /*--------------------------------------------------------------------*/
 
-   for (file++ ; file < INT_MAX ; file++ )
+   for (tempSequence++ ; tempSequence < INT_MAX ; tempSequence++ )
    {
       sprintf(buf,"%s%suupc%04.4x.%s",
                   E_tempdir,
                   slash ? "" : "/",
-                  file,
+                  tempSequence,
                   extension);
 
       if ( access( buf, 0 ))  /* Does the host file exist?            */

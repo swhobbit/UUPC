@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.14 1994/03/15 03:02:26 ahd v1-12k $
+ *    $Id: pushpop.c 1.15 1994/12/22 00:10:26 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.15  1994/12/22 00:10:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/03/15 03:02:26  ahd
  *    Correct spelling error
  *
@@ -73,6 +76,10 @@
 #include <direct.h>
 #include <ctype.h>
 
+#ifdef __TURBOC__
+#define _getcwd(path,length) getcwd(path,length)
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -119,7 +126,7 @@ void PushDir( const char *directory )
 /*       it doesn't do so in any known sequences.  --RHG/AHD          */
 /*--------------------------------------------------------------------*/
 
-   drivestack[depth] = _getdrive();
+   drivestack[depth] = getDrive( NULL ) - 'A' + 1;
 
    if (isalpha(*directory) && (directory[1] == ':'))
    {
@@ -130,7 +137,7 @@ void PushDir( const char *directory )
       }
    }
 
-   dirstack[depth] = _getdcwd(drivestack[depth], cwd, FILENAME_MAX);
+   dirstack[depth] = _getcwd( cwd, FILENAME_MAX);
 
    if (dirstack[depth] == NULL )
    {
@@ -159,10 +166,10 @@ void PopDir( void )
 {
    char cwd[FILENAME_MAX];
 
-   if ( depth == 0 )
+   if ( depth-- == 0 )
       panic();
 
-   if (CHDIR( dirstack[--depth] ))
+   if (chdir( dirstack[depth] ))
       panic();
 
    if ( _chdrive(drivestack[depth]) )
@@ -177,6 +184,6 @@ void PopDir( void )
 /*       letter of the 0 (current) drive.                             */
 /*--------------------------------------------------------------------*/
 
-   E_cwd = newstr( _getdcwd( drivestack[depth], cwd, FILENAME_MAX ) );
+   E_cwd = newstr( _getcwd( cwd, sizeof cwd ) );
 
 } /* PopDir */

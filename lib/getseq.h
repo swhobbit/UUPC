@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.h 1.4 1994/04/26 03:34:33 ahd v1-12k $
+ *    $Id: getseq.h 1.5 1994/12/22 00:12:52 ahd Exp $
  *
  *    $Log: getseq.h $
+ *    Revision 1.5  1994/12/22 00:12:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/04/26 03:34:33  ahd
  *    Add log
  *
@@ -28,6 +31,8 @@
 #define SPOOLFMT "%c.%.8s%c%3.3s"
 #define DATAFFMT "%c.%.7s0%3.3s%c"
 
-long getseq( void );
+long getSeq( void );
 
-char *JobNumber( long sequence );
+char *jobNumber( long sequence,
+                 size_t length,
+                 const KWBoolean monocase );

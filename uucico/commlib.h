@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.17 1994/12/22 00:39:08 ahd Exp $
+ *    $Id: commlib.h 1.18 1995/01/07 16:45:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.18  1995/01/07 16:45:02  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.17  1994/12/22 00:39:08  ahd
  *    Annual Copyright Update
  *
@@ -173,8 +176,6 @@ extern ref_SetComHandle SetComHandlep;
 #define SIOSpeed(baud)                 (*SIOSpeedp)(baud)
 #define hangup()                       (*hangupp)()
 #define GetSpeed()                     (*GetSpeedp)()
-#define CD()                           (!bmodemflag[MODEM_CARRIERDETECT] || \
-                                        (*CDp)())
 #define WaitForNetConnect(timeout)     (*WaitForNetConnectp)(timeout)
 #define GetComHandle()                 (*GetComHandlep)()
 #define SetComHandle(newHandle)        (*SetComHandlep)(newHandle)
@@ -188,6 +189,8 @@ extern KWBoolean traceEnabled;       /* Enable comm port trace          */
 extern KWBoolean carrierDetect;      /* Modem is connected  flag        */
 
 KWBoolean IsNetwork(void);
+
+KWBoolean CD( void );
 
 /*--------------------------------------------------------------------*/
 /*                     Priority setting functions                     */

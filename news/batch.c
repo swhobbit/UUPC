@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.9 1995/01/29 13:57:34 ahd Exp $
+ *    $Id: batch.c 1.10 1995/01/29 16:43:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.10  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.9  1995/01/29 13:57:34  ahd
  *    Only rewrite list of files to batch at end of processing
  *    Use imfile for rewrite of list of files
@@ -250,7 +253,7 @@ void compress_batch(const char *system, const char *batchName)
 /*                     Create a remote batch file                     */
 /*--------------------------------------------------------------------*/
 
-   mktempname( finalName, "TMP" );
+   mktempname( finalName, "TM2" );
    finalStream = FOPEN( finalName, "w", IMAGE_MODE );
 
    if ( finalStream == NULL )
@@ -290,7 +293,7 @@ static void build_batchName(char *batchName,
    char fileName[FILENAME_MAX];
 
    if (nocompress )
-     mktempname( batchName, "TMP" );
+     mktempname( batchName, "TM1" );
    else {
       KWBoolean needtemp = KWTrue;
 
@@ -491,6 +494,7 @@ void process_batch(const struct sys *node,
    FILE    *names;
    long    firstPosition = 0;
    long    lastPosition  = 0;
+   long    articleCount = 0;
    int     done = KWFalse;
 
    names = FOPEN(articleListName, "r+", IMAGE_MODE);
@@ -508,13 +512,12 @@ void process_batch(const struct sys *node,
 /*       system                                                       */
 /*--------------------------------------------------------------------*/
 
-   while ((filelength(fileno(names)) > 0) && ! done)
-   {
+   do {
+
      FILE    *batch = NULL;
      char    batchName[FILENAME_MAX];
 
      long    batchLength;
-     long    articleCount = 0;
 
      /* compressed batches are generated in the tempdir, with no extension */
 
@@ -568,6 +571,9 @@ void process_batch(const struct sys *node,
           else
             queue_news(system, batchName);
        }
+       else
+          printmsg(3,"Deleting batch with no data (%ld empty articles)",
+                     articleCount );
 
        /* Remember end of list processed to allow further processing */
 
@@ -577,6 +583,7 @@ void process_batch(const struct sys *node,
 
        fseek(names, firstPosition, SEEK_SET);
        deleteBatchedFiles( names, lastPosition );
+
 
      } /* if ((!node->flag.B) || (batchLength >= E_batchsize)) */
      else {
@@ -603,10 +610,10 @@ void process_batch(const struct sys *node,
 
      } /* else */
 
-     if (unlink(batchName))
+     if ( unlink(batchName) )
         printerr( batchName );
 
-   } /* while ((filelength(fileno(names)) > 0) && ! done) */
+   } while (articleCount && ! done);
 
 /*--------------------------------------------------------------------*/
 /*       We're done processing batches for this system, clean up.     */
@@ -627,7 +634,7 @@ void process_batch(const struct sys *node,
       filebkup( articleListName );  /* Mostly for debugging          */
 #endif
 
-      if ( unlink(articleListName) )
+      if ( access( articleListName, 0 ) && unlink(articleListName) )
          printerr( articleListName );
 
    } /* if (!done) */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.54 1995/01/07 16:39:06 ahd Exp $
+ *    $Id: modem.c 1.55 1995/01/29 14:07:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.55  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.54  1995/01/07 16:39:06  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -275,44 +278,44 @@ static FLAGTABLE modemFlags[] = {
 }           ;
 
 static CONFIGTABLE modemtable[] = {
-   { "answer",        (char **) &answer,       B_LIST   | B_UUCICO },
-   { "answerdelay",   (char **) &answerDelay,  B_SHORT  | B_UUCICO },
-   { "answertimeout", (char **) &answerTimeout,B_SHORT  | B_UUCICO },
-   { "biggpacketsize",(char **) &GPacketSize,  B_SHORT  | B_UUCICO },
-   { "biggwindowsize",(char **) &GWindowSize,  B_SHORT  | B_UUCICO },
-   { "chardelay",     (char **) &M_charDelay,  B_SHORT  | B_UUCICO },
-   { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
-   { "description",   &dummy,                  B_TOKEN  },
-   { "device",        &M_device,               B_TOKEN  | B_UUCICO | B_REQUIRED },
-   { "dialprefix",    &dialPrefix,             B_STRING | B_UUCICO | B_REQUIRED },
-   { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
-   { "dialtimeout",   (char **) &dialTimeout,  B_SHORT  | B_UUCICO },
-   { "epackettimeout",(char **) &M_ePacketTimeout, B_SHORT | B_UUCICO },
-   { "fpacketsize",   (char **) &M_fPacketSize,B_SHORT  | B_UUCICO },
-   { "fpackettimeout",(char **) &M_fPacketTimeout, B_SHORT | B_UUCICO },
-   { "gpacketsize",   (char **) &gPacketSize,  B_SHORT  | B_UUCICO },
-   { "gpackettimeout",(char **) &M_gPacketTimeout, B_SHORT | B_UUCICO },
-   { "gwindowsize",   (char **) &gWindowSize,  B_SHORT  | B_UUCICO },
-   { "hangup",        (char **) &dropline,     B_LIST   | B_UUCICO },
-   { "initialize",    (char **) &initialize,   B_LIST   | B_UUCICO },
-   { "inspeed",       (char **) &inspeed,      B_LONG   | B_UUCICO },
-   { "maximumerrors", (char **) &M_MaxErr,     B_SHORT  | B_UUCICO },
-   { "modemtimeout",  (char **) &modemTimeout, B_SHORT  | B_UUCICO },
-   { "noconnect",     (char **) &noconnect,    B_LIST   | B_UUCICO },
-   { "options",       (char **) bmodemflag,    B_ALL    | B_BOOLEAN},
-   { "porttimeout",   NULL,                    B_OBSOLETE },
-   { "priority",      (char **) &M_priority,    B_SHORT | B_UUCICO},
-   { "prioritydelta", (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
-   { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
-   { "scripttimeout", (char **) &scriptTimeout,B_SHORT  | B_UUCICO },
-   { "scriptechotimeout", (char **) &scriptEchoTimeout,B_SHORT| B_UUCICO },
-   { "startuptimeout",(char **) &M_startupTimeout, B_SHORT | B_UUCICO },
-   { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
-   { "transferbuffer",(char **) &M_xfer_bufsize, B_LONG| B_UUCICO },
-   { "tpackettimeout",(char **) &M_tPacketTimeout, B_SHORT | B_UUCICO },
-   { "version",       &dummy,                  B_TOKEN  },
-   { "vpacketsize",   (char **) &vPacketSize,  B_SHORT  | B_UUCICO },
-   { "vwindowsize",   (char **) &vWindowSize,  B_SHORT  | B_UUCICO },
+   { "answer",         &answer,           0, B_LIST   },
+   { "answerdelay",    &answerDelay,      0, B_SHORT  },
+   { "answertimeout",  &answerTimeout,    0, B_SHORT  },
+   { "biggpacketsize", &GPacketSize,      0, B_SHORT  },
+   { "biggwindowsize", &GWindowSize,      0, B_SHORT  },
+   { "chardelay",      &M_charDelay,      0, B_SHORT  },
+   { "connect",        &connect,          0, B_LIST   },
+   { "description",    &dummy,            0, B_TOKEN  },
+   { "device",         &M_device,         0, B_TOKEN  | B_REQUIRED },
+   { "dialprefix",     &dialPrefix,       0, B_STRING | B_REQUIRED },
+   { "dialsuffix",     &dialSuffix,       0, B_STRING },
+   { "dialtimeout",    &dialTimeout,      0, B_SHORT  },
+   { "epackettimeout", &M_ePacketTimeout, 0, B_SHORT  },
+   { "fpacketsize",    &M_fPacketSize,    0, B_SHORT  },
+   { "fpackettimeout", &M_fPacketTimeout, 0, B_SHORT  },
+   { "gpacketsize",    &gPacketSize,      0, B_SHORT  },
+   { "gpackettimeout", &M_gPacketTimeout, 0, B_SHORT  },
+   { "gwindowsize",    &gWindowSize,      0, B_SHORT  },
+   { "hangup",         &dropline,         0, B_LIST   },
+   { "initialize",     &initialize,       0, B_LIST   },
+   { "inspeed",        &inspeed,          0, B_LONG   },
+   { "maximumerrors",  &M_MaxErr,         0, B_SHORT  },
+   { "modemtimeout",   &modemTimeout,     0, B_SHORT  },
+   { "noconnect",      &noconnect,        0, B_LIST   },
+   { "options",        bmodemflag,        0, B_BOOLEAN},
+   { "porttimeout",    NULL,              0, B_OBSOLETE },
+   { "priority",       &M_priority,       0, B_SHORT  },
+   { "prioritydelta",  &M_prioritydelta,  0, B_SHORT  },
+   { "ring",           &ring,             0, B_LIST   },
+   { "scripttimeout",  &scriptTimeout,    0, B_SHORT  },
+   { "scriptechotimeout",  &scriptEchoTimeout,0, B_SHORT },
+   { "startuptimeout", &M_startupTimeout, 0, B_SHORT  },
+   { "suite",          &M_suite,          0, B_TOKEN  },
+   { "transferbuffer", &M_xfer_bufsize,   0, B_LONG   },
+   { "tpackettimeout", &M_tPacketTimeout, 0, B_SHORT  },
+   { "version",        &dummy,            0, B_TOKEN  },
+   { "vpacketsize",    &vPacketSize,      0, B_SHORT  },
+   { "vwindowsize",    &vWindowSize,      0, B_SHORT  },
    { nil(char) }
 
 }; /* modemtable */
@@ -325,10 +328,14 @@ static KWBoolean reEnable = KWFalse;
 
 static KWBoolean dial(char *number, const BPS speed);
 
-static KWBoolean sendlist( char **list, int timeout, int lasttimeout,
-                         char **failure);
+static KWBoolean sendlist( char **list,
+                           unsigned int timeout,
+                           unsigned int lasttimeout,
+                           char **failure);
 
-static KWBoolean sendalt( char *string, int timeout, char **failure);
+static KWBoolean sendalt( char *string,
+                          unsigned int timeout,
+                          char **failure);
 
 static void autobaud( const BPS speed);
 
@@ -498,7 +505,7 @@ CONN_STATE callin( const time_t exit_time )
 {
    char c;                    /* A character for input buffer        */
 
-   int    offset;             /* Time to wait for telephone          */
+   unsigned int    offset;    /* Time to wait for telephone          */
    time_t now, left;
 
 /*--------------------------------------------------------------------*/
@@ -513,7 +520,7 @@ CONN_STATE callin( const time_t exit_time )
       if ( (left = exit_time - now) > SHRT_MAX)
          offset = SHRT_MAX;
       else
-         offset = (int) left;
+         offset = (unsigned int) left;
 
 /*--------------------------------------------------------------------*/
 /*                        Open the serial port                        */
@@ -529,10 +536,10 @@ CONN_STATE callin( const time_t exit_time )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
-   norecovery = KWFalse;          /* Shutdown gracefully as needed    */
-   reEnable   = KWFalse;          /* Don't reenable port, we own it!   */
+   norecovery = KWFalse;            /* Shutdown gracefully as needed  */
+   reEnable   = KWFalse;            /* Don't reenable port, we own it!*/
 
-   echoCheck( 0 );               /* Disable echo checking            */
+   echoCheck( 0 );                  /* Disable echo checking         */
 
 /*--------------------------------------------------------------------*/
 /*              Flush the input buffer of any characters              */
@@ -544,6 +551,7 @@ CONN_STATE callin( const time_t exit_time )
          panic();
    }
    else {
+
       if (((ring == NULL) || (inspeed == 0)))
       {
          printmsg(0,"callin: Missing inspeed and/or ring values in modem "
@@ -605,7 +613,8 @@ CONN_STATE callin( const time_t exit_time )
 
    }
    else {
-      if (!sendlist( ring,modemTimeout, offset, noconnect))
+
+      if (!sendlist( ring, modemTimeout, offset, noconnect))
       {                          /* Did it ring?                       */
          raised = 0;
          shutDown();
@@ -622,7 +631,7 @@ CONN_STATE callin( const time_t exit_time )
 
       setTitle("Answering port %s", M_device);
 
-      if(!sendlist(answer, modemTimeout,answerTimeout, noconnect))
+      if(!sendlist(answer, modemTimeout, answerTimeout, noconnect))
       {                           /* Pick up the telephone            */
          printmsg(1,"callin: Modem failed to connect to incoming call");
          shutDown();
@@ -682,7 +691,7 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    for (tptr = modemtable; tptr->sym != nil(char); tptr++)
-      if (tptr->bits & (B_TOKEN | B_STRING | B_LIST | B_CLIST))
+      if (tptr->flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST))
          *((char **) tptr->loc) = nil(char);
 
    for (subscript = 0; subscript < MODEM_LAST; subscript++)
@@ -740,8 +749,9 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"getmodem: loading modem configuration file %s", filename);
-   success = getconfig(fp, MODEM_CONFIG, B_UUCICO, modemtable, modemFlags);
+   success = getconfig(fp, MODEM_CONFIG, 0, modemtable, modemFlags);
    fclose(fp);
+
    if (!success)
       return KWFalse;
 
@@ -752,12 +762,14 @@ KWBoolean getmodem( const char *brand)
    success = KWTrue;
    for (tptr = modemtable; tptr->sym != nil(char); tptr++)
    {
-      if ((tptr->bits & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
+
+      if ((tptr->flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "getmodem: configuration parameter \"%s\" must be set.",
             tptr->sym);
          success = KWFalse;
       } /* if */
+
    } /* for */
 
    if ( ! success )           /* Missing any required inputs?         */
@@ -950,8 +962,12 @@ void shutDown( void )
       resetPrty();               /* Drop out of hyperspace            */
       sendlist( dropline, modemTimeout, modemTimeout, NULL);
       recurse = KWFalse;
-      terminate_processing |= aborted;
-      saveRaised |= raised;
+
+      if ( aborted )
+         terminate_processing = KWTrue;
+
+      if ( saveRaised && ! raised )
+         raised = saveRaised;
    }
 
 /*--------------------------------------------------------------------*/
@@ -978,8 +994,8 @@ void shutDown( void )
 /*--------------------------------------------------------------------*/
 
 static KWBoolean sendlist(  char **list,
-                           int timeout,
-                           int lasttimeout,
+                           unsigned int timeout,
+                           unsigned int lasttimeout,
                            char **failure)
 {
    KWBoolean expect = KWTrue;
@@ -1010,7 +1026,10 @@ static KWBoolean sendlist(  char **list,
          if (!sendstr( *list++, timeout, failure ))
             return KWFalse;
 
-      expect = ! expect;
+      if ( expect )
+         expect = KWFalse;
+      else
+         expect = KWTrue;
 
    } /* while */
 
@@ -1028,7 +1047,7 @@ static KWBoolean sendlist(  char **list,
 /*    Expect a string, with alternates                                */
 /*--------------------------------------------------------------------*/
 
-static KWBoolean sendalt( char *exp, int timeout, char **failure)
+static KWBoolean sendalt( char *exp, unsigned int timeout, char **failure)
 {
    int ok;
 
@@ -1044,16 +1063,19 @@ static KWBoolean sendalt( char *exp, int timeout, char **failure)
       if ( terminate_processing || raised )
       {
          shutDown();
-         return KWFalse;
+         break;
       }
 
+      if ( ok == 1 )
+         return KWTrue;
+
       if (ok || (alternate == nil(char)))
-         return (ok == 1);
+         return KWFalse;
 
       if (!CD())
       {
          printmsg(0,"sendalt: Serial port reports modem not ready");
-         return KWFalse;
+         break;
       }
 
       exp = strchr(alternate, '-');
@@ -1062,10 +1084,12 @@ static KWBoolean sendalt( char *exp, int timeout, char **failure)
 
       printmsg(0, "sending alternate");
 
-      if ( !sendstr(alternate,timeout, failure) )
-         return KWFalse;
+      if ( !sendstr(alternate, timeout, failure) )
+         break;
 
    } /*for*/
+
+   return KWFalse;
 
 } /* sendalt */
 

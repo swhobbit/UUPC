@@ -20,10 +20,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.8 1995/01/13 14:03:25 ahd Exp $
+ *    $Id: sys.h 1.9 1995/01/15 19:50:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.9  1995/01/15 19:50:02  ahd
+ *    Delete global fullbatch option
+ *    Add "local", "batch" options to SYS structure
+ *    Allow active file to be optional
+ *
  *    Revision 1.8  1995/01/13 14:03:25  ahd
  *    Add canonical_news_name() macro
  *
@@ -77,8 +82,6 @@ typedef struct sys
       KWBoolean B;             /* Do not send underlength batch
                                   (supported by UUPC/extended only)   */
       KWBoolean F;             /* Batch, write file name only         */
-      KWBoolean J;             /* NSS mode, just write batches w/o
-                                  transmitting them anywhere          */
       KWBoolean f;             /* Batch, write file name and length   */
       KWBoolean I;             /* Batch, write article message id     */
       KWBoolean n;             /* Batch, write file name and msg ID   */

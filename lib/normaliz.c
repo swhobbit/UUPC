@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.14 1994/12/22 00:10:03 ahd Exp $
+ *    $Id: normaliz.c 1.15 1995/01/30 04:05:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *    Revision 1.15  1995/01/30 04:05:08  ahd
+ *    Additional compiler warning fixes, optimize path normalizing
+ *
  *    Revision 1.14  1994/12/22 00:10:03  ahd
  *    Annual Copyright Update
  *
@@ -160,7 +163,7 @@ char *normalize( const char *pathx )
 
       if (( path[0] == '\\' ) && ( path[1] != '\\' ))
       {
-         *p++ = (char) (_getdrive() + 'A' - 1);
+         *p++ = getDrive( NULL );
          *p++ = ':';
       }
 

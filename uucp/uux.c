@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.16 1994/12/22 00:45:08 ahd Exp $
+ *    $Id: uux.c 1.17 1995/01/07 16:41:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.17  1995/01/07 16:41:55  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.16  1994/12/22 00:45:08  ahd
  *    Annual Copyright Update
  *
@@ -521,8 +524,8 @@ static KWBoolean do_uuxqt(char *job_name,
 /*          Create the UNIX format of the file names we need          */
 /*--------------------------------------------------------------------*/
 
-   seqno = getseq();
-   seq = JobNumber( seqno );
+   seqno = getSeq();
+   seq = jobNumber( seqno, 3, bflag[F_ONECASE] );
 
    sprintf(ixfile, spool_fmt, 'X', E_nodename, grade , seq);
 
@@ -575,8 +578,8 @@ static KWBoolean do_copy(char *src_syst,
       char    *sequence_s;
       FILE        *cfile;
 
-      sequence = getseq();
-      sequence_s = JobNumber( sequence );
+      sequence = getSeq();
+      sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
 
       remote_syst =  equal(src_syst, E_nodename) ? dest_syst : src_syst;
 
@@ -823,8 +826,8 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
    printmsg(9,"xsys -> %s", dest_system);
    printmsg(9, "system \"%s\", rest \"%s\"", dest_system, command);
 
-   sequence = getseq();
-   sequence_s = JobNumber( sequence );
+   sequence = getSeq();
+   sequence_s = jobNumber( sequence, 3, bflag[F_ONECASE] );
 
    sprintf(job_id, jobid_fmt, dest_system, grade, sequence_s);
 

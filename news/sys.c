@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.13 1995/01/29 14:03:29 ahd Exp $
+ *    $Id: sys.c 1.14 1995/01/30 04:08:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.14  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.13  1995/01/29 14:03:29  ahd
  *    Clean up IBM C/Set compiler warnings
  *
@@ -347,9 +350,6 @@ process_sys( char *buf)
     node->flag.B = setBooleanOption(f3, 'B' );
                                     /* Do not send undersized batches   */
 
-    node->flag.J = setBooleanOption(f3, 'J' );
-                                    /* NNS mode - gen local batches     */
-
 /*--------------------------------------------------------------------*/
 /*                     Normal UNIX (C news) options                   */
 /*--------------------------------------------------------------------*/
@@ -394,9 +394,6 @@ process_sys( char *buf)
       success = KWFalse;
     }
 
-    if ( node->flag.J )    /* Not a normal batch, but okay for       */
-      batchOptions++;      /* conflict management                    */
-
     if ( node->flag.f )
       batchOptions++;
 
@@ -415,9 +412,6 @@ process_sys( char *buf)
                   "flags in system %s", f1);
       success = KWFalse;
     }
-
-    if ( node->flag.J )             /* Now ignore for true batch     */
-       batchOptions--;
 
     if ( batchOptions )
        node->flag.batch = KWTrue;
@@ -447,14 +441,7 @@ process_sys( char *buf)
 /*           Validate options versus the type of the system           */
 /*--------------------------------------------------------------------*/
 
-    if ( node->flag.J )
-    {
-       if ( node->command == NULL )
-          node->command = newstr( E_newsdir );
-
-      node->flag.local = KWFalse;      /* Not treated as local system   */
-    }
-    else if ( node->flag.local )
+    if ( node->flag.local )
     {
 
       if ( node->flag.batch )
@@ -679,10 +666,11 @@ init_sys( void )
       if (*t != '#')                /* Comment line?                 */
       {                             /* No --> Add it to our buffer   */
 
+         if ( t[ strlen(t) - 1 ] == '\\' )
+            wantMore = KWTrue;
+         else
+            wantMore = KWFalse;
          strcat(buf, t);
-         wantMore = (KWBoolean) ((*t == '\\') ? KWTrue : KWFalse);
-                                    /* End of entry if not explicitly
-                                       continued                     */
 
       }  /* else if (*t != '#') */
 
@@ -955,7 +943,10 @@ KWBoolean match(char *group, char *pattern, int *iSize)
     bMatch = (KWBoolean) ((t3 == NULL) ? KWTrue : KWFalse );
 
   printmsg(5, "match: matching %s to %s resulting in %s with size %i",
-              group, pattern, bMatch ? "True" : "False", *iSize);
+              group,
+              pattern,
+              bMatch ? "True" : "False",
+              *iSize);
 
   return bMatch;
 
@@ -1053,8 +1044,6 @@ KWBoolean newsgroups(char *list, char *groups)
 KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 {
 
-  KWBoolean bRet;
-
   printmsg(5, "check_sys: node: %s", entry->sysname);
   printmsg(5, "check_sys: groups: %s", groups);
   printmsg(5, "check_sys: distrib: %s", distrib);
@@ -1069,26 +1058,28 @@ KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
   if (excluded(strcpy( cache, entry->sysname ), path))
     return KWFalse;
 
-  if (bRet && (entry->exclude ))
+  if (entry->exclude )
   {
     printmsg(3, "check_sys: checking exclusions");
     if (excluded(strcpy( cache, entry->exclude ), path))
        return KWFalse;
   }
 
-  if (bRet && (entry->distribution))
+  if (entry->distribution)
   {
     printmsg(3, "check_sys: checking distributions");
-    bRet = distributions(strcpy( cache, entry->distribution ), distrib);
+    if (!distributions(strcpy( cache, entry->distribution ), distrib))
+       return KWFalse;
   }
 
-  if (bRet && (entry->groups))
+  if (entry->groups)
   {
     printmsg(3, "check_sys: checking groups");
-    bRet = newsgroups(strcpy( cache, entry->groups ), groups);
+    if (!newsgroups(strcpy( cache, entry->groups ), groups))
+       return KWFalse;
   }
 
-  return bRet;
+  return KWTrue;
 
 } /* check_sys */
 

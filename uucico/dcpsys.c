@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.45 1995/01/14 14:08:59 ahd Exp $
+ *     $Id: dcpsys.c 1.46 1995/01/30 04:08:36 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.46  1995/01/30 04:08:36  ahd
+ *     Additional compiler warning fixes
+ *
  *     Revision 1.45  1995/01/14 14:08:59  ahd
  *     Change grade processing message
  *
@@ -299,7 +302,7 @@ static char HostGrade( const char *fname, const char *remote );
 /*    Null lines or lines starting with '#' are comments.             */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE getsystem( const char sendgrade )
+CONN_STATE getsystem( const char sendGrade )
 {
 
    CONN_STATE nextState = CONN_CHECKTIME;
@@ -404,19 +407,25 @@ CONN_STATE getsystem( const char sendgrade )
       char sysGrade = checktime( flds[FLD_CCTIME] );
                                  /* Initialize with lowest grade for
                                     this time of day                 */
+      char scanGrade = sendGrade;
 
-      scandir( NULL, sendgrade); /* Reset directory search if active */
+      if ( sysGrade && (scanGrade > sysGrade ))
+         scanGrade = sysGrade;
 
-      if (scandir(rmtname, (char) min(sysGrade, sendgrade )) == XFER_REQUEST)
-         nextState = CONN_CHECKTIME;
+      scandir( NULL, 0 );        /* Reset directory search if active */
+
+      if (scandir(rmtname, scanGrade ) != XFER_REQUEST)
+         nextState = CONN_INITIALIZE;  /* No work available          */
+      else if ( sysGrade )
+         nextState = CONN_CHECKTIME;   /* Work available, use it     */
       else
-         nextState = CONN_NOGRADE;
+         nextState = CONN_NOGRADE;     /* Work avail, but wrong time */
 
    } /* if ( equal(Rmtname, "any")) */
    else
       nextState = CONN_INITIALIZE;
 
-   scandir( NULL, sendgrade); /* Reset directory search again     */
+   scandir( NULL, 0);         /* Reset directory search again     */
 
 /*--------------------------------------------------------------------*/
 /*   We want to call the host; is it defined in our security table?   */
@@ -560,7 +569,8 @@ int rmsg(char *msg, const char synch, unsigned int msgtime, int max_len)
          if ( synch == 2 )
             swrite( &ch, 1);
 
-         ch &= (unsigned char) 0x7f;
+         ch = (unsigned char) (0x7f & (unsigned char) ch);
+
          if (ch == '\r' || ch == '\n')
             ch = '\0';
          msg[i++] = ch;
@@ -745,7 +755,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*    Setup a host connection with a system which has called us       */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE startup_client( char *sendgrade )
+CONN_STATE startup_client( char *sendGrade )
 {
    char plist[20];
    char msg[80];
@@ -813,7 +823,7 @@ CONN_STATE startup_client( char *sendgrade )
          } /* switch */
    } /* for */
 
-   *sendgrade = (char) min(grade,*sendgrade);
+   *sendGrade = (char) min(grade,*sendGrade);
 
 /*--------------------------------------------------------------------*/
 /*                Verify the remote host name is good                 */
@@ -946,14 +956,14 @@ CONN_STATE startup_client( char *sendgrade )
             securep->myname,
             hostp->via,
             msg[1],
-            *sendgrade );
+            *sendGrade );
    else
       printmsg(0,"%s called by %s: %ld bps, %c protocol, %c grade",
             securep->myname,
             hostp->via,
             (long) GetSpeed(),
             msg[1],
-            *sendgrade );
+            *sendGrade );
 
    if ( hostp == BADHOST )
       panic();

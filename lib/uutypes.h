@@ -16,10 +16,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.27 1995/01/07 20:48:48 ahd Exp $
+ *    $Id: uutypes.h 1.28 1995/01/15 19:50:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.28  1995/01/15 19:50:02  ahd
+ *    Delete global fullbatch option
+ *    Add "local", "batch" options to SYS structure
+ *    Allow active file to be optional
+ *
  *    Revision 1.27  1995/01/07 20:48:48  ahd
  *    Correct 16 bit compiler warnings
  *
@@ -143,63 +148,65 @@ typedef enum {
 /*                          Per user options                          */
 /*--------------------------------------------------------------------*/
 
-               F_ASKCC,       /* KWTrue = ask for Carbon copies         */
-               F_DOSKEY,      /* KWTrue = Use DOSKEY under when available*/
-               F_BACKUP,      /* KWTrue = Backup mailbox before rewriting */
-               F_DOT,         /* KWTrue = period ends a message         */
-               F_AUTOPRINT,   /* KWTrue = print next msg automatically  */
-               F_AUTOEDIT,    /* KWTrue = no line prompt, always edit   */
-               F_AUTOINCLUDE, /* KWTrue = Perform automatic INCLUDE cmd  */
-               F_AUTOSIGN,    /* KWTrue = append the signature file     */
-               F_EXPERT,      /* KWTrue = Let user shoot self in foot
+               F_ASKCC,       /* True = ask for Carbon copies         */
+               F_DOSKEY,      /* True = Use DOSKEY under when available*/
+               F_BACKUP,      /* True = Backup mailbox before rewriting */
+               F_DOT,         /* True = period ends a message         */
+               F_AUTOPRINT,   /* True = print next msg automatically  */
+               F_AUTOEDIT,    /* True = no line prompt, always edit   */
+               F_AUTOINCLUDE, /* True = Perform automatic INCLUDE cmd  */
+               F_AUTOSIGN,    /* True = append the signature file     */
+               F_EXPERT,      /* True = Let user shoot self in foot
                                         w/o a message.                 */
-               F_FROMSEP,     /* KWTrue = Allow From to split messages  */
-               F_IMFILE,      /* KWTrue = Use in memory files           */
-               F_PAGER,       /* KWTrue = Invert meaning of P/p T/t cmds */
-               F_PURGE,       /* KWTrue = Delete mailbox, if empty      */
-               F_SAVE,        /* KWTrue = Save read messages in =mbox
+               F_FROMSEP,     /* True = Allow From to split messages  */
+               F_IMFILE,      /* True = Use in memory files           */
+               F_PAGER,       /* True = Invert meaning of P/p T/t cmds */
+               F_PURGE,       /* True = Delete mailbox, if empty      */
+               F_SAVE,        /* True = Save read messages in =mbox
                                         when reading new mail.         */
-               F_SAVERESENT,  /* KWTrue = Save forwarded mail second time*/
+               F_SAVERESENT,  /* True = Save forwarded mail second time*/
                F_SUPPRESSCOPYRIGHT,
                               /* Skip copyright message                */
                F_SUPPRESSBEEP,/* Never beep at the user                */
                F_SPEEDOVERMEMORY,
-                              /* KWTrue = Be lazy in strpool()          */
-               F_VERBOSE,     /* KWTrue = Verbose RMAIL output          */
-               F_WINDOWS,     /* KWTrue = Run RMAIL/RNEWS as Windows pgms*/
+                              /* True = Be lazy in strpool()          */
+               F_VERBOSE,     /* True = Verbose RMAIL output          */
+               F_WINDOWS,     /* True = Run RMAIL/RNEWS as Windows pgms*/
 
 /*--------------------------------------------------------------------*/
 /*                    Per system (GLOBAL) options                     */
 /*--------------------------------------------------------------------*/
 
-               F_BANG,        /* KWTrue = re-write addrs in bang (!) form*/
-               F_BOUNCE,      /* KWTrue = Bounce bad mail to sender     */
-               F_COLLECTSTATS,/* KWTrue = Report additional information in
+               F_BANG,        /* True = re-write addrs in bang (!) form*/
+               F_BOUNCE,      /* True = Bounce bad mail to sender     */
+               F_COLLECTSTATS,/* True = Report additional information in
                                         various logs                   */
                F_COMPRESSBATCH,
-                              /* KWTrue = Compress outgoing news batches */
-               F_DIRECT,      /* KWTrue = Deliver to subdirectories, not
+                              /* True = Compress outgoing news batches */
+               F_DIRECT,      /* True = Deliver to subdirectories, not
                                         files                          */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
-               F_ESCAPE,      /* KWTrue = ESCAPE acts as Ctrl-Break     */
-               F_KANJI,       /* KWTrue = enable Kanji (Japanese) support*/
-               F_LONGNAME,    /* KWTrue = Exploit OS/2 and NT long names */
-               F_MULTI,       /* KWTrue = Deliver to multiple addresses
+               F_ESCAPE,      /* True = ESCAPE acts as Ctrl-Break     */
+               F_KANJI,       /* True = enable Kanji (Japanese) support*/
+               F_LONGNAME,    /* True = Exploit OS/2 and NT long names */
+               F_MULTI,       /* True = Deliver to multiple addresses
                                         on one remote host at once     */
-               F_MULTITASK,   /* KWTrue = System is multitasking, watch
+               F_MULTITASK,   /* True = System is multitasking, watch
                                         for race conditions            */
-               F_ONECASE,     /* KWTrue = Remote host is case insensitive*/
+               F_NEWSRUN,     /* True = Run NEWSRUN from RNEWS        */
+               F_NNS,         /* True = Use NNS  news delivery        */
+               F_ONECASE,     /* True = Remote host is case insensitive*/
                F_SENDDEBUG,   /* True = Send -x flag to remote systems */
-               F_SHORTFROM,   /* KWTrue = Use short From remote header  */
-               F_SHOWSPOOL,   /* KWTrue = Print files xferred from spool */
-               F_SNEWS,       /* KWTrue = Use Simple news delivery      */
+               F_SHORTFROM,   /* True = Use short From remote header  */
+               F_SHOWSPOOL,   /* True = Print files xferred from spool */
+               F_SNEWS,       /* True = Use Simple news delivery      */
                F_SUPPRESSFROM,/* Suppress writing From lines in Mail   */
                F_SYMMETRICGRADES,
-                              /* KWTrue = Use send grade as receive grade*/
-               F_SYSLOG,      /* KWTrue = Write syslog with name and
+                              /* True = Use send grade as receive grade*/
+               F_SYSLOG,      /* True = Write syslog with name and
                                         time of each file transferred  */
-               F_UNDELETE,    /* KWTrue = Do not override OS/2 undelete
+               F_UNDELETE,    /* True = Do not override OS/2 undelete
                                  support                               */
                F_SUPPRESSEMPTYPASSWORD,
                               /* Don't prompt for null passwords       */
