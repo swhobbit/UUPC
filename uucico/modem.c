@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.7 1992/12/18 12:05:57 ahd Exp $
+ *    $Id: MODEM.C 1.8 1992/12/30 13:11:44 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.8  1992/12/30  13:11:44  dmwatt
+ * Check for NULL brand pointer before comparing
+ *
  * Revision 1.7  1992/12/18  12:05:57  ahd
  * Flag variable packet as obsolete
  *
@@ -355,6 +358,7 @@ configuration file.");
    if (!sendlist( initialize, modemTimeout, modemTimeout, NULL))
    {
       printmsg(0,"callin: Modem failed to initialize");
+      shutdown();
       panic();
    }
 
@@ -550,6 +554,7 @@ static boolean dial(char *number, const size_t speed)
    if (!sendlist( initialize, modemTimeout, modemTimeout, noconnect))
    {
       printmsg(0,"dial: Modem failed to initialize");
+      shutdown();
       hostp->hstatus =  dial_script_failed;
       return FALSE;
    }
