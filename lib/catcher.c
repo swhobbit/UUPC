@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.7 1993/12/29 03:34:37 dmwatt Exp $
+ *    $Id: catcher.c 1.8 1994/01/01 19:00:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.8  1994/01/01  19:00:36  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.7  1993/12/29  03:34:37  dmwatt
  *     Add special multi-threaded abort code for Windows NT UUCICO
  *
@@ -60,7 +63,7 @@
 #include <stdlib.h>
 
 #if defined(WIN32) || defined(_Windows)
-#include "windows.h"
+#include <windows.h>
 #include "winsock.h"
 #endif
 
