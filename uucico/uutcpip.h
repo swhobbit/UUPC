@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.39 1997/05/11 04:28:53 ahd v1-12s $
+ *    $Id: uutcpip.h 1.1 1997/06/03 03:26:38 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: uutcpip.h $
+ *    Revision 1.1  1997/06/03 03:26:38  ahd
+ *    Initial revision
+ *
  */
 
 #if defined(__OS2__)
@@ -68,5 +71,10 @@ typedef int SOCKET;
 #endif
 
 #endif /* DOS and Windows */
+
+#define UUCP_SERVICE "uucp"
+#define UUCP_PORT    540
+
+#define NETDEBUG 4
 
 #endif /* _UUTCPIP_H */
