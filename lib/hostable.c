@@ -18,9 +18,15 @@
  */
 
  /*
-  *      $Id: HOSTABLE.C 1.2 1992/11/22 20:58:55 ahd Exp $
+  *      $Id: HOSTABLE.C 1.3 1992/12/18 12:05:57 ahd Exp $
   *
   *      $Log: HOSTABLE.C $
+ *     Revision 1.3  1992/12/18  12:05:57  ahd
+ *     Suppress duplicate machine state messages to improving OS/2 scrolling
+ *
+ *     Revision 1.3  1992/12/18  12:05:57  ahd
+ *     Suppress duplicate machine state messages to improving OS/2 scrolling
+ *
  * Revision 1.2  1992/11/22  20:58:55  ahd
  * Use strpool to allocate const strings
  *
@@ -427,6 +433,14 @@ static size_t loadhost()
          continue;               /* No --> read another line         */
       if (token[0] == '#')
          continue;                  /* Line is a comment; loop again */
+
+      if ( equal( token, E_nodename ))
+      {
+         printmsg(0,"Error: Local host %s must not be in SYSTEMS file",
+                    E_nodename );
+         panic();
+      }
+
       hostp = inithost(token);
 
       if (hostp->hstatus == phantom)
