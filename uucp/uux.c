@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.10 1993/10/24 19:42:48 rhg Exp $
+ *    $Id: uux.c 1.11 1993/11/30 04:18:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.11  1993/11/30  04:18:14  ahd
+ * Normalize filename string lengths
+ *
  * Revision 1.10  1993/10/24  19:42:48  rhg
  * Generalized support for UUX'ed commands
  *
@@ -199,15 +202,18 @@ static char* send_cmd  = "S %s %s %s - %s 0666\n";
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-void main(int  argc, char  **argv);
 static void usage( void );
+
 static char *SwapSlash(char *p);
+
 static boolean cp(char *from, char *to);
+
 static boolean split_path(char *path,
                           char *system,
                           char *file,
                           boolean expand,
                           char *default_sys);
+
 static boolean CopyData( const char *input, const char *output);
 
 static boolean do_uuxqt(char *job_name, char *src_syst, char *src_file, char *dest_syst, char *dest_file);
@@ -215,7 +221,9 @@ static boolean do_uuxqt(char *job_name, char *src_syst, char *src_file, char *de
 static boolean do_copy(char *src_syst, char *src_file, char *dest_syst, char *dest_file);
 
 static boolean do_remote(int optind, int argc, char **argv);
+
 static void preamble(FILE* stream);
+
 static char subseq( void );
 
 /*--------------------------------------------------------------------*/
@@ -312,6 +320,8 @@ static boolean CopyData( const char *input, const char *output)
       printerr(output);
       printmsg(0,"uux: Cannot open spool file \"%s\" for output",
                output);
+      printmsg(2,"Writing data file %s",
+                 output );
       return FALSE;
    }
 
@@ -334,6 +344,10 @@ static boolean CopyData( const char *input, const char *output)
       fclose(dataout);
       return FALSE;
    } /* datain */
+
+   printmsg(2,"Copying data %s to %s",
+                 input ? input : "(stdin)",
+                 output );
 
 /*--------------------------------------------------------------------*/
 /*                       Loop to copy the data                        */
@@ -559,9 +573,19 @@ static boolean do_copy(char *src_syst,
 
       remote_syst =  equal(src_syst, E_nodename) ? dest_syst : src_syst;
 
+      printmsg(2,"do_copy: Copying %s!%s to %s!%s",
+                 src_syst ? src_syst : "?????",
+                 src_file ? src_file : "(stdin)",
+                 dest_syst ? dest_syst : "?????",
+                 dest_file ? dest_file : "?????" );
+
       sprintf(tmfile, spool_fmt, 'C', remote_syst, grade, sequence_s);
       importpath(work, tmfile, remote_syst);
       mkfilename(icfilename, E_spooldir, work);
+
+/*--------------------------------------------------------------------*/
+/*                        Remote source system                        */
+/*--------------------------------------------------------------------*/
 
       if (!equal(src_syst, E_nodename))
       {
@@ -587,7 +611,13 @@ static boolean do_copy(char *src_syst,
          fclose(cfile);
          return TRUE;
       }
-      else if (!equal(dest_syst, E_nodename))  {
+
+/*--------------------------------------------------------------------*/
+/*                     Remote destination system                      */
+/*--------------------------------------------------------------------*/
+
+      else if (!equal(dest_syst, E_nodename))
+      {
 
          printmsg(1,"uux - spool %s - execute %s",
                   flags[FLG_COPY_SPOOL] ? "on" : "off",
@@ -646,6 +676,11 @@ static boolean do_copy(char *src_syst,
 
          return TRUE;
       }
+
+/*--------------------------------------------------------------------*/
+/*               Source and destination are both local                */
+/*--------------------------------------------------------------------*/
+
       else {
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
             return FALSE;
@@ -653,15 +688,17 @@ static boolean do_copy(char *src_syst,
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
             return FALSE;
 
-         if (strcmp(src_file, dest_file) == 0)
+         if (equal(src_file, dest_file))
          {
             printmsg(0, "%s %s - same file; can't copy\n",
                   src_file, dest_file);
             return FALSE;
-         } /* if (strcmp(src_file, dest_file) == 0) */
+         } /* if (equal(src_file, dest_file)) */
 
          return(cp(src_file, dest_file));
+
       } /* else */
+
 } /* do_copy */
 
 /*--------------------------------------------------------------------*/
@@ -713,6 +750,7 @@ static void preamble(FILE* stream)
    fprintf(stream, "# job id for status reporting\n");
    fprintf(stream, "J %s\n", job_id );
    return;
+
 } /* preamble */
 
 /*--------------------------------------------------------------------*/
@@ -1016,16 +1054,22 @@ static boolean do_remote(int optind, int argc, char **argv)
 /*  Create the data file if any to send to the remote system          */
 /*--------------------------------------------------------------------*/
 
-   if (flags[FLG_READ_STDIN]) {
+   if (flags[FLG_READ_STDIN])
+   {
       if (i_remote) {
          printmsg(0, "uux - multiple input files specified");
          return FALSE;
       }
 
-      sprintf(rifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
-      sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
 
-      importpath(msname, lifile, dest_system);
+      sprintf(lifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
+      sprintf(rifile, dataf_fmt, 'D', E_nodename, sequence_s, subseq());
+
+      importpath(msname,
+                 d_remote ? lifile : rifile ,
+                 dest_system);   /* Remote file IS local file if run
+                                    on local system                  */
+
       mkfilename(msfile, E_spooldir, msname);
 
       if (!CopyData( NULL, msfile )) {
@@ -1205,6 +1249,7 @@ void main(int  argc, char  **argv)
        printf("%s\n", job_id);
 
    exit(0);
+
 } /* main */
 
 /*--------------------------------------------------------------------*/
@@ -1231,6 +1276,7 @@ static char subseq( void )
          next += 1;
    } /* switch */
 
+   printmsg(4,"subseq: Next subsequence is %c", next);
    return next;
 
 } /* subseq */
