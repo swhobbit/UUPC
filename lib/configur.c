@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.69 1995/03/23 01:30:34 ahd Exp $
+ *    $Id: configur.c 1.70 1995/04/02 00:01:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.70  1995/04/02 00:01:39  ahd
+ *    Add option for Kai Uwe Rommel to suppress display of UUPC/extended
+ *    version, system name, etc. at remote login time.
+ *
  *    Revision 1.69  1995/03/23 01:30:34  ahd
  *    Load the mailserv variable for any news program which could generate
  *    a SYSTEMS file.
@@ -415,7 +419,7 @@ CONFIGTABLE envtable[] = {
    {"prioritydelta",0,               B_OBSOLETE  },
    {"pubdir",       &E_pubdir,       B_UUCICO|B_UUXQT,   B_GLOBAL|B_PATH },
    {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
-   {"replytoList",  &E_replyToList,  B_MUA,     B_LIST },
+   {"replytolist",  &E_replyToList,  B_MUA,     B_LIST },
    {"rmail",        0,               B_OBSOLETE  },
    {"rnews",        0,               B_OBSOLETE  },
    {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
