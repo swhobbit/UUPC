@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.62 1998/03/16 07:47:40 ahd v1-13b $
+ *    $Id: deliver.c 1.63 1998/08/29 14:17:11 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.63  1998/08/29 14:17:11  ahd
+ *    Add setTitle() commands to report delivery progress
+ *
  * Revision 1.62  1998/03/16  07:47:40  ahd
  * Invert (correct) test for existence of mailbox before stater()
  *
@@ -239,7 +242,9 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
                      validate );
    }
 
-   setTitle("Delivering from %s to %s", sender, address);
+   setTitle("Delivering from %s to %s",
+            sender->address,
+            address);
 
 /*--------------------------------------------------------------------*/
 /*                   Deliver to a gateway if needed                   */

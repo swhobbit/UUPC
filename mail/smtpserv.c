@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.17 1998/05/15 03:13:48 ahd v1-13b $
+ *    $Id: smtpserv.c 1.18 1998/07/27 01:03:54 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.18  1998/07/27 01:03:54  ahd
+ *    Spin log off BEFORE invoking UUXQT to prevent problems
+ *    with delete while child program is running
+ *
  * Revision 1.17  1998/05/15  03:13:48  ahd
  * When entering states where no read is required, set
  * flag to skip the read to avoid hanging.
@@ -86,7 +90,7 @@
 #include "execute.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.17 1998/05/15 03:13:48 ahd v1-13b $");
+RCSID("$Id: smtpserv.c 1.18 1998/07/27 01:03:54 ahd Exp $");
 
 currentfile();
 
@@ -312,6 +316,8 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
       else
          nextSpin -= 200;           /* More clients, more often
                                        we spin                    */
+
+      setTitle("Waiting for connection");
    }
 
    /* Run UUXQT as needed, we do this after spinning the log
