@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.43 1995/07/21 13:23:19 ahd v1-12o $
+ *    $Id: deliver.c 1.44 1995/09/11 00:20:45 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.44  1995/09/11 00:20:45  ahd
+ *    Add debugging information to X.* files
+ *    Use "--" option to insure user names with leading dash don't
+ *    cause problems.
+ *
  *    Revision 1.43  1995/07/21 13:23:19  ahd
  *    Correct wildcard routing for local host to reject mail not actually
  *    destined to us.
@@ -770,6 +775,7 @@ static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
    char dname[FILENAME_MAX];
    char xname[FILENAME_MAX];
    char *seq = jobNumber( getSeq(), 4, KWTrue );
+                                 /* monocase for internal DOS usage  */
    FILE *stream;
 
    if (( E_vmsQueueDir == NULL ) || (E_vmail == NULL ))
