@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.15 1997/04/24 01:34:01 ahd v1-12u $
+ *    $Id: dcptpkt.c 1.16 1998/03/01 01:39:41 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ *        Revision 1.16  1998/03/01  01:39:41  ahd
+ *        Annual Copyright Update
+ *
  *    Revision 1.15  1997/04/24 01:34:01  ahd
  *    Annual Copyright Update
  *
@@ -45,35 +48,6 @@
  * Revision 1.8  1994/01/01  19:19:40  ahd
  * Annual Copyright Update
  *
- * Revision 1.7  1993/11/13  17:43:26  ahd
- * Correct debug level on sending empty packet message
- *
- * Revision 1.7  1993/11/13  17:43:26  ahd
- * Correct debug level on sending empty packet message
- *
- * Revision 1.6  1993/11/08  04:46:49  ahd
- * Correct bug which prevented proper EOF being handled
- *
- * Revision 1.5  1993/10/12  01:32:46  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.4  1993/09/24  03:43:27  ahd
- * Correct byte reordering functions
- *
- * Revision 1.4  1993/09/24  03:43:27  ahd
- * Correct byte reordering functions
- *
- * Revision 1.3  1993/09/21  01:42:13  ahd
- * Delete functions duplicated from dcpgpkt.c
- *
- * Revision 1.2  1993/09/20  04:48:25  ahd
- * TCP/IP support from Dave Watt
- * 't' protocol support
- * OS/2 2.x support (BC++ 1.0 for OS/2)
- *
- * Revision 1.1  1993/09/18  19:47:24  ahd
- * Initial revision
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -97,10 +71,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
-
-#if defined(WIN32) || defined(_Windows)
-#include "winsock.h"       /* Needed for byte ordering               */
-#endif
+#include "uutcpip.h"
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -114,10 +85,6 @@
 #include "ssleep.h"
 #include "modem.h"
 #include "commlib.h"
-
-#ifdef _Windows
-#include "pwinsock.h"
-#endif
 
 #define TPACKETSIZE  512
 #define TBUFSIZE     1024
