@@ -1,10 +1,14 @@
-#       $Id: nmakos22.mak 1.6 1994/05/23 21:40:09 ahd Exp ahd $
+#       $Id: nmakos22.mak 1.7 1994/05/25 20:58:34 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.7  1994/05/25  20:58:34  ahd
+#       Don't enable automatic generation of precompiled headers in
+#       makefile; we can do that via ICC environment variable.
+#
 #       Revision 1.6  1994/05/23  21:40:09  ahd
 #       Add support for non-TCP/IP UUCICO under 32 bit OS/2
 #
@@ -33,7 +37,7 @@ ERASE    = del /f
 EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
            $(PROD)\uucicon.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
-           $(PROD)\uucpd.cmd
+           $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
            $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case
