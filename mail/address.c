@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.10 1994/01/24 03:17:02 ahd Exp $
+ *    $Id: address.c 1.11 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.11  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.10  1994/01/24  03:17:02  ahd
  * Annual Copyright Update
  *
@@ -559,6 +562,7 @@ char *ExtractAddress(char *result,
                case '<':
                   newstate = '<';
                   break;
+
                case ')':
                   if (quoted)
                      *(nameptr++) = *column;
@@ -574,7 +578,10 @@ char *ExtractAddress(char *result,
                   break;
 
                case ',':
-                  newstate = ',';   /* Terminates address      */
+                  if ( quoted )
+                     *(nameptr++) = *column; /* Take it as a literal */
+                  else
+                     newstate = ',';   /* Terminates address      */
                   break;
 
                case '"':
