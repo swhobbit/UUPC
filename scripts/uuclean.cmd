@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id$
+ *       $Id: UUCLEAN.CMD 1.2 1992/11/28 23:08:07 ahd Exp ahd $
  *
- *       $Log$
+ *       $Log: UUCLEAN.CMD $
+ * Revision 1.2  1992/11/28  23:08:07  ahd
+ * Rewrite into REXX for OS/2
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -123,7 +126,7 @@ if exist( confdir || '\active' ) then
 /*     Re-enable UNDELETE processing so we can clean up the cache     */
 /*--------------------------------------------------------------------*/
 
-call value 'DELDIR','deldir','OS2ENVIRONMENT'
+call value 'DELDIR',deldir,'OS2ENVIRONMENT'
 
 /*--------------------------------------------------------------------*/
 /*    Purge the undelete cache to improve performance and free        */
