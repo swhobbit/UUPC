@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.21 1994/04/24 20:17:29 dmwatt Exp $
+ *    $Id: lib.h 1.22 1994/11/27 17:31:34 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.22  1994/11/27  17:31:34  ahd
+ *     Allow confguring for generic UUPC/extended utilities via B_GENERIC
+ *
  *     Revision 1.21  1994/04/24  20:17:29  dmwatt
  *     Add Windows registry for configuration retrieval
  *
@@ -145,7 +148,6 @@
 #define B_GLOBAL   0x00000004L /* Must not appear in PERSONAL.RC      */
 #define B_LOCAL    0x00000008L /* The opposite of B_GLOBAL, sort of   */
 
-#define B_GENERIC  0x00000000L /* Generic utilties with no spec vars  */
 #define B_MTA      0x00000010L /* Used by Mail Delivery (RMAIL)       */
 #define B_MUA      0x00000020L /* Used by Mail User Agent (MAIL)      */
 #define B_MUSH     0x00000040L /* Used by MUSH - Not used by UUPC     */
@@ -157,9 +159,10 @@
 #define B_UUXQT    0x00001000L /* Used by queue processor UUXQT       */
 #define B_INSTALL  0x00002000L /* Used by install program only        */
 #define B_BATCH    0x00004000L /* Used by news batching program - GMM */
+#define B_GENERIC  0x00008000L /* Generic utilties with no spec vars  */
 #define B_MAIL     (B_MUA | B_MTA | B_MUSH)
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
-#define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH)
+#define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH|B_GENERIC)
 
 #define B_SHORT    0x00010000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x00020000L /* Pointer is one word, ignore blanks  */
