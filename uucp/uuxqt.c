@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.37 1994/08/07 21:45:09 ahd Exp $
+ *    $Id: uuxqt.c 1.38 1994/10/03 01:01:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.38  1994/10/03  01:01:25  ahd
+ * Run programs foreground (drop silly OS/2 hack)
+ *
  * Revision 1.37  1994/08/07  21:45:09  ahd
  * Correct selected changes in host title
  *
@@ -1241,7 +1244,7 @@ static int shell(char *command,
                         NULL,
                         outname,
                         TRUE,
-                        TRUE );
+                        FALSE );
    }
 
 /*--------------------------------------------------------------------*/
@@ -1327,7 +1330,7 @@ static int shell(char *command,
                         bflag[F_WINDOWS] ? NULL : inname,
                         outname,
                         TRUE,
-                        TRUE );
+                        FALSE );
 
       if ( result != 0 )    /* Did command execution fail?            */
       {
@@ -1343,7 +1346,7 @@ static int shell(char *command,
                         inname,
                         outname,
                         TRUE,
-                        TRUE );
+                        FALSE );
 
 /*--------------------------------------------------------------------*/
 /*                    Determine result of command                     */
@@ -1783,7 +1786,7 @@ static boolean MailStatus(char *tempfile,
    strcat( buf, " " );
    strcat( buf, address );
 
-   status = execute( RMAIL, buf, NULL, NULL, TRUE, TRUE );
+   status = execute( RMAIL, buf, NULL, NULL, TRUE, FALSE );
 
 /*--------------------------------------------------------------------*/
 /*                       Report errors, if any                        */
