@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.1 1995/02/12 23:37:04 ahd Exp $
+ *       $Id: newsrun.C 1.2 1995/02/20 00:03:07 ahd v1-12n $
  *
- *       $Log: newsrun.c $
+ *       $Log: newsrun.C $
+ *       Revision 1.2  1995/02/20 00:03:07  ahd
+ *       Delete improper adding of batching information
+ *
  *       Revision 1.1  1995/02/12 23:37:04  ahd
  *       compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -193,7 +196,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.1 1995/02/12 23:37:04 ahd Exp $";
+         "$Id: newsrun.C 1.2 1995/02/20 00:03:07 ahd v1-12n $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -258,7 +261,7 @@ static int articles     = 0;
 static int bad_articles = 0;
 static int no_delivery  = 0;
 static int junked       = 0;
-static int ignored      = 0;
+static int duplicates   = 0;
 static int loc_articles = 0;  /* How many articles were for me */
 static int fwd_articles = 0;  /* How many articles were for others? */
 
@@ -506,12 +509,12 @@ main( int argc, char **argv)
              bad_articles,
              no_delivery);
 
-   if ( loc_articles || ignored || junked )
+   if ( loc_articles || duplicates || junked )
       printmsg(1, "%s: Retained %d articles, "
                   "of which %d were duplicates and %d were junked.",
                   argv[0],
-                  loc_articles,
-                  ignored,
+                  loc_articles - no_delivery,
+                  duplicates,
                   junked);
 
    if ( fwd_articles )
@@ -1116,8 +1119,6 @@ static void deliver_article( IMFILE *imf )
           delivered = KWTrue;
           sysnode->processed ++;
         }
-        else
-          ignored++;
       }
       else if (deliver_remote(sysnode,
                               imf,
@@ -1207,8 +1208,8 @@ static void control_message(const char *control,
 
   if (equali(cmd, "cancel"))
   {
+    if (cancel_article(history, operand))
     printmsg(1, "Canceling article %s", operand );
-    cancel_article(history, operand);
     free( ctrl );
     return;
   }
@@ -1396,16 +1397,14 @@ static KWBoolean deliver_local(IMFILE *imf,
   char *newsgroups = NULL;
   char *msgID = (char *) messageID;
   char idBuffer[FILENAME_MAX];
-  size_t newsgroups_len = strlen( newsgroups_in ) + 1;
+  size_t newsgroups_len;
   int  groups_found;
   char snum[10];
 
   char *gc_ptr;
   char *gc_ptr1;
 
-  KWBoolean b_xref = (KWBoolean) ((strchr(newsgroups_in,',') == NULL) ?
-                                                        KWFalse : KWTrue);
-                                 /* Xref line if multiple groups     */
+  KWBoolean b_xref;               /* Xref line if multiple groups     */
   KWBoolean posted = KWFalse;
 
   loc_articles++;
@@ -1413,17 +1412,11 @@ static KWBoolean deliver_local(IMFILE *imf,
    if (control)
    {
       control_message(control, BIT_BUCKET );
-      return KWTrue;
+      if (get_snum("control", snum))
+	newsgroups_in = "control";
+      else
+	return KWFalse;
    }
-
-/*--------------------------------------------------------------------*/
-/*              Copy our news groups line for processing              */
-/*--------------------------------------------------------------------*/
-
-   newsgroups = malloc( newsgroups_len + 1 );
-   checkref( newsgroups );
-   memcpy( newsgroups, newsgroups_in, newsgroups_len );
-   newsgroups[newsgroups_len] = '\0';     /* Terminate for rescan    */
 
 /*--------------------------------------------------------------------*/
 /*           Check whether article has been received before           */
@@ -1431,24 +1424,40 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    if (get_histentry(history, messageID) != NULL)
    {
+      duplicates++;
+
+      if (control)
+	return KWFalse;
+
       printmsg(1, "Duplicate article %s", messageID);
 
       if (get_snum("duplicates", snum))
       {
-         memcpy(newsgroups, "duplicates\0\0", 12);
+         newsgroups_in = "duplicates";
          sprintf(idBuffer, "<%s.duplicate.%.10s@%.50s>",
                  snum,
                  E_nodename,
                  E_domain );         /* We need a new unique ID       */
          msgID = idBuffer;
-         b_xref = KWFalse;
       }
       else {
-         free( newsgroups );
          return KWFalse;
       }
 
    } /* if (get_histentry(history, messageID) != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*              Copy our news groups line for processing              */
+/*--------------------------------------------------------------------*/
+
+   newsgroups_len = strlen( newsgroups_in ) + 1;
+   b_xref = (KWBoolean) ((strchr(newsgroups_in,',') == NULL) ?
+                                                        KWFalse : KWTrue);
+
+   newsgroups = malloc( newsgroups_len + 1 );
+   checkref( newsgroups );
+   memcpy( newsgroups, newsgroups_in, newsgroups_len );
+   newsgroups[newsgroups_len] = '\0';     /* Terminate for rescan    */
 
 /*--------------------------------------------------------------------*/
 /*             Build the history record for this article              */
