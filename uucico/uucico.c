@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.4 1993/07/31 16:27:49 ahd Exp $
+ *    $Id: uucico.c 1.5 1993/09/20 04:46:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ * Revision 1.5  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.4  1993/07/31  16:27:49  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -107,4 +112,5 @@ void main( int argc, char *argv[])
    status = dcpmain(argc, argv);
 
    exit( status );
+
 } /*main*/
