@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.26 1994/03/15 03:02:26 ahd Exp $
+ *    $Id: mail.c 1.27 1994/04/26 23:56:16 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.27  1994/04/26  23:56:16  ahd
+ * Add title support
+ *
  * Revision 1.26  1994/03/15  03:02:26  ahd
  * Correct spelling error
  *
@@ -128,7 +131,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.26 1994/03/15 03:02:26 ahd Exp $";
+      "$Id: mail.c 1.27 1994/04/26 23:56:16 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -168,6 +171,8 @@
 #include "stater.h"
 #include "timestmp.h"
 #include "arpadate.h"
+
+#include "title.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -577,7 +582,6 @@ static void Interactive_Mail( const boolean PrintOnly,
       return;
    }
 
-   setTitle("Mailbox %s", mfilename );
    if (setvbuf(rmailbox, NULL, _IOFBF, 8192))
    {
       printerr( mfilename );
@@ -668,6 +672,7 @@ static void Interactive_Mail( const boolean PrintOnly,
       return;
    }
 
+   setTitle("%s (user %s)", mfilename, E_mailbox );
    PrintSubject(-1,letternum); /* print all subjects */
 
 /*--------------------------------------------------------------------*/
