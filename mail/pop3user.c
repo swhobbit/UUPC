@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.12 1998/05/11 01:20:48 ahd Exp $
+ *       $Id: pop3user.c 1.13 1998/05/11 13:55:01 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.13  1998/05/11 13:55:01  ahd
+ *       Correct compile error from previous fix
+ *
  *       Revision 1.12  1998/05/11 01:20:48  ahd
  *       Clarify mailbox deleted status at cleanup
  *
@@ -85,7 +88,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.12 1998/05/11 01:20:48 ahd Exp $");
+RCSID("$Id: pop3user.c 1.13 1998/05/11 13:55:01 ahd Exp $");
 
 currentfile();
 
@@ -361,8 +364,7 @@ commandLoadMailbox(SMTPClient *client,
             client->clientName,
             sizeof client->transaction->mailboxName);
 
-   client->transaction->mailboxName[ sizeof
-            client->transaction->mailboxName - 1 ] = '\0';
+   client->transaction->mailboxName[8] = '\0';
 
    if (expand_path(client->transaction->mailboxName,
                     client->transaction->userp->homedir,
@@ -544,9 +546,7 @@ commandQUIT(SMTPClient *client,
 {
    char xmitBuf[XMIT_LENGTH];
    KWBoolean success = KWTrue;
-   long messages, octets;
-
-   octets = getMessageOctetCount(client->transaction->top, &messages);
+   long messages = 0, octets = 0;
 
    if ((client->transaction == NULL) || !client->transaction->rewrite)
    {
@@ -561,7 +561,7 @@ commandQUIT(SMTPClient *client,
               "Unable to rewrite mailbox %s, it may be corrupted!",
               client->transaction->mailboxName);
    }
-   else if (messages == 0)
+   else if ((octets = getMessageOctetCount(client->transaction->top, &messages)) == 0)
    {
       /* All messages were deleted */
       sprintf(xmitBuf,
