@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.15 1995/02/20 00:40:12 ahd v1-12n $
+ *    $Id: getseq.c 1.16 1995/03/08 03:00:20 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.16  1995/03/08 03:00:20  ahd
+ *    Always force new sequence number to be reasonable (0 < newseq < 1000000)
+ *
  *    Revision 1.15  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -116,6 +119,10 @@ long getSeq()
          printerr( seqfile );
    }
 
+/*--------------------------------------------------------------------*/
+/*     Generate a new seed for our sequence if we can't read one      */
+/*--------------------------------------------------------------------*/
+
    if ( ! seq++ )
    {
       seq = getpid();
@@ -142,7 +149,10 @@ long getSeq()
       panic();
    }
 
-   printmsg(5, "getseq: seq#=%ld", seq);
+#ifdef UDEBUG
+   printmsg(8, "getseq: seq#=%ld", seq);
+#endif
+
    return seq;
 
 } /* getseq */
@@ -154,14 +164,16 @@ long getSeq()
 /*       for use in file names                                        */
 /*--------------------------------------------------------------------*/
 
-char *jobNumber( long sequence,
-                 size_t length,
+char *jobNumber( const long sequenceIn,
+                 const size_t lengthIn,
                  const KWBoolean monocase )
 {
    static char buf[10];
    static const char set[] =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+   long sequence = sequenceIn;
+   size_t length = lengthIn;
    const int base = (sizeof set - 1) - (monocase ? 26 : 0);
    char *p = buf + sizeof buf - 2;
 
@@ -174,6 +186,13 @@ char *jobNumber( long sequence,
       sequence /= base ;
    } /* while */
 
-   return p + 1;
+   p++;                             /* Step back to first character  */
+
+   printmsg(5, "jobNumber: seq#=%ld, length = %u, job id = \"%s\"",
+                sequenceIn,
+                lengthIn,
+                p);
+
+   return p;
 
 } /* jobNumber */
