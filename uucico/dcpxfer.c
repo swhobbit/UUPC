@@ -33,13 +33,17 @@
 */
 
 /*
- *       $Id$
+ *       $Id: dcpxfer.c 1.2 1992/11/15 20:09:50 ahd Exp $
  *
- *       $Log$
+ *       $Log: dcpxfer.c $
+ * Revision 1.2  1992/11/15  20:09:50  ahd
+ * Use unbuffered files to eliminate extra data copy
+ * Clean up modem file support for different protocols
+ *
  */
 
 static const char rcsid[] =
-         "$Id$";
+         "$Id: dcpxfer.c 1.2 1992/11/15 20:09:50 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -85,8 +89,6 @@ static char type, cmdopts[16];
 
 static long bytes;
 static struct timeb start_time;
-
-static char command[BUFSIZ];
 
 static boolean spool = FALSE; /* Received file is into spool dir     */
 static char spolname[FILENAME_MAX];
@@ -371,25 +373,25 @@ XFER_STATE newrequest( void )
 /*    worked on in the file                                           */
 /*--------------------------------------------------------------------*/
 
-   if (fgets(command, BUFSIZ, fwork) == nil(char)) /* More data?     */
+   if (fgets(databuf, BUFSIZ, fwork) == nil(char)) /* More data?     */
    {                          /* No --> clean up list of files       */
       printmsg(3, "newrequest: EOF for workfile %s",workfile);
       fclose(fwork);
       fwork = nil(FILE);
       unlink(workfile);       /* Delete completed call file          */
       return XFER_NEXTJOB;    /* Get next C.* file to process     */
-   } /* if (fgets(command, BUFSIZ, fwork) == nil(char)) */
+   } /* if (fgets(databuf, BUFSIZ, fwork) == nil(char)) */
 
 /*--------------------------------------------------------------------*/
 /*                  We have a new request to process                  */
 /*--------------------------------------------------------------------*/
 
-   i = strlen(command) - 1;
+   i = strlen(databuf) - 1;
    printmsg(3, "newrequest: got command from %s",workfile);
-   if (command[i] == '\n')            /* remove new_line from card */
-      command[i] = '\0';
+   if (databuf[i] == '\n')            /* remove new_line from card */
+      databuf[i] = '\0';
 
-   sscanf(command, "%c %s %s %*s %s %s",
+   sscanf(databuf, "%c %s %s %*s %s %s",
          &type, fname, tname, cmdopts, dname);
 
 /*--------------------------------------------------------------------*/
@@ -474,7 +476,7 @@ XFER_STATE ssfile( void )
 /*--------------------------------------------------------------------*/
 
    printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, hostfile, tname);
-   if (!pktsendstr( command ))   /* Tell them what is coming at them */
+   if (!pktsendstr( databuf ))   /* Tell them what is coming at them */
    {
       fclose(xfer_stream);
       xfer_stream = NULL;
@@ -553,7 +555,7 @@ appending filename \"%s\"", hostfile, slash);
 
    printmsg(0, "Receiving \"%s\" as \"%s\" (%s)", fname, tname, hostfile);
 
-   if (!pktsendstr( command ))
+   if (!pktsendstr( databuf ))
       return XFER_LOST;
 
    if (!pktgetstr((char *)databuf))
@@ -731,21 +733,21 @@ XFER_STATE rinit( void )
 XFER_STATE rheader( void )
 {
 
-   if (!pktgetstr(command))
+   if (!pktgetstr(databuf))
       return XFER_LOST;
 
 /*--------------------------------------------------------------------*/
 /*        Return if the remote system has no more data for us         */
 /*--------------------------------------------------------------------*/
 
-   if ((command[0] & 0x7f) == 'H')
+   if ((databuf[0] & 0x7f) == 'H')
       return XFER_NOREMOTE;   /* Report master has no more data to   */
 
 /*--------------------------------------------------------------------*/
 /*                  Begin transforming the file name                  */
 /*--------------------------------------------------------------------*/
 
-   sscanf(command, "%c %s %s %*s %s %s",
+   sscanf(databuf, "%c %s %s %*s %s %s",
          &type, fname, tname, cmdopts, dname);
 
 /*--------------------------------------------------------------------*/
@@ -1033,7 +1035,7 @@ XFER_STATE rdata( void )
 
    do {
 
-      if ((*getpkt)((char *) databuf + used, &len) != OK)
+      if ((*getpkt)((char *) (databuf + used), &len) != OK)
       {
          fclose(xfer_stream);
          xfer_stream = NULL;
