@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.5 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: timestmp.c 1.6 1993/08/02 03:24:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.6  1993/08/02  03:24:59  ahd
+ *     Further changes in support of Robert Denny's Windows 3.x support
+ *
  *     Revision 1.5  1993/07/31  16:22:16  ahd
  *     Changes in support of Robert Denny's Windows 3.x support
  *
@@ -116,8 +119,6 @@ void banner (char **argv)
 
       default:
          szMode = "Unknown";
-         printmsg(0,"Program not supported in unknown Windows environment");
-         panic();
          break;
    }
 
@@ -134,8 +135,6 @@ void banner (char **argv)
                   (WORD)(HIBYTE(wVersion)),
                   szMode );
    compilew = newstr( dummy );
-
-   _InitEasyWin();
 
 #endif
 
@@ -170,8 +169,7 @@ void banner (char **argv)
       } /* if */
 
 /*--------------------------------------------------------------------*/
-/*    Now print out the version, operating system (MS C only) and     */
-/*    timestamp                                                       */
+/*    Now print out the version, operating system and time stamp      */
 /*--------------------------------------------------------------------*/
 
       fprintf(stderr,"%s %s (%s mode, %2.2s%3.3s%2.2s %5.5s)\n",
@@ -199,6 +197,8 @@ void banner (char **argv)
    sprintf( dummy, "%s  (%s %s)", program, compilep, compilev);
 
    hOurTask = GetCurrentTask();
+   if ( hOurTask == NULL )
+      panic();
    hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
    SetWindowText(hOurWindow, dummy);
 
