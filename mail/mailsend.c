@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.26 1996/01/01 21:03:10 ahd Exp $
+ *    $Id: mailsend.c 1.27 1996/01/01 23:50:26 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.27  1996/01/01 23:50:26  ahd
+ *    Don't scan nickname table for duplicate nicknames in linear fashion,
+ *    merely check entire table for duplicates after sorting.
+ *    Rename user functions previously known as 'user alias' to 'nickname',
+ *    consistent with newer documentation.
+ *
  *    Revision 1.26  1996/01/01 21:03:10  ahd
  *    Annual Copyright Update
  *
@@ -963,7 +969,7 @@ static KWBoolean Subcommand( char *buf,
             else while( fgets( buf, LSIZE, stream ))
             {
                fputs( buf, fmailbag);
-               if ferror( fmailbag )
+               if (ferror( fmailbag ))
                {
                   printerr( tmailbag);
                   break;

@@ -7,7 +7,7 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -19,9 +19,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.5 1996/01/01 21:06:09 ahd v1-12r $
+ *    $Id: cache.c 1.6 1996/11/18 04:46:49 ahd Exp $
  *
  * $Log: cache.c $
+ * Revision 1.6  1996/11/18 04:46:49  ahd
+ * Normalize arguments to bugout
+ * Reset title after exec of sub-modules
+ * Normalize host status names to use HS_ prefix
+ *
  * Revision 1.5  1996/01/01 21:06:09  ahd
  * Annual Copyright Update
  *
@@ -46,14 +51,13 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: cache.c 1.5 1996/01/01 21:06:09 ahd v1-12r $");
+RCSID("$Id: cache.c 1.6 1996/11/18 04:46:49 ahd Exp $");
 
 #include <io.h>
 #include <memory.h>
 #include <malloc.h>
 
 #include "cache.h"
-#include "makebuf.h"
 
 currentfile();
 
@@ -157,12 +161,12 @@ static int cache_add(CACHE *cache, long index, void *buffer, int dirty)
   {
     int rc;
 
-    char *tempBuffer = (char *) MAKEBUF( cache->itemsize );
+    char *tempBuffer = (char *) malloc( cache->itemsize );
 
     checkref( tempBuffer );
     MEMCPY( tempBuffer, item->buffer, cache->itemsize );
     rc = cache_write(cache, item->index, tempBuffer);
-    FREEBUF( tempBuffer );
+    free( tempBuffer );
 
     if (rc != 0)
        return -1;
@@ -260,7 +264,7 @@ void cache_flush(CACHE *cache)
   if (cache == NULL || cache->magic != CACHE_MAGIC)
     return;
 
-  tempBuffer = (char *) MAKEBUF( cache->itemsize );
+  tempBuffer = (char *) malloc( cache->itemsize );
   checkref( tempBuffer );
 
   for (item = cache->head; item != NULL; item = item->next)
@@ -279,6 +283,9 @@ void cache_flush(CACHE *cache)
          item->dirty = 0;
       }
     }
+
+    free( tempBuffer );
+
 } /* cache_flush */
 
 void cache_exit(CACHE *cache)
