@@ -74,25 +74,6 @@ void main( int argc, char *argv[])
         panic();
     }
 
-/*--------------------------------------------------------------------*/
-/*          In Windows/NT, set the console input mode to non-linebased*/
-/*--------------------------------------------------------------------*/
-#ifdef WIN32
-   setstdinmode();
-#endif
-
-
-/*--------------------------------------------------------------------*/
-/*                         Set our time zone                          */
-/*--------------------------------------------------------------------*/
-
-   if (getenv("TZ") == NULL )
-   {
-      printmsg(0,"Environment variable TZ must be set!");
-      panic();
-   }
-   tzset();                      /* Set up time zone information  */
-
    PushDir(E_spooldir);
    atexit( PopDir );
 
