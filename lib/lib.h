@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: lib.h 1.12 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.12  1993/09/20  04:51:31  ahd
+ *     1.12OS/2 2.x support
+ *
  *     Revision 1.11  1993/08/08  17:39:55  ahd
  *     Define denormalize() macro
  *
@@ -129,7 +132,7 @@
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
 #define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH)
 
-#define B_KEWSHORT 0x00010000L /* Pointer is to short int, not string */
+#define B_SHORT    0x00010000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x00020000L /* Pointer is one word, ignore blanks  */
 #define B_BOOLEAN  0x00040000L /* Pointer is to boolean keywords      */
 #define B_LIST     0x00080000L /* Pointer to array of char pointers   */
