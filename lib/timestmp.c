@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.8 1993/08/11 02:31:12 ahd Exp $
+ *    $Id: timestmp.c 1.9 1993/10/12 00:47:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.9  1993/10/12  00:47:57  ahd
+ *     Normalize comments
+ *
  *     Revision 1.8  1993/08/11  02:31:12  ahd
  *     Always display the banner
  *
@@ -57,8 +60,11 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "win32ver.h"
 #include "timestmp.h"
+
+#ifndef UUPCV
+#include "win32ver.h"
+#endif
 
 #ifdef _Windows
 #include "winutil.h"
