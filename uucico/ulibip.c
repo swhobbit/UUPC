@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.32 1997/06/03 03:25:31 ahd v1-12u $
+ *    $Id: ulibip.c 1.33 1997/12/22 16:48:38 ahd Exp $
  *
  *    $Log: ulibip.c $
+ *    Revision 1.33  1997/12/22 16:48:38  ahd
+ *    Add support for 16 bit inet_ntoa for Borland C++ Windows UUCICO
+ *
  *    Revision 1.32  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *
@@ -384,6 +387,7 @@ int tactiveopenline(char *name, BPS bps, const KWBoolean direct)
    STRCPY(addrBuf, inet_ntoa(sin.sin_addr));
 
    printmsg( 1, "Connecting to host %s [%s] port %d",
+                     name,
                      addrBuf,
                      ntohs( sin.sin_port ));
 
