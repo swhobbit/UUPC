@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\lock.c 1.4 1992/11/19 02:58:54 ahd Exp ahd $
+ *    $Header: E:\src\uupc\LIB\RCS\LOCK.C 1.5 1992/11/28 19:51:16 ahd Exp $
  *
  *    Revision history:
- *    $Log: lock.c $
+ *    $Log: LOCK.C $
+ * Revision 1.5  1992/11/28  19:51:16  ahd
+ * Issue lock based on lock file existence to avoid FOPEN retry loop
+ *
  * Revision 1.4  1992/11/19  02:58:54  ahd
  * drop rcsid
  *
@@ -76,6 +79,7 @@ boolean LockSystem( const char *system , long program )
 {
    time_t age;
    char fname[FILENAME_MAX];
+   char *extension;
 
 /*--------------------------------------------------------------------*/
 /*                Don't lock unless in multitask mode                 */
@@ -101,11 +105,34 @@ boolean LockSystem( const char *system , long program )
 /*                        Try to get the lock                         */
 /*--------------------------------------------------------------------*/
 
+   switch( program )
+   {
+      case B_NEWS:
+         extension = "LCN";
+         break;
+
+      case B_UUSTAT:
+         extension = "LCS";
+         break;
+
+      case B_UUCICO:
+         extension = "LCK";
+         break;
+
+      case B_UUXQT:
+         extension = "LCX";
+         break;
+
+      default:
+         extension = "LCZ";
+         break;
+   } /* switch */
+
    sprintf( fname,
             "%s/locks.lck/%.8s.%s",
             E_spooldir,
             system,
-            (program == B_UUXQT ) ? "LCX" : "LCK" );
+            extension );
 
    importpath( lname, fname, system );
 
@@ -184,3 +211,40 @@ void UnlockSystem( void )
    unlink( lname );
 
 } /* UnlockSystem */
+
+/*--------------------------------------------------------------------*/
+/*       P u s h L o c k                                              */
+/*                                                                    */
+/*       Save lock status in order to perform second lock             */
+/*--------------------------------------------------------------------*/
+
+
+void PushLock( LOCKSTACK *top )
+{
+   top->locket = locket;
+   if ( locket !=  NULL )
+   {
+      strcpy( top->lname, lname );
+      locket =  NULL;
+   }
+   locked = FALSE;
+
+}
+
+/*--------------------------------------------------------------------*/
+/*       P o p L o c k                                                */
+/*                                                                    */
+/*       Restore previous lock information                            */
+/*--------------------------------------------------------------------*/
+
+void PopLock( LOCKSTACK *top )
+{
+   locket = top->locket;
+
+   if ( locket !=  NULL )
+   {
+      strcpy( lname, top->lname );
+      locked = TRUE;
+   }
+
+} /* PopLock */
