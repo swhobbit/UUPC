@@ -76,14 +76,15 @@ char *expand_path(char *path,          /* Input/output path name     */
 
    if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
+      boolean pushed = ((cur_dir != NULL ) && ( path[1] != ':' ));
       strcpy( save, path );
 
-      if ((cur_dir != NULL ) && ( path[1] != ':' ))
+      if (pushed)
          PushDir( cur_dir );
 
       p = _fullpath( path, save, sizeof save );
 
-      if ((cur_dir != NULL ) && ( path[1] != ':' ))
+      if (pushed)
          PopDir();
 
       while ((p = strchr(p,'\\')) != NULL)

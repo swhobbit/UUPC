@@ -3,17 +3,18 @@
 /*                                                                    */
 /*    Directory functions for UUPC/extended                           */
 /*                                                                    */
-/*    Copyright (c) 1989 Andrew H. Derbyshire                         */
-/*                                                                    */
-/*    Changes Copyright (c) 1990 - 1992 by Kendra Electronic          */
-/*    Wonderworkss.  All rights reserved except as explicitly         */
+/*    Changes Copyright (c) 1989 - 1993 by Kendra Electronic          */
+/*    Wonderworks.   All rights reserved except as explicitly         */
 /*    granted by the UUPC/extended license.                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: PUSHPOP.C 1.2 1992/11/22 21:06:14 ahd Exp $
  *
- *    $Log$
+ *    $Log: PUSHPOP.C $
+ * Revision 1.2  1992/11/22  21:06:14  ahd
+ * Use strpool for memory allocation
+ *
  */
 
 /*--------------------------------------------------------------------*/
