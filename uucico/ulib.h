@@ -11,7 +11,7 @@ extern unsigned int sread(char *buffer,
                           unsigned int wanted,
                           unsigned int timeout);
 
-int swrite(char *data, unsigned int len);
+int swrite(const char *data, unsigned int len);
 
 void ssendbrk(unsigned int duration);
 
