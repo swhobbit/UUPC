@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.14 1995/02/20 00:03:07 ahd v1-12n $
+ *    $Id: expire.c 1.15 1995/03/11 22:29:13 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.15  1995/03/11 22:29:13  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.14  1995/02/20 00:03:07  ahd
  *    Drop previous work history file before creating new one
  *
@@ -60,7 +63,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.14 1995/02/20 00:03:07 ahd v1-12n $";
+      "$Id: expire.c 1.15 1995/03/11 22:29:13 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -84,12 +87,6 @@ static const char rcsid[] =
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
-
-/*--------------------------------------------------------------------*/
-/*                          Global variables                          */
-/*--------------------------------------------------------------------*/
-
-extern struct grp *group_list;   /* List of all groups */
 
 /*--------------------------------------------------------------------*/
 /*                          Global Variables                          */
@@ -127,8 +124,9 @@ main( int argc, char **argv)
    extern char *optarg;
    extern int   optind;
    char **groups = NULL;
-   struct grp *cur_grp;
+   char *groupName;
    char file_old[FILENAME_MAX], file_new[FILENAME_MAX];
+   char groupBuffer[MAXGRP];
 
    time_t expire_period  = 7; /* Seven days visible to users         */
    time_t expire_date;
@@ -207,16 +205,20 @@ main( int argc, char **argv)
    history = open_history("history");
    new_history = open_history("newhist");
 
-   get_active( KWTrue );      /* Get sequence numbers for groups from
+   loadActive( KWTrue );      /* Get sequence numbers for groups from
                                  active file                      */
 
 /*--------------------------------------------------------------------*/
 /*                  Chain together groups to process                  */
 /*--------------------------------------------------------------------*/
 
-   for ( cur_grp = group_list; cur_grp != NULL;
-         cur_grp = cur_grp->grp_next )
-         cur_grp->grp_low = cur_grp->grp_high;
+   startActiveWalk( );
+
+   while( (groupName = walkActive( groupBuffer ) ) != NULL )
+   {
+      setArticleOldest( groupName, getArticleNewest( groupName ));
+   }
+
 
 /*--------------------------------------------------------------------*/
 /*                  Compute times for expiring files                  */
@@ -239,7 +241,7 @@ main( int argc, char **argv)
 /*                         Clean up and exit                          */
 /*--------------------------------------------------------------------*/
 
-   put_active();
+   writeActive();
 
    close_history(history);
    close_history(new_history);
@@ -275,28 +277,34 @@ main( int argc, char **argv)
 /*    Set the lower bounds of all groups an article is posted to      */
 /*--------------------------------------------------------------------*/
 
-static void SetGroupLower(char *histentry)
+static void
+SetGroupLower(char *histentry)
 {
   char value[BUFSIZ];
   char *group, *num;
-  struct grp *cur_grp;
   long article;
 
   strcpy(value, histentry);
   strtok(value, " ");   /* strip off date */
   strtok(NULL, " ");    /* strip off size */
 
-  while ((group = strtok(NULL, " ,\n")) != NULL)
+  while ((group = strtok(NULL, "," WHITESPACE )) != NULL)
   {
+
+    int lowest;
+
     num = strchr(group, ':');
     *num++ = 0;
     article = atol(num);
 
-    if ( (cur_grp = find_newsgroup(group)) != NULL && article > 0 )
-      if ( cur_grp->grp_low > article )
-        cur_grp->grp_low = article;
-  }
-}
+    lowest = getArticleOldest( group );
+
+    if (article && ( lowest > article ))
+      setArticleOldest( group, article );
+
+  } /* while ((group = strtok(NULL, "," WHITESPACE )) != NULL) */
+
+} /* SetGroupLower */
 
 /*--------------------------------------------------------------------*/
 /*    H i s t o r y E x p i r e A l l                                 */

@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.14 1995/01/30 04:08:36 ahd v1-12n $";
+         "$Id: genhist.c 1.15 1995/03/11 22:29:24 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.15  1995/03/11 22:29:24  ahd
+/* Use macro for file delete to allow special OS/2 processing
+/*
 /* Revision 1.14  1995/01/30 04:08:36  ahd
 /* Additional compiler warning fixes
 /*
@@ -101,8 +104,8 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void IndexAll( void );
-static void IndexOneGroup( struct grp *cur_grp );
-static void IndexDirectory( struct grp *cur_grp, const char *directory );
+static void IndexOneGroup( const char *name );
+static void IndexDirectory( const char *group, const char *directory );
 
 static KWBoolean numeric( char *start);
 
@@ -176,7 +179,7 @@ main( int argc, char **argv)
    PushDir( E_newsdir );
    atexit( PopDir );
 
-   get_active( KWTrue );
+   loadActive( KWTrue );
 
    mkfilename(file_old, E_newsdir, "oldhist.dir");
    mkfilename(file_new, E_newsdir, "history.dir");
@@ -193,7 +196,7 @@ main( int argc, char **argv)
 
    close_history(history);
 
-   put_active();
+   writeActive();
    printmsg(1,"%s: Processed %ld total articles in %ld files (%ld bytes).",
                   argv[0], total_articles, total_files, total_bytes );
 
@@ -207,38 +210,42 @@ main( int argc, char **argv)
 
 static void IndexAll( void )
 {
-   struct grp *cur_grp = group_list;
+   char groupBuffer[MAXGRP];
+   char *groupName;
 
-   while ( cur_grp != NULL )
+   startActiveWalk( );
+
+   while( (groupName = walkActive( groupBuffer ) ) != NULL )
    {
-      IndexOneGroup( cur_grp);
-      cur_grp = cur_grp->grp_next;
+      IndexOneGroup( groupName );
    }
+
+
 } /* IndexAll */
 
 /*--------------------------------------------------------------------*/
 /*    I n d e x O n e G r o u p                                       */
 /*--------------------------------------------------------------------*/
 
-static void IndexOneGroup( struct grp *cur_grp )
+static void IndexOneGroup( const char *groupName )
 {
    char groupdir[FILENAME_MAX];
    char archdir[FILENAME_MAX];
 
-   printmsg(3,"Processing news group %s", cur_grp->grp_name );
+   printmsg(3,"Processing news group %s", groupName );
 
 /*--------------------------------------------------------------------*/
 /*                     Set up the directory names                     */
 /*--------------------------------------------------------------------*/
 
-   ImportNewsGroup( groupdir, cur_grp->grp_name, 0 );
+   ImportNewsGroup( groupdir, groupName, 0 );
    mkfilename( archdir, E_archivedir, &groupdir[ strlen( E_newsdir) + 1] );
 
 /*--------------------------------------------------------------------*/
 /*            Process the directory                                   */
 /*--------------------------------------------------------------------*/
 
-   IndexDirectory( cur_grp, groupdir );
+   IndexDirectory( groupName , groupdir );
 
 } /* IndexOneGroup */
 
@@ -246,7 +253,7 @@ static void IndexOneGroup( struct grp *cur_grp )
 /*    G e t H i s t o r y D a t a                                     */
 /*--------------------------------------------------------------------*/
 
-static void GetHistoryData(char *group, struct direct *dp,
+static void GetHistoryData(const char *group, struct direct *dp,
                            char *messageID, char *histentry)
 {
   FILE *article;
@@ -255,6 +262,7 @@ static void GetHistoryData(char *group, struct direct *dp,
   size_t line_len;
 
   article = FOPEN(dp->d_name, "r", TEXT_MODE);
+
   if ( article == NULL )
   {
     printerr( dp->d_name );
@@ -325,7 +333,7 @@ static void GetHistoryData(char *group, struct direct *dp,
 /*    I n d e x D i r e c t o r y                                     */
 /*--------------------------------------------------------------------*/
 
-static void IndexDirectory( struct grp *cur_grp,
+static void IndexDirectory( const char *groupName,
                             const char *directory )
 {
    long number;
@@ -368,22 +376,29 @@ static void IndexDirectory( struct grp *cur_grp,
 
       if ( numeric( dp->d_name ))/* Article format name?             */
       {                          /* Yes --> Examine it closer        */
-      number = atol(dp->d_name);
+         number = atol(dp->d_name);
 
-        printmsg(6,"Processing file %s from %s",
+         printmsg(6,"Processing file %s from %s",
                  dp->d_name, dater( dp->d_modified, NULL));
 
-        GetHistoryData(cur_grp->grp_name, dp, messageID, histentry);
+         GetHistoryData(groupName, dp, messageID, histentry);
 
-        if ( add_histentry(history, messageID, histentry) )
-          articles++;
-      if (number < cur_grp->grp_low) /* correct 'active' file too */
-        cur_grp->grp_low = number;
-      else if (number >= cur_grp->grp_high)
-        cur_grp->grp_high = number + 1;
+         if ( add_histentry(history, messageID, histentry) )
+            articles++;
+
+/*--------------------------------------------------------------------*/
+/*                    Update ACTIVE file as well.                     */
+/*--------------------------------------------------------------------*/
+
+         if (number < getArticleOldest( groupName ))
+            setArticleOldest( groupName, number );
+
+         if (number > getArticleNewest( groupName ))
+            setArticleNewest( groupName, number );
 
         files++;
         bytes += dp->d_size;
+
       }
 
    } /* while */
@@ -396,7 +411,7 @@ static void IndexDirectory( struct grp *cur_grp,
 
    if ( files )
       printmsg(2,"%s: %ld articles in %ld files (%ld bytes)",
-                  cur_grp->grp_name, articles, files, bytes);
+                  groupName, articles, files, bytes);
 
    total_articles += articles;
    total_files += files;

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.24 1995/03/11 12:39:24 ahd Exp $
+ *       $Id: inews.c 1.25 1995/03/11 22:29:58 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.25  1995/03/11 22:29:58  ahd
+ * Use macro for file delete to allow special OS/2 processing
+ *
  * Revision 1.24  1995/03/11 12:39:24  ahd
  * Always pass at least one argument to newsrun, even when running via uux
  *
@@ -112,7 +115,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.24 1995/03/11 12:39:24 ahd Exp $";
+      "$Id: inews.c 1.25 1995/03/11 22:29:58 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -153,7 +156,7 @@ static int complete_header(FILE *input, FILE *output );
 /*    Main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main( int argc, char **argv)
+main( int argc, char **argv)
 {
   extern char *optarg;
   extern int   optind;
@@ -290,6 +293,8 @@ void main( int argc, char **argv)
   REMOVE(tempname);
 
   exit( result );
+
+  return result;
 
 } /* main */
 

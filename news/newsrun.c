@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.7 1995/03/11 22:33:46 ahd Exp $
+ *       $Id: newsrun.c 1.8 1995/03/12 16:42:24 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.8  1995/03/12 16:42:24  ahd
+ *       Don't both to call get_snum if we only need to know the group exists
+ *
  *       Revision 1.7  1995/03/11 22:33:46  ahd
  *       BLow off undelete processing if so configured under OS/2
  *
@@ -214,7 +217,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.7 1995/03/11 22:33:46 ahd Exp $";
+         "$Id: newsrun.c 1.8 1995/03/12 16:42:24 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -272,7 +275,6 @@ static const char rcsid[] =
 
 currentfile();
 
-extern struct grp *group_list;   /* List of all groups */
 static time_t now;
 static void *history;
 
@@ -474,7 +476,7 @@ main( int argc, char **argv)
 /*       file is optional only if we are not updating it.             */
 /*--------------------------------------------------------------------*/
 
-   get_active( localNews );
+   loadActive( localNews );
 
 /*--------------------------------------------------------------------*/
 /*    A news article/batch either has a '#' character as its first    */
@@ -561,7 +563,7 @@ main( int argc, char **argv)
 
    if ( localNews )
    {
-      put_active();
+      writeActive();
       close_history(history);
    }
 
@@ -1224,7 +1226,7 @@ static void control_message(const char *control,
 {
   char *ctrl = strdup(control);
   char *cmd, *mod;
-  KWBoolean moderated;
+  char moderation;
   char buf[200];
   char *operand;
 
@@ -1306,18 +1308,22 @@ static void control_message(const char *control,
     mod = strtok(NULL, WHITESPACE);
 
     if ((mod != NULL) && equal(mod, "moderated"))
-      moderated = KWTrue;
+      moderation = 'm';
     else
-      moderated = KWFalse;
+      moderation = 'y';
 
-    add_newsgroup(operand, moderated);
-    printmsg(1, "newsgroup added: %s", operand);
+    if ( addGroup(operand, 1, 0, moderation))
+       printmsg(1, "newsgroup added: %s", operand);
+    else
+       printmsg(0, "Unable to add news group: %s", operand );
 
   } /* if (equali(cmd, "newgroup")) */
   else if (equali(cmd, "rmgroup"))
   {
-    del_newsgroup(operand);
-    printmsg(1, "newsgroup removed: %s", operand);
+    if (deleteGroup(operand))
+      printmsg(1, "newsgroup removed: %s", operand);
+    else
+      printmsg( 0, "Unable to delete news group %s", operand );
   }
   else if (equali(cmd, "ihave") ||
            equali(cmd, "sendme") ||
@@ -1343,36 +1349,40 @@ static void control_message(const char *control,
 
 static KWBoolean copy_file(IMFILE *imf,
                          const char *group,
-                         const char *xref)
+                         const char *xref )
 {
-   struct grp *cur = find_newsgroup(group);
    char filename[FILENAME_MAX];
    char buf[LARGEBUF];
    FILE *output;
    KWBoolean header = KWTrue;
 
+   long sequence = getArticleNewest( group );
+
 /*--------------------------------------------------------------------*/
-/*           Determine if the news has been already posted            */
+/*                   Determine if the group exists                    */
 /*--------------------------------------------------------------------*/
 
-   if (cur == NULL)
+   if ( ! sequence )
    {
       printmsg(3, "Article cross-posted to %s", group);
       return KWFalse;
    }
 
+   setArticleNewest( group, ++sequence );
+
 /*--------------------------------------------------------------------*/
 /*                       Now build a file name                        */
 /*--------------------------------------------------------------------*/
 
-   ImportNewsGroup( filename, cur->grp_name, cur->grp_high++);
+   ImportNewsGroup( filename, group, sequence );
 
 /*--------------------------------------------------------------------*/
 /*                 We have a file name, open the file                 */
 /*--------------------------------------------------------------------*/
 
    printmsg(2, "Saving %s article in %s",
-               cur->grp_name, filename);
+               group,
+               filename);
 
    if ((output = FOPEN(filename, "w", TEXT_MODE)) == nil(FILE))
    {
@@ -1458,7 +1468,7 @@ static KWBoolean deliver_local(IMFILE *imf,
   char idBuffer[FILENAME_MAX];
   size_t newsgroups_len;
   int  groups_found;
-  char snum[10];
+  long snum;
 
   char *gc_ptr;
   char *gc_ptr1;
@@ -1472,9 +1482,9 @@ static KWBoolean deliver_local(IMFILE *imf,
    {
       control_message(control, BIT_BUCKET );
 
-      if (find_newsgroup("control"))
+      if (getModeration("control"))
          newsgroups_in = "control";
-      else if (find_newsgroup("junk"))
+      else if (getModeration("junk"))
          newsgroups_in = "junk";
       else
          return KWFalse;
@@ -1493,11 +1503,13 @@ static KWBoolean deliver_local(IMFILE *imf,
 
       printmsg(1, "Duplicate article %s", messageID);
 
-      if (get_snum("duplicates", snum))
+      snum = getArticleNewest( "duplicates" );
+
+      if ( snum )
       {
          newsgroups_in = "duplicates";
-         sprintf(idBuffer, "<%s.duplicate.%.10s@%.50s>",
-                 snum,
+         sprintf(idBuffer, "<%ld.duplicate.%.10s@%.50s>",
+                 snum + 1,
                  E_nodename,
                  E_domain );         /* We need a new unique ID       */
          msgID = idBuffer;
@@ -1543,14 +1555,17 @@ static KWBoolean deliver_local(IMFILE *imf,
 
       strcpy(groupy, gc_ptr);
 
-      if (get_snum(groupy, snum))
+      snum = getArticleNewest( groupy );
+
+      if ( snum );
       {
         if (groups_found)
            strcat(hist_record, ", ");
 
-        strcat(hist_record, groupy);
-        strcat(hist_record, ":");
-        strcat(hist_record, snum);
+        sprintf( hist_record + strlen( hist_record ),
+                 "%s:%ld",
+                 groupy,
+                 snum + 1);
 
         groups_found++;
       }
@@ -1572,16 +1587,18 @@ static KWBoolean deliver_local(IMFILE *imf,
      memcpy(newsgroups, "junk\0\0", 6);
      b_xref = KWFalse;
 
-     if (!get_snum("junk", snum))      /* Do we maintain junk group? */
+     snum = getArticleNewest( "junk" );
+
+     if (snum == 0 )                   /* Do we maintain junk group? */
      {                                 /* No --> Throw article away  */
        free( newsgroups );
        return KWFalse;
      }
 
-     sprintf(hist_record, "%ld %ld junk:%s",
+     sprintf(hist_record, "%ld %ld junk:%ld",
              now,
              imlength( imf ),
-             snum);
+             snum + 1);
 
      junked++;
 
@@ -1614,12 +1631,14 @@ static KWBoolean deliver_local(IMFILE *imf,
 
          strcpy(groupy, gc_ptr);
 
-         if (get_snum(groupy, snum))
+         snum = getArticleNewest( groupy );
+
+         if (snum)
          {
-            strcat(hist_record, " ");
-            strcat(hist_record, groupy);
-            strcat(hist_record, ":");
-            strcat(hist_record, snum);
+            sprintf( hist_record + strlen(hist_record),
+                     " %s:%ld",
+                     groupy,
+                     snum + 1);
          }
 
       } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */

@@ -1,7 +1,5 @@
 /*--------------------------------------------------------------------*/
-/*    a c t i v e . c                                                 */
-/*                                                                    */
-/*    Load and write UUPC/extended news active file                   */
+/*       a c t i v e . c                                              */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,147 +15,109 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.18 1995/03/08 00:20:45 ahd Exp $
+ *    $Id: lib.h 1.32 1995/07/21 13:28:20 ahd Exp $
  *
- *    $Log: active.c $
- *    Revision 1.18  1995/03/08 00:20:45  ahd
- *    Don't truncate active if a group already exists
- *
- *    Revision 1.17  1995/01/15 19:48:35  ahd
- *    Allow active file to be optional
- *    Delete fullbatch global option
- *    Add "local" and "batch" flags to SYS structure for news
- *
- *    Revision 1.16  1995/01/07 16:31:34  ahd
- *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.15  1995/01/07 16:11:41  ahd
- *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.14  1995/01/03 05:32:26  ahd
- *    Drop validate function, we don't exploit it anyway
- *
- *    Revision 1.13  1995/01/02 05:03:27  ahd
- *    Pass 2 of integrating SYS file support from Mike McLagan
- *
- *    Revision 1.12  1994/12/31 03:41:08  ahd
- *    First pass of integrating Mike McLagan's news SYS file suuport
- *
- *    Revision 1.11  1994/12/22 00:07:04  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.10  1994/03/15 03:02:26  ahd
- *    Update copyright, move include for mother of all headers
- *
- *     Revision 1.9  1994/02/19  04:47:46  ahd
- *     Use standard first header
- *
- *     Revision 1.8  1994/02/19  04:12:59  ahd
- *     Use standard first header
- *
- *     Revision 1.7  1994/02/19  04:00:32  ahd
- *     Use standard first header
- *
- *     Revision 1.6  1994/02/18  23:04:47  ahd
- *     Use standard first header
- *
- *     Revision 1.5  1994/02/18  23:04:24  ahd
- *     Use standard first header
- *
- *     Revision 1.4  1993/04/11  00:31:31  dmwatt
- *     Global edits for year, TEXT, etc.
- *
- * Revision 1.3  1993/03/06  22:48:23  ahd
- * Correct header files
- *
- * Revision 1.2  1992/11/23  03:56:06  ahd
- * Use strpool for news group names
- *
+ *    Revision history:
+ *    $Log: lib.h $
  */
 
-/*
-   This file contains routines that muck with the "active" file.
-
-   The file is named "active" and is in the configuration directory
-   defined in UUPC.RC.
-
-   The file is a direct copy of the UNIX active file which is
-   defined and described in the Nutshell book "Managing UUCP
-   and Usenet".
-
-   IMPORTANT:
-   ----------
-      Almost no checking is performed on the contents of the file.
-      It is critically important that the system administrator
-      maintain the file carefully.
-
-   The file consists of one line for each newsgroup to be received.
-   Articles destined for newsgroups which do not have a line in the
-   active file are lost.
-
-   Each line consists of four fields separated by spaces.
-
-   The fields are:
-
-      group high low post
-
-   where:
-      group the newsgroup name.  Case is important.  E.g., ba.food
-            This field is maintained by the administrator.
-            This field must be less than 50 characters long.
-
-      high  highest article number in the group.  (Zero for a
-            new group.)  This field is maintained by rnews.
-
-      low   lowest article number in the group.  (Zero for a
-            new group.)  This field is maintained by expire.
-
-      post  can the user post to this newsgroup.  A single
-            character. 'y' for yes; 'n' for no; 'm'
-            for moderated.  This field is maintained
-            by the administrator.
-
-*/
-
+/*--------------------------------------------------------------------*/
+/*       Revised active file processing support for UUPC/extended     */
+/*       news.                                                        */
+/*                                                                    */
+/*       This uses a tree structure mirroring the usenet name         */
+/*       hierarchy to avoid length linear searches.                   */
+/*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
 
-#include <io.h>
-#include <conio.h>
-
 #include <ctype.h>
-#include <sys/stat.h>
 
-#include "timestmp.h"
 #include "active.h"
-#include "importng.h"
 
-#include "getopt.h"
+/*--------------------------------------------------------------------*/
+/*                       Local data structures                        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       The basic structure used to make up the active list in       */
+/*       memory.  A level is defined by a simple name between         */
+/*       periods, for example rec.humor.funny is a three level        */
+/*       name.  Names at the same level are linked in a sorted        */
+/*       simple linked list under the previous level.  This yields    */
+/*       a structure like:                                            */
+/*                                                                    */
+/*          alt -->  comp --> rec                                     */
+/*           |         |       +--> games +--> humor                  */
+/*           |         |              |          |                    */
+/*           |         |              |          +--> funny           */
+/*           |         |              |                               */
+/*           |         |              +--> chess --> go               */
+/*           |         |                                              */
+/*           |         +--> lang --> mail --> os                      */
+/*           .                .       .       .                       */
+/*           .                .       .       .                       */
+/*           .                .       .       .                       */
+/*                                                                    */
+/*       Note we allocate the fixed length level names within the     */
+/*       structure.  This saves a made romp through the newstr        */
+/*       data space, which wasn't designed to handle (literally)      */
+/*       10000 strings crammed into it.                               */
+/*--------------------------------------------------------------------*/
+
+typedef struct _GROUP
+{
+   long   high;                     /* Next article number to store  */
+   long   low;                      /* Lowest unexpired article num  */
+   struct _GROUP  *parent;          /* Our parent group              */
+   struct _GROUP  *sibling;         /* Next group at this level      */
+   struct _GROUP  *child;           /* First group at next level     */
+   char   name[15];                 /* simple name -- "humor" example*/
+   char   moderation;               /* Y, N, or M                    */
+   char   lap;                      /* Iteration of walking tree     */
+
+} GROUP;
+
+#ifdef BIT32ENV
+#define GROUPS_PER_BLOCK      100
+#else
+#define GROUPS_PER_BLOCK      20
+#endif
+
+static GROUP *top = NULL;           /* Top of group tree             */
+static GROUP *cachedGroup = NULL;   /* Last group searched for       */
+
+static GROUP *nextNode;             /* Saves state while walking tree*/
 
 currentfile();
 
-struct grp *group_list = NULL;      /* List of all groups */
+#ifdef UDEBUG
+
+static long groups;                 /* Total groups loaded           */
+static long nodes;                  /* Nodes in tree created         */
+static long siblings;               /* Nodes visited during load     */
+static long parents;                /* Parents recursed during load  */
+
+static long searches;               /* Number of searches performed  */
+static long cacheHits;              /* Number of cache hits in search*/
+static long searchNodes;            /* Nodes walked during searched  */
+
+#endif
 
 /*--------------------------------------------------------------------*/
-/*    g e t _ a c t i v e                                             */
+/*       g e t A c t i v e                                            */
 /*                                                                    */
-/*    This function opens <newsdir>/active and extracts all the       */
-/*    information about the newsgroup we currently maintain           */
+/*       Load the new active file for processing                      */
 /*--------------------------------------------------------------------*/
 
-void get_active( const KWBoolean mustExist )
+KWBoolean
+loadActive( const KWBoolean mustExist )
 {
-   char active_filename[FILENAME_MAX];
-   char grp_name_tmp[MAXGRP];
+   char fname[FILENAME_MAX];
+   FILE *stream;
 
-   FILE *g;
-   struct grp *cur_grp;
-   struct grp *prev_grp = NULL;
-   int i;
-   int line = 0;
-
-   mkfilename(active_filename, E_confdir, ACTIVE);
-   g = FOPEN(active_filename,"r",TEXT_MODE);
+   mkfilename(fname, E_confdir, ACTIVE);
+   stream = FOPEN(fname,"r",TEXT_MODE);
 
 /*--------------------------------------------------------------------*/
 /*       If we have no active file, we will allow processing to       */
@@ -165,61 +125,86 @@ void get_active( const KWBoolean mustExist )
 /*       as it was being used for for remote batching only.           */
 /*--------------------------------------------------------------------*/
 
-   if ( g == NULL )
+   if ( stream == NULL )
    {
       if ( mustExist || (debuglevel > 1 ))
-         printerr(active_filename);
+         printerr(fname);
 
       if ( mustExist )
          panic();
       else
-         return;
+         return KWFalse;
 
-   }  /* if ( g == NULL ) */
-
-
-/*--------------------------------------------------------------------*/
-/*              Initialize the first group to be processed            */
-/*--------------------------------------------------------------------*/
-
-   group_list = (struct grp *) malloc(sizeof(struct grp));
-   cur_grp = group_list;
-
-   memset( cur_grp, 0, sizeof cur_grp );
+   }  /* if ( stream == NULL ) */
 
 /*--------------------------------------------------------------------*/
-/*       Loop to read in all groups in the file.  Note at the top     */
-/*       of the loop we always have one extra link in the list        */
-/*       allocated to accept the new entry.                           */
+/*                       Main loop to load file                       */
 /*--------------------------------------------------------------------*/
 
-   while ((i = fscanf(g, "%s %ld %ld %1s\n", &grp_name_tmp[0],
-            &cur_grp->grp_high,
-            &cur_grp->grp_low,
-            &cur_grp->grp_can_post)) != EOF)
+   while (! feof( stream ) )
    {
-      line++;
+      char buf[BUFSIZ];
+      char *group;                  /* Name of group to add          */
+      char *s;                      /* Work pointer                  */
 
-      if (i != 4)
-      {
-         printmsg(0,"active: incomplete line in %s, %d tokens found"
-                    " on line %d",
-                     active_filename,
-                     i,
-                     line );
-         panic();
+      long low, high;               /* Bounds of active articles for
+                                       group;                        */
+
+      if (fgets(buf,BUFSIZ,stream) == NULL)
+         break;                     /* Exit if end of file            */
+
+/*--------------------------------------------------------------------*/
+/*            Get group name; skip line if no data on line            */
+/*--------------------------------------------------------------------*/
+
+      group = strtok( buf, WHITESPACE );     /* First token is group  */
+
+      if (group == NULL)
+         continue;            /* Line is a empty; loop again         */
+
+/*--------------------------------------------------------------------*/
+/*                     Get highest article number                     */
+/*--------------------------------------------------------------------*/
+
+      s = strtok( NULL, WHITESPACE );
+
+      if ( s == NULL )
+         high = 0;
+      else {
+         high = atol( s );
+         s = strtok( NULL, WHITESPACE );
       }
 
-      cur_grp->grp_name = newstr(grp_name_tmp);
+      if ( ! high )                 /* Always start with article 1   */
+         high = 1;
 
-      cur_grp->grp_high++;    /* It is stored as one less than we want it */
+/*--------------------------------------------------------------------*/
+/*                     Get lowest article number                      */
+/*--------------------------------------------------------------------*/
 
-      prev_grp = cur_grp;
-      cur_grp = (struct grp *) malloc(sizeof(struct grp));
-      checkref(cur_grp);
-      prev_grp->grp_next = cur_grp;
+      if ( s == NULL )
+         low  = 0;
+      else {
+         low = atol( s );
+         s = strtok( NULL, WHITESPACE );
+      }
 
-      memset( cur_grp, 0, sizeof cur_grp );
+/*--------------------------------------------------------------------*/
+/*                        Get moderation flag                         */
+/*--------------------------------------------------------------------*/
+
+      if ( s == NULL )
+      {
+         s = "y";
+         printmsg(0, "Adding default group information for %s",
+                      group );
+      }
+
+      if ( !addGroup( group, high, low, *s ) )
+      {
+         printmsg(0,"loadActive: Unable to load group (duplicate?): %s",
+                  group );
+      }
 
    } /* while */
 
@@ -227,56 +212,681 @@ void get_active( const KWBoolean mustExist )
 /*           Done loading groups, close up the active file            */
 /*--------------------------------------------------------------------*/
 
-   if (fclose(g))
-      printerr( active_filename );
+   if (fclose(stream))
+      printerr( fname );
 
 /*--------------------------------------------------------------------*/
 /*     Verify we had a valid active file with at least one entry      */
 /*--------------------------------------------------------------------*/
 
-   if (prev_grp == NULL)
+   if (top == NULL)
    {
       printmsg(0,"active: Active file %s is empty, cannot continue",
-                  active_filename );
+                  fname );
       panic();
    }
-   else {                        /* Drop extra slot we had allocated */
-      prev_grp->grp_next = NULL;
-      free(cur_grp);
+
+   return KWTrue;
+
+} /* getActive */
+
+/*--------------------------------------------------------------------*/
+/*       m a k e L e v e l                                            */
+/*                                                                    */
+/*       Make a simple level name                                     */
+/*--------------------------------------------------------------------*/
+
+static char *
+makeLevelName( const char *name )
+{
+   static char level[15];
+   char *p;
+
+/*--------------------------------------------------------------------*/
+/*                       Create the level name                        */
+/*--------------------------------------------------------------------*/
+
+   strncpy( level, name, sizeof level - 1 );
+   level[ sizeof level - 1] = '.';  /* Add fence post                */
+   p = strchr( level, '.' );        /* Locate first period, if any   */
+
+   if ( p != NULL )
+     *p = '\0';                     /* Terminate the string          */
+
+   return level;
+
+} /* makeLevelName */
+
+/*--------------------------------------------------------------------*/
+/*       m a k e G r o u p N a m e                                    */
+/*                                                                    */
+/*       Given a leaf of the active group tree, make the name         */
+/*       by recursively appending the prefix of the group name.       */
+/*--------------------------------------------------------------------*/
+
+static char *
+makeGroupName( char *buf, GROUP *group )
+{
+   if ( group->parent == NULL )
+      *buf = '\0';
+   else {
+      makeGroupName( buf, group->parent );
+      strcat( buf, "." );
    }
 
-   return;
+   return strcat( buf, group->name );
 
-} /* get_active */
+} /* makeGroupName */
 
 /*--------------------------------------------------------------------*/
-/*    p u t _ a c t i v e                                             */
+/*       a d d N o d e                                                */
 /*                                                                    */
-/*    Update current active file                                      */
+/*       Get a node in the new group tree, creating it if needed      */
 /*--------------------------------------------------------------------*/
 
-void put_active()
+static GROUP *
+addNode( GROUP *first, GROUP *parent, char *name )
 {
-   char active_filename[FILENAME_MAX];
-   FILE *g;
-   struct grp *cur_grp = group_list;
+   static GROUP *blockAnchor = NULL;
+   static size_t blockGroups;          /* Entries used in block         */
 
-   if ( cur_grp == NULL )
+   GROUP *current = first;
+   GROUP *previous = NULL;
+
+   char *level = makeLevelName( name );
+
+/*--------------------------------------------------------------------*/
+/*                   Locate the name if it exists                     */
+/*--------------------------------------------------------------------*/
+
+   while( current != NULL )
+   {
+      int hit = strcmp( level, current->name );
+
+      if ( ! hit )                  /* Did we find the exact name?   */
+      {
+         return current;            /* Yes --> Return it to caller   */
+      }
+
+#ifdef UDEBUG
+         siblings++;
+#endif
+
+      if ( hit < 0 )                /* Name go before this?          */
+         break;                     /* Yes --> Insert immediately    */
+
+      previous = current;
+      current = current->sibling;
+
+   } /* while( current != NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*                    We need to create a new node                    */
+/*--------------------------------------------------------------------*/
+
+   if ( blockAnchor == NULL )
+   {
+      blockAnchor = malloc( sizeof (*current) * GROUPS_PER_BLOCK );
+      checkref( blockAnchor );
+      blockGroups = 0;
+   }
+
+   current = blockAnchor++;
+   blockGroups++;
+
+   if ( blockGroups == GROUPS_PER_BLOCK ) /* Full block?             */
+      blockAnchor = NULL;                 /* Get new one next pass   */
+
+   memset( current, 0, sizeof *current );
+   strcpy( current->name, level );
+
+/*--------------------------------------------------------------------*/
+/*                    Chain the node into the list                    */
+/*--------------------------------------------------------------------*/
+
+   current->parent = parent;
+
+   if ( previous == NULL )
+   {
+
+      if ( parent != NULL )
+         parent->child = current;   /* We're first node @ this level */
+
+      current->sibling = first;     /* Put original first, if any,
+                                       after us in this level's list */
+
+      if ( top == first )           /* If previous first was top ... */
+         top = current;             /* ... make us very top of tree. */
+
+   }
+   else {
+
+      current->sibling = previous->sibling;
+                                    /* Chain some after us, and ...  */
+      previous->sibling = current;  /* ... insert us in list middle  */
+
+   } /* else */
+
+/*--------------------------------------------------------------------*/
+/*                     Return newly created node                      */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+   nodes++;
+#endif
+
+   return current;
+
+} /* addNode */
+
+/*--------------------------------------------------------------------*/
+/*       a d d G r o u p                                              */
+/*                                                                    */
+/*       Add a new group to the active list                           */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+addGroup( const char *group,
+          const long high,
+          const long low,
+          const char moderation )
+{
+   GROUP *parent;
+   char  *level;
+   static GROUP *current = NULL;
+
+   if ( current != NULL )
+   {
+      char buf[MAXGRP];
+      char *fullName = makeGroupName( buf, current );
+
+/*--------------------------------------------------------------------*/
+/*      Determine the best natch for the node from our last insert    */
+/*--------------------------------------------------------------------*/
+
+      while ( current != NULL )
+      {
+
+         char *endPeriod = strrchr( fullName, '.' );
+         size_t length;
+
+         if ( endPeriod == NULL )
+         {
+            current = NULL;
+            break;
+         }
+
+         length = (size_t) (endPeriod - fullName) + 1;
+
+#ifdef UDEBUG
+         parents++;
+
+         printmsg(8,"Comparing \"%s\" == \"%s\" for %d",
+                     fullName,
+                     group,
+                     length);
+#endif
+
+/*--------------------------------------------------------------------*/
+/*       The actual check is that the names are equal except for      */
+/*       the last qualifier, and that the last qualifier is           */
+/*       greater for the new group to be added                        */
+/*--------------------------------------------------------------------*/
+
+         if ( equaln( fullName, group, length ) &&
+              ( strcmp( fullName + length, group + length ) < 0))
+         {
+            level = (char *) group + length;
+
+#ifdef UDEBUG
+            printmsg(7,"Making level %s under %s next to %s",
+                       level,
+                       current->parent->name,
+                       current->name );
+#endif
+
+            break;
+         }
+
+         current = current->parent;
+         endPeriod = '\0';
+
+      } /* while */
+
+   } /* if ( current != NULL ) */
+
+   if ( current == NULL )
+   {
+      current = top;
+      parent = NULL;
+      level = (char *) group;
+   }
+   else
+      parent = current->parent;
+
+/*--------------------------------------------------------------------*/
+/*        Loop to walk tree to node, adding branches as needed        */
+/*--------------------------------------------------------------------*/
+
+   for ( ;; )
+   {
+
+      current = addNode( current, parent, level );
+
+      level = strchr( level, '.' ); /* Find next level of name       */
+
+      if ( level != NULL )
+      {
+         parent = current;          /* Remember parent node          */
+         current = parent->child;   /* Get first group on next level */
+         level++;                   /* Step past period in name      */
+      }
+      else
+         break;                     /* We're at node we need         */
+
+   } /* for ( ;; ) */
+
+/*--------------------------------------------------------------------*/
+/*     If the node is alway initialized, return failure to caller     */
+/*--------------------------------------------------------------------*/
+
+   if ( current->moderation )
+      return KWFalse;
+
+/*--------------------------------------------------------------------*/
+/*                        Initialize the node                         */
+/*--------------------------------------------------------------------*/
+
+   current->high = high;
+   current->low  = low;
+
+   switch( moderation )
+   {
+      case 'M':
+      case 'N':
+      case 'Y':
+         current->moderation = (char) tolower( moderation );
+         break;
+
+      case 'm':
+      case 'n':
+      case 'y':
+         current->moderation = moderation;
+         break;
+
+      default:
+         printmsg(0,"addGroup: Invalid moderation flag for group %s, "
+                    "changed to n" );
+         current->moderation = 'n';
+         break;
+
+   } /* switch( moderation ) */
+
+/*--------------------------------------------------------------------*/
+/*                    Return success to the caller                    */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+
+   groups++;
+
+   printmsg(7 , "addGroup: Added group[%ld] %s (%ld %ld %c),"
+                " parent %s%s%s",
+                groups,
+                  group,
+                  high,
+                  low,
+                  moderation ? moderation : '-',
+                  current->parent  ? current->parent->name  : "(none)",
+                  current->sibling ? ", sibling " : "",
+                  current->sibling ? current->sibling->name : "" );
+
+   {
+      char buf[MAXGRP];
+
+      if ( ! equal( makeGroupName( buf, current ), group))
+      {
+         printmsg(0,"addGroup: Group %s added in wrong place as %s",
+                     group,
+                     buf );
+         panic();
+      }
+   }
+
+#endif
+
+   return KWTrue;
+
+} /* addGroup */
+
+/*--------------------------------------------------------------------*/
+/*       f i n d G r o u p                                            */
+/*                                                                    */
+/*       Locate an existing group in the tree                         */
+/*--------------------------------------------------------------------*/
+
+static GROUP *
+findGroup( const char *group )
+{
+   char *name = (char *) group;
+
+   GROUP *current;
+   GROUP *nextLevel = top;
+
+#ifdef UDEBUG
+   searches++;
+#endif
+
+/*--------------------------------------------------------------------*/
+/*               See if we previously found this group                */
+/*--------------------------------------------------------------------*/
+
+   if ( cachedGroup != NULL )
+   {
+      char fullName[MAXGRP];
+      makeGroupName( fullName, cachedGroup );
+
+      if ( equal( fullName, group ) )
+      {
+         cacheHits++;
+         return cachedGroup;
+      }
+
+   } /* if ( cachedGroup != NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*              Outer loop to work down through levels                */
+/*--------------------------------------------------------------------*/
+
+   while ( name != NULL )
+   {
+      char *levelName = makeLevelName( name );
+
+      current = nextLevel;
+
+/*--------------------------------------------------------------------*/
+/*              Inner loop to locate simple name in list              */
+/*--------------------------------------------------------------------*/
+
+      while( current != NULL )
+      {
+
+         int hit = strcmp( levelName, current->name );
+
+#ifdef UDEBUG
+         searchNodes++;
+#endif
+
+         if ( ! hit )               /* Did we find the exact name?   */
+            break;                  /* Go to next level of tree      */
+
+         current = current->sibling;
+
+         if (( hit < 0 ) || (current == NULL )) /* Name before this? */
+            return NULL;            /* Yes --> Does not exist        */
+
+      } /* while( current != NULL ) */
+
+      name = strchr( name, '.');    /* Step to next level of name    */
+
+      if ( name == NULL )
+         break;                     /* We found target group         */
+      else {
+         name++;                    /* Step past period              */
+         nextLevel  = current->child;  /* Move down tree as well     */
+      }
+
+   } /* while ( name != NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*     We have the node, return it if valid, other report failure     */
+/*--------------------------------------------------------------------*/
+
+   if ( current->moderation )
+      return current;
+   else
+      return NULL;
+
+} /* findGroup */
+
+/*--------------------------------------------------------------------*/
+/*       d e l e t e G r o u p                                        */
+/*                                                                    */
+/*       Delete an existing news group                                */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+deleteGroup( const char *name )
+{
+   GROUP *group = findGroup( name );
+
+   if (( group != NULL ) && (group->moderation))
+   {
+      group->moderation = '\0';
+      return KWTrue;
+   }
+   else
+      return KWFalse;
+
+}  /* deleteGroup */
+
+/*--------------------------------------------------------------------*/
+/*       g e t A r t i c l e N e w e s t                              */
+/*                                                                    */
+/*       Return next article sequence as a long                       */
+/*--------------------------------------------------------------------*/
+
+long
+getArticleNewest( const char *name )
+{
+   GROUP *group = findGroup( name );
+
+   if (( group != NULL ) && (group->moderation))
+   {
+      return group->high;
+   }
+   else
+      return 0;
+
+} /* getArticleNewest */
+
+/*--------------------------------------------------------------------*/
+/*       s e t A r t i c l e N e w e s t                              */
+/*                                                                    */
+/*       Set next article sequence as a long                          */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+setArticleNewest( const char *name, const long new )
+{
+   GROUP *group = findGroup( name );
+
+   if (( group != NULL ) && (group->moderation))
+   {
+      group->high = new;
+      return KWTrue;
+   }
+   else
+      return KWFalse;
+
+} /* setArticleNewest */
+
+/*--------------------------------------------------------------------*/
+/*       g e t A r t i c l e O l d e s t                              */
+/*                                                                    */
+/*       Return next article sequence as a long, incrementing by      */
+/*       user specified amount.                                       */
+/*--------------------------------------------------------------------*/
+
+long
+getArticleOldest( const char *name )
+{
+   GROUP *group = findGroup( name );
+
+   if (( group != NULL ) && (group->moderation))
+   {
+      return group->low;
+   }
+   else
+      return 0;
+
+} /* getArticleOldest */
+
+/*--------------------------------------------------------------------*/
+/*       s e t A r t i c l e O l d e s t                              */
+/*                                                                    */
+/*       Set next article sequence as a long                          */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+setArticleOldest( const char *name, const long new )
+{
+   GROUP *group = findGroup( name );
+
+   if (( group != NULL ) && (group->moderation))
+   {
+      group->low = new;
+      return KWTrue;
+   }
+   else
+      return KWFalse;
+
+} /* setArticleOldest */
+
+/*--------------------------------------------------------------------*/
+/*       g e t M o d e r a t i o n                                    */
+/*                                                                    */
+/*       Return moderation status of news group                       */
+/*--------------------------------------------------------------------*/
+
+char
+getModeration( const char *name )
+{
+   GROUP *group = findGroup( name );
+
+   if ( group != NULL )
+      return group->moderation;
+   else
+      return '\0';
+
+} /* getModeration */
+
+/*--------------------------------------------------------------------*/
+/*       n e x t A c t i v e G r o u p                                */
+/*                                                                    */
+/*       Return next node in active group tree                        */
+/*--------------------------------------------------------------------*/
+
+static GROUP *
+nextActiveGroup( void )
+{
+   GROUP *current = nextNode;
+
+   if ( current != NULL )
+      current->lap = top->lap;
+
+/*--------------------------------------------------------------------*/
+/*       Loop until we find a node to display next time or come up    */
+/*       with a NULL point, which will end the search next call       */
+/*--------------------------------------------------------------------*/
+
+   while( ( nextNode != NULL ) && (nextNode->lap == top->lap ))
+   {
+      if (( nextNode->child != NULL ) &&
+          (nextNode->child->lap != top->lap ))
+         nextNode = nextNode->child;
+      else if ( nextNode->sibling != NULL )
+         nextNode = nextNode->sibling;
+      else
+         nextNode = nextNode->parent;
+
+/*--------------------------------------------------------------------*/
+/*         Next actually stop at a node which is not a group          */
+/*--------------------------------------------------------------------*/
+
+      if ( (nextNode != NULL) && ! nextNode->moderation )
+         nextNode->lap = top->lap;
+
+   } /* while */
+
+/*--------------------------------------------------------------------*/
+/*             Return the group we started the walk from              */
+/*--------------------------------------------------------------------*/
+
+   return current;
+
+} /* nextActiveGroup */
+
+/*--------------------------------------------------------------------*/
+/*       s t a r t W a l k                                            */
+/*                                                                    */
+/*       Reset the current node of the tree to be walked to the       */
+/*       top of the tree.                                             */
+/*--------------------------------------------------------------------*/
+
+void
+startActiveWalk( void )
+{
+   nextNode = top;
+   top->lap++;                      /* Use unique value each pass    */
+
+   if ( ! top->moderation )         /* If top of tree not real group */
+      nextActiveGroup();            /* ... skip past it in walk      */
+
+} /* startWalk */
+
+/*--------------------------------------------------------------------*/
+/*       w a l k A c t i v e                                          */
+/*                                                                    */
+/*       Walk the active groups tree, returning the full name of      */
+/*       one group per call.                                          */
+/*--------------------------------------------------------------------*/
+
+char *
+walkActive( char *buf )
+{
+   GROUP *group = nextActiveGroup();
+
+   if ( group == NULL )          /* End of the walk?                 */
+      return NULL;               /* Yes --> Report same to caller    */
+   else {
+
+      cachedGroup = group;       /* Save this for findGroup          */
+      return makeGroupName( buf, group );
+
+   } /* else */
+
+} /* walkActive */
+
+/*--------------------------------------------------------------------*/
+/*       w r i t e A c t i v e                                        */
+/*                                                                    */
+/*       Write an updated active file out from the tree               */
+/*--------------------------------------------------------------------*/
+
+void
+writeActive()
+{
+   FILE *stream;
+   char fname[FILENAME_MAX];
+   GROUP *group;
+
+   if ( top == NULL )
    {
       printmsg(0, "put_active: Attempt to update empty ACTIVE file");
       panic();
    }
 
-   mkfilename(active_filename, E_confdir, ACTIVE);
+   mkfilename( fname, E_confdir, ACTIVE );
 
-   filebkup( active_filename );
+   filebkup( fname );
 
-   g = FOPEN(active_filename, "w", TEXT_MODE);
+   stream = FOPEN(fname, "w", TEXT_MODE);
 
-   if (g == NULL)
+   if (stream == NULL)
    {
-      printmsg(0, "rnews: Cannot open active %s", active_filename );
-      printerr(active_filename);
+      printmsg(0, "rnews: Cannot open active %s", fname );
+      printerr(fname);
       panic();
    }
 
@@ -284,162 +894,34 @@ void put_active()
 /*           Loop to actually write out the updated groups            */
 /*--------------------------------------------------------------------*/
 
-   while (cur_grp != NULL)
+   startActiveWalk();               /* Initialize the walk           */
+
+   while( (group = nextActiveGroup() ) != NULL )
    {
-      fprintf(g, "%s %ld %ld %c\n", cur_grp->grp_name,
-                              cur_grp->grp_high-1,
-                              cur_grp->grp_low,
-                              cur_grp->grp_can_post);
-      cur_grp = cur_grp->grp_next;
-   }
+      char buf[MAXGRP];
 
-   fclose(g);
+      makeGroupName( buf, group );
 
-} /* put_active */
+      fprintf( stream, "%s %ld %ld %c\n",
+                        buf,
+                        group->high,
+                        group->low,
+                        group->moderation );
+   } /* while */
 
-/*--------------------------------------------------------------------*/
-/*    f i n d _ n e w s g r o u p                                     */
-/*                                                                    */
-/*    Locate a news group in our list                                 */
-/*--------------------------------------------------------------------*/
+#ifdef UDEBUG
+   printmsg( 1, "writeActive: Loaded %ld groups into %ld nodes, "
+                "visiting %ld siblings and %ld parents.",
+                groups,
+                nodes,
+                siblings,
+                parents );
 
-struct grp *find_newsgroup(const char *grp)
-{
-   struct grp *cur = group_list;
+   printmsg( 1, "writeActive: Performed %ld searches, with %ld cache hits and "
+                "visiting %ld nodes.",
+                searches,
+                cacheHits,
+                searchNodes );
+#endif
 
-   while (!equal(grp, cur->grp_name))
-   {
-      if (cur->grp_next != NULL)
-      {
-         cur = cur->grp_next;
-      }
-      else {
-         return NULL;
-      }
-   }
-
-   return cur;
-
-}  /* find_newsgroup */
-
-/*--------------------------------------------------------------------*/
-/*    a d d _ n e w s g r o u p                                       */
-/*                                                                    */
-/*    Add a news group to our list                                    */
-/*--------------------------------------------------------------------*/
-
-KWBoolean add_newsgroup(const char *grp, const KWBoolean moderated)
-{
-   struct grp *cur = group_list;
-
-   for ( ;; )
-   {
-     if ( equali( cur->grp_name, grp ) )  /* Group exists?        */
-        return KWFalse;          /* Yes --> Cannot add it again   */
-
-     if (cur->grp_next == NULL)
-        break;
-     else
-        cur = cur->grp_next;
-
-   } /* for */
-
-/*--------------------------------------------------------------------*/
-/*       We're at the end of the chain with no group found, add it    */
-/*       at the end                                                   */
-/*--------------------------------------------------------------------*/
-
-   cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
-   cur = cur->grp_next;
-   checkref(cur);
-   cur->grp_next = NULL;
-   cur->grp_name = newstr(grp);
-   cur->grp_high = 1;
-   cur->grp_low  = 0;
-   cur->grp_can_post = (char) (moderated ? 'm' : 'y');
-
-/*--------------------------------------------------------------------*/
-/*                We added the group, return success.                 */
-/*--------------------------------------------------------------------*/
-
-   return KWTrue;
-
-} /* add_newsgroup */
-
-/*--------------------------------------------------------------------*/
-/*    d e l _ n e w s g r o u p                                       */
-/*                                                                    */
-/*    Remove a news group from our list                               */
-/*--------------------------------------------------------------------*/
-
-KWBoolean del_newsgroup(const char *grp)
-{
-   struct grp *cur = group_list;
-   struct grp *prev = NULL;
-
-   while ((strcmp(grp, cur->grp_name) != 0))
-   {
-      if (cur->grp_next != NULL)
-      {
-         prev = cur;
-         cur = cur->grp_next;
-      }
-      else {
-         return KWFalse;
-      }
-   }
-
-   if (prev == NULL)
-     group_list = cur->grp_next;
-   else
-     prev->grp_next = cur->grp_next;
-
-   free(cur);
-
-   /* name string is not free'ed because it's in the string pool */
-
-   return KWTrue;
-
-} /* del_newsgroup */
-
-/*--------------------------------------------------------------------*/
-/*    g e t _ s n u m                                                 */
-/*                                                                    */
-/*    Get highest article number of newsgroup                         */
-/*--------------------------------------------------------------------*/
-
-KWBoolean get_snum(const char *group, char *snum)
-{
-   struct grp *cur;
-
-   strcpy(snum, "0");
-   cur = find_newsgroup(group);
-
-   if (cur == NULL)
-      return KWFalse;
-
-   sprintf(snum, "%ld", cur->grp_high);
-   return KWTrue;
-
-} /* snum */
-
-/*--------------------------------------------------------------------*/
-/*       g e t _ m o d e r a t e d                                    */
-/*                                                                    */
-/*       Report if a group is moderated                               */
-/*--------------------------------------------------------------------*/
-
-KWBoolean
-get_moderated( const char *group)
-{
-   struct grp *cur = find_newsgroup(group);
-
-   if (cur == NULL)                 /* If the group doesn't exist ...   */
-      return KWFalse;               /* ... it's certainly not moderated */
-
-   if ( cur->grp_can_post == 'm' )
-      return KWTrue;
-   else
-       return KWTrue;
-
-} /* get_moderated */
+} /* writeActive */
