@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.9 1998/03/03 03:51:53 ahd v1-12v $
+ *    $Id: smtpnetw.c 1.10 1998/03/06 06:51:28 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.10  1998/03/06 06:51:28  ahd
+ *    Add commands to make Netscape happy
+ *
  *    Revision 1.9  1998/03/03 03:51:53  ahd
  *    Routines to handle messages within a POP3 mailbox
  *
@@ -75,7 +78,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.9 1998/03/03 03:51:53 ahd v1-12v $");
+RCSID("$Id: smtpnetw.c 1.10 1998/03/06 06:51:28 ahd Exp $");
 
 currentfile();
 
@@ -787,16 +790,11 @@ SMTPRead(SMTPClient *client)
                   getClientSequence(client));
       printWSerror("recv", wsErr);
 
-      if (isFatalSocketError(wsErr))
-      {
-         shutdown(getClientHandle(client), 2);
-                                      /* Fail both reads and writes  */
+      /* All errors are treated as fatal, close the socket */
+      closeSocket( getClientHandle(client) );
+      setClientHandle( client, INVALID_SOCKET );
+      return 0;
 
-         /* All write errors are treated as fatal, close the socket */
-         closeSocket( getClientHandle(client) );
-         setClientHandle( client, INVALID_SOCKET );
-         return 0;                    /* Force termination of client */
-      }
    }
    else {
       incrementClientBytesRead(client, (size_t) received);
