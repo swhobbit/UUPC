@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: uux.c 1.21 1995/03/11 22:31:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ *    Revision 1.21  1995/03/11 22:31:04  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.20  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -271,7 +274,8 @@ static char *SwapSlash(char *p)
 {
    char *q = p;
 
-   while (*q) {
+   while (*q)
+   {
       if (*q ==  '\\')
          *q = '/';
       q++;
@@ -302,7 +306,10 @@ static KWBoolean cp(char *from, char *to)
    /* what if the to is a directory? */
    /* possible with local source & dest uucp */
 
-   if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
+   fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD);
+
+   if (fd_to == -1)
+   {
       close(fd_from);
       return KWFalse;       /* failed                                  */
       /* NOTE - this assumes all the required directories exist!      */
@@ -356,7 +363,8 @@ static KWBoolean CopyData( const char *input, const char *output)
    else
       datain = FOPEN(input, "r", IMAGE_MODE);
 
-   if (datain == NULL) {
+   if (datain == NULL)
+   {
       printerr(input);
       printmsg(0,"Unable to open input file \"%s\"",
                (input == NULL ? "stdin" : input));
@@ -546,7 +554,8 @@ static KWBoolean do_uuxqt(char *job_name,
    importpath( msname, ixfile, E_nodename);
    mkfilename( msfile, E_spooldir, msname);
 
-   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
+   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
+   {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
       return KWFalse;
@@ -616,7 +625,8 @@ static KWBoolean do_copy(char *src_syst,
 
          printmsg(1, "uux - from \"%s\" - control = %s", src_syst,
                   tmfile);
-         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
+         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)
+         {
             printerr( icfilename );
             printmsg(0, "uux: cannot append to %s\n", icfilename);
             return KWFalse;
@@ -649,18 +659,21 @@ static KWBoolean do_copy(char *src_syst,
 
          SwapSlash(dest_file);
 
-         if (stat(src_file, &statbuf) != 0)  {
+         if (stat(src_file, &statbuf) != 0)
+         {
             printerr( src_file );
             return KWFalse;
          }
 
-         if (statbuf.st_mode & S_IFDIR)  {
+         if (statbuf.st_mode & S_IFDIR)
+         {
             printf("uux - directory name \"%s\" illegal\n",
                     src_file );
             return KWFalse;
          }
 
-         if (flags[FLG_COPY_SPOOL]) {
+         if (flags[FLG_COPY_SPOOL])
+         {
             sprintf(idfile , dataf_fmt, 'D', E_nodename, sequence_s,
                               subseq());
             importpath(work, idfile, remote_syst);
@@ -668,7 +681,8 @@ static KWBoolean do_copy(char *src_syst,
 
             /* Do we need a MKDIR here for the system? */
 
-            if (!cp(src_file, idfilename))  {
+            if (!cp(src_file, idfilename))
+            {
                printmsg(0, "copy \"%s\" to \"%s\" failed",
                   src_file, idfilename);           /* copy data        */
                return KWFalse;
@@ -731,37 +745,45 @@ static void preamble(FILE* stream)
 
    fprintf(stream, "U %s %s\n", E_mailbox, E_nodename);
 
-   if (flags[FLG_RETURN_STDIN]) {
+   if (flags[FLG_RETURN_STDIN])
+   {
        fprintf(stream, "# return input on abnormal exit\n");
        fprintf(stream, "B\n");
    }
 
-   if (flags[FLG_NOTIFY_SUCCESS]) {
+   if (flags[FLG_NOTIFY_SUCCESS])
+   {
        fprintf(stream, "# return status on success\n");
        fprintf(stream, "n\n");
    }
 
-   if (flags[FLG_NONOTIFY_FAIL]) {
+   if (flags[FLG_NONOTIFY_FAIL])
+   {
        fprintf(stream, "# don't return status on failure\n");
        fprintf(stream, "N\n");
-   } else {
+   }
+   else {
        fprintf(stream, "# return status on failure\n");
        fprintf(stream, "Z\n");
    }
 
-   if (flags[FLG_USE_EXEC]) {
+   if (flags[FLG_USE_EXEC])
+   {
        fprintf(stream, "# use exec to execute\n");
        fprintf(stream, "E\n");
-   } else {
+   }
+   else {
        fprintf(stream, "# use sh execute\n");
        fprintf(stream, "e\n");
    }
 
-   if (flags[FLG_STATUS_FILE]) {
+   if (flags[FLG_STATUS_FILE])
+   {
       fprintf(stream, "M %s\n", st_out );
    }
 
-   if (flags[FLG_USE_USERID]) {
+   if (flags[FLG_USE_USERID])
+   {
        fprintf(stream, "# return address for status or input return\n");
        fprintf(stream, "R %s\n", user_id );
    }
@@ -852,7 +874,8 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
    importpath( msname, lxfile, dest_system);
    mkfilename( msfile, E_spooldir, msname);
 
-   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL ) {
+   if ( (stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
+   {
       printerr(msfile);
       printmsg(0, "uux: cannot open X file %s", msfile);
       return KWFalse;
@@ -880,11 +903,13 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
          continue;
 
       case '<':
-         if (p_remote) {
+         if (p_remote)
+         {
             printmsg(0, "uux - input file specified after pipe");
             return KWFalse;
          }
-         else if (i_remote) {
+         else if (i_remote)
+         {
             printmsg(0, "uux - multiple input files specified");
             return KWFalse;
          }
@@ -901,13 +926,17 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
          break;
 
       case '>':
-         if (o_remote) {
+         if (o_remote)
+         {
             printmsg(0, "uux - multiple output files specified");
             return KWFalse;
-         } else
+         }
+         else
             o_remote = KWTrue;
+
          f_remote = OUTPUT_FILE;
          printmsg(9, "prm -> %c", *argv[optind]);
+
          if (!*++argv[optind])
              if (++optind >= argc)
              {
@@ -917,23 +946,27 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
          break;
 
        case '|':
-          if (o_remote) {
+          if (o_remote)
+          {
              printmsg(0, "uux - pipe specified after output file");
              return KWFalse;
-          } else
+          }
+          else
              p_remote = KWTrue;
           printmsg(9, "prm -> %c", *argv[optind]);
-          if (!*++argv[optind])
-             if (++optind >= argc)
-             {
-                printmsg(0, "uux - no command specified after |");
-                return KWFalse;
-             }
+
+          if ((!*++argv[optind]) && (++optind >= argc))
+          {
+             printmsg(0, "uux - no command specified after |");
+             return KWFalse;
+          }
+
           if (strchr(argv[optind], '!'))
           {
              printmsg(0, "uux - no host name allowed after |");
              return KWFalse;
           }
+
           strcat(command," | ");
           strcat(command, argv[optind]);
           continue;
@@ -948,6 +981,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
                          argv[optind] + 1);
              return KWFalse;
           }
+
           argv[optind][len] = '\0';
        }
 
@@ -957,6 +991,7 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
           continue;
 
        /* default: fall through */
+
       } /* switch (*argv[optind]) */
 
       printmsg(9, "prm -> %s", argv[optind]);
@@ -992,9 +1027,11 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
       } /* if (f_remote == OUTPUT_FILE) */
 
       remote_file = src_file;
+
       if (!equal(src_system, dest_system))
       {
          remote_file += strlen(src_file);
+
          while (remote_file > src_file  /* Keep trailing / and :  */
                 && (*--remote_file == '/'
                     /* || *remote_file == '\\' */
@@ -1005,7 +1042,9 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
                 /* && remote_file[-1] != '\\' */
                 && remote_file[-1] != ':')
             --remote_file;
+
          /* remote_file is now src_file without any leading drive/path */
+
       } /* if (!equal(src_system, dest_system)) */
 
       if (f_remote == DATA_FILE)
@@ -1074,7 +1113,8 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
 
    if (flags[FLG_READ_STDIN])
    {
-      if (i_remote) {
+      if (i_remote)
+      {
          printmsg(0, "uux - multiple input files specified");
          return KWFalse;
       }
@@ -1089,7 +1129,8 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
 
       mkfilename(msfile, E_spooldir, msname);
 
-      if (!CopyData( NULL, msfile )) {
+      if (!CopyData( NULL, msfile ))
+      {
          REMOVE( msfile );
          return KWFalse;
       }
@@ -1111,12 +1152,14 @@ static KWBoolean do_remote(int optind, int argc, char **argv)
 /*                     create local C (call) file                     */
 /*--------------------------------------------------------------------*/
 
-   if (d_remote) {
+   if (d_remote)
+   {
       sprintf(tmfile, spool_fmt, 'C', dest_system,  grade, sequence_s);
       importpath( msname, tmfile, dest_system);
       mkfilename( msfile, E_spooldir, msname);
 
-      if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL) {
+      if ( (stream = FOPEN(msfile, "a",TEXT_MODE)) == NULL)
+      {
          printerr( msname );
          printmsg(0, "uux: cannot write/append to C file %s", msfile);
          return KWFalse;
@@ -1185,62 +1228,80 @@ main(int  argc, char  **argv)
 /*--------------------------------------------------------------------*/
 
    while ((c = getopt(argc, argv, "-a:bcCEejg:nprs:x:z")) !=  EOF)
-      switch(c) {
+      switch(c)
+      {
       case '-':
          flags[FLG_READ_STDIN] = KWTrue;
          break;
+
       case 'a':
          flags[FLG_USE_USERID] = KWTrue;
          user_id = optarg;
          break;
+
       case 'b':
          flags[FLG_RETURN_STDIN] = KWTrue;
          break;
+
       case 'c':               /* don't spool                          */
          flags[FLG_COPY_SPOOL] = KWFalse;
          break;
+
       case 'C':               /* force spool                          */
          flags[FLG_COPY_SPOOL] = KWTrue;
          break;
+
       case 'E':               /* use exec to execute                  */
          flags[FLG_USE_EXEC] = KWTrue;
          break;
+
       case 'e':               /* use sh to execute                    */
          flags[FLG_USE_EXEC] = KWFalse;
          break;
+
       case 'j':               /* output job id to stdout              */
          flags[FLG_OUTPUT_JOBID] = KWTrue;
          break;
+
       case 'n':               /* do not notify user if command fails  */
          flags[FLG_NONOTIFY_FAIL] = KWTrue;
          break;
+
       case 'p':
          flags[FLG_READ_STDIN] = KWTrue;
          break;
+
       case 'r':               /* queue job only                       */
          flags[FLG_QUEUE_ONLY] = KWTrue;
          break;
+
       case 'z':
          flags[FLG_NOTIFY_SUCCESS] = KWTrue;
          break;
+
       case 'g':               /* set grade of transfer                 */
          grade = *optarg;
          break;
+
       case 's':               /* report status of transfer to file     */
          flags[FLG_STATUS_FILE] = KWTrue;
          st_out = optarg;
          break;
+
       case 'x':
          debuglevel = atoi( optarg );
          break;
+
       case '?':
          usage();
          exit(1);
          break;
+
       default:
          printmsg(0, "uux - bad argument from getopt \"%c\"", c);
          exit(1);
          break;
+
    }
 
    if (argc - optind < 1)     /* Verify we have at least a command     */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.22 1995/02/21 13:02:33 ahd v1-12n $
+  *      $Id: hostable.c 1.23 1995/02/25 18:21:44 ahd v1-12n $
   *
   *      $Log: hostable.c $
+  *      Revision 1.23  1995/02/25 18:21:44  ahd
+  *      Correct selected flags for config variables
+  *
   *      Revision 1.22  1995/02/21 13:02:33  ahd
   *      Supress compiler warning
   *
@@ -210,7 +213,9 @@ struct HostTable *checkName(const char *name,
 
    if ((namel + localdomainl + 2) < MAXADDR)
    {
-      sprintf(hostname,"%s.%s",name,E_localdomain);
+      strcpy( hostname, name );
+      strcat( hostname, "." );
+      strcat( hostname, E_localdomain );
 
       if ((hostz = searchname(hostname, MAXADDR)) != BADHOST)
          return hostz;
@@ -229,17 +234,23 @@ struct HostTable *checkName(const char *name,
 /*               Perform a wildcard domain name search                */
 /*--------------------------------------------------------------------*/
 
-   period = (char *) name;    /* Begin at front of name               */
+   period = (char *) name;          /* Begin at front of name        */
+   strcpy( hostname, "." );         /* We add the missing period for
+                                       the first pass through the
+                                       loop                           */
 
    while( period != NULL )
    {
-      sprintf( hostname,(*period == '.') ? "*%s" : "*.%s",period);
-                              /* We add the missing period for the
-                                 first pass through the loop          */
+
+      strcat( hostname, period );
+
       if ((hostz = searchname(hostname, MAXADDR)) != BADHOST)
          return hostz;
+
       period = strchr(++period,'.');   /* Not found, search for next
                                           higher domain               */
+      *hostname = '\0';                /* Clear leading period (and
+                                          rest) for next pass        */
    }
 
 /*--------------------------------------------------------------------*/
@@ -468,7 +479,6 @@ struct HostTable *inithost(char *name)
 static size_t loadhost()
 {
    FILE *ff;
-   char buf[BUFSIZ];
    char *token;
    char s_hostable[FILENAME_MAX]; /* full-name of hostable file       */
    size_t hit;
@@ -542,6 +552,8 @@ static size_t loadhost()
 
    while (! feof(ff))
    {
+      char buf[BUFSIZ];
+
       if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line       */
          break;                  /* Exit if end of file               */
 
@@ -583,6 +595,8 @@ static size_t loadhost()
 
       while (! feof(ff))
       {
+         char buf[BUFSIZ];
+
          KWBoolean freeit = KWFalse;
 
          if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line    */

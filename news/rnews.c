@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.62 1995/03/11 22:30:11 ahd Exp $
+ *       $Id: rnews.c 1.63 1995/03/23 01:42:52 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.63  1995/03/23 01:42:52  ahd
+ *       Try not to abort on funky input (pipes) or eat first
+ *       character of single articles.
+ *
  *       Revision 1.62  1995/03/11 22:30:11  ahd
  *       Use macro for file delete to allow special OS/2 processing
  *
@@ -55,7 +59,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.62 1995/03/11 22:30:11 ahd Exp $";
+         "$Id: rnews.c 1.63 1995/03/23 01:42:52 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -535,10 +539,11 @@ main( int argc, char **argv)
                               /*           ....+....1..   */
       unsigned char buf[12];  /* Length of #! ?unbatch\n  */
       char *unpacker = NULL, *suffix = NULL;
+      size_t bytes;
 
       ungetc(c, input);
 
-      size_t bytes = fread((char *) buf, 1, sizeof buf, input);
+      bytes = fread((char *) buf, 1, sizeof buf, input);
 
       if (bytes == 12 && memcmp(buf, "#! ", 3) == 0
                       && memcmp(buf + 4, "unbatch", 7) == 0 )

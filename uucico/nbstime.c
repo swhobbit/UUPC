@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.28 1995/01/30 04:08:36 ahd v1-12n $
+ *    $Id: nbstime.c 1.29 1995/03/11 15:49:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.29  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.28  1995/01/30 04:08:36  ahd
  *    Additional compiler warning fixes
  *
@@ -116,23 +119,6 @@
 
 #include <ctype.h>
 
-#ifdef WIN32
-
-#include <windows.h>
-#define NONDOS
-
-#elif defined(FAMILYAPI) || defined(__OS2__)
-
-#define NONDOS
-#define INCL_BASE
-
-#include <os2.h>
-
-#elif !defined(__TURBOC__)
-
-#include <dos.h>
-
-#endif /* WIN32 */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -152,14 +138,296 @@
    currentfile();
 #endif
 
-#if defined(WIN32)
-#include "pnterr.h"
-#endif
-
 #ifdef __IBMC__
 #define timezone() _timezone
 #else
 #define timezone() timezone
+#endif
+
+#if defined(FAMILYAPI) || defined(__OS2__)
+
+/*--------------------------------------------------------------------*/
+/*                         OS/2 include files                         */
+/*--------------------------------------------------------------------*/
+
+#define INCL_BASE
+
+#include <os2.h>
+
+#ifdef FAMILYAPI
+typedef USHORT APIRET ;  /* Define older API return type              */
+#endif
+
+/*--------------------------------------------------------------------*/
+/*       s e t C l o c k                                              */
+/*                                                                    */
+/*       Set system clock under OS/2 1.x or 2.x                       */
+/*--------------------------------------------------------------------*/
+
+static time_t
+setClock( time_t newClock, const int dst )
+{
+   DATETIME dateTime;
+   struct tm *tp;
+
+   APIRET rc = DosGetDateTime( &dateTime );
+
+   if ( rc != 0 )
+   {
+      printmsg(0,"Return code from DosGetDateTime %d", rc);
+      panic();
+   }
+
+   printmsg(3,"OS/2 time: %02d/%02d/%02d %02d:%02d:%02d tz %d, "
+              "weekday %d DST %d",
+              (int) dateTime.year,
+              (int) dateTime.month,
+              (int) dateTime.day ,
+              (int) dateTime.hours,
+              (int) dateTime.minutes,
+              (int) dateTime.seconds ,
+              (int) dateTime.timezone,
+              (int) dateTime.weekday,
+              daylight );
+
+   newClock -= timezone();
+
+#ifdef __OS2__
+   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+      newClock += 3600;             /* Valid for USA only            */
+#endif
+
+   tp = localtime(&newClock);       /* Get local time as record      */
+
+   dateTime.year    = (USHORT) (tp->tm_year + 1900);
+   dateTime.month   = (UCHAR) (tp->tm_mon + 1);
+   dateTime.day     = (UCHAR) tp->tm_mday;
+   dateTime.hours   = (UCHAR) tp->tm_hour;
+   dateTime.minutes = (UCHAR) tp->tm_min;
+   dateTime.seconds = (UCHAR) tp->tm_sec;
+
+   printmsg(3,"NIST time: %02d/%02d/%02d %02d:%02d:%02d tz %d, "
+              "weekday %d DST %d",
+              (int) dateTime.year,
+              (int) dateTime.month,
+              (int) dateTime.day ,
+              (int) dateTime.hours,
+              (int) dateTime.minutes,
+              (int) dateTime.seconds ,
+              (int) dateTime.timezone,
+              (int) dateTime.weekday,
+              ( dst > 1 ) && ( dst < 52 ) ? 1 : 0 );
+
+   rc = DosSetDateTime( &dateTime );
+
+   if ( rc != 0 )
+   {
+      printmsg(0,"Return code from DosGetDateTime %d", rc);
+      panic();
+   }
+
+   return newClock;
+
+} /* setClock */
+
+#elif defined( WIN32 )
+
+/*--------------------------------------------------------------------*/
+/*                      Windows NT include files                      */
+/*--------------------------------------------------------------------*/
+
+#include <windows.h>
+#include "pnterr.h"
+
+/*--------------------------------------------------------------------*/
+/*       s e t C l o c k                                              */
+/*                                                                    */
+/*       Set system clock under Windows NT                            */
+/*--------------------------------------------------------------------*/
+
+static time_t
+setClock( struct *txp )
+{
+   SYSTEMTIME dateTime;
+   TOKEN_PRIVILEGES tkp;
+   HANDLE hToken;
+   DWORD dwError;
+
+   GetSystemTime( &dateTime );
+
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
+              (int) dateTime.wYear,
+              (int) dateTime.wMonth,
+              (int) dateTime.wDay ,
+              (int) dateTime.wHour,
+              (int) dateTime.wMinute,
+              (int) dateTime.wSecond ,
+              (int) dateTime.wDayOfWeek );
+
+   dateTime.wYear    = (WORD) txp->tm_year + 1900;
+   dateTime.wMonth   = (WORD) txp->tm_mon + 1;
+   dateTime.wDay     = (WORD) txp->tm_mday;
+   dateTime.wHour    = (WORD) txp->tm_hour;
+   dateTime.wMinute  = (WORD) txp->tm_min;
+   dateTime.wSecond  = (WORD) txp->tm_sec;
+
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
+              (int) dateTime.wYear,
+              (int) dateTime.wMonth,
+              (int) dateTime.wDay ,
+              (int) dateTime.wHour,
+              (int) dateTime.wMinute,
+              (int) dateTime.wSecond ,
+              (int) dateTime.wDayOfWeek );
+
+   if (!OpenProcessToken(GetCurrentProcess(),
+      TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+      &hToken))
+   {
+      dwError = GetLastError();
+      printmsg(0, "nbstime: OpenProcessToken failed");
+      printNTerror("OpenProcessToken", dwError);
+      return 0;
+   }
+
+   LookupPrivilegeValue(NULL,
+                        "SeSystemtimePrivilege",
+                        &tkp.Privileges[0].Luid);
+   tkp.PrivilegeCount = 1;
+   tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
+      (PTOKEN_PRIVILEGES)NULL, 0))
+   {
+      dwError = GetLastError();
+      printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
+      printNTerror("AdjustTokenPrivileges", dwError);
+      return 0;
+   }
+
+   rc = SetSystemTime( &dateTime );
+
+   if ( !rc )
+   {
+      dwError = GetLastError();
+      printmsg(0, "nbstime: SetSystemTime failed");
+      printNTerror("SetSystemTime", dwError);
+   }
+
+   tkp.Privileges[0].Attributes = 0;
+
+   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
+      (PTOKEN_PRIVILEGES)NULL, 0))
+   {
+      dwError = GetLastError();
+      printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
+      printNTerror("AdjustTokenPrivileges", dwError);
+      return 0;
+   }
+
+   return time( NULL );             /* Since we didn't set the time
+                                       via newClock, get it now to
+                                       compare                       */
+
+} /* setClock */
+
+#elif defined( __TURBOC__ )
+
+/*--------------------------------------------------------------------*/
+/*       s e t C l o c k                                              */
+/*                                                                    */
+/*       Set system clock under MS-DOS with Turbo C                   */
+/*--------------------------------------------------------------------*/
+
+static time_t
+setClock( time_t newClock, const int dst )
+{
+
+/*--------------------------------------------------------------------*/
+/*     Borland C++ doesn't set the time properly; do an adjustment    */
+/*--------------------------------------------------------------------*/
+
+   newClock -= timezone;
+
+/*--------------------------------------------------------------------*/
+/*    If this timezone uses daylight savings and we are in the        */
+/*    period to spring forward, do so.                                */
+/*--------------------------------------------------------------------*/
+
+   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+      newClock += 3600;             /* Valid for the USA only        */
+
+   stime( &newClock );
+
+   return newClock;
+
+} /* setClock */
+
+#else
+
+/*--------------------------------------------------------------------*/
+/*                     DOS specific include files                     */
+/*--------------------------------------------------------------------*/
+
+#include <dos.h>
+
+/*--------------------------------------------------------------------*/
+/*       s e t C l o c k                                              */
+/*                                                                    */
+/*       Set system clock under MS-DOS                                */
+/*--------------------------------------------------------------------*/
+
+static time_t
+setClock( time_t newClock, const int dst )
+{
+
+   struct dosdate_t ddate;
+   struct dostime_t dtime;
+   struct tm *tp;
+   unsigned rc;
+
+/*--------------------------------------------------------------------*/
+/*             Set time under DOS with MS C 6.0 compiler              */
+/*--------------------------------------------------------------------*/
+
+   tp = localtime(&newClock); /* Get local time as a record          */
+
+   ddate.day     = (unsigned char) tp->tm_mday;
+   ddate.month   = (unsigned char) (tp->tm_mon + 1);
+   ddate.year    = (unsigned int)  (tp->tm_year + 1900);
+   ddate.dayofweek = (unsigned char) tp->tm_mday;  /* 0-6, 0=Sunday  */
+
+   dtime.hour    = (unsigned char) tp->tm_hour;
+   dtime.minute  = (unsigned char) tp->tm_min;
+   dtime.second  = (unsigned char) tp->tm_sec;
+   dtime.hsecond = (unsigned char) 0;
+
+   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d",
+              (int) ddate.year,
+              (int) ddate.month,
+              (int) ddate.day ,
+              (int) dtime.hour,
+              (int) dtime.minute,
+              (int) dtime.second ,
+              (int) timezone,
+              (int) ddate.dayofweek );
+
+   if ( (rc = _dos_settime( &dtime )) != 0 )
+   {
+      printmsg(0,"Return code from _dos_settime %d", rc);
+      panic();
+   }
+
+   if ( (rc = _dos_setdate( &ddate )) != 0 )
+   {
+      printmsg(0,"Return code from _dos_setdate %d", rc);
+      panic();
+   }
+
+   return newClock;
+
+} /* setClock */
+
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -174,42 +442,23 @@
 
 KWBoolean nbstime( void )
 {
-   char buf[BUFSIZ];
+   static const char model[] =
+         "\r\n##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
+   char buf[sizeof model + 1];
    struct tm  tx;
    int cycles = 11;
    KWBoolean firstPass = KWTrue;
    int dst = 0;
    char sync = '?';
-   char *status;
-   unsigned rc;
    int errors = 0;
 
-   time_t delta;
-   time_t today;
-
-#ifdef WIN32
-
-   SYSTEMTIME DateTime;
-   TOKEN_PRIVILEGES tkp;
-   HANDLE hToken;
-   DWORD dwError;
-
-#elif defined(FAMILYAPI) || defined(__OS2__)
-
-   DATETIME DateTime;
-   struct tm *tp;
-
-#elif !defined(NONDOS) && !defined(__TURBOC__)
-
-   struct dosdate_t ddate;
-   struct dostime_t dtime;
-   struct tm *tp;
-
-#endif
+   time_t oldClock;
+   time_t newClock;
+   time_t nistClock;
 
    setTitle("Determining current time");
 
-   memset( &tx , '\0', sizeof tx);        /* Clear pointers          */
+   memset( &tx , '\0', sizeof tx);  /* Clear all time info           */
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
    {
       printmsg(0,"nbstime: Did not find MJD literal in data from remote");
@@ -226,9 +475,6 @@ KWBoolean nbstime( void )
    {
       int column;
       KWBoolean error = KWFalse;
-
-      static const char model[] =
-         "\r\n##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
 
 /*--------------------------------------------------------------------*/
 /*       Read and verify entire contents of the buffer.               */
@@ -253,20 +499,20 @@ KWBoolean nbstime( void )
 
             case '#':               /* Numeric digit expected?       */
                if (!isdigit(buf[column] ))
-                  error = KWTrue;    /* Bad character, throw buf away */
+                  error = KWTrue;   /* Bad character, throw buf away */
                break;
 
             case '*':               /* Synchronize flag?             */
-               if ( buf[column] == '#' ) /* Sync char?             */
-                  sync = buf[column];    /* Yes --> We're all done */
+               if ( buf[column] == '#' ) /* Sync char?               */
+                  sync = buf[column];    /* Yes --> We're all done   */
                else if ( buf[column] != '*' )
                                     /* Correct but not sync?         */
-                  error = KWTrue;    /* No --> Bad character          */
+                  error = KWTrue;   /* No --> Bad character          */
                break;
 
             default:                /* Perfect match required        */
                if (model[column] != buf[column] )
-                  error = KWTrue;    /* Bad character, throw buf away */
+                  error = KWTrue;   /* Bad character, throw buf away */
                break;
 
          } /* switch( model[column] ) */
@@ -280,10 +526,10 @@ KWBoolean nbstime( void )
 /*               Common processing for error conditions               */
 /*--------------------------------------------------------------------*/
 
-      if ( error )                 /* Found a bad character?         */
+      if ( error )                  /* Found a bad character?        */
       {
          if ( firstPass )           /* Getting in sync with remote?  */
-            firstPass = KWFalse;     /* Yes --> Don't flag as error   */
+            firstPass = KWFalse;    /* Yes --> Don't flag as error   */
          else {
             if ( debuglevel > 2 )
                printmsg(3,
@@ -331,7 +577,7 @@ KWBoolean nbstime( void )
       return KWFalse;
    }
 
-   time(&delta);              /* Remember time before we set it      */
+   time(&oldClock);                 /* Remember time before setting  */
 
 /*--------------------------------------------------------------------*/
 /*                   Determine the time we received                   */
@@ -340,233 +586,90 @@ KWBoolean nbstime( void )
    sscanf(buf,"%*s %d-%d-%d %d:%d:%d %d ",
          &tx.tm_year, &tx.tm_mon, &tx.tm_mday ,
          &tx.tm_hour, &tx.tm_min, &tx.tm_sec, &dst);
-   tx.tm_mon--;               /* Tm record counts months from zero   */
+
+   tx.tm_mon--;                     /* tm record counts from zero    */
 
 /*--------------------------------------------------------------------*/
-/*     mktime()'s "renormalizing" the tm struct is screwing up NT     */
-/*--------------------------------------------------------------------*/
-
-#if !defined(WIN32)
-
-   today = mktime(&tx);       /* Current UTC (GMT) time in seconds   */
-
-   if ( debuglevel > 2 )
-   {
-      printmsg(3,"%02d/%02d/%02d %02d:%02d:%02d %02d %c translates to %ld or %.24s",
-         tx.tm_year, tx.tm_mon + 1 , tx.tm_mday ,
-         tx.tm_hour, tx.tm_min, tx.tm_sec, dst, sync ,
-         today, ctime( &today ));
-   }
-
-/*--------------------------------------------------------------------*/
-/*       Perform a sanity check; the time must be 24 years past       */
+/*       Perform a sanity check; the time must be 25 years past       */
 /*       1970 and not exactly midnight GMT.                           */
 /*--------------------------------------------------------------------*/
 
-   if (( today < (24L * 365L * 86400L)) &&
+   if (( nistClock < (25L * 365L * 86400L)) &&
        !( tx.tm_hour || tx.tm_min || tx.tm_sec ))
    {
       printmsg(0,"nbstime: Time warp error (%.24s), clock not set",
-            ctime( &today ));
+                  ctime( &nistClock ));
       return KWFalse;
    }
+
+#if defined(WIN32)
+
+/*--------------------------------------------------------------------*/
+/*       mktime()'s "renormalizing" the tm struct confuses NT, so     */
+/*       set the clock first under NT.                                */
+/*--------------------------------------------------------------------*/
+
+   newClock = setClock( &tx );
+
+   if ( ! newClock )                /* Did clock set fail?           */
+      return KWFalse;               /* Yes --> Return failure        */
+
 #endif
+
+   nistClock = mktime(&tx);         /* Current UTC (GMT) time in sec */
+
+   if ( debuglevel > 2 )
+   {
+      printmsg(3,"%02d/%02d/%02d %02d:%02d:%02d %02d %c "
+                 "translates to %ld or %.24s",
+                  tx.tm_year,
+                  tx.tm_mon + 1,
+                  tx.tm_mday,
+                  tx.tm_hour,
+                  tx.tm_min,
+                  tx.tm_sec,
+                  dst,
+                  sync ,
+                  nistClock,
+                  ctime( &nistClock ));
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
-#if defined(FAMILYAPI) || defined(__OS2__)
-
-   rc = DosGetDateTime( &DateTime );
-   if ( rc != 0 )
-   {
-      printmsg(0,"Return code from DosGetDateTime %d", rc);
-      panic();
-   }
-
-   printmsg(3,"OS/2 time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d DST %d",
-      (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
-      (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
-      (int) DateTime.timezone, (int) DateTime.weekday, daylight );
-
-   today -= timezone();
-
-#ifdef __OS2__
-   if (daylight && ( dst > 1 ) && ( dst < 52 ))
-      today += 3600;          /* This is valid for the USA only      */
-#endif
-
-   tp = localtime(&today);    /* Get local time as a record          */
-
-   DateTime.year    = (USHORT) (tp->tm_year + 1900);
-   DateTime.month   = (UCHAR) (tp->tm_mon + 1);
-   DateTime.day     = (UCHAR) tp->tm_mday;
-   DateTime.hours   = (UCHAR) tp->tm_hour;
-   DateTime.minutes = (UCHAR) tp->tm_min;
-   DateTime.seconds = (UCHAR) tp->tm_sec;
-
-   printmsg(3,"NIST time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d DST %d",
-      (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
-      (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
-      (int) DateTime.timezone, (int) DateTime.weekday,
-      ( dst > 1 ) && ( dst < 52 ) ? 1 : 0 );
-
-   rc = DosSetDateTime( &DateTime );
-   if ( rc != 0 )
-   {
-      printmsg(0,"Return code from DosGetDateTime %d", rc);
-      panic();
-   }
-
-#elif defined( WIN32 )
-
-   GetSystemTime( &DateTime );
-
-   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
-      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
-      (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
-      (int) DateTime.wDayOfWeek );
-
-   DateTime.wYear    = (WORD) tx.tm_year + 1900;
-   DateTime.wMonth   = (WORD) tx.tm_mon + 1;
-   DateTime.wDay     = (WORD) tx.tm_mday;
-   DateTime.wHour    = (WORD) tx.tm_hour;
-   DateTime.wMinute  = (WORD) tx.tm_min;
-   DateTime.wSecond  = (WORD) tx.tm_sec;
-
-   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d, weekday %d",
-      (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
-      (int) DateTime.wHour, (int) DateTime.wMinute, (int) DateTime.wSecond ,
-      (int) DateTime.wDayOfWeek );
-
-   if (!OpenProcessToken(GetCurrentProcess(),
-      TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-      &hToken))
-   {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: OpenProcessToken failed");
-      printNTerror("OpenProcessToken", dwError);
-      return KWFalse;
-   }
-
-   LookupPrivilegeValue(NULL, "SeSystemtimePrivilege",
-      &tkp.Privileges[0].Luid);
-   tkp.PrivilegeCount = 1;
-   tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
-      (PTOKEN_PRIVILEGES)NULL, 0))
-   {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
-      printNTerror("AdjustTokenPrivileges", dwError);
-      return KWFalse;
-   }
-
-   rc = SetSystemTime( &DateTime );
-   if ( !rc )
-   {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: SetSystemTime failed");
-      printNTerror("SetSystemTime", dwError);
-   }
-
-   tkp.Privileges[0].Attributes = 0;
-
-   if (!AdjustTokenPrivileges(hToken, KWFalse, &tkp, 0,
-      (PTOKEN_PRIVILEGES)NULL, 0))
-   {
-      dwError = GetLastError();
-      printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
-      printNTerror("AdjustTokenPrivileges", dwError);
-      return KWFalse;
-   }
-
-   time(&today);                 /* Since we didn't set the time via
-                                    today, get it now to compare     */
-
-#elif defined( __TURBOC__ )
-
-/*--------------------------------------------------------------------*/
-/*     Borland C++ doesn't set the time properly; do a conversion     */
-/*--------------------------------------------------------------------*/
-
-   today -= timezone;
-
-/*--------------------------------------------------------------------*/
-/*    If this timezone uses daylight savings and we are in the        */
-/*    period to spring forward, do so.                                */
-/*--------------------------------------------------------------------*/
-
-   if (daylight && ( dst > 1 ) && ( dst < 52 ))
-      today += 3600;          /* This is valid for the USA only      */
-   stime( &today );
-
-#else /* __TURBOC__ */
-
-/*--------------------------------------------------------------------*/
-/*             Set time under DOS with MS C 6.0 compiler              */
-/*--------------------------------------------------------------------*/
-
-   tp = localtime(&today);    /* Get local time as a record          */
-
-   ddate.day     = (unsigned char) tp->tm_mday;
-   ddate.month   = (unsigned char) (tp->tm_mon + 1);
-   ddate.year    = (unsigned int)  (tp->tm_year + 1900);
-   ddate.dayofweek = (unsigned char) tp->tm_mday;       /* 0-6, 0=Sunday */
-
-   dtime.hour    = (unsigned char) tp->tm_hour;
-   dtime.minute  = (unsigned char) tp->tm_min;
-   dtime.second  = (unsigned char) tp->tm_sec;
-   dtime.hsecond = (unsigned char) 0;
-
-   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d",
-      (int) ddate.year, (int) ddate.month, (int) ddate.day ,
-      (int) dtime.hour, (int) dtime.minute,(int) dtime.second ,
-      (int) timezone, (int) ddate.dayofweek );
-
-   if ( (rc = _dos_settime( &dtime )) != 0 )
-   {
-      printmsg(0,"Return code from _dos_settime %d", rc);
-      panic();
-   }
-
-   if ( (rc = _dos_setdate( &ddate )) != 0 )
-   {
-      printmsg(0,"Return code from _dos_setdate %d", rc);
-      panic();
-   }
-
+#ifndef WIN32
+   newClock = setClock( nistClock, dst );
 #endif
 
 /*--------------------------------------------------------------------*/
-/*               Print the raw input buffer, if desired               */
+/*       Print the raw input buffer, if desired, and always print     */
+/*       the new system time.                                         */
 /*--------------------------------------------------------------------*/
 
-   printmsg(3,"nbstime: \"%s\"", buf + 2);
+   printmsg(3, "nbstime: \"%s\"", buf + 2);
 
-   printmsg(0,"nbstime: New system time is %s", arpadate() );
+   printmsg(0, "nbstime: New system time is %s", arpadate() );
 
 /*--------------------------------------------------------------------*/
-/*                       Format our information                       */
+/*                Report previous offset of clock to NIST             */
 /*--------------------------------------------------------------------*/
 
-   if ( delta > today )
+   if ( oldClock > newClock )
       printmsg(1,"nbstime: Local system clock was %ld seconds fast.",
-              (long) (delta - today) );
-   else if ( delta < today )
+              (long) (oldClock - newClock) );
+   else if ( oldClock < newClock )
       printmsg(1,"nbstime: Local system clock was %ld seconds slow.",
-              (long) (today - delta) );
+              (long) (newClock - oldClock) );
    else
       printmsg(1, "nbstime: Local system clock was already correct.");
 
-/*--------------------------------------------------------------------*/
-/*                Announce new time, return to caller                 */
-/*--------------------------------------------------------------------*/
-
    if (sync == '#')
       printmsg(1, "Note: Modem was able to synchronize with NIST." );
+
+/*--------------------------------------------------------------------*/
+/*                       Return success to caller                     */
+/*--------------------------------------------------------------------*/
 
    return KWTrue;
 

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibfs.c 1.12 1995/01/07 16:40:23 ahd Exp $
+ *    $Id: ulibfs.c 1.13 1995/02/22 12:14:24 ahd v1-12n $
  *
  *    History:
  *    $Log: ulibfs.c $
+ *    Revision 1.13  1995/02/22 12:14:24  ahd
+ *    Correct 16 bit compiler warning errors
+ *
  *    Revision 1.12  1995/01/07 16:40:23  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -100,7 +103,6 @@ static unsigned short blockIO( char UUFAR *buffer,
 
 static BPS currentBPS;
 static KWBoolean currentDirect;
-static KWBoolean carrierDetect;
 static KWBoolean hangupNeeded;
 
 currentfile();

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.10 1994/02/19 04:45:50 ahd v1-12k $
+ *    $Id: readnext.c 1.11 1994/12/22 00:10:38 ahd v1-12n $
  *
  *    $Log: readnext.c $
+ *    Revision 1.11  1994/12/22 00:10:38  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/02/19 04:45:50  ahd
  *    Use standard first header
  *
@@ -95,6 +98,8 @@ char     *readnext(char *xname,
    if ( (remote == NULL) || ( SaveRemote == NULL ) ||
         !equal(remote, SaveRemote ) )
    {
+      char *p;
+
       if ( SaveRemote != NULL )   /* Clean up old directory? */
       {                           /* Yes --> Do so           */
          closedir(dirp);
@@ -108,7 +113,24 @@ char     *readnext(char *xname,
       if ( pattern == NULL )
          pattern = "*.*";
 
-      sprintf(remotedir,"%s/%.8s/%s",E_spooldir,remote, subdir);
+/*--------------------------------------------------------------------*/
+/*            Build spool directory/host name combination             */
+/*--------------------------------------------------------------------*/
+
+      p = strcpy( remotedir, E_spooldir );
+      p += strlen( remotedir );
+      *p++ = '/';
+
+      strncpy( p, remote, 8);
+      p[8] = '\0';
+
+      strcat( p, "/" );
+      strcat( p, subdir );
+
+/*--------------------------------------------------------------------*/
+/*             Look for files in our specified directory              */
+/*--------------------------------------------------------------------*/
+
       if ((dirp = opendirx(remotedir,pattern)) == nil(DIR))
       {
          printmsg(5, "readnext: couldn't opendir() %s", remotedir);
@@ -126,7 +148,8 @@ char     *readnext(char *xname,
 
    if ((dp = readdir(dirp)) != nil(struct direct))
    {
-      sprintf(xname, "%s/%s", remotedir, dp->d_name);
+      mkfilename( xname, remotedir, dp->d_name );
+
       printmsg(5, "readnext: matched \"%s\"",xname);
 
       if ( modified != NULL )

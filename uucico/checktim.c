@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: checktim.c 1.9 1995/02/12 23:37:04 ahd v1-12n $
+ *    $Id: checktim.c 1.10 1995/03/12 16:42:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: checktim.c $
+ *    Revision 1.10  1995/03/12 16:42:24  ahd
+ *    Suppress compiler warnings
+ *
  *    Revision 1.9  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -177,7 +180,7 @@ char checktime(const char *xtime)
    tm_now = localtime(&secs_now);   /* Create structure with time    */
    weekday = ((unsigned) (SUN)) >> tm_now->tm_wday;
                                     /* Get day of week as single bit */
-   hhmm = tm_now->tm_hour*100 + tm_now->tm_min;
+   hhmm = (size_t) (tm_now->tm_hour*100 + tm_now->tm_min);
    nexttoken = buf;                 /* First pass, begin at front    */
 
    while ((bestgrade < ALL_GRADES) &&
@@ -287,8 +290,8 @@ static char checkone( char *input, size_t hhmm,
               " with grade %c",
             input,tdays,tstart,tend,grade );
 
-   istart = atoi(tstart);  /* Convert start/end times to binary       */
-   iend  = atoi(tend);
+   istart = (size_t) atoi(tstart);
+   iend  = (size_t) atoi(tend);
 
 /*--------------------------------------------------------------------*/
 /*    Handle case of midnight specified in such a way that the        */

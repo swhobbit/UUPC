@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.11 1995/01/07 16:38:02 ahd Exp $
+ *    $Id: dcpepkt.c 1.12 1995/02/23 04:27:54 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.12  1995/02/23 04:27:54  ahd
+ *    Explicitly report timeouts, compiler warning cleanup
+ *
  *    Revision 1.11  1995/01/07 16:38:02  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -134,7 +137,7 @@ short egetpkt(char *packet, short *bytes)
    else
       recv = (unsigned short) min(efilelength - ebytesdone, r_pktsize);
 
-   if ( sread( packet, recv, M_ePacketTimeout) < (int) recv )
+   if ( sread( packet, (int) recv, M_ePacketTimeout) < (int) recv )
    {
       printmsg(0,"egetpkt: Data read failed for %d bytes", (int) recv);
       return -1;

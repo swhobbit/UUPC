@@ -1,5 +1,3 @@
-#include "uupcmoah.h"
-
 /*--------------------------------------------------------------------*/
 /*       m k f i l e n a m e . c                                      */
 /*                                                                    */
@@ -20,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkfilenm.c 1.9 1994/02/19 04:43:47 ahd v1-12k $
+ *    $Id: mkfilenm.c 1.10 1994/12/22 00:09:29 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: mkfilenm.c $
+ *    Revision 1.10  1994/12/22 00:09:29  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/02/19 04:43:47  ahd
  *    Use standard first header
  *
@@ -59,6 +60,9 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#include "uupcmoah.h"
+
+
 /*--------------------------------------------------------------------*/
 /*    m k f i l e n a m e                                             */
 /*                                                                    */
@@ -70,7 +74,9 @@ void mkfilename(char *pathname,
                 const char *name)
 {
    char *s = pathname;
-   sprintf(pathname, "%s/%s", path, name);
+   strcpy( s, path );
+   strcat( s, "/" );
+   strcat( s, name );
 
    while ((s = strchr(s, '\\')) != NULL)
       *s++ = '/';                             /* Normalize slashes */

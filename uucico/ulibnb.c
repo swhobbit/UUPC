@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibnb.c 1.2 1994/12/22 00:37:14 ahd Exp $
+ *    $Id: ulibnb.c 1.3 1995/01/07 16:40:38 ahd v1-12n $
  *
  *    $Log: ulibnb.c $
+ *    Revision 1.3  1995/01/07 16:40:38  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.2  1994/12/22 00:37:14  ahd
  *    Annual Copyright Update
  *
@@ -54,8 +57,6 @@ KWBoolean IsFatalSocketError(int err);
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
-
-static KWBoolean carrierDetect = KWFalse;
 
 currentfile();
 static KWBoolean hangupNeeded = KWTrue;

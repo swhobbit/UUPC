@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.11 1995/02/21 02:47:44 ahd v1-12n $
+ *    $Id: gensig.c 1.12 1995/03/11 22:28:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ *    Revision 1.12  1995/03/11 22:28:11  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.11  1995/02/21 02:47:44  ahd
  *    The compiler warnings war never ends!
  *
@@ -64,7 +67,8 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.11 1995/02/21 02:47:44 ahd v1-12n $";
+static const char rcsid[] =
+      "$Id: gensig.c 1.12 1995/03/11 22:28:11 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -94,6 +98,8 @@ static char rcsid[] = "$Id: gensig.c 1.11 1995/02/21 02:47:44 ahd v1-12n $";
 
 #define bitOff( s, offset) (!bitOn(s, offset))
 
+#define LINESIZE 128
+
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
@@ -102,7 +108,7 @@ static void usage( void );
 
 static long chooseit( struct stat *current_status,
        const char *lookaside,
-                 const char *quoteused,
+                 const char *quotesUsed,
                  const char *fname ,
                  const char *target);
 
@@ -112,7 +118,7 @@ static void CopyQuote( const char *fname, long where, FILE *stream);
 
 static void CopyFixed( const char *fname, FILE *stream );
 
-static long chooseavailable( const char *quoteused, long quotes );
+static long chooseavailable( const char *quotesUsed, long quotes );
 
 currentfile();
 
@@ -130,8 +136,8 @@ void main( int argc, char **argv)
 
    banner( argv );
 
-   if (!configure( B_GENERIC ))
-      exit(1);                      /* Configuration load failed     */
+   if ( ! configure( B_GENERIC ))
+      panic();
 
 /*--------------------------------------------------------------------*/
 /*                  Validate the number of arguments                  */
@@ -155,7 +161,7 @@ void main( int argc, char **argv)
       if ( stream == NULL )
       {
          perror( argv[3] );
-         exit(1);
+         panic();
       }
 
 /*--------------------------------------------------------------------*/
@@ -170,7 +176,7 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
       fclose( stream );
-      exit( 0 );
+      exit(0);
 
 } /* main */
 
@@ -187,9 +193,45 @@ static void usage( void )
    printf("\tquote-file\tFile of quotes, separated by delimiter lines\n");
    printf("\toutput-file\tOutput file with fixed portion and single quote\n");
 
-   exit( 2 );
+   panic();
 
 } /* usage */
+
+/*--------------------------------------------------------------------*/
+/*       n a m e s                                                    */
+/*                                                                    */
+/*       Determine names of files                                     */
+/*--------------------------------------------------------------------*/
+
+void static
+names( const char *data, char *lookaside , char *quotesUsed )
+{
+
+   char drive[FILENAME_MAX],
+        dir[FILENAME_MAX],
+        file[FILENAME_MAX],
+        ext[FILENAME_MAX];
+
+/*--------------------------------------------------------------------*/
+/*       Build the lookaside file name from the data file name        */
+/*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+
+   fnsplit( data, drive, dir, file, ext);
+   fnmerge( lookaside, drive, dir, file, ".las");
+   fnmerge( quotesUsed, drive, dir, file, ".qus");
+
+#else
+
+   _splitpath( (char *) data, drive, dir, file, ext);
+   _makepath( lookaside, drive, dir, file, ".las");
+   _makepath( quotesUsed, drive, dir, file, ".qus");
+
+#endif /* __TURBOC__ */
+
+} /* names */
+
 
 /*--------------------------------------------------------------------*/
 /*    g e t q u o t e                                                 */
@@ -203,35 +245,17 @@ static long getquote( const char *data, const char *target)
    long where;
 
    char lookaside[FILENAME_MAX];
-   char quoteused[FILENAME_MAX];
-   char drive[FILENAME_MAX],
-        dir[FILENAME_MAX],
-        file[FILENAME_MAX],
-        ext[FILENAME_MAX];
+   char quotesUsed[FILENAME_MAX];
 
 /*--------------------------------------------------------------------*/
 /*       Get size and data information on the quotes data file        */
 /*--------------------------------------------------------------------*/
 
-   if(stat((char *) data, &current_status ) <0)
+   if (stat((char *) data, &current_status ) <0)
    {
       perror( data );         /* If no data file, panic gracefully   */
-      exit( 3 );
+      panic();
    } /* if */
-
-/*--------------------------------------------------------------------*/
-/*       Build the lookaside file name from the data file name        */
-/*--------------------------------------------------------------------*/
-
-#ifdef __TURBOC__
-   fnsplit( data, drive, dir, file, ext);
-   fnmerge( lookaside, drive, dir, file, ".las");
-   fnmerge( quoteused, drive, dir, file, ".qus");
-#else
-   _splitpath( (char *) data, drive, dir, file, ext);
-   _makepath( lookaside, drive, dir, file, ".las");
-   _makepath( quoteused, drive, dir, file, ".qus");
-#endif /* __TURBOC__ */
 
 /*--------------------------------------------------------------------*/
 /*    Now get the location of the quote; if it fails the first        */
@@ -239,15 +263,23 @@ static long getquote( const char *data, const char *target)
 /*    again                                                           */
 /*--------------------------------------------------------------------*/
 
-   where = chooseit( &current_status, lookaside, quoteused, data , target);
+   names( data, lookaside, quotesUsed );
+
+   where = chooseit( &current_status, lookaside, quotesUsed, data , target);
+
    if  (where == -1 )
    {
-      where = chooseit( &current_status, lookaside, quoteused, data, target );
+      where = chooseit( &current_status,
+                        lookaside,
+                        quotesUsed,
+                        data,
+                        target );
+
       if ( where == - 1)
       {
          printf("Unable to create lookaside file \"%s\"!\n",
                   lookaside );
-         exit( 4 );
+         panic();
       } /* if ( where == - 1) */
    } /* if ( where == - 1) */
 
@@ -267,7 +299,7 @@ static long getquote( const char *data, const char *target)
 
 static long chooseit( struct stat *current_status,
                  const char *lookaside,
-                 const char *quoteused,
+                 const char *quotesUsed,
                  const char *fname,
                  const char *target)
 {
@@ -277,8 +309,8 @@ static long chooseit( struct stat *current_status,
    long quotes = 0;
    long quote;
 
-   char buf[BUFSIZ];
-   char delimiter[BUFSIZ];
+   char buf[LINESIZE];
+   char delimiter[LINESIZE];
 
 /*--------------------------------------------------------------------*/
 /*    Open up the lookaside file and determine if it is up to         */
@@ -286,6 +318,7 @@ static long chooseit( struct stat *current_status,
 /*--------------------------------------------------------------------*/
 
    stream = fopen( lookaside , "rb" );
+
    if ( stream != NULL )
    {
 
@@ -295,10 +328,11 @@ static long chooseit( struct stat *current_status,
       if ((status.st_size == current_status->st_size) &&
           (status.st_mtime == current_status->st_mtime))
       {                       /* Lookaside file up to date, use it   */
+
          if( stat((char *) lookaside, &status ) < 0)
          {
             perror( lookaside );
-            exit( 5 );
+            panic();
          } /* if */
 
          quotes = (status.st_size - sizeof status) / sizeof where;
@@ -306,7 +340,7 @@ static long chooseit( struct stat *current_status,
                                  in lookaside file from the file's
                                  length                              */
 
-         quote = chooseavailable( quoteused, quotes);
+         quote = chooseavailable( quotesUsed, quotes);
          printf("Chose quote %ld of %ld from %s for %s:\n\n",
                   quote + 1 , quotes, fname, target);
                               /* Announce number of quote of the day */
@@ -331,14 +365,14 @@ static long chooseit( struct stat *current_status,
 /*               We have to rewrite the lookaside file                */
 /*--------------------------------------------------------------------*/
 
-   REMOVE( quoteused );          /* Make all quotes available        */
+   REMOVE( quotesUsed );          /* Make all quotes available        */
 
    data   = fopen( fname, "r");           /* Open data file to scan  */
 
    if ( data == NULL )                    /* Did it open?            */
    {
       perror( fname );                    /* No --> Error            */
-      exit( 6 );
+      panic();
    }
 
    stream = fopen( lookaside , "wb" );    /* Open lookaside file     */
@@ -346,7 +380,7 @@ static long chooseit( struct stat *current_status,
    if ( stream == NULL )                  /* Did it open?            */
    {
       perror( lookaside );                /* No --> Error            */
-      exit( 7 );
+      panic();
    }
 
 /*--------------------------------------------------------------------*/
@@ -361,14 +395,14 @@ static long chooseit( struct stat *current_status,
 /*    delimiter line                                                  */
 /*--------------------------------------------------------------------*/
 
-   fgets(delimiter, BUFSIZ, data );
+   fgets(delimiter, sizeof delimiter, data );
    where = ftell( data );  /* Get location of possible first quote   */
 
 /*--------------------------------------------------------------------*/
 /*                  Now process the rest of the file                  */
 /*--------------------------------------------------------------------*/
 
-   while( fgets(buf, BUFSIZ, data ) != NULL )
+   while( fgets(buf, LINESIZE, data ) != NULL )
    {
 
       if ( strcmp( buf, delimiter ))   /* Delimiter line?            */
@@ -396,7 +430,7 @@ static long chooseit( struct stat *current_status,
    if ( quotes == 1 )
    {
       printf("Invalid data file; first line not a delimiter line!");
-      exit( 99 );
+      panic();
    }
 
    printf("Updated lookaside file %s with %d quotes.\n",
@@ -413,7 +447,7 @@ static long chooseit( struct stat *current_status,
 /*--------------------------------------------------------------------*/
 
 static long
-chooseavailable( const char *quoteused, long quotes )
+chooseavailable( const char *quotesUsed, long quotes )
 {
    FILE *stream;
    unsigned char *quoteList;
@@ -438,7 +472,7 @@ chooseavailable( const char *quoteused, long quotes )
 /*             Open up the used quoted file, if possible              */
 /*--------------------------------------------------------------------*/
 
-   stream = fopen( quoteused, "rb");
+   stream = fopen( quotesUsed, "rb");
 
 /*--------------------------------------------------------------------*/
 /*              Determine the number of available quotes              */
@@ -449,7 +483,7 @@ chooseavailable( const char *quoteused, long quotes )
 
       if (fread (&available, sizeof available, 1 , stream) < 1 )
       {
-         perror(  quoteused );
+         perror(  quotesUsed );
          available = 0;
       }
       else if ( quotes <= available )
@@ -458,7 +492,7 @@ chooseavailable( const char *quoteused, long quotes )
                   listsize)
       {
          available = 0;
-         perror( quoteused );
+         perror( quotesUsed );
       }
 
       fclose( stream );
@@ -497,18 +531,22 @@ chooseavailable( const char *quoteused, long quotes )
          break;
    }
 
-   if ( quote == quotes )           /* Did we overflow the array?    */
+   if ( (long) quote == quotes )    /* Did we overflow the array?    */
+   {
+      printf("Internal error at line %d -- internal quote list exhausted",
+               __LINE__ );
       panic();                      /* Must have a bug!              */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                Now update our data and write it out                */
 /*--------------------------------------------------------------------*/
 
-   stream = fopen( quoteused, "wb");
+   stream = fopen( quotesUsed, "wb");
 
    if ( stream == NULL )
    {
-      perror( quoteused );
+      perror( quotesUsed );
       panic();
    }
 
@@ -539,7 +577,7 @@ chooseavailable( const char *quoteused, long quotes )
 static void CopyFixed( const char *fname, FILE *stream )
 {
    FILE *input;
-   char buf[BUFSIZ];
+   char buf[LINESIZE];
 
 /*--------------------------------------------------------------------*/
 /*                    Open input file for copying                     */
@@ -549,14 +587,14 @@ static void CopyFixed( const char *fname, FILE *stream )
    if ( input == NULL )
    {
       perror( fname );
-      exit ( 8 );
+      panic();
    }
 
 /*--------------------------------------------------------------------*/
 /*             Copy the fixed input to the signature file             */
 /*--------------------------------------------------------------------*/
 
-   while( fgets( buf, BUFSIZ, input ) != NULL)
+   while( fgets( buf, sizeof buf, input ) != NULL)
       fputs( buf, stream );
 
 /*--------------------------------------------------------------------*/
@@ -576,21 +614,22 @@ static void CopyFixed( const char *fname, FILE *stream )
 static void CopyQuote( const char *fname, long where, FILE *stream)
 {
    FILE *input;
-   char buf[BUFSIZ];
-   char delimiter[BUFSIZ];
+   char buf[LINESIZE];
+   char delimiter[LINESIZE];
 
 /*--------------------------------------------------------------------*/
 /*         Open up the quotes file and get the delimiter line         */
 /*--------------------------------------------------------------------*/
 
    input = fopen( fname, "r");
+
    if ( input == NULL )
    {
       perror( fname );
-      exit ( 9 );
+      panic();
    }
 
-   fgets(delimiter, BUFSIZ, input );
+   fgets(delimiter, sizeof delimiter, input );
 
 /*--------------------------------------------------------------------*/
 /*   Position to the beginning of the actual quote to be processed    */
@@ -602,13 +641,15 @@ static void CopyQuote( const char *fname, long where, FILE *stream)
 /*      Copy the quote to both the signature file and the screen      */
 /*--------------------------------------------------------------------*/
 
-   while( fgets( buf, BUFSIZ, input ) != NULL)
+   while( fgets( buf, sizeof buf, input ) != NULL)
    {
       if (!strcmp( delimiter, buf ))   /* Delimiter line?            */
          break;                        /* Yes --> End of quote       */
+
       fputs( buf, stream );   /* Copy quote to signature file        */
       fputs( buf, stdout );   /* Copy quote to screen                */
-   } /* while( fgets( buf, BUFSIZ, input ) != NULL) */
+
+   } /* while( fgets( buf, sizeof buf, input ) != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                 Close up shop and return to caller                 */
