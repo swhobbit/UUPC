@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.2 1997/11/21 18:16:32 ahd Exp $
+ *    $Id: smtpserv.h 1.3 1997/11/24 02:53:26 ahd Exp $
  *
  *    $Log: smtpserv.h $
+ *    Revision 1.3  1997/11/24 02:53:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.2  1997/11/21 18:16:32  ahd
  *    Command processing stub SMTP daemon
  *
@@ -33,16 +36,16 @@
 #include "smtpclnt.h"
 
 KWBoolean
-flagReadyClients( SMTPClient *master );
+flagReadyClientList( SMTPClient *master );
 
 KWBoolean
-processReadyClients( SMTPClient *current );
+processReadyClientList( SMTPClient *current );
 
 void
-timeoutClients( SMTPClient *current );
+timeoutClientList( SMTPClient *current );
 
-void dropTerminatedClients( SMTPClient *master );
+void dropTerminatedClientList( SMTPClient *master );
 
-void dropAllClients( SMTPClient *master );
+void dropAllClientList( SMTPClient *master );
 
 #endif  /* _SMTPSERV_H */

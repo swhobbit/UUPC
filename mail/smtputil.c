@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.1 1997/11/21 18:15:18 ahd Exp $
+ *       $Id: smtputil.c 1.1 1997/11/24 02:52:26 ahd Exp $
  *
  *       Revision History:
- *       $Log: smtprecv.c $
+ *       $Log: smtputil.c $
+ *       Revision 1.1  1997/11/24 02:52:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *
  */
 
@@ -39,7 +42,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.1 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtputil.c 1.1 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -151,6 +154,7 @@ isValidAddress( const char *address,
                 char response[MAXADDR],
                 KWBoolean *ourProblem)
 {
+   static const char mName[] = "isValidAddress";
    char node[MAXADDR];
    char user[MAXADDR];
    struct HostTable *hostp;
@@ -172,6 +176,13 @@ isValidAddress( const char *address,
    if ( ! tokenizeAddress(address, response, node, user) )
       return KWFalse;               /* Message already in buffer     */
 
+   printmsg(4, "%s: Address %s is user %s at %s via %s",
+               mName,
+               address,
+               user,
+               node,
+               response );
+
    hostp = checkname( response );
 
 /*--------------------------------------------------------------------*/
@@ -182,6 +193,7 @@ isValidAddress( const char *address,
    {
       strcpy( response, "Supported via gateway");
       return KWTrue;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                 Handle SMTP delivery, if supported                 */
@@ -189,7 +201,7 @@ isValidAddress( const char *address,
 
    if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
    {
-      strcpy( response, "Address is remote");
+      strcpy( response, "Address is remote (SMTP)");
       return KWTrue;
    }
 
@@ -206,13 +218,15 @@ isValidAddress( const char *address,
             strcpy( response, "Local address");
             return KWTrue;
          }
-         else
+         else {
             strcpy( response, "Address is not known on local system");
-            return KWTrue;
+            return KWFalse;
          }
       }
-      else
+      else {
          strcpy( response, "No known delivery path for host" );
+         return KWFalse;
+      }
 
    }  /* if */
 
@@ -264,8 +278,8 @@ isValidLocalAddress( const char *local )
 /*--------------------------------------------------------------------*/
 
    if ( checkalias( local ) == NULL )  /* System alias?              */
-      return KWTrue;                   /* Yes --> It passes          */
+      return KWFalse;                  /* Yes --> It passes          */
    else
-      return KWFalse;                  /* No, complete failure       */
+      return KWTrue;                   /* No, complete failure       */
 
 } /* isValidLocalAddress */

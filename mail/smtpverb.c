@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.2 1997/11/21 18:15:18 ahd Exp $
+ *       $Id: smtpverb.c 1.3 1997/11/24 02:52:26 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.3  1997/11/24 02:52:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *       Revision 1.2  1997/11/21 18:15:18  ahd
  *       Command processing stub SMTP daemon
  *
@@ -44,7 +47,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.2 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtpverb.c 1.3 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -63,6 +66,7 @@ static SMTPVerb table[] =
       commandAccept,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_MASTER,
       SM_SAME_MODE,
    },
@@ -70,6 +74,7 @@ static SMTPVerb table[] =
       commandInit,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_CONNECTED,
       SM_UNGREETED,
 
@@ -79,6 +84,7 @@ static SMTPVerb table[] =
       commandExiting,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_EXITING,
       SM_INVALID,
 
@@ -88,6 +94,7 @@ static SMTPVerb table[] =
       commandTimeout,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_TIMEOUT,
       SM_INVALID,
 
@@ -97,6 +104,7 @@ static SMTPVerb table[] =
       commandTerminated,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_ABORT,
       SM_INVALID,
    },
@@ -105,6 +113,7 @@ static SMTPVerb table[] =
       commandPeriod,
       commandSequenceIgnore,
       ".",
+      KWFalse,
       SM_DATA,
       SM_IDLE,
 
@@ -115,6 +124,7 @@ static SMTPVerb table[] =
       commandDataInput,
       commandSequenceIgnore,
       "",
+      KWFalse,
       SM_DATA,
       SM_SAME_MODE,
    },
@@ -122,6 +132,7 @@ static SMTPVerb table[] =
       commandHELO,
       commandSequenceIgnore,
       "HELO",
+      KWFalse,
       SM_UNGREETED,
       SM_IDLE,
 
@@ -133,6 +144,7 @@ static SMTPVerb table[] =
       commandHELO,
       commandSequenceIgnore,
       "EHLO",
+      KWFalse,
       SM_UNGREETED,
       SM_IDLE,
 
@@ -144,6 +156,7 @@ static SMTPVerb table[] =
       commandRSET,
       commandSequenceIgnore,
       "RSET",
+      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_IDLE,
 
@@ -154,6 +167,7 @@ static SMTPVerb table[] =
       commandNOOP,
       commandSequenceIgnore,
       "EXPN",
+      KWTrue,
       SMTP_MODES_NONE,
       SM_SAME_MODE,
 
@@ -163,6 +177,7 @@ static SMTPVerb table[] =
       commandVRFY,
       commandSequenceIgnore,
       "VRFY",
+      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_SAME_MODE,
 
@@ -174,6 +189,7 @@ static SMTPVerb table[] =
       commandMAIL,
       commandSequenceIgnore,
       "MAIL",
+      KWFalse,
       SM_IDLE,
       SM_ADDR_FIRST,
 
@@ -186,6 +202,7 @@ static SMTPVerb table[] =
       commandRCPT,
       commandSequenceIgnore,
       "RCPT",
+      KWFalse,
       ( SM_ADDR_FIRST | SM_ADDR_SECOND ),
       SM_ADDR_SECOND,
 
@@ -198,6 +215,7 @@ static SMTPVerb table[] =
       commandDATA,
       commandSequenceIgnore,
       "DATA",
+      KWFalse,
       SM_ADDR_SECOND,
       SM_DATA,
 
@@ -207,6 +225,7 @@ static SMTPVerb table[] =
       commandNOOP,
       commandSequenceIgnore,
       "NOOP",
+      KWTrue,
       SMTP_MODES_AFTER_HELO,
       SM_SAME_MODE,
 
@@ -217,6 +236,7 @@ static SMTPVerb table[] =
       commandQUIT,
       commandSequenceIgnore,
       "QUIT",
+      KWFalse,
       SMTP_MODES_ALL,
       SM_INVALID,
 
@@ -228,6 +248,7 @@ static SMTPVerb table[] =
       commandSyntax,             /* Fall through for syntax errs  */
       commandSequenceIgnore,
       "",
+      KWTrue,
       SMTP_MODES_ALL,
       SM_SAME_MODE,
 
@@ -349,9 +370,15 @@ SMTPInvokeCommand( SMTPClient *client )
 
    if ( ! (getClientMode( client ) & currentVerb->validModes))
    {
+      incrementClientTrivialCount( client );
       currentVerb->rejecter( client, currentVerb, NULL );
       return;
    }
+
+   if ( currentVerb->trivial )
+      incrementClientTrivialCount( client ); /* Track for possible
+                                                denial of service
+                                                attack               */
 
 /*--------------------------------------------------------------------*/
 /*       If we can get the needed operands (if any), execute          */
@@ -373,5 +400,8 @@ SMTPInvokeCommand( SMTPClient *client )
          freeOperands( operands );
 
    } /* if */
+
+   /* Flag this client was active */
+   time( &client->lastTransactionTime );
 
 } /* SMTPInvokeCommand( SMTPClient *client ) */

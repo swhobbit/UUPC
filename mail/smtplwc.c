@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.1 1997/11/21 18:15:18 ahd Exp $
+ *       $Id: smtplwc.c 1.2 1997/11/24 02:52:26 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.2  1997/11/24 02:52:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *       Revision 1.1  1997/11/21 18:15:18  ahd
  *       Command processing stub SMTP daemon
  *
@@ -35,12 +38,13 @@
 #include "smtprecv.h"
 #include "smtpnetw.h"
 #include "timestmp.h"
+#include "arpadate.h"
 
 /*--------------------------------------------------------------------*/
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.1 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtplwc.c 1.2 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -69,6 +73,7 @@ commandAccept(SMTPClient *master,
       while( current->next != NULL )
          current = current->next;
 
+      client->previous = current;
       current->next = client;
 
    } /* if ( client != NULL ) */
@@ -95,12 +100,13 @@ commandInit(SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
    sprintf( client->transmit.data,
-            "%s ESMTP (%s %s, built %s %s)",
+            "%s ESMTP (%s %s, built %s %s) on-line at %s",
             E_domain,
             compilep,
             compilev,
             compiled,
-            compilet );
+            compilet,
+            arpadate() );
 
    SMTPResponse( client, SR_OK_CONNECT, client->transmit.data );
 

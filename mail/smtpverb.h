@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.2 1997/11/21 18:16:32 ahd Exp $
+ *       $Id: smtpverb.h 1.3 1997/11/24 02:53:26 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.3  1997/11/24 02:53:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *       Revision 1.2  1997/11/21 18:16:32  ahd
  *       Command processing stub SMTP daemon
  *
@@ -79,6 +82,7 @@ typedef struct _SMTPVerb
    ref_verbproc processor;          /* Command processor             */
    ref_verbproc rejecter;           /* Processor for bad modes       */
    const char name[5];              /* VERB issued by client         */
+   KWBoolean trivial;               /* trivial command used in DoS?  */
    unsigned short validModes;       /* Modes we invoke comm proc for */
    SMTPMode newMode;                /* New mode if comm proc success */
    SR_VERB  successResponse;        /* Std resp if comm proc success */

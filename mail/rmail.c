@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.58 1997/06/03 03:25:31 ahd Exp $
+ *    $Id: rmail.c 1.59 1997/11/24 02:52:26 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.59  1997/11/24 02:52:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.58  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *
@@ -701,7 +704,6 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
    char buf[BUFSIZ];
    KWBoolean hit;
 
-   uuser = "uucp";            /* Effective id is always our daemon   */
    *fromUser = '\0';          /* Initialize for later tests          */
    *fromNode = '\0';          /* Initialize for later tests          */
 

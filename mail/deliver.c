@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.53 1997/05/11 18:15:50 ahd v1-12s $
+ *    $Id: deliver.c 1.54 1997/11/24 02:52:26 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.54  1997/11/24 02:52:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.53  1997/05/11 18:15:50  ahd
  *    Allow faster SMTP delivery via fastsmtp flag
  *    Move TCP/IP dependent code from rmail.c to deliver.c
@@ -263,8 +266,16 @@
 
  char fromUser[MAXADDR] = ""; /* User id of originator               */
  char fromNode[MAXADDR] = ""; /* Node id of originator               */
- char *myProgramName = NULL;  /* Name for recursive invocation       */
- char grade ;                 /* Grade for mail sent                 */
+ char *myProgramName = "rmail";  /* Name for recursive invocation    */
+ char grade = 'C';            /* Default grade for mail sent         */
+
+ KEWSHORT hops = 0;              /* Number hops this mail has seen   */
+
+ KWBoolean remoteMail = KWFalse;
+
+ char *ruser = NULL;
+ char *rnode = NULL;
+ char *uuser = "uucp";        /* Default actual user                 */
 
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
@@ -310,18 +321,6 @@ static KWBoolean CopyData(   const KWBoolean remotedelivery,
                              FILE *mbox);
 
 static char *stats( IMFILE *imf );
-
-/*--------------------------------------------------------------------*/
-/*   Global (set by rmail.c) for number of hops this mail has seen    */
-/*--------------------------------------------------------------------*/
-
- KEWSHORT hops = 0;
-
- KWBoolean remoteMail = KWFalse;
-
- char *ruser = NULL;
- char *rnode = NULL;
- char *uuser = NULL;
 
 /*--------------------------------------------------------------------*/
 /*    D e l i v e r                                                   */

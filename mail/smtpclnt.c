@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.2 1997/11/21 18:15:18 ahd Exp $
+ *       $Id: smtpclnt.c 1.3 1997/11/24 02:52:26 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.3  1997/11/24 02:52:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *       Revision 1.2  1997/11/21 18:15:18  ahd
  *       Command processing stub SMTP daemon
  *
@@ -43,7 +46,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.2 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.3 1997/11/24 02:52:26 ahd Exp $");
 
 static long clientSequence = 0;
 
@@ -123,6 +126,7 @@ initializeMaster( const char *portName, time_t exitTime )
    checkref( master );
    memset( master, 0, sizeof *master);
    master->sequence = ++clientSequence;
+
    setClientMode(master, SM_MASTER);
 
    setClientHandle( master, openMaster( portName ) );
@@ -187,8 +191,16 @@ freeClient( SMTPClient *client )
             mName,
             getClientSequence( client ));
 
+/*--------------------------------------------------------------------*/
+/*                        Perform housekeeping                        */
+/*--------------------------------------------------------------------*/
+
    setClientClosed( client );
    cleanupClientMail( client );
+
+/*--------------------------------------------------------------------*/
+/*          Drop the memory we have pointers to which we own          */
+/*--------------------------------------------------------------------*/
 
    if ( client->SMTPName )
    {
@@ -208,6 +220,23 @@ freeClient( SMTPClient *client )
       client->transmit.data = NULL;
    }
 
+/*--------------------------------------------------------------------*/
+/*           Drop ourselves from the linked list of clients           */
+/*--------------------------------------------------------------------*/
+
+   if ( client->previous )
+      client->previous->next = client->next;
+
+   if ( client->next )
+      client->next->previous = client->previous;
+
+/*--------------------------------------------------------------------*/
+/*                     Now drop the client memory                     */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+   memset( client, 0xFF, sizeof *client );   /* Invalidate the data  */
+#endif
    free( client );
 
 } /* freeClient */
@@ -255,12 +284,9 @@ processClient( SMTPClient *client )
 
       default:
          if ( SMTPGetLine( client ) )
-               SMTPInvokeCommand( client );  /* Process offered cmd  */
+            SMTPInvokeCommand( client );  /* Process offered cmd     */
          break;
    }
-
-   /* Flag this client was active */
-   time( &client->lastTransactionTime );
 
 } /* processClient */
 
@@ -309,6 +335,10 @@ isClientTimedOut( const SMTPClient *client )
 {
    time_t now;
 
+   /* Special case, since timeout is zero to force processing */
+   if ( getClientProcess( client ))
+      return KWFalse;
+
    time(&now);
 
    /* Handle case of very large time out */
@@ -355,7 +385,7 @@ isClientIgnored( const SMTPClient *client )
       return KWFalse;
    }
    else {
-      printmsg(4,"%s: Client %d with handle %d ignored, %ld > %ld",
+      printmsg(8,"%s: Client %d with handle %d ignored, %ld > %ld",
                   mName,
                   getClientSequence( client ),
                   getClientHandle( client ),
@@ -449,7 +479,11 @@ setClientHandle( SMTPClient *client, SOCKET handle )
 time_t
 getClientTimeout( const SMTPClient *client )
 {
+   /* Clients ready to process should not be held up */
+   if ( getClientProcess( client ) )
+      return 0;
 
+   /* Ignored clients timeout when they get out of penalty box */
    if ( client->ignoreUntilTime != 0 )
    {
       time_t now;
@@ -460,6 +494,7 @@ getClientTimeout( const SMTPClient *client )
                 getModeTimeout( client->mode );
    }
 
+   /* All other sockets timeout according to current client mode */
    return getModeTimeout( client->mode );
 
 } /* getClientTimeout */
@@ -467,6 +502,7 @@ getClientTimeout( const SMTPClient *client )
 void
 setClientIgnore( SMTPClient *client, time_t delay )
 {
+   static const char mName[] = "setClientIgnore";
 
    time_t timerPop;
 
@@ -484,10 +520,16 @@ setClientIgnore( SMTPClient *client, time_t delay )
 
    timerPop += delay;
 
-   if ( client->ignoreUntilTime > timerPop )
+   if ( client->ignoreUntilTime < timerPop )
       client->ignoreUntilTime = timerPop;
    else
       client->ignoreUntilTime += delay;
+
+   printmsg(4,"%s: Ignoring client %d for %d seconds (until %.24s)",
+               mName,
+               getClientSequence( client ),
+               delay,
+               ctime( &client->ignoreUntilTime ));
 
 } /* getClientTimeout */
 
@@ -579,3 +621,14 @@ cleanupClientMail( SMTPClient *client )
    }
 
 } /* cleanupClientMail */
+
+
+void incrementClientTrivialCount( SMTPClient *client )
+{
+   client->trivialTransactions++;
+}
+
+int getClientTrivialCount( const SMTPClient *client )
+{
+   return client->trivialTransactions;
+}

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.1 1997/11/21 18:15:18 ahd Exp $
+ *    $Id: smtpd.c 1.2 1997/11/24 02:52:26 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.2  1997/11/24 02:52:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.1  1997/11/21 18:15:18  ahd
  *    Command processing stub SMTP daemon
  *
@@ -50,7 +53,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.1 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtpd.c 1.2 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -102,14 +105,14 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 
    while( ! terminate_processing && isClientValid( master ))
    {
-      flagReadyClients( master );
-      timeoutClients( master );
-      processReadyClients( master );
-      dropTerminatedClients( master );
+      flagReadyClientList( master );
+      timeoutClientList( master );
+      processReadyClientList( master );
+      dropTerminatedClientList( master );
 
    } /* while( ! terminate_processing && isClientValid( master )) */
 
-   dropAllClients( master );
+   dropAllClientList( master );
 
    if ( terminate_processing )
       return 100;

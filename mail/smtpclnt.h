@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.2 1997/11/21 18:16:32 ahd Exp $
+ *    $Id: smtpclnt.h 1.3 1997/11/24 02:53:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.3  1997/11/24 02:53:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.2  1997/11/21 18:16:32  ahd
  *    Command processing stub SMTP daemon
  *
@@ -82,12 +85,12 @@ typedef struct _SMTPClient
    size_t addressLength;            /* Size of address array         */
    size_t addressCount;             /* Number entries in array used  */
    size_t trivialTransactions;
+   size_t stalledReads;             /* Number of times read stalled  */
 
    time_t ignoreUntilTime;
    time_t lastTransactionTime;
    time_t connectTime;
    time_t timeoutPeriod;
-   time_t expirationTime;
 
    long sequence;
    KWBoolean ready;                 /* Socket ready for read/accept  */
@@ -95,6 +98,7 @@ typedef struct _SMTPClient
    KWBoolean endOfTransmission;
    KWBoolean esmtp;
    struct _SMTPClient *next;
+   struct _SMTPClient *previous;
 
 } SMTPClient;
 
@@ -140,6 +144,10 @@ void processClient( SMTPClient *client );
 void setClientClosed( SMTPClient *client );
 
 KWBoolean getClientBufferedData( const SMTPClient *client );
+
+void incrementClientTrivialCount( SMTPClient *client );
+
+int getClientTrivialCount( const SMTPClient *client );
 
 /*--------------------------------------------------------------------*/
 /*                     Transmitted data counters                      */

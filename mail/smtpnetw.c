@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.1 1997/11/21 18:15:18 ahd Exp $
+ *    $Id: smtpnetw.c 1.2 1997/11/24 02:52:26 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.2  1997/11/24 02:52:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.1  1997/11/21 18:15:18  ahd
  *    Command processing stub SMTP daemon
  *
@@ -47,7 +50,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.1 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.2 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -125,7 +128,11 @@ SMTPGetLine( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
    if ( getClientReady( client ))
+   {
+      if ( client->stalledReads )   /* Improve response time ...     */
+         client->stalledReads--;
       SMTPRead( client );
+   }
 
 /*--------------------------------------------------------------------*/
 /*           Locate start of input line if not in data mode           */
@@ -156,7 +163,7 @@ SMTPGetLine( SMTPClient *client )
       {
 
          client->receive.used -= column;
-         MEMMOVE( client->receive.data,
+         memmove( client->receive.data,
                   client->receive.data + column,
                   client->receive.used );
       }
@@ -179,7 +186,8 @@ SMTPGetLine( SMTPClient *client )
                      2 ))
       {
          client->receive.data[column-1] = '\0';
-         printmsg( 2, "%d <<< %.75s",
+         printmsg( ( getClientMode( client ) == SM_DATA ) ? 8 : 2,
+                      "%d <<< %.75s",
                       getClientSequence(client),
                       client->receive.data );
          incrementClientLinesRead( client );
@@ -207,28 +215,38 @@ SMTPGetLine( SMTPClient *client )
 /*       only if we are also out of buffer space.                     */
 /*--------------------------------------------------------------------*/
 
-   printmsg( 0, "%d <<< %.75s",
-                getClientSequence(client),
-                client->receive.data );
-   printmsg( 0, "%s: Client %d Input buffer (%d bytes) overrun.",
-                 mName,
-                 getClientSequence( client ),
-                 client->receive.used );
-
-   if ( column < client->receive.length)
+   if ( client->receive.used < client->receive.length)
    {
-      client->receive.parsed = 0;      /* Flag buffer unused         */
-      setClientIgnore( client, 2 );
+      client->receive.parsed = 0;      /* Flag buffer unprocessed    */
+      client->receive.data[ client->receive.used ] = '\0';
+
+      printmsg( 4, "%s: Client %d Input buffer "
+                   "(%d bytes) waiting for data.",
+                   mName,
+                   getClientSequence( client ),
+                   client->receive.used );
+      setClientIgnore( client, ++client->stalledReads );
+                                       /* Sleep client for few secs  */
       return KWFalse;                  /* Don't process command now  */
-   }
+
+   } /* if ( client->received.used < client->receive.length) */
    else {
+
+     printmsg( 0, "%d <<< %.75s",
+                  getClientSequence(client),
+                  client->receive.data );
+     printmsg( 0, "%s: Client %d Input buffer (%d bytes) overrun.",
+                   mName,
+                   getClientSequence( client ),
+                   client->receive.used );
 
      client->receive.parsed = client->receive.used;
      client->receive.data[ client->receive.used - 1 ] = '\0';
                                     /* Don't run off the buffer      */
      setClientMode( client, SM_ABORT );/* Abort client immediately   */
      return KWTrue;                 /* Process the abort immediately */
-   }
+
+   } /* else */
 
 } /* SMTPGetLine */
 
@@ -676,6 +694,29 @@ SMTPRead( SMTPClient *client )
                   mName,
                   getClientSequence( client ));
 
+      /* Stupid hack for netscape, which seems to skip the final CR/LF */
+      if (( client->receive.used >= 2 ) &&
+          ( client->receive.used < (client->receive.length -
+                                    (int) sizeof crlf)) &&
+            ! equaln( client->receive.data + client->receive.used - 2,
+                     crlf,
+                     2 ))
+      {
+
+#ifdef UDEBUG
+         client->receive.data[client->receive.used] = '\0';
+         printmsg( 5, "%s: Client %d needed final CR/LF at EOF: \"%.75s\"",
+                   mName,
+                   getClientSequence( client ),
+                   client->receive.data );
+#endif
+
+         memcpy( client->receive.data + client->receive.used,
+                 crlf,
+                 sizeof crlf );
+         client->receive.used += 2;    /* Don't add terminating NULL */
+
+      }
    }
    else if (received == SOCKET_ERROR)
    {
@@ -810,7 +851,7 @@ SMTPBurpBuffer( SMTPClient *client )
       client->receive.used -= client->receive.parsed;
 
       if ( client->receive.used > 0 )
-         MEMMOVE( client->receive.data,
+         memmove( client->receive.data,
                   client->receive.data + client->receive.parsed,
                   client->receive.used);
       client->receive.parsed = 0;
@@ -851,6 +892,9 @@ selectReadySockets( SMTPClient *master )
 /*--------------------------------------------------------------------*/
 
    do {
+
+      time_t timeout = getClientTimeout( current );
+
       if ( isClientValid( current ) && ! isClientIgnored( current ))
       {
             FD_SET((unsigned)getClientHandle( current ), &readfds);
@@ -859,15 +903,10 @@ selectReadySockets( SMTPClient *master )
                maxSocket = getClientHandle( current );
 
             nSelected++;
-
-            if ( getClientTimeout( current ) < timeoutPeriod.tv_sec )
-                timeoutPeriod.tv_sec = getClientTimeout( current );
-
       }
 
-      /* If client is already flag to process, select with no wait */
-      if ( getClientProcess( current ) )
-         timeoutPeriod.tv_sec = 0;
+      if ( timeout < timeoutPeriod.tv_sec )
+          timeoutPeriod.tv_sec = timeout;
 
       nTotal++;
       current = current->next;

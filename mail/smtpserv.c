@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.2 1997/11/21 18:15:18 ahd Exp $
+ *    $Id: smtpserv.c 1.3 1997/11/24 02:52:26 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.3  1997/11/24 02:52:26  ahd
+ *    First working SMTP daemon which delivers mail
+ *
  *    Revision 1.2  1997/11/21 18:15:18  ahd
  *    Command processing stub SMTP daemon
  *
@@ -32,21 +35,21 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.2 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.3 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*       f l a g R e a d y C l i e n t s                              */
+/*       f l a g R e a d y C l i e n t L i s t                        */
 /*                                                                    */
 /*       Perform select to determine what sockets are ready,          */
 /*       waiting if needed                                            */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-flagReadyClients( SMTPClient *master )
+flagReadyClientList( SMTPClient *master )
 {
-   static const char mName[] = "flagReadySockets";
+   static const char mName[] = "flagReadyClientList";
    SMTPClient *current = master;
 
 /*--------------------------------------------------------------------*/
@@ -62,11 +65,13 @@ flagReadyClients( SMTPClient *master )
 
    do {
 #ifdef UDEBUG
-      printmsg(5,"%s: Processing client %d, handle %d, mode 0x%04x",
+      printmsg(5,"%s: Processing client %d, handle %d, "
+                  "mode 0x%04x, %d bytes buffered",
                   mName,
                   getClientSequence( current),
                   getClientHandle( current),
-                  getClientMode( current ));
+                  getClientMode( current ),
+                  getClientBufferedData( current ));
 #endif
 
       if ( isClientEOF( current ))
@@ -78,14 +83,16 @@ flagReadyClients( SMTPClient *master )
       }
       else if ( isClientIgnored( current ))
       {
-         printmsg( 4, "%s: Client %d ignored",
+#ifdef UDEBUG
+         printmsg( 9, "%s: Client %d ignored",
                       mName,
                       getClientSequence( current ));
+#endif
 
       } /* if ( isClientIgnored( current )) */
       else if ( ! isClientValid( current ))
       {
-         printmsg( 5, "%s: Client %d invalid",
+         printmsg( 4, "%s: Client %d invalid",
                       mName,
                       getClientSequence( current ));
          setClientProcess( current, KWTrue );
@@ -94,7 +101,7 @@ flagReadyClients( SMTPClient *master )
          setClientProcess( current, KWTrue );
       else if ( getClientHandle( current ) < 0 )
       {
-         printmsg( 4, "%s: Client %d has invalid handle %d",
+         printmsg( 0, "%s: Client %d has invalid handle %d",
                       mName,
                       getClientSequence( current ),
                       getClientHandle( current ));
@@ -111,23 +118,19 @@ flagReadyClients( SMTPClient *master )
 
    return selectReadySockets( master );
 
-/*--------------------------------------------------------------------*/
-/*                   Update list of sockets to process                */
-/*--------------------------------------------------------------------*/
-
-} /* flagReadyClients */
+} /* flagReadyClientList */
 
 /*--------------------------------------------------------------------*/
-/*       t i m e o u t C l i e n t s                                  */
+/*       t i m e o u t C l i e n t L i s t                            */
 /*                                                                    */
 /*       Update the status of all clients which have been idle too    */
 /*       long                                                         */
 /*--------------------------------------------------------------------*/
 
 void
-timeoutClients( SMTPClient *current )
+timeoutClientList( SMTPClient *current )
 {
-   static const char mName[] = "timeoutClients";
+   static const char mName[] = "timeoutClientList";
 
    while( current != NULL )
    {
@@ -144,16 +147,16 @@ timeoutClients( SMTPClient *current )
 
    } /* while( current != NULL ) */
 
-} /* timeoutClients */
+} /* timeoutClientList */
 
 /*--------------------------------------------------------------------*/
-/*       p r o c e s s R e a d y C l i e n t s                        */
+/*       p r o c e s s R e a d y C l i e n t L i s t                  */
 /*                                                                    */
 /*       Process clients that have ready sockets                      */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-processReadyClients( SMTPClient *current )
+processReadyClientList( SMTPClient *current )
 {
    while ( current != NULL )
    {
@@ -168,36 +171,35 @@ processReadyClients( SMTPClient *current )
 
    return KWTrue;
 
-} /* processReadyClients */
+} /* processReadyClientList */
 
 /*--------------------------------------------------------------------*/
-/*       d r o p T e r m i n a t e d C l i e n t s                    */
+/*       d r o p T e r m i n a t e d C l i e n t L i s t              */
 /*                                                                    */
 /*       Perform all clean-up processing for clients which            */
 /*       are no longer valid                                          */
 /*--------------------------------------------------------------------*/
 
 void
-dropTerminatedClients( SMTPClient *current )
+dropTerminatedClientList( SMTPClient *current )
 {
 
-   static const char mName[] = "dropTerminatedClients";
+   static const char mName[] = "dropTerminatedClientList";
    int freed = 0;
    int total = 0;
 
-   while( current->next != NULL )
+   while( current != NULL )
    {
       SMTPClient *next = current->next;
       total++;
 
-      if ( ! isClientValid( next ))
+      if ( ! isClientValid( current ))
       {
-         current->next = next->next;   /* Drop current from list */
-         freeClient( next );
+         freeClient( current );
          freed++;
       }
-      else
-        current = next;
+
+      current = next;
    }
 
    printmsg( (freed > 0) ? 4 : 8,
@@ -206,26 +208,26 @@ dropTerminatedClients( SMTPClient *current )
             freed,
             total );
 
-} /* dropTerminatedClients */
+} /* dropTerminatedClientList */
 
 /*--------------------------------------------------------------------*/
-/*       d r o p A l l C l i e n t s                                  */
+/*       d r o p A l l C l i e n t L i s t                            */
 /*                                                                    */
 /*       Drop all clients, including the master client, from the      */
 /*       list of clients to process                                   */
 /*--------------------------------------------------------------------*/
 
 void
-dropAllClients( SMTPClient *master )
+dropAllClientList( SMTPClient *master )
 {
-   static const char mName[] = "dropAllClients";
+   static const char mName[] = "dropAllClientList";
    SMTPClient *current;
    int count = 0;
 
    printmsg(1,"%s: Dropping all clients prior to program termination.",
                mName );
 
-   dropTerminatedClients( master );
+   dropTerminatedClientList( master );
 
    current = master->next;
 
@@ -242,9 +244,9 @@ dropAllClients( SMTPClient *master )
    }
 
    if ( count )
-      dropTerminatedClients( master ); /* Terminate active clients   */
+      dropTerminatedClientList( master ); /* Terminate active clients*/
 
-   dropTerminatedClients( master ); /* Free all remaining clients    */
+   dropTerminatedClientList( master ); /* Free all remaining clients */
 
 /*--------------------------------------------------------------------*/
 /*                   Drop the master client itself                    */
@@ -252,4 +254,4 @@ dropAllClients( SMTPClient *master )
 
    freeClient( master );
 
-} /* dropAllClients */
+} /* dropAllClientList */
