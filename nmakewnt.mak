@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.30 1998/05/11 01:19:08 ahd Exp $
+#       $Id: nmakewnt.mak 1.31 1998/05/11 03:36:17 ahd v1-13b $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.31  1998/05/11  03:36:17  ahd
+#       Don't link incrementally
+#
 #       Revision 1.30  1998/05/11 01:19:08  ahd
 #       Allow possible build of UUCICO w/o tapi (uucicon.exe) under NT
 #       Build zip files in build tree, not source tree
@@ -120,17 +123,20 @@ WIN32APP =  user32.lib gdi32.lib \
             /link /nodefaultlib:libcd /subsystem:windows /incremental:no
 
 MODEL    = g                         # Model = GUI
+!ifndef PROD
+PROD    = $(PRODDRIVE)\uupc\ntbingui
+!endif
 !else
 MODEL    = c                         # Model = Console
 WIN32APP = /link /incremental:no
+!ifndef PROD
+PROD    = $(PRODDRIVE)\uupc\ntbin
+!endif
 !endif
 
 WIN32ENV=1
 COMMOPT = -nologo  -MT $(cdebug)
 CCOPT   = $(COMMOPT) $(GUIOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
-!ifndef PROD
-PROD    = $(PRODDRIVE)\uupc\ntbin
-!endif
 ZIPID   = n
 ERASE   = del
 SMTP    = 1
