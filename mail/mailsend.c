@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.15 1994/05/08 02:41:18 ahd Exp $
+ *    $Id: mailsend.c 1.16 1994/08/07 21:28:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.16  1994/08/07  21:28:54  ahd
+ * Clean up OS/2 processing to not use new sessions, but rather simply user
+ * command processor to allow firing off PM programs such as E and EPM.
+ *
  * Revision 1.15  1994/05/08  02:41:18  ahd
  * Add blank lines
  *
@@ -410,7 +414,7 @@ boolean Send_Mail(FILE *datain,
 /*--------------------------------------------------------------------*/
 
    sprintf(buf, "-t -f %s", pipename);
-   status = execute(RMAIL, buf, NULL, NULL, TRUE, FALSE );
+   status = execute(RMAIL, buf, NULL, NULL, TRUE, TRUE );
 
    if ( status < 0 )
    {

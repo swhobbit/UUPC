@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.31 1994/05/23 22:47:23 ahd Exp $
+ *    $Id: execute.c 1.32 1994/08/07 21:28:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.32  1994/08/07  21:28:54  ahd
+ * Clean up OS/2 processing to not use new sessions, but rather simply user
+ * command processor to allow firing off PM programs such as E and EPM.
+ *
  * Revision 1.31  1994/05/23  22:47:23  ahd
  * Include commands ending in .cmd for ALL 32 bit environments
  *
@@ -435,6 +439,7 @@ int execute( const char *command,
    else if ( ! *path )
       result = -3;            /* Flag we never ran command         */
    else {
+
 #if defined(WIN32) || defined(__OS2__) || defined(FAMILYAPI)
 
       result = executeAsync( path, parameters, synchronous, foreground );
@@ -797,6 +802,26 @@ static int executeAsync( const char *command,
 
 #endif  /* SSF_RELATED_CHILD */
 #endif
+
+/*--------------------------------------------------------------------*/
+/*            Special case foreground synchronous commands            */
+/*--------------------------------------------------------------------*/
+
+
+   if ( synchronous && foreground )
+   {
+      int result = spawnl(  P_WAIT,
+                            (char *) command,
+                            (char *) command,
+                            (char *) parameters,
+                            NULL);
+
+      if (result == -1)       /* Did spawn fail?                   */
+         printerr(command);   /* Yes --> Report error              */
+
+      return result;
+
+   } /*  */
 
 /*--------------------------------------------------------------------*/
 /*              Initialize the start session parameters               */
