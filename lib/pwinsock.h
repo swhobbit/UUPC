@@ -24,7 +24,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.h 1.7 1996/01/01 20:58:29 ahd v1-12r $
+ *    $Id: pwinsock.h 1.7 1996/01/01 20:58:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwinsock.h $
@@ -76,6 +76,7 @@
 #define ntohl pntohl
 #define htonl phtonl
 #define shutdown pshutdown
+#define setsockopt psetsockopt
 
 extern int PASCAL FAR (*pWSAStartup)(WORD wVersionRequired, LPWSADATA lpWSAData);
 extern int PASCAL FAR (*pWSACleanup)(void);
@@ -91,12 +92,13 @@ extern int PASCAL FAR (*pconnect)(SOCKET s, const struct sockaddr FAR *name, int
 extern SOCKET PASCAL FAR (*paccept)(SOCKET s, struct sockaddr FAR *addr,
         int FAR *addrlen);
 extern int PASCAL FAR (*plisten) (SOCKET s, int backlog);
-extern int PASCAL FAR (*bind)(SOCKET s, const struct sockaddr FAR *addr, int namelen);
+extern int PASCAL FAR (*pbind)(SOCKET s, const struct sockaddr FAR *addr, int namelen);
 extern int PASCAL FAR (*pselect)(int nfds, fd_set FAR *readfds, fd_set FAR *writefds,
         fd_set FAR *exceptfds, const struct timeval FAR *timeout);
 extern int PASCAL FAR (*psend)(SOCKET s, const char FAR * buf, int len, int flags);
 extern int PASCAL FAR (*precv) (SOCKET s, char FAR * buf, int len, int flags);
 extern int PASCAL FAR (*pclosesocket)(SOCKET s);
+extern int PASCAL FAR (*psetsockopt)(SOCKET s, int level, int optname, char FAR *optval, int optlen);
 
 extern u_short PASCAL FAR (*pntohs)(u_short netshort);
 

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.12 1996/01/01 20:50:29 ahd v1-12r $
+ *    $Id: pwinsock.c 1.13 1997/03/31 07:05:51 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.13  1997/03/31 07:05:51  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1996/01/01 20:50:29  ahd
  *    Annual Copyright Update
  *
@@ -113,7 +116,7 @@ SOCKET PASCAL FAR (*paccept)(SOCKET s,
 
 int PASCAL FAR (*plisten) (SOCKET s, int backlog);
 
-int PASCAL FAR (*bind)(SOCKET s,
+int PASCAL FAR (*pbind)(SOCKET s,
                        const struct sockaddr FAR *addr,
                        int namelen);
 
@@ -142,6 +145,12 @@ u_short PASCAL FAR (*phtons)(u_short hostshort);
 u_long PASCAL FAR (*pntohl) (u_long netlong);
 
 u_long PASCAL FAR (*phtonl) (u_long hostlong);
+
+int PASCAL FAR (*psetsockopt) (SOCKET s,
+                 int level,
+                 int optname,
+                 char FAR *optval,
+                 int optlen);
 
 int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 
@@ -200,6 +209,7 @@ KWBoolean pWinSockInit( void )
    precv                  = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 16,0));
    pselect                = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 18,0));
    psend                  = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 19,0));
+   psetsockopt            = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 21,0));
    pshutdown              = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 22,0));
    psocket                = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 23,0));
    pgethostbyname         = GetProcAddress(hWinsock, (LPSTR)MAKELONG( 52,0));
