@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.6 1993/04/11 00:33:05 ahd Exp $
+ *    $Id: RMAIL.C 1.7 1993/04/13 02:26:30 ahd Exp $
  *
  *    $Log: RMAIL.C $
+ * Revision 1.7  1993/04/13  02:26:30  ahd
+ * Make return codes more unique
+ *
  * Revision 1.6  1993/04/11  00:33:05  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -843,7 +846,9 @@ static boolean DaemonMail( const char *subject,
 
    userp = checkuser(logname);   /* Locate user id in host table     */
 
-   if ( (userp != BADUSER) && (userp->realname != NULL) )
+   if ( (userp != BADUSER) &&
+        (userp->realname != NULL) &&
+         !equal(userp->realname, EMPTY_GCOS ))
       moi = userp->realname;
    else if ( equali(logname, E_postmaster) || equali(logname, POSTMASTER))
       moi = "Postmaster";
