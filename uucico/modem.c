@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.72 1998/04/20 02:47:57 ahd Exp $
+ *    $Id: modem.c 1.73 1998/04/27 01:55:28 ahd v1-13e $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.73  1998/04/27 01:55:28  ahd
+ *    Allow defaulting selected options to enabled
+ *
  *    Revision 1.72  1998/04/20 02:47:57  ahd
  *    TAPI/Windows 32 BIT GUI display support
  *
@@ -286,7 +289,7 @@ static CONN_STATE answerTAPI(time_t offset);
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id: modem.c 1.72 1998/04/20 02:47:57 ahd Exp $");
+RCSID("$Id: modem.c 1.73 1998/04/27 01:55:28 ahd v1-13e $");
 
 /*--------------------------------------------------------------------*/
 /*    c a l l u p                                                     */
@@ -1150,17 +1153,22 @@ KEWSHORT GetGWindow(  KEWSHORT maxvalue , const char protocol )
 
 } /* GetGWindow */
 
+#if defined(WIN32)
+#pragma optimize("",off)   /* VC++ screws up bit shift below */
+#endif
+
 /*--------------------------------------------------------------------*/
 /*    G e t G P a c k e t                                             */
 /*                                                                    */
 /*    Return the allowed packet size for the "g" procotol             */
 /*--------------------------------------------------------------------*/
 
+
 KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
 {
    KEWSHORT savePacketSize ;
    KEWSHORT ourPacketSize = 0;
-   int bits = 6;              /* Minimum Packet Size is 64 bytes     */
+   int bits = 6;     /* Minimum Packet Size is 64 bytes     */
 
    switch( protocol )
    {
@@ -1187,8 +1195,13 @@ KEWSHORT GetGPacket( KEWSHORT maxvalue , const char protocol)
 /*                 Insure the value is a power of two                 */
 /*--------------------------------------------------------------------*/
 
-   while( (ourPacketSize >> (bits+1)) > 0 )
+   while((ourPacketSize >> (bits+1)) > 0)
+   {
+      if (bits > (sizeof ourPacketSize * 8))
+         panic();
+
       bits++;
+   }
 
    ourPacketSize = (KEWSHORT) ((ourPacketSize >> bits) << bits);
    if ( savePacketSize != ourPacketSize )
