@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.24 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: smtpnetw.c 1.25 1999/01/17 17:19:16 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.25  1999/01/17 17:19:16  ahd
+ *    Give priority to accepting new connections
+ *    Make initialization of slave and master connections more consistent
+ *
  *    Revision 1.24  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -133,7 +137,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.24 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.25 1999/01/17 17:19:16 ahd Exp $");
 
 #define MINUTE(seconds) ((seconds)*60)
 
@@ -755,7 +759,7 @@ openMaster(const char *name)
 
    printmsg(NETDEBUG, "%s: doing listen()", mName);
 
-   if (listen(pollingSock, SOMAXCONN) == SOCKET_ERROR)
+   if (listen(pollingSock, SOMAXCONN * 5) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
 
@@ -1135,7 +1139,7 @@ SMTPBurpBuffer(SMTPClient *client)
 
    if (client->receive.used < client->receive.lineLength)
    {
-         printmsg(0, "%s: Client has parsed more bytes (%d) "
+         printmsg(0, "%s: Client %d has parsed more bytes (%d) "
                      "than bytes in use (%d)",
                     mName,
                     getClientSequence(client),
