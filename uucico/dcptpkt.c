@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.5 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: dcptpkt.c 1.6 1993/11/08 04:46:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.6  1993/11/08  04:46:49  ahd
+ * Correct bug which prevented proper EOF being handled
+ *
  * Revision 1.5  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -218,7 +221,7 @@ short tsendpkt(char *ip, short len)
       return -1;
 
    if ( ! len )
-      printmsg(0,"tsendpkt: Sending empty packet");
+      printmsg(4,"tsendpkt: Sending empty packet");
    else if ( swrite( ip , len ) != len )
       return -1;
 
