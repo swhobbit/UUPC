@@ -20,10 +20,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.H 1.3 1993/05/30 00:11:03 ahd Exp $
+ *    $Id: ulib.h 1.4 1993/09/20 04:53:57 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIB.H $
+ *    $Log: ulib.h $
+ * Revision 1.4  1993/09/20  04:53:57  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  * Revision 1.3  1993/05/30  00:11:03  ahd
  * Multiple communications drivers support
  *
@@ -50,5 +55,11 @@ void nhangup( void );
 BPS nGetSpeed( void );
 
 boolean nCD( void );
+
+#if defined(BIT32ENV) || defined(FAMILYAPI)
+
+int nGetComHandle( void );
+
+#endif
 
 #endif
