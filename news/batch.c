@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.5 1995/01/07 15:43:07 ahd Exp $
+ *    $Id: batch.c 1.6 1995/01/07 16:20:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.6  1995/01/07 16:20:33  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.5  1995/01/07 15:43:07  ahd
  *    Get the file length BEFORE we close the file.
  *
@@ -152,7 +155,6 @@ void compress_batch(const char *system, const char *batchName)
    FILE *zfile_stream;
    FILE *finalStream;
    int  status;
-   int  tempHandle;
 
    char command[FILENAME_MAX * 4];
 
@@ -312,7 +314,7 @@ void process_batch(const struct sys *node,
    while ((filelength(fileno(names)) > 0) || done)
    {
      FILE    *batch = NULL;
-     size_t batchLength;
+     long    batchLength;
      char fileNameBuf[FILENAME_MAX];
 
      build_batchName( batchName, node->flag.c );

@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.41 1995/01/05 03:43:49 ahd Exp $
+ *       $Id: rnews.c 1.42 1995/01/07 16:21:38 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.42  1995/01/07 16:21:38  ahd
+ *       Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.41  1995/01/05 03:43:49  ahd
  *       rnews SYS file support
  *
@@ -150,7 +153,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.41 1995/01/05 03:43:49 ahd Exp $";
+         "$Id: rnews.c 1.42 1995/01/07 16:21:38 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -281,6 +284,8 @@ static KWBoolean batch_remote(const struct sys *node,
 static KWBoolean copy_file(FILE *f,
                       const char *group,
                       const char *xref);      /* Copy file (f) to newsgroup */
+
+static int copy_snews( const char *filename, FILE *stream );
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -641,8 +646,6 @@ static int Compressed( const char *filename ,
    size_t chars_read, i;
    int status = 0;
    KWBoolean needtemp = KWTrue;
-
-   char *sysname;             /* For reading systems to process   */
 
 /*--------------------------------------------------------------------*/
 /*        Copy the compressed file to the "holding" directory         */
@@ -1088,7 +1091,7 @@ static void deliver_article(const char *art_fname, const long art_size)
       else for ( subscript = 0; table[subscript].name != NULL; subscript++ )
       {
          char *s;
-         int stringLength;
+         size_t stringLength;
 
          /* Initialize lookaside of entry length, if needed  */
 
@@ -1634,7 +1637,7 @@ static KWBoolean deliver_local(FILE *tfile,
                  E_nodename,
                  E_domain);         /* We need a new unique ID       */
          msgID = idBuffer;
-         b_xref = NULL;
+         b_xref = KWFalse;
       }
       else {
          free( newsgroups );
@@ -1732,6 +1735,7 @@ static KWBoolean deliver_local(FILE *tfile,
          }
       } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
+      printmsg(0, "reached" );
       strcat(hist_record, "\n");
 
       /* Restore the newsgroups line */
@@ -1854,7 +1858,6 @@ static KWBoolean batch_remote(const struct sys *node,
 
   char fname[FILENAME_MAX];
   char dirname[FILENAME_MAX];
-  char *primaryKey;
   FILE *batchListStream;
 
 /*--------------------------------------------------------------------*/

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.26 1994/12/31 03:51:25 ahd Exp $
+ *    $Id: imfile.c 1.1 1995/01/07 15:43:07 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: imfile.c $
+ *    Revision 1.1  1995/01/07 15:43:07  ahd
+ *    Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -36,6 +39,7 @@
 
 #include <stdarg.h>
 #include <errno.h>
+#include <io.h>
 
 #include "imfile.h"
 
@@ -62,14 +66,14 @@ currentfile();
 static int imReserve( IMFILE *imf, const long length )
 {
 
-   int newLength = length + imf->position ;
+   long newLength = length + imf->position ;
 
 /*--------------------------------------------------------------------*/
 /*            If we have the memory allocated, return quietly         */
 /*--------------------------------------------------------------------*/
 
    if ((imf->buffer == NULL ) || ( newLength <= imf->length ))
-      return;
+      return 0;
 
 /*--------------------------------------------------------------------*/
 /*             Attempt to allocate the longer buffer needed           */
@@ -87,7 +91,7 @@ static int imReserve( IMFILE *imf, const long length )
 #ifdef BIT32ENV
       newBuffer = realloc( imf->buffer, newLength );
 #else
-      newBuffer = _frealloc( imf->buffer, newLength );
+      newBuffer = _frealloc( imf->buffer, (size_t) newLength );
 #endif
 
       if ( newBuffer == NULL )
@@ -166,7 +170,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
 #ifdef BIT32ENV
          imf->buffer = malloc( length );
 #else
-         imf->buffer = _fmalloc( length );
+         imf->buffer = _fmalloc( (size_t) length );
 #endif
 
       if ( imf->buffer == NULL )
@@ -185,7 +189,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
 
       if ( imf->stream == NULL )
       {
-         close( imf );
+         imclose( imf );
          return NULL;
       } /* if ( imf->stream == NULL ) */
 
@@ -211,7 +215,7 @@ int imclose( IMFILE *imf)
 
    if ( imf->buffer != NULL )
    {
-      free( imf->buffer );
+      _ffree( imf->buffer );
    }
 
    if ( imf->stream != NULL )
@@ -298,7 +302,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 {
    char UUFAR *p;
    long stringLength;
-   long subscript = 0;
+   size_t subscript = 0;
 
    if ( imf->buffer == NULL )
       return fgets( userBuffer, userLength, imf->stream );
@@ -317,7 +321,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    p = imf->buffer + imf->position;
 
-   while ( subscript < stringLength )
+   while ( (long) subscript < stringLength )
    {
       if ( p[subscript] == '\n' )
          break;
@@ -357,7 +361,7 @@ size_t  imread( void *userBuffer,
                 size_t objectCount,
                 IMFILE * imf )
 {
-   long bytes = objectSize * objectCount;
+   size_t bytes = objectSize * objectCount;
 
    if ( imf->buffer == NULL )
       return fread( userBuffer, objectSize, objectCount, imf->stream );
@@ -368,7 +372,7 @@ size_t  imread( void *userBuffer,
    if ( imerror( imf ) )
       return -1;
 
-   if ( bytes <= (imf->inUse - imf->position ))
+   if ( (long) bytes <= (imf->inUse - imf->position ))
    {
       MEMCPY( userBuffer,
               imf->buffer + imf->position,
@@ -379,7 +383,7 @@ size_t  imread( void *userBuffer,
    else
       return imread( userBuffer,
                      objectSize,
-                     (imf->inUse - imf->position ) / objectSize ,
+                     (size_t) (imf->inUse - imf->position ) / objectSize ,
                      imf );
 
 } /* imread */
@@ -423,7 +427,7 @@ size_t  imwrite(const void *userBuffer,
       return fwrite( userBuffer, objectSize, objectCount, imf->stream );
    else {
 
-      MEMCPY( imf->buffer + imf->position, userBuffer, bytes );
+      MEMCPY( imf->buffer + imf->position, userBuffer, (size_t) bytes );
       imf->position += bytes;
       if ( imf->inUse < imf->position )
          imf->inUse = imf->position;
@@ -537,7 +541,7 @@ void imrewind( IMFILE *imf)
                      imf->inUse );
 #endif
 
-         imf->buffer = realloc( imf->buffer, imf->inUse );
+         imf->buffer = _frealloc( imf->buffer, (size_t) imf->inUse );
          checkref( imf->buffer );
          imf->length = imf->inUse;
 

@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.5 1995/01/07 15:43:07 ahd Exp $
+ *    $Id: sys.c 1.6 1995/01/07 16:21:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.6  1995/01/07 16:21:47  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.5  1995/01/07 15:43:07  ahd
  *    Use string pool, not disk, for various saved parameters from SYS file
  *
@@ -115,6 +118,7 @@
 #include "hostable.h"
 #include "sys.h"
 #include "stater.h"
+#include "arpadate.h"
 
 currentfile();
 
