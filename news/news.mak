@@ -8,10 +8,10 @@
 
 .path.c = $(RNEWS)
 
-RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\active.obj\
-           $(OBJ)\importng.obj
+RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj
 
-EXPIREOBJ = $(OBJ)\expire.obj $(OBJ)\active.obj $(OBJ)\importng.obj
+
+EXPIREOBJ = $(OBJ)\expire.obj
 
 rnews.com: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
         - erase rnews.exe
