@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.15 1993/09/20 04:41:54 ahd Exp $
+ *      $Id: dcpgpkt.c 1.16 1993/10/02 19:07:49 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.16  1993/10/02  19:07:49  ahd
+ * Treat Windows 3.x ala DOS in handling packets in far memory
+ *
  * Revision 1.15  1993/09/20  04:41:54  ahd
  * OS/2 2.x support
  *
@@ -1260,7 +1263,7 @@ static void gspack(short type,
                    short xxx,
                    short len,
                    unsigned short xmit,
-    #if defined(BIT32ENV)
+#if defined(BIT32ENV)
                    char *data)
 #else
                    char UUFAR *input)
@@ -1269,7 +1272,7 @@ static void gspack(short type,
    unsigned short check, i;
    unsigned char header[HDRSIZE];
 
-#if !defined(BITENV32)
+#if !defined(BIT32ENV)
    char *data;                   // Local data buffer address
    if ( input == NULL )
       data = NULL;               // Make consistent with real buffer

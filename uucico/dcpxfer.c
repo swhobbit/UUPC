@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.22 1993/09/20 04:46:34 ahd Exp $
+ *       $Id: dcpxfer.c 1.23 1993/09/23 03:26:51 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.23  1993/09/23  03:26:51  ahd
+ * Don't allow remote sites to send call files!
+ *
  * Revision 1.22  1993/09/20  04:46:34  ahd
  * OS/2 2.x support (BC++ 1.0 support)
  * TCP/IP support from Dave Watt
@@ -194,7 +197,7 @@ XFER_STATE sdata( void )
       return XFER_ABORT;            /* Toss file                  */
 
    do {
-      size_t xmit = min( (size_t) S_size - used , s_pktsize );
+      short xmit = min( (size_t) S_size - used , s_pktsize );
 
       if ((*sendpkt)((char *) databuf + used, xmit) != DCP_OK)
                                     /* Send data fail?            */

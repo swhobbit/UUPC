@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.8 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: execute.c 1.9 1993/10/02 19:07:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.9  1993/10/02  19:07:49  ahd
+ * Suppress compiler warning
+ *
  * Revision 1.8  1993/09/27  00:45:20  ahd
  * Fix Windows compile, add debug to OS/2 and DOS version
  *
@@ -648,7 +651,7 @@ static boolean batch( const char *input, char *output)
    char *gotPath;
    char *period;
 
-   const static char *extensions[] = { ".exe",
+   static const char *extensions[] = { ".exe",
                                        ".com",
 #if !defined(_DOS) && !defined(_Windows)
                                        ".cmd",
