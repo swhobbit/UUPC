@@ -1,10 +1,15 @@
-#       $Id: nmakos22.mak 1.4 1994/04/24 20:30:40 ahd Exp $
+#       $Id: nmakos22.mak 1.5 1994/04/26 02:47:50 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.5  1994/04/26  02:47:50  ahd
+#       Re-enable automatic preset header generation - kendra's CPU is just
+#       too slow not too.
+#       TCP/IP support for OS/2, including UUCPD.CMD.
+#
 #       Revision 1.4  1994/04/24  20:30:40  ahd
 #       Don't automatically generate pre-compiled headers
 #       Add 32 bit TCP/IP support
@@ -22,7 +27,8 @@
 #
 
 ERASE    = del /f
-EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico
+EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
+           $(PROD)\uucicon.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
@@ -58,8 +64,9 @@ DBGOPT  = -Ti -DUDEBUG -Tx # -D__DEBUG_ALLOC__ -Wall -Wcnv- -Wext- -Wgen- -Wlan-
 COMMOPT = -Sv -Q $(DBGOPT) -Gd
 CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@ -Fi
 LDOPT   = -b"/A:4 /BAT" $(COMMOPT) -Fe $@
-UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
+UUCICOOBJX = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
-             $(OBJ)\ulibip.obj $(OBJ)\psos2err.obj
+             $(OBJ)\psos2err.obj
+UUCICOOBJ3 = $(UUCICOOBJX) $(OBJ)\ulibip.obj
 
 OTHERLIBS=   so32dll.lib tcp32dll.lib
