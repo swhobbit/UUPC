@@ -17,9 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.12 1998/04/22 01:19:54 ahd Exp $
+ *    $Id: smtpserv.c 1.13 1998/04/24 03:30:13 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.13  1998/04/24 03:30:13  ahd
+ *    Use local buffers, not client->transmit.buffer, for output
+ *    Rename receive buffer, use pointer into buffer rather than
+ *         moving buffered data to front of buffer every line
+ *    Restructure main processing loop to give more priority
+ *         to client processing data already buffered
+ *    Add flag bits to client structure
+ *    Add flag bits to verb tables
+ *
  *    Revision 1.12  1998/04/22 01:19:54  ahd
  *    Performance improvements for SMTPD data mode
  *
@@ -63,7 +72,7 @@
 #include "smtpnetw.h"
 #include "execute.h"
 
-RCSID("$Id: smtpserv.c 1.12 1998/04/22 01:19:54 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.13 1998/04/24 03:30:13 ahd Exp $");
 
 currentfile();
 
@@ -75,10 +84,10 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-flagReadyClientList(SMTPClient *master)
+flagReadyClientList(SMTPClient *top)
 {
    static const char mName[] = "flagReadyClientList";
-   SMTPClient *current = master;
+   SMTPClient *current = top;
 
 /*--------------------------------------------------------------------*/
 /*       Loop through the list of valid sockets, adding each one      */
@@ -160,7 +169,7 @@ flagReadyClientList(SMTPClient *master)
 /*          Actually select the sockets and return to caller          */
 /*--------------------------------------------------------------------*/
 
-   return selectReadySockets(master);
+   return selectReadySockets(top);
 
 } /* flagReadyClientList */
 
@@ -286,7 +295,7 @@ executeQueue(void)
 /*--------------------------------------------------------------------*/
 
 void
-dropAllClientList(SMTPClient *master, KWBoolean runUUXQT)
+dropAllClientList(SMTPClient *top, KWBoolean runUUXQT)
 {
    static const char mName[] = "dropAllClientList";
    SMTPClient *current;
@@ -295,9 +304,9 @@ dropAllClientList(SMTPClient *master, KWBoolean runUUXQT)
    printmsg(1,"%s: Dropping all clients prior to program termination.",
                mName);
 
-   dropTerminatedClientList(master->next, runUUXQT);
+   dropTerminatedClientList(top->next, runUUXQT);
 
-   current = master->next;
+   current = top->next;
 
    while(current != NULL)
    {
@@ -314,16 +323,16 @@ dropAllClientList(SMTPClient *master, KWBoolean runUUXQT)
    if (count)
    {
       /* Terminate active clients*/
-      dropTerminatedClientList(master->next, runUUXQT);
+      dropTerminatedClientList(top->next, runUUXQT);
    }
 
    /* Free all remaining clients */
-   dropTerminatedClientList(master->next, runUUXQT);
+   dropTerminatedClientList(top->next, runUUXQT);
 
 /*--------------------------------------------------------------------*/
 /*                   Drop the master client itself                    */
 /*--------------------------------------------------------------------*/
 
-   freeClient(master);
+   freeClient(top);
 
 } /* dropAllClientList */
