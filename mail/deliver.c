@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *    $Id: DELIVER.C 1.2 1992/12/04 01:00:27 ahd Exp $
  *
- *    $Log: LIB.H $
+ *    $Log: DELIVER.C $
+ * Revision 1.2  1992/12/04  01:00:27  ahd
+ * Add system alias support
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -128,7 +131,7 @@ static int DeliverFile( const char *input,
                         const long end,
                         boolean *announce,
                         struct UserTable *userp,
-                        boolean sysalias,  /* Already sys alias     */
+                        const boolean sysalias,  /* Already sys alias     */
                         const boolean validate );
 
 static void trumpet( const char *tune);
@@ -401,6 +404,7 @@ static size_t DeliverLocal( const char *input,
       printerr(mboxname);
       printmsg(0,"Cannot open mailbox \"%s\" for output",
                   mboxname);
+      panic();
    }
 
    if (!isatty(fileno(mbox)))
@@ -432,7 +436,10 @@ static int DeliverFile( const char *input,
    if ( fwrd == NULL )
    {
       printerr( fwrdname );
-      panic();
+      printmsg(0,"Cannot open forward file %s, delivering to %s",
+               fwrdname,
+               E_postmaster );
+      return DeliverLocal( input, E_postmaster, sysalias, validate );
    }
 
    if ( start != 0 )
@@ -441,20 +448,37 @@ static int DeliverFile( const char *input,
    while((ftell(fwrd) < end) && (fgets( buf , BUFSIZ , fwrd) != NULL ))
    {
       char command[BUFSIZ];
-      char c = *buf;
-      char *nextfile;
+      char *s = buf;
+      char c;
+      char *nextfile = NULL;
 
       if ( buf[ strlen(buf) - 1 ]== '\n')
          buf[ strlen(buf) - 1 ] = '\0';
 
-      printmsg(8,"Forwarding to \"%s\"", buf);
+      while( *s && ! isgraph( *s ))    /* Trim leading white space      */
+         s++;
+
+      printmsg(8,"Forwarding to \"%s\"", s);
       if ( equalni( buf, INCLUDE, strlen(INCLUDE)))
       {
-         nextfile = strtok( buf + strlen(INCLUDE), WHITESPACE );
-         c = '*';
-      }
-      else if ( isalpha( c ) && (buf[1] == ':'))  /* Drive name?    */
-         c = '/';             /* Yes --> special case          */
+         nextfile = strtok( s + strlen(INCLUDE), WHITESPACE );
+         if ( nextfile == NULL )
+         {
+            printmsg(0,"%s: Missing file name after %s, "
+                       "delivering to %s",
+                        fwrdname, INCLUDE, E_postmaster );
+            s = E_postmaster;
+            c = *s;
+         }
+         else
+            c = ':';
+      } /* if */
+      else if ( isalpha(*s ) && (s[1] == ':'))  /* Drive name?    */
+         c = '/';             /* Yes --> flag as absolute path    */
+      else if ( *s == ':')    /* Avoid false triggers ...         */
+         c = ' ';             /* ... by making it general case    */
+      else                    /* Handle other cases in switch ... */
+         c = *s;
 
       switch(c)
       {
@@ -468,7 +492,7 @@ static int DeliverFile( const char *input,
          {
             long here = ftell(fwrd);
             fclose(fwrd);
-            sprintf(command , "%s < %s", &buf[1], input);
+            sprintf(command , "%s < %s", &s[1], input);
             printmsg(1,"Executing \"%s\" in %s",
                   command, userp->homedir);
             PushDir( userp->homedir );
@@ -481,11 +505,11 @@ static int DeliverFile( const char *input,
          } /* case */
 
          case '\\':              /* Deliver without forwarding */
-            delivered += Deliver( input, &buf[1], TRUE, FALSE );
+            delivered += Deliver( input, &s[1], TRUE, FALSE );
             *announce = TRUE;
             break;
 
-         case '*':
+         case ':':
             delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
                                       announce, userp,
                                       FALSE, TRUE );
@@ -493,7 +517,7 @@ static int DeliverFile( const char *input,
 
          case '/':               /* Save in absolute path name */
          case '~':
-            if (expand_path(buf, NULL, userp->homedir,
+            if (expand_path(s, NULL, userp->homedir,
                             E_mailext) == NULL )
             {
                printmsg(0,
@@ -503,12 +527,12 @@ static int DeliverFile( const char *input,
                                     sysalias, validate );
             }
             else
-               delivered += DeliverLocal( input, buf, sysalias, FALSE );
+               delivered += DeliverLocal( input, s, sysalias, FALSE );
             *announce = TRUE;
             break;
 
          default:                /* Deliver normally           */
-            delivered += Deliver( input, buf, sysalias, validate );
+              delivered += Deliver( input, s, sysalias, validate );
       } /* switch */
    } /* while */
 
