@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*       a l i a s . h                                                */
+/*       n i c k n a m e . h                                          */
 /*                                                                    */
-/*       Mail User Agent Address alias functions                      */
+/*       Mail User Agent Address nickname functions                   */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.h 1.4 1995/01/07 16:19:34 ahd v1-12q $
+ *    $Id: alias.h 1.5 1996/01/01 21:04:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: alias.h $
+ *    $Log: nickname.h $
+ *    Revision 1.5  1996/01/01 21:04:25  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1995/01/07 16:19:34  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -32,19 +35,20 @@
  *
  */
 
-static struct AliasTable {
+typedef struct _NICKNAME
+{
       char *anick;
       char *anode;
       char *auser;
       char *afull;
-   };
+} NICKNAME;
 
 void ExtractName( char *result, const char *input );
 
 void BuildAddress(char *result, const char *input );
 
-char *AliasByNick(const char *input);
+char *nicknameByNick(const char *input);
 
-char *AliasByAddr(const char *node, const char *user);
+char *nicknameByAddr(const char *node, const char *user);
 
 KWBoolean InitRouter( void );
