@@ -17,13 +17,16 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.9 1995/01/29 14:03:29 ahd v1-12n rommel $";
+      "$Id: hdbm.c 1.10 1995/03/11 00:18:45 rommel Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+/* Revision 1.10  1995/03/11 00:18:45  rommel
+/* Trap possible spaces in message ids
+/*
 /* Revision 1.9  1995/01/29 14:03:29  ahd
 /* Clean up IBM C/Set compiler warnings
 /*
@@ -67,10 +70,10 @@ currentfile();
 
 datum nullitem = {NULL, 0};
 
-DBM *dbm_open(const char *name, const int flags, const int mode)
+DBM *dbm_open(const char *name, const unsigned int flags, const int mode)
 {
   DBM *db;
-  char filename[_MAX_PATH];
+  char filename[FILENAME_MAX];
 
   db = (DBM *) malloc(sizeof(DBM));
   checkref( db );             /* Panic if malloc() failed      */
@@ -78,7 +81,7 @@ DBM *dbm_open(const char *name, const int flags, const int mode)
   strcpy(filename, name);
   strcat(filename, DBM_EXT_DBF);
 
-  if ((db -> dbffile = open(filename, flags | O_BINARY, mode)) == -1)
+  if ((db -> dbffile = open(filename, (int) (flags | O_BINARY), mode)) == -1)
   {
     printerr( filename );
     free(db);
@@ -88,7 +91,7 @@ DBM *dbm_open(const char *name, const int flags, const int mode)
   strcpy(filename, name);
   strcat(filename, DBM_EXT_IDX);
 
-  if ((db -> idxfile = open(filename, flags | O_BINARY, mode)) == -1)
+  if ((db -> idxfile = open(filename, (int) (flags | O_BINARY), mode)) == -1)
   {
     printerr( filename );
     close(db -> dbffile);
@@ -151,7 +154,7 @@ int dbm_store(DBM *db, const datum key, const datum val, const int flag)
   if (idx_addkey(db -> idx, key.dptr, offset, size) == -1)
     return -1;
 
-  if (write(db -> dbffile, buffer, size) != size)
+  if (write(db -> dbffile, buffer, size) != (int) size)
   {
     printerr( "dbm_store" );
     return -1;
@@ -181,7 +184,7 @@ int dbm_delete(DBM *db, const datum key)
     memset(buffer, ' ', size - 1);
     buffer[size - 1] = '\n';
 
-    if (write(db -> dbffile, buffer, size) != size)
+    if (write(db -> dbffile, buffer, size) != (int) size)
       return -1;
   }
 
@@ -207,7 +210,7 @@ datum dbm_fetch(DBM *db, const datum key)
     if ((offset = lseek(db -> dbffile, offset, SEEK_SET)) == -1L)
       return nullitem;
 
-    if (read(db -> dbffile, db -> buffer, size) != size)
+    if (read(db -> dbffile, db -> buffer, size) != (int) size)
       return nullitem;
 
     db -> buffer[size - 1] = 0; /* delete \n */
