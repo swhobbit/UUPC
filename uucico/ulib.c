@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.23 1994/01/01 19:21:17 ahd Exp $
+ *    $Id: ulib.c 1.24 1994/01/06 12:45:33 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.24  1994/01/06  12:45:33  ahd
+ * Oooops.  Use UUFAR pointer in nswrite()
+ *
  * Revision 1.23  1994/01/01  19:21:17  ahd
  * Annual Copyright Update
  *
@@ -386,7 +389,6 @@ int nswrite(const char UUFAR *input, unsigned int len)
          printmsg(0,"nswrite: Buffer overflow, needed %d bytes"
                      " from queue of %d",
                      len, queue_size);
-         // Why was following return outside this if-block?  A bug?  --RHG
          return 0;
       } /* if ( queue_free < len ) */
 
