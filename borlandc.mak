@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.60 1994/03/12 14:27:25 ahd Exp $
+#     $Id: makefile 1.61 1994/03/20 00:54:41 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.61  1994/03/20  00:54:41  ahd
+#         Go to version 1.12j
+#
 #         Revision 1.60  1994/03/12  14:27:25  ahd
 #         Allow easy use of short path names to speed compiles
 #
@@ -264,6 +267,9 @@ SUFFIX   = $(MODEL)
 PSUFFIX  =
 DEFFILE  =
 ENVIRONMENT=MS-DOS
+!endif
+!if !$d(TDSTRIP)
+TDSTRIP=tdstrip
 !endif
 
 #       Silly hack to allow back slash as last character in variable
@@ -514,7 +520,7 @@ ZIPOPT2 = -j $(ZIPOPT1)
 !if $d(__OS2__)
 MAKER=make
 !else
-MAKER=maker
+MAKER=maker -DTDSTRIP=$(TDSTRIP)
 !endif
 
 # *--------------------------------------------------------------------*
@@ -1543,6 +1549,7 @@ STARTUPT   = $(STARTUPT)
 SUFFIX     = $(SUFFIX)
 TASM       = $(TASM)
 TASMOPT    = $(TASMOPT)
+TDSTRIP    = $(TDSTRIP)
 TEST       = $(TEST)
 TIMESTMP   = $(TIMESTMP)
 TMP        = $(TMP)
