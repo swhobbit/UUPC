@@ -1,13 +1,27 @@
 /*--------------------------------------------------------------------*/
-/*    m k m b o x . h                                                 */
-/*                                                                    */
-/*    Host Support routines for UUPC/extended                         */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of hlib.c                         ahd    */
+/*    m k m b o x . c                                                 */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ *
+ *       21Nov1991 Break out of hlib.c                         ahd
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +59,7 @@ char *mkmailbox(char *buf, const char *userid)
 
    if (bflag[F_DIRECT])
    {
-      sprintf(buf,"%s%c%s%c%s", E_maildir, SEPCHAR,
+      sprintf(buf,"%s%c%.8s%c%s", E_maildir, SEPCHAR,
                                userid, SEPCHAR,"newmail");
    } /* if (bflag[F_DIRECT]) */
    else {
