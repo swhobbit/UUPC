@@ -17,28 +17,43 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwserr.c 1.1 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: pwserr.c 1.1 1993/10/02 23:12:35 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: pwserr.c $
- * Revision 1.1  1993/09/24  21:43:27  dmwatt
+ * Revision 1.1  1993/10/02  23:12:35  dmwatt
  * Initial revision
- *
  *
  */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
+
 #include <stdio.h>
-#include <winsock.h>
 #include <io.h>
+
+#include "winsock.h"       // So we search local directories
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
+
+#include "lib.h"           // Cause we always include it!
+
+/*--------------------------------------------------------------------*/
+/*                     Local function prototypes                      */
+/*--------------------------------------------------------------------*/
 
 const char *LookupWSError(int err);
 
+/*--------------------------------------------------------------------*/
+/*                          Local variables                           */
+/*--------------------------------------------------------------------*/
+
 typedef struct wserr {
-	int errno;
-	const char UUFAR *str;
+        int errno;
+        const char UUFAR *str;
 } WSERR;
 
 static WSERR wsErrors[] = {
@@ -93,7 +108,7 @@ static WSERR wsErrors[] = {
   { WSATRY_AGAIN,       "[11002] Non-Authoritative Host not found" },
   { WSANO_RECOVERY,     "[11003] Non-Recoverable errors: FORMERR, REFUSED, NOTIMP" },
   { WSANO_DATA,         "[11004] Valid name, no data record of requested type" },
-  { -1,					NULL }
+  { -1,                                 NULL }
 };
 
 /* Copies string corresponding to the error code provided    */
@@ -113,8 +128,6 @@ static WSERR wsErrors[] = {
 
 #include "lib.h"
 #include "pwserr.h"
-
-currentfile();
 
 /*--------------------------------------------------------------------*/
 /*    p W S e r r                                                     */
@@ -152,13 +165,11 @@ void pWSErr(const size_t lineno,
 
 } /* pWSErr */
 
-int PASCAL FAR WSAsperror (int errorcode, char far * buf, int len)
-{
-        if (errorcode == 0)
-                errorcode = WSABASEERR;
-        if (errorcode < WSABASEERR)
-                return 0;
-}
+/*--------------------------------------------------------------------*/
+/*       L o o k u p W S E r r o r                                    */
+/*                                                                    */
+/*       Look up an error in our list of strings                      */
+/*--------------------------------------------------------------------*/
 
 const char *LookupWSError(int err)
 {
@@ -168,4 +179,5 @@ const char *LookupWSError(int err)
       pwsErr++;
 
    return pwsErr->str;
-}
+
+} /* LookupWSError */
