@@ -20,6 +20,9 @@
 /*--------------------------------------------------------------------*/
 
 /* $Log: genhist.c $
+ * Revision 1.17  1995/12/03 13:51:44  ahd
+ * Additional debugging cleanup
+ *
  * Revision 1.16  1995/08/27 23:33:15  ahd
  * Load and use ACTIVE file as tree structure
  *
@@ -75,7 +78,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.16 1995/08/27 23:33:15 ahd v1-12q ahd $";
+         "$Id: genhist.c 1.17 1995/12/03 13:51:44 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -108,7 +111,6 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void IndexAll( void );
-static void IndexOneGroup( const char *name );
 static void IndexDirectory( const char *group, const char *directory );
 
 static KWBoolean numeric( char *start);
@@ -212,7 +214,7 @@ main( int argc, char **argv)
 
    writeActive();
 
-   printmsg(1,"%s: Processed %ld total articles in %ld files (%ld bytes).",
+   printmsg(1,"%s: Processed %ld unique articles in %ld files (%ld bytes).",
                   argv[0], total_articles, total_files, total_bytes );
 
    exit(0);
@@ -221,34 +223,14 @@ main( int argc, char **argv)
 } /* main */
 
 /*--------------------------------------------------------------------*/
-/*    I n d e x A l l                                                 */
-/*--------------------------------------------------------------------*/
-
-static void IndexAll( void )
-{
-   char groupBuffer[MAXGRP];
-   char *groupName;
-
-   startActiveWalk( );
-
-
-   while( (groupName = walkActive( groupBuffer ) ) != NULL )
-   {
-      IndexOneGroup( groupName );
-   }
-
-
-} /* IndexAll */
-
-/*--------------------------------------------------------------------*/
 /*    I n d e x O n e G r o u p                                       */
 /*--------------------------------------------------------------------*/
 
-static void IndexOneGroup( const char *groupName )
+void IndexOneGroup( const char *groupName, void *dummy )
 {
    char groupdir[FILENAME_MAX];
 
-   printmsg(3,"Processing news group %s", groupName );
+   printmsg(4,"IndexOneGroup: %s", groupName );
 
 /*--------------------------------------------------------------------*/
 /*                     Set up the directory names                     */
@@ -263,6 +245,17 @@ static void IndexOneGroup( const char *groupName )
    IndexDirectory( groupName , groupdir );
 
 } /* IndexOneGroup */
+
+/*--------------------------------------------------------------------*/
+/*    I n d e x A l l                                                 */
+/*--------------------------------------------------------------------*/
+
+static void IndexAll( void )
+{
+
+   startActiveWalk( IndexOneGroup, NULL );
+
+} /* IndexAll */
 
 /*--------------------------------------------------------------------*/
 /*    G e t H i s t o r y D a t a                                     */
@@ -435,7 +428,7 @@ static void IndexDirectory( const char *groupName,
 
    closedir(dirp);
 
-   printmsg(files ? 1 : 2,"%s: %ld unique and %ld cross-posted articles "
+   printmsg(files ? 2 : 3,"%s: %ld unique and %ld cross-posted articles "
                   "in %ld files (%ld bytes)",
                   groupName,
                   articles,

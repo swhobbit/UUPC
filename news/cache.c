@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: cache.c 1.2 1995/12/02 14:18:33 ahd Exp $
+ *    $Id: cache.c 1.3 1995/12/03 13:51:44 ahd Exp $
  *
  * $Log: cache.c $
+ * Revision 1.3  1995/12/03 13:51:44  ahd
+ * Additional debugging cleanup
+ *
  * Revision 1.2  1995/12/02 14:18:33  ahd
  * New debugging messages
  *
@@ -36,7 +39,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-   "$Id: cache.c 1.2 1995/12/02 14:18:33 ahd Exp $";
+   "$Id: cache.c 1.3 1995/12/03 13:51:44 ahd Exp $";
 
 #include <io.h>
 #include <memory.h>
@@ -49,7 +52,7 @@ currentfile();
 
 static int cache_read(CACHE *cache, long index, void *buffer)
 {
-  if (lseek(cache->file, (unsigned long) (index * cache->itemsize), SEEK_SET) == -1)
+  if (lseek(cache->file, (long) (index * cache->itemsize), SEEK_SET) == -1)
   {
     printerr("lseek");
     return -1;
@@ -69,7 +72,7 @@ static int cache_read(CACHE *cache, long index, void *buffer)
 static int cache_write(CACHE *cache, long index, void *buffer)
 {
 
-  if (lseek(cache->file, (unsigned long) (index * cache->itemsize), SEEK_SET) == -1)
+  if (lseek(cache->file, (long) (index * cache->itemsize), SEEK_SET) == -1)
   {
     printerr("lseek");
     return -1;

@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.17 1995/09/11 00:20:45 ahd v1-12q $
+ *    $Id: expire.c 1.19 1995/12/03 13:51:44 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.19  1995/12/03 13:51:44  ahd
+ *    Additional debugging cleanup
+ *
  *    Revision 1.17  1995/09/11 00:20:45  ahd
  *    Correct compile warning
  *
@@ -69,7 +72,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.17 1995/09/11 00:20:45 ahd v1-12q $";
+      "$Id: expire.c 1.19 1995/12/03 13:51:44 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -163,25 +166,16 @@ backupNewsFile(  const char *new, const char *previous )
 } /* backupNewsFile */
 
 /*--------------------------------------------------------------------*/
-/*       r e s e t A r t i c l e R a n g e                            */
+/*       r e s e t O n e A r t i c l e G r o u p                      */
 /*                                                                    */
-/*       Reset lowest to highest article number until proven otherwise*/
+/*       Set oldest and newest article numbers to same                */
 /*--------------------------------------------------------------------*/
 
-static void
-resetArticleRange( void )
+void
+resetOneArticleGroup( const char *group, void *dummy )
 {
-   char groupBuffer[MAXGRP];
-   char *groupName;
-
-   startActiveWalk( );              /* Begin with first news group   */
-
-   while( (groupName = walkActive( groupBuffer ) ) != NULL )
-   {
-      setArticleOldest( groupName, getArticleNewest( groupName ));
-   }
-
-} /* resetArticleRange */
+   setArticleOldest( group, getArticleNewest( group ));
+} /* resetOneArticleGroup */
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -278,7 +272,7 @@ main( int argc, char **argv)
 /*                       Reset article numbers                        */
 /*--------------------------------------------------------------------*/
 
-   resetArticleRange();
+   startActiveWalk( resetOneArticleGroup, 0);
 
 /*--------------------------------------------------------------------*/
 /*                  Compute times for expiring files                  */
