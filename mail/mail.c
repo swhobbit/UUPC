@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.17 1994/01/01 19:12:29 ahd Exp $
+ *    $Id: mail.c 1.18 1994/02/20 19:07:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.18  1994/02/20  19:07:38  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.17  1994/01/01  19:12:29  ahd
  * Annual Copyright Update
  *
@@ -99,7 +102,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.17 1994/01/01 19:12:29 ahd Exp $";
+      "$Id: mail.c 1.18 1994/02/20 19:07:38 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -191,11 +194,14 @@ static void usage( void );
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static char *replytolist[] = { "Resent-Reply-To:",
-                        "Resent-From:",
-                        "Reply-To:",
-                        "From:",
-                         NULL };
+static char *defaultReplyToList[] =
+  {
+     "Resent-Reply-To:",
+     "Resent-From:",
+     "Reply-To:",
+     "From:",
+      NULL
+   };
 
 static char *fromlist[] =    { "Resent-From:",
                                "From:",
@@ -212,6 +218,20 @@ static char *subjectlist[] = { "Resent-Subject:",
 static char *datelist[]  =   { "Resent-Date:",
                                "Date:" ,
                                NULL} ;
+
+static char *defaultIgnoreList[] =
+      {
+         "Message-ID:",
+         "Received:",
+         "Status: ",
+         "X-Mailer: ",
+         "From " ,
+         "Precedence: " ,
+         "Path: ",
+         "Lines: ",
+         "References: ",
+         NULL,
+       };
 
 /*--------------------------------------------------------------------*/
 /*                  Information on existing mailbox                   */
@@ -510,6 +530,16 @@ static void Interactive_Mail( const boolean PrintOnly,
    FILE *rmailbox;
 
 /*--------------------------------------------------------------------*/
+/*                      Handle special defaults                       */
+/*--------------------------------------------------------------------*/
+
+   if ( E_ignoreList == NULL )
+      E_ignoreList = defaultIgnoreList;
+
+   if ( E_replyToList == NULL )
+      E_replyToList = defaultReplyToList;
+
+/*--------------------------------------------------------------------*/
 /*               Open real and temporary mailbox files                */
 /*--------------------------------------------------------------------*/
 
@@ -576,7 +606,7 @@ static void Interactive_Mail( const boolean PrintOnly,
       int j = 0;
       while (j < letternum)
       {
-         Pager(j, TRUE, noreceived, !j );
+         Pager(j, TRUE, ignoresome, !j );
          j++ ;
       }
       return;
@@ -721,7 +751,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                   success = FALSE;
                }
                else if (letters[current].status == M_UNREAD)
-                  success = Pager( current , TRUE, noreceived, first_pass);
+                  success = Pager( current , TRUE, ignoresome, first_pass);
                else
                   current = Position( 0 , 1 , current );
                break;
@@ -732,7 +762,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                break;
 
             case M_EXTPRINT:
-               success = Pager( integer , TRUE, noreceived, first_pass);
+               success = Pager( integer , TRUE, ignoresome, first_pass);
                break;
 
             case M_EXTTYPE:
@@ -787,7 +817,7 @@ static void Interactive_Mail( const boolean PrintOnly,
             }
 
             case M_INTPRINT:
-               success = Pager( integer , FALSE, noreceived, first_pass);
+               success = Pager( integer , FALSE, ignoresome, first_pass);
                break;
 
             case M_INTTYPE:
@@ -905,7 +935,7 @@ static void Interactive_Mail( const boolean PrintOnly,
             if ( (cmd_ptr->bits & AUTOPRINT ) &&
                   bflag[F_AUTOPRINT] &&
                   (letters[current].status != M_DELETED) )
-               Pager( current , TRUE, noreceived, TRUE);
+               Pager( current , TRUE, ignoresome, TRUE);
             else if ( !(cmd_ptr->bits & NOAUTOHEADER ) )
                PrintSubject( current , letternum );
          } /* if */
@@ -1163,10 +1193,10 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 
          priority = 0;
          while ( (replyprior > priority) &&
-                 (replytolist[priority] != NULL ))
+                 (E_replyToList[priority] != NULL ))
          {
-            if (equalni(line, replytolist[priority],
-                             strlen(replytolist[priority]) ) )
+            if (equalni(line, E_replyToList[priority],
+                             strlen(E_replyToList[priority]) ) )
             {
                letter->replyto = ftell(fmailbox);
                replyprior = priority;
