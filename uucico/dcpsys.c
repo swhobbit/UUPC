@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.25 1993/10/07 22:51:00 ahd Exp $
+ *     $Id: dcpsys.c 1.26 1993/10/07 23:04:13 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.26  1993/10/07  23:04:13  ahd
+ * Suppress unused variable
+ *
  * Revision 1.25  1993/10/07  22:51:00  ahd
  * Suppress displaying login script on multiple lines
  *
@@ -164,8 +167,14 @@ currentfile();
 
 typedef struct {
         char type;
-        procref getpkt, sendpkt, openpk, closepk, rdmsg, wrmsg, eofpkt,
-                  filepkt;
+        short (*getpkt)(char *data, short *len);
+        short (*sendpkt)(char *data, short len);
+        short (*openpk)(const boolean caller);
+        short (*closepk)(void);
+        short (*rdmsg)(char *data);
+        short (*wrmsg)(char *data);
+        short (*eofpkt)(void);
+        short (*filepkt)(void);
         boolean network;
 } Proto;
 
@@ -198,7 +207,14 @@ Proto Protolst[] = {
    { '\0' }
    };
 
-procref  getpkt, sendpkt, openpk, closepk, rdmsg, wrmsg, eofpkt, filepkt;
+short (*sendpkt)(char *data, short len);
+short (*getpkt)(char *data, short *len);
+short (*openpk)(const boolean caller);
+short (*closepk)(void);
+short (*wrmsg)(char *data);
+short (*rdmsg)(char *data);
+short (*eofpkt)(void);
+short (*filepkt)(void);
 
 char *flds[60];
 int kflds;
@@ -693,7 +709,7 @@ CONN_STATE startup_client( char *sendgrade )
          } /* switch */
    } /* for */
 
-   *sendgrade = min(grade,*sendgrade);
+   *sendgrade = (char) min(grade,*sendgrade);
 
 /*--------------------------------------------------------------------*/
 /*                Verify the remote host name is good                 */
