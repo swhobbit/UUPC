@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.9 1993/10/12 00:47:57 ahd Exp $
+ *    $Id: timestmp.c 1.10 1993/10/31 11:58:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.10  1993/10/31  11:58:18  ahd
+ *     Don't include version header if version already defined (for BC++)
+ *
  *     Revision 1.9  1993/10/12  00:47:57  ahd
  *     Normalize comments
  *
@@ -195,11 +198,11 @@ void banner (char **argv)
 #elif defined(_Windows)
                   /* "Windows 16 bit", */ compilew,
 #elif defined(__OS2__)
-                  "OS/2 2.x",
+                  "OS/2 32 bit",
 #elif defined(__TURBOC__)
                   "DOS",
 #else
-                  (_osmode == DOS_MODE) ? "DOS" : "OS/2 1.x",
+                  (_osmode == DOS_MODE) ? "DOS" : "OS/2 16 bit",
 #endif
 
                   &compiled[4],
