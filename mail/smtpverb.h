@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.7 1997/11/28 23:13:35 ahd v1-12u $
+ *       $Id: smtpverb.h 1.8 1998/03/01 19:45:01 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.8  1998/03/01 19:45:01  ahd
+ *       First compiling POP3 server which accepts user id/password
+ *
  *       Revision 1.7  1997/11/28 23:13:35  ahd
  *       Additional auditing, including DNS support
  *
@@ -56,6 +59,7 @@ typedef enum
    SR_OK_GENERIC       = 250,
    SR_OK_VRFY_REMOTE   = 251,
    SR_OK_SEND_DATA     = 354,
+   SR_PE_TEMP_SYNTAX   = 401,
    SR_PE_NOT_IN_DNS    = 418,
    SR_TE_SHUTDOWN      = 421,
    SR_TE_SHORTAGE      = 452,
@@ -66,14 +70,17 @@ typedef enum
    SR_PE_TOO_MANY_ADDR = 552,
    SR_PE_BAD_MAILBOX   = 553,
    SR_PE_NOT_POLICY    = 571,
+   SR_ZZ_LAST,
 
    /* Following only used for POP3 server */
-   PR_AA_START,
-   PR_OK_GENERIC       = ( PR_AA_START / 100 + 1 ) * 100,
+   PR_AA_FIRST         = ( SR_ZZ_LAST / 100 + 1 ) * 100,
+   PR_OK_GENERIC,
    PR_DATA,
+   PR_ERROR_WARNING,          /* Doesn't print a message in the log */
    PR_ERROR_GENERIC,
+   PR_ZZ_LAST,
 
-   SR_ZZ_LAST
+   ZZ_LAST
 } SR_VERB;
 
 #define SR_OK_SENDER          SR_OK_GENERIC

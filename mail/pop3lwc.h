@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.h 1.3 1998/03/01 01:28:37 ahd Exp $
+ *       $Id: pop3lwc.h 1.1 1998/03/01 19:50:17 ahd v1-12v $
  *
  *       Revision History:
- *       $Log: smtplwc.h $
+ *       $Log: pop3lwc.h $
+ *       Revision 1.1  1998/03/01 19:50:17  ahd
+ *       Initial revision
+ *
  */
 
 #include "pop3clnt.h"
@@ -46,6 +49,16 @@ commandPASS(SMTPClient *client,
 
 KWBoolean
 commandSequenceIgnore(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
+
+KWBoolean
+commandXSENDER(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
+
+KWBoolean
+commandAUTH(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
 
