@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.2 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: uuport.c 1.3 1993/10/01 02:36:45 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.3  1993/10/01  02:36:45  dmwatt
+ * Correct increment of pointer to pipe name
+ *
  * Revision 1.2  1993/09/29  04:49:20  ahd
  * Use standard port name
  *
@@ -89,14 +92,14 @@ int main(int argc, char **argv)
 
   banner( argv );
 
-  if ( argc != 2 && argc != 3 )
+  if ( argc < 2 )
     usage(argv[0]);
 
   if ( argv[1][0] != '-' )
     strcpy(name, argv[1]);
   else
   {
-    if ( argv[1][2] != 0 )
+    if (( argv[1][2] != 0 ) || ( argc < 3 ))
       usage(argv[0]);
 
     switch ( tolower(argv[1][1]) )
@@ -111,7 +114,8 @@ int main(int argc, char **argv)
          usage(argv[0]);
     }
 
-    strcpy(name, argv[2]);
+    strcpy( name, argv[2] );
+
   }
 
   if ( strncmp(name, "\\\\", 2) == 0 )  /* server specified ? */
