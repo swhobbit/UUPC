@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile. 1.69 1994/12/31 03:33:33 ahd Exp ahd $
+#     $Id: makefile 1.70 1995/01/03 05:29:13 ahd Exp $
 #
 #     Revision history:
-#     $Log: makefile. $
+#     $Log: makefile $
+#     Revision 1.70  1995/01/03 05:29:13  ahd
+#     Use short source name for faster compiles
+#
 #     Revision 1.69  1994/12/31 03:33:33  ahd
 #     First pass of integrating Mike McLagan's news SYS file suuport
 #
@@ -1530,7 +1533,6 @@ $(UUPCCFG): $(MAKEFILE) \
             $(UTIL)\util.mak
   copy &&|
 $(GENERATEOPT)
-$(WINDOWSOPT)
 $(CODEGENOPT)
 $(MODELOPT)
 $(OPTMIZEOPT)
