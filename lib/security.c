@@ -2,9 +2,14 @@
 /*    s e c u r i t y . c                                             */
 /*                                                                    */
 /*    Security routines for UUPC/extended                             */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Copyright (c) 1991, Andrew H. Derbyshire                        */
-/*    See README.PRN for additional copyrights and restrictions       */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -12,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.12 1993/10/31 15:51:11 ahd Exp $
+ *    $Id: security.c 1.13 1993/12/13 03:08:00 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.13  1993/12/13  03:08:00  ahd
+ *     Print an error before panic() when securep is not initialized
+ *
  *     Revision 1.12  1993/10/31  15:51:11  ahd
  *     Allow configuring permissions file name
  *
@@ -870,13 +878,13 @@ boolean ValidateFile( const char *input,  /* Full path name           */
 /*          We didn't find the file; reject all access to it          */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"ValidateFile: No access definition found for \
+   printmsg(0,"ValidateFile: No %s access definition found for \
 \"%s\", access denied",
+            needed == ALLOW_READ ? "read" : "write" ,
             input);
    return FALSE;
 
 } /* ValidateFile */
-
 
 /*--------------------------------------------------------------------*/
 /*    G e t S e c u r i t y                                           */
