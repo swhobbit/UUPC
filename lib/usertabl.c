@@ -11,6 +11,12 @@
 /*          Create from hostable.c                                    */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +26,7 @@
 
 #include "lib.h"
 #include "hlib.h"
+#include "expath.h"
 #include "usertabl.h"
 #include "hostable.h"
 #include "security.h"
@@ -133,7 +140,7 @@ struct UserTable *inituser(char *name)
 
    if (hit == UserElements)
    {
-      users[hit].uid      = strdup(name);
+      users[hit].uid      = newstr(name);
       checkref(users[hit].uid);
       users[hit].realname = "????";
       users[hit].beep     = NULL;
@@ -212,26 +219,26 @@ static size_t loaduser( void )
 
       token = NextField(NULL);   /* Get the user password            */
       if (!equal(token,"*"))     /* User can login?                  */
-         userp->password = strdup(token); /* Yes --> Set password    */
+         userp->password = newstr(token); /* Yes --> Set password    */
 
       token = NextField(NULL);   /* Use  UNIX user number as tone    */
                                  /* to beep at                       */
       if (token != NULL)
-         userp->beep = strdup( token );
+         userp->beep = newstr( token );
 
       token = NextField(NULL);   /* Skip UNIX group number           */
 
       token = NextField(NULL);   /* Get the formal user name         */
       if (token != NULL)         /* Did they provide user name?      */
-         userp->realname = strdup(token); /* Yes --> Copy            */
+         userp->realname = newstr(token); /* Yes --> Copy            */
 
       token = NextField(NULL);   /* Get home directory (optional)    */
       if ( token != NULL)
-         userp->homedir = strdup(token);
+         userp->homedir = newstr(normalize( token ));
 
       token = NextField(NULL);   /* Get user shell (optional)        */
       if ( token != NULL )       /* Did we get it?                   */
-         userp->sh = strdup(token); /* Yes --> Copy it in            */
+         userp->sh = newstr(token); /* Yes --> Copy it in            */
 
    }  /* while */
 
