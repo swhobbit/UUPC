@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.83 1996/01/20 13:03:45 ahd Exp $
+#     $Id: makefile 1.84 1997/04/24 01:00:57 ahd v1-12u $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.84  1997/04/24 01:00:57  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.83  1996/01/20 13:03:45  ahd
 #     Shorten up 'default' SRCSLASH path to be no path all, allowing
 #     more compiles at a time under BC++ 3.1
@@ -78,236 +81,6 @@
 #     Revision 1.70  1995/01/03 05:29:13  ahd
 #     Use short source name for faster compiles
 #
-#     Revision 1.69  1994/12/31 03:33:33  ahd
-#     First pass of integrating Mike McLagan's news SYS file suuport
-#
-#     Revision 1.68  1994/12/27 20:46:27  ahd
-#     Smoother call grading'
-#
-#     Revision 1.67  1994/12/22 00:42:15  ahd
-#     Go to version 1.12m (1.12l doesn't exist, because l looks like 1)
-#
-#     Revision 1.66  1994/12/22 00:06:03  ahd
-#     Annual Copyright Update
-#
-#     Revision 1.65  1994/10/02 20:45:46  ahd
-#     Revise for pandora hard drive layout
-#
-#         Revision 1.64  1994/05/30  02:17:54  ahd
-#         Go to version 1.12k
-#
-#         Revision 1.63  1994/05/06  03:54:32  ahd
-#         Delete BC++ precompiled headers when done
-#
-#         Revision 1.63  1994/05/06  03:54:32  ahd
-#         Delete BC++ precompiled headers when done
-#
-#         Revision 1.62  1994/05/04  02:00:57  ahd
-#         Allow disabling TDSTRIP
-#
-#         Revision 1.61  1994/03/20  00:54:41  ahd
-#         Go to version 1.12j
-#
-#         Revision 1.60  1994/03/12  14:27:25  ahd
-#         Allow easy use of short path names to speed compiles
-#
-#         Revision 1.59  1994/03/12  13:40:47  ahd
-#         Add NMAKE included files to ZIP dependents
-#
-#         Revision 1.58  1994/03/06  12:24:47  ahd
-#         Update makefile names for non-Borland compilers
-#
-#         Revision 1.57  1994/02/23  04:16:05  ahd
-#         Delete TC pre-compiled headers at end of build
-#
-#         Revision 1.56  1994/02/20  19:03:21  ahd
-#         IBM C/Set 2 Conversion, memory leak cleanup
-#
-#         Revision 1.55  1994/02/13  04:44:52  ahd
-#         Force UUCP to be .exe file
-#
-#         Revision 1.54  1994/01/18  13:27:08  ahd
-#         Go to version 1.12i
-#
-#         Revision 1.53  1994/01/06  12:45:03  ahd
-#         Version 1.12h
-#
-#         Revision 1.52  1994/01/02  04:32:04  ahd
-#         Go to version 1.12g
-#
-#         Revision 1.51  1994/01/01  18:56:23  ahd
-#         Annual copyright update
-#
-#         Revision 1.50  1993/12/29  02:44:54  ahd
-#         Fix those darn pif files
-#
-#         Revision 1.49  1993/12/26  16:57:41  ahd
-#         Correct .PIF file defines
-#
-#         Revision 1.48  1993/12/26  14:35:35  ahd
-#         Add IBM OS/2 Makefile, Windows PIF files
-#
-#         Revision 1.47  1993/12/24  05:11:38  ahd
-#         Use short path for OS/2 make
-#
-#         Revision 1.46  1993/12/06  01:58:05  ahd
-#         Delete IOCTL define
-#
-#         Revision 1.45  1993/12/02  02:24:39  ahd
-#         Rename .DEF files so they stay around
-#
-#         Revision 1.45  1993/12/02  02:24:39  ahd
-#         Rename .DEF files so they stay around
-#
-#         Revision 1.44  1993/11/30  04:17:36  ahd
-#         Version 1.12f
-#
-#         Revision 1.43  1993/11/21  04:45:26  ahd
-#         Add UUTRAF
-#         Reorder module builds
-#         Optimize OS/2 deletes
-#
-#         Revision 1.42  1993/11/20  14:48:14  ahd
-#         Up error code for ZIP to 18
-#
-#         Revision 1.41  1993/10/31  21:32:16  ahd
-#         Add inews, genhist to DOS build
-#
-#         Revision 1.40  1993/10/31  11:56:20  ahd
-#         Add inews, genhist to build
-#         Delete FMT as special module name
-#         Add 00readme.now to source archives in proper input directory
-#
-#         Revision 1.39  1993/10/30  22:26:26  ahd
-#         Correct directory for source scripts
-#
-#         Revision 1.38  1993/10/28  00:17:24  ahd
-#         Go to version 1.12e
-#
-#         Revision 1.37  1993/10/26  12:19:29  ahd
-#         Also archive source copies of script files
-#
-#         Revision 1.36  1993/10/24  23:23:50  ahd
-#         Correct build of uuport
-#
-#         Revision 1.35  1993/10/16  15:12:06  ahd
-#         Break source into four archives
-#
-#         Revision 1.34  1993/10/13  01:47:08  ahd
-#         Go to 1.12d
-#
-#         Revision 1.33  1993/10/05  12:27:28  ahd
-#         Begin the adventure of 1.12c
-#
-#         Revision 1.32  1993/10/04  15:51:54  ahd
-#         Use only root name for adding 00readme.now
-#
-#         Revision 1.31  1993/10/04  15:41:24  ahd
-#         Drop unneeded variables from definition file for nested make commands
-#         Include 00readme.now in all archives
-#         Generate final release names for all archives
-#
-#         Revision 1.30  1993/10/04  03:56:57  ahd
-#         Build doc zip seperately
-#
-#         Revision 1.29  1993/10/02  23:45:02  ahd
-#         Don't build rnews for windows
-#
-#         Revision 1.28  1993/10/02  19:06:24  ahd
-#         Use full path names to aid debugging
-#
-#         Revision 1.27  1993/10/01  01:24:32  ahd
-#         Force source rebuild more often
-#
-#         Revision 1.26  1993/09/29  13:17:11  ahd
-#         Correct deletion of debugger (*.TDS) files under Windows
-#
-#         Revision 1.25  1993/09/29  04:47:51  ahd
-#         Add unique signal handler for port suspending
-#
-#         Revision 1.24  1993/09/27  02:41:37  ahd
-#         Use full source path for files to aid in DOS debugging
-#
-#         Revision 1.23  1993/09/27  00:44:01  ahd
-#         Make build slient
-#
-#         Revision 1.22  1993/09/23  03:26:11  ahd
-#         Make mail medium model
-#
-#         Revision 1.21  1993/09/20  04:35:34  ahd
-#         Borland C++ for OS/2 1.0 support
-#         TCP/IP support from Dave Watt
-#         't' protocol support
-#
-#         Revision 1.20  1993/08/03  12:19:38  ahd
-#         Upper case names
-#
-#         Revision 1.19  1993/08/02  03:21:28  ahd
-#         Rename zip files
-#         use ZIP instead of PKZIP
-#         explicitly use MAKER for nested makes (need MAKE for master to
-#         keep ZIP from running of out DOS memory)
-#
-#         Revision 1.18  1993/07/31  16:20:41  ahd
-#         Clean-up in support of Windows versions
-#
-#         Revision 1.17  1993/07/22  23:18:38  ahd
-#         Rename UUPCLIBW
-#
-#         Revision 1.16  1993/06/06  15:03:51  ahd
-#         Move to release 1.12a
-#
-#         Revision 1.15  1993/05/30  16:05:22  ahd
-#         Del workfile to correct pkzip archiving too much
-#
-#         Revision 1.14  1993/05/16  13:17:21  ahd
-#         Rename nmake to mscmake
-#
-#         Revision 1.13  1993/04/19  13:16:08  ahd
-#         Begin version 1.11z
-#
-#         Revision 1.12  1993/04/16  02:43:27  ahd
-#         Do not archive bad rn source
-#
-#         Revision 1.11  1993/04/16  02:31:47  ahd
-#         Drop broken rn/newsetup from build for now
-#
-#         Revision 1.10  1993/04/11  21:09:10  ahd
-#         Drop GNU oriented Makefile
-#
-#       Revision 1.9  1992/12/30  12:40:31  plummer
-#       Update version
-#
-#       Revision 1.9  1992/12/30  12:40:31  plummer
-#       Update version
-#
-#       Revision 1.8  1992/12/18  13:05:00  ahd
-#       Drop system aliases
-#
-#       Revision 1.7  1992/12/11  12:43:53  ahd
-#       Add aliases file to list of samples
-#
-#       Revision 1.6  1992/12/04  00:59:25  ahd
-#       Add copyright statements
-#
-#       Revision 1.5  1992/11/29  22:39:15  ahd
-#       Add *.txt files to documentation archive (for RFC's)
-#
-#       Revision 1.4  1992/11/23  02:43:59  ahd
-#       Add scripts (batch files) to RCS
-#       Change expire.com and rnews.com to exe files
-#
-#       Revision 1.3  1992/11/22  21:04:42  ahd
-#       Add normalize() to build
-#
-#       Revision 1.2  1992/11/18  01:34:57  ahd
-#       Drop -k flag
-#
-#       Revision 1.1  1992/11/10  04:11:14  ahd
-#       Initial revision
-#
-#       Revision 1.2  1992/05/03  17:19:14  ahd
-#       Add library inclusion to generation of small .COM files
 
 .autodepend
 
@@ -332,13 +105,7 @@ SRCSLASH = $(SRC:/=\)
 !endif
 !endif
 
-!if $d(__OS2__)
-MODEL=2
-SUFFIX   = $(MODEL)
-PSUFFIX  = 2
-DEFFILE  = $(SRCSLASH)UUPCOS23.DEF
-ENVIRONMENT=OS/2 32 bit
-!elif $d(WINDOWS)
+!if $d(WINDOWS)
 MODEL    = $(WINMODEL)
 SUFFIX   = w$(MODEL)
 PSUFFIX  = w
@@ -367,7 +134,7 @@ TDSTRIP=tdstrip
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12r
+VERS = 1.12u
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
@@ -406,11 +173,7 @@ ARCHIVE = $(SRCSLASH)$(VERS)
 !endif
 
 !if !$d(PROD)
-!if $d(__OS2__)
-PROD    = $(PRODDRIVE)\UUPC\OS2BIN32
-!else
 PROD    = $(PRODDRIVE)\UUPC\BIN
-!endif
 !endif
 
 !if !$d(WINPROD)
@@ -418,11 +181,7 @@ WINPROD = $(PRODDRIVE)\UUPC\WINBIN
 !endif
 
 !if !$d(BORLANDC)
-!if $d(__OS2__)
-BORLANDC = \BCOS2
-!else
 BORLANDC = \BORLANDC
-!endif
 !endif
 
 !if !$d(BLIB)
@@ -441,12 +200,8 @@ UUPCCFG  = $(TMP)\UUPC$(SUFFIX).CFG
 UUPCDEFS=$(TMP)\uupc$(SUFFIX).mak
 !endif
 
-!if $d(__OS2__)
-UUPCDEFM=$(UUPCDEFS)
-!else
 UUPCDEFM=$(TMP)\uupcm.mak
 UUPCDEFW=$(TMP)\uupcw$(WINMODEL).mak
-!endif
 
 COMMON  = $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(LIBRARIES)
 
@@ -481,11 +236,6 @@ OPTCOMM = $(PROD)\uucp.exe $(PROD)\uuname.com $(PROD)\uupoll.exe\
           $(PROD)\uux.com $(PROD)\fmt.com $(PROD)\gensig.com \
           $(PROD)\novrstrk.com $(PROD)\fromwho.com
 
-!if $d(__OS2__)
-REQUIRED  = $(REQCOMM:.com=.exe)
-OPTIONAL= $(OPTCOMM:.com=.exe) \
-          $(SCRIPTS:.bat=.cmd) $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
-!else
 OPTIONAL= $(OPTCOMM) $(PROD)\comm34.com $(SCRIPTS) $(PROD)\uuclean.pif
 REQUIRED  = $(REQCOMM) $(PROD)\rmail.pif $(PROD)\uuxqt.pif
 
@@ -495,20 +245,14 @@ REQUIRED  = $(REQCOMM) $(PROD)\rmail.pif $(PROD)\uuxqt.pif
 # *      UUXQT run RMAIL and RNEWS as normal DOS programs.             *
 # *--------------------------------------------------------------------*
 
-#WREQUIRED=$(WINPROD)\mail.exe $(WINPROD)\rmail.exe $(WINPROD)\uucico.exe\
-#          $(WINPROD)\uuxqt.exe
 WREQUIRED=$(WINPROD)\uucico.exe
 WOPTIONAL=$(WINPROD)\uuname.exe $(WINPROD)\uupoll.exe $(WINPROD)\uustat.exe\
           $(WINPROD)\uusub.exe $(WINPROD)\uuport.exe
 WNEWS     = #   No modules for news
-#WNEWS    =$(WINPROD)\expire.exe  $(WINPROD)\uutraf.exe \
-#         $(WINPROD)\rnews.exe $(WINPROD)\rn.exe $(WINPROD)\newsetup.exe
-!endif
 
 NEWSPGM = $(PROD)\EXPIRE.EXE $(PROD)\GENHIST.EXE $(PROD)\INEWS.COM \
           $(PROD)\NEWSRUN.EXE \
           $(PROD)\RNEWS.COM $(PROD)\SENDBATS.EXE $(PROD)\UUTRAF.EXE
-#         $(PROD)\rn.exe $(PROD)\newsetup.exe
 
 INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWSPGM) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 
@@ -518,17 +262,12 @@ SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\mail.ico $(DOCS)\uucico.ico $(DOCS)\up-pif.dvp
 SAMPLEX = SYSTEMS PASSWD HOSTPATH *.RC *.MDM PERSONAL.SIG ALIASES.TXT *.ICO
 
-MAKEFILE = MAKEFILE
+MAKEFILE = BORLANDC.MAK
 
 UUPCLIB  = $(TMP)\CUUPC$(SUFFIX).LIB
 UUPCLIBW = $(TMP)\CUUPCW$(SUFFIX).LIB
 
-!if $d(__OS2__)
-STARTUP  = $(BLIB)\C02.obj
-LIBRARY2 = $(BLIB)\C2.LIB
-LIBRARY3 = $(BLIB)\os2.LIB
-LIBRARY  = $(UUPCLIB)+$(LIBRARY2)+$(LIBRARY3)
-!elif $d(WINDOWS)
+!if $d(WINDOWS)
 STARTUP  = $(BLIB)\C0$(SUFFIX)
 LIBRARY2 = $(BLIB)\C$(SUFFIX).LIB
 LIBRARY3 = $(BLIB)\IMPORT.LIB
@@ -547,18 +286,12 @@ COMMON  = $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(LIBRARIES)
 ZIPPREFIXX=UPC$(VERS:.=)
 ZIPPREFIX=$(ZIPPREFIXX:C1=C)
 
-!if $d(__OS2__)
-REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)21.ZIP
-OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)22.ZIP
-NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)23.ZIP
-!else
 REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)B1.ZIP
 OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)B2.ZIP
 NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)B3.ZIP
 WREQZIPV = $(ARCHIVE)\$(ZIPPREFIX)W1.ZIP
 WOPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)W2.ZIP
 #WNEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)W3.ZIP
-!endif
 
 DOCZIPV = $(ARCHIVE)\$(ZIPPREFIX)AD.ZIP
 WFWZIPV = $(ARCHIVE)\$(ZIPPREFIX)AW.ZIP
@@ -575,9 +308,7 @@ SRCZIPV4 = $(SRCZIPV1:S1=S4)
 CC = BCC +$(UUPCCFG)
 LINKER  = TLINK
 
-!if $d(__OS2__)
-LINKOPTN = /c /x /Toe /ap /B:0x10000
-!elif $d(WINDOWS)
+!if $d(WINDOWS)
 LINKOPTN = /c /x /yx /Twe
 LINKOPTT = /c /x /t /Twe
 !else
@@ -593,22 +324,14 @@ ZIP     = zip
 ZIPOPT1 = -o -9 -u $< -@
 ZIPOPT2 = -j $(ZIPOPT1)
 
-!if $d(__OS2__)
-MAKER=make
-!else
 MAKER=maker -DTDSTRIP=$(TDSTRIP)
-!endif
 
 # *--------------------------------------------------------------------*
 # *      High speed delete command for OS/2, bypasses archiving        *
 # *--------------------------------------------------------------------*
 
 !if !$d(ERASE)
-!if $d(__OS2__)
-ERASE=DEL /F
-!else
 ERASE=DEL
-!endif
 !endif
 
 # *--------------------------------------------------------------------*
@@ -620,20 +343,6 @@ ERASE=DEL
 # *--------------------------------------------------------------------*
 # *     test builds the basic UUPC modules in the source directory.    *
 # *--------------------------------------------------------------------*
-
-!if $d(__OS2__)
-
-test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
-         genhist$(PSUFFIX).exe   \
-         gensig$(PSUFFIX).exe inews$(PSUFFIX).exe mail$(PSUFFIX).exe    \
-         novrstr$(PSUFFIX).exe rmail$(PSUFFIX).exe rnews$(PSUFFIX).exe  \
-         newsrun$(PSUFFIX).exe sendbats$(PSUFFIX).exe                   \
-         uucico$(PSUFFIX).exe uucp$(PSUFFIX).exe uuname$(PSUFFIX).exe   \
-         uupoll$(PSUFFIX).exe uuport$(PSUFFIX).exe uustat$(PSUFFIX).exe \
-         uusub$(PSUFFIX).exe uutraf$(PSUFFIX).exe uux$(PSUFFIX).exe     \
-         uuxqt$(PSUFFIX).exe
-
-!else
 
 test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
          gensig.com inews.exe mail.exe novrstrk.com rmail.exe rnews.exe \
@@ -652,23 +361,14 @@ windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe  newsrun.exe       \
          uucpw.exe uupollw.exe uuportw.exe uustatw.exe uusubw.exe       \
          uutrafw.exe uuxqtw.exe uuxw.exe
 
-!endif
-
 # *--------------------------------------------------------------------*
 # *   Prod build the basic modules and then moves them to $(PROD)      *
 # *--------------------------------------------------------------------*
 
-!if $d(__OS2__)
-prod:   $(REQUIRED:.com=.exe) $(OPTIONAL:.com=.exe) $(NEWSPGM:.com=.exe)
-        - $(ERASE) $(TIMESTMP)
-        - $(ERASE) $(UUPCLIB)
-        - $(ERASE) *.sym
-!else
 prod:   $(INSTALL)
         - $(ERASE) $(TIMESTMP)
         - $(ERASE) $(UUPCLIB)
         - $(ERASE) *.sym
-!endif
 
 winprod:  commonw $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
         - del *.tds
@@ -682,14 +382,8 @@ required: $(REQUIRED)
 # *     and creates PKZIP files for giving away.                       *
 # *--------------------------------------------------------------------*
 
-!if $d(__OS2__)
-install:
-        $(MAKER) -DNDEBUG=1 installx \
-        $(SRCZIPV1) $(SRCZIPV2) $(SRCZIPV3) $(SRCZIPV4)
-!else
 install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
         - del *.sym
-!endif
 
 doczip:  $(DOCZIPV)
 
@@ -728,163 +422,117 @@ clean:
 $(PROD)\expire.exe: expire$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\fmt.exe: fmt$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\gensig.exe: gensig$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\genhist.exe: genhist$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\inews.exe: inews$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\mail.exe: mail$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\newsrun.exe: newsrun$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\newsetup.exe: newsetup$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\novrstrk.exe: novrstr$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\rmail.exe: rmail$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\rn.exe: rn$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\rnews.exe: rnews$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\sendbats.exe: sendbats$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uucico.exe: uucico$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uucp.exe: uucp$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uuname.exe: uuname$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uupoll.exe: uupoll$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uuport.exe: uuport$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uustat.exe: uustat$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uusub.exe: uusub$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uutraf.exe: uutraf$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uux.exe: uux$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\uuxqt.exe: uuxqt$(PSUFFIX).exe
         - $(ERASE) $<
         move $? $<
-!if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
-!endif
 
 $(PROD)\getuupc.cmd: $(SCRIPT)\getuupc.cmd
         copy $? $<
@@ -903,8 +551,6 @@ $(PROD)\uuio.cmd: $(SCRIPT)\uuio.cmd
 
 $(PROD)\waiting.cmd: $(SCRIPT)\waiting.cmd
         copy $? $<
-
-!if !$d(__OS2__)
 
 $(PROD)\uusub.com: uusub.com
         - $(ERASE) $<
@@ -1077,8 +723,6 @@ $(WINPROD)\uuxqt.exe: uuxqtw.exe
         - $(ERASE) $<
         move $? $<
         - $(ERASE) $(?B: =.tds)
-!endif
-
 !endif
 
 # *--------------------------------------------------------------------*
@@ -1305,17 +949,11 @@ help@kew.com.
 
 common: $(.path.obj) $(COMMON)  $(DEFFILE)
 
-!if $d(__OS2__)
-commonm:        common
-        @REM    I'm a dummy command
-
-!else
 commonm:
         $(MAKER) -f$(MAKEFILE) -DMODEL=m common
 
 commonw:
         $(MAKER) -f$(MAKEFILE) -DWINDOWS common
-!endif
 
 # *--------------------------------------------------------------------*
 # *                     Link our various modules                       *
@@ -1351,8 +989,8 @@ newsetup$(PSUFFIX).exe: commonm
 novrstr$(PSUFFIX).exe: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
-rmail$(PSUFFIX).exe: common
-        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
+rmail$(PSUFFIX).exe: commonm
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 rn$(PSUFFIX).exe: commonm
         $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFS) $<
@@ -1392,8 +1030,6 @@ uux$(PSUFFIX).exe: common
 
 uuxqt$(PSUFFIX).exe: common
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-!if !$d(__OS2__)
 
 comm34.com: common
         $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
@@ -1480,7 +1116,6 @@ uuxw.exe: commonw
 
 uuxqtw.exe: commonw
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
-!endif
 
 # *--------------------------------------------------------------------*
 # *               WUUPCREQ.ZIP - Required Windows Executables          *
@@ -1593,9 +1228,6 @@ $(DOCS)\hostpath.kew: $(CONF)\hostpath
 # *                  *Compiler Configuration File*                     *
 # *--------------------------------------------------------------------*
 
-!if $d(__OS2__)
-OPTIMIZEOPT=-O2
-!else
 MODELOPT=-m$(MODEL)
 OPTIMIZEOPT=-O
 !if $d(WINDOWS)
@@ -1603,7 +1235,6 @@ GENERATEOPT=-W
 CODEGENOPT=-3
 !else
 GENERATEOPT=-D_MSC
-!endif
 !endif
 
 $(UUPCCFG): $(MAKEFILE) \
@@ -1715,16 +1346,6 @@ EXETYPE WINDOWS
 DATA MOVABLE MULTIPLE
 STACKSIZE 8182
 HEAPSIZE  12288
-Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1997 Kendra Electronic Wonderworks, All Rights Reserved'
-| $<
-!endif
-
-!if $d(__OS2__)
-$(DEFFILE): $(MAKEFILE)
-  copy &&|
-DATA MULTIPLE
-STACKSIZE 32760
-EXETYPE OS2
 Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1997 Kendra Electronic Wonderworks, All Rights Reserved'
 | $<
 !endif
