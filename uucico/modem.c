@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.9 1993/01/23 19:08:09 ahd Exp $
+ *    $Id: MODEM.C 1.10 1993/03/06 23:04:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.10  1993/03/06  23:04:54  ahd
+ * make modem connected messages consistent
+ *
  * Revision 1.9  1993/01/23  19:08:09  ahd
  * Add additional shutdown() commands even when modem does not init
  *
@@ -187,13 +190,13 @@ CONN_STATE callup( void )
 /*             Announce we are trying to call the system              */
 /*--------------------------------------------------------------------*/
 
-   printmsg(1, "callup: calling \"%s\" via %s at %s on %s",
+   printmsg(1, "callup: Calling %s via %s at %s on %s",
           rmtname, flds[FLD_TYPE], flds[FLD_SPEED], arpadate());
 
    speed = (size_t) atoi( flds[FLD_SPEED] );
    if (speed < 300)
    {
-      printmsg(0,"callup: Modem speed \"%s\" is invalid.",
+      printmsg(0,"callup: Modem speed %s is invalid.",
                   flds[FLD_SPEED]);
       hostp->hstatus = invalid_device;
       return CONN_INITIALIZE;
@@ -277,6 +280,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
+   norecovery = FALSE;           // Shutdown gracefully as needed
    if (openline(device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
@@ -344,6 +348,7 @@ configuration file.");
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
 
+   norecovery = FALSE;           // Shutdown gracefully as needed
    if (openline(device, inspeed, bmodemflag[MODEM_DIRECT]))
       panic();
 
@@ -400,8 +405,6 @@ configuration file.");
 
    printmsg(14, "callin: Modem reports connected");
 
-   if (bmodemflag[MODEM_CD])
-      CD();                   /* Set the carrier detect flags        */
 
    autobaud(inspeed);         /* autobaud the modem                  */
 
@@ -476,7 +479,7 @@ static boolean getmodem( const char *brand)
 
    if (equaln(brand,"COM",3))
    {
-      printmsg(0,"Modem type \"%s\" is invalid; Snuffles suspects \
+      printmsg(0,"Modem type %s is invalid; Snuffles suspects \
 your %s file is obsolete.", brand, SYSTEMS);
       panic();
    }
@@ -536,6 +539,7 @@ static boolean dial(char *number, const size_t speed)
 /*                        Open the serial port                        */
 /*--------------------------------------------------------------------*/
 
+   norecovery = FALSE;           // Shutdown gracefully as needed
    if (openline(device, speed, bmodemflag[MODEM_DIRECT]))
    {
 
@@ -580,9 +584,6 @@ static boolean dial(char *number, const size_t speed)
    }
    printmsg(3, "dial: Modem reports connected");
 
-   if (bmodemflag[MODEM_CD])
-      CD();                   /* Set the carrier detect flags        */
-
    time( &remote_stats.lconnect );
    remote_stats.calls ++ ;
 
@@ -607,6 +608,9 @@ static void autobaud( const size_t speed )
    char buf[10];
 
    ssleep(1);                 /*  Allow modem port to stablize       */
+
+   if (bmodemflag[MODEM_CD])
+      CD();                   /* Set the carrier detect flags        */
 
 /*--------------------------------------------------------------------*/
 /*                  Autobaud the modem if requested                   */
@@ -665,6 +669,7 @@ void shutdown( void )
    }
 
    closeline();
+   norecovery = TRUE;
 }
 
 /*--------------------------------------------------------------------*/
