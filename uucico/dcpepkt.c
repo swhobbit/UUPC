@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.7 1994/02/19 05:06:41 ahd Exp $
+ *    $Id: dcpepkt.c 1.8 1994/05/04 23:36:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *        Revision 1.8  1994/05/04  23:36:34  ahd
+ *        Count packets sent/received in command messages
+ *
  * Revision 1.7  1994/02/19  05:06:41  ahd
  * Use standard first header
  *
@@ -123,7 +126,10 @@ short egetpkt(char *packet, short *bytes)
       recv = (short) min(efilelength - ebytesdone, r_pktsize);
 
    if ( sread( packet, recv, M_ePacketTimeout) < recv )
-      printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
+   {
+      printmsg(0,"egetpkt: Data read failed for %d bytes", (int) recv);
+      return -1;
+   }
 
    remote_stats.packets++;
 
