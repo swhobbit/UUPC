@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.39 1997/05/11 04:28:53 ahd v1-12s $
+ *    $Id: lib.h 1.40 1997/06/03 03:26:38 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.40  1997/06/03 03:26:38  ahd
+ *    First compiling SMTP daemon
+ *
  *    Revision 1.39  1997/05/11 04:28:53  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -199,7 +202,11 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
+#ifdef BIT32ENV
 #define RCSID(x) static const char UUFAR _rcsId[] = x
+#else
+#define RCSID(x)
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
