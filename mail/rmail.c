@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.70 1998/04/19 15:30:08 ahd v1-13b $
+ *    $Id: rmail.c 1.71 1998/08/29 14:17:11 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.71  1998/08/29 14:17:11  ahd
+ *    Add setTitle() commands to report delivery progress
+ *
  * Revision 1.70  1998/04/19  15:30:08  ahd
  * Relax error traps for UUCP from line
  *
@@ -275,6 +278,8 @@ static KWBoolean DaemonMail(
 /*--------------------------------------------------------------------*/
 
  currentfile();                     /* file name for checkref()        */
+
+ RCSID("$Id$");
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;
@@ -859,7 +864,7 @@ static char **Parse822(
    char address[MAXADDR];           /* Buffer for parsed address       */
    char fHost[MAXADDR];
    char fUser[MAXADDR];
-   int senderID = -1, dateID = -1, fromID = -1;
+   int senderID = -1, dateID = -1, fromID = -1, messageID = -1;
 
    typedef struct _HEADERS
    {
@@ -879,12 +884,13 @@ static char **Parse822(
 
    static HEADERS headerTable[] =
    {
-      { "From:",   NULL,  KWFalse, KWTrue,  KWFalse, KWFalse },
-      { "Sender:", NULL,  KWFalse, KWFalse, KWFalse, KWFalse },
-      { "To:",     NULL,  KWFalse, KWFalse, KWTrue,  KWFalse },
-      { "Cc:",     NULL,  KWFalse, KWFalse, KWTrue,  KWFalse },
-      { "Bcc:",    NULL,  KWTrue,  KWFalse, KWTrue,  KWFalse },
-      { "Date:",   NULL,  KWFalse, KWFalse, KWFalse, KWFalse },
+      { "From:",         NULL,  KWFalse, KWTrue,  KWFalse, KWFalse },
+      { "Sender:",       NULL,  KWFalse, KWFalse, KWFalse, KWFalse },
+      { "To:",           NULL,  KWFalse, KWFalse, KWTrue,  KWFalse },
+      { "Cc:",           NULL,  KWFalse, KWFalse, KWTrue,  KWFalse },
+      { "Bcc:",          NULL,  KWTrue,  KWFalse, KWTrue,  KWFalse },
+      { "Date:",         NULL,  KWFalse, KWFalse, KWFalse, KWFalse },
+      { "Message-ID:",   NULL,  KWFalse, KWFalse, KWFalse, KWFalse },
       { NULL }
    };
 
@@ -904,6 +910,8 @@ static char **Parse822(
          fromID = (int) subscript;
       else if (equal(headerTable[subscript].text, "Sender:"))
          senderID = (int) subscript;
+      else if (equal(headerTable[subscript].text, "Message-ID:"))
+         messageID = (int) subscript;
 
       headerTable[subscript].found = KWFalse;
 
@@ -935,14 +943,6 @@ static char **Parse822(
             compilev,
             " ",
             arpadate());
-
-/*--------------------------------------------------------------------*/
-/*                       Generate a message-id                        */
-/*--------------------------------------------------------------------*/
-
-   sprintf(buf, "<%lx.%s@%s>", time(NULL), E_nodename, E_domain);
-   PutHead("Message-ID:", buf, imf, (KWBoolean) offset);
-   PutHead(NULL, NULL, imf, KWFalse); /* Terminate header              */
 
 /*--------------------------------------------------------------------*/
 /*                        Find the From: line                         */
@@ -1165,6 +1165,21 @@ static char **Parse822(
 
    if (! headerTable[dateID].found)
       PutHead("Date:", arpadate(), imf, (KWBoolean) offset);
+
+/*--------------------------------------------------------------------*/
+/*                       Generate a message-id                        */
+/*--------------------------------------------------------------------*/
+
+   if (! headerTable[messageID].found)
+   {
+      sprintf(buf, "<%lx.%s.%s@%s>",
+              time(NULL),
+              E_mailbox,
+              E_nodename,
+              E_domain);
+      PutHead("Message-ID:", buf, imf, (KWBoolean) offset);
+      PutHead(NULL, NULL, imf, KWFalse); /* Terminate header         */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Terminate the header                        */
