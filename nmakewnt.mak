@@ -1,10 +1,14 @@
-#       $Id: nmakewnt.mak 1.4 1994/04/24 20:32:52 ahd Exp $
+#       $Id: nmakewnt.mak 1.5 1994/05/23 21:40:46 dmwatt Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.5  1994/05/23  21:40:46  dmwatt
+#       Add Windows NT utilities
+#       Add UUCICO without TCP/IP for OS/2 32 bit
+#
 #       Revision 1.4  1994/04/24  20:32:52  ahd
 #       Add titlen.obj to library list
 #
@@ -22,8 +26,8 @@
 #
 #
 
-COMMOPT = -nologo
-CCOPT   = $(COMMOPT) $(cflags) $(cvarsmt) $(cdebug) -MT -I$(UULIB) -Fo$@
+COMMOPT = -nologo  -MT $(cdebug)
+CCOPT   = $(COMMOPT) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
 PROD    = \uupc\ntbin
 ZIPID   = n
 ERASE   = del
@@ -35,13 +39,14 @@ LIBOSLIST=  $(OBJ)\ndirnt.obj $(OBJ)\scrsiznt.obj $(OBJ)\setstdin.obj\
 UUCICOOBJ3 = $(OBJ)\catcheru.obj $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj\
               $(OBJ)\prtynt.obj $(OBJ)\pwserr.obj $(OBJ)\suspendn.obj \
               $(OBJ)\ulibip.obj $(OBJ)\ulibnt.obj
+
 #       You need to add MYUULIBS=OLDNAMES.LIB to your environment
 #       or NMAKE.MAK include file to build under NT's Visual C++
 
-LDOPT    = $(COMMOPT) -MT -D_MT $(cdebug) -Fe$@
+LDOPT    = $(COMMOPT) -Fe$@
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib $(MYUULIBS)
 
 EXTRAT=regsetup.exe uupcdll.dll
-EXTRA3=regsetup.exe
-EXTRA4=uupcdll.dll
+EXTRA3=$(PROD)\regsetup.exe
+# EXTRA4=$(PROD)\uupcdll.dll
