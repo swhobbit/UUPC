@@ -8,10 +8,15 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: rnews.mak 1.3 1993/07/31 16:21:21 ahd Exp $
+#     $Id: RNEWS.MAK 1.4 1993/09/20 04:36:42 ahd Exp $
 #
 #     Revision history:
-#     $Log: rnews.mak $
+#     $Log: RNEWS.MAK $
+# Revision 1.4  1993/09/20  04:36:42  ahd
+# TCP/IP support from Dave Watt
+# 't' protocol support
+# BC++ 1.0 for OS/2 support
+#
 # Revision 1.3  1993/07/31  16:21:21  ahd
 # Windows 3.x support
 #
@@ -32,9 +37,12 @@ LINKOPT=$(LINKOPTD)
 
 .path.c = $(RNEWS)
 
-RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj
+RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.obj
 
-EXPIREOBJ = $(OBJ)\expire.obj
+EXPIREOBJ = $(OBJ)\expire.obj $(OBJ)\history.obj \
+           $(OBJ)\idx.obj $(OBJ)\hdbm.obj
+GENHISTOBJ = $(OBJ)\genhist.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.obj
+INEWSOBJ = $(OBJ)\inews.obj
 
 rnews$(PSUFFIX).exe: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
         - erase rnews.com
@@ -64,6 +72,32 @@ expire$(PSUFFIX).exe: $(UUPCCFG)     $(EXPIREOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(EXPIREOBJ)
+$<
+$(MAP)
+$(LIBRARY)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+genhist$(PSUFFIX).exe: $(UUPCCFG)     $(GENHISTOBJ) $(LIBRARIES)
+        - erase genhist.com
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(GENHISTOBJ)
+$<
+$(MAP)
+$(LIBRARY)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+inews$(PSUFFIX).exe: $(UUPCCFG)     $(INEWSOBJ) $(LIBRARIES)
+        - erase inews.com
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(INEWSOBJ)
 $<
 $(MAP)
 $(LIBRARY)
