@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.18 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: nbstime.c 1.19 1994/02/21 16:38:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.19  1994/02/21  16:38:58  ahd
+ * Bulletproof buffer parse to insure garbled buffers are not
+ * used to set system clock.
+ *
  * Revision 1.18  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -109,6 +113,7 @@
 #include "script.h"
 #include "security.h"
 #include "commlib.h"
+#include "catcher.h"
 
 #if !defined(__TURBOC__) || defined(__OS2__)
    currentfile();
@@ -143,8 +148,9 @@ boolean nbstime( void )
    char sync = '?';
    unsigned rc;
    int errors = 0;
+
    static const char model[] =
-         "##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
+         "##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *\r\n";
 
 #if !defined(WIN32)
    time_t delta;
@@ -178,34 +184,35 @@ boolean nbstime( void )
       return FALSE;
    }
 
-   rmsg(buf, 2, 2, sizeof buf);
-                  /* Read one line to get us setup for input   */
+   rmsg(buf, 2, 2, sizeof buf);     /* Read header line, discard     */
+   rmsg(buf, 2, 2, sizeof buf);     /* Read header line end, discard */
+   *buf = '\0';                     /* Insure the buffer is empty    */
 
 /*--------------------------------------------------------------------*/
 /*                  Begin main loop to get the time                   */
 /*--------------------------------------------------------------------*/
 
-   while ((sync != '#') &&
-           cycles &&
-          (rmsg(buf, 2, 2, sizeof buf) != TIMEOUT))
+   while ((sync != '#') && cycles-- && ! terminate_processing )
    {
       int column;
       boolean error = FALSE;
 
-      if ( ! *buf )                 /* Empty line?                   */
-         continue;                  /* Yes --> Ignore it             */
-
-      cycles--;                     /* Count this line as read       */
-
 /*--------------------------------------------------------------------*/
-/*       Verify entire contents of the buffer, including the          */
-/*       terminating null character.                                  */
+/*       Read and verify entire contents of the buffer.               */
 /*--------------------------------------------------------------------*/
 
       for ( column = 0;
-            (column < sizeof model) && (!error);
+            (column < (sizeof model - 1)) && ! error;
             column++ )
       {
+         if (sread(buf + column, 1, 1) < 1)
+         {
+            printmsg(0,"nbstime: Timeout reading character");
+            return FALSE;
+         }
+
+         swrite( buf + column, 1 ); /* Echo character to time server */
+
          switch( model[column] )
          {
             case '?':               /* Any character, ignore it      */
@@ -233,6 +240,13 @@ boolean nbstime( void )
 
       } /* for */
 
+      if ( ! *buf )                 /* Empty line?                   */
+         continue;                  /* Yes --> Ignore it             */
+
+/*--------------------------------------------------------------------*/
+/*               Common processing for error conditions               */
+/*--------------------------------------------------------------------*/
+
       if ( error )                 /* Found a bad character?         */
       {
          if ( debuglevel > 2 )
@@ -240,7 +254,25 @@ boolean nbstime( void )
                          column,
                          buf );
          errors++;
+
+/*--------------------------------------------------------------------*/
+/*                     Flush the rest of the line                     */
+/*--------------------------------------------------------------------*/
+
+         while( (sread(buf, 1, 1) >= 1) && (column++ <= sizeof model ))
+         {
+            if ( *buf == model[ sizeof model - 2 ] )
+               break;
+
+            swrite(buf, 1);
+
+            if ( debuglevel > 2 )
+               fputc(*buf, stderr);
+
+         } /* while */
+
          *buf = '\0';      /* Insure we don't use bad buffer below   */
+
       } /* if ( error ) */
 
    } /* while */
