@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.6 1995/02/20 17:30:32 ahd v1-12q $
+ *    $Id: maillib.h 1.7 1996/01/01 21:04:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.7  1996/01/01 21:04:52  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1995/02/20 17:30:32  ahd
  *    16 bit compiler warning cleanup
  *
@@ -72,7 +75,7 @@ KWBoolean CopyMsg(const int msgnum,
  void    ReturnAddress(char *line,
                        const long adr);
 
-void sayoptions( FLAGTABLE *flags);
+void sayOptions( FLAGTABLE *flags, const size_t size);
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */

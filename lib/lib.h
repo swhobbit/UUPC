@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.32 1995/07/21 13:28:20 ahd v1-12q $
+ *    $Id: lib.h 1.33 1996/01/02 00:02:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.33  1996/01/02 00:02:08  ahd
+ *    Use sorted confifugration file tables with predefined sizes
+ *    to allow binary search, rather than previous linear search.
+ *
  *    Revision 1.32  1995/07/21 13:28:20  ahd
  *    Correct compiler warnings
  *
@@ -302,6 +306,7 @@ extern FILE *logfile;
 extern KWBoolean bflag[F_LAST];
 
 extern FLAGTABLE configFlags[];
+extern size_t configFlagsSize;
 
 /*--------------------------------------------------------------------*/
 /*                        Function prototypes                         */
@@ -331,7 +336,8 @@ extern FILE *FSOPEN(const char *name,
 extern void options(char *s,
                     SYSMODE sysmode ,
                     FLAGTABLE *flags,
-                    KWBoolean *xflag);
+                    KWBoolean *xflag,
+                    const size_t flagsSize );
 
 int getargs(char *line,
             char **flds);                                   /* ahd */
@@ -345,14 +351,16 @@ KWBoolean getconfig(FILE *fp,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
                   const size_t TableSize,
-                  FLAGTABLE *btable);
+                  FLAGTABLE *btable,
+                  const size_t btableSize);
 
 KWBoolean processconfig(char *buff,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
                   const size_t TableSize,
-                  FLAGTABLE *btable);
+                  FLAGTABLE *bTable,
+                  const size_t bTableSize );
 
 void bugout( const size_t lineno, const char *fname);
 
