@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.29 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: nbstime.c 1.30 1995/03/24 04:17:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ *    Revision 1.30  1995/03/24 04:17:22  ahd
+ *    Compiler warning message cleanup, optimize for low memory processing
+ *
  *    Revision 1.29  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -118,7 +121,6 @@
 /*--------------------------------------------------------------------*/
 
 #include <ctype.h>
-
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -246,12 +248,13 @@ setClock( time_t newClock, const int dst )
 /*--------------------------------------------------------------------*/
 
 static time_t
-setClock( struct *txp )
+setClock( struct tm *txp )
 {
    SYSTEMTIME dateTime;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
    DWORD dwError;
+   int rc;
 
    GetSystemTime( &dateTime );
 
@@ -331,39 +334,9 @@ setClock( struct *txp )
 
 } /* setClock */
 
-#elif defined( __TURBOC__ )
-
-/*--------------------------------------------------------------------*/
-/*       s e t C l o c k                                              */
-/*                                                                    */
-/*       Set system clock under MS-DOS with Turbo C                   */
-/*--------------------------------------------------------------------*/
-
-static time_t
-setClock( time_t newClock, const int dst )
-{
-
-/*--------------------------------------------------------------------*/
-/*     Borland C++ doesn't set the time properly; do an adjustment    */
-/*--------------------------------------------------------------------*/
-
-   newClock -= timezone;
-
-/*--------------------------------------------------------------------*/
-/*    If this timezone uses daylight savings and we are in the        */
-/*    period to spring forward, do so.                                */
-/*--------------------------------------------------------------------*/
-
-   if (daylight && ( dst > 1 ) && ( dst < 52 ))
-      newClock += 3600;             /* Valid for the USA only        */
-
-   stime( &newClock );
-
-   return newClock;
-
-} /* setClock */
-
 #else
+
+#ifndef __TURBOC__
 
 /*--------------------------------------------------------------------*/
 /*                     DOS specific include files                     */
@@ -374,11 +347,11 @@ setClock( time_t newClock, const int dst )
 /*--------------------------------------------------------------------*/
 /*       s e t C l o c k                                              */
 /*                                                                    */
-/*       Set system clock under MS-DOS                                */
+/*       Given the local time, set the system clock under DOS         */
 /*--------------------------------------------------------------------*/
 
-static time_t
-setClock( time_t newClock, const int dst )
+static void
+stime( const time_t *localClock )
 {
 
    struct dosdate_t ddate;
@@ -386,11 +359,12 @@ setClock( time_t newClock, const int dst )
    struct tm *tp;
    unsigned rc;
 
-/*--------------------------------------------------------------------*/
-/*             Set time under DOS with MS C 6.0 compiler              */
-/*--------------------------------------------------------------------*/
+   tp = localtime(localClock);      /* Get time as a recor, NOT
+                                       readjust for TZ offset        */
 
-   tp = localtime(&newClock); /* Get local time as a record          */
+/*--------------------------------------------------------------------*/
+/*              Determine current local time in DOS format            */
+/*--------------------------------------------------------------------*/
 
    ddate.day     = (unsigned char) tp->tm_mday;
    ddate.month   = (unsigned char) (tp->tm_mon + 1);
@@ -402,15 +376,19 @@ setClock( time_t newClock, const int dst )
    dtime.second  = (unsigned char) tp->tm_sec;
    dtime.hsecond = (unsigned char) 0;
 
-   printmsg(3,"Date time: %02d/%02d/%02d %02d:%02d:%02d tz %d, weekday %d",
+   printmsg(3,"stime: Date time: %02d/%02d/%02d %02d:%02d:%02d "
+              " weekday %d",
               (int) ddate.year,
               (int) ddate.month,
-              (int) ddate.day ,
+              (int) ddate.day,
               (int) dtime.hour,
               (int) dtime.minute,
-              (int) dtime.second ,
-              (int) timezone,
+              (int) dtime.second,
               (int) ddate.dayofweek );
+
+/*--------------------------------------------------------------------*/
+/*                 Set time under DOS with MS C compiler              */
+/*--------------------------------------------------------------------*/
 
    if ( (rc = _dos_settime( &dtime )) != 0 )
    {
@@ -423,6 +401,45 @@ setClock( time_t newClock, const int dst )
       printmsg(0,"Return code from _dos_setdate %d", rc);
       panic();
    }
+
+} /* stime */
+
+#endif /* __TURBOC__ */
+
+/*--------------------------------------------------------------------*/
+/*       s e t C l o c k                                              */
+/*                                                                    */
+/*       Set system clock under MS-DOS                                */
+/*--------------------------------------------------------------------*/
+
+static time_t
+setClock( time_t newClock, const int dst )
+{
+
+/*--------------------------------------------------------------------*/
+/*       Neither Borland C++ nor MS C adjust for the local time       */
+/*       zone properly; perform the adjustment by hand.               */
+/*--------------------------------------------------------------------*/
+
+   newClock -= timezone;
+
+/*--------------------------------------------------------------------*/
+/*    If this timezone uses daylight savings and we are in the        */
+/*    period to spring forward, do so.                                */
+/*--------------------------------------------------------------------*/
+
+   if (daylight && ( dst > 1 ) && ( dst < 52 ))
+      newClock += 3600;             /* Valid for the USA only        */
+
+/*--------------------------------------------------------------------*/
+/*                        Actually set the clock                      */
+/*--------------------------------------------------------------------*/
+
+   stime( &newClock );
+
+/*--------------------------------------------------------------------*/
+/*                  Return our local time to the caller               */
+/*--------------------------------------------------------------------*/
 
    return newClock;
 
