@@ -5,9 +5,12 @@ REM *    (ICBJ100@INDYVAX.IUPUI.EDU).  Support for by Snuffles P.      *
 REM *    Bear (Snuffles@kew.com).  Comments by Drew Derbyshire         *
 REM *    (help@kew.com); delete the comments to make this run faster.  *
 REM *------------------------------------------------------------------*
-rem     $Id: UUCLEAN.BAT 1.2 1992/12/01 04:39:48 ahd Exp $
+rem     $Id: uuclean.bat 1.3 1994/04/27 00:07:33 ahd v1-12o $
 rem
-rem     $Log$
+rem     $Log: uuclean.bat $
+rem     Revision 1.3  1994/04/27 00:07:33  ahd
+rem     Prevent endless recursion if TEMP and TMP are not set
+rem
 rem
 REM *------------------------------------------------------------------*
 REM *   Define your spool and temp directories on following lines      *
@@ -41,7 +44,7 @@ call %0 cleanit %1\syslog
 REM *------------------------------------------------------------------*
 REM *                      Clean up old news                           *
 REM *------------------------------------------------------------------*
-if exist %1\..\active expire
+if exist %1\..\news\history.pag expire
 goto exit
 REM *------------------------------------------------------------------*
 REM *                  Clean up a single log file                      *
