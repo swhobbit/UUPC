@@ -19,9 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.37 1993/12/23 03:16:03 rommel Exp $
+ *       $Id: dcpxfer.c 1.38 1993/12/26 16:20:17 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.38  1993/12/26  16:20:17  ahd
+ * Use standard miminum buffer size to avoid excessive realloc() calls
+ * and not over allocate for large (1K) buffer sizes
+ *
  * Revision 1.37  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -1482,7 +1486,7 @@ static void buf_init( void )
 
    checkref( databuf );
 
-   newXferBufSize = xferBufSize;
+   xferBufSize = newXferBufSize;
 
 #ifdef _Windows
    vbufsize = BUFSIZ;            /* Use normal buffering under Windows  */
