@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.17 1995/01/15 19:48:35 ahd v1-12n $
+ *    $Id: active.c 1.18 1995/03/08 00:20:45 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.18  1995/03/08 00:20:45  ahd
+ *    Don't truncate active if a group already exists
+ *
  *    Revision 1.17  1995/01/15 19:48:35  ahd
  *    Allow active file to be optional
  *    Delete fullbatch global option
@@ -411,6 +414,7 @@ KWBoolean get_snum(const char *group, char *snum)
 
    strcpy(snum, "0");
    cur = find_newsgroup(group);
+
    if (cur == NULL)
       return KWFalse;
 
@@ -418,3 +422,24 @@ KWBoolean get_snum(const char *group, char *snum)
    return KWTrue;
 
 } /* snum */
+
+/*--------------------------------------------------------------------*/
+/*       g e t _ m o d e r a t e d                                    */
+/*                                                                    */
+/*       Report if a group is moderated                               */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+get_moderated( const char *group)
+{
+   struct grp *cur = find_newsgroup(group);
+
+   if (cur == NULL)                 /* If the group doesn't exist ...   */
+      return KWFalse;               /* ... it's certainly not moderated */
+
+   if ( cur->grp_can_post == 'm' )
+      return KWTrue;
+   else
+       return KWTrue;
+
+} /* get_moderated */

@@ -18,10 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.27 1995/01/07 16:16:05 ahd Exp $
+ *    $Id: active.h 1.8 1995/01/15 19:50:02 ahd v1-12n $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: active.h $
+ *    Revision 1.8  1995/01/15 19:50:02  ahd
+ *    Delete global fullbatch option
+ *    Add "local", "batch" options to SYS structure
+ *    Allow active file to be optional
+ *
  */
 
 struct grp
@@ -49,6 +54,9 @@ KWBoolean add_newsgroup(const char *grp, const KWBoolean moderated);
 KWBoolean del_newsgroup(const char *grp);
 
 KWBoolean get_snum(const char *group, char *snum);
+
+KWBoolean
+get_moderated( const char *group);
 
 #ifndef MAXGRP
 #define MAXGRP FILENAME_MAX   /* Max length of a news group name      */
