@@ -5,11 +5,11 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.63 1997/12/13 18:05:06 ahd Exp $
+ *    $Id: rmail.c 1.64 1997/12/14 00:43:16 ahd v1-12u $
  *
  *    $Log: rmail.c $
+ *    Revision 1.64  1997/12/14 00:43:16  ahd
+ *    Further cleanup of new sender protocol
+ *
  *    Revision 1.63  1997/12/13 18:05:06  ahd
  *    Change parsing and passing of sender address information
  *
@@ -251,7 +254,7 @@ static KWBoolean DaemonMail(
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
- currentfile();                      /* file name for checkref()      */
+ currentfile();                     /* file name for checkref()        */
 
  static char received[] = "Received:";
  static char receivedlen = sizeof(received) - 1;
@@ -262,18 +265,18 @@ static KWBoolean DaemonMail(
 
 int main(int argc, char **argv)
 {
-   KWBoolean readHeader = KWFalse;     /* True = Parse RFC-822 header */
+   KWBoolean readHeader = KWFalse;  /* True = Parse RFC-822 header     */
 
-   MAIL_ADDR sender;                   /* Source mailbox of message   */
-   int  option;                        /* For parsing option list     */
-   int  tempHandle;                    /* For redirecting stdin       */
-   char **address;                     /* Pointer to list of target
+   MAIL_ADDR sender;                /* Source mailbox of message       */
+   int  option;                     /* For parsing option list         */
+   int  tempHandle;                 /* For redirecting stdin           */
+   char **address;                  /* Pointer to list of target
                                           addresses                   */
-   size_t addressees;                  /* Number of delivery address  */
-   size_t count;                       /* Loop variable for delivery  */
-   size_t delivered = 0;               /* Count of successful deliveries */
+   size_t addressees;               /* Number of delivery address      */
+   size_t count;                    /* Loop variable for delivery      */
+   size_t delivered = 0;            /* Count of successful deliveries  */
    int user_debug  = -1;
-   KWBoolean inHeader = KWTrue;        /* Assume terminated header    */
+   KWBoolean inHeader = KWTrue;     /* Assume terminated header        */
    KWBoolean DeleteInput = KWFalse;
 
    KWBoolean daemonMode = KWFalse;
@@ -283,8 +286,8 @@ int main(int argc, char **argv)
    char *logname = NULL;
    char *namein = CONSOLE;
 
-   FILE *datain = NULL;                /* Input mail stream           */
-   IMFILE  *imf = NULL;                /* Temporary storage stream    */
+   FILE *datain = NULL;             /* Input mail stream               */
+   IMFILE  *imf = NULL;             /* Temporary storage stream        */
 
 /*--------------------------------------------------------------------*/
 /*    Make a copy of the Borland copyright for debugging purposes     */
@@ -295,13 +298,13 @@ int main(int argc, char **argv)
    checkref(copywrong);
 #endif
 
-   logfile = stderr;                   /* Prevent redirection of error
+   logfile = stderr;                /* Prevent redirection of error
                                           msgs during configuration   */
 
-   myProgramName = newstr(argv[0]);    /* Copy before banner() mangles*/
+   myProgramName = newstr(argv[0]); /* Copy before banner() mangles    */
 
-   setDeliveryGrade(E_mailGrade);      /* Get grade from configuration*/
-   memset( &sender, 0, sizeof sender); /* Set fields to defaults      */
+   setDeliveryGrade(E_mailGrade);   /* Get grade from configuration    */
+   memset( &sender, 0, sizeof sender); /* Set fields to defaults       */
 
 /*--------------------------------------------------------------------*/
 /*       Load the UUPC/extended configuration file, and exit if       */
@@ -402,10 +405,10 @@ int main(int argc, char **argv)
       usage();
    }
 
-   checkname(E_nodename);              /* Force loading of E_fdomain */
+   checkname(E_nodename);           /* Force loading of E_fdomain      */
 
 #if defined(_Windows)
-   atexit(CloseEasyWin);               /* Auto-close EasyWin on exit */
+   atexit(CloseEasyWin);            /* Auto-close EasyWin on exit      */
 #endif
 
    if (daemonMode)
@@ -469,13 +472,13 @@ int main(int argc, char **argv)
       ParseFrom(&sender,
                  addressees > 1 ? "multiple addressees" : *address,
                  imf,
-                 datain);              /* Copy remote header instead  */
+                 datain);           /* Copy remote header instead      */
    } /* if */
 
-   if (!address || ! addressees)     /* Can we deliver mail?          */
+   if (!address || ! addressees)    /* Can we deliver mail?            */
    {
       printmsg(0, "No addressees to deliver to!");
-      Terminate(2, imf, datain);     /* No --> Punt formation         */
+      Terminate(2, imf, datain);    /* No --> Punt formation           */
    }
 
 /*--------------------------------------------------------------------*/
@@ -511,10 +514,10 @@ int main(int argc, char **argv)
    if (! CopyTemp(imf, datain, inHeader))
       inHeader = KWFalse;
 
-   if (inHeader)                     /* Was header ever terminated?   */
+   if (inHeader)                    /* Was header ever terminated?     */
    {
       printmsg(0,"rmail: Improper header, adding trailing newline");
-      imputc('\n', imf);             /* If not, it is now ...         */
+      imputc('\n', imf);            /* If not, it is now ...           */
    }
 
 /*--------------------------------------------------------------------*/
@@ -528,24 +531,24 @@ int main(int argc, char **argv)
 /*       Ooops.)                                                      */
 /*--------------------------------------------------------------------*/
 
-   if (stdin != datain)              /* Insure input is closed too    */
+   if (stdin != datain)             /* Insure input is closed too      */
       fclose(datain);
 
-   if (DeleteInput)                  /* Make room for data on disk    */
+   if (DeleteInput)                 /* Make room for data on disk      */
       REMOVE(namein);
 
    if ((tempHandle = open(BIT_BUCKET, O_RDONLY | O_BINARY)) == -1)
    {
-     printerr(BIT_BUCKET);           /* Aw, heck, bit bucket is full? */
-     panic();                        /* If we can't open it, kick it  */
+     printerr(BIT_BUCKET);          /* Aw, heck, bit bucket is full?   */
+     panic();                       /* If we can't open it, kick it    */
    }
-   else if (dup2(tempHandle, 0))     /* Swap stdin to empty input     */
+   else if (dup2(tempHandle, 0))    /* Swap stdin to empty input       */
    {
        printerr("dup2");
        panic();
    }
 
-   close(tempHandle);                /* Don't need original handle    */
+   close(tempHandle);               /* Don't need original handle      */
 
 /*--------------------------------------------------------------------*/
 /*                  Handle special SMTP delivery mode                 */
@@ -567,7 +570,7 @@ int main(int argc, char **argv)
    for (count = 0; count < addressees; count++)
    {
          if (*address[count] == '\0')
-            delivered ++;            /* Ignore optn flags on delivery */
+            delivered ++;           /* Ignore optn flags on delivery   */
          else
             delivered += Deliver(imf, &sender, address[count], KWTrue);
    }
@@ -582,15 +585,15 @@ int main(int argc, char **argv)
             addressees, delivered);
 
    if (delivered >= addressees)
-      Terminate(0, imf, datain);     /* All mail delivered            */
+      Terminate(0, imf, datain);    /* All mail delivered              */
    else if (delivered == 0)
    {
       printmsg(0,"Unable to deliver/bounce to any addresses!");
-      Terminate(2, imf, datain);     /* No mail delivered             */
+      Terminate(2, imf, datain);    /* No mail delivered               */
    }
    else {
       printmsg(0,"Unable to deliver/bounce to all addresses!");
-      Terminate(1, imf, datain);     /* Some mail delivered           */
+      Terminate(1, imf, datain);    /* Some mail delivered             */
    }
 
    return 0;
@@ -611,7 +614,7 @@ static void Terminate(const int rc, IMFILE *imf, FILE *datain)
    if (imf != NULL)
       imclose(imf);
 
-   exit(rc);                         /* Return to operating systems   */
+   exit(rc);                        /* Return to operating systems     */
 
 }  /* Terminate */
 
@@ -643,8 +646,9 @@ static void ParseFrom(
 
    sender->relay = getenv(UU_MACHINE);
 
-   if (equal(sender->relay, E_nodename))     /* Our local queue?     */
-      sender->relay = NULL;          /* Yes --> We don't count        */
+   if ((sender->relay != NULL) &&
+       equal(sender->relay, E_nodename)) /* Our local queue?           */
+      sender->relay = NULL;         /* Yes --> We don't count          */
 
 /*--------------------------------------------------------------------*/
 /*            Now look at the UUCP From line, if it exists            */
@@ -656,7 +660,7 @@ static void ParseFrom(
       panic();
    }
 
-   hit = equaln(buf, from, fromLen);   /* true = UUCP From line   */
+   hit = equaln(buf, from, fromLen); /* true = UUCP From line          */
 
 /*--------------------------------------------------------------------*/
 /*       It's a From line.  Grab the initial address and then look    */
@@ -670,21 +674,20 @@ static void ParseFrom(
       char *rest;
 
       sender->address = token;
-                                       /* Get second token on line
-                                          with user's address        */
-      rest = strtok(NULL, "\n");       /* Get first non-blank of third
-                                          token on the line          */
+                                    /* Get second token on line
+                                       with user's address             */
+      rest = strtok(NULL, "\n");    /* Get first non-blank of third
+                                       token on the line               */
 
       if ((strlen(sender->address) + strlen(sender->address)) >=
-                              MAXADDR) /* overlength addr?           */
+                              MAXADDR) /* overlength addr?             */
       {
          sender->address += strlen(sender->address) - MAXADDR;
-                                       /* Reduce address to length
-                                          that we can handle          */
+                                    /* Reduce to length we can handle  */
          token = strchr(sender->address, '!');
 
          if (token != NULL)
-            sender->address = token + 1; /* Step past truncated node */
+            sender->address = token + 1; /* Step past truncated node   */
 
       } /* if */
 
@@ -696,10 +699,10 @@ static void ParseFrom(
          if (equali(HostAlias(E_nodename), HostAlias(fHost)))
          {
             char address[MAXADDR];
-            sender->host =  E_domain; /* Use long local name        */
+            sender->host =  E_domain; /* Use long local name           */
             sprintf(address, "%s@%s", sender->user, sender->host);
             sender->address = newstr(address);
-            sender->relay = NULL;      /* Flag address as local      */
+            sender->relay = NULL;   /* Flag address as local           */
          }
          else
             sender->relay = sender->host = newstr(fHost);
@@ -733,9 +736,9 @@ static void ParseFrom(
       {
          token = strstr(rest, remote);
 
-         if (token != NULL)          /* Do we have a remote on line?  */
+         if (token != NULL)         /* Do we have a remote on line?    */
             sender->relay = newstr(token + remoteLen);
-                                     /* Yes --> Use as fromNode       */
+                                    /* Yes --> Use as fromNode         */
          else if (! equal(HostAlias(E_domain),
                             HostAlias(sender->host)))
             sender->relay =  sender->host;
@@ -744,8 +747,14 @@ static void ParseFrom(
 
    } /* if */
    else {
+      /* We really want to read the header of the message and
+         find any addresses in it, but for now, we cheat!            */
+      char fAddress[MAXADDR];
       sender->user = E_mailbox;
       sender->host = E_domain;
+      sprintf( fAddress, "%s@%s", sender->user, sender->host );
+      sender->address = newstr( fAddress );
+
    }
 
 /*--------------------------------------------------------------------*/
@@ -815,17 +824,18 @@ static char **Parse822(
    static const char resent[] = "Resent-";
    static const size_t resentLen =  sizeof resent - 1;
 
-   size_t offset = 0;                /* Subscript for examining headers,
-                                 which allows us to ignore Resent-   */
+   size_t offset = 0;               /* Subscript for examining headers,
+                                       which allows us to ignore
+                                       Resent-                         */
 
-   size_t allocated = 5;             /* Reasonable first size for address */
-                                     /* Note: MUST BE AT LEAST 2 because we
-                                       add 50% below!                */
+   size_t allocated = 5;            /* Reasonable first size for list  */
+                                    /* Note: MUST BE AT LEAST 2
+                                       because we add 50% below!       */
 
    char **addrlist = calloc(sizeof *addrlist, allocated);
-   char buf[BUFSIZ];                 /* Input buffer to read header   */
-   char outputBuffer[BUFSIZ+MAXADDR]; /* Output buffer for addresses */
-   char address[MAXADDR];            /* Buffer for parsed address     */
+   char buf[BUFSIZ];                /* Input buffer to read header     */
+   char outputBuffer[BUFSIZ+MAXADDR]; /* Output buffer for addresses   */
+   char address[MAXADDR];           /* Buffer for parsed address       */
    char fHost[MAXADDR];
    char fUser[MAXADDR];
    int senderID = -1, dateID = -1, fromID = -1;
@@ -888,14 +898,14 @@ static char **Parse822(
    headerTable[fromID].address   = fAddress;
    headerTable[senderID].address = sAddress;
 
-   *outputBuffer = '\0';             /* Flag no addresses to send yet */
+   *outputBuffer = '\0';            /* Flag no addresses to send yet   */
 
 /*--------------------------------------------------------------------*/
 /*                          Begin processing                          */
 /*--------------------------------------------------------------------*/
 
-   *count = 0;                       /* No addresses discovered yet   */
-   checkref(addrlist);               /* Verify we had room for list   */
+   *count = 0;                      /* No addresses discovered yet     */
+   checkref(addrlist);              /* Verify we had room for list     */
 
    imprintf(imf,"%-10s by %s (%s %s);\n%-10s %s\n",
             "Received:",
@@ -911,7 +921,7 @@ static char **Parse822(
 
    sprintf(buf, "<%lx.%s@%s>", time(NULL), E_nodename, E_domain);
    PutHead("Message-ID:", buf, imf, (KWBoolean) offset);
-   PutHead(NULL, NULL, imf, KWFalse); /* Terminate header            */
+   PutHead(NULL, NULL, imf, KWFalse); /* Terminate header              */
 
 /*--------------------------------------------------------------------*/
 /*                        Find the From: line                         */
@@ -921,23 +931,23 @@ static char **Parse822(
    {
       char *startAddress = buf;
 
-      if (*buf == '\n')              /* end of the header?            */
+      if (*buf == '\n')             /* end of the header?              */
       {
-         output = *header = KWFalse;  /* Yes --> reset all our flags  */
-         blind = KWTrue;             /* We'll print terminator later  */
+         output = *header = KWFalse; /* Yes --> reset all our flags    */
+         blind = KWTrue;            /* We'll print terminator later    */
       }
 
 /*--------------------------------------------------------------------*/
 /*              Set flags whenever we find a new header               */
 /*--------------------------------------------------------------------*/
 
-      else if (isgraph(*buf))        /* Start of a new header?        */
+      else if (isgraph(*buf))       /* Start of a new header?          */
       {
-         blind = output = KWFalse;   /* Reset processing flags for this
+         blind = output = KWFalse;  /* Reset processing flags for this
                                     header                           */
 
-         if (equalni(buf, resent, resentLen))      /* Msg a resend?  */
-            offset = resentLen;      /* Yes --> Only use Resent- hdrs */
+         if (equalni(buf, resent, resentLen))  /* Msg a resend?        */
+            offset = resentLen;     /* Yes --> Only use Resent- hdrs   */
 
 /*--------------------------------------------------------------------*/
 /*         Loop to find the header in our table, if possible          */
@@ -954,7 +964,7 @@ static char **Parse822(
                           headerTable[subscript].text,
                           headerLen))
             {
-               if (headerTable[subscript].found) /* Been here before? */
+               if (headerTable[subscript].found) /* Been here before?  */
                {
                   printmsg(0,"Parse822: Error: Duplicate header: %s",
                               buf);
@@ -967,8 +977,8 @@ static char **Parse822(
 
                startAddress = buf + offset + headerLen;
 
-               if (isgraph(*startAddress))      /* Non-blank?     */
-               {                       /* I'm SO confused         */
+               if (isgraph(*startAddress))  /* Non-blank?              */
+               {                    /* I'm SO confused                 */
                   printmsg(0,"Parse822: Invalid header, cannot continue: %s",
                               buf);
                   return NULL;
@@ -990,9 +1000,9 @@ static char **Parse822(
 /*--------------------------------------------------------------------*/
 
                if (*outputBuffer && output)
-                  strcat(outputBuffer, ",");     /* Sep addresses  */
+                  strcat(outputBuffer, ","); /* Sep addresses          */
 
-               break;                /* drop out of the for (;;) */
+               break;               /* drop out of the for (;;)        */
 
             } /* if equalni() */
 
@@ -1014,7 +1024,7 @@ static char **Parse822(
       if (output)
       {
          while(*startAddress && !isgraph(*startAddress))
-            startAddress++;          /* Step past while space in addr */
+            startAddress++;         /* Step past while space in addr   */
 
          printmsg(10,"Adding address [%s] to [%s]",
                startAddress,
@@ -1033,14 +1043,14 @@ static char **Parse822(
          char *next = ExtractAddress(address,
                                       outputBuffer,
                                       ADDRESSONLY);
-                                     /* Get address to add to list    */
+                                    /* Get address to add to list      */
 
-         if (allocated == (*count+1))  /* Do we have room for addr?  */
+         if (allocated == (*count+1)) /* Do we have room for addr?     */
          {
-            allocated += allocated / 2;   /* Choose larger array     */
+            allocated += allocated / 2; /* Choose larger array         */
             addrlist = realloc(addrlist,
                                 allocated * sizeof(*addrlist));
-            checkref(addrlist);      /* Verify the allocation worked  */
+            checkref(addrlist);     /* Verify the allocation worked    */
          } /* if */
 
          if (!strlen(address))
@@ -1050,17 +1060,17 @@ static char **Parse822(
          } /* if */
          else {
             addrlist[*count] = newstr(address);
-                                     /* Save permanent copy of addr   */
+                                    /* Save permanent copy of addr     */
             printmsg(4,"address[%d]= \"%s\"",*count, address);
-            *count += 1;             /* Flag we got the address       */
+            *count += 1;            /* Flag we got the address         */
          } /* else */
 
          if (next)
             memmove(outputBuffer, next, strlen(next) + 1);
-                                     /* Shift buffer up to recover space
+                                    /* Shift buffer up to recover space
                                     used by now parsed address        */
          else
-            *outputBuffer = '\0';    /* End of addresses              */
+            *outputBuffer = '\0';   /* End of addresses                */
 
       } /* while */
 
@@ -1070,8 +1080,8 @@ static char **Parse822(
 /*               Now validate the information we received             */
 /*--------------------------------------------------------------------*/
 
-   if (*header)                      /* Did we receive proper header? */
-   {                                 /* No --> Very bad news          */
+   if (*header)                     /* Did we receive proper header?   */
+   {                                /* No --> Very bad news            */
       printmsg(0,"Parse822: Premature end of input file, message rejected");
       return NULL;
    }
@@ -1094,7 +1104,7 @@ static char **Parse822(
 /*                Fill in the sender field, if needed                 */
 /*--------------------------------------------------------------------*/
 
-   sender->host = E_fdomain;        /* Just a default for now        */
+   sender->host = E_fdomain;        /* Just a default for now          */
 
    if ( headerTable[senderID].found )
       sender->address = sAddress;
@@ -1120,7 +1130,7 @@ static char **Parse822(
       sprintf( sender->address, "%s@%s", sender->user, sender->host );
    }
 
-   sender->address = newstr( sender->address );   /* Make static copy */
+   sender->address = newstr( sender->address ); /* Make static copy    */
 
 /*--------------------------------------------------------------------*/
 /*                     Insert a date field if needed                  */
@@ -1133,7 +1143,7 @@ static char **Parse822(
 /*                        Terminate the header                        */
 /*--------------------------------------------------------------------*/
 
-   PutHead(NULL, NULL, imf, KWFalse); /* End the headers             */
+   PutHead(NULL, NULL, imf, KWFalse); /* End the headers               */
    imputc('\n', imf);
 
 /*--------------------------------------------------------------------*/
@@ -1172,7 +1182,7 @@ static KWBoolean CopyTemp(IMFILE *imf,
       else
          newline = KWFalse;
 
-      if (imputs(buf, imf) == EOF)     /* I/O error?                 */
+      if (imputs(buf, imf) == EOF)  /* I/O error?                      */
       {
          printerr("CopyTemp: imputs");
          return KWFalse;
@@ -1180,13 +1190,13 @@ static KWBoolean CopyTemp(IMFILE *imf,
 
    } /* while */
 
-   if (ferror(datain))               /* Clean end of file on input?   */
+   if (ferror(datain))              /* Clean end of file on input?     */
    {
       printerr("CopyTemp: fgets");
       Terminate(7, imf, datain);
    }
 
-   if (!newline)                     /* Is file terminated properly?  */
+   if (!newline)                    /* Is file terminated properly?    */
    {
       printmsg(0, "rmail: Improperly formed message, adding final newline!");
       imputc('\n', imf);
@@ -1236,13 +1246,13 @@ static KWBoolean DaemonMail(
       sender->user = E_mailbox;
 
    sender->host = bflag[F_BANG] ? E_nodename : E_fdomain;
-                                     /* Use full address, if possible */
+                                    /* Use full address, if possible   */
 
 /*--------------------------------------------------------------------*/
 /*              Get the name of the user, or make one up              */
 /*--------------------------------------------------------------------*/
 
-   userp = checkuser(sender->user);  /* Locate user id in table     */
+   userp = checkuser(sender->user); /* Locate user id in table         */
 
    if ((userp != BADUSER) &&
        (userp->realname != NULL) &&
@@ -1254,7 +1264,7 @@ static KWBoolean DaemonMail(
    else if (equali(sender->user, "uucp"))
       fullName = "Unix to Unix Copy";
    else
-      fullName = sender->user;       /* Dummy for formatting From:    */
+      fullName = sender->user;      /* Dummy for formatting From:      */
 
    if (bflag[F_BANG])
       sprintf(buf,"%s!%s", sender->host, sender->user);
@@ -1339,7 +1349,7 @@ static KWBoolean DaemonMail(
          }
 
          PutHead(header, token, imf, KWFalse);
-         header = "";                /* Continue same field by default*/
+         header = "";               /* Continue same field by default  */
 
       }
 
@@ -1352,8 +1362,8 @@ static KWBoolean DaemonMail(
    if (subject != NULL)
       PutHead("Subject:", subject, imf, KWFalse);
 
-   PutHead(NULL, "", imf, KWFalse);  /* Terminate the header line  */
-   imputc('\n',imf);                 /* Terminate the header        */
+   PutHead(NULL, "", imf, KWFalse); /* Terminate the header line       */
+   imputc('\n',imf);                /* Terminate the header            */
 
 /*--------------------------------------------------------------------*/
 /*                          Return to caller                          */
@@ -1376,11 +1386,11 @@ static KWBoolean DaemonMail(
  {
    static KWBoolean terminate = KWTrue;
 
-   if (label == NULL)                /* Terminate call?               */
-   {                                 /* Yes --> Reset Flag and return */
+   if (label == NULL)               /* Terminate call?                 */
+   {                                /* Yes --> Reset Flag and return   */
       if (! terminate)
       {
-         imputc('\n', imf);          /* Terminate the current line    */
+         imputc('\n', imf);         /* Terminate the current line      */
          terminate = KWTrue;
       }
 
@@ -1388,10 +1398,10 @@ static KWBoolean DaemonMail(
 
    } /* if */
 
-   if (strlen(label))                /* First line of a header?       */
+   if (strlen(label))               /* First line of a header?         */
    {
 
-      if (!terminate)                /* Terminate previous line?      */
+      if (!terminate)               /* Terminate previous line?        */
          imputc('\n', imf);
 
       if (resent)
@@ -1399,10 +1409,10 @@ static KWBoolean DaemonMail(
       else
          imprintf(imf, "%-10s %s", label, operand);
 
-      terminate = KWFalse;           /* Flag that we did not end file */
+      terminate = KWFalse;          /* Flag that we did not end file   */
 
    } /* if */
-   else                              /* Continuing line               */
+   else                             /* Continuing line                 */
       imprintf(imf, ",\n%-10s %s", label, operand);
 
  } /* PutHead */

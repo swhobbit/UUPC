@@ -28,6 +28,8 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+RCSID("$Id$");
+
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
 /*--------------------------------------------------------------------*/
@@ -118,11 +120,7 @@ void pSOS2Err(const size_t lineno,
               const char *prefix,
               int rc)
 {
-   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
-
-   const char *msg;
-
-   msg = LookupOS2SocketError(rc);
+   const char *msg = LookupOS2SocketError(rc);
 
    if (msg == NULL)
    {
@@ -136,7 +134,7 @@ void pSOS2Err(const size_t lineno,
    }
 
 /*--------------------------------------------------------------------*/
-/*           Display the message with option file location            */
+/*          Display the message with optional file location           */
 /*--------------------------------------------------------------------*/
 
    printmsg(2,"OS/2 socket error %d in %s at line %d ...",
@@ -144,8 +142,8 @@ void pSOS2Err(const size_t lineno,
 
    printmsg(0,"%s: %s", prefix, msg);
 
-   if ( redirect )
-     fprintf(stdout,"%s: %s\n", prefix, msg);
+   if ((logfile != stdout) && !isatty(fileno(stdout)))
+      fprintf(stdout,"%s: %s\n", prefix, msg);
 
 } /* pSOS2Err */
 
