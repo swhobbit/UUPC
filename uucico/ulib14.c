@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB14.C 1.6 1993/11/21 02:45:50 ahd Exp $
+ *    $Id: ulib14.c 1.7 1993/12/24 05:12:54 ahd Exp $
  *
- *    $Log: ULIB14.C $
+ *    $Log: ulib14.c $
+ * Revision 1.7  1993/12/24  05:12:54  ahd
+ * Use far buffer in 16 bit compilers
+ *
  * Revision 1.6  1993/11/21  02:45:50  ahd
  * Add missing header files to suppress missing structure def warnings
  *
@@ -69,7 +72,7 @@
 
 #include "lib.h"
 #include "hlib.h"
-#include "ulib.h"
+#include "ulib14.h"
 #include "comm.h"          /*  Modem status bits */
 #include "ssleep.h"
 #include "catcher.h"
@@ -77,7 +80,6 @@
 #include "fossil.h"        /* Various INT14 definitions */
 #include "commlib.h"       /* Trace functions, etc. */
 
-#include "dcp.h"           /* defines RECV_BUF */
 #include "hostable.h"      /* Needed for structures in dcp.h   */
 #include "usertabl.h"      /* Needed for structures in dcp.h   */
 #include "security.h"      /* Needed for structures in dcp.h   */
@@ -97,13 +99,9 @@ static unsigned char bps_table(int);
 static BPS currentBPS;
 static char currentDirect;
 static boolean carrierDetect;
-static unsigned int rcv_pending = 0;
-static char *rcv_buffer = NULL;
-#define IMPOSSIBLE_SREAD (RECV_BUF + 1)
 
 currentfile();
 static boolean hangupNeeded = TRUE;
-
 
 /*--------------------------------------------------------------------*/
 /*    b p s _ t a b l e                                               */
@@ -169,17 +167,9 @@ int iopenline(char *name, BPS bps, const boolean direct)
 
    portActive = TRUE;     /* record status for error handler */
 
-   rcv_pending = 0;
-   if (rcv_buffer == NULL)
-      if ((rcv_buffer = malloc(RECV_BUF)) == NULL)
-         return ENOMEM;
-   isread(NULL, IMPOSSIBLE_SREAD, 2);   /* do some read-ahead */
-   rcv_pending = 0;                     /* and discard what we got */
-
    return 0;               /* Return success to caller */
 
 } /* iopenline */
-
 
 /*--------------------------------------------------------------------*/
 /*    i s r e a d                                                     */
@@ -202,6 +192,16 @@ unsigned int isread(char UUFAR *buffer,
    union REGS rcvregs, outregs;
    time_t quit = time( NULL ) + timeout;
 
+   size_t commBufferCached = commBufferUsed;
+
+   if ( wanted > commBufferLength )
+   {
+      printmsg(0,"nsread: Overlength read, wanted %u bytes into %u buffer!",
+                     (unsigned int) wanted,
+                     (unsigned int) commBufferLength );
+      panic();
+   }
+
 #ifdef ARTICOMM_INT14   /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
    union REGS timregs;          /* Scratch area for interrupt calls. */
 
@@ -217,7 +217,7 @@ unsigned int isread(char UUFAR *buffer,
    rcvregs.x.dx = portNum;              /* Port number */
    rcvregs.x.bx = 0;
 
-   while (rcv_pending < wanted)
+   while (commBufferUsed < wanted)
    {
       if ( terminate_processing )
       {
@@ -227,45 +227,48 @@ unsigned int isread(char UUFAR *buffer,
             printmsg(2,"isread: User aborted processing");
             recurse = TRUE;
          }
-         rcv_pending = 0;
-         return rcv_pending;
+         commBufferUsed = 0;
+         return commBufferUsed;
       }
-
-      if (rcv_pending >= RECV_BUF)      /* rcv_buffer full? */
-         return rcv_pending;
 
       int86(0x14, &rcvregs, &outregs);
       if (!(outregs.h.ah & 0x80))
-         rcv_buffer[rcv_pending++] = (char) outregs.h.al;
-      else
-      {                                 /* the read timed out */
-         time_t now;
-
+         commBuffer[commBufferUsed++] = (char) outregs.h.al;
+      else {                                 /* the read timed out */
          if (timeout == 0)              /* If not interested in waiting */
-            return rcv_pending;         /* then get out of here fast */
+            return commBufferUsed;      /* then get out of here fast */
 
          ShowModem();                   /* Report modem status */
 
-         if ( (now = time(NULL)) >= quit )
+         if ( time(NULL) >= quit )
          {
             printmsg(20, "isread: Timeout (timeout=%u, want=%u, have=%u)",
-                          timeout, wanted, rcv_pending);
-            return rcv_pending;
+                          timeout, wanted, commBufferUsed);
+            return commBufferUsed;
          }
 
 #ifdef ARTICOMM_INT14 /* Richard H. Gumpertz (RHG@CPS.COM), 28 Sep 1993 */
          timregs.x.cx = (unsigned short)(quit - now) * 91 / 5; /* Receive timeout in ticks */
          int86(0x14, &timregs, &outregs);
 #endif /* ARTICOMM_INT14 */
-      }
+
+      } /* else */
+   } /* while (commBufferUsed < wanted) */
+
+   traceData( commBuffer + commBufferCached,
+              commBufferUsed - commBufferCached,
+              FALSE );
+
+   if ( buffer != NULL )
+   {
+      MEMCPY(buffer, commBuffer, wanted);
+      commBufferUsed -= wanted;
+      if (commBufferUsed)
+         MEMMOVE(commBuffer, commBuffer + wanted, commBufferUsed);
    }
 
-   memcpy(buffer, rcv_buffer, wanted);
-   rcv_pending -= wanted;
-   if (rcv_pending)
-      memmove(rcv_buffer, rcv_buffer + wanted, rcv_pending);
-   traceData( buffer, wanted, FALSE );
-   return wanted + rcv_pending;
+   return wanted + commBufferUsed;
+
 } /* isread */
 
 /*--------------------------------------------------------------------*/
@@ -300,8 +303,8 @@ int iswrite(const char UUFAR *data, unsigned int len)
 
 #if 1 /* Richard H. Gumpertz (RHG@CPS.COM), 29 September 1993 */
       if (((outregs.h.ah & 0x61) == 0x01)
-          && (rcv_pending < RECV_BUF))
-         isread(NULL, IMPOSSIBLE_SREAD, 0); /* do some read ahead */
+          && (commBufferUsed < commBufferLength))
+         isread(NULL, commBufferLength, 0); /* do some read ahead */
 #endif /* RHG */
    }
 
@@ -340,7 +343,6 @@ void issendbrk(unsigned int duration)
 
 } /* issendbrk */
 
-
 /*--------------------------------------------------------------------*/
 /*    i c l o s e l i n e                                             */
 /*                                                                    */
@@ -360,14 +362,7 @@ void icloseline(void)
 
    traceStop();
 
-   if (rcv_buffer != NULL)
-   {
-      free(rcv_buffer);
-      rcv_buffer = NULL;
-   }
-
 } /* icloseline */
-
 
 /*--------------------------------------------------------------------*/
 /*    i h a n g u p                                                   */
