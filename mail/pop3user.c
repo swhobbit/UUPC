@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.3 1998/03/03 07:36:28 ahd v1-12v $
+ *       $Id: pop3user.c 1.4 1998/03/06 06:51:28 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.4  1998/03/06 06:51:28  ahd
+ *       Add commands to make Netscape happy
+ *
  *       Revision 1.3  1998/03/03 07:36:28  ahd
  *       Add deletion support
  *
@@ -49,7 +52,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.3 1998/03/03 07:36:28 ahd v1-12v $");
+RCSID("$Id: pop3user.c 1.4 1998/03/06 06:51:28 ahd Exp $");
 
 currentfile();
 
@@ -187,7 +190,7 @@ writePopMessage(SMTPClient *client,
    /* Terminate the message */
    SMTPResponse(client, PR_DATA, ".");
 
-   printmsg(3, "%s Sent message %ld to %s (%ld octets)",
+   printmsg(3, "%s: Sent message %ld to %s (%ld octets)",
                mName,
                current->sequence,
                client->clientName,
