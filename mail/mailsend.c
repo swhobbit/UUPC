@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.6 1993/10/04 03:57:20 ahd Exp $
+ *    $Id: mailsend.c 1.8 1993/10/12 01:32:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.8  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.6  1993/10/04  03:57:20  ahd
  * Clarify error message
  *
@@ -531,6 +534,11 @@ boolean Collect_Mail(FILE *stream,
    boolean done = FALSE;
    FILE  *fmailbag;
 
+   if ( argc < (equal(argv[0], "-s" ) ? 3 : 1 ))
+   {
+      printmsg(0,"Cannot send mail, no addressees provided" );
+      return FALSE;           /* Actually doesn't mean anything      */
+   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*      Determine if we are running interactively; if not, just       */
