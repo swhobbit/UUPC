@@ -1,3 +1,6 @@
+#ifndef _MODEM_H
+#define _MODEM_H
+
 /*--------------------------------------------------------------------*/
 /*    m o d e m . h                                                   */
 /*                                                                    */
@@ -13,10 +16,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.H 1.5 1993/04/11 00:36:13 ahd Exp $
+ *    $Id: modem.h 1.6 1993/09/20 04:53:57 ahd Exp $
  *
  *    Revision history:
- *    $Log: MODEM.H $
+ *    $Log: modem.h $
+ * Revision 1.6  1993/09/20  04:53:57  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  * Revision 1.5  1993/04/11  00:36:13  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -63,12 +71,14 @@ KEWSHORT GetGWindow( KEWSHORT maxvalue, const char protocol );
 /*                       Environment variables                        */
 /*--------------------------------------------------------------------*/
 
-extern KEWSHORT M_gPacketTimeout;
-extern KEWSHORT M_fPacketTimeout;
-extern KEWSHORT M_tPacketTimeout;
+extern boolean  bmodemflag[MODEM_LAST];
+extern char     *device;
 extern KEWSHORT M_fPacketSize;
-extern KEWSHORT M_PortTimeout;
+extern KEWSHORT M_fPacketTimeout;
+extern KEWSHORT M_gPacketTimeout;
 extern KEWSHORT M_MaxErr;
+extern KEWSHORT M_PortTimeout;
+extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
+extern KEWSHORT M_tPacketTimeout;
 extern KEWSHORT M_xfer_bufsize;
-extern boolean bmodemflag[MODEM_LAST];
-extern char *device;
+#endif

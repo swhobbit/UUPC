@@ -10,9 +10,6 @@
 
 #define  TIMEOUT     -1
 
-#define MSGTIME       20      /* Timeout for many operations         */
-#define PROTOCOL_TIME 40      /* Timeout for protocol exchange msgs  */
-
 /*--------------------------------------------------------------------*/
 /*              systems (L.sys) file fields definitions               */
 /*--------------------------------------------------------------------*/
