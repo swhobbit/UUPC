@@ -16,10 +16,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.7 1993/06/15 12:19:57 ahd Exp ahd $
+ *    $Id: confvars.h 1.8 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.8  1993/09/20  04:51:31  ahd
+ *     TCP Support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  *     Revision 1.7  1993/06/15  12:19:57  ahd
  *     Save changed/pushed directory name for debugging
  *
@@ -77,8 +82,6 @@ extern char *E_motd;
 extern char *E_systems;
 extern char *E_passwd;
 extern char *E_cwd;              // Never set by user, only program
-extern KEWSHORT E_priority;
-extern KEWSHORT E_prioritydelta;
 extern KEWSHORT E_maxhops;
 
 #endif
