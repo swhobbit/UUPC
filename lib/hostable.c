@@ -1,26 +1,28 @@
-/*
-   h o s t a b l e . c
+/*--------------------------------------------------------------------*/
+/*       h o s t a b l e . c                                          */
+/*                                                                    */
+/*       Remote host table routines for UUPC/extended                 */
+/*--------------------------------------------------------------------*/
 
-   Remote host table routines for UUPC/extended
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
 
-   Copyright (C) 1989, 1990 by Andrew H. Derbyshire
-
-   See file README.SCR for restrictions on re-distribution.
-
-   History:
-
-      18 Mar 1990 Create hostable.c from router.c                    ahd
-                  Move code to generate localdomain to here          ahd
-      22 Apr 90   Perform check for full host name before examining
-                  name without domain.                               ahd
-      29 Jul 90   Only load host table based on first six characters
-                  of host name.                                      ahd
- */
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: HOSTABLE.C 1.5 1993/04/11 00:32:29 ahd Exp $
+  *      $Id: HOSTABLE.C 1.6 1993/05/29 15:19:59 ahd Exp $
   *
   *      $Log: HOSTABLE.C $
+ *     Revision 1.6  1993/05/29  15:19:59  ahd
+ *     Allow configured systems, passwd files
+ *
  *     Revision 1.5  1993/04/11  00:32:29  ahd
  *     Global edits for year, TEXT, etc.
  *
@@ -33,8 +35,15 @@
  *     Revision 1.3  1992/12/18  12:05:57  ahd
  *     Suppress duplicate machine state messages to improving OS/2 scrolling
  *
- * Revision 1.2  1992/11/22  20:58:55  ahd
- * Use strpool to allocate const strings
+ *    Revision 1.2  1992/11/22  20:58:55  ahd
+ *    Use strpool to allocate const strings
+ *
+ *    18 Mar 1990 Create hostable.c from router.c                    ahd
+ *                Move code to generate localdomain to here          ahd
+ *    22 Apr 90   Perform check for full host name before examining
+ *                name without domain.                               ahd
+ *    29 Jul 90   Only load host table based on first six characters
+ *                of host name.                                      ahd
  *
   */
 
@@ -108,7 +117,7 @@ struct HostTable *checkname(const char *name)
 /*    save input for next pass                                        */
 /*--------------------------------------------------------------------*/
 
-   if (equal(name, savename))
+   if (equali(name, savename))
       return hostz;
    strcpy( savename, name);   /* Save for next pass                  */
 
@@ -125,10 +134,22 @@ struct HostTable *checkname(const char *name)
 /*--------------------------------------------------------------------*/
 
    column = namel - localdomainl;
-   if ((namel > localdomainl) && equal(E_localdomain, &name[column]) &&
+   if ((namel > localdomainl) && equali(E_localdomain, &name[column]) &&
        (name[ column - 1] == '.'))
    {
       if ((hostz = searchname(name,column-1 )) != BADHOST)
+         return hostz;
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*    If the name already has the UUCP  domain attached, search for   */
+/*    the host name without the domain.                               */
+/*--------------------------------------------------------------------*/
+
+   column = namel - 5;
+   if ((column > 0) && equali(".UUCP", &name[column]))
+   {
+      if ((hostz = searchname(name, column )) != BADHOST)
          return hostz;
    } /* if */
 
@@ -439,7 +460,7 @@ static size_t loadhost()
       if (token[0] == '#')
          continue;                  /* Line is a comment; loop again */
 
-      if ( equal( token, E_nodename ))
+      if ( equali( token, E_nodename ))
       {
          printmsg(0,"Error: Local host %s must not be in SYSTEMS file",
                     E_nodename );
@@ -614,7 +635,7 @@ static size_t loadhost()
       else {
          E_localdomain ++;    /* Step past the period                */
 
-         if ( !equal(E_localdomain, "UUCP" ) &&
+         if ( !equali(E_localdomain, "UUCP" ) &&
               (strchr( E_localdomain, '.' ) == NULL ))
                               /* Implied single level domain name?   */
             E_localdomain = E_domain;
@@ -633,7 +654,7 @@ static size_t loadhost()
 /*    files for the old releases of UUPC/extended.                    */
 /*--------------------------------------------------------------------*/
 
-   if (equal(E_localdomain,"UUPC"))
+   if (equali(E_localdomain,"UUPC"))
    {
       printmsg(0,"inithost: UUPC is an invalid domain name! "
                  "Change it to UUCP");

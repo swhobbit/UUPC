@@ -4,11 +4,38 @@
 /*    Address parsing routines for UUPC/extended                      */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "hlib.h"
@@ -224,8 +251,6 @@ void user_at_node(const char *raddress,
                   nptr);
          pptr = E_mailserv;
       } /* if */
-      else
-         nptr = E_nodename;   /* Must be local delivery              */
    }  /* if */
 
 /*--------------------------------------------------------------------*/
@@ -307,9 +332,6 @@ char *HostAlias( char *input)
    if (hostp == BADHOST)
       return input;
 
-   if ( hostp->hostname[0] == '*') /* Ignore wildcards     */
-      return input;
-
 /*--------------------------------------------------------------------*/
 /*      If we already chased this chain, return result to caller      */
 /*--------------------------------------------------------------------*/
@@ -380,10 +402,12 @@ char *HostPath( char *input, char *best)
          printmsg(0,"Routing table loop discovered at host %s",
                      hostp->hostname);
          panic();
-      }
+
+      } /* if ( hostp->via == NULL ) */
 
       return hostp->via;
-   }
+
+   } /* if (hostp->routed) */
 
    hostp->routed  = TRUE;        /* Prevent limitless recursion      */
 
@@ -409,7 +433,7 @@ char *HostPath( char *input, char *best)
          hostp->via = HostPath( alias, best);
    } /* if ( hostp->via == NULL ) */
 
-   hostp->via = HostPath( hostp->hostname, hostp->via );
+   hostp->via = HostPath( hostp->via, best );
 
    printmsg( 5 ,"HostPath: \"%s\" routed via \"%s\"", input, hostp->via);
 
@@ -422,8 +446,6 @@ char *HostPath( char *input, char *best)
 /*                                                                    */
 /*    Returns the user name (if available and requested or            */
 /*    E-mail address of the user                                      */
-/*                                                                    */
-/*    Written by ahd 15 July 1989                                     */
 /*--------------------------------------------------------------------*/
 
 char *ExtractAddress(char *result,
@@ -559,7 +581,6 @@ char *ExtractAddress(char *result,
       state = newstate;
       column++;
    } /* while */
-
 
 /*--------------------------------------------------------------------*/
 /*                   Verify we retrieved an address                   */

@@ -5,9 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DELIVER.C 1.10 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: deliver.c 1.11 1993/06/13 14:06:00 ahd Exp $
  *
- *    $Log: DELIVER.C $
+ *    $Log: deliver.c $
+ * Revision 1.11  1993/06/13  14:06:00  ahd
+ * Save invoked program name and use it for recursive calls
+ * Loosen up bounced mail copy loop to avoid NT crashes
+ *
  * Revision 1.10  1993/05/30  00:01:47  ahd
  * Expand path of system alias files to allow userid references
  *
@@ -240,7 +242,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
          return DeliverLocal( input, user, sysalias, validate );
                                  /* Yes!                             */
       else
-         Bounce( input,
+         return Bounce( input,
                  "No delivery path for address",
                   address,
                   address,
@@ -252,7 +254,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
 /*--------------------------------------------------------------------*/
 
    if (hops > E_maxhops)
-      Bounce(input,
+      return Bounce(input,
              "Excessive number of hops",
              address,
              address,
