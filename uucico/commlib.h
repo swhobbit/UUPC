@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.3 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: commlib.h 1.4 1993/09/21 01:43:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.4  1993/09/21  01:43:46  ahd
+ * Move MAXPACK to commlib.h to allow use as standard comm buffer size
+ *
  * Revision 1.3  1993/09/20  04:53:57  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -138,6 +141,14 @@ extern boolean portActive;          // Port active flag for error handler
 extern boolean traceEnabled;        // Enable comm port trace
 
 boolean IsNetwork(void);
+
+/*--------------------------------------------------------------------*/
+/*                     Priority setting functions                     */
+/*--------------------------------------------------------------------*/
+
+void setPrty( void );
+
+void resetPrty( void );
 
 /*--------------------------------------------------------------------*/
 /*                    Declare network buffer size                     */
