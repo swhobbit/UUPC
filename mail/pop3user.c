@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.19 2000/10/14 12:40:44 ahd Exp $
+ *       $Id: pop3user.c 1.20 2001/03/12 13:55:29 ahd v1-13j $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.20  2001/03/12 13:55:29  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.19  2000/10/14 12:40:44  ahd
  *       Correctly strip byte stuffed periods from ANY line beginning with
  *       a period (.).
@@ -111,7 +114,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.19 2000/10/14 12:40:44 ahd Exp $");
+RCSID("$Id: pop3user.c 1.20 2001/03/12 13:55:29 ahd v1-13j $");
 
 /*--------------------------------------------------------------------*/
 /*       s el e c t P o p M e s s a g e                               */
@@ -171,8 +174,6 @@ writePopMessage(SMTPClient *client,
 
    KWBoolean networkError = KWFalse;   /* We're dead, Jim            */
    KWBoolean continued = KWFalse;      /* Previous line incomplete   */
-   KWBoolean wasPeriods = KWFalse;     /* Previous incomplete line
-                                          all periods                */
    long octets = 0;
 
    const long bufferLength = min(32, (current->octets / 1024) + 1) * 1024;
