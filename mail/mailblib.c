@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: mailblib.c 1.21 1995/03/11 22:27:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.21  1995/03/11 22:27:57  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.20  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -248,10 +251,14 @@ KWBoolean SaveItem( const int item,
       default:          /* No special character?                  */
       case '~':         /* Relative to home directory?            */
             strcpy( filename, fname );
+
             if ( filename[ strlen( filename ) - 1 ] == ':' ) /* Device? */
             {
                if ( headers == seperators ) /* Default to insert sep?  */
                   headers = noseperator;    /* Suppress them on device */
+
+               filename[ strlen( filename ) - 1 ] = '\0';
+
             }
             else if (expand_path( filename,
                                   NULL,
@@ -259,6 +266,7 @@ KWBoolean SaveItem( const int item,
                                   E_mailext ) == NULL)
                return KWFalse;
             break;
+
    }  /* end switch */
 
 /*--------------------------------------------------------------------*/
