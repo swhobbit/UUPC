@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.21 1994/10/03 01:04:39 Software Exp $
+ *    $Id: ssleep.c 1.22 1994/10/03 03:24:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.22  1994/10/03  03:24:10  ahd
+ *     Correct spelling of TimerId
+ *
  *     Revision 1.21  1994/10/03  01:04:39  Software
  *     Trap in ability to set Windows timer
  *
@@ -434,10 +437,16 @@ void   ddelay   (KEWSHORT interval )
             raise( SIGINT );     /* Yes --> eject via std exit        */
          else if ( beep )
          {
-             putchar('\a');      /* No --> Complain to user           */
-             beep = FALSE;       /* But be nice about it ...
+
+             if ( ! bflag[F_SUPPRESSBEEP] )
+             {
+                putchar('\a');   /* No --> Complain to user           */
+                beep = FALSE;    /* But be nice about it ...
                                     only once per pass through here   */
+             }
+
          } /* else if ( beep ) */
+
       } /* while */
 
    } /* if (bflag[F_ESCAPE]) */

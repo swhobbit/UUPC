@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.7 1994/02/19 04:12:35 ahd Exp $
+ *    $Id: trumpet.c 1.8 1994/02/19 04:47:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.8  1994/02/19  04:47:22  ahd
+ * Use standard first header
+ *
  * Revision 1.7  1994/02/19  04:12:35  ahd
  * Use standard first header
  *
@@ -104,7 +107,8 @@ void trumpet( const char *tune)
    size_t tone, duration;
 #endif
 
-   if (tune == NULL)          /* Should we announce?  */
+   if ( ! bflag[F_SUPPRESSBEEP]  || (tune == NULL) )
+                              /* Should we announce?                  */
       return;                 /* No --> Return quietly (literally)    */
 
 /*--------------------------------------------------------------------*/

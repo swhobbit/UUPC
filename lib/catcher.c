@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.12 1994/02/19 04:47:57 ahd Exp $
+ *    $Id: catcher.c 1.13 1994/05/06 03:55:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.13  1994/05/06  03:55:50  ahd
+ *     Force SIGTERM to handled non-interactively, because it normally
+ *     comes from a OS/2 kill process command (such as close window).
+ *
  *     Revision 1.12  1994/02/19  04:47:57  ahd
  *     Use standard first header
  *
@@ -230,7 +234,9 @@ ctrlchandler( int sig )
            break;
 
         default:
-           safeout(" -- Invalid response\a");
+           safeout(" -- Invalid response");
+           if ( ! bflag[F_SUPPRESSBEEP] )
+              safeout("\a");
            ch = INVALID_CHAR;
            break;
 

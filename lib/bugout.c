@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.8 1994/02/19 04:39:11 ahd Exp $
+ *    $Id: bugout.c 1.9 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *     Revision 1.9  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.8  1994/02/19  04:39:11  ahd
  *     Use standard first header
  *
@@ -76,13 +79,17 @@ void bugout( const size_t lineno, const char *fname )
               compilen, lineno, fname );
 
 #ifdef _Windows
+
    sprintf(buf,"%s aborting at line %d in file %s",
               compilen, lineno, fname );
 
    MessageBox( hOurWindow, buf, compilen, MB_ICONEXCLAMATION );
 
 #else
-   fputc('\a',stderr);
+
+   if ( ! bflag[F_SUPPRESSBEEP] )
+      fputc('\a',stderr);
+
 #endif
 
    exit(panic_rc);

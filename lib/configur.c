@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.47 1994/05/04 02:03:11 ahd Exp $
+ *    $Id: configur.c 1.48 1994/05/24 03:44:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.48  1994/05/24  03:44:04  ahd
+ *     Sort boolean options
+ *     Add suppressemptypassword option
+ *
  *     Revision 1.47  1994/05/04  02:03:11  ahd
  *     Don't declare registry function if not under Windows NT
  *
@@ -368,6 +372,7 @@ FLAGTABLE configFlags[] = {
  { "save",                    F_SAVE,                  B_LOCAL},
  { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
  { "suppresscopyright",       F_SUPPRESSCOPYRIGHT,     B_LOCAL},
+ { "suppressbeep",            F_SUPPRESSBEEP,          B_LOCAL},
  { "undelete",                F_UNDELETE,              B_LOCAL},
  { "verbose",                 F_VERBOSE,               B_LOCAL},
  { "windows",                 F_WINDOWS,               B_LOCAL},
