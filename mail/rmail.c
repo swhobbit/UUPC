@@ -5,9 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.16 1993/11/06 13:04:13 ahd Exp $
+ *    $Id: rmail.c 1.17 1993/11/06 17:54:55 rhg Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.17  1993/11/06  17:54:55  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.16  1993/11/06  13:04:13  ahd
  * Add For to Received: lines ... but is it backwards?
  *
@@ -213,7 +214,8 @@ static boolean DaemonMail( const char *subject,
  char fromuser[MAXADDR] = ""; /* User id of originator               */
  char fromnode[MAXADDR] = ""; /* Node id of originator               */
  char *now;                   /* Time stamp for Received: banner     */
- char *myProgramName = NULL;  /* Name for recursive invocation        */
+ char *myProgramName = NULL;  /* Name for recursive invocation       */
+ char grade  = 'C';           /* Grade for mail sent                 */
 
  static char received[] = "Received:";
  static char receivedlen = sizeof( received) - 1;
@@ -287,9 +289,18 @@ void main(int argc, char **argv)
 /*                      Parse our operand flags                       */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "ws:tF:f:x:")) != EOF)
+   while ((option = getopt(argc, argv, "g:ws:tF:f:x:")) != EOF)
    {
       switch (option) {
+      case 'g':
+         if ( isalnum(*optarg) && ( strlen( optarg) == 1 ))
+            grade = *optarg;
+         else {
+            printmsg(0,"Invalid grade for mail: %s", optarg );
+            usage();
+         }
+         break;
+
       case 'w':
          daemon = TRUE;
          break;
@@ -316,7 +327,6 @@ void main(int argc, char **argv)
 
       case '?':
          usage();
-         Terminate(4);
       } /* switch */
    } /* while */
 
@@ -329,7 +339,7 @@ void main(int argc, char **argv)
    if ((optind == argc) != ReadHeader)
    {
       puts("Missing/extra parameter(s) at end.");
-      Terminate(4);
+      usage();
    }
 
 #if defined(_Windows)
@@ -488,29 +498,43 @@ static void ParseFrom( const char *forwho)
    char buf[BUFSIZ];
    boolean hit;
 
+   uuser = "uucp";            /* Effective id is always our daemon   */
+   *fromuser = '\0';          /* Initialize for later tests          */
+   *fromnode = '\0';          /* Initialize for later tests          */
+
 /*--------------------------------------------------------------------*/
-/*                Use UUXQT Information, if available                 */
+/*           Use UUXQT Information for nodename, if available         */
 /*--------------------------------------------------------------------*/
 
    token = getenv( UU_MACHINE );
-   if ( token == NULL )
-      *fromnode = '\0';
-   else {
+   if ( token != NULL )
+   {
       strncpy( fromnode, token , sizeof fromnode );
       fromnode[ sizeof fromnode - 1 ] = '\0';
    }
 
-   fgets(buf, BUFSIZ , datain);
-   hit = equaln(buf, from, fromlen );
+/*--------------------------------------------------------------------*/
+/*            Now look at the UUCP From line, if it exists            */
+/*--------------------------------------------------------------------*/
+
+   if (fgets(buf, BUFSIZ , datain) == NULL )
+   {
+      printmsg(0,"ParseFrom: Input file is empty!");
+      panic();
+   }
+
+   hit = equaln(buf, from, fromlen );  /* true = UUCP From line   */
 
    if (hit)
    {
       int nodelen = strlen( fromnode ) + 1; /* Plus ! */
       char *s;
       token = strtok( &buf[ fromlen ], " ");
-      s = strtok( NULL, "\n");
+      s = strtok( NULL, "\n");         /* Get first non-blank of third
+                                          token on the line             */
 
-      if (strlen( token ) + nodelen >= MAXADDR)
+      if (strlen( token ) + nodelen >= MAXADDR) /* Reduce addr to what
+                                                   we can handle        */
       {
          char *next;
          token = strtok( token, "!" );
@@ -526,30 +550,16 @@ static void ParseFrom( const char *forwho)
       strncpy(fromuser, token , sizeof fromuser );
       fromuser[ sizeof fromuser - nodelen ] = '\0';
 
-      if ( *fromnode == '\0')
+      if ((*fromnode == '\0') && ((s = strstr( s, remote )) != NULL ))
       {
-         while ( *s != '\0')
-         {
-            if equaln(s, remote, remotelen)
-               break;
-            else
-               s++;
-         } /* while */
-         strncpy( fromnode ,
-                (*s == '\0') ? E_nodename : s + remotelen ,
-                 sizeof fromnode );
+         strncpy( fromnode, s + remotelen,  sizeof fromnode );
          fromnode[ sizeof fromnode -1 ] = '\0';
-      } /* if ( *fromnode != '\0') */
+      } /* while */
 
    } /* if */
-   else {
-      if ( *fromnode == '\0')
-         strcpy(fromnode, E_nodename );
-      strcpy(fromuser, "/dev/null");
-   } /* else */
 
 /*--------------------------------------------------------------------*/
-/*       Generate required "From " and "Received" header lines        */
+/*             Generate required "Received" header lines              */
 /*--------------------------------------------------------------------*/
 
    fprintf(dataout,"%-10s from %s by %s (%s %s) with UUCP\n%-10s for %s; %s\n",
@@ -557,7 +567,8 @@ static void ParseFrom( const char *forwho)
             " ", forwho, now);
 
 /*--------------------------------------------------------------------*/
-/*    If what we read wasn't a From line, write into the new file     */
+/*       If what we read wasn't a From line, write it into the new    */
+/*       file after the generated Received: line                      */
 /*--------------------------------------------------------------------*/
 
    if (!hit)
@@ -579,7 +590,11 @@ static void ParseFrom( const char *forwho)
    if ( token != NULL )
    {                     /* Use exactly what remote told us     */
       ruser = strtok( token , WHITESPACE );
+      if (( ruser != NULL ) && (fromuser == '\0'))
+         strcpy(fromuser, ruser);
+
       rnode = strtok( NULL  , WHITESPACE );
+
    } /* else */
 
    if ((rnode == NULL) || (strchr(rnode,'.') == NULL ))
@@ -588,13 +603,32 @@ static void ParseFrom( const char *forwho)
       char node[MAXADDR];
       char user[MAXADDR];
 
-      sprintf(buf ,"%s!%s", fromnode, fromuser);
-      user_at_node(buf , buf, node, user);
-      ruser = newstr( user );
-      rnode = newstr( node );
+      if (( fromnode != '\0' ) && (fromuser != '\0' ))
+      {
+         sprintf(buf ,"%s!%s", fromnode, fromuser);
+         user_at_node(buf , buf, node, user);
+         ruser = newstr( user );
+         rnode = newstr( node );
+      } /* if */
    }
 
-   uuser = "uucp";            /* Effective id is always our daemon   */
+   if ( fromnode == NULL )
+
+/*--------------------------------------------------------------------*/
+/*                    Provide defaults if no input                    */
+/*--------------------------------------------------------------------*/
+
+   if ( *fromnode == '\0' )
+      strcpy(fromnode, rnode == NULL ? "somewhere" : rnode );
+
+   if ( *fromuser == '\0' )
+      strcpy(fromuser, "unknown");
+
+   if ( rnode == NULL )
+      rnode = fromnode;
+
+   if ( ruser == NULL )
+      ruser = fromuser;
 
 }  /* ParseFrom */
 
@@ -1046,9 +1080,9 @@ static boolean DaemonMail( const char *subject,
  {
 
    static char syntax[] =
-      "Usage:\tRMAIL\t-t [-x debug] [-f | -F file]\n"
-      "\t\t-w [-x debug] [-f | -F file] [-s subject] addr1 [-c] addr2  [-b] addr3 ...\n"
-      "\t\t[-x debug] [-f | -F file] addr1 addr2 addr3 ...\n";
+      "Usage:\tRMAIL\t-t [-x debug] [-g GRADE] [-f | -F file]\n"
+      "\t\t-w [-x debug] [-g GRADE] [-f | -F file] [-s subject] addr1 [-c] addr2  [-b] addr3 ...\n"
+      "\t\t[-x debug] [-g GRADE] [-f | -F file] addr1 addr2 addr3 ...\n";
 
    puts( syntax );
    exit(99);
