@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.18 1993/09/20 04:48:25 ahd Exp $
+ *     $Id: dcpsys.c 1.19 1993/09/21 01:42:13 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.19  1993/09/21  01:42:13  ahd
+ * Move declare of protocol list into source from header
+ *
  * Revision 1.18  1993/09/20  04:48:25  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -168,7 +171,7 @@ Proto Protolst[] = {
               grdmsg,  gwrmsg,   geofpkt, gfilepkt,
               FALSE,
        } ,
-#if defined(_Windows) || defined(BIT32ENV)
+#if defined(_Windows) || defined(BIT32ENV) || defined(FAMILYAPI)
        { 't', tgetpkt, tsendpkt, topenpk, tclosepk,
               grdmsg,  gwrmsg,   geofpkt, gfilepkt, // Yup, same as 'g'
               TRUE,
