@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.19 1995/02/20 00:40:12 ahd Exp $
+ *    $Id: uucp.c 1.20 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ *    Revision 1.20  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.19  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -180,7 +183,7 @@ static int cp(char *from, char *to)
 {
       int         fd_from, fd_to;
       int         nr, nw = -1;
-      char        buf[BUFSIZ*4]; /* faster if we alloc a big buffer   */
+      char        buf[BUFSIZ]; /* faster if we alloc a big buffer   */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
       {
@@ -227,14 +230,20 @@ static         void    split_path(char *path,
       char    *p_left, *p_right, *p;
 
       *system = *inter = *file = '\0';    /* init to nothing           */
-      for (p = path;; p = p_left + 1)  {
+
+      for (p = path;; p = p_left + 1)
+      {
          p_left = strchr(p, '!');         /* look for the first bang  */
-         if (p_left == NULL)  {           /* not a remote path        */
+
+         if (p_left == NULL)
+         {                                /* not a remote path        */
             strcpy(file, p);              /* so just return filename  */
             return;
          }
+
          /* now check if the system was in fact us.
-       If so strip it and restart */
+            If so strip it and restart */
+
          if (equaln(E_nodename, p, p_left - p) &&
             (E_nodename[p_left - p] == '\0'))
             continue;
@@ -243,12 +252,17 @@ static         void    split_path(char *path,
          strcpy(file, p_right + 1);      /* and thats our filename     */
          strncpy(system, p, p_left - p); /* and we have a system thats not us  */
          system[p_left - p] = '\0';
+
          /* now see if there is an intermediate path */
-         if (p_left != p_right)  {        /* yup - there is           */
+
+         if (p_left != p_right)
+         {                          /* yup - there is           */
             strncpy(inter, p_left + 1, p_right - p_left - 1);
             inter[p_right - p_left - 1] = '\0';
          }
+
          return;                 /* and we're done                    */
+
       }        /* never get here :-)  */
 
 } /* split_path */
@@ -303,7 +317,8 @@ int   do_uux(char *remote,
 /*                   Now to do the destination name                   */
 /*--------------------------------------------------------------------*/
 
-      if (*dest_inter != '\0')  {
+      if (*dest_inter != '\0')
+      {
          if (*dest_syst != '\0')
             len += sprintf(xcmd + len, " (%s!%s!%s) ", dest_syst, dest_inter, dest_file);
          else
@@ -423,7 +438,8 @@ int   do_copy(char *src_syst,
          fclose(cfile);
          return(1);
       }
-      else if (!equal(dest_syst, E_nodename))  {
+      else if (!equal(dest_syst, E_nodename))
+      {
          printmsg(1,"uucp - spool %s - mkdir %s - execute %s",
                 spool_flag ? "on" : "off",
                   dir_flag ? "on" : "off", xeqt_flag ? "do" : "don't");
@@ -433,6 +449,7 @@ int   do_copy(char *src_syst,
 
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
+
          normalize( src_file );
 
          p  = dest_file;
@@ -460,8 +477,10 @@ int   do_copy(char *src_syst,
                        src_file );
                exit(1);
             }
+
          } /* if (strcspn(src_file, "*?") == strlen(src_file))  */
          else  {
+
             wild_flag = KWTrue;
 
             appendSlash(dest_file); /* Target must be directory   */
@@ -472,6 +491,7 @@ int   do_copy(char *src_syst,
             *++p = '\0';
 
             dirp = opendirx(source_path,search_file);
+
             if (dirp == NULL)
             {
                printf("uucp - unable to open directory %s\n",source_path);
@@ -503,6 +523,7 @@ int   do_copy(char *src_syst,
             {
                sprintf(idfile, spool_fmt, 'D', E_nodename, (char) subseq(),
                            sequence_s);
+
                importpath(work, idfile, remote_syst);
                mkfilename(idfilename, E_spooldir, work);
 
@@ -512,10 +533,12 @@ int   do_copy(char *src_syst,
 
                   if ( lastPath != NULL )
                   {
+
                      *lastPath = '\0';
                      MKDIR( idfilename );
                      *lastPath = '/';     /* Restore last segment of name  */
                      makeDirectory = KWFalse;
+
                   } /* if ( lastPath != NULL ) */
 
                } /* if ( makeDirectory ) */
@@ -525,25 +548,38 @@ int   do_copy(char *src_syst,
                   printmsg(0, "copy \"%s\" to \"%s\" failed",
                               src_file,
                               idfilename);
+
                   if (dirp != NULL )
                      closedir( dirp );
+
                   exit(1);
                }
             }
             else
                strcpy(idfile, "D.0");
 
-            if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
+            if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)
+            {
                printerr( icfilename );
                printf("uucp: cannot append to %s\n", icfilename);
+
                if (dirp != NULL )
                   closedir( dirp );
+
                exit(1);
             }
-            fprintf(cfile, "S %s %s %s -%s %s 0644 %s\n", src_file, dest_file,
-                     E_mailbox, flags, idfile, remote_user);
+
+            fprintf(cfile, "S %s %s %s -%s %s 0644 %s\n",
+                           src_file,
+                           dest_file,
+                           E_mailbox,
+                           flags,
+                           idfile,
+                           remote_user);
             fclose(cfile);
-            if (wild_flag)  {
+
+            if (wild_flag)
+            {
                dp = readdir(dirp);
                if ( dp == NULL )
                   write_flag = KWFalse;
@@ -556,16 +592,20 @@ int   do_copy(char *src_syst,
          return(1);
       }
       else  {
+
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
+
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
+
          if (strcmp(src_file, dest_file) == 0)
          {
             fprintf(stderr, "%s %s - same file; can't copy\n",
                   src_file, dest_file);
             exit(1);
          }
+
          cp(src_file, dest_file);
          return(1);
       }
@@ -582,8 +622,8 @@ main(int argc, char *argv[])
 {
       int         i;
       int         option;
-      char        src_system[100], dest_system[100];
-      char        src_inter[100],  dest_inter[100];
+      char        src_system[20], dest_system[20];
+      char        src_inter[20],  dest_inter[20];
       char        src_file[FILENAME_MAX],   dest_file[FILENAME_MAX];
 
 /*--------------------------------------------------------------------*/
@@ -593,6 +633,7 @@ main(int argc, char *argv[])
       debuglevel = 0;
 
       banner( argv );
+
       if (!configure(B_UUCP))
          exit(1);
 
@@ -600,62 +641,82 @@ main(int argc, char *argv[])
 /*                        Process option flags                        */
 /*--------------------------------------------------------------------*/
 
-      while ((option = getopt(argc, argv, "Ccdfg:jmn:rs:x:")) != EOF)  {
-         switch(option)  {
+      while ((option = getopt(argc, argv, "Ccdfg:jmn:rs:x:")) != EOF)
+      {
+         switch(option)
+         {
             case 'c':               /* don't spool                    */
                spool_flag = KWFalse;
                break;
+
             case 'C':               /* force spool                    */
                spool_flag = KWTrue;
                break;
+
             case 'd':               /* make directories               */
                dir_flag = KWTrue;
                break;
+
             case 'e':               /* send uucp command to sys        */
                /* This one is in Sams but nowhere else - I'm ignoring it */
                break;
+
             case 'f':               /* don't make directories         */
                dir_flag = KWFalse;
                break;
+
             case 'g':               /* set grade of transfer           */
                grade = *optarg;
                break;
+
             case 'j':               /* output job id to stdout        */
                j_flag = KWTrue;
                break;
+
             case 'm':               /* send mail when copy completed  */
                mail_me = KWTrue;
                break;
+
             case 'n':               /* notify remote user file was sent  */
                mail_them = KWTrue;
                sprintf(remote_user, "%.8s", optarg);
                break;
+
             case 'r':               /* queue job only                 */
                xeqt_flag = KWFalse;
                break;
+
             case 's':               /* report status of transfer to file  */
                strcpy( spool_file, optarg);
                expand_path( spool_file, NULL, E_pubdir , NULL);
                break;
+
             case 'x':               /* set debug level                 */
                debuglevel = atoi(optarg);
                break;
+
             default:
                usage();
                exit(1);
                break;
+
          }
       }
+
       flags[0] = (char)(dir_flag ? 'd' : 'f');
       flags[1] = (char)(spool_flag ? 'C' : 'c');
+
       i = 2;
+
       if (mail_them)
          flags[i++] = 'n';
+
       flags[i] = '\0';
 
       if (remote_user[0] == '\0')
       {
          /* copy the string taking care not to overrun the buffer */
+
          strncpy(remote_user, E_mailbox, sizeof(remote_user) - 1 );
          remote_user[sizeof(remote_user) - 1] = '\0';
       }
@@ -688,16 +749,21 @@ main(int argc, char *argv[])
 /*        OK - we have a destination system - do we know him?         */
 /*--------------------------------------------------------------------*/
 
-      if (*dest_system != '\0')  {
-         if (checkreal(dest_system) == BADHOST)  {
+      if (*dest_system != '\0')
+      {
+         if (checkreal(dest_system) == BADHOST)
+         {
             fprintf(stderr, "uucp - bad system: %s\n", dest_system);
             exit(1);
          }
       }
       else        /* make sure we have a system name for destination */
          strcpy(dest_system, E_nodename);
+
       printmsg(9, "destination: system \"%s\", inter \"%s\", file \"%s\"",
-            dest_system, dest_inter, dest_file);
+                  dest_system,
+                  dest_inter,
+                  dest_file);
 
 /*--------------------------------------------------------------------*/
 /*    Now - if there is more than 1 source then normal cp rules,      */
@@ -707,7 +773,9 @@ main(int argc, char *argv[])
       if (argc - optind > 2)
          appendSlash(dest_file);
 
-      for (i = optind; i < (argc - 1); i++)  {
+      for (i = optind; i < (argc - 1); i++)
+      {
+
          split_path(argv[i], src_system, src_inter, src_file);
 
 /*--------------------------------------------------------------------*/
@@ -717,8 +785,10 @@ main(int argc, char *argv[])
 /*                   Do we know the source system?                    */
 /*--------------------------------------------------------------------*/
 
-         if (*src_system != '\0')  {
-            if (checkreal(src_system) == BADHOST)  {
+         if (*src_system != '\0')
+         {
+            if (checkreal(src_system) == BADHOST)
+            {
                fprintf(stderr, "uucp - bad system %s\n", src_system);
                exit(1);
             }
@@ -728,7 +798,8 @@ main(int argc, char *argv[])
 /*                    Source can't be >1 hop away                     */
 /*--------------------------------------------------------------------*/
 
-         if (*src_inter != '\0')  {
+         if (*src_inter != '\0')
+         {
             fprintf(stderr, "uucp - illegal syntax %s\n", argv[i]);
             exit(1);
          }
@@ -737,7 +808,8 @@ main(int argc, char *argv[])
 /*        if source is remote AND wildcarded then we need uux         */
 /*--------------------------------------------------------------------*/
 
-         if ((*src_system != '\0') && (strcspn(src_file, "*?[") < strlen(src_file)))  {
+         if ((*src_system != '\0') && (strcspn(src_file, "*?[") < strlen(src_file)))
+         {
             do_uux(src_system, src_system, src_file, dest_system, dest_inter, dest_file);
             continue;
          }
@@ -746,7 +818,8 @@ main(int argc, char *argv[])
 /*            if dest requires forwarding then we need uux            */
 /*--------------------------------------------------------------------*/
 
-         if (*dest_inter != '\0')  {
+         if (*dest_inter != '\0')
+         {
             do_uux(dest_system, src_system, src_file, "", dest_inter, dest_file);
             continue;
          }
@@ -756,10 +829,12 @@ main(int argc, char *argv[])
 /*--------------------------------------------------------------------*/
 
          if ((*src_system != '\0') && (!equal(src_system, E_nodename)) &&
-               (*dest_system != '\0') && (!equal(dest_system, E_nodename)))  {
+             (*dest_system != '\0') && (!equal(dest_system, E_nodename)))
+         {
             do_uux(dest_system, src_system, src_file, "", dest_inter, dest_file);
             continue;
          }
+
 /*--------------------------------------------------------------------*/
 /*          We have left 3 options:                                   */
 /*          1) src remote (non-wild) & dest local                     */
@@ -768,14 +843,20 @@ main(int argc, char *argv[])
 /*                                                                    */
 /*               fill up the src system if not already                */
 /*--------------------------------------------------------------------*/
+
          if (*src_system == '\0')
             strcpy(src_system, E_nodename);
+
          printmsg(4, "source: system \"%s\", file \"%s\"", src_system,
                      src_file);
+
          do_copy(src_system, src_file, dest_system, dest_file);
-      }
+
+      }  /* for (i = optind; i < (argc - 1); i++) */
+
       if (xeqt_flag)
          printmsg(1, "Call uucico");
+
       if (j_flag)
          printmsg(1,"j_flag");
 
