@@ -50,9 +50,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: delivers.c 1.10 1997/12/14 21:17:03 ahd v1-12u $
+ *       $Id: delivers.c 1.11 1998/03/01 01:33:06 ahd v1-13b $
  *
  *       $Log: delivers.c $
+ * Revision 1.11  1998/03/01  01:33:06  ahd
+ * Annual Copyright Update
+ *
  *       Revision 1.10  1997/12/14 21:17:03  ahd
  *       Transform selected well-known addresses into the error-response
  *       empty (<>) address.
@@ -95,7 +98,7 @@
 
 currentfile();
 
-RCSID("$Id: delivers.c 1.10 1997/12/14 21:17:03 ahd v1-12u $");
+RCSID("$Id: delivers.c 1.11 1998/03/01 01:33:06 ahd v1-13b $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -460,6 +463,7 @@ SendSMTPData(
    {
      char *start = dataBuf;
      char *eol;
+     KWBoolean firstPass = KWTrue;
 
      len += used;                   /* Make total amount buffered    */
 
@@ -471,6 +475,8 @@ SendSMTPData(
             ((eol = memchr(start, '\n', (size_t) len)) != NULL))
      {
          int lineLength = eol - start;
+
+         firstPass = KWFalse;
 
          /* Trace our write */
          *eol = '\0';
@@ -548,12 +554,36 @@ SendSMTPData(
      } /* while((eol = memchr(start, '\n', len)) != NULL) */
 
 /*--------------------------------------------------------------------*/
+/*       Handle the special case of an overlength line; we can        */
+/*       only send it if it's not all periods (we would fail to       */
+/*       quote the line properly if it were).                         */
+/*--------------------------------------------------------------------*/
+
+     if (firstPass && !isAllPeriods(dataBuf, len))
+     {
+        printmsg(5, "--> %.75s", dataBuf);
+
+        if (!swrite(dataBuf, len))
+        {
+           printmsg(0, "SendSMTPData of CR/LF failed.");
+           return KWFalse;
+        }
+
+        len = 0;
+        firstPass = KWFalse;
+
+     } /* if (firstPass && !isAllPeriods(dataBuf, len)) */
+
+/*--------------------------------------------------------------------*/
 /*        Verify the input buffer had at least one valid line         */
 /*--------------------------------------------------------------------*/
 
-     if (used == sizeof dataBuf)
+     if (firstPass)
      {
-        printmsg(0,"SendSMTPData: Overlength input line not trapped");
+        printmsg(0,"SendSMTPData: Overlength input line "
+                   "(%d bytes, buffer %d) not trapped",
+                   used,
+                   sizeof dataBuf);
         panic();
      }
 
