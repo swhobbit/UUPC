@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.11 1993/04/05 04:35:40 ahd Exp $
+ *    $Id: MODEM.C 1.12 1993/04/11 00:34:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.12  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.11  1993/04/05  04:35:40  ahd
  * Set clear abort processing flag (norecover) from ulib.c
  *
@@ -295,6 +298,10 @@ CONN_STATE callhot( const BPS xspeed )
                               /* Clear remote stats for login        */
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
+
+   if (bmodemflag[MODEM_CD])
+      CD();                   /* Set the carrier detect flags        */
+
    return CONN_HOTLOGIN;
 
 } /* callhot */
