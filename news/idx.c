@@ -8,10 +8,13 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: idx.c 1.4 1994/02/19 04:22:01 ahd Exp $";
-static char *rcsrev = "$Revision: 1.4 $";
+static char *rcsid = "$Id: IDX.C 1.5 1994/03/07 06:09:51 ahd Exp rommel $";
+static char *rcsrev = "$Revision: 1.5 $";
 
-/* $Log: idx.c $
+/* $Log: IDX.C $
+ * Revision 1.5  1994/03/07  06:09:51  ahd
+ * Add additional error messages to error returns
+ *
  * Revision 1.4  1994/02/19  04:22:01  ahd
  * Use standard first header
  *
@@ -294,8 +297,14 @@ IDX *idx_init(int file)
 
   idx -> size = size / sizeof(PAGE);
 
-  if (idx -> size == 0) /* new (empty) index needs initialization */
+  if (idx -> size == 0) /* new (empty) index file needs initialization */
   {
+    if (chsize(idx -> file, sizeof(PAGE)) != 0)
+    {                         /* let it contain exactly the root page */
+      printerr( "chsize" );
+      free(idx);
+      return (IDX *) NULL;
+    }
     if (idx_new_page(idx) != 0)
     {
        free(idx);
