@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.26 1995/03/11 15:49:23 ahd Exp $
+ *    $Id: uustat.c 1.27 1995/03/11 22:30:54 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.27  1995/03/11 22:30:54  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.26  1995/03/11 15:49:23  ahd
  *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
  *
@@ -51,7 +54,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.26 1995/03/11 15:49:23 ahd Exp $";
+         "$Id: uustat.c 1.27 1995/03/11 22:30:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -60,6 +63,7 @@ static const char rcsid[] =
 #include <io.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <limits.h>
 
 /*--------------------------------------------------------------------*/
 /*         Local include files                                        */
@@ -154,12 +158,12 @@ static const char *host_status[] = {
       "(host for gateway purposes only)",
       "Never called",
       "Dialing now",
-      "Invalid device or speed in SYSTEMS file",
+      "Invalid device/speed in SYSTEMS file",
       "Device not available",
       "Conversation start-up failed",
       "Talking",
       "Callback required",
-      "Modem initialization script failed",
+      "Modem initialization failed",
       "Dial failed",
       "Script failed",
       "Max retry reached",
@@ -697,21 +701,40 @@ static void long_stats( const char *system )
 
          if ( jobs > 0 )
          {
-            sprintf( fname , "%d%s",
-                     jobs,
-                     prefix[subscript] );
+            size_t unit = 0;
+            static const char label[] = { 's', 'm', 'h', 'd', '?' };
+            static const long step[]  = {   1,  60,  60,  24, LONG_MAX };
+            time_t age = now - oldest_file;
 
-            if (oldest_file + DAY < now)
-                                    /* More than day old?            */
-               sprintf( fname + strlen(fname), "(%d)",
-                        (now - oldest_file) / DAY );
+/*--------------------------------------------------------------------*/
+/*       Determine the best unit for the age; we require at least     */
+/*       two of a unit before using it over the next lower unit to    */
+/*       allow more accurate reporting.                               */
+/*--------------------------------------------------------------------*/
+
+            while (( age / step[unit + 1]) > 1 )
+            {
+               age /= step[++unit];
+            }
+
+/*--------------------------------------------------------------------*/
+/*                 Format the information on the jobs                 */
+/*--------------------------------------------------------------------*/
+
+            sprintf( fname ,
+                     "%d%s(%ld%c)",
+                     jobs,
+                     prefix[subscript],
+                     age,
+                     label[unit] );
 
             work =  hit = KWTrue;
 
-            sprintf(summary + strlen(summary), "%-8s ",fname );
          } /* if */
-         else        /* ....+....1 */
-            strcat(summary,"         ");
+         else
+            *fname = '\0';             /* No information to display  */
+
+         sprintf(summary + strlen(summary), "%-10s ",fname );
 
       } /* for ( subscript = 0; subscript < 3; subscript++ ) */
 
