@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.12 1993/04/11 00:34:11 ahd Exp $
+ *    $Id: modem.c 1.13 1993/04/15 03:21:06 ahd Exp ahd $
  *
  *    Revision history:
- *    $Log: MODEM.C $
+ *    $Log: modem.c $
+ * Revision 1.13  1993/04/15  03:21:06  ahd
+ * Add CD() call to hot login procedure
+ *
  * Revision 1.12  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -91,7 +94,7 @@
 #include "security.h"
 #include "ssleep.h"
 #include "catcher.h"
-#include "ulib.h"
+#include "commlib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -102,6 +105,7 @@ char *device = NULL;          /*Public to show in login banner     */
 static char **answer, **initialize, **dropline, **ring, **connect;
 static char **noconnect;
 static char *dialPrefix, *dialSuffix;
+static char *M_suite;
 
 static INTEGER chardelay, dialTimeout, modemTimeout, scriptTimeout;
 static INTEGER answerTimeout, inspeed;
@@ -153,6 +157,7 @@ static CONFIGTABLE modemtable[] = {
    { "porttimeout",   NULL,                    B_OBSOLETE },
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
    { "scripttimeout", (char **) &scriptTimeout,B_INTEGER| B_UUCICO },
+   { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
    { "transferbuffer",(char **) &M_xfer_bufsize, B_INTEGER| B_UUCICO },
    { "vpacketsize",   (char **) &vPacketSize,  B_INTEGER| B_UUCICO },
    { "vwindowsize",   (char **) &vWindowSize,  B_INTEGER| B_UUCICO },
@@ -482,6 +487,7 @@ static boolean getmodem( const char *brand)
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
+   M_suite = NULL;            // Use default suite for communications
 
 /*--------------------------------------------------------------------*/
 /*                 Open the modem configuration file                  */
@@ -489,8 +495,8 @@ static boolean getmodem( const char *brand)
 
    if (equaln(brand,"COM",3))
    {
-      printmsg(0,"Modem type %s is invalid; Snuffles suspects \
-your %s file is obsolete.", brand, SYSTEMS);
+      printmsg(0,"Modem type %s is invalid; Snuffles suspects "
+               "your %s file is obsolete.", brand, E_systems);
       panic();
    }
 
@@ -527,10 +533,26 @@ your %s file is obsolete.", brand, SYSTEMS);
       } /* if */
    } /* for */
 
-   if ( success )             /* Good modem setup?                   */
-      modem = newstr(brand);  /* Yes --> Remember it for next time   */
+   if ( ! success )           // Missing any required inputs?
+      return success;         // Yes --> Return failure to caller
 
-   return success;
+/*--------------------------------------------------------------------*/
+/*       The strings are valid, try to initialize the pointers to     */
+/*       the processing routines.                                     */
+/*--------------------------------------------------------------------*/
+
+
+   if ( ! chooseCommunications( M_suite ))
+      return FALSE;
+
+/*--------------------------------------------------------------------*/
+/*       We have success, save modem name for next time to speed      */
+/*       initialize.                                                  */
+/*--------------------------------------------------------------------*/
+
+   modem = newstr(brand);  /* Yes --> Remember it for next time   */
+
+   return TRUE;
 
 } /* getmodem */
 

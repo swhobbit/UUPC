@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NBSTIME.C 1.4 1993/04/13 02:27:31 dmwatt Exp $
+ *    $Id: NBSTIME.C 1.5 1993/04/15 04:15:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: NBSTIME.C $
+ * Revision 1.5  1993/04/15  04:15:43  ahd
+ * Twiddle OS/2 support and reduce number of #ifdef segments
+ *
  * Revision 1.4  1993/04/13  02:27:31  dmwatt
  * Windows/NT updates
  *
@@ -69,7 +72,7 @@
 #include "nbstime.h"
 #include "script.h"
 #include "security.h"
-#include "ulib.h"
+#include "commlib.h"
 
 #ifndef __TURBOC__
    currentfile();
@@ -309,7 +312,7 @@ boolean nbstime( void )
    ddate.day     = (unsigned char) tp->tm_mday;
    ddate.month   = (unsigned char) (tp->tm_mon + 1);
    ddate.year    = (unsigned int)  (tp->tm_year + 1900);
-   ddate.dayofweek = (unsigned char) tp->tm_wDay;       /* 0-6, 0=Sunday */
+   ddate.dayofweek = (unsigned char) tp->tm_mday;       /* 0-6, 0=Sunday */
 
    dtime.hour    = (unsigned char) tp->tm_hour;
    dtime.minute  = (unsigned char) tp->tm_min;

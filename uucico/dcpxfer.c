@@ -13,9 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.15 1993/05/06 03:41:48 ahd Exp $
+ *       $Id: DCPXFER.C 1.16 1993/05/09 03:41:47 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.16  1993/05/09  03:41:47  ahd
+ * Don't expand path of files destined for UUCP spool
+ * Correct syslog processing to not close when not multitasking
+ *
  * Revision 1.15  1993/05/06  03:41:48  ahd
  * Reformat syslog output into readable format
  * parse userids off incoming commands again
@@ -108,7 +112,6 @@
 #include "import.h"
 #include "security.h"
 #include "modem.h"
-#include "ulib.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
