@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.6 1995/03/11 01:59:57 ahd Exp $
+ *       $Id: newsrun.c 1.7 1995/03/11 22:33:46 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.7  1995/03/11 22:33:46  ahd
+ *       BLow off undelete processing if so configured under OS/2
+ *
  *       Revision 1.6  1995/03/11 01:59:57  ahd
  *       Trap possible bad message ids before they corrupt history
  *       Correct report of retained articles
@@ -211,7 +214,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.6 1995/03/11 01:59:57 ahd Exp $";
+         "$Id: newsrun.c 1.7 1995/03/11 22:33:46 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -261,6 +264,7 @@ static const char rcsid[] =
 #define MESSAGEID    "Message-ID:"
 #define NEWSGROUPS   "Newsgroups:"
 #define XREF         "Xref:"
+#define APPROVED     "Approved:"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -966,6 +970,7 @@ static void deliver_article( IMFILE *imf )
       { FROM,            NULL, NULL,    NULL, 0, 0 },
       { DISTRIBUTION,    NULL, "world", NULL, 0, 0 },
       { CONTROL,         NULL, "",      NULL, 0, 0 },
+      { APPROVED,        NULL, "",      NULL, 0, 0 },
       { NULL }
    };
 
@@ -1467,9 +1472,9 @@ static KWBoolean deliver_local(IMFILE *imf,
    {
       control_message(control, BIT_BUCKET );
 
-      if (get_snum("control", snum))
+      if (find_newsgroup("control"))
          newsgroups_in = "control";
-      else if (get_snum("junk", snum))
+      else if (find_newsgroup("junk"))
          newsgroups_in = "junk";
       else
          return KWFalse;
