@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.20 1994/02/20 19:16:21 ahd Exp $
+ *    $Id: title2.c 1.1 1994/04/24 20:35:08 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: title2.c $
+ * Revision 1.1  1994/04/24  20:35:08  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -36,6 +39,15 @@
 
 #include "timestmp.h"
 
+void restoreOriginalTitle( void );
+
+/*--------------------------------------------------------------------*/
+/*                          Local variables                           */
+/*--------------------------------------------------------------------*/
+
+
+currentfile();
+
 /*--------------------------------------------------------------------*/
 /*       s e t T i t l e                                              */
 /*                                                                    */
@@ -49,18 +61,31 @@ void setTitle( const char *fmt, ... )
    int pid = getpid();
    va_list arg_ptr;
 
+   static boolean firstPass = TRUE;
+
+   if ( firstPass )
+   {
+      firstPass = FALSE;
+      atexit( restoreOriginalTitle );
+   }
+
    hSwitch = WinQuerySwitchHandle(NULL, pid );
    WinQuerySwitchEntry(hSwitch, &swctl);
 
-   va_start(arg_ptr,fmt);
+   if ( fmt )
+   {
+      va_start(arg_ptr,fmt);
 
-   sprintf( swctl.szSwtitle, "%s: ", compilen );
+      sprintf( swctl.szSwtitle, "%s: ", compilen );
 
-   vsprintf(swctl.szSwtitle + strlen(swctl.szSwtitle),
-            fmt,
-            arg_ptr);
+      vsprintf(swctl.szSwtitle + strlen(swctl.szSwtitle),
+               fmt,
+               arg_ptr);
 
-   va_end( arg_ptr );
+      va_end( arg_ptr );
+   }
+   else
+      *(swctl.szSwtitle) = '\0';
 
    memset( swctl.szSwtitle + strlen(swctl.szSwtitle),
            ' ',
@@ -70,3 +95,15 @@ void setTitle( const char *fmt, ... )
    WinChangeSwitchEntry(hSwitch, &swctl);
 
 } /* setTitle */
+
+/*--------------------------------------------------------------------*/
+/*       r e s t o r e O r i g i n a l T i t l e                      */
+/*                                                                    */
+/*       Restore title saved on first call to setTitle                */
+/*--------------------------------------------------------------------*/
+
+void restoreOriginalTitle( void )
+{
+
+   setTitle( NULL );
+}
