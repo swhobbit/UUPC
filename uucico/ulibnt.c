@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBNT.C 1.11 1993/11/30 04:13:30 dmwatt Exp $
- *       $Log: ULIBNT.C $
+ *       $Id: ulibnt.c 1.12 1993/12/06 01:59:07 ahd Exp $
+ *       $Log: ulibnt.c $
+ * Revision 1.12  1993/12/06  01:59:07  ahd
+ * Add missing handle retrieval function
+ *
  * Revision 1.11  1993/11/30  04:13:30  dmwatt
  * Optimize port processing
  *
@@ -857,13 +860,13 @@ boolean nCD( void )
 /*    we return success because we may not have connected yet.        */
 /*--------------------------------------------------------------------*/
 
-   carrierdetect = status && MS_RLSD_ON;
+   carrierdetect = status & MS_RLSD_ON;
 
    if (previous_carrierdetect)
-      return (status && (MS_RLSD_ON || MS_DSR_ON)) ==
-                        (MS_RLSD_ON || MS_DSR_ON);
+      return (status & (MS_RLSD_ON | MS_DSR_ON)) ==
+               (MS_RLSD_ON | MS_DSR_ON);
    else
-      return (status && MS_DSR_ON);
+      return (status & MS_DSR_ON);
 
 } /* nCD */
 
