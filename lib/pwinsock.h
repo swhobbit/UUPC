@@ -24,10 +24,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: pwinsock.h 1.1 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: pwinsock.h $
+ * Revision 1.1  1993/09/20  04:51:31  ahd
+ * Initial revision
+ *
+ * Revision 1.1  1993/09/20  04:51:31  ahd
+ * Initial revision
+ *
  */
 
 #define WSAStartup pWSAStartup
@@ -50,6 +56,7 @@
 #define ntohs pntohs
 #define ntohl pntohl
 #define htonl phtonl
+#define shutdown pshutdown
 
 extern int PASCAL FAR (*pWSAStartup)(WORD wVersionRequired, LPWSADATA lpWSAData);
 extern int PASCAL FAR (*pWSACleanup)(void);
@@ -77,6 +84,8 @@ extern u_short PASCAL FAR (*pntohs)(u_short netshort);
 extern u_long PASCAL FAR (*phtonl) (u_long hostlong);
 
 extern u_long PASCAL FAR (*pntohl) (u_long netlong);
+
+extern int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 
 /*--------------------------------------------------------------------*/
 /*     Our one "real" prototype to initialize the other functions     */
