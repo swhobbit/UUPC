@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.14 1998/03/16 07:49:07 ahd Exp $
+ *    $Id: smtpnetw.c 1.15 1998/04/08 11:35:35 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.15  1998/04/08 11:35:35  ahd
+ *    CHange error processing for bad sockets
+ *
  *    Revision 1.14  1998/03/16 07:49:07  ahd
  *    Make NETSCAPE send CR/LF
  *
@@ -93,7 +96,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.14 1998/03/16 07:49:07 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.15 1998/04/08 11:35:35 ahd Exp $");
 
 currentfile();
 
@@ -322,6 +325,7 @@ SMTPGetLine(SMTPClient *client)
 KWBoolean
 SMTPResponse(SMTPClient *client, int code, const char *text)
 {
+   static const char mName[] = "SMTPResponse";
 
    char buf[BUFSIZ];
    size_t totalLength;
@@ -358,7 +362,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
          default:
             /* Numeric codes for SMTP */
-            switch( code / 100 )
+            switch(code / 100)
             {
                case 4:
                case 5:
@@ -376,7 +380,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    } /* switch(code) */
 
-   if ( printLevel >= debuglevel )
+   if (printLevel >= debuglevel)
    {
       printmsg(printLevel,"%d >>> %s%.75s",
                           getClientSequence(client),
@@ -396,8 +400,9 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
    {
       if(!SMTPWrite(client, text, totalLength))
       {
-         printmsg(0,"Error sending response text to remote host: %s%.75s",
-                    buf,
+         printmsg(0,"%s: Error sending %u bytes to remote host: \"%.75s\"",
+                    mName,
+                    totalLength,
                     text);
          return KWFalse;
       }
@@ -424,7 +429,8 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, buf, strlen(buf)))
    {
-      printmsg(0,"Error sending response code to remote host: %.4s %.75s",
+      printmsg(0,"%s: Error sending response code to remote host: %.4s %.75s",
+                  mName,
                   buf,
                   text);
       return KWFalse;
@@ -435,7 +441,9 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, text, strlen(text)))
    {
-      printmsg(0,"Error sending response text to remote host: %s%.75s",
+      printmsg(0,"%s: Error sending %d bytes to remote host: %s%.75s",
+                 mName,
+                 strlen(text),
                  buf,
                  text);
       return KWFalse;
@@ -443,7 +451,8 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    if(!SMTPWrite(client, crlf, strlen(crlf)))
    {
-      printmsg(0, "Error sending CR/LF to remote host: %s%.75s",
+      printmsg(0, "%s: Error sending CR/LF to remote host: %s%.75s",
+                  mName,
                   buf,
                   text);
       return KWFalse;
@@ -711,6 +720,7 @@ SMTPWrite(SMTPClient *client,
 {
    static const char mName[] = "SMTPWrite";
    int status;
+   static const size_t maxWrite = 1024;
 
    status = send(getClientHandle(client),
                  (char UUFAR *)data,
@@ -722,16 +732,23 @@ SMTPWrite(SMTPClient *client,
       int wsErr;
 
       wsErr = WSAGetLastError();
-      printmsg(0, "%s: Error sending data to socket", mName);
+      printmsg(0, "%s: Error writing %u bytes to socket %d",
+                  mName,
+                  len,
+                  getClientHandle(client));
       printWSerror("send", wsErr);
 
       /* Flag the error to client and return error */
-      setClientSocketError( client, wsErr );
+      setClientSocketError(client, wsErr);
       return 0;
    }
 
    if (status < (int)len)     /* Breaks if len > 32K, which is unlikely */
-      printmsg(0,"%s: Write to network failed.", mName);
+      printmsg(0,"%s: Write to network failed, "
+                  "wanted to write %u and only wrote %d.",
+                  mName,
+                  len,
+                  status);
 
 /*--------------------------------------------------------------------*/
 /*              Return byte count transmitted to caller               */
@@ -829,7 +846,7 @@ SMTPRead(SMTPClient *client)
       printWSerror("recv", wsErr);
 
       /* Flag the error to client and return error */
-      setClientSocketError( client, wsErr );
+      setClientSocketError(client, wsErr);
       return 0;
 
    }
@@ -1007,7 +1024,7 @@ selectReadySockets(SMTPClient *master)
       }
 
       /* If we can better the timeout period, examine current client */
-      if ( timeoutPeriod.tv_sec > 0 )
+      if (timeoutPeriod.tv_sec > 0)
       {
          unsigned long timeout = (unsigned long) getClientTimeout(current);
          if (timeout < (unsigned long) timeoutPeriod.tv_sec)
@@ -1046,7 +1063,7 @@ selectReadySockets(SMTPClient *master)
                mName,
                nSelected,
                maxSocket,
-               (long) timeoutPeriod.tv_sec );
+               (long) timeoutPeriod.tv_sec);
 #endif
 
    nReady = select(maxSocket, &readfds, NULL, NULL, &timeoutPeriod);
