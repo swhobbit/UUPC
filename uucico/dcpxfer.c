@@ -19,9 +19,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.21 1993/09/02 12:08:17 ahd Exp $
+ *       $Id: dcpxfer.c 1.22 1993/09/20 04:46:34 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.22  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.21  1993/09/02  12:08:17  ahd
  * HPFS Support
  *
@@ -952,10 +957,13 @@ XFER_STATE rrfile( void )
    importpath(spolName, fileName, rmtname);
 
 /*--------------------------------------------------------------------*/
-/* If the name has a path and we don't allow it, reject the transfer  */
+/*       If the name has a path and we don't allow it, reject the     */
+/*       transfer.  We also reject attempts to send call files,       */
+/*       because they would bypass security.                          */
 /*--------------------------------------------------------------------*/
 
-   if ( !spool && !ValidateFile( spolName , ALLOW_WRITE ))
+   if (( !spool && !ValidateFile( spolName , ALLOW_WRITE )) ||
+       ( spool && (*tName == 'C' )))
    {
       if (!pktsendstr("SN2")) /* Report access denied to requestor   */
          return XFER_LOST;
