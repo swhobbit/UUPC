@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.26 1993/12/23 03:16:03 rommel Exp $
+ *      $Id: dcpgpkt.c 1.27 1993/12/24 05:12:54 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.27  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.26  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -689,6 +692,10 @@ static short initialize(const boolean caller, const char protocol )
 /*                                                                    */
 /*    Begin a file transfer (not used by "g" protocol)                */
 /*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#pragma argsused
+#endif
 
 short gfilepkt( const boolean send, const unsigned long len)
 {
