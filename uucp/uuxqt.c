@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.8 1993/06/13 14:06:00 ahd Exp $
+ *    $Id: uuxqt.c 1.9 1993/06/26 16:01:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.9  1993/06/26  16:01:48  ahd
+ * Normalize white space used to parse strings
+ *
  * Revision 1.8  1993/06/13  14:06:00  ahd
  * Correct off-by-one error in RMAIL arg parse loop which crashed UUXQT
  * on long system names
@@ -431,7 +434,7 @@ static void process( const char *fname, const char *remote )
    char *requestor = NULL;
    char *statfil = NULL;
    char *machine = NULL;
-   char   **envp;
+   char **envp;
 
    boolean xflag[UU_LAST - 1] = { 0 };
    time_t jtime = time(NULL);
@@ -703,19 +706,23 @@ static void process( const char *fname, const char *remote )
 /*                  Clean up files after the command                  */
 /*--------------------------------------------------------------------*/
 
-      unlink(fname);       /* Already a local file name            */
-
-      if (equaln(input,"D.",2))
+      if ( status > -2 )
       {
-          importpath(hostfile, input, remote);
-          unlink(hostfile);
-      }
+         unlink(fname);       /* Already a local file name            */
 
-      if (xflag[X_OUTPUT])
-      {
-          importpath(hostfile, output, remote);
-          unlink(hostfile);
-      }
+         if (equaln(input,"D.",2))
+         {
+             importpath(hostfile, input, remote);
+             unlink(hostfile);
+         }
+
+         if (xflag[X_OUTPUT])
+         {
+             importpath(hostfile, output, remote);
+             unlink(hostfile);
+         }
+
+      } /* if ( status > -2 ) */
 
    }
    else if (reject && !skip)
@@ -850,8 +857,10 @@ static int shell(char *command,
 
             strcat( buf, argv[addr] );
             rlen -= strlen( argv[addr++] ) + 1;
+
             if (rlen > 1)     /* Room for another address?           */
                strcat( buf, " ");   /* Yes --> Add space after addr  */
+
          } /* while (( addr < argc ) && (rlen >= strlen( argv[addr] ) */
 
          if (*buf == '\0')    /* Did we process at least one addr?   */
@@ -877,14 +886,18 @@ static int shell(char *command,
             panic();
          } /* if */
 
-         if ( result != 0 )
+         if (result == -1)          /* Did spawn fail?               */
          {
-            if (result == -1)       /* Did spawn fail?               */
-               printerr(argv[0]);   /* Yes --> Report error          */
-            printmsg(0,"shell: command \"%s %s\" returned error code %d",
-                     argv[0], buf, result);
+            printerr(argv[0]);      /* Yes --> Report error          */
             panic();
          }
+         else if ( result != 0 )    // Did command execution fail?
+         {
+            printmsg(0,"shell: command \"%s %s\" returned error code %d",
+                  argv[0], buf, result);
+            panic();
+         }
+
       } /* while (( addr < argc )  && (result != -1 )) */
 
    } /* if (equal(argv[0],RMAIL) && ( inname != NULL )) */
