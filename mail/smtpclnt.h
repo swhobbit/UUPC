@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.6 1997/11/28 04:52:53 ahd Exp $
+ *    $Id: smtpclnt.h 1.7 1997/11/28 23:13:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.7  1997/11/28 23:13:35  ahd
+ *    Additional auditing, including DNS support
+ *
  *    Revision 1.6  1997/11/28 04:52:53  ahd
  *    Initial UUSMTPD OS/2 support
  *
@@ -162,7 +165,7 @@ time_t getClientTimeout(const SMTPClient *client);
 size_t getClientSequence(const SMTPClient *client);
 
 /* Major tranaction (mail) counter */
-void incrementClientMajorTransaction(SMTPClient *client, size_t count);
+void incrementClientMajorTransaction(SMTPClient *client );
 size_t getClientMajorTransaction(SMTPClient *client);
 
 /* Read data if needed and call command processor for client */
