@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.h 1.8 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: modem.h 1.9 1993/10/03 20:44:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.h $
+ * Revision 1.9  1993/10/03  20:44:22  ahd
+ * Move slowWrite to script.c
+ *
  * Revision 1.8  1993/09/29  04:56:11  ahd
  * Suspend port by port name, not modem file name
  *
@@ -86,7 +89,7 @@ extern KEWSHORT M_MaxErr;
 extern KEWSHORT M_PortTimeout;
 extern KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 extern KEWSHORT M_tPacketTimeout;
-extern KEWSHORT M_xfer_bufsize;
+extern KEWLONG  M_xfer_bufsize;
 extern KEWSHORT M_charDelay;
 
 #endif
