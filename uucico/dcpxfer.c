@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.54 1995/04/02 00:01:39 ahd v1-12q $
+ *       $Id: dcpxfer.c 1.55 1996/01/01 21:22:21 ahd v1-12r $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.55  1996/01/01 21:22:21  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.54  1995/04/02 00:01:39  ahd
  *       Correct processing to not send files below requested call grade
  *
@@ -720,6 +723,10 @@ XFER_STATE ssfile( void )
                    databuf[2] ? (char *) &databuf[2] : "unknown" );
       fclose( xfer_stream );
       xfer_stream = NULL;
+
+      if (! equal(dName, "D.0"))    /* Is there a spool file?        */
+         REMOVE( hostFile );        /* yes --> Nuke it !             */
+
       return XFER_FILEDONE;
    }
 
