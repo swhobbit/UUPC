@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: timestmp.h 1.2 1993/07/31 16:28:59 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: timestmp.h $
+ *     Revision 1.2  1993/07/31  16:28:59  ahd
+ *     Changes in support of Robert Denny's Windows Support
+ *
  *
  *       07 Mar 92   -  Add current program name
  *
@@ -36,7 +39,7 @@ extern char compilep[];           /* UUPC Program name             */
 extern char compilet[];           /* UUPC compile time             */
 extern char compiled[];           /* UUPC compile date             */
 extern char *compilen;            /* Current program name          */
-extern char *compilew;            /* Current Windows version       */
+extern char *compilew;            /* Current environment           */
 
 void banner (char **argv);
 
