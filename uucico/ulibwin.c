@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.9 1993/12/24 05:12:54 ahd Exp $
+ *    $Id: ulibwin.c 1.10 1994/01/01 19:22:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.10  1994/01/01  19:22:22  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.9  1993/12/24  05:12:54  ahd
  * Use far buffer for master communications buffer
  *
@@ -97,7 +100,7 @@
 // is in the Developer's Knowledge Base:
 //
 // Title: INF: Accessing the Modem Status Register (MSR) in Windows
-// Document Number: Q101417           Publ Date: 15-JUL-1994
+// Document Number: Q101417           Publ Date: 15-JUL-1993
 // Product Name: Microsoft Windows Software Development Kit
 // Product Version:  3.10
 // Operating System: WINDOWS
