@@ -1,17 +1,31 @@
-/*
-   For best results in visual layout while viewing this file, set
-   tab stops to every 4 columns.
-*/
+/*--------------------------------------------------------------------*/
+/*    d c p l i b . c                                                 */
+/*                                                                    */
+/*    DCP system-dependent library                                    */
+/*                                                                    */
+/*    Services provided by dcplib.c:                                  */
+/*                                                                    */
+/*    - login                                                         */
+/*    - UNIX commands simulation                                      */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Copyright (c) Richard H. Lamb 1985, 1986, 1987                  */
+/*    Changes Copyright (c) Stuart Lynne 1987                         */
+/*--------------------------------------------------------------------*/
 
 /*
-   d c p l i b . c
-
-   DCP system-dependent library
-
-   Services provided by dcplib.c:
-
-   - login
-   - UNIX commands simulation
+ *    $Id: DCP.C 1.10 1993/04/11 00:35:46 ahd Exp $
+ *
+ *    $Log: DCP.C $
 
    Updated:
 
@@ -62,7 +76,7 @@
 #include "pushpop.h"
 #include "security.h"
 #include "ssleep.h"
-#include "ulib.h"
+#include "commlib.h"
 #include "usertabl.h"
 #include "timestmp.h"
 

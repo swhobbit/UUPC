@@ -39,9 +39,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.14 1993/05/06 03:41:48 ahd Exp $
+ *     $Id: DCPSYS.C 1.15 1993/05/09 03:41:47 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.15  1993/05/09  03:41:47  ahd
+ * Make wmsg accept const string
+ * Make sending/receiving of -x string to/from remote UUCICO optional
+ * Delete rejection of high levels of debug for anonymous UUCICO's
+ *
  * Revision 1.14  1993/05/06  03:41:48  ahd
  * Save true host name of caller in hostp->via field for use by
  * SYSLOG processing.
@@ -116,7 +121,7 @@
 #include "uundir.h"
 #include "ssleep.h"
 #include "security.h"
-#include "ulib.h"
+#include "commlib.h"
 
 currentfile();
 
