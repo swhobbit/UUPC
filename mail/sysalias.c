@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.10 1995/01/08 19:52:44 ahd Exp $
+ *    $Id: sysalias.c 1.11 1995/02/20 00:40:12 ahd v1-12n $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.11  1995/02/20 00:40:12  ahd
+ *    Correct C compiler warnings
+ *
  *    Revision 1.10  1995/01/08 19:52:44  ahd
  *    Add in memory files to RMAIL, including additional support and
  *    bug fixes.
@@ -80,7 +83,7 @@
 
 char *SysAliases = NULL;      /* Name of our system alias file       */
 static ALIASTABLE *aliasTable = NULL;
-static int aliases = 0;
+static size_t aliases = 0;
 
 currentfile();
 
@@ -101,7 +104,7 @@ static void InitAlias( void );
 
 ALIASTABLE *checkalias( const char *user )
 {
-   int subscript = 0;
+   size_t subscript = 0;
 
    if ( SysAliases == NULL )
       InitAlias();
@@ -143,7 +146,8 @@ static void InitAlias( void )
    mkfilename( buf, E_confdir, "aliases" );
    SysAliases = newstr( buf );
 
-   stream = FOPEN( SysAliases , "r",TEXT_MODE );
+   stream = FOPEN( SysAliases , "r", TEXT_MODE );
+
    if ( stream == NULL )
    {
       if (debuglevel > 1)
@@ -178,9 +182,10 @@ static void InitAlias( void )
          s++;
 
       if (*s == '#')
-         continue;
-
-      if ( ! *s )                /* Empty line?                      */
+      {
+            /* Comment, no operation  */
+      }
+      else if ( ! *s )           /* Empty line?                      */
       {                          /* Yes --> 'tis end of alias        */
          if ( inAlias )
          {
@@ -249,11 +254,13 @@ static void InitAlias( void )
    if ( inAlias )
       aliasTable[subscript].end = LONG_MAX;
 
-   aliases = subscript + 1;
+   aliases = (size_t) subscript + 1;
+
    if ( aliases == 0 )
       free( aliasTable );
    else
       aliasTable = realloc( aliasTable, aliases * sizeof *aliasTable );
+
    fclose( stream );
 
 } /* InitAlias */
