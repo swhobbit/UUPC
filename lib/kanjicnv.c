@@ -113,6 +113,7 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
          }
       }
    return 0;
+
 } /* fputs_shiftjis */
 
 /*--------------------------------------------------------------------*/
@@ -125,16 +126,17 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
 {
    int kanjiflag = FALSE;
    unsigned char hi, lo;
-   int i;
+   int written = 0;
 
    while (*buf) {
       if (iskanji(*buf) && iskanji2(*(buf+1))) {
          if (kanjiflag == FALSE) {
             kanjiflag = TRUE;
-            if (0 != (i = fputs(SEQ_TO_JIS90, fp))) {
-               return i;
-               }
-            }
+            written = fputs(SEQ_TO_JIS90, fp);
+            if (ferror(fp))
+               return EOF;
+         } /* if (kanjiflag == FALSE) */
+
          hi = *buf++;
          if ((lo = *buf++) == '\0')
             break;
@@ -157,20 +159,21 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
       else {
          if (kanjiflag == TRUE) {
             kanjiflag = FALSE;
-            if (0 != (i = fputs(SEQ_TO_ASCII, fp))) {
-               return i;
-               }
+            written = fputs(SEQ_TO_ASCII, fp);
+
+            if (ferror(fp))
+               return EOF;
             }
-         if (EOF == fputc(*buf, fp)) {
+
+         if (EOF == fputc(*buf, fp))
             return EOF;
-            }
          buf++;
          }
-      }
-   if (kanjiflag) {
-      if (0 != (i = fputs(SEQ_TO_ASCII, fp))) {
-         return i;
-         }
-      }
-   return 0;
+      } /* else */
+
+   if (kanjiflag)
+      written = fputs(SEQ_TO_ASCII, fp);
+
+   return written;
+
 } /* fputs_jis7bit */
