@@ -9,6 +9,12 @@
 /*    documentation.                                                  */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
@@ -74,7 +80,6 @@ char *ImportNewsGroup( char *local,
    importpath( local, fullpath, NULL );        /* Truncate name and
                                                    zap bad chars as
                                                    needed            */
-   printmsg(2,"ImportNewsGroup: %s(%ld) --> %s", group, article, local );
    return local;
 
 } /* ImportNewsGroup */
