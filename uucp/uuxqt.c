@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.36 1994/03/05 21:12:05 ahd Exp $
+ *    $Id: uuxqt.c 1.37 1994/08/07 21:45:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.37  1994/08/07  21:45:09  ahd
+ * Correct selected changes in host title
+ *
  * Revision 1.36  1994/03/05  21:12:05  ahd
  * Use standard name for NUL device
  *
@@ -1238,7 +1241,7 @@ static int shell(char *command,
                         NULL,
                         outname,
                         TRUE,
-                        FALSE );
+                        TRUE );
    }
 
 /*--------------------------------------------------------------------*/
@@ -1324,7 +1327,7 @@ static int shell(char *command,
                         bflag[F_WINDOWS] ? NULL : inname,
                         outname,
                         TRUE,
-                        FALSE );
+                        TRUE );
 
       if ( result != 0 )    /* Did command execution fail?            */
       {
@@ -1340,7 +1343,7 @@ static int shell(char *command,
                         inname,
                         outname,
                         TRUE,
-                        FALSE );
+                        TRUE );
 
 /*--------------------------------------------------------------------*/
 /*                    Determine result of command                     */
@@ -1780,7 +1783,7 @@ static boolean MailStatus(char *tempfile,
    strcat( buf, " " );
    strcat( buf, address );
 
-   status = execute( RMAIL, buf, NULL, NULL, TRUE, FALSE );
+   status = execute( RMAIL, buf, NULL, NULL, TRUE, TRUE );
 
 /*--------------------------------------------------------------------*/
 /*                       Report errors, if any                        */
@@ -1792,8 +1795,8 @@ static boolean MailStatus(char *tempfile,
       printmsg(0,"Unable to execute rmail; status not delivered.");
    }
    else if ( status > 0 )
-      printmsg(0, "Rmail returned error;\
- status delivery may be incomplete.");
+      printmsg(0, "Rmail returned error; "
+                  "status delivery may be incomplete.");
 
 /*--------------------------------------------------------------------*/
 /*                          Return to caller                          */
