@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.40 1996/01/01 23:50:26 ahd Exp $
+ *    $Id: mail.c 1.41 1996/01/04 04:00:46 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.41  1996/01/04 04:00:46  ahd
+ *    Use sorted list of boolean options with binary search and computed
+ *    table size.
+ *
  *    Revision 1.40  1996/01/01 23:50:26  ahd
  *    Don't scan nickname table for duplicate nicknames in linear fashion,
  *    merely check entire table for duplicates after sorting.
@@ -175,7 +179,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.40 1996/01/01 23:50:26 ahd Exp $";
+      "$Id: mail.c 1.41 1996/01/04 04:00:46 ahd v1-12r $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -727,7 +731,7 @@ static void Interactive_Mail( const KWBoolean PrintOnly,
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
-   imBox  = imopen( mboxsize );
+   imBox  = imopen( mboxsize, IMAGE_MODE );
 
    if ( imBox == NULL )
    {
