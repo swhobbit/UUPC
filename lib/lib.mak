@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.12 1993/10/13 01:47:19 ahd Exp $
+#       $Id: lib.mak 1.13 1994/01/01 19:10:34 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#    Revision 1.13  1994/01/01  19:10:34  ahd
+#    Annual Copyright Update
+#
 #    Revision 1.12  1993/10/13  01:47:19  ahd
 #    Don't try to recreate version header file
 #
@@ -77,8 +80,8 @@ LIBLST4= $(OBJ)\mktempnm.obj $(OBJ)\printerr.obj\
          $(OBJ)\rename.obj $(OBJ)\safeio.obj $(OBJ)\normaliz.obj
 LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
          $(OBJ)\stater.obj $(OBJ)\usertabl.obj $(OBJ)\validcmd.obj\
-         $(OBJ)\strpool.obj $(OBJ)\trumpet.obj $(OBJ)\usrcatch.obj \
-         $(TIMESTMP)
+         $(OBJ)\strpool.obj $(OBJ)\trumpet.obj $(OBJ)\title.obj \
+         $(OBJ)\usrcatch.obj $(TIMESTMP)
 LIBDOS = $(OBJ)\scrsize.obj $(OBJ)\ndir.obj
 LIBOS2 = $(OBJ)\scrsize2.obj $(OBJ)\ndiros2.obj  $(OBJ)\pos2err.obj
 LIBWIN = $(OBJ)\scrsize.obj $(OBJ)\ndirwin.obj  $(OBJ)\winutil.obj \
