@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.12 1993/05/30 15:25:50 ahd Exp $
+ *    $Id: ulib.c 1.13 1993/07/11 14:38:32 ahd Exp $
  *
- *    $Log: ULIB.C $
+ *    $Log: ulib.c $
+ * Revision 1.13  1993/07/11  14:38:32  ahd
+ * Correct routine names in displayed messages
+ *
  * Revision 1.12  1993/05/30  15:25:50  ahd
  * Multiple driver support
  *
@@ -570,3 +573,20 @@ static void ShowModem( void )
    old_status = status;
 
 } /* ShowModem */
+
+
+/*--------------------------------------------------------------------*/
+/*       s e t P r t y                                                */
+/*                                                                    */
+/*       No operation under DOS                                       */
+/*--------------------------------------------------------------------*/
+
+void setPrty( void ) { }
+
+/*--------------------------------------------------------------------*/
+/*       r e s e t P r t y                                            */
+/*                                                                    */
+/*       No operation under DOS                                       */
+/*--------------------------------------------------------------------*/
+
+void resetPrty( void ) { }
