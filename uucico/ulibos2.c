@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.28 1993/11/06 17:57:09 rhg Exp $
+ *       $Id: ulibos2.c 1.29 1993/11/08 04:46:49 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.29  1993/11/08  04:46:49  ahd
+ * Drop DTR if program is killed
+ *
  * Revision 1.28  1993/11/06  17:57:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -155,6 +158,7 @@ static boolean   carrierDetect = FALSE;  /* Modem is not connected    */
 static boolean hangupNeeded = FALSE;
 
 static unsigned short currentSpeed = 0;
+static BPS saveSpeed = 0;
 
 #define FAR_NULL ((PVOID) 0L)
 
@@ -163,9 +167,12 @@ static unsigned short currentSpeed = 0;
 /*--------------------------------------------------------------------*/
 
 static HFILE com_handle;
-static struct _LINECONTROL com_attrib;
-static struct _MODEMSTATUS com_signals;
-static struct _DCBINFO com_dcbinfo;
+static LINECONTROL com_attrib;
+static MODEMSTATUS com_signals;
+static DCBINFO com_dcbinfo;
+
+static LINECONTROL save_com_attrib;
+static DCBINFO save_com_dcbinfo;
 
 static void ShowError( const USHORT status );
 
@@ -190,7 +197,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
    ULONG action;
 
 #else
+
    USHORT action;
+
 #endif
 
    if (portActive)               /* Was the port already active?    */
@@ -257,18 +266,18 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,
-            "nopenline: Unable to read errors for %s, error bits %x",
-               name, (int) com_error );
-      printOS2error( "DosDevIOCtl", rc );
+      ShowError( com_error );
+      printOS2error( "ASYNC_GETCOMMERROR", rc );
    } /*if */
    else if ( com_error )
       ShowError( com_error );
 
+
 /*--------------------------------------------------------------------*/
-/*                           Set baud rate                            */
+/*                           Set port speed                           */
 /*--------------------------------------------------------------------*/
 
+   saveSpeed = GetSpeed();    /* Save original speed                 */
    SIOSpeed(baud);
 
 /*--------------------------------------------------------------------*/
@@ -304,10 +313,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"nopenline: Unable to get line attributes for %s",name);
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_GETLINECTRL", rc );
       panic();
    } /*if */
+
+   memcpy( &save_com_attrib, &com_attrib, sizeof com_attrib );
+                              /* Save the attributes                */
 
    com_attrib.bDataBits = 0x08; /* Use eight bit path for data      */
    com_attrib.bParity   = 0x00; /* No parity                        */
@@ -342,8 +353,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"nopenline: Unable to set line attributes for %s",name);
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETLINECTRL", rc );
       panic();
    } /*if */
 
@@ -382,10 +392,12 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,"nopenline: Unable to get line attributes for %s",name);
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_GETDCBINFO", rc );
       panic();
    } /*if */
+
+   memcpy( &save_com_dcbinfo, &com_dcbinfo, sizeof com_dcbinfo );
+                              /* Save the DCB information            */
 
    com_dcbinfo.usWriteTimeout = 2999;  /* Write timeout 30 seconds   */
    com_dcbinfo.usReadTimeout = 24;     /* Read timeout .25 seconds   */
@@ -395,7 +407,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
                                           only use CTS handshaking on
                                           requested ports.            */
 
-   com_dcbinfo.fbFlowReplace = 0;   /* No RTS handshake, causes error */
+   com_dcbinfo.fbFlowReplace = MODE_RTS_HANDSHAKE;
+                                       /* Handshake on output         */
 
    com_dcbinfo.fbTimeout = MODE_READ_TIMEOUT | MODE_NO_WRITE_TIMEOUT;
 
@@ -429,8 +442,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( rc )
    {
-      printmsg(0,"nopenline: Unable to set flow control for %s",name);
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETDCBINFO", rc );
       panic();
    } /*if */
 
@@ -438,7 +450,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                     Raise Data Terminal Ready                      */
 /*--------------------------------------------------------------------*/
 
-   com_signals.fbModemOn = DTR_ON | RTS_ON ;
+   com_signals.fbModemOn = DTR_ON;
    com_signals.fbModemOff = 0xff;
 
 #ifdef UDEBUG
@@ -472,16 +484,14 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if (rc)
    {
-      printmsg(0,
-            "nopenline: Unable to raise DTR/RTS for %s, error bits %#x",
-                  name, (int) com_error );
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETMODEMCTRL", rc );
+      ShowError( com_error );
       panic();
    } /*if */
 
-   traceStart( name );     /* Enable logging                          */
+   traceStart( name );     /* Enable logging                         */
 
-   portActive = TRUE;     /* record status for error handler        */
+   portActive = TRUE;      /* record status for error handler        */
    carrierDetect = FALSE;  /* Modem is not connected                 */
 
 /*--------------------------------------------------------------------*/
@@ -892,7 +902,10 @@ void ncloseline(void)
 /*--------------------------------------------------------------------*/
 
    com_signals.fbModemOn  = 0x00;
-   com_signals.fbModemOff = DTR_OFF | RTS_OFF;
+   com_signals.fbModemOff = DTR_OFF;
+
+   printmsg(2,"Restoring port attributes and speed %ul",
+               (unsigned long) saveSpeed );
 
 #ifdef __OS2__
 
@@ -920,12 +933,72 @@ void ncloseline(void)
 #endif
 
    if ( rc )
-   {
-      printmsg(0,"ncloseline: Unable to lower DTR/RTS for port");
-      printOS2error( "DosDevIOCtl", rc );
-   }
+      printOS2error( "ASYNC_SETMODEMCTRL", rc );
    else if ( com_error )
-         ShowError( com_error );
+      ShowError( com_error );
+
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(save_com_attrib);
+   DataLengthInOut = 0;
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETLINECTRL,
+                     (PVOID) &save_com_attrib,
+                     sizeof(save_com_attrib),
+                     &ParmLengthInOut,
+                     NULL,
+                     0L,
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( FAR_NULL,
+                     &save_com_attrib,
+                     ASYNC_SETLINECTRL,
+                     IOCTL_ASYNC,
+                     com_handle);
+#endif
+
+   if (rc)
+      printOS2error( "ASYNC_SETLINECTRL", rc );
+
+/*--------------------------------------------------------------------*/
+/*               Restore original modem DCB information               */
+/*--------------------------------------------------------------------*/
+
+#ifdef __OS2__
+
+   ParmLengthInOut = sizeof(save_com_dcbinfo);
+   DataLengthInOut = 0;
+   rc = DosDevIOCtl( com_handle,
+                     IOCTL_ASYNC,
+                     ASYNC_SETDCBINFO,
+                     (PVOID) &save_com_dcbinfo,
+                     sizeof(save_com_dcbinfo),
+                     &ParmLengthInOut,
+                     NULL,
+                     0L,
+                     &DataLengthInOut);
+
+#else
+
+   rc = DosDevIOCtl( FAR_NULL,
+                     &save_com_dcbinfo,
+                     ASYNC_SETDCBINFO,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
+   if ( rc )
+      printOS2error( "ASYNC_SETDCBINFO", rc );
+
+/*--------------------------------------------------------------------*/
+/*                    Restore original port speed                     */
+/*--------------------------------------------------------------------*/
+
+   SIOSpeed( saveSpeed );
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the port                       */
@@ -949,7 +1022,6 @@ void ncloseline(void)
 /*                                                                    */
 /*    Hangup the telephone by dropping DTR.  Works with HAYES and     */
 /*    many compatibles.                                               */
-/*    14 May 89 Drew Derbyshire                                       */
 /*--------------------------------------------------------------------*/
 
 void nhangup( void )
@@ -1003,7 +1075,7 @@ void nhangup( void )
    if ( rc )
    {
       printmsg(0,"hangup: Unable to lower DTR for comm port");
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETMODEMCTRL", rc );
    } /*if */
    else if ( com_error )
          ShowError( com_error );
@@ -1050,10 +1122,10 @@ void nhangup( void )
    if ( rc )
    {
       printmsg(0,"hangup: Unable to raise DTR for comm port");
-      printOS2error( "DosDevIOCtl", rc );
+      printOS2error( "ASYNC_SETMODEMCTRL", rc );
    } /*if */
    else if ( com_error )
-         ShowError( com_error );
+      ShowError( com_error );
 
    ddelay(2000);           /* Now wait for the poor thing to recover   */
 
@@ -1086,7 +1158,7 @@ void nSIOSpeed(BPS baud)
    struct
    {
       ULONG baud;       /* this structure is needed to set the extended  */
-      BYTE fraction;    /* baud rate using function 41h DosDevIOCtl   */
+      BYTE fraction;    /* port speed using function 41h DosDevIOCtl  */
    } com_baud;
 
 #else
@@ -1096,16 +1168,11 @@ void nSIOSpeed(BPS baud)
 #endif
 
 #ifdef UDEBUG
-   printmsg(15,"SIOSpeed: Setting baud rate to %lu",
+   printmsg(15,"SIOSpeed: Setting port speed to %lu",
                (unsigned long) baud);
 #endif
 
 #ifdef __OS2__
-
-/*--------------------------------------------------------------------*/
-/*       OS/2 2.x Format of call for DosDevIOCtl accepts baud         */
-/*       rates greater than 19200.                                    */
-/*--------------------------------------------------------------------*/
 
    com_baud.baud = baud;
    com_baud.fraction = 0;
@@ -1132,7 +1199,7 @@ void nSIOSpeed(BPS baud)
 
    if (rc)
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %lu",
+      printmsg(0,"SIOSPeed: Unable to set port speed for port to %lu",
                baud);
       printOS2error( "DosDevIOCtl", rc );
       panic();
@@ -1207,7 +1274,75 @@ void nflowcontrol( boolean flow )
 
 BPS nGetSpeed( void )
 {
-   return currentSpeed;
+   APIRET rc;
+
+#ifdef __OS2__
+
+   ULONG ParmLengthInOut;
+   ULONG DataLengthInOut;
+
+   struct
+   {
+      ULONG baud;       /* this structure is needed to set the extended  */
+      BYTE fraction;    /* port speed using function 41h DosDevIOCtl  */
+   } com_baud;
+
+   BPS speed;
+
+#else
+
+   USHORT speed;
+
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                      Save original port speed                      */
+/*--------------------------------------------------------------------*/
+
+#ifdef __OS2__
+
+/*--------------------------------------------------------------------*/
+/*       OS/2 2.x Format of call for DosDevIOCtl accepts baud         */
+/*       rates greater than 19200.                                    */
+/*--------------------------------------------------------------------*/
+
+   DataLengthInOut = sizeof(com_baud);
+   ParmLengthInOut = 0;
+
+   rc = DosDevIOCtl( com_handle,
+                    IOCTL_ASYNC,
+                    ASYNC_GETBAUDRATE,
+                    NULL,
+                    0L,
+                    &ParmLengthInOut,
+                    (PVOID) &com_baud,
+                    sizeof(com_baud),
+                    &DataLengthInOut);
+
+   speed = com_baud.baud;
+
+#else
+   rc = DosDevIOCtl( &speed,
+                     FAR_NULL,
+                     ASYNC_GETBAUDRATE,
+                     IOCTL_ASYNC,
+                     com_handle);
+
+#endif
+
+   if (rc)
+   {
+      printmsg(0,"nGetSpeed: Unable to get port speed");
+      printOS2error( "ASYNC_GETBAUDRATE", rc );
+      panic();
+   } /*if */
+
+/*--------------------------------------------------------------------*/
+/*            Return speed of port to caller upon success             */
+/*--------------------------------------------------------------------*/
+
+   return speed;
+
 } /* nGetSpeed */
 
 /*--------------------------------------------------------------------*/
