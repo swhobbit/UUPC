@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: UUCLEAN.CMD 1.2 1992/11/28 23:08:07 ahd Exp ahd $
+ *       $Id: uuclean.cmd 1.3 1992/11/30 03:44:49 ahd Exp ahd $
  *
- *       $Log: UUCLEAN.CMD $
+ *       $Log: uuclean.cmd $
+*     Revision 1.3  1992/11/30  03:44:49  ahd
+*     Correct reset of deldir
+*
  * Revision 1.2  1992/11/28  23:08:07  ahd
  * Rewrite into REXX for OS/2
  *
@@ -77,12 +80,14 @@ deldir = value('DELDIR','','OS2ENVIRONMENT')
 /*    aborted programs.                                               */
 /*--------------------------------------------------------------------*/
 
+say 'Processing generic logs';
 call process spooldir,'UUPC*.LOG', 'GENERIC'
 
 /*--------------------------------------------------------------------*/
 /*             SYSLOG has funny name, so process explictly            */
 /*--------------------------------------------------------------------*/
 
+say 'Processing logs for SYSLOG';
 call process spooldir,'SYSLOG', 'SYSLOG'
 
 /*--------------------------------------------------------------------*/
@@ -96,7 +101,10 @@ do count = 1 to data.0
    basename = filespec( 'N' , data.count )
    parse var basename stem'.'
    if left( basename, 4 ) <> 'UUPC' then   /* Don't do UUPC*.LOG again */
+   do;
+      say 'Processing logs for' basename;
       call process spooldir, basename, stem
+   end
 end
 
 /*--------------------------------------------------------------------*/
@@ -120,7 +128,6 @@ call purge tempdir,'UUPC*.TXT'
 
 if exist( confdir || '\active' ) then
    'expire'
-
 
 /*--------------------------------------------------------------------*/
 /*     Re-enable UNDELETE processing so we can clean up the cache     */
