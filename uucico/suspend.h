@@ -26,10 +26,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.h 1.4 1994/01/01 19:24:13 ahd Exp $
+ *    $Id: suspend.h 1.5 1994/05/01 21:59:06 dmwatt Exp Software $
  *
  *    Revision history:
  *    $Log: suspend.h $
+ *        Revision 1.5  1994/05/01  21:59:06  dmwatt
+ *        Trap errors from failure of suspend_init to create pipe
+ *
  * Revision 1.4  1994/01/01  19:24:13  ahd
  * Annual Copyright Update
  *
@@ -50,6 +53,7 @@ int suspend_other(const boolean suspend,
                   const char *port );
 
 CONN_STATE suspend_wait(void);
+void suspend_ready(void);
 #endif
 
 #define SUSPEND_PIPE "\\PIPE\\UUCICO\\ZZ"
