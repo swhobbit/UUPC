@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: delivers.h 1.4 1998/03/01 01:31:10 ahd v1-13f ahd $
+ *    $Id: delivers.h 1.5 1999/01/04 03:56:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: delivers.h $
+ *    Revision 1.5  1999/01/04 03:56:09  ahd
+ *    Annual copyright change
+ *
  *    Revision 1.4  1998/03/01 01:31:10  ahd
  *    Annual Copyright Update
  *
@@ -40,15 +43,5 @@ size_t DeliverSMTP( IMFILE *imf,          /* Input file name          */
                     const MAIL_ADDR *sender,  /* Originating address  */
                     const char *address,  /* Target address           */
                     const char *path);
-
-size_t
-ConnectSMTP(
-   IMFILE *imf,                     /* Temporary input file          */
-   const MAIL_ADDR *sender,         /* Originating address           */
-   const char *targetHost,          /* SMTP host to connect to       */
-   const char **toAddress,          /* List of target addressess     */
-   int   count,                     /* Number of addresses           */
-   const KWBoolean validate         /* Perform bounce on failure     */
-);
 
 #endif /* _DELIVERS_H */
