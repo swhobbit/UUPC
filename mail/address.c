@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.26 1997/05/14 05:02:55 ahd Exp $
+ *    $Id: address.c 1.27 1997/05/14 05:06:51 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.27  1997/05/14 05:06:51  ahd
+ *    Correct compiler warning
+ *
  *    Revision 1.26  1997/05/14 05:02:55  ahd
  *    Improve error trapping in RFC-822 source route addresses
  *
@@ -90,7 +93,7 @@
  * Don't fail routing loops from aliased systems with no route
  *
  * Revision 1.5  1993/06/21  02:17:31  ahd
- * Correct errors in mail routing via HOSTPATH
+ * Correct errors in mail routing via HostPath
  *
  */
 
@@ -116,7 +119,7 @@
 
 currentfile();
 
-RCSID("$Id: address.c 1.26 1997/05/14 05:02:55 ahd Exp $");
+RCSID("$Id: address.c 1.27 1997/05/14 05:06:51 ahd v1-12t $");
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -154,6 +157,7 @@ tokenizeAddress(const char *raddress,
    char *wPtr;                      /* Work pointer (not used between
                                        steps                          */
    char *address;
+   char *errorString = hisPath ? hisPath : hisNode;
    KWBoolean foundDelimiter = KWFalse;  /*   used for double
                                              delimiter scan           */
 
@@ -161,7 +165,7 @@ tokenizeAddress(const char *raddress,
 
    if ( *raddress == '\0' )
    {
-      strcpy( hisPath ,"The address is empty." );
+      strcpy( errorString ,"The address is empty." );
       return KWFalse;
    }
 
@@ -170,9 +174,14 @@ tokenizeAddress(const char *raddress,
       printmsg(0, "tokenizeAddress: Unable to process %d length address: %s",
             strlen(raddress),
             raddress );
-      strcpy( hisPath ,"The address is too long to parse." );
+      strcpy( errorString ,"The address is too long to parse." );
       return KWFalse;
    }
+
+#ifdef UDEBUG
+   checkref( hisNode );
+   checkref( hisUser );
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Determine if local address                     */
@@ -181,8 +190,13 @@ tokenizeAddress(const char *raddress,
    if (!strpbrk(raddress, "%!@"))   /* Any host delimiters?           */
    {                                /* No --> report local data       */
       strcpy(hisUser, raddress);
-      strcpy(hisNode, E_nodename);
-      strcpy(hisPath, E_nodename);
+
+      if ( hisPath == NULL )
+         strcpy(hisNode, E_domain);
+      else {
+         strcpy(hisNode, E_nodename);
+         strcpy(hisPath, E_nodename);
+      }
 
       printmsg(5, "tokenizeAddress: Address %s has userid only, no host name",
                raddress);
@@ -196,7 +210,9 @@ tokenizeAddress(const char *raddress,
 /*    last time.                                                      */
 /*--------------------------------------------------------------------*/
 
-   if ((saveaddr != NULL) && equal(raddress, saveaddr))
+   if ((hisPath != NULL ) &&
+       (saveaddr != NULL) &&
+       equal(raddress, saveaddr))
    {
       strcpy(hisPath, savePath);
       strcpy(hisNode, saveNode);
@@ -217,7 +233,7 @@ tokenizeAddress(const char *raddress,
        ( *raddress == '%' ) || ( *tPtr == '%' ) ||
        ( *tPtr    == '@' ) || ( *tPtr == ':' ))
    {
-      strcpy( hisPath, "The address is hopelessly invalid -- "
+      strcpy( errorString, "The address is hopelessly invalid -- "
                        "it begins or ends with a delimiter character" );
       return KWFalse;
    }
@@ -231,7 +247,7 @@ tokenizeAddress(const char *raddress,
          case '%':
             if ( foundDelimiter )
             {
-               strcpy( hisPath, "The address is hopelessly invalid -- "
+               strcpy( errorString, "The address is hopelessly invalid -- "
                                 "it has delimiter characters back-to-back" );
                return KWFalse;
             }
@@ -254,14 +270,6 @@ tokenizeAddress(const char *raddress,
 
    address = strdup(raddress);   /* Copy address for parsing          */
    checkref(address);            /* Verify allocation worked          */
-
-   if (saveaddr != NULL)         /* Was the data previously allocated? */
-   {                             /* Yes --> Free it                   */
-      free(saveaddr);
-   }
-
-   saveaddr = strdup(address);   /* Remember address for next pass    */
-   checkref( saveaddr );
 
 /*--------------------------------------------------------------------*/
 /*    If the address has no at sign (@), but does have a percent      */
@@ -292,7 +300,7 @@ tokenizeAddress(const char *raddress,
 
    if ( uPtr == NULL )
    {
-      strcpy( hisPath, "The address is hopelessly invalid -- "
+      strcpy( errorString, "The address is hopelessly invalid -- "
                        "Leading RFC-822 route syntax is invalid.");
       free( address );
       return KWFalse;
@@ -325,7 +333,7 @@ tokenizeAddress(const char *raddress,
                                              as local                */
          printmsg(0, "tokenizeAddress: Invalid RFC-822 address, missing host name: %s",
                     saveaddr );
-         strcpy( hisPath, "The address is hopelessly invalid -- "
+         strcpy( errorString, "The address is hopelessly invalid -- "
                           "domain name is missing after at sign (@)" );
          free( address );
          return KWFalse;
@@ -365,7 +373,7 @@ tokenizeAddress(const char *raddress,
          uPtr = rfc_route( tPtr, &nPtr, &pPtr );
          if ( uPtr == NULL )
          {
-            strcpy( hisPath, "The address is hopelessly invalid -- "
+            strcpy( errorString, "The address is hopelessly invalid -- "
                              "Embedded RFC-822 route syntax is invalid.");
             free( address );
             return KWFalse;
@@ -394,12 +402,30 @@ tokenizeAddress(const char *raddress,
       *tPtr = '@';               /* Make it an RFC-822 address        */
       uPtr  = strtok(uPtr, "@"); /* Get user part of userid @node     */
       nPtr  = strtok(NULL, "@"); /* Get node part of userid @node     */
-      pPtr  = HostPath(nPtr,  pPtr); /* Old node is new path          */
+      pPtr  = HostPath(nPtr, pPtr); /* Old node is new path           */
 
    } /* while */
 
 /*--------------------------------------------------------------------*/
-/*                Determine name of the target system                 */
+/*       If caller doesn't need path, return system name before we    */
+/*       alias it                                                     */
+/*--------------------------------------------------------------------*/
+
+   if ( hisPath == NULL )
+   {
+      printmsg(9,
+            "tokenizeAddress: Address \"%s\" is \"%s\" at \"%s\"",
+               raddress, uPtr, nPtr );
+      strcpy(hisNode, nPtr);
+      strcpy(hisUser, uPtr);
+
+      free(address);
+
+      return KWTrue;
+   }
+
+/*--------------------------------------------------------------------*/
+/*            Determine canonical  name of the target system          */
 /*--------------------------------------------------------------------*/
 
    tPtr = HostAlias( nPtr );     /* Get possible alias name          */
@@ -444,6 +470,12 @@ tokenizeAddress(const char *raddress,
 /*  We have parsed the address.  Fill in the information for caller   */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
+   checkref( pPtr );
+   checkref( nPtr );
+   checkref( uPtr );
+#endif
+
    strcpy(hisPath, pPtr);
    strcpy(hisNode, nPtr);
    strcpy(hisUser, uPtr);
@@ -452,6 +484,12 @@ tokenizeAddress(const char *raddress,
 /*   Save the parsed information along with the original address we   */
 /*   were passed in.  This could save breaking it down again.         */
 /*--------------------------------------------------------------------*/
+
+   if (saveaddr != NULL)            /* Was data previously allocated? */
+      free(saveaddr);               /* Yes --> Free it                */
+
+   strcpy( address, raddress );     /* Get original user input        */
+   saveaddr = address;              /* Remember address for next pass */
 
    savePath = newstr(hisPath);
    saveNode = newstr(hisNode);
@@ -529,58 +567,58 @@ static char *rfc_route( char *tPtr, char **nPtr, char **pPtr )
 } /* rfc_route */
 
 /*--------------------------------------------------------------------*/
-/*    H o s t A l i a s                                               */
+/*       H o s t A l i a s                                            */
 /*                                                                    */
-/*    Resolve a host alias to its real canonized name                 */
+/*       Resolve a host alias to its real canonized name              */
 /*--------------------------------------------------------------------*/
 
-char *HostAlias( char *input)
+char *hostAlias( const char *input, const char *fname, const size_t lineno)
 {
-   struct HostTable *hostp;
+   struct HostTable *hostP;
 
-   hostp = checkname(input);
+   hostP = checkName(input, lineno, fname );
 
 /*--------------------------------------------------------------------*/
 /*     If nothing else to look at, return original data to caller     */
 /*--------------------------------------------------------------------*/
 
-   if (hostp == BADHOST)
-      return input;
+   if (hostP == BADHOST)
+      return ((char *) input);
 
 /*--------------------------------------------------------------------*/
 /*       If the entry has no alias and is not a real system, it's     */
 /*       a routing entry and we should ignore it.                     */
 /*--------------------------------------------------------------------*/
 
-   if ((hostp->status.hstatus == HS_PHANTOM) &&
-       ( hostp->realname == NULL ))
-      return input;
+   if ((hostP->status.hstatus == HS_PHANTOM) &&
+       ( hostP->realname == NULL ))
+      return ((char *) input);
 
 /*--------------------------------------------------------------------*/
 /*      If we already chased this chain, return result to caller      */
 /*--------------------------------------------------------------------*/
 
-   if (hostp->aliased)
+   if (hostP->aliased)
    {
-      if ( hostp->realname  == NULL )
+      if ( hostP->realname  == NULL )
       {
          printmsg(0, "Alias table loop detected with host %s",
-               hostp->hostname);
+               hostP->hostname);
       }
 
-      return hostp->realname;
+      return hostP->realname;
    } /* if */
 
-   hostp->aliased = KWTrue;       /* Prevent limitless recursion       */
+   hostP->aliased = KWTrue;       /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
 /*--------------------------------------------------------------------*/
 
-   if ( hostp->realname == NULL)  /* End of the line?        */
-      hostp->realname = hostp->hostname;
+   if ( hostP->realname == NULL)  /* End of the line?        */
+      hostP->realname = hostP->hostname;
    else
-      hostp->realname = HostAlias(hostp->realname);
+      hostP->realname = HostAlias(hostP->realname);
 
 /*--------------------------------------------------------------------*/
 /*                        Announce our results                        */
@@ -588,9 +626,9 @@ char *HostAlias( char *input)
 
    printmsg( 5, "HostAlias: \"%s\" is alias of \"%s\"",
                   input,
-                  hostp->realname);
+                  hostP->realname);
 
-   return hostp->realname;
+   return hostP->realname;
 
 } /* HostAlias */
 
@@ -600,78 +638,78 @@ char *HostAlias( char *input)
 /*    Determine the path to a host                                    */
 /*--------------------------------------------------------------------*/
 
-char *HostPath( char *input, char *best)
+char *HostPath( const char *input, const char *best)
 {
-   struct HostTable *hostp;
+   struct HostTable *hostP;
 
-   hostp = checkname( input );
+   hostP = checkname( input );
 
 /*--------------------------------------------------------------------*/
 /*     If nothing else to look at, return original data to caller     */
 /*--------------------------------------------------------------------*/
 
-   if (hostp == BADHOST)
-      return best;
+   if (hostP == BADHOST)
+      return ((char *) best);
 
-   if (hostp->status.hstatus == HS_GATEWAYED)  /* Gatewayed?          */
-      return hostp->hostname;      /* Yes --> Use name for path       */
+   if (hostP->status.hstatus == HS_GATEWAYED)  /* Gatewayed?          */
+      return hostP->hostname;      /* Yes --> Use name for path       */
 
-   if (hostp->status.hstatus == HS_SMTP)      /* SMTP Gatewayed?      */
-      return hostp->hostname;      /* Yes --> Use name for path       */
+   if (hostP->status.hstatus == HS_SMTP)      /* SMTP Gatewayed?      */
+      return hostP->hostname;      /* Yes --> Use name for path       */
 
 /*--------------------------------------------------------------------*/
 /*      If we already chased this chain, return result to caller      */
 /*--------------------------------------------------------------------*/
 
-   if (hostp->routed)
+   if (hostP->routed)
    {
-      if ( hostp->via == NULL )
+      if ( hostP->via == NULL )
       {
-         if ( hostp->aliased &&
-              ! equali(hostp->hostname, hostp->realname))
-            hostp->via = best;
+         if ( hostP->aliased &&
+              ! equali(hostP->hostname, hostP->realname))
+            hostP->via = newstr( best );
          else {
             printmsg(0, "Routing table loop discovered at host %s",
-                     hostp->hostname);
+                     hostP->hostname);
             panic();
          }
 
-      } /* if ( hostp->via == NULL ) */
+      } /* if ( hostP->via == NULL ) */
 
-      return hostp->via;
+      return hostP->via;
 
-   } /* if (hostp->routed) */
+   } /* if (hostP->routed) */
 
-   hostp->routed  = KWTrue;       /* Prevent limitless recursion       */
+   hostP->routed  = KWTrue;       /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
 /*--------------------------------------------------------------------*/
 
-   if ( hostp->via == NULL )
+   if ( hostP->via == NULL )
    {
-      char *alias = HostAlias( hostp->hostname );
+      char *alias = HostAlias( hostP->hostname );
 
-      if (equal(hostp->hostname, alias))
+      if (equal(hostP->hostname, alias))
       {
-         if (hostp->status.hstatus == HS_LOCALHOST) /* Ourself?       */
-            hostp->via = E_nodename;      /* Yes --> Deliver local    */
-         else if ( checkreal( hostp->hostname ) == BADHOST )
+         if (hostP->status.hstatus == HS_LOCALHOST) /* Ourself?       */
+            hostP->via = E_nodename;      /* Yes --> Deliver local    */
+         else if ( checkreal( hostP->hostname ) == BADHOST )
                                           /* Unknown system?          */
-            hostp->via = best;            /* Yes --> Use default      */
+            hostP->via = newstr( best );  /* Yes --> Use default      */
          else
-            hostp->via = hostp->hostname; /* Known --> route to it    */
-      } /* if ( hostp->via == NULL ) */
+            hostP->via = hostP->hostname; /* Known --> route to it    */
+      } /* if ( hostP->via == NULL ) */
       else
-         hostp->via = HostPath( alias, best);
+         hostP->via = HostPath( alias, best);
 
-   } /* if ( hostp->via == NULL ) */
+   } /* if ( hostP->via == NULL ) */
 
-   hostp->via = HostPath( hostp->via, best );
+   hostP->via = HostPath( hostP->via, best );
 
-   printmsg( 5, "HostPath: \"%s\" routed via \"%s\"", input, hostp->via);
+   printmsg( 5, "HostPath: \"%s\" routed via \"%s\"", input, hostP->via);
 
-   return hostp->via;
+   return hostP->via;
 
 } /* HostPath */
 
