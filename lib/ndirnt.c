@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ndirnt.c 1.13 1995/01/07 15:46:08 ahd Exp $
+ *       $Id: ndirnt.c 1.14 1995/01/09 12:35:15 ahd v1-12n $
  *
  *       $Log: ndirnt.c $
+ *       Revision 1.14  1995/01/09 12:35:15  ahd
+ *       Correct VC++ compiler warnings
+ *
  *       Revision 1.13  1995/01/07 15:46:08  ahd
  *       Clean up debugging messages, dropping new lines
  *
@@ -121,8 +124,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
    dirHandle = FindFirstFile(pathname, &dirData);
 
-   printmsg(5, "dirhandle = %d",dirHandle);
-   printmsg(5, "file, = %s", dirData.cFileName);
+   printmsg(5, "dirhandle = %d, file = %s", dirHandle, dirData.cFileName );
 
    if ((int)dirHandle == -1) {
       printmsg(2,"opendir: Error on directory %s",pathname );
