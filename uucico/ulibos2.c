@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.4 1992/11/29 22:09:10 ahd Exp $
+ *       $Id: ULIBOS2.C 1.5 1992/12/04 01:00:27 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.5  1992/12/04  01:00:27  ahd
+ * Add copyright message, reblock other comments
+ *
  * Revision 1.4  1992/11/29  22:09:10  ahd
  * Add new define for BC++ OS/2 build
  *
@@ -110,7 +113,6 @@ static void ShowModem( const BYTE status );
 
 int openline(char *name, BPS baud, const boolean direct )
 {
-   int   value;
    USHORT rc;
    USHORT action;
 
@@ -121,14 +123,13 @@ int openline(char *name, BPS baud, const boolean direct )
    printmsg(15, "openline: %s, %d", name, baud);
 #endif
 
-
 /*--------------------------------------------------------------------*/
 /*                      Validate the port format                      */
 /*--------------------------------------------------------------------*/
 
-   if (!equal(name,"CON") && (sscanf(name, "COM%d", &value) != 1))
+   if (!equal(name,"CON") && !equaln(name, "COM", 3 ))
    {
-      printmsg(0,"openline: Communications port must be format COMx, was %s",
+      printmsg(0,"openline: Communications port begin with COM, was %s",
          name);
       panic();
    }
@@ -260,7 +261,7 @@ int openline(char *name, BPS baud, const boolean direct )
    com_dcbinfo.usWriteTimeout = 2999;  /* Write timeout 30 seconds   */
    com_dcbinfo.usReadTimeout = 24;     /* Read timeout .25 seconds   */
    com_dcbinfo.fbCtlHndShake = (BYTE)
-                               (direct ? MODE_CTS_HANDSHAKE : 0 );
+                               (direct ? 0 : MODE_CTS_HANDSHAKE);
    com_dcbinfo.fbFlowReplace = 0;
                                        /* Unless rquested            */
    com_dcbinfo.fbTimeout = MODE_READ_TIMEOUT | MODE_NO_WRITE_TIMEOUT;
@@ -873,7 +874,7 @@ boolean CD( void )
 
    boolean online = carrierdetect;
    BYTE status;
-   static BYTE oldstatus = 0xDEAD;
+   static BYTE oldstatus = (BYTE) 0xDEAD;
    USHORT rc;
 
    if ( console )
@@ -940,11 +941,11 @@ static void ShowModem( const BYTE status )
 
 static void ShowError( const USHORT status )
 {
-   printmsg(2, "Serial Port Error Occurred: %#04x%s%s%s%s",
+   printmsg(2, "Port Error: %#04x%s%s%s%s",
       (int) status,
       mannounce(RX_QUE_OVERRUN,      status, "  Queue Overrrun"),
       mannounce(RX_HARDWARE_OVERRUN, status, "  Hardware Overrun"),
       mannounce(PARITY_ERROR,        status, "  Parity Error"),
       mannounce(FRAMING_ERROR,       status, "  Framing Error"));
 
-} /* ShowModem */
+} /* ShowError */
