@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.9 1992/12/01 04:37:03 ahd Exp $
+ *     $Id: DCPSYS.C 1.10 1992/12/11 12:45:11 ahd Exp ahd $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.10  1992/12/11  12:45:11  ahd
+ * Shorten remote display to improve OS/2 windowed scrolling
+ *
  * Revision 1.9  1992/12/01  04:37:03  ahd
  * Modify *nbstime call restrictions to make it less agressive
  *
@@ -270,9 +273,6 @@ CONN_STATE getsystem( const char sendgrade )
 CONN_STATE sysend()
 {
    char msg[80];
-
-   if (hostp->hstatus == inprogress)
-      hostp->hstatus = call_failed;
 
    wmsg("OOOOOO", TRUE);
    rmsg(msg, TRUE, 5, sizeof msg);
