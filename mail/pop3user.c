@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.4 1998/03/06 06:51:28 ahd Exp $
+ *       $Id: pop3user.c 1.5 1998/03/08 07:47:46 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.5  1998/03/08 07:47:46  ahd
+ *       Correct message text for msg retrieval
+ *
  *       Revision 1.4  1998/03/06 06:51:28  ahd
  *       Add commands to make Netscape happy
  *
@@ -52,7 +55,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.4 1998/03/06 06:51:28 ahd Exp $");
+RCSID("$Id: pop3user.c 1.5 1998/03/08 07:47:46 ahd Exp $");
 
 currentfile();
 
@@ -130,7 +133,12 @@ writePopMessage(SMTPClient *client,
                  long bodyLines)
 {
    static const char mName[] = "writePopMessage";
+   static const char crlf[] = "\r\n";
    long octets = 0;
+
+   char *buffer;
+   long bufferUsed = 0;
+   const long bufferLength = client->transmit.length * 2;
 
    if (imseek(client->transaction->imf,
                current->startPosition,
@@ -145,10 +153,15 @@ writePopMessage(SMTPClient *client,
    sprintf( client->transmit.data, "%ld Octets", current->octets );
    SMTPResponse(client, PR_OK_GENERIC, client->transmit.data );
 
+   /* Get a work buffer for our data */
+   buffer = malloc( bufferLength );
+   checkref( buffer );
+
    /* Loop for entire header and as many lines of body as required */
    for (;;)
    {
       long position = imtell(client->transaction->imf);
+      char *linePointer = buffer + bufferUsed;
       size_t length;
 
       if (position < 0)
@@ -160,29 +173,54 @@ writePopMessage(SMTPClient *client,
       if ((position >= current->startBodyPosition) && (bodyLines-- < 0))
          break;
 
-      if (imgets(client->transmit.data,
-                 client->transmit.length - 2,
+      if (imgets(linePointer,
+                 bufferLength - bufferUsed - 2,
                  client->transaction->imf) == NULL)
          break;
 
-      length = strlen(client->transmit.data);
+      length = strlen(linePointer);
 
-      if (client->transmit.data[length - 1] == '\n')
-         client->transmit.data[--length] = '\0';
+      if (linePointer[length - 1] == '\n')
+         linePointer[--length] = '\0';
       else {
          printmsg(0,"Cannot process overlength buffer for tranmission");
          panic();
       }
 
-      if ((length > 0) && isAllPeriods(client->transmit.data, length))
-         strcat(client->transmit.data, ".");
+      if ((length > 0) && isAllPeriods(linePointer, length))
+         strcat(linePointer, ".");
 
-      SMTPResponse(client, PR_DATA, client->transmit.data);
+      /* Terminate the line */
+      strcat( linePointer, crlf );
 
       /* Update our running total */
-      octets += length + 2;
+      bufferUsed += length + 2;
+
+      /* Determine if we need to flush buffer */
+      if (bufferUsed > (bufferLength / 2))
+      {
+         SMTPResponse(client, PR_TEXT, buffer);
+         octets += bufferUsed;
+         bufferUsed = 0;
+      }
 
    } /* for (;;) */
+
+/*--------------------------------------------------------------------*/
+/*                     End of our loop, clean up                      */
+/*--------------------------------------------------------------------*/
+
+   /* Flush final information in buffer */
+   if (bufferUsed > 0)
+   {
+      SMTPResponse(client, PR_TEXT, buffer);
+      octets += bufferUsed;
+      bufferUsed = 0;
+   }
+
+   /* Return our buffer */
+   free(buffer);
+   buffer = NULL;
 
    if (imerror(client->transaction->imf))
       printerr(client->transaction->mailboxName);
@@ -538,6 +576,12 @@ identifyOneMessage(SMTPClient *client,
       client->transaction->rewrite = KWTrue;
 
 } /* listOneMessage */
+
+/*--------------------------------------------------------------------*/
+/*       c o m m a n d U I D L                                        */
+/*                                                                    */
+/*       Report unique identifiers for one or more messages           */
+/*--------------------------------------------------------------------*/
 
 KWBoolean
 commandUIDL(SMTPClient *client,
