@@ -17,9 +17,12 @@
 /*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
-/* $Id: hdbm.h 1.5 1995/01/09 12:35:33 ahd Exp $ */
+/* $Id: hdbm.h 1.6 1995/01/29 14:04:21 ahd v1-12n $ */
 
 /* $Log: hdbm.h $
+/* Revision 1.6  1995/01/29 14:04:21  ahd
+/* Clean up IBM C/Set compiler warnings
+/*
 /* Revision 1.5  1995/01/09 12:35:33  ahd
 /* Correct VC++ compiler warnings
 /*
@@ -68,7 +71,9 @@ datum;
 
 extern datum nullitem;
 
-extern DBM *dbm_open(const char *name, const int flags, const int mode);
+extern DBM *dbm_open(const char *name,
+                     const unsigned int flags,
+                     const int mode);
 extern void dbm_close(DBM *db);
 extern int dbm_store(DBM *db,
                      const datum key,
