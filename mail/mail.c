@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.43 1996/11/18 04:46:49 ahd Exp $
+ *    $Id: mail.c 1.44 1997/04/24 01:08:58 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.44  1997/04/24 01:08:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.43  1996/11/18 04:46:49  ahd
  *    Normalize arguments to bugout
  *    Reset title after exec of sub-modules
@@ -187,7 +190,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.43 1996/11/18 04:46:49 ahd Exp $";
+      "$Id: mail.c 1.44 1997/04/24 01:08:58 ahd v1-12u $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -439,6 +442,8 @@ main(int argc, char **argv)
 
    if (!InitRouter())
       exit(1);    /* system configuration failed */
+
+   checkuser(E_mailbox);         /* Force load of user table         */
 
    PushDir(".");
 
