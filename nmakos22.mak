@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.19 1997/05/11 04:25:17 ahd Exp $
+#       $Id: nmakos22.mak 1.20 1997/05/11 18:14:54 ahd Exp $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.20  1997/05/11 18:14:54  ahd
+#       Allow co-existence of SMTP and non-SMTP rmail/rmailn modules
+#
 #       Revision 1.19  1997/05/11 04:25:17  ahd
 #       SMTP client support for RMAIL/UUXQT
 #
@@ -75,7 +78,7 @@
 
 ERASE    = del /f
 EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
-           $(PROD)\uucicon.exe
+           $(PROD)\uucicon.exe $(PROD)\rmailn.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
