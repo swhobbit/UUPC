@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.7 1993/09/29 04:52:03 ahd Exp $
+ *    $Id: dcplib.c 1.8 1993/10/12 01:33:59 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.8  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.7  1993/09/29  04:52:03  ahd
  * Make device name use standard modem file configuration prefix
  *
@@ -252,12 +255,15 @@ boolean login(void)
       }
       else if ( equal(pswd,userp->password))   /* Correct password?    */
       {                                /* Yes --> Log the user "in"    */
+         time_t now;
                    /*   . . ..+....1....  +....2....+....3....  + .   */
          sprintf(line,"\r\n\nWelcome to %s; login complete at %s\r\n",
                   E_domain, arpadate());
          wmsg(line, 0);
-         printmsg(0,"login: login user %s (%s) at %s",
-                     userp->uid, userp->realname, arpadate());
+
+         time( &now );
+         printmsg(0,"login: login user %s (%s) at %.24s",
+                     userp->uid, userp->realname, ctime( &now ));
 
          if equal(userp->sh,UUCPSHELL) /* Standard uucp shell?       */
          {

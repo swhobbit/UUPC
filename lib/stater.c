@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.2 1993/07/20 21:45:37 ahd Exp $
+ *    $Id: stater.c 1.3 1993/10/09 15:47:51 rhg Exp $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *     Revision 1.3  1993/10/09  15:47:51  rhg
+ *     ANSIify the source
+ *
+ *     Revision 1.3  1993/10/09  15:47:51  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.2  1993/07/20  21:45:37  ahd
  *     Report last modified time, not created time, per Kae Uwe Rommel
  *
@@ -78,7 +84,7 @@ time_t stater(const char *file, long *size)
    if ( size != NULL )
       *size = statbuf.st_size;
 
-   printmsg(5,"stater: \"%s\" is %ld bytes; updated %s",
+   printmsg(5,"stater: \"%s\" is %ld bytes; updated %.24s",
          file, *size, ctime( &statbuf.st_mtime));
    return(statbuf.st_mtime);
 

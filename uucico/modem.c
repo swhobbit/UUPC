@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.33 1993/10/09 22:21:55 rhg Exp $
+ *    $Id: modem.c 1.34 1993/10/12 01:32:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.34  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.33  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -145,7 +148,6 @@
 
 #include "lib.h"
 #include "hostable.h"
-#include "arpadate.h"
 #include "catcher.h"
 #include "checktim.h"
 #include "commlib.h"
@@ -271,13 +273,15 @@ CONN_STATE callup( void )
    char *exp;
    int i;
    BPS speed;
+   time_t now;
 
 /*--------------------------------------------------------------------*/
 /*             Announce we are trying to call the system              */
 /*--------------------------------------------------------------------*/
 
-   printmsg(1, "callup: Calling %s via %s at %s on %s",
-          rmtname, flds[FLD_TYPE], flds[FLD_SPEED], arpadate());
+   time( &now );
+   printmsg(1, "callup: Calling %s via %s at %s on %.24s",
+          rmtname, flds[FLD_TYPE], flds[FLD_SPEED], ctime( &now ));
 
    speed = (BPS) atol( flds[FLD_SPEED] );
    if (speed < 300)

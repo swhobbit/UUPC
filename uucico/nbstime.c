@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.10 1993/09/26 03:32:27 dmwatt Exp $
+ *    $Id: nbstime.c 1.11 1993/10/09 22:21:55 rhg Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.11  1993/10/09  22:21:55  rhg
+ * ANSIfy source
+ *
  * Revision 1.10  1993/09/26  03:32:27  dmwatt
  * Use Standard Windows NT error message module
  *
@@ -189,7 +192,7 @@ boolean nbstime( void )
 
    if ( debuglevel > 2 )
    {
-      printmsg(3,"%2d/%2d/%2d %2d:%2d:%2d %2d %c translates to %ld or %s",
+      printmsg(3,"%2d/%2d/%2d %2d:%2d:%2d %2d %c translates to %ld or %.24s",
          tx.tm_year, tx.tm_mon + 1 , tx.tm_mday ,
          tx.tm_hour, tx.tm_min, tx.tm_sec, dst, sync ,
          today, ctime( &today ));
@@ -201,7 +204,7 @@ boolean nbstime( void )
 
    if ( today < 630720000L )
    {
-      printmsg(0,"nbstime: Time warp error (%s), clock not set",
+      printmsg(0,"nbstime: Time warp error (%.24s), clock not set",
             ctime( &today ));
       return FALSE;
    }

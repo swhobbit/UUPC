@@ -13,10 +13,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\src\uupc\LIB\RCS\LOCK.C 1.7 1993/03/24 01:57:30 ahd Exp $
+ *    $Id: lock.c 1.8 1993/04/11 00:31:04 ahd Exp $
  *
  *    Revision history:
- *    $Log: LOCK.C $
+ *    $Log: lock.c $
+ *     Revision 1.8  1993/04/11  00:31:04  ahd
+ *     Global edits for year, TEXT, etc.
+ *
+ *     Revision 1.8  1993/04/11  00:31:04  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.7  1993/03/24  01:57:30  ahd
  *     Add string.h include
  *
@@ -168,7 +174,7 @@ boolean LockSystem( const char *system , long program )
    setvbuf( locket, NULL, _IONBF, 0);
 
    time( &age );
-   fprintf( locket, "%s locked by process %ld at %s",
+   fprintf( locket, "%s locked by process %ld at %.24s",
                     system, (long) getpid(), ctime( &age ));
    fflush( locket );          /* Force the file to exist on disk  */
 

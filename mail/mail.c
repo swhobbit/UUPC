@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.9 1993/10/09 20:16:12 rhg Exp $
+ *    $Id: mail.c 1.11 1993/10/12 01:32:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.11  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.9  1993/10/09  20:16:12  rhg
  * ANSIfy the source
  *
@@ -76,7 +79,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.9 1993/10/09 20:16:12 rhg Exp $";
+      "$Id: mail.c 1.11 1993/10/12 01:32:08 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -940,7 +943,7 @@ static void IncludeNew( const char *target, const char *user)
    if ( age == (time_t) -1L)
       panic();
 
-   printmsg( 1, "Including mail from %s through %s",
+   printmsg( 1, "Including mail from %s through %.24s",
             sysbox,
             ctime(&age));
 

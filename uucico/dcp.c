@@ -18,9 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.21 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: dcp.c 1.22 1993/10/25 01:21:22 ahd Exp $
  *
  *    $Log: dcp.c $
+ * Revision 1.22  1993/10/25  01:21:22  ahd
+ * Restructure to suppress silly unable to perform global optimizations
+ * message under MS C 6.0.
+ * Trap and report invalid system names when dialing out.
+ *
  * Revision 1.21  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -133,7 +138,6 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "arpadate.h"
 #include "catcher.h"
 #include "checktim.h"
 #include "dcp.h"

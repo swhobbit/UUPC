@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.27 1993/10/09 22:11:49 ahd Exp $
+ *     $Id: dcpsys.c 1.28 1993/10/12 01:33:59 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.28  1993/10/12  01:33:59  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.27  1993/10/09  22:11:49  ahd
  * ANSIfy per rhg
  *
@@ -142,7 +145,6 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "arpadate.h"
 #include "checktim.h"
 #include "dcp.h"
 #include "dcpfpkt.h"
