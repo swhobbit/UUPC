@@ -54,7 +54,8 @@ static void usage( void );
 /*    main program                                                    */
 /*--------------------------------------------------------------------*/
 
-void main(int  argc, char  **argv)
+int
+main(int  argc, char  **argv)
 {
    int c;
    COMMAND_CLASS command = LIST_DEFAULT;
@@ -128,6 +129,8 @@ void main(int  argc, char  **argv)
    } /* switch */
 
    exit(0);
+
+   return 0;
 
 } /* main */
 
