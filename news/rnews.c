@@ -9,11 +9,11 @@
 /*    1993/06/12:                                                     */
 /*                                                                    */
 /*    Rewritten by Mike McLagan (mmclagan@invlogic.com) to make code  */
-/*    behave much more like a typical RNEWS.  Using a KWBoolean config  */
+/*    behave much more like a typical RNEWS.  Using a boolean config  */
 /*    option USESYSFILE causes RNEWS to read and interpret the sys    */
 /*    file entries for redistributing news to other sites.  Each      */
 /*    article is reviewed seperately for all systems listed in that   */
-/*    file.  Later, using a KWBoolean config option BATCHNEWS and      */
+/*    file.  Later, using a boolean config option BATCHNEWS and       */
 /*    COMPRESSNEWS with optional BATCHSIZE=n, articles will be        */
 /*    combined into batches for delivery to other systems.  This      */
 /*    will be accomplished by using UUX, rather than generating       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.45 1995/01/08 19:52:44 ahd Exp $
+ *       $Id: rnews.c 1.46 1995/01/08 21:02:02 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.46  1995/01/08 21:02:02  ahd
+ *       Correct BC++ 3.1 compiler warnings
+ *
  *       Revision 1.45  1995/01/08 19:52:44  ahd
  *       NNS support
  *
@@ -162,7 +165,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.45 1995/01/08 19:52:44 ahd Exp $";
+         "$Id: rnews.c 1.46 1995/01/08 21:02:02 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1224,6 +1227,7 @@ static void deliver_article( IMFILE *imf )
 
   while (sysnode != NULL)
   {
+
     imrewind( imf );             /* Deliver from top of article      */
 
     if (check_sys(sysnode,
@@ -1231,7 +1235,7 @@ static void deliver_article( IMFILE *imf )
                   getHeader(table, DISTRIBUTION, NULL),
                   getHeader(table, PATH, NULL)))
     {
-      if (equal(sysnode->sysname, E_domain))
+      if (equal(sysnode->sysname, canonical_news_name()))
       {
         if (deliver_local( imf,
                            getHeader(table, NEWSGROUPS, NULL),
@@ -1251,11 +1255,11 @@ static void deliver_article( IMFILE *imf )
          delivered = KWTrue;
       }
 
-    }
+    } /* if (checksys(...)) */
 
     sysnode = sysnode -> next;
 
-  }
+  } /* while (sysnode != NULL) */
 
   if (!delivered)
   {
@@ -1396,7 +1400,7 @@ static KWBoolean copy_file(IMFILE *imf,
                          const char *group,
                          const char *xref)
 {
-   struct grp *cur;
+   struct grp *cur = find_newsgroup(group);
    char filename[FILENAME_MAX];
    char buf[BUFSIZ];
    FILE *output;
@@ -1405,8 +1409,6 @@ static KWBoolean copy_file(IMFILE *imf,
 /*--------------------------------------------------------------------*/
 /*           Determine if the news has been already posted            */
 /*--------------------------------------------------------------------*/
-
-   cur = find_newsgroup(group);
 
    if (cur == NULL)
    {
@@ -1445,8 +1447,13 @@ static KWBoolean copy_file(IMFILE *imf,
       }
    }
 
+/*--------------------------------------------------------------------*/
+/*                Loop to actually write out the article              */
+/*--------------------------------------------------------------------*/
+
    while (imgets(buf, sizeof buf, imf ) != NULL)
    {
+      KWBoolean skipHeader = KWFalse;
 
       if ( ! header )
          ;                 /* No operation after end of header        */
@@ -1456,14 +1463,18 @@ static KWBoolean copy_file(IMFILE *imf,
       {
          fprintf(output,
                  PATH " %s!%s\n",
-                 E_domain,
+                 canonical_news_name(),
                  strtok(buf + strlen(PATH) + 1, WHITESPACE ));
-         continue;
+
+         skipHeader = KWTrue;
       }
       else if (equalni(buf, XREF, strlen(XREF)))
-         continue; /* skip possibly old Xref: line */
+         skipHeader = KWTrue;       /* Skip old Xref: line           */
 
-      if (fputs(buf, output) == EOF)
+      if ( ! skipHeader )
+         fputs(buf, output);        /* Write normal line line out    */
+
+      if ( ferror( output ))
       {
          printerr( filename );
          panic();
@@ -1471,7 +1482,11 @@ static KWBoolean copy_file(IMFILE *imf,
 
    } /* while */
 
-   fclose(output);
+   if (fclose(output))
+   {
+      printerr( filename );
+      panic();
+   }
 
    return KWTrue;        /* Report the file is posted                  */
 
@@ -1578,6 +1593,7 @@ static KWBoolean deliver_local(IMFILE *imf,
                              const char *messageID,
                              const char *control)
 {
+
   char hist_record[LARGEBUF];
   char groupy[MAXGRP];
   char *newsgroups = NULL;
@@ -1590,8 +1606,9 @@ static KWBoolean deliver_local(IMFILE *imf,
   char *gc_ptr;
   char *gc_ptr1;
 
-  KWBoolean b_xref = KWFalse;
-  KWBoolean posted = KWFalse;  /* Used to determine if article goes to "JUNK" */
+  KWBoolean b_xref = (strchr(newsgroups_in,',') == NULL) ? KWFalse : KWTrue;
+                                 /* Xref line if multiple groups     */
+  KWBoolean posted = KWFalse;
 
   loc_articles++;
 
@@ -1607,7 +1624,8 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    newsgroups = malloc( newsgroups_len + 1 );
    checkref( newsgroups );
-   memcpy( newsgroups, newsgroups, newsgroups_len );
+   memcpy( newsgroups, newsgroups_in, newsgroups_len );
+   newsgroups[newsgroups_len] = '\0';     /* Terminate for rescan    */
 
 /*--------------------------------------------------------------------*/
 /*           Check whether article has been received before           */
@@ -1623,7 +1641,7 @@ static KWBoolean deliver_local(IMFILE *imf,
          sprintf(idBuffer, "<%s.duplicate.%.10s@%.50s>",
                  snum,
                  E_nodename,
-                 E_domain);         /* We need a new unique ID       */
+                 E_domain );         /* We need a new unique ID       */
          msgID = idBuffer;
          b_xref = KWFalse;
       }
@@ -1636,7 +1654,9 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    } /* if (get_histentry(history, messageID) != NULL) */
 
-   /* Start building the history record for this article */
+/*--------------------------------------------------------------------*/
+/*             Build the history record for this article              */
+/*--------------------------------------------------------------------*/
 
    sprintf(hist_record, "%ld %ld ", now, imlength( imf ));
    groups_found = 0;
@@ -1649,6 +1669,7 @@ static KWBoolean deliver_local(IMFILE *imf,
       if (strlen(gc_ptr) > sizeof groupy  - 1)
       {
          /* Bounds check the newsgroup length */
+
          printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
          continue; /* Punt the newsgroup history record */
       }
@@ -1659,36 +1680,45 @@ static KWBoolean deliver_local(IMFILE *imf,
       {
         if (groups_found)
            strcat(hist_record, ", ");
+
         strcat(hist_record, groupy);
         strcat(hist_record, ":");
         strcat(hist_record, snum);
+
         groups_found++;
       }
 
    }  /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
-   /* Restore the newsgroups line */
-
    memcpy( newsgroups, newsgroups_in, newsgroups_len );
+                                       /* Restore the newsgroups line   */
+
+/*--------------------------------------------------------------------*/
+/*       Reroute the article to deliver to junk (if available) if     */
+/*       we have no real local group to send it to.                   */
+/*--------------------------------------------------------------------*/
 
    if (groups_found == 0)
    {
+
      printmsg(2, "rnews: no group to deliver to: %s", messageID );
      memcpy(newsgroups, "junk\0\0", 6);
      b_xref = KWFalse;
 
-     /* try "junk" group if none of the target groups is known here */
-
-     if (get_snum("junk", snum))
-       sprintf(hist_record, "%ld %ld junk:%s",
-               now,
-               imlength( imf ),
-               snum);
-     else {
+     if (!get_snum("junk", snum))      /* Do we maintain junk group? */
+     {                                 /* No --> Throw article away  */
        free( newsgroups );
        return KWFalse;
      }
-   }
+
+     sprintf(hist_record, "%ld %ld junk:%s",
+             now,
+             imlength( imf ),
+             snum);
+
+     junked++;
+
+   } /* if (groups_found == 0) */
 
    /* Post the history record */
 
@@ -1701,7 +1731,7 @@ static KWBoolean deliver_local(IMFILE *imf,
    if (b_xref)
    {
       strcpy(hist_record, "Xref: ");
-      strcat(hist_record, E_domain);
+      strcat(hist_record, canonical_news_name());
 
       for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
       {
@@ -1724,9 +1754,9 @@ static KWBoolean deliver_local(IMFILE *imf,
             strcat(hist_record, ":");
             strcat(hist_record, snum);
          }
+
       } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
-      printmsg(0, "reached" );
       strcat(hist_record, "\n");
 
       /* Restore the newsgroups line */
@@ -1752,20 +1782,9 @@ static KWBoolean deliver_local(IMFILE *imf,
 
    } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
-   if ( ! posted)
-   {
-     junked++;
-
-     if ( !copy_file(imf, "junk", b_xref ? hist_record : NULL ) )
-     {
-        printmsg(0, "rnews: error, but no group is available for junk!");
-     }
-
-   } /* if ( ! posted) */
-
    free( newsgroups );
 
-   return KWTrue;
+   return posted;
 
 } /* deliver_local */
 
@@ -1825,7 +1844,7 @@ static void copy_rmt_article(const char *filename,
            fprintf(output,
                    "%s %s!%s\n",
                    PATH,
-                   E_domain,
+                   canonical_news_name(),
                    strtok( buf + strlen(PATH) + 1, WHITESPACE ));
 
             searchHeaders = KWFalse;
@@ -1833,17 +1852,24 @@ static void copy_rmt_article(const char *filename,
          }
       }
 
-     if (!skipHeader && (fputs(buf, output) == EOF))
+     if (!skipHeader)
+       fputs(buf, output);
+
+     skipHeader = KWFalse;
+
+     if ( ferror( output ))
      {
         printerr( filename );
         panic();
      }
 
-     skipHeader = KWFalse;
-
   } /* while */
 
-  fclose(output);
+  if ( fclose(output) )
+  {
+     printerr( filename );
+     panic();
+  }
 
 } /* copy_rmt_article */
 

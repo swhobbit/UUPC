@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.8 1995/01/08 19:52:44 ahd Exp $
+ *    $Id: sys.c 1.9 1995/01/08 21:02:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.9  1995/01/08 21:02:02  ahd
+ *    Correct BC++ 3.1 compiler warnings
+ *
  *    Revision 1.8  1995/01/08 19:52:44  ahd
  *    NNS support
  *
@@ -244,11 +247,12 @@ void process_sys( char *buf)
   /*
    * if the node field has a subfield, it's been stripped off already,
    * leaving the node name all by itself.  Note that ME is a special
-   * case, and refers to this machine, and is replaced by E_domain.
+   * case, and refers to this machine, and is replaced by
+   * canonical_news_name() (our node name).
    */
 
-  if ( equal(f1, ME ) || equal( f1, E_nodename ))
-     node->sysname = E_domain;
+  if ( equal(f1, ME ) )
+     node->sysname = canonical_news_name();
   else
      node->sysname = newstr( trim(f1) );
 
@@ -280,6 +284,7 @@ void process_sys( char *buf)
   }
 
   printmsg(4, "process_sys: Node %s, exclude %s, distribution %s, groups %s",
+               node->sysname,
                node->exclude        ? node->exclude : "(none)",
                node->distribution   ? node->distribution : "(none)",
                node->groups         ? node->groups: "(none)" );
@@ -425,7 +430,7 @@ void process_sys( char *buf)
       ;                       /* no op, no need to check for bad host */
     else if ( node->flag.J )
       ;                       /* no op, no need to check for bad host */
-    else if ( equal( node->sysname, E_domain ))
+    else if ( equal( node->sysname, canonical_news_name() ))
       ;                       /* no op, no need to check for bad host */
     else if ((node->flag.f ||
               node->flag.F ||
