@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.34 1994/02/19 05:16:25 ahd Exp $
+ *    $Id: uuxqt.c 1.35 1994/02/26 17:21:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.35  1994/02/26  17:21:25  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.34  1994/02/19  05:16:25  ahd
  * Use standard first header
  *
@@ -983,13 +986,7 @@ static void process( const char *fname,
       {
 
          if (input == NULL)
-         {
-#ifdef WIN32
-            input = strdup("NUL:");
-#else
-            input = strdup("/dev/nul"); /* NOTE: DOS uses only one L in NUL */
-#endif
-         }
+            input = strdup(BIT_BUCKET);
 
          output = mktempname(NULL, "out");
 
