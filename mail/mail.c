@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.21 1994/02/28 01:02:06 ahd Exp $
+ *    $Id: mail.c 1.22 1994/03/05 21:12:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.22  1994/03/05  21:12:05  ahd
+ * Initialize variable to suppress compiler warning
+ *
  * Revision 1.21  1994/02/28  01:02:06  ahd
  * Cosmetic formatting clean ups
  * Increase size of from[] in PrintSubject o prevent storage overlays
@@ -112,7 +115,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.21 1994/02/28 01:02:06 ahd Exp $";
+      "$Id: mail.c 1.22 1994/03/05 21:12:05 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -563,7 +566,12 @@ static void Interactive_Mail( const boolean PrintOnly,
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
+#if defined(__OS2__) && defined(__IBMC__)
+   tmailbox = "uupcmemr.spb";
+   fmailbox = fopen( tmailbox, "wb,type=memory" );
+#else
    fmailbox = FOPEN(tmailbox, "w", IMAGE_MODE);
+#endif
 
    if ( fmailbox == NULL )
    {
