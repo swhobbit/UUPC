@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.22 1999/02/21 04:09:32 ahd Exp $
+ *       $Id: smtprecv.c 1.23 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.23  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.22  1999/02/21 04:09:32  ahd
  *       Support for BSMTP support, with routines for batch file I/O
  *       and breakout of TCP/IP routines into their own file.
@@ -117,7 +120,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.22 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.23 2000/05/12 12:35:45 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -443,9 +446,9 @@ commandDataInput(SMTPClient *client,
 {
    static const char mName[] = "commandDataInput";
    char xmitBuf[XMIT_LENGTH];
-   char *token = client->receive.line;
+   char *token = client->receive.DataBuffer;
    char *first = token;
-   size_t lineLength = (size_t) client->receive.lineLength;
+   size_t lineLength = (size_t) client->receive.DataUsed;
    size_t stringLength;
 
    int written;
@@ -480,7 +483,7 @@ commandDataInput(SMTPClient *client,
                  lineLength );
       printmsg(0, "%s Line in error begins: \"%s\"",
                  mName,
-                 client->receive.line );
+                 client->receive.DataBuffer );
 
       /* Flush the receipt of data */
       imclose(client->transaction->imf);

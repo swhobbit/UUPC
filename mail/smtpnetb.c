@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetb.c 1.2 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: smtpnetb.c 1.3 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *    $Log: smtpnetb.c $
+ *    Revision 1.3  2000/05/12 12:35:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.2  1999/02/21 04:09:32  ahd
  *    Support for BSMTP support, with routines for batch file I/O
  *    and breakout of TCP/IP routines into their own file.
@@ -36,7 +39,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetb.c 1.2 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtpnetb.c 1.3 2000/05/12 12:35:45 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t M o d e T i m e o u t                                  */
@@ -157,40 +160,40 @@ SMTPRead(SMTPClient *client)
 /*                 Make sure our buffer is big enough                 */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.used >= client->receive.allocated)
+   if (client->receive.used >= client->receive.NetworkAllocated)
    {
-      if (client->receive.allocated < MAX_BUFFER_SIZE)
+      if (client->receive.NetworkAllocated < MAX_BUFFER_SIZE)
       {
          printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
                     mName,
                     getClientSequence(client),
-                    client->receive.allocated);
-         client->receive.allocated *= 2;
-         client->receive.buffer =
-                       realloc(client->receive.buffer,
-                                 client->receive.allocated);
-         checkref(client->receive.buffer);
+                    client->receive.NetworkAllocated);
+         client->receive.NetworkAllocated *= 2;
+         client->receive.NetworkBuffer =
+                       realloc(client->receive.NetworkBuffer,
+                                 client->receive.NetworkAllocated);
+         checkref(client->receive.NetworkBuffer);
 
-      } /* if (client->receive.allocated < MAX_BUFFER_SIZE) */
+      } /* if (client->receive.NetworkAllocated < MAX_BUFFER_SIZE) */
       else {
           printmsg(0, "%s: Client %d overran of input buffer %d,"
                       " truncated.",
                       mName,
                       getClientSequence(client),
-                      client->receive.allocated);
+                      client->receive.NetworkAllocated);
           return client->receive.used;
 
       } /* else */
 
-   } /* if (client->receive.used >= client->receive.allocated) */
+   } /* if (client->receive.used >= client->receive.NetworkAllocated) */
 
 /*--------------------------------------------------------------------*/
 /*                  Actually get our next data read                   */
 /*--------------------------------------------------------------------*/
 
    received = recv(getClientHandle(client),
-                   client->receive.buffer + client->receive.used,
-                   (int) (client->receive.allocated - client->receive.used),
+                   client->receive.NetworkBuffer + client->receive.used,
+                   (int) (client->receive.NetworkAllocated - client->receive.used),
                    0);
 
    if (received == 0)
@@ -200,8 +203,8 @@ SMTPRead(SMTPClient *client)
                   mName,
                   getClientSequence(client),
                   (long) getClientHandle(client),
-                  client->receive.buffer + client->receive.used,
-                  (int) (client->receive.allocated - client->receive.used),
+                  client->receive.NetworkBuffer + client->receive.used,
+                  (int) (client->receive.NetworkAllocated - client->receive.used),
                   0);
    }
    else if (received == -1)
@@ -215,7 +218,7 @@ SMTPRead(SMTPClient *client)
       client->receive.used += (size_t) received;
 
       if (client->receive.next == NULL)
-         client->receive.next = client->receive.buffer;
+         client->receive.next = client->receive.NetworkBuffer;
    }
 
    return client->receive.used;

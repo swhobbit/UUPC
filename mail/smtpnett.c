@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------*/
-/*       s m t p n e t w . c                                          */
+/*       s m t p n e t t . c                                          */
 /*                                                                    */
 /*       TCP/IP generic support for UUPC/extended SMTP                */
 /*--------------------------------------------------------------------*/
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnett.c 1.1 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: smtpnett.c 1.2 2000/05/12 12:36:30 ahd Exp $
  *
  *    $Log: smtpnett.c $
+ *    Revision 1.2  2000/05/12 12:36:30  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.1  1999/02/21 04:09:32  ahd
  *    Initial revision
  *
@@ -63,7 +66,7 @@ void AtWinsockExit(void);
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnett.c 1.1 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtpnett.c 1.2 2000/05/12 12:36:30 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t M o d e T i m e o u t                                  */
@@ -473,46 +476,56 @@ SMTPRead(SMTPClient *client)
 /*--------------------------------------------------------------------*/
 
    if (client->endOfTransmission)
-      return client->receive.used;
+      return client->receive.NetworkUsed;
 
 /*--------------------------------------------------------------------*/
 /*                 Make sure our buffer is big enough                 */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.used >= client->receive.allocated)
+   if (client->receive.NetworkUsed > client->receive.NetworkAllocated)
    {
-      if (client->receive.allocated < MAX_BUFFER_SIZE)
+         printmsg(2, "%s: Client %d buffer overflowed -- "
+                            " %d bytes allocated, %d bytes used",
+                    mName,
+                    getClientSequence(client),
+                    client->receive.NetworkAllocated,
+                    client->receive.NetworkUsed);
+        panic();
+   }
+   else if (client->receive.NetworkUsed == client->receive.NetworkAllocated)
+   {
+      if (client->receive.NetworkAllocated < MAX_BUFFER_SIZE)
       {
+         client->receive.NetworkAllocated *= 2;
          printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
                     mName,
                     getClientSequence(client),
-                    client->receive.allocated);
-         client->receive.allocated *= 2;
-         client->receive.buffer =
-                       realloc(client->receive.buffer,
-                                 client->receive.allocated);
-         checkref(client->receive.buffer);
+                    client->receive.NetworkAllocated);
+         client->receive.NetworkBuffer =
+                       realloc(client->receive.NetworkBuffer,
+                                 client->receive.NetworkAllocated);
+         checkref(client->receive.NetworkBuffer);
 
-      } /* if (client->receive.allocated < MAX_BUFFER_SIZE) */
+      } /* if (client->receive.NetworkAllocated < MAX_BUFFER_SIZE) */
       else {
-          printmsg(0, "%s: Client %d overran of input buffer %d,"
+          printmsg(0, "%s: Client %d used all %d bytes of network buffer,"
                       " truncated.",
                       mName,
                       getClientSequence(client),
-                      client->receive.allocated);
-          return client->receive.used;
+                      client->receive.NetworkAllocated);
+          return client->receive.NetworkUsed;
 
       } /* else */
 
-   } /* if (client->receive.used >= client->receive.allocated) */
+   } /* if (client->receive.NetworkUsed == client->receive.NetworkAllocated) */
 
 /*--------------------------------------------------------------------*/
 /*                  Actually get our next data read                   */
 /*--------------------------------------------------------------------*/
 
    received = recv(getClientHandle(client),
-                   client->receive.buffer + client->receive.used,
-                   (int) (client->receive.allocated - client->receive.used),
+                   client->receive.NetworkBuffer + client->receive.NetworkUsed,
+                   (int) (client->receive.NetworkAllocated - client->receive.NetworkUsed),
                    0);
 
    if (received == 0)
@@ -522,8 +535,8 @@ SMTPRead(SMTPClient *client)
                   mName,
                   getClientSequence(client),
                   (long) getClientHandle(client),
-                  client->receive.buffer + client->receive.used,
-                  (int) (client->receive.allocated - client->receive.used),
+                  client->receive.NetworkBuffer + client->receive.NetworkUsed,
+                  (int) (client->receive.NetworkAllocated - client->receive.NetworkUsed),
                   0);
    }
    else if (received == SOCKET_ERROR)
@@ -542,13 +555,10 @@ SMTPRead(SMTPClient *client)
    }
    else {
       incrementClientBytesRead(client, (size_t) received);
-      client->receive.used += (size_t) received;
-
-      if (client->receive.next == NULL)
-         client->receive.next = client->receive.buffer;
+      client->receive.NetworkUsed += (size_t) received;
    }
 
-   return client->receive.used;
+   return client->receive.NetworkUsed;
 
 } /* SMTPRead */
 

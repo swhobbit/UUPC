@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.13 1999/01/08 02:21:05 ahd Exp $
+ *       $Id: smtpverb.c 1.14 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.14  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.13  1999/01/08 02:21:05  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -82,7 +85,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.13 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: smtpverb.c 1.14 2000/05/12 12:35:45 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */
@@ -113,9 +116,9 @@ getOperands(SMTPClient *client, SMTPVerb *verb)
    static const char mName[] = "getOperands";
 
    char **list = NULL;
-   char *token = client->receive.line + strlen(verb->name);
+   char *token = client->receive.DataBuffer + strlen(verb->name);
    size_t subscript = 0;
-   size_t maxEntries = client->receive.lineLength / 2 + 1;
+   size_t maxEntries = client->receive.DataUsed / 2 + 1;
 
 /*--------------------------------------------------------------------*/
 /*         Perform limited case insensitive pattern matching          */
@@ -207,7 +210,7 @@ SMTPInvokeCommand(SMTPClient *client)
          /* No operation */
       }
 #ifdef UDEBUG
-      else if (client->receive.line == NULL)
+      else if (client->receive.DataBuffer == NULL)
       {
          printmsg(0,"%s: Client %d Input line is NULL (client flags x%0x4)",
                      mName,
@@ -217,7 +220,7 @@ SMTPInvokeCommand(SMTPClient *client)
       }
 #endif
       else if (equalni(currentVerb->name,
-                       client->receive.line,
+                       client->receive.DataBuffer,
                        max(3, strlen(currentVerb->name))))
          break;
 

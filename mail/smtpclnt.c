@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.21 1999/02/21 04:09:32 ahd Exp $
+ *       $Id: smtpclnt.c 1.22 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.22  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.21  1999/02/21 04:09:32  ahd
  *       Support for BSMTP support, with routines for batch file I/O
  *       and breakout of TCP/IP routines into their own file.
@@ -117,7 +120,7 @@
 /*                    Global defines and variables                    */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpclnt.c 1.21 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.22 2000/05/12 12:35:45 ahd Exp ahd $");
 
 static size_t clientSequence = 0;
 
@@ -171,12 +174,15 @@ initializeClient(SOCKET handle)
 /*                  Allocate remaining buffers we need                */
 /*--------------------------------------------------------------------*/
 
-   client->receive.allocated = 10 * 1024;
-   client->receive.buffer   = malloc((size_t) client->receive.allocated);
-   checkref(client->receive.buffer);
+   client->receive.NetworkAllocated = BUFSIZ;
+   client->receive.NetworkBuffer   =
+                      malloc((size_t) client->receive.NetworkAllocated);
+   checkref(client->receive.NetworkBuffer);
 
 #ifdef UDEBUG
-   memset(client->receive.buffer, 0, client->receive.allocated);
+   memset(client->receive.NetworkBuffer,
+          0,
+          client->receive.NetworkAllocated);
 #endif
 
    printmsg(1, "%s: Client %d accepted from %s %s",
@@ -307,16 +313,28 @@ freeClient(SMTPClient *client)
       client->clientName = NULL;
    }
 
-   if (client->receive.buffer)
+   if (client->receive.NetworkBuffer)
    {
-      free(client->receive.buffer);
-      client->receive.buffer = NULL;
+      free(client->receive.NetworkBuffer);
+      client->receive.NetworkBuffer = NULL;
    }
 
-   if (client->transmit.buffer)
+   if (client->transmit.NetworkBuffer)
    {
-      free(client->transmit.buffer);
-      client->transmit.buffer = NULL;
+      free(client->transmit.NetworkBuffer);
+      client->transmit.NetworkBuffer = NULL;
+   }
+
+   if (client->receive.DataBuffer)
+   {
+      free(client->receive.DataBuffer);
+      client->receive.DataBuffer = NULL;
+   }
+
+   if (client->transmit.DataBuffer)
+   {
+      free(client->transmit.DataBuffer);
+      client->transmit.DataBuffer = NULL;
    }
 
 /*--------------------------------------------------------------------*/
@@ -617,11 +635,12 @@ getClientProcess(const SMTPClient *client)
 KWBoolean
 getClientBufferedData(const SMTPClient *client)
 {
-   if (client->receive.next != NULL)
+   if (client->receive.NetworkUsed != 0)
    {
-      size_t length = client->receive.used - (client->receive.next -
-                                              client->receive.buffer);
-      if (memstr(client->receive.next, "\r\n", length) != NULL)
+
+      if (memstr(client->receive.NetworkBuffer,
+                 "\r\n",
+                 client->receive.NetworkUsed) != NULL)
          return KWTrue;
       else
          return KWFalse;

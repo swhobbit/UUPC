@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.14 1999/01/08 02:21:01 ahd Exp $
+ *       $Id: smtplwc.c 1.15 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.15  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.14  1999/01/08 02:21:01  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -88,7 +91,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.14 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: smtplwc.c 1.15 2000/05/12 12:35:45 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */
@@ -275,7 +278,7 @@ commandSequenceIgnore(SMTPClient *client,
    sprintf(xmitBuf,
             "Command %.4s issued out of sequence, "
             "expected %s command next",
-            client->receive.buffer,
+            client->receive.DataBuffer,
             current->name);
 
    SMTPResponse(client, current->code, xmitBuf);

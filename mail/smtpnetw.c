@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.27 1999/02/21 04:09:32 ahd Exp $
+ *    $Id: smtpnetw.c 1.28 2000/05/12 12:36:30 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.28  2000/05/12 12:36:30  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.27  1999/02/21 04:09:32  ahd
  *    Support for BSMTP support, with routines for batch file I/O
  *    and breakout of TCP/IP routines into their own file.
@@ -36,67 +39,6 @@
  *
  *    Revision 1.23  1999/01/04 03:54:27  ahd
  *    Annual copyright change
- *
- *    Revision 1.22  1998/11/04 01:59:55  ahd
- *    Prevent buffer overflows when processing UIDL lines
- *    in POP3 mail.
- *    Add internal sanity checks for various client structures
- *    Convert various files to CR/LF from LF terminated lines
- *
- * Revision 1.21  1998/05/11  13:55:28  ahd
- * Reduce buffer size to handle OS/2 builds
- *
- *    Revision 1.20  1998/05/11 01:20:48  ahd
- *    Length line of trace messages in log
- *
- *    Revision 1.19  1998/04/27 01:45:15  ahd
- *    Revamp bufferring for larger buffers
- *
- *    Revision 1.18  1998/04/24 03:30:13  ahd
- *    Use local buffers, not client->transmit.buffer, for output
- *    Rename receive buffer, use pointer into buffer rather than
- *         moving buffered data to front of buffer every line
- *    Restructure main processing loop to give more priority
- *         to client processing data already buffered
- *    Add flag bits to client structure
- *    Add flag bits to verb tables
- *
- *    Revision 1.17  1998/04/22 01:19:54  ahd
- *    Performance improvements for SMTPD data mode
- *
- *    Revision 1.16  1998/04/19 15:30:08  ahd
- *    Improved error messages for network errors
- *
- *    Revision 1.15  1998/04/08 11:35:35  ahd
- *    CHange error processing for bad sockets
- *
- *    Revision 1.14  1998/03/16 07:49:07  ahd
- *    Make NETSCAPE send CR/LF
- *
- *    Revision 1.13  1998/03/16 06:42:49  ahd
- *    Allow larger receive buffers
- *
- *    Revision 1.12  1998/03/08 23:10:20  ahd
- *    Allow raw message transmission for POP messages
- *    Make all receive errors fatal
- *
- *    Revision 1.11  1998/03/08 04:50:04  ahd
- *    Close socket after read errors
- *
- *    Revision 1.10  1998/03/06 06:51:28  ahd
- *    Add commands to make Netscape happy
- *
- *    Revision 1.9  1998/03/03 03:51:53  ahd
- *    Routines to handle messages within a POP3 mailbox
- *
- *    Revision 1.8  1998/03/01 19:42:17  ahd
- *    First compiling POP3 server which accepts user id/password
- *
- *    Revision 1.7  1997/11/29 13:03:13  ahd
- *    Clean up single client (hot handle) mode for OS/2, including correct
- *    network initialization, use unique client id (pid), and invoke all
- *    routines needed in main client loop.
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -119,49 +61,24 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.27 1999/02/21 04:09:32 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.28 2000/05/12 12:36:30 ahd Exp $");
 
 static const char crlf[] = "\r\n";
+
+#define NULL_TERMINATED_LENGTH  INT_MAX
 
 /*--------------------------------------------------------------------*/
 /*                          Local prototypes                          */
 /*--------------------------------------------------------------------*/
 
-static void
-SMTPBurpBuffer(SMTPClient *client);
-
-/*--------------------------------------------------------------------*/
-/*       g e t L i n e B r e a k                                      */
-/*                                                                    */
-/*       Determine where end of next line is                          */
-/*--------------------------------------------------------------------*/
-
 static char
-*getLineBreak( SMTPBuffer *sb )
-{
-   size_t offset;
-   static const char mName[] = "getLineBreak";
+*getLineBreak( SMTPBuffer *sb );
 
-   if ( sb->next == NULL)
-      return NULL;
+static KWBoolean
+SetDataLine(SMTPClient *client, char *buffer, size_t length);
 
-   offset = sb->next - sb->buffer;
-
-#ifdef UDEBUG
-   if (offset > sb->used)
-   {
-      printmsg(0,"%s: Attempted to scan %ld bytes in a "
-                  "buffer only %ld bytes long",
-                  mName,
-                  (long) offset,
-                  (long) sb->used);
-      panic();
-   }
-#endif
-
-   return memstr(sb->next, crlf, sb->used - offset);
-
-} /* lineBreak */
+static void
+SMTPBurpBuffer(SMTPClient *client, size_t burpBytes);
 
 /*--------------------------------------------------------------------*/
 /*       S M T P G e t L i n e                                        */
@@ -174,34 +91,20 @@ SMTPGetLine(SMTPClient *client)
 {
    static const char mName[] = "SMTPGetLine";
    char *lineBreak;
-
-#ifdef UDEBUG2
-
-#define ignoredBytes(x) (((x).next == NULL) ? 0 : (x).next - (x).buffer)
-
-   if ( debuglevel >= 8 )
-      printmsg(8, "%s: Client %d in mode 0x%04x "
-                   "with %d of possible %d bytes buffered (%d ignored)",
-                   mName,
-                   getClientSequence(client),
-                   getClientMode(client),
-                   client->receive.used,
-                   client->receive.allocated,
-                   ignored(client->receive));
-#endif
+   size_t lineLength;
+   KWBoolean bResult = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                   Handle previously signaled EOF                   */
 /*--------------------------------------------------------------------*/
 
-   if (isClientEOF(client) && (client->receive.next == NULL))
+   if (isClientEOF(client) && (client->receive.NetworkUsed == 0))
    {
       printmsg(0, "%s: client %d is out of data (EOF)",
                    mName,
                    getClientSequence(client));
 
-      client->receive.line = client->receive.buffer;
-      client->receive.line[ 0 ] = '\0';
+      SetDataLine(client, "", 0);
       setClientMode(client, SM_ABORT);
       return KWTrue;
    }
@@ -217,7 +120,6 @@ SMTPGetLine(SMTPClient *client)
       if (client->stalledReads)     /* Improve response time ...     */
          client->stalledReads--;
 
-      SMTPBurpBuffer(client);
       SMTPRead(client);
       lineBreak = getLineBreak(&client->receive);
    }
@@ -234,34 +136,33 @@ SMTPGetLine(SMTPClient *client)
          static const char quit[] = "quit";
          static const size_t quitLength = sizeof quit - 1;
 
-         if ((client->receive.next == client->receive.buffer) &&
-             (client->receive.used == quitLength) &&
-             equalni(client->receive.buffer, "quit", quitLength))
+         if ((client->receive.NetworkUsed == quitLength) &&
+             equalni(client->receive.NetworkBuffer, quit, quitLength))
          {
             printmsg(8,"%s: Applying CR/LF after Netscape %s/EOF",
                      mName,
                      quit);
-            lineBreak = client->receive.buffer + quitLength;
-            client->receive.used += 2;
+            SetDataLine(client, client->receive.NetworkBuffer, quitLength);
+            SMTPBurpBuffer(client, client->receive.NetworkUsed);
          }
          else {
             printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
                        mName,
                        getClientSequence(client));
-            client->receive.line = NULL;
+            SMTPBurpBuffer(client, client->receive.NetworkUsed);
 
             /* Abort client immediately */
             setClientMode(client, SM_ABORT);
             return KWTrue;
          }
       }
-      else if (client->receive.used < client->receive.allocated)
+      else if (client->receive.NetworkUsed < MAX_BUFFER_SIZE)
       {
          printmsg(2, "%s: Client %d Input buffer "
                       "(%d bytes) waiting for data.",
                       mName,
                       getClientSequence(client),
-                      client->receive.used);
+                      client->receive.NetworkUsed);
 
          /* Sleep client for few secs  */
          setClientIgnore(client, (time_t) ++client->stalledReads);
@@ -269,102 +170,166 @@ SMTPGetLine(SMTPClient *client)
          /* Don't process command yet  */
          return KWFalse;
 
-      } /* if (client->receive.used < client->receive.allocated) */
+      } /* END if (client->receive.NetworkUsed < MAX_BUFFER_SIZE) */
       else {
 
         printmsg(0, "%d <<< %.125s",
                      getClientSequence(client),
-                     client->receive.next);
-        printmsg(0, "%s: Client %d Input buffer (%d bytes) overrun.",
+                     client->receive.NetworkBuffer);
+        printmsg(0, "%s: Client %d Input buffer (%d bytes) full (cannot append more).",
                      mName,
                      getClientSequence(client),
-                     client->receive.used);
+                     client->receive.NetworkUsed);
 
-        client->receive.lineLength = client->receive.used - 1;
-
-        /* Don't run off end of the buffer */
-        client->receive.buffer[client->receive.used - 1] = '\0';
+        SetDataLine(client,
+                    client->receive.NetworkBuffer,
+                    client->receive.NetworkUsed);
+        SMTPBurpBuffer(client, client->receive.NetworkUsed);
 
         /* Abort client immediately     */
         setClientMode(client, SM_ABORT);
         return KWTrue;
 
-      } /* else */
+      } /* END else */
 
-   } /* if (lineBreak == NULL) */
+   } /* END if (lineBreak == NULL) */
 
-   client->receive.line = client->receive.next;
-   client->receive.lineLength = lineBreak - client->receive.line;
+   lineLength = lineBreak - client->receive.NetworkBuffer;
+   bResult = SetDataLine(client,
+                         client->receive.NetworkBuffer,
+                         lineLength);
 
-   /* Terminate the command line and step past the CR/LF */
-   *(lineBreak++) = '\0';
-   *(lineBreak++) = '\0';
+   SMTPBurpBuffer(client, lineLength + 2);
+   return bResult;
 
-   /* Remember where our next line starts, if any */
-   client->receive.next = lineBreak;
-
-   if (client->receive.next == (client->receive.buffer +
-                                client->receive.used))
-   {
-      client->receive.next = NULL;
-
-#ifdef UDEBUG2
-      if (debuglevel >= 6)
-         printmsg(6,"%s: Last line in buffer %p (%d bytes) at %p: %.125s",
-                  mName,
-                  client->receive.buffer,
-                  client->receive.allocated,
-                  client->receive.line,
-                  client->receive.line );
-#endif
-   }
+} /* END SMTPGetLine */
 
 /*--------------------------------------------------------------------*/
-/*           Locate start of input line if not in data mode           */
+/*       g e t L i n e B r e a k                                      */
+/*                                                                    */
+/*       Determine where end of next line is                          */
+/*--------------------------------------------------------------------*/
+
+static char
+*getLineBreak( SMTPBuffer *sb )
+{
+
+   static const char mName[] = "getLineBreak";
+
+   if ( sb->NetworkUsed == 0)
+      return NULL;
+
+   return memstr(sb->NetworkBuffer, crlf, sb->NetworkUsed);
+
+} /* END getLineBreak */
+
+/*--------------------------------------------------------------------*/
+/*      S e t D a t a L i n e                                         */
+/*                                                                    */
+/*      Fill in data buffer for client use                            */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+SetDataLine(SMTPClient *client, char *buffer, size_t length)
+{
+    static const int nBaseLevel = 2;
+    int nTraceLevel = nBaseLevel;
+
+    /* Determine the length of the buffer, if needed */
+    if (length == NULL_TERMINATED_LENGTH)
+    {
+       client->receive.DataUsed = strlen(buffer);
+    }
+    else {
+       client->receive.DataUsed = length;
+    }
+
+/*--------------------------------------------------------------------*/
+/*               Insure the data buffer is large enough               */
+/*--------------------------------------------------------------------*/
+
+    if (client->receive.DataUsed >= client->receive.DataAllocated)
+    {
+        /* Compute new buffer length with some extra slop */
+        client->receive.DataAllocated = client->receive.DataUsed + 80;
+
+        if (client->receive.DataBuffer != NULL)
+        {
+            free(client->receive.DataBuffer);
+        }
+
+        /* Get the buffer now needed, including NULL terminator */
+        client->receive.DataBuffer = malloc(client->receive.DataAllocated);
+        checkref(client->receive.DataBuffer);
+
+    } /* END if (client->receive.DataUsed > client->receive.DataAllocated) */
+
+/*--------------------------------------------------------------------*/
+/*          If in data mode, simply copy the data and return          */
 /*--------------------------------------------------------------------*/
 
    if (isClientFlag(client, SF_NO_TOKENIZE))
    {
       clearClientFlag(client, SF_NO_TOKENIZE);
-
-      printmsg(5,"%d <<< %.125s",
-               getClientSequence(client),
-               client->receive.line );
+      nTraceLevel += 3;
    }
-   else {
+   else if (client->receive.DataUsed > 0)
+   {
+      /* Strip leading spaces, if needed */
+      while(isspace(*buffer))
+      {
+         buffer++;
+         client->receive.DataUsed--;
+      }
 
-      while(isspace(*(client->receive.line)))
-         client->receive.line++;
-
-      if (*(client->receive.line) == '\0')
+      /* If we removed all characters, command is missing -- an error */
+      if (client->receive.DataUsed == 0)
       {
          printmsg(0, "%d <<<   (empty line with %d characters)",
                       getClientSequence(client),
-                      client->receive.lineLength);
-         client->receive.lineLength= 0;
+                      client->receive.DataUsed);
          setClientIgnore(client, 2);      /* Make client wait */
 
          /* Ignore input line */
          return KWFalse;
       }
 
-      /* Recompute (perhaps updated) line length */
-      client->receive.lineLength = lineBreak - client->receive.line - 2;
+   } /* END if (client->receive.DataUsed != 0) */
 
-      if ( equalni(client->receive.line, "pass", 4))
-         printmsg(2,"%d <<< %.4s xxxxxxxx",
-                  getClientSequence(client),
-                  client->receive.line );
-      else
-         printmsg(2,"%d <<< %.125s",
-                    getClientSequence(client),
-                    client->receive.line );
+/*--------------------------------------------------------------------*/
+/*              Copy the data then print it for tracing               */
+/*--------------------------------------------------------------------*/
 
-   } /* else */
+   if (client->receive.DataUsed > 0)
+   {
+      memcpy(client->receive.DataBuffer,
+             buffer,
+             client->receive.DataUsed);
+   }
+
+   client->receive.DataBuffer[client->receive.DataUsed] = '\0';
+
+   if ((nTraceLevel == nBaseLevel) &&
+       (equalni(client->receive.DataBuffer, "pass", 4)))
+
+   {
+      printmsg(nTraceLevel,"%d <<< %.4s xxxxxxxx",
+               getClientSequence(client),
+               client->receive.DataBuffer);
+   }
+   else {
+      printmsg(nTraceLevel,"%d <<< %.125s",
+                 getClientSequence(client),
+                 client->receive.DataBuffer);
+   }
+
+/*--------------------------------------------------------------------*/
+/*                      Report success to caller                      */
+/*--------------------------------------------------------------------*/
 
    return KWTrue;
 
-} /* SMTPGetLine */
+} /* END SetDataLine */
 
 /*--------------------------------------------------------------------*/
 /*       S M T P R e s p o n s e                                      */
@@ -430,7 +395,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
                           (code < 0) ? '-' : ' ');
             break;
 
-   } /* switch(code) */
+   } /* END switch(code) */
 
    if (printLevel <= debuglevel)
    {
@@ -461,7 +426,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
       return KWTrue;
 
-   } /* if (code == PR_TEXT) */
+   } /* END if (code == PR_TEXT) */
 
 /*--------------------------------------------------------------------*/
 /*       If all three parts of the message fit, pack it into one      */
@@ -512,7 +477,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    return KWTrue;
 
-} /* SMTPResponse */
+} /* END SMTPResponse */
 
 /*--------------------------------------------------------------------*/
 /*       S M T P B u r p B u f f e r                                  */
@@ -521,7 +486,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 /*--------------------------------------------------------------------*/
 
 static void
-SMTPBurpBuffer(SMTPClient *client)
+SMTPBurpBuffer(SMTPClient *client, size_t burpBytes)
 {
    static const char mName[] = "SMTPBurpBuffer";
 
@@ -531,26 +496,26 @@ SMTPBurpBuffer(SMTPClient *client)
 
    assertSMTP(client);
 
-   if (client->receive.allocated < client->receive.used)
+   if (client->receive.NetworkAllocated < client->receive.NetworkUsed)
    {
          printmsg(0, "%s: Client has used more bytes (%d) "
-                     "than buffer bytes allocated (%d)",
+                     "than network buffer allocated (%d)",
                     mName,
                     getClientSequence(client),
-                    client->receive.used,
-                    client->receive.allocated);
+                    client->receive.NetworkUsed,
+                    client->receive.NetworkAllocated);
 
       panic();
    }
 
-   if (client->receive.used < client->receive.lineLength)
+   if (client->receive.NetworkUsed < burpBytes)
    {
          printmsg(0, "%s: Client %d has parsed more bytes (%d) "
-                     "than bytes in use (%d)",
+                     "than network buffer in use (%d)",
                     mName,
                     getClientSequence(client),
-                    client->receive.lineLength,
-                    client->receive.used);
+                    burpBytes,
+                    client->receive.NetworkUsed);
 
       panic();
    }
@@ -559,10 +524,8 @@ SMTPBurpBuffer(SMTPClient *client)
 /*            Handle simple case of no new data in buffer             */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.next == NULL)
+   if (burpBytes == 0)
    {
-      client->receive.used = 0;
-      client->receive.lineLength = 0;
       return;
    }
 
@@ -570,34 +533,25 @@ SMTPBurpBuffer(SMTPClient *client)
 /*     Discard any data we have already processed from the client     */
 /*--------------------------------------------------------------------*/
 
-   if (client->receive.next > client->receive.buffer)
-   {
 #ifdef UDEBUG2
-      printmsg(5,"%s: Burped %ld of %ld bytes from buffer",
-               mName,
-               (long) (client->receive.next - client->receive.buffer),
-               (long) client->receive.used );
+   printmsg(5,"%s: Burped %ld of %ld bytes from buffer",
+            mName,
+            (long) burpBytes,
+            (long) client->receive.NetworkUsed);
 #endif
 
-      client->receive.used -= client->receive.next - client->receive.buffer;
+   client->receive.NetworkUsed -= burpBytes;
 
 /*--------------------------------------------------------------------*/
 /*       If we still have data in the buffer, move it to front and    */
-/*       reset pointer to it.  Otherwise, clear pointer to next       */
-/*       line completely.                                             */
+/*       reset pointer to it.                                         */
 /*--------------------------------------------------------------------*/
 
-      if (client->receive.used > 0)
-      {
-         memmove(client->receive.buffer,
-                 client->receive.next,
-                 client->receive.used);
+   if (client->receive.NetworkUsed > 0)
+   {
+      memmove(client->receive.NetworkBuffer,
+              client->receive.NetworkBuffer + burpBytes,
+              client->receive.NetworkUsed);
+   }
 
-         client->receive.next = client->receive.buffer;
-      }
-      else
-         client->receive.next = NULL;
-
-   } /* if (client->receive.parsed > 0) */
-
-} /* SMTPBurpBuffer */
+} /* END SMTPBurpBuffer */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpcmmn.c 1.6 1999/01/17 17:19:16 ahd Exp $
+ *       $Id: smtpcmmn.c 1.7 2000/05/12 12:35:45 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtpcmmn.c $
+ *       Revision 1.7  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.6  1999/01/17 17:19:16  ahd
  *       Give priority to accepting new connections
  *       Make initialization of slave and master connections more consistent
@@ -56,12 +59,13 @@
 #include "smtpcmmn.h"
 #include "smtprecv.h"
 #include "smtpnetw.h"
+#include "smtpnett.h"
 
 /*--------------------------------------------------------------------*/
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpcmmn.c 1.6 1999/01/17 17:19:16 ahd Exp $");
+RCSID("$Id: smtpcmmn.c 1.7 2000/05/12 12:35:45 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d A c c e p t                                    */
@@ -185,7 +189,7 @@ commandSyntax(SMTPClient *client,
               char **operands)
 {
    char xmitBuf[XMIT_LENGTH];
-   char *command = strtok(client->receive.line, " ");
+   char *command = strtok(client->receive.DataBuffer, " ");
 
    if (command == NULL)
       command = "(null)";
