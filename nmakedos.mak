@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.11 1995/11/08 01:03:13 ahd v1-12p $
+#       $Id: nmakedos.mak 1.12 1995/11/30 12:47:07 ahd v1-12q $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.12  1995/11/30 12:47:07  ahd
+#       *** empty log message ***
+#
 #       Revision 1.11  1995/11/08 01:03:13  ahd
 #       Allow copying between drives during install
 #
@@ -74,11 +77,13 @@ LIBOSLIST = $(OBJ)\ndir.obj $(OBJ)\getdta.obj $(OBJ)\scrsize.obj \
 UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
 
+!ifndef STACKSIZE
 STACKSIZE=3000                  # In hex, because /F below is brain dead
+!endif
 
-EXTRAT  = comm34.com            # Include in test build ...
+EXTRAT  = comm34.$(COMEXE)            # Include in test build ...
 EXTRA1  = $(PROD)\rmail.pif $(PROD)\uuxqt.pif\
-          $(PROD)\comm34.com    # ... and ship it off to users as well
+          $(PROD)\comm34.$(COMEXE)    # ... and ship it off to users as well
 EXTRA2  = $(PROD)\uuclean.pif
 LINKER  = link
 
