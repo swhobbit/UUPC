@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: getseq.c 1.10 1994/02/19 04:42:01 ahd v1-12k $
+ *    $Id: getseq.c 1.11 1994/12/22 00:08:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: getseq.c $
+ *    Revision 1.11  1994/12/22 00:08:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/02/19 04:42:01  ahd
  *    Use standard first header
  *
@@ -81,30 +84,37 @@ currentfile();
 long getseq()
 {
    char seqfile[FILENAME_MAX];
-   FILE *seqfile_fp;
-   long seq;
+   FILE *stream;
+   long seq = 0;
 
-   mkfilename(seqfile, E_confdir, SFILENAME);
-   if ((seqfile_fp = FOPEN(seqfile, "r",TEXT_MODE)) != nil(FILE))
+   mkfilename(seqfile, E_spooldir, SFILENAME);
+
+   if ((stream = FOPEN(seqfile, "r+",TEXT_MODE)) == nil(FILE))
    {
-      fscanf(seqfile_fp, "%ld", &seq);
-      fclose(seqfile_fp);
+      printerr( seqfile );
+
+      if ((stream = FOPEN(seqfile, "w",TEXT_MODE)) == nil(FILE))
+      {
+         printerr( seqfile );
+         panic();
+      }
    }
    else {
+      if ( fread( &seq, sizeof seq, 1, stream ) != 1 )
+         printerr( seqfile );
+   }
+
+   if ( ! seq++ )
       seq = getpid();
-      printerr( seqfile );
-   };
 
 /*--------------------------------------------------------------------*/
 /*                       Update sequence number                       */
 /*--------------------------------------------------------------------*/
 
-   if ((seqfile_fp = FOPEN(seqfile, "w",TEXT_MODE)) != nil(FILE))
+   rewind( stream );
+
+   if ((fwrite( &seq, sizeof seq, 1, stream ) != 1) || fclose(stream))
    {
-      fprintf(seqfile_fp, "%ld\n", seq+1);
-      fclose(seqfile_fp);
-   }
-   else {
       printerr( seqfile );
       panic();
    }
@@ -112,7 +122,7 @@ long getseq()
    printmsg(5, "getseq: seq#=%ld", seq);
    return seq;
 
-} /*getseq*/
+} /* getseq */
 
 /*--------------------------------------------------------------------*/
 /*    J o b N u m b e r                                               */
