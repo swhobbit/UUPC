@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.5 1993/08/11 02:31:12 ahd Exp $
+ *    $Id: mlib.c 1.6 1993/09/20 04:39:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ * Revision 1.6  1993/09/20  04:39:51  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.5  1993/08/11  02:31:12  ahd
  * Use standard denormalize() macro for slash --> back slashes
  *
@@ -111,10 +114,14 @@ int Get_One()
 /*       Invoke the user's editor or pager to handle a text file      */
 /*--------------------------------------------------------------------*/
 
-int Invoke(const char *ecmd, const char *filename)
+int Invoke(const char *ecmd,
+           const char *filename,
+           const boolean unique )
 {
    char command[FILENAME_MAX*2 + 1];
    char tempname[FILENAME_MAX];
+
+   int rc;
 
    if (ecmd == nil(char))
    {
@@ -122,14 +129,32 @@ int Invoke(const char *ecmd, const char *filename)
       return 1;
    }
 
+/*--------------------------------------------------------------------*/
+/*                         Format the command                         */
+/*--------------------------------------------------------------------*/
+
    strcpy(tempname,filename);
    denormalize( tempname );
 
    sprintf(command, ecmd, tempname);
 
-   if(executeCommand(command, NULL, NULL, TRUE, TRUE ) != 0)
+
+/*--------------------------------------------------------------------*/
+/*          Execute command, report results if interesting.           */
+/*--------------------------------------------------------------------*/
+
+   rc = executeCommand(command, NULL, NULL, TRUE, unique );
+   if( rc )
    {
-      printf("Invoke: \"%s\" failed.\n", command);
+      printf("Invoke: \"%s\" failed, exit code %d.\n",
+              command,
+              rc );
+
+#if defined(__OS2__) || defined(FAMILYAPI)
+      if ( ! unique )
+         printf("Try setting NewEditorWindow or NewPagerWindow\n");
+#endif
+
       return(2);
    }
 

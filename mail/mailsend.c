@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.8 1993/10/12 01:32:08 ahd Exp $
+ *    $Id: mailsend.c 1.9 1993/10/31 19:04:03 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.9  1993/10/31  19:04:03  ahd
+ * Trap no subject after subject (-s) flag when sending mail
+ *
  * Revision 1.8  1993/10/12  01:32:08  ahd
  * Normalize comments to PL/I style
  *
@@ -609,7 +612,7 @@ boolean Collect_Mail(FILE *stream,
    if (editonly)              /* Enter editor immediately?     ahd   */
    {                          /* Yes --> Go to it                    */
       fclose(fmailbag);
-      Invoke(E_editor, tmailbag);
+      Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
    } /* if */
    else {                     /* No  --> prompt for data       ahd   */
       Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
@@ -659,7 +662,7 @@ boolean Collect_Mail(FILE *stream,
 
          case 'e':
             puts("Edit");
-            Invoke(E_editor, tmailbag);
+            Invoke(E_editor, tmailbag, bflag[F_NEWEDITORSESSION] );
             break;
 
          case 'a':
@@ -777,7 +780,7 @@ static boolean Subcommand( char *buf,
          case 'e':
             /* invoke editor with current msg */
             fclose(fmailbag);
-            Invoke(E_editor, tmailbag);
+            Invoke(E_editor, tmailbag, bflag[F_NEWPAGERSESSION] );
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
