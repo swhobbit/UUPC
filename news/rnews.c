@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.51 1995/01/22 04:16:52 ahd Exp $
+ *       $Id: rnews.c 1.52 1995/01/29 14:03:29 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.52  1995/01/29 14:03:29  ahd
+ *       Clean up IBM C/Set compiler warnings
+ *
  *       Revision 1.51  1995/01/22 04:16:52  ahd
  *       Batching cleanup
  *
@@ -184,7 +187,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.51 1995/01/22 04:16:52 ahd Exp $";
+         "$Id: rnews.c 1.52 1995/01/29 14:03:29 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -792,7 +795,7 @@ static int Compressed( FILE *in_stream ,
    printmsg(4, "Executing command: %s", buf );
    status = executeCommand( buf, NULL, NULL, KWTrue, KWFalse);
 
-   if ( unlink( zfile ) )
+   if ( (! access( zfile, 0 )) && unlink( zfile ) )
       printerr( zfile );
 
    if (status != 0)
