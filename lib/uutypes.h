@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUTYPES.H 1.1 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: UUTYPES.H 1.2 1993/04/11 00:36:59 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: UUTYPES.H $
+ * Revision 1.2  1993/04/11  00:36:59  dmwatt
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.1  1993/03/06  23:09:50  ahd
  * Initial revision
  *
@@ -38,6 +41,7 @@ typedef enum {
                F_ASKCC,       /* TRUE = ask for Carbon copies              */
                F_DOSKEY,      /* TRUE = Use DOSKEY under DOS 5 if available*/
                F_BACKUP,      /* TRUE = Backup mailbox before rewriting    */
+               F_BOUNCE,      /* TRUE = Bounce bad mail to sender          */
                F_DOT,         /* TRUE = period ends a message              */
                F_AUTOPRINT,   /* TRUE = print next message automatically   */
                F_AUTOEDIT,    /* TRUE = no line prompt, always edit        */
