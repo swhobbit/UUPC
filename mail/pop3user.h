@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.h 1.1 1998/03/01 19:45:01 ahd Exp $
+ *       $Id: pop3user.h 1.2 1998/03/03 03:55:05 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.h $
+ *       Revision 1.2  1998/03/03 03:55:05  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.1  1998/03/01 19:45:01  ahd
  *       Initial revision
  *
@@ -40,11 +43,6 @@
 
 KWBoolean
 commandLoadMailbox(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandDataOutput(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
 
