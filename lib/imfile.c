@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.38 1998/04/08 11:32:07 ahd Exp $
+ *    $Id: imfile.c 1.39 1998/04/19 15:30:08 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.39  1998/04/19 15:30:08  ahd
+ *    Don't repeat message as to size of file in imstatus()
+ *
  *    Revision 1.38  1998/04/08 11:32:07  ahd
  *    Add new debugging for imgets()
  *
@@ -382,6 +385,12 @@ int imclose(IMFILE *imf)
 {
    int result = 0;
 
+   if (imf == NULL)
+   {
+      printmsg(0,"imclose: Close called with NULL pointer");
+      panic();
+   }
+
    imStatus(imf);
 
    if (imf->buffer != NULL)
@@ -396,7 +405,9 @@ int imclose(IMFILE *imf)
    if (imf->filename != NULL)
       free(imf->filename);
 
+#ifdef UDEBUG
    memset(imf, 0, sizeof *imf);
+#endif
    free(imf);
 
    return result;
