@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.9 1993/04/17 13:40:39 ahd Exp $
+ *       $Id: RNEWS.C 1.10 1993/04/19 13:16:20 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.10  1993/04/19  13:16:20  ahd
+ * Binary mode for snews
+ *
  * Revision 1.9  1993/04/17  13:40:39  ahd
  * fix compile errors for snews fix
  *
@@ -64,7 +67,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.9 1993/04/17 13:40:39 ahd Exp $";
+         "$Id: RNEWS.C 1.10 1993/04/19 13:16:20 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -219,7 +222,7 @@ void main( int argc, char **argv)
     } /* if (argc > 1) */
 
    tzset();                   /* Set up time zone information  */
-   setmode(fileno(in_stream), O_BINARY);/* Don't die on control-Z, etc */
+   setmode(fileno(stdin), O_BINARY);   /* Don't die on control-Z, etc */
 
 /*--------------------------------------------------------------------*/
 /*    If we are processing snews input, write it all out to the       */
