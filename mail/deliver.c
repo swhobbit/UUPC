@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.42 1995/03/23 01:30:34 ahd Exp $
+ *    $Id: deliver.c 1.43 1995/07/21 13:23:19 ahd v1-12o $
  *
  *    $Log: deliver.c $
+ *    Revision 1.43  1995/07/21 13:23:19  ahd
+ *    Correct wildcard routing for local host to reject mail not actually
+ *    destined to us.
+ *
  *    Revision 1.42  1995/03/23 01:30:34  ahd
  *    Handle empty forward files more gracefully
  *
@@ -210,6 +214,7 @@
 #include "sysalias.h"
 #include "timestmp.h"
 #include "trumpet.h"
+#include "arpadate.h"
 
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
@@ -983,6 +988,22 @@ static size_t queueRemote( IMFILE *imf,   /* Input file               */
                                  /* stdin for command                */
    fprintf(stream, "C %s\n", command );
                                  /* Command to execute using file    */
+
+/*--------------------------------------------------------------------*/
+/*               Add some self-documenting information                */
+/*--------------------------------------------------------------------*/
+
+   fprintf(stream, "# Generated on %s by %s %s (built on %s %s) at %s\n",
+                      E_nodename,
+                      compilep,
+                      compilev,
+                      compiled,
+                      compilet,
+                      arpadate() );
+   fprintf(stream, "# Call file    %s\n",    tmfile );
+   fprintf(stream, "# Execute file %s %s\n", idfile, rdfile );
+   fprintf(stream, "# Data file    %s %s\n", ixfile, rxfile );
+
    fclose(stream);
 
 /*--------------------------------------------------------------------*/
@@ -1278,7 +1299,7 @@ size_t Bounce( IMFILE *imf,
 
    putenv("LOGNAME=uucp");
 
-   sprintf( buf, "-w -F %s -s \"Failed mail for %.20s\" %s -c postmaster",
+   sprintf( buf, "-w -F %s -s \"Failed mail for %.20s\" -- %s -c postmaster",
             tname,
             address,
             sender );

@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.46 1995/07/21 13:23:19 ahd Exp $
+ *    $Id: rmail.c 1.47 1995/09/04 18:43:37 ahd v1-12o ahd $
  *
  *    $Log: rmail.c $
+ *    Revision 1.47  1995/09/04 18:43:37  ahd
+ *    Correctly perform host lookup even if verification of sender is
+ *    disabled
+ *
  *    Revision 1.46  1995/07/21 13:23:19  ahd
  *    Correct wildcard routing for local host to reject mail not actually
  *    destined to us.
@@ -569,7 +573,7 @@ int main(int argc, char **argv)
 
    for ( count = 0; count < addressees; count++)
    {
-         if ( *address[count] == '-')
+         if ( *address[count] == '\0')
             delivered ++;     /* Ignore option flags on delivery     */
          else
             delivered += Deliver(imf, address[count], KWTrue);
@@ -1319,17 +1323,27 @@ static KWBoolean DaemonMail( const char *subject,
    while( (count-- > 0) && print )
    {
       token = *address++;
-      if ( *token == '-')  /* Option flag?                        */
+
+      if (( token[0] == '-' ) &&
+            isalpha(token[1]) &&
+          ( token[2] == '\0') &&
+            print )
       {
          if (token[1] == 'c')
          {
             header = cc;
             cc = "";
+            *token = '\0';
          }
          else if (token[1] == 'b')
+         {
+
             print = KWFalse;
+            *token = '\0';
+         }
          else
             printmsg(0,"rmail: Invalid flag \"%s\" ignored!", token);
+
       } /* if ( token == '-') */
       else if ( print )
       {
@@ -1344,7 +1358,9 @@ static KWBoolean DaemonMail( const char *subject,
 
          PutHead(header , token, imf, KWFalse);
          header = "";         /* Continue same field by default      */
+
       }
+
    } /* while( (count-- > 0) && print ) */
 
 /*--------------------------------------------------------------------*/
@@ -1433,4 +1449,5 @@ static KWBoolean DaemonMail( const char *subject,
 
    puts( syntax );
    exit(99);
- }
+
+ } /* usage */
