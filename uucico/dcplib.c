@@ -23,9 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.13 1994/01/01 19:19:00 ahd Exp $
+ *    $Id: dcplib.c 1.14 1994/01/02 04:27:23 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.14  1994/01/02  04:27:23  ahd
+ * Allow alias of 'w' for 'u' (userid) insertion to be compatible
+ * with UUCICO command line.
+ *
  * Revision 1.13  1994/01/01  19:19:00  ahd
  * Annual Copyright Update
  *
@@ -441,6 +445,7 @@ static void LoginShell( const   struct UserTable *userp )
 
          case 'm':
             insert = E_inmodem;     /* Modem file name               */
+            break;
 
          case 'p':
             insert = M_device;      /* Port name                     */
