@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.8 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: uuport.c 1.9 1994/01/01 19:22:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.9  1994/01/01  19:22:35  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.8  1993/12/26  16:20:17  ahd
  * Windows NT support
  * Use enumerated type for command verbs and responses
@@ -119,6 +122,12 @@ int main(int argc, char **argv)
 
   banner( argv );
 
+#ifdef _Windows
+   if (!configure( B_MUA ))         /* Need the spool directory
+                                       for logging under Windows  */
+      exit(1);    /* system configuration failed */
+#endif
+
   if ( argc < 2 )
     usage(argv[0]);
 
@@ -179,6 +188,7 @@ int main(int argc, char **argv)
 /*       Under Windows 3.1, if we get this far, automatically         */
 /*       close the Window when done                                   */
 /*--------------------------------------------------------------------*/
+
 
    openlog( NULL );
    atexit( CloseEasyWin );               /* Auto-close EasyWin on exit  */
