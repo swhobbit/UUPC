@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPLWC.C 1.10 1998/03/03 03:53:54 ahd v1-12v $
+ *       $Id: smtplwc.c 1.11 1998/04/24 03:30:13 ahd v1-13b $
  *
  *       Revision History:
- *       $Log: SMTPLWC.C $
+ *       $Log: smtplwc.c $
+ * Revision 1.11  1998/04/24  03:30:13  ahd
+ * Use local buffers, not client->transmit.buffer, for output
+ * Rename receive buffer, use pointer into buffer rather than
+ *      moving buffered data to front of buffer every line
+ * Restructure main processing loop to give more priority
+ *      to client processing data already buffered
+ * Add flag bits to client structure
+ * Add flag bits to verb tables
+ *
  *       Revision 1.10  1998/03/03 03:53:54  ahd
  *       Routines to handle messages within a POP3 mailbox
  *
@@ -70,7 +79,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: SMTPLWC.C 1.10 1998/03/03 03:53:54 ahd v1-12v $");
+RCSID("$Id: smtplwc.c 1.11 1998/04/24 03:30:13 ahd v1-13b $");
 
 currentfile();
 
@@ -233,7 +242,7 @@ commandSequenceIgnore(SMTPClient *client,
    if ((getClientMode(client) == SM_UNGREETED) &&
        (verb->validModes & SM_IDLE))
    {
-      sprintf(0, "Client did not use HELO protocol.");
+      printmsg(0, "Client did not use HELO protocol.");
       setClientMode(client, SM_IDLE);
       SMTPInvokeCommand(client);    /* Run command in acceptable mode */
       return KWTrue;
