@@ -4,11 +4,7 @@
 /*    Receive incoming news into the news directory.                  */
 /*                                                                    */
 /*    Written by Mike Lipsie; modified for UUPC/extended 1.11s by     */
-/*    Andrew H., Derbyshire.                                          */
-/*                                                                    */
-/*    Changes and Compilation Copyright (c) 1992 by Andrew H.         */
-/*    Derbyshire.  All rights reserved except as granted by the       */
-/*    general UUPC/extended license.                                  */
+/*    Andrew H. Derbyshire.                                           */
 /*                                                                    */
 /*    This package has been substantially modified.  It will now      */
 /*    copy compressed articles (assumed batches but they could be     */
@@ -27,6 +23,27 @@
 /*                                                                    */
 /*    Names are insured to be valid by ImportNewsGroup, which maps    */
 /*    invalid characters and truncates names as required.             */
+/*                                                                    */
+/*    1993/06/12:                                                     */
+/*                                                                    */
+/*    Rewritten by Mike McLagan (mmclagan@invlogic.com) to make code  */
+/*    behave much more like a typical RNEWS.  Using a boolean config  */
+/*    option USESYSFILE causes RNEWS to read and interpret the sys    */
+/*    file entries for redistributing news to other sites.  Each      */
+/*    article is reviewed seperately for all systems listed in that   */
+/*    file.  Later, using a boolean config option BATCHNEWS and       */
+/*    COMPRESSNEWS with optional BATCHSIZE=n, articles will be        */
+/*    combined into batches for delivery to other systems.  This      */
+/*    will be accomplished by using UUX, rather than generating       */
+/*    the call files directly.  (it seems easier that way!)           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -34,19 +51,9 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.36 1994/12/09 03:52:46 ahd v1-12k $
+ *       $Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $
  *
  *       $Log: rnews.c $
- *       Revision 1.36  1994/12/09 03:52:46  ahd
- *       Generate 'U' line first in X.* files to operate with brain dead MKS
- *
- * Revision 1.35  1994/10/03  01:05:58  ahd
- * Correct flag for posting to 'y'/'n'
- *
- * Revision 1.34  1994/05/09  02:19:31  ahd
- * Report command executed to unpack
- * Use final formatted command to execute
- *
  * Revision 1.34  1994/05/09  02:19:31  ahd
  * Report command executed to unpack
  * Use final formatted command to execute
@@ -158,7 +165,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.36 1994/12/09 03:52:46 ahd v1-12k $";
+         "$Id: rnews.c 1.34 1994/05/09 02:19:31 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -177,13 +184,15 @@ static const char rcsid[] =
 #include "getopt.h"
 #include "getseq.h"
 #include "history.h"
-#include "hostable.h"
 #include "import.h"
 #include "importng.h"
 #include "logger.h"
 #include "timestmp.h"
 
 #include "execute.h"
+
+#include "batch.h"
+#include "sys.h"
 
 /*--------------------------------------------------------------------*/
 /*                           Global defines                           */
@@ -207,19 +216,39 @@ static const char rcsid[] =
 currentfile();
 
 extern struct grp *group_list;   /* List of all groups */
-time_t now;
-void *history;
+static time_t now;
+static void *history;
+
+FILE *sys_file = NULL;           /* C News SYS file */
+static char buf[DISNEY];
+static char temp[DISNEY];
+static char groups[DISNEY];
+static char message_buf[DISNEY];
+static char subj_buf[DISNEY];
+static char path_buf[DISNEY];
+static char xref_buf[DISNEY];
+static char xref_line[DISNEY];
+static char distrib_buf[DISNEY];
+static char control_buf[DISNEY];
+
+static boolean posted   = FALSE;/* Used to determine if article goes to "JUNK" */
+
+static int articles     = 0;
+static int bad_articles = 0;
+static int no_delivery  = 0;
+static int junked       = 0;   /* counts SNEWS articles copied to JUNK */
+static int ignored      = 0;
+static int ourgroups    = 0;
+static int loc_articles = 0;  /* How many articles were for me */
+static int fwd_articles = 0;  /* How many articles were for others? */
 
 /*--------------------------------------------------------------------*/
 /*                       Functions in this file                       */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_article(char *art_fname, long art_size);
+static void deliver_article(char *art_fname, long art_size);
                               /* Distribute the article to the
                                  proper newsgroups                   */
-
-static boolean copy_file(FILE *f, char *group,
-            char *xref);      /* Copy file (f) to newsgroup          */
 
 static struct grp *find_newsgroup(const char *grp);
                               /* Get the grp struct for the newsgroup */
@@ -249,9 +278,21 @@ static int Compressed( char *filename ,
 
 static int Batched( char *filename, FILE *stream);
 
-static void xmit_news( char *sysname, FILE *in_stream );
-
 static int copy_snews( char *filename, FILE *stream );
+
+static void shadow_news(FILE *in_stream);
+
+static boolean deliver_local(FILE *tfile,
+                             long art_size,
+                             char *groups,
+                             char *msgID,
+                             char *control);
+
+static boolean deliver_remote(struct sys *node, FILE *tfile, char *msgID);
+
+static void copy_file(FILE *f,
+                      char *group,
+                      char *xref);      /* Copy file (f) to newsgroup */
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -296,9 +337,9 @@ void main( int argc, char **argv)
    if (!configure( B_NEWS ))
       exit(1);    /* system configuration failed */
 
-   checkname( E_nodename );      /* Fill in fdomain                  */
-
    openlog( NULL );           /* Begin logging to disk            */
+
+   checkname( E_nodename );      /* Fill in fdomain                  */
 
    if (argc > 1)
    {
@@ -315,10 +356,12 @@ void main( int argc, char **argv)
                case 'f':
                   strcpy(in_filename, optarg);
                   input = fopen(in_filename, "rb");
-                  if (input == NULL) {
+                  if (input == NULL)
+                  {
                      printerr( in_filename );
                      panic();
-                  } else
+                  }
+                  else
                      printmsg(2, "Opened %s as newsfile", in_filename);
 
                   break;
@@ -336,6 +379,33 @@ void main( int argc, char **argv)
     } /* if (argc > 1) */
 
 /*--------------------------------------------------------------------*/
+/* This is where we're going to shadow all news.  This insures that   */
+/* all inbound articles get shadowed, whether or not they're com-     */
+/* pressed.  The previous hack would only shadow compressed feeds.    */
+/*--------------------------------------------------------------------*/
+
+  if (!bflag[F_USESYSFILE])
+    shadow_news(stdin);
+
+/*--------------------------------------------------------------------*/
+/* This is where we're going to check for conflicting options for     */
+/* this program.  DISTRIBUTESNEWS and SNEWS can't both be set.
+/*--------------------------------------------------------------------*/
+
+   if (bflag[F_FULLBATCH] && (E_batchsize == 0))
+   {
+      E_batchsize = 60L * 1024L;    /* Provide reasonable default    */
+      printmsg(0, "rnews: Conflicting options fullbatch and batchsize = 0, "
+                   "using %ld for batch size",
+                   E_batchsize );
+   }
+   if (bflag[F_SNEWS] && bflag[F_USESYSFILE])
+   {
+      printmsg(0, "rnews: Conflicting options snews and usesysfile");
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
 /*    If we are processing snews input, write it all out to the       */
 /*    news directory as one file and return gracefully.               */
 /*--------------------------------------------------------------------*/
@@ -344,21 +414,14 @@ void main( int argc, char **argv)
    {
       char *savetemp = E_tempdir;   /* Save the real temp directory  */
 
-      if (bflag[F_HISTORY])
-      {
-         printmsg(0,
-               "rnews: Conflicting options snews and history specified!");
-         panic();
-      } /* else if */
-
       E_tempdir = E_newsdir;        /* Generate this file in news    */
-      mktempname(filename, "art");  /* Get the file name             */
+      mktempname(filename, "art"); /* Get the file name              */
       E_tempdir = savetemp;         /* Restore true directory name   */
       exit(copy_snews(filename, input));
                                     /* Dump news into NEWS directory */
    }
    else
-      mktempname(filename, "tmp");  /* Make normal temp name         */
+      mktempname(filename, "tmp"); /* Make normal temp name          */
 
 /*--------------------------------------------------------------------*/
 /*             Load the active file and validate its data             */
@@ -377,6 +440,25 @@ void main( int argc, char **argv)
      history = open_history("history");
      if ( history == NULL )
         panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*                   Initialize sys file processing                   */
+/*--------------------------------------------------------------------*/
+
+   if (bflag[F_USESYSFILE])
+   {
+     mkfilename(in_filename, E_confdir, "SYS");
+
+     sys_file = fopen(in_filename, "rb");
+     if ( sys_file == NULL )
+     {
+        printerr(in_filename);
+        printmsg(0, "RNEWS: Must have SYS file if USESYSFILE option set");
+        panic();
+     }
+
+     init_sys(sys_file);
    }
 
 /*--------------------------------------------------------------------*/
@@ -414,7 +496,8 @@ void main( int argc, char **argv)
    c = getc(input);
    ungetc(c, input);
 
-   if (c != '#' && c != MAGIC_FIRST) {
+   if (c != '#' && c != MAGIC_FIRST)
+   {
 
       /***********************************************/
       /* 1  single (unbatched, uncompressed) article */
@@ -488,6 +571,24 @@ void main( int argc, char **argv)
    if ( bflag[F_HISTORY] )
       close_history(history);
 
+   if (bflag[F_USESYSFILE])
+     exit_sys();
+
+   if (sys_file != NULL)
+     fclose(sys_file);
+
+/*--------------------------------------------------------------------*/
+/*                          Return to caller                          */
+/*--------------------------------------------------------------------*/
+
+   printmsg(1, "RNEWS: Received %4d articles.", articles);
+   printmsg(1, "RNEWS: Of these %4d were bad, ", bad_articles);
+   printmsg(1, "RNEWS:          %4d were undeliverable.\n", no_delivery);
+   printmsg(1, "RNEWS: Forwarded %4d articles.\n", fwd_articles);
+   printmsg(1, "RNEWS: Retained %4d articles.", loc_articles);
+   printmsg(1, "RNEWS: Of these %4d were duplicated, ", ignored);
+   printmsg(1, "RNEWS:          %4d were junked.", junked);
+
    exit(status);
 
 } /*main*/
@@ -523,7 +624,7 @@ static int Single( char *filename , FILE *stream )
 /*              Now copy the input into our holding bin               */
 /*--------------------------------------------------------------------*/
 
-   while ((chars_read = fread(buf,sizeof(char), BUFSIZ, stream)) != 0)
+   while ((chars_read = fread(buf, sizeof(char), BUFSIZ, stream)) != 0)
    {
 
       chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
@@ -589,7 +690,7 @@ static int Compressed( char *filename ,
       if ( access( unzfile, 0 ))  /* Does the host file exist?       */
          needtemp = FALSE;        /* No, we have a good pair         */
       else
-         printmsg(0,"Had compressed name %s, found %s already exists!",
+         printmsg(0, "Had compressed name %s, found %s already exists!",
                   zfile, unzfile );
 
    } /* while */
@@ -611,10 +712,10 @@ static int Compressed( char *filename ,
 /*                 Main loop to copy compressed file                  */
 /*--------------------------------------------------------------------*/
 
-   while ((chars_read = fread(buf,sizeof(char), BUFSIZ, in_stream)) != 0)
+   while ((chars_read = fread(buf, sizeof(char), BUFSIZ, in_stream)) != 0)
    {
       char *t_buf = buf;
-      i = fwrite(t_buf,sizeof(char),chars_read,work_stream);
+      i = fwrite(t_buf, sizeof(char), chars_read, work_stream);
 
       if (i != chars_read)
       {
@@ -641,30 +742,8 @@ static int Compressed( char *filename ,
       return status;
    }
    else
-      printmsg(2,"Compressed: Copy to %s complete, %ld characters",
+      printmsg(2, "Compressed: Copy to %s complete, %ld characters",
                zfile, cfile_size);
-
-/*--------------------------------------------------------------------*/
-/*      Special hack for creating mirror images of the news feed      */
-/*--------------------------------------------------------------------*/
-
-   sysname = getenv( "UUPCSHADOWS" );
-
-   if ( sysname != NULL )
-   {
-      strcpy( buf, sysname);
-
-      sysname = strtok( buf, WHITESPACE );
-
-      while( sysname != NULL )
-      {
-         printmsg(1,"Compressed: Shadowing news to %s", sysname );
-         fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning */
-         xmit_news( sysname, in_stream );
-         sysname = strtok( NULL, WHITESPACE );
-      }
-
-   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*          Uncompress the article and feed it back to rnews          */
@@ -675,7 +754,7 @@ static int Compressed( char *filename ,
    else
       sprintf(buf, E_uncompress, zfile, unzfile );
 
-   printmsg(4,"Executing command: %s", buf );
+   printmsg(4, "Executing command: %s", buf );
    status = executeCommand ( buf, NULL, NULL, TRUE, FALSE);
 
    unlink( zfile );           /* Kill the compressed input file      */
@@ -731,8 +810,6 @@ static int Batched( char *filename, FILE *stream)
    char buf[BUFSIZ * 2];
    int status = 0;
    long article_size;
-   int articles = 0;
-   int ignored  = 0;
    boolean gotsize = FALSE;
    int chars_read;
    int chars_written;
@@ -833,7 +910,7 @@ static int Batched( char *filename, FILE *stream)
             chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
             if (chars_read != chars_written)
             {
-               printmsg(0,"Batched: Read %d bytes, only wrote %d bytes of article %d",
+               printmsg(0, "Batched: Read %d bytes, only wrote %d bytes of article %d",
                      chars_read, chars_written , articles + 1);
                printerr(filename);
             }
@@ -843,7 +920,7 @@ static int Batched( char *filename, FILE *stream)
          } while (article_left > 0);
 
          if ( article_left )     /* Premature EOF?                    */
-            printmsg(0,"Batched: Unexpected EOF for article %d, "
+            printmsg(0, "Batched: Unexpected EOF for article %d, "
                      "read %ld bytes of expected %ld",
                       articles + 1,
                       article_size - article_left, article_size );
@@ -888,7 +965,7 @@ static int Batched( char *filename, FILE *stream)
          } while( ! gotsize );
 
          article_size = actual_size;
-         printmsg(2,"Batched: Article %d size %ld",
+         printmsg(2, "Batched: Article %d size %ld",
                      articles + 1,
                      actual_size );
       } /* else */
@@ -898,22 +975,10 @@ static int Batched( char *filename, FILE *stream)
  /*--------------------------------------------------------------------*/
 
       fclose(tmpf);
-      if ( ! deliver_article(filename, article_size) )
-         ignored ++;
+      deliver_article(filename, article_size);
       unlink( filename );
-      articles ++;
-
    } /* while */
 
-/*--------------------------------------------------------------------*/
-/*                          Return to caller                          */
-/*--------------------------------------------------------------------*/
-
-   if ( ignored )
-      printmsg(1,"Batched: Unbatched %d articles (discarded %d of these)",
-               articles , ignored);
-   else
-      printmsg(1,"Batched: Unbatched %d articles", articles );
    return status;
 
 } /* Batched */
@@ -935,7 +1000,7 @@ static void fixEOF( char *buf, int bytes )
          *buf = 'Z';
          if ( warn )
          {
-            printmsg(0,"Altered Cntl-Z to Z");
+            printmsg(0, "Altered Cntl-Z to Z");
             warn = FALSE;
          } /* if */
       } /* if */
@@ -949,31 +1014,37 @@ static void fixEOF( char *buf, int bytes )
 /*    Determine delivery of a posting                                 */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_article(char *art_fname, long art_size)
+/*--------------------------------------------------------------------*/
+/* This is where the main modifications are made.  This proc will     */
+/* look up each entry in the sys file, and determine if it is to      */
+/* be sent to a given system.  This includes our own system, which    */
+/* is also controlled by the sys entry. The actual deliver into the   */
+/* current implementation is done once that determination is made     */
+/*                                                                    */
+/*--------------------------------------------------------------------*/
+
+static void deliver_article(char *art_fname, long art_size)
 {
 
-   char groupy[MAXGRP];
-
-   char *newsgroups = NULL;   /* The Newsgroups: line */
-   char *messageID  = NULL;   /* The Message-ID: line */
+   struct sys *sysnode = NULL;
+   char *path          = NULL;
+   char *newsgroups    = NULL;   /* The Newsgroups: line */
+   char *messageID     = NULL;   /* The Message-ID: line */
+   char *distribution  = NULL;
+   char *control       = NULL;
 
    char *gc_ptr;           /* Scratch pointers.  Mostly used to go */
-   char *gc_ptr1;              /*   down the list of newsgroups.      */
 
    FILE *tfile;            /* The article file */
 
    int n_hdrs;             /* Number of desired headers seen */
-   int b_xref = FALSE;
-   int b_control = FALSE;
-   int b_saved = FALSE;
-
-   int line_len, groups_found;
+   int line_len;
 
    char hist_record[DISNEY];  /* buffer for history file
                                  (also used for article)             */
-   char groups[DISNEY];
-   char message_buf[DISNEY];
-   char snum[10];
+   int delivered = FALSE;
+
+   articles++;
 
    tfile = FOPEN(art_fname, "r", IMAGE_MODE);
    if ( tfile == NULL )
@@ -985,11 +1056,13 @@ static boolean deliver_article(char *art_fname, long art_size)
 /*--------------------------------------------------------------------*/
 /*    Get fields necessary for distribution (Newsgroups:)  and the    */
 /*    history file (Message-ID:).  Also, if the article is going      */
-/*    to more than one newsgroup, flag the creation of Xref: fields.  */
+/*    to more than one newsgroup, flag the creation of Xref: fields. */
+/*    Also searches for PATH, DISTRIBUTION and SUBJECT headers for    */
+/*    various purposes.                                                */
 /*--------------------------------------------------------------------*/
 
-   n_hdrs = b_xref = 0;
-   while (n_hdrs < 3)
+   n_hdrs = 0;
+   while (n_hdrs < 5)
    {
       /* Get the next line */
       gc_ptr = fgets(hist_record, sizeof(hist_record), tfile);
@@ -1003,18 +1076,39 @@ static boolean deliver_article(char *art_fname, long art_size)
          /* Ooops.  Missing Message-ID: or Newsgroups: */
          if (messageID == NULL)
             printmsg(0, "Article has no Message-ID:, discarded");
-         else {
-            if (newsgroups == NULL)
-               printmsg(0,
-                    "Article %s has no Newsgroups: line, discarded",
-                    messageID);
-            else
-               break;
-         } /* else */
+         else if (newsgroups == NULL)
+         {
+            printmsg(0,
+                 "Article %s has no Newsgroups: line, discarded",
+                 messageID);
+         } /* if */
+         else if (distribution == NULL)
+         {
+            strcpy(distrib_buf, "world");
+            distribution = distrib_buf;
+            n_hdrs++;
+            printmsg(3, "Article has no distribution, defaulting to world");
+            break;
+         } /* if */
+         else if (path == NULL)
+         {
+           /* at this point, this had better be from us, and have a
+            * brain dead article creator!
+            */
+
+              strcpy(path_buf, E_mailbox);
+              path = path_buf;
+              n_hdrs++;
+              printmsg(3, "Article has no path, defaulting to %s", E_mailbox);
+              break;
+           } /* if */
+         else
+            break;
 
          fclose(tfile);
+         bad_articles++; /* lets count this failure */
+         return;
 
-         return FALSE;
       } /* if ((gc_ptr == NULL) || (strlen(hist_record) == 1)) */
 
       line_len = strlen(hist_record);
@@ -1036,10 +1130,13 @@ static boolean deliver_article(char *art_fname, long art_size)
             newsgroups = strcpy(groups, gc_ptr);
             newsgroups[strlen(newsgroups)+1] = '\0';/* Guard char for rescan */
             n_hdrs++;
-            b_xref = (strchr(newsgroups, ',') != NULL); /* more than 1 group */
-     }                     /* i.e. do we need to create a Xrefs: line ? */
-         else
-            printmsg(0, "Article has multiple Newsgroups: lines");
+         }                     /* i.e. do we need to create a Xrefs: line ? */
+         else {
+            printmsg(0, "Article has multiple Newsgroups: lines, discarded");
+            fclose(tfile);
+            bad_articles++;
+            return;
+         }
       }
       else if (equalni(hist_record, "Message-ID:", strlen("Message-ID:")))
       {
@@ -1055,151 +1152,117 @@ static boolean deliver_article(char *art_fname, long art_size)
               strcat(messageID, "<");
                strcat(messageID, gc_ptr);
             if (messageID[strlen(messageID)-1] != '>')
-               strcat(messageID,">");
+               strcat(messageID, ">");
             n_hdrs++;
          } /* if (messageID == NULL) */
+         else {
+            printmsg(0, "Article has multiple Message-ID: lines, discarded");
+            fclose(tfile);
+            bad_articles++;
+            return;
+         }
+      }
+      else if (equalni(hist_record, "Path:", strlen("Path:")))
+      {
+         /* Handle Path: line */
+         if (path == NULL)
+         {
+            gc_ptr += strlen("Path:") + 1;
+            while (isspace(*gc_ptr))
+              gc_ptr++;
+            path = strcpy(path_buf, gc_ptr);
+            path[strlen(path)+1] = '\0';  /* Guard char for rescan */
+            n_hdrs++;
+         } /* if (subject == NULL) */
+         else {
+            printmsg(0, "Article has multiple Path: lines, discarded");
+            fclose(tfile);
+            bad_articles++;
+            return;
+         }
+      }
+      else if (equalni(hist_record, "Distribution:", strlen("Distribution:")))
+      {
+         /* Handle Distribution: line*/
+         if (distribution == NULL)
+         {
+            gc_ptr += strlen("Distribution:") + 1;
+            while (isspace(*gc_ptr))
+              gc_ptr++;
+            distribution = strcpy(distrib_buf, gc_ptr);
+            distribution[strlen(distribution)+1] = '\0';  /* Guard char for rescan */
+            n_hdrs++;
+         }
+         else {
+            printmsg(0, "Article has multiple Distribution: lines, discarded");
+            fclose(tfile);
+            bad_articles++;
+            return;
+         }
       }
       else if (equalni(hist_record, "Control:", strlen("Control:")))
       {
          /* Handle Control: line*/
-         if (!b_control)
+         if (control == NULL)
          {
-            control_message(hist_record, art_fname);
-            b_control = TRUE;
+            gc_ptr += strlen("Controli:") + 1;
+            while (isspace(*gc_ptr))
+              gc_ptr++;
+            control = strcpy(control_buf, gc_ptr);
+            control[strlen(control)+1] = '\0';  /* Guard char for rescan */
             n_hdrs++;
          }
-         else
-            printmsg(0, "Article has multiple Control: lines");
+         else {
+            printmsg(0, "Article has multiple control lines, discarded");
+            fclose(tfile);
+            bad_articles++;
+            return;
+         }
       }
    }  /* while getting Newsgroups: and Message-ID: */
 
-   if (b_control)
-   {
-     memcpy(newsgroups, "control\0\0", 9);
-     b_xref = FALSE;
-   }
-
 /*--------------------------------------------------------------------*/
-/*           Check whether article has been received before           */
+/*      SYS file entries control what we do with this article         */
 /*--------------------------------------------------------------------*/
 
-   if ( bflag[ F_HISTORY ] )
-   {
-      if (get_histentry(history, messageID) != NULL)
-      {
-         printmsg(2, "rnews: Duplicate article %s", messageID);
-         if (get_snum("duplicates",snum))
-         {
-            memcpy(newsgroups, "duplicates\0\0", 12);
-            sprintf(messageID, "<%s.duplicate.%s@%s>",
-                    snum, E_nodename, E_domain); /* we need a new unique ID */
-            b_xref = FALSE;
-         }
-         else
-         {
-            fclose(tfile);
-            return FALSE;
-         }
-      }
+  if (bflag[F_USESYSFILE])
+  {
+    sysnode = sys_list;
+    delivered = FALSE;
 
-      /* Start building the history record for this article */
-      sprintf(hist_record, "%ld %ld ", now, art_size);
-      groups_found = 0;
+    while (sysnode != NULL)
+    {
+      if (check_sys(sysnode, newsgroups, distribution, path))
+        if (equal(sysnode->sysname, E_nodename))
+        {
+          if (!deliver_local(tfile, art_size, newsgroups, messageID,control))
+            ignored++;
+          else
+            delivered = TRUE;
+        }
+        else if (deliver_remote(sysnode, tfile, messageID))
+            delivered = TRUE;
 
-      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
-      {
-         if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
-            *gc_ptr1++ = '\0';
-         if (strlen(gc_ptr) > MAXGRP - 1) {
-            /* Bounds check the newsgroup length */
-            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
-            continue; /* Punt the newsgroup history record */
-         }
-         strcpy(groupy, gc_ptr);
-         if (get_snum(groupy,snum)) {
-           if (groups_found)
-           strcat(hist_record, ",");
-           strcat(hist_record, groupy);
-           strcat(hist_record, ":");
-           strcat(hist_record, snum);
-           groups_found++;
-         }
-      }
+      sysnode = sysnode -> next;
+    }
 
-      /* Restore the newsgroups line */
-      while (newsgroups[strlen(newsgroups)+1] != '\0')
-         newsgroups[strlen(newsgroups)] = ',';
+    if (!delivered)
+    {
+      no_delivery++;
+      printmsg(0, "deliver_article: Article undeliverable");
+      printmsg(0, "                ID: %s", messageID);
+      printmsg(0, "                Path: %s", path);
+      printmsg(0, "                Newsgroups: %s", newsgroups);
+      printmsg(0, "                Distribution: %s", distribution);
+    }
+  }
+  else /* this is where I deliver local stuff acording to how I found RNEWS */
+    if (!deliver_local(tfile, art_size, newsgroups, messageID,control))
+      ignored++;
 
-      if (groups_found == 0) {
-        printmsg(2, "rnews: no group to deliver to: %s", messageID);
-        memcpy(newsgroups, "junk\0\0",6);
-        b_xref = FALSE;
-        /* try "junk" group if none of the target groups is known here */
-        if (get_snum("junk",snum))
-          sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
-        else
-          return fclose(tfile), FALSE;
-      }
+  fclose(tfile);
 
-      /* Post the history record */
-      add_histentry(history, messageID, hist_record);
-   } /* if ( bflag[ F_HISTORY ] ) */
-
-/*--------------------------------------------------------------------*/
-/*              Now build the Xref: line (if we need to)              */
-/*--------------------------------------------------------------------*/
-
-   if (b_xref) {
-      strcpy(hist_record, "Xref: ");
-      strcat(hist_record, E_nodename);
-
-      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
-      {
-         if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
-            *gc_ptr1++ = '\0';
-         if (strlen(gc_ptr) > MAXGRP - 1) {
-            /* Bounds check the newsgroup length */
-            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr);
-            continue; /* Punt the newsgroup history record */
-         }
-         strcpy(groupy, gc_ptr);
-         if (get_snum(groupy,snum)) {
-           strcat(hist_record, " ");
-         strcat(hist_record, groupy);
-         strcat(hist_record, ":");
-         strcat(hist_record, snum);
-         }
-      }
-
-      strcat(hist_record, "\n");
-
-        /* Restore the newsgroups line */
-      while (newsgroups[strlen(newsgroups)+1] != '\0')
-         newsgroups[strlen(newsgroups)] = ',';
-      }
-
-/*--------------------------------------------------------------------*/
-/*       We now need to copy the file to each group in groupys        */
-/*--------------------------------------------------------------------*/
-
-   for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
-   {
-      if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
-         *gc_ptr1++ = '\0';
-      strcpy(groupy, gc_ptr);
-      b_saved |= copy_file(tfile, groupy, b_xref ? hist_record : NULL);
-   }
-
-/*--------------------------------------------------------------------*/
-/*       No group to deliver to? try "junk"-group                     */
-/*--------------------------------------------------------------------*/
-
-   if (b_saved == FALSE)
-       b_saved |= copy_file (tfile, "junk", b_xref ? hist_record : NULL);
-
-   fclose(tfile);
-
-   return b_saved;
+  return;
 
 } /* deliver_article */
 
@@ -1213,7 +1276,7 @@ static struct grp *find_newsgroup(const char *grp)
 {
    struct grp *cur = group_list;
 
-   while (!equal(grp,cur->grp_name))
+   while (!equal(grp, cur->grp_name))
    {
       if (cur->grp_next != NULL)
       {
@@ -1237,10 +1300,13 @@ static void add_newsgroup(const char *grp, boolean moderated)
 {
    struct grp *cur = group_list;
 
-   while ((strcmp(grp,cur->grp_name) != 0)) {
-      if (cur->grp_next != NULL) {
+   while ((strcmp(grp, cur->grp_name) != 0))
+   {
+      if (cur->grp_next != NULL)
+      {
          cur = cur->grp_next;
-      } else {
+      }
+      else {
          cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
          cur = cur->grp_next;
          checkref(cur);
@@ -1265,11 +1331,14 @@ static void del_newsgroup(const char *grp)
    struct grp *cur = group_list;
    struct grp *prev = NULL;
 
-   while ((strcmp(grp,cur->grp_name) != 0)) {
-      if (cur->grp_next != NULL) {
+   while ((strcmp(grp, cur->grp_name) != 0))
+   {
+      if (cur->grp_next != NULL)
+      {
          prev = cur;
          cur = cur->grp_next;
-      } else {
+      }
+      else {
          return;
       }
    }
@@ -1280,8 +1349,10 @@ static void del_newsgroup(const char *grp)
      prev->grp_next = cur->grp_next;
 
    free(cur);
+
    /* name string is not free'ed because it's in the string pool */
-}
+
+} /* del_newsgroup */
 
 /*--------------------------------------------------------------------*/
 /*    c o n t r o l _ m e s s a g e                                   */
@@ -1290,7 +1361,7 @@ static void del_newsgroup(const char *grp)
 /*--------------------------------------------------------------------*/
 
 static void control_message(const char *control,
-                            const char *article )
+                            const char *filename )
 {
   char *ctrl = strdup(control);
   char *cmd, *mod;
@@ -1298,7 +1369,7 @@ static void control_message(const char *control,
   char buf[200];
   char *operand;
 
-  printmsg(1,"Control Message: %s", control);
+  printmsg(1, "Control Message: %s", control);
 
 /*--------------------------------------------------------------------*/
 /*                     Parse the command verb off                     */
@@ -1310,7 +1381,7 @@ static void control_message(const char *control,
 
   if ( cmd == NULL )
   {
-      printmsg(0,"Control message missing verb, ignored");
+      printmsg(0, "Control message missing verb, ignored");
       free( ctrl );
       return;
   }
@@ -1323,7 +1394,7 @@ static void control_message(const char *control,
 
   if ( operand == NULL )
   {
-      printmsg(0,"Control message %s missing operand, ignored",
+      printmsg(0, "Control message %s missing operand, ignored",
                  cmd );
       free( ctrl );
       return;
@@ -1336,7 +1407,7 @@ static void control_message(const char *control,
 
   if (equali(cmd, "cancel"))
   {
-    printmsg(2,"Canceling article %s", operand );
+    printmsg(1, "Canceling article %s", operand );
     cancel_article(history, operand);
     free( ctrl );
     return;
@@ -1348,7 +1419,7 @@ static void control_message(const char *control,
 
   sprintf( buf,
            "-wf %s -s\"(%s) %.100s\" %s",
-           article,
+           filename,
            (const char *) (bflag[F_HONORCTRL] ? "executed" : "suppressed"),
            control,
            E_postmaster );          /* Do we need newsmaster as well? */
@@ -1404,8 +1475,8 @@ static void control_message(const char *control,
 /*--------------------------------------------------------------------*/
 
 static boolean copy_file(FILE *input,
-                      char *group,
-                      char *xref)
+                         char *group,
+                         char *xref)
 {
    struct grp *cur;
    char filename[FILENAME_MAX];
@@ -1418,6 +1489,7 @@ static boolean copy_file(FILE *input,
 /*--------------------------------------------------------------------*/
 
    cur = find_newsgroup(group);
+
    if (cur == NULL)
    {
       printmsg(3, "rnews: Article cross-posted to %s", group);
@@ -1437,7 +1509,7 @@ static boolean copy_file(FILE *input,
    printmsg(2, "rnews: Saving %s article in %s",
                cur->grp_name, filename);
 
-   if ((output = FOPEN(filename, "w",TEXT_MODE)) == nil(FILE))
+   if ((output = FOPEN(filename, "w", TEXT_MODE)) == nil(FILE))
    {
       printerr( filename );
       printmsg(0, "rnews: Unable to save article");
@@ -1464,8 +1536,7 @@ static boolean copy_file(FILE *input,
          header = FALSE;
       else if (equalni(buf, "Path:", strlen("Path:")))
       {
-         fprintf(output, "Path: %s!%s",
-                         E_fdomain,
+         fprintf(output, "Path: %s!%s", E_nodename,
                          buf + strlen("Path:") + 1);
          continue;
       }
@@ -1481,7 +1552,7 @@ static boolean copy_file(FILE *input,
 
    fclose(output);
 
-   return TRUE;
+   return TRUE;         /* Report the file is posted                 */
 
 } /* copy_file */
 
@@ -1504,148 +1575,6 @@ static int get_snum(const char *group, char *snum)
    return TRUE;
 
 } /* snum */
-
-/*--------------------------------------------------------------------*/
-/*    x m i t _ n e w s                                               */
-/*                                                                    */
-/*    A cruel hack to transmit news to other systems                  */
-/*--------------------------------------------------------------------*/
-
-static void xmit_news( char *sysname, FILE *in_stream )
-{
-   static char *spool_fmt = SPOOLFMT;              /* spool file name */
-   static char *dataf_fmt = DATAFFMT;
-   static char *send_cmd  = "S %s %s %s - %s 0666\n";
-   static long seqno = 0;
-   FILE *out_stream;          /* For writing out data                */
-
-   char buf[BUFSIZ];
-   unsigned len;
-
-   char msfile[FILENAME_MAX]; /* MS-DOS format name of files         */
-   char msname[22];           /* MS-DOS format w/o path name         */
-
-   char tmfile[15];           /* Call file, UNIX format name         */
-   char ixfile[15];           /* eXecute file for remote system,
-                                UNIX format name for local system   */
-   char idfile[15];           /* Data file, UNIX format name         */
-   char rdfile[15];           /* Data file name on remote system,
-                                 UNIX format                         */
-   char rxfile[15];           /* Remote system UNIX name of eXecute
-                                 file                                */
-   char *seq;
-
-/*--------------------------------------------------------------------*/
-/*          Create the UNIX format of the file names we need          */
-/*--------------------------------------------------------------------*/
-
-   seqno = getseq();
-   seq = JobNumber( seqno );
-
-   sprintf(tmfile, spool_fmt, 'C', sysname,  'd' , seq);
-   sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
-   sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
-   sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
-   sprintf(rxfile, dataf_fmt, 'X', E_nodename , seq, 'r');
-
-/*--------------------------------------------------------------------*/
-/*                     create remote X (xqt) file                     */
-/*--------------------------------------------------------------------*/
-
-   importpath( msname, ixfile, sysname);
-   mkfilename( msfile, E_spooldir, msname);
-
-   out_stream = FOPEN(msfile, "w", IMAGE_MODE);
-   if ( out_stream == NULL )
-   {
-      printmsg(0, "xmit_news: cannot open X file %s", msfile);
-      printerr(msfile);
-      return ;
-   } /* if */
-
-   if (setvbuf( out_stream, NULL, _IONBF, 0))
-   {
-      printmsg(0, "xmit_news: Cannot unbuffer file %s (%s).",
-                  ixfile, msfile);
-      printerr(msfile);
-      panic();
-   } /* if */
-
-   fprintf(out_stream, "U %s %s\n", "news" , E_nodename );
-                                 /* Actual user running command      */
-   fprintf(out_stream, "R %s@%s\n", "news" , E_nodename );
-                                 /* Original requestor of command    */
-   fprintf(out_stream, "F %s\n", rdfile );
-                                 /* Required file for input          */
-   fprintf(out_stream, "I %s\n", rdfile );
-                                 /* stdin for command                */
-   fprintf(out_stream, "C %s\n", "rnews" );
-                                 /* Command to execute using file    */
-   fclose(out_stream);
-
-/*--------------------------------------------------------------------*/
-/*  Create the data file with the mail to send to the remote system   */
-/*--------------------------------------------------------------------*/
-
-   importpath(msname, idfile, sysname);
-   mkfilename( msfile, E_spooldir, msname);
-
-   out_stream = FOPEN(msfile, "w", IMAGE_MODE);
-   if (out_stream == NULL )
-   {
-      printerr(msfile);
-      printmsg(0,
-               "xmit_news: Cannot open spool file \"%s\" for output",
-                msfile);
-      return;
-   }
-
-   if (setvbuf( out_stream, NULL, _IONBF, 0))
-   {
-      printmsg(0, "xmit_news: Cannot unbuffer file %s (%s).",
-                  idfile, msfile);
-      printerr(msfile);
-      panic();
-   } /* if */
-
-/*--------------------------------------------------------------------*/
-/*                       Loop to copy the data                        */
-/*--------------------------------------------------------------------*/
-
-   while ( (len = fread( buf, 1, sizeof buf, in_stream)) != 0)
-   {
-      if (fwrite( buf, 1, len, out_stream ) != len)     /* I/O error?  */
-      {
-         printerr(msfile);
-         fclose(out_stream);
-         return;
-      } /* if */
-   } /* while */
-
-   fclose( out_stream );
-
-/*--------------------------------------------------------------------*/
-/*                     create local C (call) file                     */
-/*--------------------------------------------------------------------*/
-
-   importpath( msname, tmfile, sysname);
-   mkfilename( msfile, E_spooldir, msname);
-
-   out_stream = FOPEN(msfile, "w",TEXT_MODE);
-   if (out_stream == NULL)
-   {
-      printerr( msname );
-      printmsg(0, "xmit_news: cannot open C file %s", msfile);
-      return;
-   }
-
-   fprintf(out_stream, send_cmd, idfile, rdfile,
-                  "uucp", idfile);
-   fprintf(out_stream, send_cmd, ixfile, rxfile,
-                  "uucp", ixfile);
-   fclose(out_stream);
-
-} /* xmit_news */
 
 /*--------------------------------------------------------------------*/
 /*    c o p y _ s n e w s                                             */
@@ -1695,3 +1624,371 @@ static int copy_snews( char *filename, FILE *stream )
    return 0;
 
 } /* copy_snews */
+
+/*--------------------------------------------------------------------*/
+/*       s h a d o w _ n e w s                                        */
+/*                                                                    */
+/*       Special hack for creating mirror images of the news feed     */
+/*--------------------------------------------------------------------*/
+
+void shadow_news(FILE *in_stream)
+{
+  char *sysname;
+
+  sysname = getenv( "UUPCSHADOWS" );
+
+  if ( sysname != NULL )
+  {
+     strcpy( buf, sysname);
+     sysname = strtok( buf, WHITESPACE );
+     while( sysname != NULL )
+     {
+        printmsg(1, "Shadowing news to %s", sysname );
+        xmit_news( sysname, in_stream );
+        sysname = strtok( NULL, WHITESPACE );
+     }
+  } /* if */
+
+} /* shadow_news */
+
+/* note PATH is not changed, SNEWS places us in the path itself */
+static void copy_article(char *filename,
+                         FILE *input)
+{
+  FILE *output;
+
+  printmsg(2, "rnews: Saving SNEWS article in %s", filename);
+
+  output = fopen(filename, "wb");
+  if (output == NULL)
+  {
+    printerr( filename );
+    panic();
+  }
+
+  rewind(input);
+
+  while (fgets(buf, sizeof buf, input) != NULL)
+  {
+    if (fputs(buf, output) == EOF)
+    {
+       printerr( filename );
+       panic();
+    }
+  } /* while */
+
+  fclose(output);
+
+} /* copy_article */
+
+/*--------------------------------------------------------------------*/
+/*       d e l i v e r _ l o c a l                                    */
+/*                                                                    */
+/*       Deliver an article locally to one or more news groups        */
+/*--------------------------------------------------------------------*/
+
+static boolean deliver_local(FILE *tfile,
+                             long art_size,
+                             char *newsgroups,
+                             char *messageID,
+                             char *control)
+{
+  char hist_record[DISNEY];
+  char groupy[MAXGRP];
+  int  groups_found;
+  char snum[10];
+
+  char *gc_ptr;
+  char *gc_ptr1;
+
+  boolean b_xref = FALSE;
+  boolean posted = FALSE;  /* Used to determine if article goes to "JUNK" */
+
+  loc_articles++;
+
+/*--------------------------------------------------------------------*/
+/*       SNEWS direct file copy.  No checks are done                  */
+/*                                                                    */
+/*       We're feeding SNEWS style system, but they don't want it     */
+/*       put in directly, so we'll store it in temp for batching      */
+/*--------------------------------------------------------------------*/
+
+   if (bflag[F_SNEWS])
+   {
+
+     char fname[FILENAME_MAX];
+     char dirname[FILENAME_MAX];
+     char artlist[FILENAME_MAX];
+     FILE *artfiles;
+
+     strcpy(dirname, E_newsdir);
+     strcat(dirname, "/outgoing/");
+     strncat(dirname, E_nodename, 8);    /* eight chars of significance */
+
+     strcpy(artlist, dirname);
+     strcat(artlist, "/togo");
+
+     artfiles = fopen(artlist, "a+b");
+     if (artfiles == NULL)
+     {
+       printerr(artlist);
+       panic();
+     }
+
+     mkdirfilename(fname, dirname, "art");
+     strcpy(artlist, fname+strlen(dirname)+1); /* get bare filename */
+
+     fprintf(artfiles, "outgoing/%.8s/%s\n", E_nodename, artlist);
+     fclose(artfiles);
+
+     copy_article(fname, tfile);
+
+     return TRUE;
+
+   } /* if (bflag[F_SNEWS]) */
+
+   if (control)
+   {
+      control_message(control, art_fname );
+      return TRUE;
+   }
+
+/*--------------------------------------------------------------------*/
+/*           Check whether article has been received before           */
+/*--------------------------------------------------------------------*/
+
+   if ( bflag[ F_HISTORY ] )
+   {
+      if (get_histentry(history, messageID) != NULL)
+      {
+         printmsg(2, "rnews: Duplicate article %s", messageID);
+
+         if (get_snum("duplicates", snum))
+         {
+            memcpy(newsgroups, "duplicates\0\0", 12);
+            sprintf(messageID, "<%s.duplicate.%s@%s>",
+                    snum, E_nodename, E_domain); /* we need a new unique ID */
+            b_xref = NULL;
+         }
+         else {
+            fclose(tfile);
+            return FALSE;
+         }
+
+      } /* if (get_histentry(history, messageID) != NULL) */
+
+      /* Start building the history record for this article */
+
+      sprintf(hist_record, "%ld %ld ", now, art_size);
+      groups_found = 0;
+
+      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
+      {
+         if ((gc_ptr1 = strchr(gc_ptr, ', ')) != NULL)
+            *gc_ptr1++ = '\0';
+
+         if (strlen(gc_ptr) > MAXGRP - 1)
+         {
+            /* Bounds check the newsgroup length */
+            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
+            continue; /* Punt the newsgroup history record */
+         }
+
+         strcpy(groupy, gc_ptr);
+
+         if (get_snum(groupy, snum))
+         {
+           if (groups_found)
+           strcat(hist_record, ", ");
+           strcat(hist_record, groupy);
+           strcat(hist_record, ":");
+           strcat(hist_record, snum);
+           groups_found++;
+         }
+
+      }  /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
+
+      /* Restore the newsgroups line */
+
+      while (newsgroups[strlen(newsgroups)+1] != '\0')
+         newsgroups[strlen(newsgroups)] = ', ';
+
+      if (groups_found == 0)
+      {
+        printmsg(2, "rnews: no group to deliver to: %s", messageID);
+        memcpy(newsgroups, "junk\0\0", 6);
+        b_xref = FALSE;
+
+        /* try "junk" group if none of the target groups is known here */
+
+        if (get_snum("junk", snum))
+          sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
+        else {
+          fclose(tfile);
+          return FALSE;
+        }
+      }
+
+      /* Post the history record */
+
+      add_histentry(history, messageID, hist_record);
+
+   } /* if ( bflag[ F_HISTORY ] ) */
+
+/*--------------------------------------------------------------------*/
+/*              Now build the Xref: line (if we need to)              */
+/*--------------------------------------------------------------------*/
+
+   if (b_xref)
+   {
+      strcpy(hist_record, "Xref: ");
+      strcat(hist_record, E_nodename);
+
+      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
+      {
+         if ((gc_ptr1 = strchr(gc_ptr, ', ')) != NULL)
+            *gc_ptr1++ = '\0';
+         if (strlen(gc_ptr) > MAXGRP - 1)
+         {
+            /* Bounds check the newsgroup length */
+            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr);
+            continue; /* Punt the newsgroup history record */
+         }
+         strcpy(groupy, gc_ptr);
+         if (get_snum(groupy, snum))
+         {
+            strcat(hist_record, " ");
+            strcat(hist_record, groupy);
+            strcat(hist_record, ":");
+            strcat(hist_record, snum);
+         }
+      } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
+
+      strcat(hist_record, "\n");
+
+      /* Restore the newsgroups line */
+
+      while (newsgroups[strlen(newsgroups)+1] != '\0')
+         newsgroups[strlen(newsgroups)] = ', ';
+
+   } /* if (b_xref) */
+
+/*--------------------------------------------------------------------*/
+/*       We now need to copy the file to each group in groupys        */
+/*--------------------------------------------------------------------*/
+
+   for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
+   {
+
+      if ((gc_ptr1 = strchr(gc_ptr, ', ')) != NULL)
+         *gc_ptr1++ = '\0';
+
+      strcpy(groupy, gc_ptr);
+
+      if ( copy_file(tfile, groupy, b_xref ? hist_record : NULL))
+         posted = TRUE;
+
+   } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
+
+   if ( ! posted)
+   {
+     junked++;
+
+     if ( !copy_file(tfile, "junk", b_xref ? hist_record : NULL ) )
+     {
+        printmsg(0, "rnews: error, but no group is available for junk!");
+     }
+
+   } /* if ( ! posted) */
+
+   fclose(tfile);
+
+   return TRUE;
+
+} /* deliver_local */
+
+/*--------------------------------------------------------------------*/
+/*       c o p y _ r m t _ a r t i c l e                              */
+/*                                                                    */
+/*       Perform the low level copy for an article destined for       */
+/*       a remote system                                              */
+/*--------------------------------------------------------------------*/
+
+static void copy_rmt_article(char *filename, FILE *input)
+{
+
+  FILE *output;
+
+  printmsg(2, "rnews: Saving remote article in %s", filename);
+
+  output = fopen(filename, "wb");
+  if (output == NULL)
+  {
+    printerr( filename );
+    panic();
+  }
+  rewind(input);
+
+  while (fgets(buf, sizeof buf, input) != NULL)
+  {
+
+     if (equalni(buf, "Path:", strlen("Path:")))
+     {
+       sprintf(temp, "Path: %s!%s",
+                     E_fdomain
+                     buf + strlen("Path:") + 1);
+       strcpy(buf, temp);
+     }
+
+     if (fputs(buf, output) == EOF)
+     {
+        printerr( filename );
+        panic();
+     }
+  } /* while */
+
+  fclose(output);
+
+} /* copy_rmt_article */
+
+/*--------------------------------------------------------------------*/
+/*       d e l i v e r _ r e m o t e                                  */
+/*                                                                    */
+/*       Queue a file to be sent to a remote system                   */
+/*--------------------------------------------------------------------*/
+
+static boolean deliver_remote(struct sys *node, FILE *tfile, char *msgID)
+{
+
+  char fname[FILENAME_MAX];
+  char dirname[FILENAME_MAX];
+  char artlist[FILENAME_MAX];
+  FILE *artfiles;
+
+  fwd_articles++; /* lets count this one */
+
+  strcpy(dirname, E_newsdir);
+  strcat(dirname, "/outgoing/");
+  strncat(dirname, node->sysname, 8);    /* eight chars of significance */
+
+  strcpy(artlist, dirname);
+  strcat(artlist, "/togo");
+
+  artfiles = fopen(artlist, "a+b");
+  if (artfiles == NULL)
+  {
+    printerr(artlist);
+    panic();
+  }
+
+  mkdirfilename(fname, dirname, "art");
+  strcpy(artlist, fname+strlen(dirname)+1); /* get bare filename */
+
+  fprintf(artfiles, "outgoing/%.8s/%s\n", node->sysname, artlist);
+  fclose(artfiles);
+
+  copy_rmt_article(fname, tfile);
+
+  return TRUE;
+
+} /* deliver_remote */
