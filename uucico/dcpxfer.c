@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.11 1993/01/23 19:08:09 ahd Exp $
+ *       $Id: DCPXFER.C 1.12 1993/04/05 04:35:40 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.12  1993/04/05  04:35:40  ahd
+ * Allow unique send/receive packet sizes
+ *
  * Revision 1.11  1993/01/23  19:08:09  ahd
  * Don't enable unbuffered I/O twice if not multitask mode
  *
@@ -209,6 +212,8 @@ static int bufwrite(char *buffer, int len)
    if (count < len)
    {
       printerr("bufwrite");
+      printmsg(0, "bufwrite: Tried to write %d bytes, actually wrote %d",
+      	len, count);
       clearerr(xfer_stream);
    }
 
@@ -1062,7 +1067,7 @@ XFER_STATE rsfile( void )
 
 XFER_STATE rdata( void )
 {
-   int    len;
+   short    len;
    int    used = 0;
 
    do {

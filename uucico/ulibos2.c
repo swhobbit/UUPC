@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.8 1993/04/04 04:57:01 ahd Exp $
+ *       $Id: ULIBOS2.C 1.9 1993/04/05 04:32:19 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.9  1993/04/05  04:32:19  ahd
+ * Additional traps for modem dropping out
+ *
  * Revision 1.8  1993/04/04  04:57:01  ahd
  * Add configurable OS/2 priority values
  *
@@ -680,19 +683,25 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
 
       if (!console)
       {
-          port_timeout = 0xffffffff;
+          port_timeout *= 10; /* OS/2 is in hundredths; NT in msec */
           CommTimeout.ReadTotalTimeoutConstant = 0;
           CommTimeout.WriteTotalTimeoutConstant = 0;
           CommTimeout.ReadIntervalTimeout = port_timeout;
           CommTimeout.ReadTotalTimeoutMultiplier = 1;
-          CommTimeout.WriteTotalTimeoutMultiplier = 1;
+          CommTimeout.WriteTotalTimeoutMultiplier = 0;
           rc = SetCommTimeouts(hCom, &CommTimeout);
 
           if ( !rc )
           {
+             LPVOID lpMessageBuffer;
              Error = GetLastError();
+             FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                NULL, Error, LANG_USER_DEFAULT, &lpMessageBuffer, 0, NULL);
+
              printmsg(0, "sread: unable to set timeout for comm port");
-             printmsg(0, "Return code from SetCommTimeouts was %d", Error);
+             printmsg(0, "sread: %s", lpMessageBuffer);
+             LocalFree((HLOCAL)lpMessageBuffer);
              panic();
           }
       }
@@ -1424,31 +1433,4 @@ static void ShowError( const USHORT status )
       mannounce(FRAMING_ERROR,       status, "  Framing Error"));
 
 } /* ShowError */
-#endif
-
-#ifdef WIN32
-
-/*--------------------------------------------------------------------*/
-/*    s e t s t d i n m o d e                                         */
-/*                                                                    */
-/*    Set standard input on NT console for single char I/O            */
-/*--------------------------------------------------------------------*/
-
-void setstdinmode(void)
-{
-   HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-   DWORD mode;
-   BOOL bSuccess;
-
-   bSuccess = GetConsoleMode(hStdIn, &mode);
-
-/* Disable mouse events so that later Peeks() only get characters */
-   mode &= ~ENABLE_WINDOW_INPUT;
-   mode &= ~ENABLE_MOUSE_INPUT;
-   mode &= ~ENABLE_LINE_INPUT;
-   mode |= ENABLE_PROCESSED_INPUT;
-
-   SetConsoleMode(hStdIn, mode);
-}
-
 #endif

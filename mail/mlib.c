@@ -28,6 +28,10 @@
 #include <io.h>
 #include <dos.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "lib.h"
 #include "hlib.h"
 
@@ -35,7 +39,7 @@
 #define SIMPLE_CONSOLE_FGETS
 #endif
 
-#ifdef _Windows
+#ifdef WIN32
 #define SIMPLE_CONSOLE_FGETS
 #endif
 
@@ -392,9 +396,28 @@ int L_invoke_pager(const char *pcmd, const char *filename)
  */
 void ClearScreen()
 {
+#ifdef WIN32
+   long	mode;
+   static COORD	coord = {0, 0};
+   static HANDLE cons_hnd = INVALID_HANDLE_VALUE;
+#endif
+
 #ifdef __TURBOC__                                           /* pdm */
       clrscr();                                             /* ahd */
 #else                                                       /* pdm */
+#ifdef WIN32                                                /* ebr */
+
+   if (cons_hnd == INVALID_HANDLE_VALUE) {
+      cons_hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+      GetConsoleMode(cons_hnd, &mode);
+      mode |= ENABLE_PROCESSED_OUTPUT;
+      SetConsoleMode(cons_hnd, mode);
+   }
+   SetConsoleCursorPosition(cons_hnd, coord);
+   FillConsoleOutputCharacter(cons_hnd, 0x20, 60*132, coord, &mode);
+
+#else
       fputs("\033[2J", stdout);     /* ANSI Erase screen       ahd */
-#endif                                                      /* pdm */
+#endif /* WIN32 */                                          /* pdm */
+#endif /* __TURBOC__ */
 }

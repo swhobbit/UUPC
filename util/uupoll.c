@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.4 1993/03/06 23:04:54 ahd Exp $
+ *    $Id: UUPOLL.C 1.5 1993/04/04 04:57:01 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.5  1993/04/04  04:57:01  ahd
+ * Return exit code of UUCICO upon exit
+ *
  * Revision 1.4  1993/03/06  23:04:54  ahd
  * Add cr after auto-clean message
  *
@@ -79,7 +82,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.4 1993/03/06 23:04:54 ahd Exp $";
+         "$Id: UUPOLL.C 1.5 1993/04/04 04:57:01 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -101,11 +104,14 @@ static const char rcsid[] =
 #include <alloc.h>
 unsigned _stklen = 2048;            /* Reduce memory usage           */
 unsigned _heaplen = 2048;           /* Reduce memory usage           */
-#else
+#else /* __TURBOC__ */
 #ifndef FAMILYAPI
 static int setcbrk(char state);
-#endif
-#endif
+#ifdef WIN32     /* In this module, WIN32 is a synonym for FAMILYAPI -- dmw 4/5/93 */
+#define FAMILYAPI
+#endif /* WIN32 */
+#endif /* FAMILYAPI */
+#endif /* __TURBOC__ */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -894,7 +900,7 @@ static hhmm firstpoll(hhmm interval)
 /*                                                                    */
 /*    Enable Cntrl-Break                                              */
 /*                                                                    */
-/*    Written by Dave Watts                                           */
+/*    Written by Dave Watt                                            */
 /*--------------------------------------------------------------------*/
 
 static int setcbrk(char state)

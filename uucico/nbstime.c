@@ -19,18 +19,18 @@
 #include <string.h>
 
 
-#ifdef FAMILYAPI
-#define INCL_BASE
 #ifdef WIN32
 #include <windows.h>
 #else
+#ifdef FAMILYAPI
+#define INCL_BASE
 #include <os2.h>
-#endif
 #else /* FAMILYAPI */
 #ifndef __TURBOC__
 #include <dos.h>
-#endif
-#endif
+#endif /* __TURBOC__ */
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
 
 
 /*--------------------------------------------------------------------*/
@@ -69,14 +69,15 @@ boolean nbstime( void )
    int dst= 0;
    time_t delta;
    char sync = '?';
-#ifdef FAMILYAPI
 #ifdef WIN32
    SYSTEMTIME DateTime;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
+   struct tm *tp;
+   USHORT rc;
 #else
+#ifdef FAMILYAPI
    DATETIME DateTime;
-#endif
    struct tm *tp;
    USHORT rc;
 #else
@@ -85,8 +86,9 @@ boolean nbstime( void )
    struct tm *tp;
    struct dosdate_t ddate;
    struct dostime_t dtime;
-#endif
-#endif
+#endif /* __TURBOC__ */
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
 
    memset( &tx , '\0', sizeof tx);        /* Clear pointers          */
    if (!expectstr("MJD", 5, NULL )) /* Margaret Jane Derbyshire? :-) */
@@ -153,17 +155,20 @@ boolean nbstime( void )
 /*     Borland C++ doesn't set the time properly; do a conversion     */
 /*--------------------------------------------------------------------*/
 
+#ifdef __TURBOC__
    today -= timezone;
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
-#ifdef FAMILYAPI
-   tp = localtime(&today);    /* Get local time as a record          */
 #ifdef WIN32
+   tp = localtime(&today);    /* Get local time as a record          */
    GetSystemTime( &DateTime );
 #else
+#ifdef FAMILYAPI
+   tp = localtime(&today);    /* Get local time as a record          */
    rc = DosGetDateTime( &DateTime );
    if ( rc != 0 )
    {
@@ -171,7 +176,9 @@ boolean nbstime( void )
       panic();
    }
 
-#endif
+#endif /* FAMILYAPI */
+#endif /* WIN32 */
+
 #ifdef WIN32
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
@@ -188,7 +195,7 @@ boolean nbstime( void )
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
       (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
       (int) DateTime.wDayOfWeek );
-#else
+#else /* WIN32 */
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d tz %d, weekday %d",
       (int) DateTime.year, (int) DateTime.month, (int) DateTime.day ,
       (int) DateTime.hours, (int) DateTime.minutes,(int) DateTime.seconds ,
@@ -231,9 +238,10 @@ boolean nbstime( void )
    }
 
    rc = SetSystemTime( &DateTime );
-   if ( rc != 0 )
+   if ( !rc )
    {
-      printmsg(0, "nbstime: Unable to set time\n");
+      printmsg(0, "nbstime: SetSystemTime failed: returned %u\n",
+         GetLastError());
    }
 
    tkp.Privileges[0].Attributes = 0;
@@ -254,7 +262,9 @@ boolean nbstime( void )
       panic();
    }
 #endif /* WIN32 */
-#else /* FAMILYAPI */
+
+#ifndef FAMILYAPI
+#ifndef WIN32
 #ifdef __TURBOC__
 /*--------------------------------------------------------------------*/
 /*    If this timezone uses daylight savings and we are in the        */
@@ -295,6 +305,7 @@ boolean nbstime( void )
    }
 
 #endif /* __TURBOC__ */
+#endif /* WIN32 */
 #endif /* FAMILYAPI */
 
 /*--------------------------------------------------------------------*/
