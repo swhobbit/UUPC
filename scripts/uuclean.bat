@@ -1,38 +1,55 @@
 echo off
+if "%1" == "cleanit" goto cleanit:
 REM *------------------------------------------------------------------*
-REM *    Written and contributed by Michael Morrett                    *
-REM *    (ICBJ100@INDYVAX.IUPUI.EDU).  Support for by Snuffles P.      *
-REM *    Bear (Snuffles@kew.com).  Comments by Drew Derbyshire         *
-REM *    (help@kew.com); delete the comments to make this run faster.  *
+REM *       u u c l e a n . b a t                                      *
+REM *                                                                  *
+REM *       Batch script to clean UUPC/extended log files              *
 REM *------------------------------------------------------------------*
-rem     $Id: uuclean.bat 1.4 1995/09/24 19:12:04 ahd v1-12q $
+
+REM *------------------------------------------------------------------*
+REM *    Written by Michael Morrett (ICBJ100@INDYVAX.IUPUI.EDU).       *
+REM *------------------------------------------------------------------*
+
+REM *------------------------------------------------------------------*
+REM *    Changes Copyright (c) 1989-1998 by Kendra Electronic          *
+REM *    Wonderworks.                                                  *
+REM *                                                                  *
+REM *    All rights reserved except those explicitly granted by        *
+REM *    the UUPC/extended license agreement.                          *
+REM *------------------------------------------------------------------*
+
+rem     $Id: uuclean.bat 1.5 1998/03/06 06:53:18 ahd v1-13a $
 rem
 rem     $Log: uuclean.bat $
+rem     Revision 1.5  1998/03/06 06:53:18  ahd
+rem     Add new daemons to cleanup list
+rem
 rem     Revision 1.4  1995/09/24 19:12:04  ahd
 rem     *** empty log message ***
 rem
 rem     Revision 1.3  1994/04/27 00:07:33  ahd
 rem     Prevent endless recursion if TEMP and TMP are not set
-rem
-rem
+
 REM *------------------------------------------------------------------*
-REM *   Define your spool and temp directories on following lines      *
+REM *    Define your log, spool and temp directories on following      *
+REM *    lines                                                         *
 REM *------------------------------------------------------------------*
-if "%1" == "" %0 \uupc\spool %temp% %tmp% \uupc\tmp
-if "%2" == "" %0 %1 %temp% %tmp% \uupc\tmp
-if "%1" == "cleanit" goto cleanit:
-echo Cleaning UUPC/extended directories %1 and %2
+
+if "%1" == "" %0 \uupc\log \uupc\spool %temp% %tmp% \uupc\tmp
+if "%2" == "" %0 %1 \uupc\spool %temp% %tmp% \uupc\tmp
+if "%3" == "" %0 %1 %2 %temp% %tmp% \uupc\tmp
+echo Cleaning UUPC/extended directories %1, %2, and %3
 REM *------------------------------------------------------------------*
 REM *     Temporary files created by UUCICO in spool directory         *
 REM *------------------------------------------------------------------*
-if exist %1\*.$$$ erase %1\*.$$$
+if exist %2\*.$$$ erase %2\*.$$$
 REM *------------------------------------------------------------------*
 REM * Temporary files created by MAIL and RMAIL.  (and their           *
 REM * backups created by many editors)                                 *
 REM *------------------------------------------------------------------*
-if exist %2\UUPC*.tmp erase %2\UUPC*.tmp
-if exist %2\UUPC*.txt erase %2\UUPC*.txt
-if exist %2\UUPC*.bak erase %2\UUPC*.bak
+if exist %3\UUPC*.tmp erase %3\UUPC*.tmp
+if exist %3\UUPC*.txt erase %3\UUPC*.txt
+if exist %3\UUPC*.bak erase %3\UUPC*.bak
 REM *------------------------------------------------------------------*
 REM *                 Clean the various log files                      *
 REM *------------------------------------------------------------------*
