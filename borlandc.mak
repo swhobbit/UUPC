@@ -31,10 +31,68 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.14 1993/05/16 13:17:21 ahd Exp $
+#     $Id: makefile 1.31 1993/10/04 15:41:24 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.31  1993/10/04  15:41:24  ahd
+#         Drop unneeded variables from definition file for nested make commands
+#         Include 00readme.now in all archives
+#         Generate final release names for all archives
+#
+#         Revision 1.30  1993/10/04  03:56:57  ahd
+#         Build doc zip seperately
+#
+#         Revision 1.29  1993/10/02  23:45:02  ahd
+#         Don't build rnews for windows
+#
+#         Revision 1.28  1993/10/02  19:06:24  ahd
+#         Use full path names to aid debugging
+#
+#         Revision 1.27  1993/10/01  01:24:32  ahd
+#         Force source rebuild more often
+#
+#         Revision 1.26  1993/09/29  13:17:11  ahd
+#         Correct deletion of debugger (*.TDS) files under Windows
+#
+#         Revision 1.25  1993/09/29  04:47:51  ahd
+#         Add unique signal handler for port suspending
+#
+#         Revision 1.24  1993/09/27  02:41:37  ahd
+#         Use full source path for files to aid in DOS debugging
+#
+#         Revision 1.23  1993/09/27  00:44:01  ahd
+#         Make build slient
+#
+#         Revision 1.22  1993/09/23  03:26:11  ahd
+#         Make mail medium model
+#
+#         Revision 1.21  1993/09/20  04:35:34  ahd
+#         Borland C++ for OS/2 1.0 support
+#         TCP/IP support from Dave Watt
+#         't' protocol support
+#
+#         Revision 1.20  1993/08/03  12:19:38  ahd
+#         Upper case names
+#
+#         Revision 1.19  1993/08/02  03:21:28  ahd
+#         Rename zip files
+#         use ZIP instead of PKZIP
+#         explicitly use MAKER for nested makes (need MAKE for master to
+#         keep ZIP from running of out DOS memory)
+#
+#         Revision 1.18  1993/07/31  16:20:41  ahd
+#         Clean-up in support of Windows versions
+#
+#         Revision 1.17  1993/07/22  23:18:38  ahd
+#         Rename UUPCLIBW
+#
+#         Revision 1.16  1993/06/06  15:03:51  ahd
+#         Move to release 1.12a
+#
+#         Revision 1.15  1993/05/30  16:05:22  ahd
+#         Del workfile to correct pkzip archiving too much
+#
 #         Revision 1.14  1993/05/16  13:17:21  ahd
 #         Rename nmake to mscmake
 #
@@ -83,27 +141,38 @@
 #
 #       Revision 1.2  1992/05/03  17:19:14  ahd
 #       Add library inclusion to generation of small .COM files
-#
 
 .autodepend
 
-.nosilent
+.silent
 
-#       The memory model to be built.
+#       The memory model to be built, and other environment
+#       specific information
 
-!if !$d(MODEL)
-MODEL   = s
-!endif
+WINMODEL=l
 
-!if !$d(WINMODE)
-WINMODE=D
-!endif
-
-!if $(WINMODE) == "W"
-SUFFIX  = $(WINMODE)$(MODEL)
+!if $d(__OS2__)
+MODEL=2
+SUFFIX   = $(MODEL)
+PSUFFIX  = 2
+DEFFILE  = $(TMP)\UUPCOS23.TMP
+!elif $d(WINDOWS)
+MODEL    = $(WINMODEL)
+SUFFIX   = w$(MODEL)
+PSUFFIX  = w
+DEFFILE  = $(TMP)\UUPCWIND.TMP
 !else
-SUFFIX  = $(MODEL)
+!if !$d(MODEL)
+MODEL    = s
 !endif
+SUFFIX   = $(MODEL)
+PSUFFIX  =
+DEFFILE  =
+!endif
+
+#       Silly hack to allow back slash as last character in variable
+SRC      = e:/src/uupc/
+SRCSLASH = $(SRC:/=\)
 
 # *--------------------------------------------------------------------*
 # *   Our release number.  This is updated each time we ship it        *
@@ -115,82 +184,85 @@ SUFFIX  = $(MODEL)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.11z
+VERS = 1.12b
 
 # *--------------------------------------------------------------------*
-# *   Hard Drive letter, and directories on the hard drive to be       *
-# *   used.  The link files are also affected by this parameter.       *
+# *                           Directories                              *
 # *--------------------------------------------------------------------*
 
 !if !$d(TMP)
-TMP     = \tmp
-!endif
-
-!if d$(SRC)
-!error can't handle this!
-!else
-SRC     = .
+TMP     = \TMP
 !endif
 
 
-DOCS    = $(SRCSLASH)docs
-CONF    = \uupc
-LIB     = $(SRCSLASH)lib
-OBJ     = $(SRCSLASH)bcobj$(SUFFIX)
-MAIL    = $(SRCSLASH)mail
-RNEWS   = $(SRCSLASH)rnews
-RN      = $(SRCSLASH)rn
-UTIL    = $(SRCSLASH)util
-UUCICO  = $(SRCSLASH)uucico
-TEST    = $(SRCSLASH)test
-UUCP    = $(SRCSLASH)uucp
-WINWORD = $(SRCSLASH)winword
-SCRIPT = $(SRCSLASH)scripts
-MAP     = NUL
+DOCS    = $(SRCSLASH)DOCS
+CONF    = \UUPC
+LIB     = $(SRCSLASH)LIB
+OBJ     = $(SRCSLASH)OBJBC$(SUFFIX)
+MAIL    = $(SRCSLASH)MAIL
+RNEWS   = $(SRCSLASH)RNEWS
+RN      = $(SRCSLASH)RN
+UTIL    = $(SRCSLASH)UTIL
+UUCICO  = $(SRCSLASH)UUCICO
+TEST    = $(SRCSLASH)TEST
+UUCP    = $(SRCSLASH)UUCP
+WINWORD = $(SRCSLASH)WINWORD
+SCRIPT  = $(SRCSLASH)SCRIPTS
+MAP     =
 .path.obj  = $(OBJ)
 
 !if !$d(ARCHIVE)
-ARCHIVE=$(SRCSLASH)$(VERS)
+ARCHIVE = $(SRCSLASH)$(VERS)
 !endif
 
 !if !$d(PROD)
-PROD    = \uupc\bin
+!if $d(__OS2__)
+PROD    = \UUPC\OS2BIN32
+!else
+PROD    = \UUPC\BIN
 !endif
-
-FMT     = $(PROD)\fmt.com
+!endif
 
 !if !$d(WINPROD)
-WINPROD    = \uupc\winbin
+WINPROD = \UUPC\WINBIN
 !endif
 
-!if $(WINMODE) == "W"
-PROD    =       $(WINPROD)
-!endif
+FMT     = $(PROD)\FMT.COM
 
 !if !$d(BORLANDC)
-BORLANDC = \borlandc
+!if $d(__OS2__)
+BORLANDC = \BCOS2
+!else
+BORLANDC = \BORLANDC
+!endif
 !endif
 
 !if !$d(BLIB)
-BLIB =  $(BORLANDC)\lib
+BLIB =  $(BORLANDC)\LIB
 !endif
 
 !if !$d(BINC)
-BINC =  $(BORLANDC)\include
+BINC =  $(BORLANDC)\INCLUDE
 !endif
 
-UUPCCFG  = $(TMP)\uupc$(SUFFIX).cfg
+!if !$d(UUPCCFG)
+UUPCCFG  = $(TMP)\UUPC$(SUFFIX).CFG
+!endif
 
-UUPCDEFS = $(TMP)\uupc$(SUFFIX).mak
+!if !$d(UUPCDEFS)
+UUPCDEFS=$(TMP)\uupc$(SUFFIX).mak
+!endif
+
 UUPCDEFM=$(TMP)\uupcm.mak
+UUPCDEFW=$(TMP)\uupcw$(WINMODEL).mak
 
-COMMON  = $(UUPCCFG) $(UUPCDEFS)
+COMMON  = $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(LIBRARIES)
 
 # *--------------------------------------------------------------------*
 # *        The names of various object files that we create.           *
 # *--------------------------------------------------------------------*
 
-TIMESTMP = $(OBJ)\timestmp.obj
+TIMESTMP = $(OBJ)\TIMESTMP.OBJ
 
 WORKFILE = $(TMP)\UUPCTEMP.TMP
 
@@ -198,96 +270,135 @@ WORKFILE = $(TMP)\UUPCTEMP.TMP
 # *                Final locations of various targets                  *
 # *--------------------------------------------------------------------*
 
-BUGSDOC = $(WINWORD)\bugs.doc
-CHNGDOC = $(WINWORD)\changes.doc
-CMDSDOC = $(WINWORD)\commands.doc
-HOW2DOC = $(WINWORD)\howtoget.doc
-INSTDOC = $(WINWORD)\install.doc
-MAILDOC = $(WINWORD)\mail.doc
-READDOC = $(WINWORD)\readme.doc
-REGRDOC = $(WINWORD)\register.doc
-STATDOC = $(WINWORD)\uustat.doc
-TILDDOC = $(WINWORD)\tilde.doc
-DOCW    = $(BUGSDOC) $(CHNGDOC) $(CMDSDOC) $(HOW2DOC) $(INSTDOC) \
-          $(MAILDOC) $(READDOC) $(REGRDOC) $(STATDOC) $(TILDDOC)
-BUGSLST = $(WINWORD)\bugs.prn
-CHNGLST = $(WINWORD)\changes.prn
-CMDSLST = $(WINWORD)\commands.prn
-INSTLST = $(WINWORD)\install.prn
-HOW2LST = $(WINWORD)\howtoget.prn
-MAILLST = $(WINWORD)\mail.prn
-READLST = $(WINWORD)\readme.prn
-REGRLST = $(WINWORD)\register.prn
-STATLST = $(WINWORD)\uustat.prn
-TILDLST = $(WINWORD)\tilde.prn
-DOCSLIST= $(BUGSLST) $(CHNGLST) $(CMDSLST) $(HOW2LST) $(INSTLST) \
-          $(MAILLST) $(READLST) $(REGRLST) $(STATLST) $(TILDLST)
-LIVEFILES = $(DOCS)\active.kew $(DOCS)\permissn.kew $(DOCS)\aliases.kew \
+LIVEFILES = $(DOCS)\ACTIVE.KEW $(DOCS)\PERMISSN.KEW $(DOCS)\ALIASES.KEW \
             $(DOCS)\kendra.rc $(DOCS)\ahd.rc $(DOCS)\hostpath.kew
+
+LISTFILES = $(WINWORD)\advanced.prn $(WINWORD)\changes.prn \
+            $(WINWORD)\commands.prn $(WINWORD)\files.prn \
+            $(WINWORD)\howtoget.prn $(WINWORD)\install.prn \
+            $(WINWORD)\license.prn $(WINWORD)\mail.prn \
+            $(WINWORD)\register.prn $(WINWORD)\tilde.prn
+README=     docs\00readme.now
 
 REQUIRED= $(PROD)\mail.exe $(PROD)\rmail.exe $(PROD)\uucico.exe\
           $(PROD)\uuxqt.exe
 SCRIPTS=  $(PROD)\su.bat $(PROD)\uuclean.bat $(PROD)\uuio.bat \
           $(PROD)\waiting.bat
-OPTIONAL= $(PROD)\uucp.com $(PROD)\uuname.com $(PROD)\uupoll.exe\
-          $(PROD)\uustat.com $(PROD)\uusub.com $(PROD)\comm34.com\
-          $(PROD)\uux.com $(FMT) $(PROD)\gensig.com $(PROD)\novrstrk.com \
-          $(SCRIPTS)
-NEWS    = $(PROD)\rnews.exe $(PROD)\expire.exe
+OPTCOMM = $(PROD)\uucp.com $(PROD)\uuname.com $(PROD)\uupoll.exe\
+          $(PROD)\uustat.com $(PROD)\uusub.com\
+          $(PROD)\uuport.com \
+          $(PROD)\uux.com $(FMT) $(PROD)\gensig.com $(PROD)\novrstrk.com
+
+!if $d(__OS2__)
+OPTIONAL= $(OPTCOMM:.com=.exe) \
+          $(SCRIPTS:.bat=.cmd) $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
+!else
+OPTIONAL= $(OPTCOMM) $(PROD)\comm34.com $(SCRIPTS)
+
+# *--------------------------------------------------------------------*
+# *      Of the "required" modules, we only build UUCICO under         *
+# *      Windows because the MAIL program is ugly and we prefer        *
+# *      UUXQT run RMAIL and RNEWS as normal DOS programs.             *
+# *--------------------------------------------------------------------*
+
+#WREQUIRED=$(WINPROD)\mail.exe $(WINPROD)\rmail.exe $(WINPROD)\uucico.exe\
+#          $(WINPROD)\uuxqt.exe
+WREQUIRED=$(WINPROD)\uucico.exe
+WOPTIONAL=$(WINPROD)\uucp.exe $(WINPROD)\uuname.exe $(WINPROD)\uupoll.exe\
+          $(WINPROD)\uustat.exe $(WINPROD)\uusub.exe $(WINPROD)\uux.exe
+WNEWS    =$(WINPROD)\expire.exe
+#         $(WINPROD)\rnews.exe $(WINPROD)\rn.exe $(WINPROD)\newsetup.exe
+!endif
+
+NEWS    = $(PROD)\RNEWS.EXE $(PROD)\EXPIRE.EXE
 #         $(PROD)\rn.exe $(PROD)\newsetup.exe
 
-INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWS)
+INSTALL = $(REQUIRED) $(OPTIONAL) $(NEWS) $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
 
-SAMPLES = $(DOCS)\systems $(DOCS)\passwd $(DOCS)\hostpath \
+SAMPLES = $(DOCS)\SYSTEMS $(DOCS)\PASSWD $(DOCS)\HOSTPATH \
           $(DOCS)\personal.rc $(DOCS)\uupc.rc \
           $(DOCS)\personal.sig $(DOCS)\aliases.txt \
           $(DOCS)\mail.ico $(DOCS)\uucico.ico $(DOCS)\up-pif.dvp
-SAMPLEX = systems passwd hostpath *.rc *.mdm personal.sig aliases.txt *.ico
+SAMPLEX = SYSTEMS PASSWD HOSTPATH *.RC *.MDM PERSONAL.SIG ALIASES.TXT *.ICO
 
-MAKEFILE = $(SRCSLASH)makefile
+MAKEFILE = $(SRCSLASH)MAKEFILE
 
-STARTUP  = $(BLIB)\c0$(SUFFIX)
-STARTUPT = $(BLIB)\c0t
+UUPCLIB  = $(TMP)\CUUPC$(SUFFIX).LIB
+UUPCLIBW = $(TMP)\CUUPCW$(SUFFIX).LIB
 
-UUPCLIB  = $(TMP)\cuupc$(SUFFIX).lib
-UUPCLIBW = $(TMP)\cuupc$(SUFFIX)w.lib
-LIBRARY2 = $(BLIB)\c$(SUFFIX).lib
-
-!if $(WINMODE) == "W"
-LIBRARY3 = $(BLIB)\import.lib
-LIBRARY  = $(UUPCLIB)+$(UUPCLIBW)+$(LIBRARY2)+$(LIBRARY3)
+!if $d(__OS2__)
+STARTUP  = $(BLIB)\C02.obj
+LIBRARY2 = $(BLIB)\C2.LIB
+LIBRARY3 = $(BLIB)\os2.LIB
+LIBRARY  = $(UUPCLIB)+$(LIBRARY2)+$(LIBRARY3)
+!elif $d(WINDOWS)
+STARTUP  = $(BLIB)\C0$(SUFFIX)
+LIBRARY2 = $(BLIB)\C$(SUFFIX).LIB
+LIBRARY3 = $(BLIB)\IMPORT.LIB
+LIBRARY  = $(UUPCLIB)+$(LIBRARY2)+$(LIBRARY3)
 !else
+STARTUP  = $(BLIB)\C0$(SUFFIX)
+STARTUPT = $(BLIB)\C0T
+LIBRARY2 = $(BLIB)\C$(SUFFIX).LIB
 LIBRARY  = $(UUPCLIB)+$(LIBRARY2)
 !endif
+
 LIBRARIES= $(LIBRARY:+= )
 
-COMMON  = $(UUPCCFG) $(UUPCDEFS) $(UUPCLIB)
+COMMON  = $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(LIBRARIES)
 
-REQZIPV = $(ARCHIVE)\uupcreq.zip
-OPTZIPV = $(ARCHIVE)\uupcopt.zip
-NEWZIPV = $(ARCHIVE)\uupcnews.zip
-DOCZIPV = $(ARCHIVE)\uupcdoc.zip
-WINZIPV = $(ARCHIVE)\uupcwin.zip
-SRCZIPV1 = $(ARCHIVE)\uupcsrc1.zip
-SRCZIPV2 = $(ARCHIVE)\uupcsrc2.zip
+ZIPPREFIXX=UPC$(VERS:.=)
+ZIPPREFIX=$(ZIPPREFIXX:C1=C)
+
+!if $d(__OS2__)
+REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)21.ZIP
+OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)22.ZIP
+NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)23.ZIP
+!else
+REQZIPV = $(ARCHIVE)\$(ZIPPREFIX)D1.ZIP
+OPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)D2.ZIP
+NEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)D3.ZIP
+WREQZIPV = $(ARCHIVE)\$(ZIPPREFIX)W1.ZIP
+WOPTZIPV = $(ARCHIVE)\$(ZIPPREFIX)W2.ZIP
+WNEWZIPV = $(ARCHIVE)\$(ZIPPREFIX)W3.ZIP
+!endif
+
+DOCZIPV = $(ARCHIVE)\$(ZIPPREFIX)AD.ZIP
+WFWZIPV = $(ARCHIVE)\$(ZIPPREFIX)AW.ZIP
+PSZIPV  = $(ARCHIVE)\$(ZIPPREFIX)AP.ZIP
+SRCZIPV1 = $(ARCHIVE)\$(ZIPPREFIX)S1.ZIP
+SRCZIPV2 = $(ARCHIVE)\$(ZIPPREFIX)S2.ZIP
 
 # *--------------------------------------------------------------------*
 # *     Various Program names and their options                        *
 # *--------------------------------------------------------------------*
 
-CC = bcc +$(UUPCCFG)
-LINKER  = tlink
-!if $(WINMODE) == "W"
-LINKOPT =  /c /s /v /s /yx /Twe
-LINKOPTT = /c /s /t /x /Twe
+CC = BCC +$(UUPCCFG)
+LINKER  = TLINK
+
+!if $d(__OS2__)
+LINKOPTN = /c /x /Toe /ap /B:0x10000
+!elif $d(WINDOWS)
+LINKOPTN = /c /x /yx /Twe
+LINKOPTT = /c /x /t /Twe
 !else
-LINKOPT =  /c /s /v /s /yx
-LINKOPTT = /c /s /t /x
+LINKOPTN = /c /x /yx
+LINKOPTT = /c /x /t
 !endif
+
+LINKOPTD = $(LINKOPTN) /v
 
 TASM    = tasm.exe
 TASMOPT = /mx /z /zi /w3 /DUUPC
-ZIP     = pkzip
+ZIP     = zip
+ZIPOPT1 = -o -9 -u $< -@
+ZIPOPT2 = -j $(ZIPOPT1)
+
+!if $d(__OS2__)
+MAKER=make
+!else
+MAKER=maker
+!endif
 
 # *--------------------------------------------------------------------*
 # *                Begin rules for building modules.                   *
@@ -299,18 +410,41 @@ ZIP     = pkzip
 # *     test builds the basic UUPC modules in the source directory.    *
 # *--------------------------------------------------------------------*
 
+!if $d(__OS2__)
+test:    mail$(PSUFFIX).exe uucico$(PSUFFIX).exe rmail$(PSUFFIX).exe\
+         uuxqt$(PSUFFIX).exe uucp$(PSUFFIX).exe uupoll$(PSUFFIX).exe\
+         uuport$(PSUFFIX).exe\
+         uux$(PSUFFIX).exe uustat$(PSUFFIX).exe uusub$(PSUFFIX).exe\
+         uuname$(PSUFFIX).exe rnews$(PSUFFIX).exe expire$(PSUFFIX).exe
+!else
+
 test:    mail.exe uucico.exe\
          rmail.exe uuxqt.exe uucp.exe uupoll.exe\
          uux.exe uustat.exe uusub.exe\
          rnews.exe expire.exe
 
+windows: mailw.exe uucicow.exe\
+         rmailw.exe uuxqtw.exe uucpw.exe uupollw.exe\
+         uuxw.exe uustatw.exe uusubw.exe\
+         rnewsw.exe expirew.exe
+!endif
+
 # *--------------------------------------------------------------------*
 # *   Prod build the basic modules and then moves them to $(PROD)      *
 # *--------------------------------------------------------------------*
 
+!if $d(__OS2__)
+prod:   $(REQUIRED:.com=.exe) $(OPTIONAL:.com=.exe) $(NEWS:.com=.exe)
+        - erase $(TIMESTMP)
+        - erase $(UUPCLIB)
+!else
 prod:   $(INSTALL)
         - erase $(TIMESTMP)
         - erase $(UUPCLIB)
+!endif
+
+winprod:  commonw $(WREQUIRED) $(WOPTIONAL) $(WNEWS)
+        - del *.tds
 
 required: $(REQUIRED)
 
@@ -320,14 +454,23 @@ required: $(REQUIRED)
 # *     and creates PKZIP files for giving away.                       *
 # *--------------------------------------------------------------------*
 
-install: $(INSTALL) $(REQZIPV) $(OPTZIPV) $(NEWZIPV) \
-         $(SRCZIPV1) $(SRCZIPV2) \
-         $(DOCZIPV) $(WINZIPV) regen
+
+!if $d(__OS2__)
+install:
+        $(MAKER) -DNDEBUG=1 installx
+!else
+install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
+!endif
+
+doczip:  $(DOCZIPV)
+
+installx: $(INSTALL) $(REQZIPV) $(OPTZIPV) $(NEWZIPV) \
+          $(SRCZIPV1) $(SRCZIPV2) regen
         - erase $(WORKFILE)
         @echo Installed UUPC and created ZIP files $(REQZIPV),
+        @echo $(WREQZIPV), $(WOPTZIPV), $(WNEWZIPV),
         @echo $(OPTZIPV), $(NEWZIPV),
-        @echo $(SRCZIPV1), $(SRCZIPV2),
-        @echo $(DOCZIPV), and $(WINZIPV)
+        @echo $(SRCZIPV1), $(SRCZIPV2)
         - erase $(TIMESTMP)
         - erase $(UUPCLIB)
 
@@ -352,100 +495,211 @@ clean:
 # *           The production copies of executables follow.             *
 # *--------------------------------------------------------------------*
 
+!if $d(__OS2__)
+$(PROD)\mail.exe: mail$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uucp.exe: uucp$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uusub.exe: uusub$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uuxqt.exe: uuxqt$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uupoll.exe: uupoll$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uuport.exe: uuport$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\rmail.exe: rmail$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uustat.exe: uustat$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uux.exe: uux$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uuname.exe: uuname$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(FMT): fmt$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\gensig.exe: gensig$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\novrstrk.exe: novrstrk.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\uucico.exe: uucico$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\rnews.exe: rnews$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\rn.exe: rn$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\newsetup.exe: newsetup$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\expire.exe: expire$(PSUFFIX).exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(PROD)\su.cmd: $(SCRIPT)\su.cmd
+        copy $? $<
+
+$(PROD)\uuio.cmd: $(SCRIPT)\uuio.cmd
+        copy $? $<
+
+$(PROD)\uuclean.cmd: $(SCRIPT)\uuclean.cmd
+        copy $? $<
+
+$(PROD)\waiting.cmd: $(SCRIPT)\waiting.cmd
+        copy $? $<
+
+$(PROD)\getuupc.cmd: $(SCRIPT)\getuupc.cmd
+        copy $? $<
+
+$(PROD)\mailchek.cmd: $(SCRIPT)\mailchek.cmd
+        copy $? $<
+
+!else
+
 $(PROD)\mail.exe: mail.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uucp.com: uucp.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uusub.com: uusub.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uuxqt.exe: uuxqt.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uupoll.exe: uupoll.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\rmail.exe: rmail.exe
         - erase $<
         move $? $<
-        - erase $&.tds
-
-$(PROD)\uuname.exe: uuname.exe
-        - erase $<
-        move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uustat.com: uustat.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uux.com: uux.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\comm34.com: comm34.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uuname.com: uuname.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(FMT): fmt.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\gensig.com: gensig.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\novrstrk.com: novrstrk.com
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\uucico.exe: uucico.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
+
+$(PROD)\uuport.com: uuport.com
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
 
 $(PROD)\rnews.exe: rnews.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\rn.exe: rn.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\newsetup.exe: newsetup.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\expire.exe: expire.exe
         - erase $<
         move $? $<
-        - erase $&.tds
+        - erase $(?B: =.tds)
 
 $(PROD)\su.bat: $(SCRIPT)\su.bat
         copy $? $<
@@ -460,6 +714,81 @@ $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
         copy $? $<
 
 # *--------------------------------------------------------------------*
+# *                       Windows executables                          *
+# *--------------------------------------------------------------------*
+
+$(WINPROD)\mail.exe: mailw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uucp.exe: uucpw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uusub.exe: uusubw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uuxqt.exe: uuxqtw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uupoll.exe: uupollw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\rmail.exe: rmailw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uustat.exe: uustatw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uux.exe: uuxw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uuname.exe: uunamew.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\uucico.exe: uucicow.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\rnews.exe: rnewsw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\rn.exe: rnw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\newsetup.exe: newsetupw.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+
+$(WINPROD)\expire.exe: expirew.exe
+        - erase $<
+        move $? $<
+        - erase $(?B: =.tds)
+!endif
+
+# *--------------------------------------------------------------------*
 # *                         The .ZIP files.                            *
 # *--------------------------------------------------------------------*
 
@@ -467,252 +796,430 @@ $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
 # *                           UUPCSRC.ZIP                              *
 # *--------------------------------------------------------------------*
 
-$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)mscmake $(TIMESTMP) $(FMT)
+$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)mscmake \
+             $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
+       -12 $(ZIP) $(ZIPOPT1) < &&%
+MSCMAKE
+LIB\*.C
+LIB\*.H
+LIB\*.MAK
+MAIL\*.C
+MAIL\*.H
+MAIL\*.MAK
+UUCICO\*.ASM
+UUCICO\*.C
+UUCICO\*.H
+UUCICO\*.MAK
+UUCP\*.C
+UUCP\*.H
+UUCP\*.MAK
+%
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$(README)
 $(MAKEFILE)
-mscmake
-lib\*.c
-lib\*.h
-lib\*.mak
-mail\*.c
-mail\*.h
-mail\*.mak
-uucico\*.asm
-uucico\*.c
-uucico\*.h
-uucico\*.mak
-uucp\*.c
-uucp\*.h
-uucp\*.mak
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -P -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) source files (1 of 2)
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) source files (1 of 2)
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+.
+%
 
-$(SRCZIPV2): $(FMT)
+$(SRCZIPV2): $(MAKEFILE) \
+             $(UUPCCFG) $(UUPCDEFS) $(DEFFILE) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
-xrn\*.c
-xrn\*.h
-xrn\*.mak
-rnews\*.c
-rnews\*.h
-rnews\*.mak
-test\*.c
-test\*.h
-test\*.mak
-util\*.c
-util\*.h
-util\*.mak
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -P -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) source files (2 of 2)
+       -12 $(ZIP) $(ZIPOPT1) < &&%
+RNEWS\*.C
+RNEWS\*.H
+RNEWS\*.MAK
+TEST\*.C
+TEST\*.H
+TEST\*.MAK
+UTIL\*.C
+UTIL\*.H
+UTIL\*.MAK
+%
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$(README)
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) source files (2 of 2)
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
 
 # *--------------------------------------------------------------------*
 # *       UUPCWIN.ZIP - Word for Windows unformatted documents         *
 # *--------------------------------------------------------------------*
 
-$(WINZIPV):  $(DOCW) $(FMT) $(MAKEFILE)
+$(WFWZIPV):  $(WINWORD)\uupcuser.doc $(WINWORD)\manual.dot $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
-$(DOCW)
-winword\manual.dot
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) Unformatted Documents
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< < &&%
+UUPC/extended $(VERS) Word for Windows Document Source
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
 
 # *--------------------------------------------------------------------*
 # *                UUPCREQ.ZIP - Required Executables                  *
 # *--------------------------------------------------------------------*
 
-$(REQZIPV):  $(REQUIRED) $(FMT) $(MAKEFILE)
+$(REQZIPV):  $(REQUIRED) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
+       -12 $(ZIP) $(ZIPOPT2) < &&%
 $(REQUIRED)
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -p -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (1 of 3)
+$(README)
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) DOS executables (1 of 3)
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
 
 # *--------------------------------------------------------------------*
 # *                UUPCOPT.ZIP - Optional Executables                  *
 # *--------------------------------------------------------------------*
 
-$(OPTZIPV):  $(OPTIONAL) $(FMT) $(MAKEFILE)
+$(OPTZIPV):  $(OPTIONAL) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
-$(OPTIONAL)
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -p -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (2 of 3)
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) DOS executables (2 of 3)
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
 
 # *--------------------------------------------------------------------*
 # *                 UUPC/extended - NEWS executables                   *
 # *--------------------------------------------------------------------*
 
-$(NEWZIPV):  $(NEWS) $(FMT) $(MAKEFILE)
+$(NEWZIPV):  $(NEWS) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
-$(NEWS)
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -p -u $< @$(WORKFILE)
-       pkbanner $<  &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (3 of 3)
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) DOS executables (3 of 3)
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
 
 # *--------------------------------------------------------------------*
 # *        UUPCDOC.ZIP - Formatted (Human readable) documents          *
 # *--------------------------------------------------------------------*
 
-docs: $(DOCZIPV) $(WINZIPV)
+docs: $(DOCZIPV) $(WFWZIPV) $(PSZIPV)
 
-$(DOCZIPV):  $(SAMPLES) $(DOCSLIST) $(FMT) $(MAKEFILE) $(LIVEFILES)
+$(DOCZIPV): $(SAMPLES) $(LIVEFILES) $(LISTFILES) $(README)
         - mkdir $:.
-        - del $(WORKFILE)
-        $(FMT) -0 &&!
-$(DOCSLIST)
-$(SAMPLES)
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       -12 $(ZIP) $(ZIPOPT2) < &&%
 $(DOCS)\*.mdm
 $(DOCS)\*.inf
 $(DOCS)\*.txt
 $(DOCS)\*.spb
-$(LIVEFILES)
-!       $(WORKFILE)
-       -12 $(ZIP) -o- -p -u $< @$(WORKFILE)
-       pkbanner $< &&!
-Kendra Electronic Wonderworks: UUPC/extended $(VERS) documents and sample files
+%
+       zip -z $< < &&%
+UUPC/extended $(VERS) documents and sample files
 
 Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
-!
+%
+
+$(PSZIPV): $(LISTFILES:.prn=.ps) $(README)
+        - mkdir $:.
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< < &&%
+UUPC/extended $(VERS) documents in PostScript format
+
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
+Wonderworks.  May be distributed freely if original source and documentation
+files are included.  Please direct all questions on UUPC/extended to
+help@kew.com.
+%
+
+# *--------------------------------------------------------------------*
+# *                           Common build                             *
+# *--------------------------------------------------------------------*
+
+common: $(.path.obj) $(COMMON)  $(DEFFILE)
+
+commonm:
+        @echo $(MAKER) -f$(MAKEFILE) -DMODEL=m common
+        $(MAKER) -f$(MAKEFILE) -DMODEL=m common
+
+commonw:
+        $(MAKER) -f$(MAKEFILE) -DWINDOWS common
 
 # *--------------------------------------------------------------------*
 # *                     Link our various modules                       *
 # *--------------------------------------------------------------------*
 
-mail.exe: common
-        $(MAKE) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
+!if $d(__OS2__)
+
+mail$(PSUFFIX).exe: common
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+rmail$(PSUFFIX).exe: common
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uucp$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uuname$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uustat$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uusub$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uux$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uuxqt$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+fmt$(PSUFFIX).exe: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+gensig$(PSUFFIX).exe: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+novrstrk.exe: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uupoll$(PSUFFIX).exe: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uuport$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCICO)\uucico.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+expire$(PSUFFIX).exe: common
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+rnews$(PSUFFIX).exe: common
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uucico$(PSUFFIX).exe: common
+        $(MAKER) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+rn$(PSUFFIX).exe: common
+        $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+newsetup$(PSUFFIX).exe: common
+        $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
+
+!else
+mail.exe: commonm
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 rmail.exe: common
-        $(MAKE) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uucp.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uucp.com: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uuname.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uuname.com: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uustat.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uustat.com: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uusub.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uusub.com: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uux.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-uux.com: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uuxqt.exe: common
-        $(MAKE) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-comm34.com: common
-        $(MAKE) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-fmt.com: common
-        $(MAKE) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-gensig.com: common
-        $(MAKE) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
-
-novrstrk.com: common
-        $(MAKE) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 uupoll.exe: common
-        $(MAKE) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 expire.exe: common
-        $(MAKE) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
 rnews.exe: common
-        $(MAKE) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
-common: $(.path.obj) $(COMMON)
+uucico.exe: commonm
+        $(MAKER) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
-commonm:
-        $(MAKE) -f$(MAKEFILE) -DMODEL=m -DWINMODE=$(WINMODE) -DUUPCDEFS=$(UUPCDEFM) common
+uuport.com: commonm
+        $(MAKER) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFM) $<
+
+rn.exe: commonm
+        $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
+
+newsetup.exe: commonm
+        $(MAKER) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
+
+uucp.com: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uuname.com: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uustat.com: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uusub.com: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+uux.com: common
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+comm34.com: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+fmt.com: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+gensig.com: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+novrstrk.com: common
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+# *--------------------------------------------------------------------*
+# *                     Link our Windows modules                       *
+# *--------------------------------------------------------------------*
+
+mailw.exe: commonw
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+rmailw.exe: commonw
+        $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uucpw.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uunamew.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uunamew.com: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uustatw.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uusubw.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uuxw.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uuxqtw.exe: commonw
+        $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uupollw.exe: commonw
+        $(MAKER) -f$(UTIL)\util.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+expirew.exe: commonw
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+rnewsw.exe: commonw
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+uucicow.exe: commonw
+        $(MAKER) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+# *--------------------------------------------------------------------*
+# *               WUUPCREQ.ZIP - Required Windows Executables          *
+# *--------------------------------------------------------------------*
+
+$(WREQZIPV):  $(WREQUIRED) $(README)
+        - mkdir $:.
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) Windows 3.x executables (1 of 3)
+
+Special thanks to Robert B. Denny for performing the Windows 3.x port.
+
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
+Wonderworks.  May be distributed freely if original source and documentation
+files are included.  Please direct all questions on UUPC/extended to
+help@kew.com.
+%
+
+# *--------------------------------------------------------------------*
+# *               WUUPCOPT.ZIP - Optional Windows Executables          *
+# *--------------------------------------------------------------------*
+
+$(WOPTZIPV):  $(WOPTIONAL) $(README)
+        - mkdir $:.
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) Windows 3.x executables (2 of 3)
+
+Special thanks to Robert B. Denny for performing the Windows 3.x port.
+
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
+Wonderworks.  May be distributed freely if original source and documentation
+files are included.  Please direct all questions on UUPC/extended to
+help@kew.com.
+%
+
+# *--------------------------------------------------------------------*
+# *                 UUPC/extended - NEWS executables                   *
+# *--------------------------------------------------------------------*
+
+$(WNEWZIPV):  $(WNEWS) $(README)
+        - mkdir $:.
+       -12 $(ZIP) $(ZIPOPT2) < &&%
+$?
+%
+       zip -z $< <  &&%
+UUPC/extended $(VERS) Windows 3.x executables (3 of 3)
+
+Special thanks to Robert B. Denny for performing the Windows 3.x port.
+
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
+Wonderworks.  May be distributed freely if original source and documentation
+files are included.  Please direct all questions on UUPC/extended to
+help@kew.com.
+%
+!endif
 
 $(.path.obj):
         - mkdir $(.path.obj)
-
-uucico.exe: commonm
-        $(MAKE) -f$(UUCICO)\UUCICO.mak -DUUPCDEFS=$(UUPCDEFM) $<
-
-rn.exe: commonm
-        $(MAKE) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
-
-newsetup.exe: commonm
-        $(MAKE) -f$(RN)\RN.mak -DUUPCDEFS=$(UUPCDEFM) $<
 
 # *--------------------------------------------------------------------*
 # *     Force a regeneration of the time stamp/version module.         *
@@ -722,24 +1229,17 @@ regen:  $(LIB)\timestmp.c
         - erase $(TIMESTMP)
 
 # *--------------------------------------------------------------------*
-# *     The timestamp module has a reference to this MAKEFILE,         *
-# *     which insures whenever we change the version number the        *
-# *     time stamp gets re-generated.                                  *
-# *--------------------------------------------------------------------*
-
-$(TIMESTMP): $(LIB)\timestmp.c $(UUPCCFG) $(REGEN)
-
-# *--------------------------------------------------------------------*
 # *     Common library build                                           *
 # *--------------------------------------------------------------------*
 
-$(UUPCLIB):
-        $(MAKE) -f $(LIB)\lib.mak -DUUPCDEFS=$(UUPCDEFS) $<
-        echo Built $<
+$(UUPCLIB):  DUMMY
+        $(MAKER) -f $(LIB)\lib.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
+DUMMY:
+        @rem hello world
 
 $(UUPCLIBW):
-        $(MAKE) -f $(LIB)\lib.mak -DUUPCDEFS=$(UUPCDEFS) $<
-        echo Built $<
+        $(MAKER) -f $(LIB)\lib.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 # *--------------------------------------------------------------------*
 # *   Live files from the Wonderworks we provide as additional         *
@@ -767,33 +1267,44 @@ $(DOCS)\hostpath.kew: $(CONF)\hostpath
 # *--------------------------------------------------------------------*
 
 
-!if $(WINMODE) == "W"
-GENERATE = -W
+
+!if $d(__OS2__)
+OPTIMIZEOPT=-O2
+!else
+MODELOPT=-m$(MODEL)
+OPTIMIZEOPT=-O
+!if $d(WINDOWS)
+GENERATEOPT=-W
+CODEGENOPT=-3
+!else
+GENERATEOPT=-D_MSC
+!endif
 !endif
 
-#       -N-     <=== disables
-
-$(UUPCCFG): $(MAKEFILE) $(UUPCDEFS)
+$(UUPCCFG): $(MAKEFILE) \
+            $(LIB)\lib.mak \
+            $(MAIL)\mail.mak \
+            $(UUCP)\uucp.mak \
+            $(UUCICO)\uucico.mak \
+            $(UTIL)\util.mak
   copy &&|
-$(GENERATE)
+$(GENERATEOPT)
+$(WINDOWSOPT)
+$(CODEGENOPT)
+$(MODELOPT)
+$(OPTMIZEOPT)
 -c
 -d
 -DUUPCV="$(VERS)"
--D?__HEAPCHECK__
--D?__CORELEFT__
--D?_DEBUG
--D?UDEBUG
 -DIOCTL
 -f
 -G
 -I$(LIB)
 -I$(BINC)
 -L$(BLIB)
--nbcobj$(SUFFIX)
+-n$(OBJ)
 -N
 -k-
--O
--P-.C
 -r
 -v
 -Z
@@ -811,92 +1322,90 @@ $(GENERATE)
 -wsig
 -wucp
 -O2
--m$(MODEL)
+-P-
 | $<
+
+!if $d(WINDOWS)
+WINDOWSDEF = WINDOWS=1
+!endif
 
 $(UUPCDEFS): $(MAKEFILE)
   copy &&|
 .path.obj  = $(.path.obj)
 ARCHIVE    = $(ARCHIVE)
-TASM       = $(TASM)
-TASMOPT    = $(TASMOPT)
 BINC       = $(BINC)
 BLIB       = $(BLIB)
 BORLANDC   = $(BORLANDC)
-BUGSDOC    = $(BUGSDOC)
-BUGSLST    = $(BUGSLST)
 CC         = $(CC)
-CHNGDOC    = $(CHNGDOC)
-CHNGLST    = $(CHNGLST)
-CMDSDOC    = $(CMDSDOC)
-CMDSLST    = $(CMDSLST)
+COMMON     = $(COMMON)
 DOCS       = $(DOCS)
 DOCSLIST   = $(DOCSLIST)
 DOCW       = $(DOCW)
-DOCZIPV    = $(DOCZIPV)
+DEFFILE    = $(DEFFILE)
 FMT        = $(FMT)
-HOW2DOC    = $(HOW2DOC)
-HOW2LST    = $(HOW2LST)
 INSTALL    = $(INSTALL)
-INSTDOC    = $(INSTDOC)
-INSTLST    = $(INSTLST)
 LIB        = $(LIB)
 LIBRARIES  = $(LIBRARIES)
 LIBRARY    = $(LIBRARY)
 LIBRARY2   = $(LIBRARY2)
 LINKER     = $(LINKER)
-LINKOPT    = $(LINKOPT)
+LINKOPTN   = $(LINKOPTN)
+LINKOPTD   = $(LINKOPTD)
 LINKOPTT   = $(LINKOPTT)
 MAIL       = $(MAIL)
-MODEL      = $(MODEL)
-WINMODE    = $(WINMODE)
-SUFFIX     = $(SUFFIX)
-MAILDOC    = $(MAILDOC)
-MAILLST    = $(MAILLST)
 MAKEFILE   = $(MAKEFILE)
 MAP        = $(MAP)
+MODEL      = $(MODEL)
 NEWS       = $(NEWS)
-NEWZIPV    = $(NEWZIPV)
 OBJ        = $(OBJ)
 OPTIONAL   = $(OPTIONAL)
-OPTZIPV    = $(OPTZIPV)
-PROD       = $(PROD)
-READDOC    = $(READDOC)
-READLST    = $(READLST)
-REGRDOC    = $(REGRDOC)
-REGRLST    = $(REGRLST)
+PSUFFIX    = $(PSUFFIX)
 REQUIRED   = $(REQUIRED)
-REQZIPV    = $(REQZIPV)
-RNEWS      = $(RNEWS)
 RN         = $(RN)
+RNEWS      = $(RNEWS)
 SAMPLES    = $(SAMPLES)
 SAMPLEX    = $(SAMPLEX)
 SRC        = $(SRC)
-SRCZIPV1   = $(SRCZIPV1)
-SRCZIPV2   = $(SRCZIPV2)
 STARTUP    = $(STARTUP)
 STARTUPT   = $(STARTUPT)
-STATDOC    = $(STATDOC)
-STATLST    = $(STATLST)
+SUFFIX     = $(SUFFIX)
+TASM       = $(TASM)
+TASMOPT    = $(TASMOPT)
 TEST       = $(TEST)
-TILDDOC    = $(TILDDOC)
-TILDLST    = $(TILDLST)
 TIMESTMP   = $(TIMESTMP)
 TMP        = $(TMP)
 UTIL       = $(UTIL)
 UUCICO     = $(UUCICO)
-UUCICOCOM  = $(UUCICOCOM)
 UUCP       = $(UUCP)
 UUPCCFG    = $(UUPCCFG)
 UUPCLIB    = $(UUPCLIB)
 VERS       = $(VERS)
 WINWORD    = $(WINWORD)
-WINZIPV    = $(WINZIPV)
 WORKFILE   = $(WORKFILE)
-COMMON     = $(COMMON)
-ZIP        = $(ZIP)
+$(WINDOWSDEF)
 
 .autodepend
 
-.nosilent
+.silent
 | $<
+
+!if $d(WINDOWS)
+$(DEFFILE): $(MAKEFILE)
+  copy &&|
+EXETYPE WINDOWS
+DATA MOVABLE MULTIPLE
+STACKSIZE 8182
+HEAPSIZE  12288
+Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1993 Kendra Electronic Wonderworks, All Rights Reserved'
+| $<
+!endif
+
+!if $d(__OS2__)
+$(DEFFILE): $(MAKEFILE)
+  copy &&|
+DATA MULTIPLE
+STACKSIZE 32760
+EXETYPE OS2
+Description 'UUPC/extended $(VERS), Changes Copyright (c) 1989-1993 Kendra Electronic Wonderworks, All Rights Reserved'
+| $<
+!endif
