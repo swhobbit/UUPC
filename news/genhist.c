@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.8 1994/06/14 01:19:24 ahd v1-12k $";
+         "$Id: genhist.c 1.9 1994/12/22 00:24:30 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.9  1994/12/22 00:24:30  ahd
+/* Annual Copyright Update
+/*
 /* Revision 1.8  1994/06/14 01:19:24  ahd
 /* Clean yp RCS information
 /* patches from Kai Uwe Rommel
@@ -153,13 +156,6 @@ void main( int argc, char **argv)
       exit(1);   /* system configuration failed */
 
    openlog( NULL );
-
-   if ( ! bflag[F_HISTORY] )
-   {
-      printmsg(0,"options=history not set; running %s makes no sense!",
-                 argv[0] );
-      panic();
-   }
 
    PushDir( E_newsdir );
    atexit( PopDir );

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.52 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: configur.c 1.53 1994/12/31 03:51:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.53  1994/12/31 03:51:01  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.52  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -383,8 +386,6 @@ FLAGTABLE configFlags[] = {
  { "expert",                  F_EXPERT,                B_LOCAL},
  { "forwardsave",             F_SAVERESENT,            B_LOCAL},
  { "fromsep",                 F_FROMSEP,               B_LOCAL},
- { "neweditorwindow",         F_NEWEDITORSESSION,      B_LOCAL},
- { "newpagerwindow",          F_NEWPAGERSESSION,       B_LOCAL},
  { "pager",                   F_PAGER,                 B_LOCAL},
  { "purge",                   F_PURGE,                 B_LOCAL},
  { "save",                    F_SAVE,                  B_LOCAL},
@@ -402,7 +403,6 @@ FLAGTABLE configFlags[] = {
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
  { "fullbatch",               F_FULLBATCH,             B_GLOBAL},
- { "history",                 F_HISTORY,               B_GLOBAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},
@@ -418,8 +418,6 @@ FLAGTABLE configFlags[] = {
  { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
  { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
  { "syslog",                  F_SYSLOG,                B_GLOBAL},
- { "usesysfile",              F_USESYSFILE,            B_GLOBAL},
- { "uupcnewsserv",            F_UUPCNEWSSERV,          B_GLOBAL},
  { nil(char) }
 }           ;
 
@@ -1012,7 +1010,7 @@ boolean configure( CONFIGBITS program)
 /*                         Set our time zone                          */
 /*--------------------------------------------------------------------*/
 
-   if ((getenv("TZ") == NULL) && (E_tz != NULL))
+   if (E_tz != NULL)
    {
       sprintf( buf, "TZ=%s", E_tz );
       E_tz = newstr( E_tz );

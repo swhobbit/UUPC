@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uustat.c 1.22 1994/04/27 00:02:15 ahd v1-12k $
+ *    $Id: uustat.c 1.23 1994/12/22 00:44:37 ahd Exp $
  *
  *    $Log: uustat.c $
+ *    Revision 1.23  1994/12/22 00:44:37  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1994/04/27 00:02:15  ahd
  *    Properly trap failure to delete files when killing jobs
  *    consistently use printmsg() for output
@@ -39,7 +42,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uustat.c 1.22 1994/04/27 00:02:15 ahd v1-12k $";
+         "$Id: uustat.c 1.23 1994/12/22 00:44:37 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*         System include files                                       */
@@ -187,7 +190,7 @@ static void open_data(const char *file,
                             char *command,
                             const size_t commandLen);
 
-static void poll(const char *callee);
+static void poll(const char *callee, const char grade );
 
 static void print_all(       char *job,
                        struct data_queue *current,
@@ -224,6 +227,8 @@ void main(int  argc, char  **argv)
    extern int   optind;
    COMMAND_CLASS command = LIST_DEFAULT;
 
+   char grade = 'Z';
+
    char *system = NULL;
    char *userid = NULL;
    char *job    = NULL;
@@ -254,10 +259,14 @@ void main(int  argc, char  **argv)
 /*        Process our arguments                                       */
 /*--------------------------------------------------------------------*/
 
-   while ((c = getopt(argc, argv, "amqk:r:s:u:x:P:")) !=  EOF)
+   while ((c = getopt(argc, argv, "ag:k:mqr:s:u:x:P:")) !=  EOF)
       switch(c) {
       case 'a':
          command = LIST_ALL;
+         break;
+
+      case 'g':
+         grade = *optarg;
          break;
 
       case 'm':
@@ -378,7 +387,7 @@ void main(int  argc, char  **argv)
          break;
 
       case FORCE_POLL:
-         poll( system );
+         poll( system, grade );
          break;
 
       default:
@@ -511,7 +520,7 @@ void all( const char *system, const char *userid)
 /*    Write a dummy call file to request a poll of a host             */
 /*--------------------------------------------------------------------*/
 
-static void poll(const char *callee)
+static void poll(const char *callee, const char grade )
 {
 
    char tmfile[15];           /* Call file, UNIX format name           */
@@ -535,12 +544,13 @@ static void poll(const char *callee)
 
    while  (hostp !=  BADHOST )
    {
-      printmsg(1,"POLL(%s)", hostp->hostname);
+      printmsg(1,"POLL(%s) grade(%c)", hostp->hostname, grade);
+
       sprintf(tmfile,"%.8s",hostp->hostname);
 
       if ( ValidDOSName( tmfile, FALSE ) || !equal(callee, ALL))
       {
-         sprintf(tmfile, spool_fmt, 'C', hostp->hostname,'Z' ,
+         sprintf(tmfile, spool_fmt, 'C', hostp->hostname, grade ,
                   "000");
          importpath( msname, tmfile, hostp->hostname);
 

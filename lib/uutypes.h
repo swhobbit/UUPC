@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.22 1994/12/22 00:14:38 ahd Exp $
+ *    $Id: uutypes.h 1.23 1994/12/31 03:51:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.23  1994/12/31 03:51:25  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.22  1994/12/22 00:14:38  ahd
  *    Annual Copyright Update
  *
@@ -139,10 +142,6 @@ typedef enum {
                F_EXPERT,      /* TRUE = Let user shoot self in foot w/o
                                         a message.                     */
                F_FROMSEP,     /* TRUE = Allow From to split messages   */
-               F_NEWEDITORSESSION,
-                              /* TRUE = Start new session for editor   */
-               F_NEWPAGERSESSION,
-                              /* TRUE = Start new session for pager    */
                F_PAGER,       /* TRUE = Invert meaning of P/p T/t commands */
                F_PURGE,       /* TRUE = Delete mailbox, if empty       */
                F_SAVE,        /* TRUE = Save read messages in =mbox when
@@ -171,8 +170,6 @@ typedef enum {
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
                F_ESCAPE,      /* TRUE = ESCAPE acts as Ctrl-Break      */
-               F_HISTORY,     /* TRUE = Maintain history of of articles
-                                        read and posted                 */
                F_FULLBATCH,   /* TRUE = Batch only sends batches that are
                                  full size.                             */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
@@ -194,10 +191,6 @@ typedef enum {
                                         of each file transferred        */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
                                  support                               */
-               F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file  */
-                              /* GMM - Batched ouytbound news support  */
-               F_UUPCNEWSSERV,
-                              /* TRUE = Our news server runs UUPC too    */
                F_SUPPRESSEMPTYPASSWORD,
                               /* Don't prompt if user password is empty */
                F_LAST }       /* Dummy - Must be last - defines array size */
@@ -209,10 +202,12 @@ typedef enum {
 
 #undef FALSE
 #undef TRUE
+
 typedef enum
-      { FALSE = 0,
-        TRUE = 1 }
-        boolean;
+      {
+         FALSE = 0,
+         TRUE = 1
+      }  boolean;
 
 /*--------------------------------------------------------------------*/
 /*                      Configuration mode flags                      */

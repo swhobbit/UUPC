@@ -20,14 +20,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.25 1994/12/27 20:50:28 ahd Exp $
+ *    $Id: batch.h 1.1 1994/12/31 03:51:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: batch.h $
+ *    Revision 1.1  1994/12/31 03:51:25  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  */
 
-void xmit_news( char *sysname, FILE *in_stream );
+#include "sys.h"
 
-void batch_news(char *directory,char *artfile);
+void process_batch(const struct sys *node,
+                   const char *system,
+                   const char *artnames);
 
 #endif /* _BATCH_H */

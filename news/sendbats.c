@@ -19,16 +19,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.25 1994/12/27 20:50:28 ahd Exp $
+ *    $Id: sendbats.c 1.1 1994/12/31 03:41:08 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: sendbats.c $
+ *    Revision 1.1  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  */
 
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id$";
+            "$Id: sendbats.c 1.1 1994/12/31 03:41:08 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -61,8 +64,6 @@ static const char rcsid[] =
 
 currentfile();
 
-FILE *sys_file = NULL;           /* C News SYS file */
-
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
 /*                                                                    */
@@ -86,8 +87,6 @@ FILE *sys_file = NULL;           /* C News SYS file */
 int main( int argc, char **argv)
 {
 
-   boolean    flag_f,flag_F,flag_I,flag_n;
-   char       fname[FILENAME_MAX];
    struct sys *sysnode;
 
 #if defined(__CORE__)
@@ -102,7 +101,6 @@ int main( int argc, char **argv)
 
    openlog( argv[0] );        /* Begin logging to disk         */
 
-   tzset();                   /* Set up time zone information  */
    if (bflag[F_FULLBATCH] && (E_batchsize == 0))
    {
       E_batchsize = 60L * 1024L;    /* Provide reasonable default    */
@@ -113,26 +111,17 @@ int main( int argc, char **argv)
                    E_batchsize );
    }
 
-   mkfilename(fname,E_confdir,"SYS");
-
-   sys_file = FOPEN(fname, "r", IMAGE_MODE);
-
-   if ( sys_file == NULL )
-   {
-      printerr(fname);
-      printmsg(0,"SENDBATS: Must have SYS file if USESYSFILE option set");
-      panic();
-   }
-
-   init_sys(sys_file);
+   init_sys();
 
    sysnode = sys_list;
+
    while (sysnode != NULL)
    {
 
      printmsg(0,"SENDBATS: Batching news for system %s",sysnode->sysname);
 
      /* skip us! */
+
      if (equal(E_nodename,sysnode->sysname))
      {
        sysnode = sysnode -> next;
@@ -145,37 +134,29 @@ int main( int argc, char **argv)
       * article at a time, or by batch!
       */
 
-     if (*sysnode->flags == 0)
-     {
-       sysnode = sysnode -> next;
-       continue;
-     }
-
      /*
       * the only flags of interest are 'fFIn' and only 1 can be set, or
       * we wouldn't be here!!
       * the other flags 'muLn' are RNEWS's problem, not ours!
       */
 
-     flag_f = strchr(sysnode->flags,'f') != NULL;
-     flag_F = strchr(sysnode->flags,'F') != NULL;
-     flag_I = strchr(sysnode->flags,'I') != NULL;
-     flag_n = strchr(sysnode->flags,'n') != NULL;
-
-     if (flag_f || flag_F || flag_n)
-       batch_news(sysnode->sysname,sysnode->command);
-     else
-       if (flag_I) /* flag_I -> what does a control message look like? */
-         printmsg(0,"Flag I is not handled for system %s",sysnode->sysname);
+     if (sysnode->flag.f || sysnode->flag.F || sysnode->flag.n)
+       process_batch(sysnode, sysnode->sysname, sysnode->command);
+     else if (sysnode->flag.I)   /* Unsupported on this end?         */
+     {
+            printmsg(0,"Flag I is not handled for system %s",sysnode->sysname);
+            panic();
+    }
 
      sysnode = sysnode -> next;
-   }
+
+   } /* while (sysnode != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                 Clean up and terminate processing                  */
+/*--------------------------------------------------------------------*/
 
    exit_sys();
-
-/*--------------------------------------------------------------------*/
-/*                          Return to caller                          */
-/*--------------------------------------------------------------------*/
 
    return 0;
 

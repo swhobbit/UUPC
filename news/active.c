@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.11 1994/12/22 00:07:04 ahd Exp ahd $
+ *    $Id: active.c 1.12 1994/12/31 03:41:08 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.12  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.11  1994/12/22 00:07:04  ahd
  *    Annual Copyright Update
  *
@@ -132,6 +135,7 @@ void get_active( void )
    struct grp *cur_grp;
    struct grp *prev_grp;
    int i;
+   int line = 0;
 
 /*--------------------------------------------------------------------*/
 /*    Open the active file and extract all the newsgroups and         */
@@ -155,16 +159,20 @@ void get_active( void )
    } /* if */
 
 /*--------------------------------------------------------------------*/
-/*       We don't seem to have an active file.  If we have a SYS      */
-/*       file, we'll wing it from there.                              */
+/*               No active file, die young, stay pretty               */
 /*--------------------------------------------------------------------*/
 
-   if (bflag[F_USESYSFILE])
-     return;
-   else {
-     printerr(active_filename);
-     panic();
-   }
+   if ( g == NULL )
+   {
+
+      printerr(active_filename);
+      panic();
+
+   }  /* if ( g == NULL ) */
+
+/*--------------------------------------------------------------------*/
+/*            Build the list of groups in the active file             */
+/*--------------------------------------------------------------------*/
 
    prev_grp = NULL;
 
@@ -182,10 +190,15 @@ void get_active( void )
             &cur_grp->grp_low,
             &cur_grp->grp_can_post)) != EOF)
    {
+      line++;
+
       if (i != 4)
       {
-         printmsg(0,"rnews: incomplete line in %s, %d tokens found",
-                     active_filename, i);
+         printmsg(0,"active: incomplete line in %s, %d tokens found"
+                    " on line %d",
+                     active_filename,
+                     i,
+                     line );
          panic();
       }
 
@@ -206,10 +219,21 @@ void get_active( void )
 
    } /* while */
 
+
    if (fclose(g))
       printerr( active_filename );
 
-   if (prev_grp != NULL) {
+/*--------------------------------------------------------------------*/
+/*     Verify we had a valid active file with at least one entry      */
+/*--------------------------------------------------------------------*/
+
+   if (prev_grp == NULL)
+   {
+      printmsg(0,"active: Active file %s is empty, cannot continue",
+                  active_filename );
+      panic();
+   }
+   else {                        /* Drop extra slot we had allocated */
       prev_grp->grp_next = NULL;
       free(cur_grp);
    }
@@ -316,4 +340,120 @@ void validate_newsgroups( void )
    }
 
    return;
+
 } /* validate_newsgroups */
+
+/*--------------------------------------------------------------------*/
+/*    f i n d _ n e w s g r o u p                                     */
+/*                                                                    */
+/*    Locate a news group in our list                                 */
+/*--------------------------------------------------------------------*/
+
+struct grp *find_newsgroup(const char *grp)
+{
+   struct grp *cur = group_list;
+
+   while (!equal(grp, cur->grp_name))
+   {
+      if (cur->grp_next != NULL)
+      {
+         cur = cur->grp_next;
+      }
+      else {
+         return NULL;
+      }
+   }
+
+   return cur;
+
+}  /* find_newsgroup */
+
+/*--------------------------------------------------------------------*/
+/*    a d d _ n e w s g r o u p                                       */
+/*                                                                    */
+/*    Add a news group to our list                                    */
+/*--------------------------------------------------------------------*/
+
+boolean add_newsgroup(const char *grp, const boolean moderated)
+{
+   struct grp *cur = group_list;
+
+   while ((strcmp(grp, cur->grp_name) != 0))
+   {
+      if (cur->grp_next != NULL)
+      {
+         if ( equali( cur->grp_name, grp ) ) /* Group exists?        */
+            return FALSE;           /* Yes --> Cannot add it again   */
+
+         cur = cur->grp_next;
+      }
+      else {
+         cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
+         cur = cur->grp_next;
+         checkref(cur);
+         cur->grp_next = NULL;
+         cur->grp_name = newstr(grp);
+         cur->grp_high = 1;
+         cur->grp_low  = 0;
+         cur->grp_can_post = (char) (moderated ? 'm' : 'y');
+         break;
+      }
+   }
+
+} /* add_newsgroup */
+
+/*--------------------------------------------------------------------*/
+/*    d e l _ n e w s g r o u p                                       */
+/*                                                                    */
+/*    Remove a news group from our list                               */
+/*--------------------------------------------------------------------*/
+
+boolean del_newsgroup(const char *grp)
+{
+   struct grp *cur = group_list;
+   struct grp *prev = NULL;
+
+   while ((strcmp(grp, cur->grp_name) != 0))
+   {
+      if (cur->grp_next != NULL)
+      {
+         prev = cur;
+         cur = cur->grp_next;
+      }
+      else {
+         return FALSE;
+      }
+   }
+
+   if (prev == NULL)
+     group_list = cur->grp_next;
+   else
+     prev->grp_next = cur->grp_next;
+
+   free(cur);
+
+   /* name string is not free'ed because it's in the string pool */
+
+   return TRUE;
+
+} /* del_newsgroup */
+
+/*--------------------------------------------------------------------*/
+/*    g e t _ s n u m                                                 */
+/*                                                                    */
+/*    Get highest article number of newsgroup                         */
+/*--------------------------------------------------------------------*/
+
+boolean get_snum(const char *group, char *snum)
+{
+   struct grp *cur;
+
+   strcpy(snum, "0");
+   cur = find_newsgroup(group);
+   if (cur == NULL)
+      return FALSE;
+
+   sprintf(snum, "%ld", cur->grp_high);
+   return TRUE;
+
+} /* snum */

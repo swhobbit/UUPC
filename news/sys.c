@@ -38,7 +38,7 @@
 /*               system.  n specifies hops from this site.            */
 /*                                                                    */
 /*                                                                    */
-/*         f,F - Data field contains a directory name to store        */
+/*         f, F - Data field contains a directory name to store       */
 /*               articles for batching.  If this field is empty       */
 /*               RNEWS will use [newsspooldir]/node/B to batch the    */
 /*               files in.  F does not write size to the file.        */
@@ -60,7 +60,6 @@
 /*             based on the flags.                                    */
 /*                                                                    */
 /*                                                                    */
-/*                                                                    */
 /*    For more information on SYS file, check with Managing UUCP and  */
 /*    Usenet, pg177-180                                               */
 /*--------------------------------------------------------------------*/
@@ -78,10 +77,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.25 1994/12/27 20:50:28 ahd Exp $
+ *    $Id: sys.c 1.1 1994/12/31 03:41:08 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: sys.c $
+ *    Revision 1.1  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  */
 
 #include "uupcmoah.h"
@@ -94,6 +96,7 @@
 #include <io.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -101,74 +104,91 @@
 
 #include "timestmp.h"
 #include "active.h"
+#include "hostable.h"
 #include "sys.h"
 
 currentfile();
 
 struct sys *sys_list = NULL;
 
-static FILE *sysfile;
+static FILE *sysFileStream = NULL;
 
-void process_sys(long start,char *buf)
+#define ME "ME"
+
+static void bootStrap( const char *fileName );
+
+/*--------------------------------------------------------------------*/
+/*       p r o c e s s _ s y s                                        */
+/*                                                                    */
+/*       Process a single SYS file entry which is already buffered    */
+/*       into memory                                                  */
+/*--------------------------------------------------------------------*/
+
+void process_sys(const long start, char *buf)
 {
   struct sys *node;
-  char       *f1,*f2,*f3,*f4,*s1,*s2,*t;
+  char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
   long       start2;
-  boolean    flag_f,
-             flag_F,
-             flag_I,
-             flag_m,
-             flag_n,
-             flag_u;
 
-  if (strlen(buf) == 0)
-    return;
+  printmsg(3, "process_sys: start %ld\nentry: %s", start, buf);
 
-  s2 = strchr(buf,0);
-
-  /* strip off final cr/lf pair and spaces*/
-  if (*--s2 == '\n')
-    *s2 = 0;
-  if (*--s2 == '\r')
-    *s2 = 0;
-  while (*s2 == ' ')
-    *s2-- = 0;
-
-  printmsg(3,"process_sys: start %ld\nentry: %s",start,buf);
   node = malloc(sizeof(struct sys));
-  memset(node,0,sizeof(struct sys));
+
+  memset(node, 0, sizeof(struct sys));
   node->next = sys_list;
+  node->maximumHops = USHRT_MAX;
+
   sys_list = node;
 
-  f1 = buf;                /* node field    */
-  f2 = strchr(f1,':');     /* groups field  */
+  f1 = buf;                   /* node field    */
+  f2 = strchr(f1, ':');       /* groups field  */
+
   if (f2 != NULL)
+  {
     *f2++ = 0;
+    f3 = strchr(f2, ':');     /* flags field   */
+  }
+  else
+    f3 = NULL;
+
   start2 = start + strlen(f1) + 1;
-  f3 = strchr(f2,':');     /* flags field   */
+
   if (f3 != NULL)
+  {
     *f3++ = 0;
-  f4 = strchr(f3,':');     /* command field */
+     f4 = strchr(f3, ':');     /* command field */
+   }
+   else
+      f4 = NULL;
+
   if (f4 != NULL)
     *f4++ = 0;
-  s1 = strchr(f1,'/'); /* exclusions subfield    */
+
+  s1 = strchr(f1, '/'); /* exclusions subfield    */
   if (s1 != NULL)
     *s1++ = 0;
-  s2 = strchr(f2,'/'); /* distributions subfield */
-  if (s2 != NULL)
-    *s2++ = 0;
-  if (f4 != NULL)
-    strcpy(node->command,f4);
-  if (f3 != NULL)
-    strcpy(node->flags,f3);
+
+  if ( f2 != NULL )
+  {
+     s2 = strchr(f2, '/'); /* distributions subfield */
+
+     if (s2 != NULL)
+       *s2++ = 0;
+  }
+  else
+     s2 = NULL;
+
+  if ((f4 != NULL) && strlen( f4 )) /* Command or batch file name */
+    node->command = newstr(f4);
 
   /*
    * if the node field has a subfield, it's been stripped off already,
-   * leaving the node name all by itself.  Note that "me" is a special
+   * leaving the node name all by itself.  Note that ME is a special
    * case, and refers to this machine, and is replaced by E_nodename.
    */
 
-  strcpy(node->sysname, equal(f1,"me") ? E_nodename : f1);
+  node->sysname = newstr( equal(f1, ME) ? E_nodename : f1);
+
   if (s1 != NULL)
   {
     node->bExclude = TRUE;
@@ -190,144 +210,292 @@ void process_sys(long start,char *buf)
     node->grp_to = node->grp_from + strlen(f2);
   }
 
-  printmsg(4,"Interpreted sys entry as follows:");
-  printmsg(4,"Node = %s, length = %i",f1,strlen(f1));
-  printmsg(4,"Exclusions = %s, length = %i",s1,strlen(s1));
-  printmsg(4,"Groups = %s, length = %i",f2,strlen(f2));
-  printmsg(4,"Distributions = %s, length = %i",s2,strlen(s2));
-  printmsg(4,"Flags = %s, length = %i",f3,strlen(f3));
-  printmsg(4,"Command = %s, length = %i",f4,strlen(f4));
+  printmsg(4, "Interpreted sys entry as follows:");
+
+  if ( f1 )
+     printmsg(4, "Node = %s, length = %i", f1, strlen(f1));
+
+  if  ( s1 )
+     printmsg(4, "Exclusions = %s, length = %i", s1, strlen(s1));
+
+  if ( f2 )
+     printmsg(4, "Groups = %s, length = %i", f2, strlen(f2));
+
+  if ( s2 )
+     printmsg(4, "Distributions = %s, length = %i", s2, strlen(s2));
+
+  if ( f3 )
+     printmsg(4, "Flags = %s, length = %i", f3, strlen(f3));
+
+  if ( f4)
+     printmsg(4, "Command = %s, length = %i", f4, strlen(f4));
 
   if (f3 != NULL)
   {
-    t = strchr(f3,'f');
-    flag_f = t != NULL;
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended specific options.                 */
+/*--------------------------------------------------------------------*/
+
+    t = strchr(f3, 'c');            /* Do _not_ compress batches     */
+
+    node->flag.c = (t == NULL) ? FALSE : TRUE;
+
     if (t != NULL)
       *t = ' ';
 
-    t = strchr(f3,'F');
-    flag_F = t != NULL;
+    t = strchr(f3, 'B');            /* Do not send undersized batches   */
+
+    node->flag.B = (t == NULL) ? FALSE : TRUE;
+
     if (t != NULL)
       *t = ' ';
 
-    t = strchr(f3,'I');
-    flag_I = t != NULL;
+/*--------------------------------------------------------------------*/
+/*                     Normal UNIX (C news) options                   */
+/*--------------------------------------------------------------------*/
+
+    t = strchr(f3, 'f');
+
+    node->flag.f = (t == NULL) ? FALSE : TRUE;
+
     if (t != NULL)
       *t = ' ';
 
-    t = strchr(f3,'L');
+    t = strchr(f3, 'F');
+    node->flag.F = (t == NULL) ? FALSE : TRUE;
+
+    if (t != NULL)
+      *t = ' ';
+
+    t = strchr(f3, 'I');
+    node->flag.I = (t == NULL) ? FALSE : TRUE;
+    if (t != NULL)
+      *t = ' ';
+
+/*--------------------------------------------------------------------*/
+/*       Determine the maximum number of hops this news can           */
+/*       deliver and we still forward it.                             */
+/*--------------------------------------------------------------------*/
+
+    t = strchr(f3, 'L');
+
     if (t != NULL)
     {
+      node->maximumHops = 0;
       *t = ' ';
+
       while (isdigit(*++t)) /* strip off hops value) */
+      {
+        node->maximumHops *= 10;
+        node->maximumHops += (size_t) (t - '0' );
         *t = ' ';
+      }
+
     }
 
-    t = strchr(f3,'m');
-    flag_m = t != NULL;
+    t = strchr(f3, 'm');
+    node->flag.m = (t == NULL) ? FALSE : TRUE;
     if (t != NULL)
       *t = ' ';
 
-    t = strchr(f3,'n');
-    flag_n = t != NULL;
+    t = strchr(f3, 'n');
+    node->flag.n = (t == NULL) ? FALSE : TRUE;
     if (t != NULL)
       *t = ' ';
 
-    t = strchr(f3,'u');
-    flag_u = t != NULL;
+    t = strchr(f3, 'u');
+    node->flag.u = (t == NULL) ? FALSE : TRUE;
     if (t != NULL)
       *t = ' ';
 
     t = f3;
-    while (*t == ' ')
+    while (isspace(*t))
       t++;
 
     if (*t != 0)
     {
-      printmsg(0,"process_sys: Invalid flags field %s for system %s",node->flags,f1);
+      printmsg(0, "process_sys: Invalid flags field %s for system %s",
+                  f3,
+                  f1);
       panic();
     }
 
-    if ((flag_f && (flag_F || flag_I || flag_n)) ||
-        (flag_F && (flag_f || flag_I || flag_n)) ||
-        (flag_I && (flag_F || flag_f || flag_n)) ||
-        (flag_n && (flag_F || flag_I || flag_f)))
+    if ((node->flag.f && (node->flag.F || node->flag.I || node->flag.n)) ||
+        (node->flag.F && (node->flag.I || node->flag.n)) ||
+        (node->flag.I && (node->flag.n)))
     {
-      printmsg(0,"process_sys: Can't specify more than one of 'fFIn' flags in system %s",f1);
+      printmsg(0, "process_sys: Can't specify more than one of 'fFIn' "
+                  "flags in system %s", f1);
       panic();
     }
 
-    if ((flag_m || flag_u) && (group_list == NULL))
+/*--------------------------------------------------------------------*/
+/*       If we are batching, then the default "command" is            */
+/*       actually the file name which lists the articles to be        */
+/*       processed.                                                   */
+/*--------------------------------------------------------------------*/
+
+    if ((node->flag.f || node->flag.F || node->flag.I || node->flag.n) &&
+        (node->command == NULL))
     {
-      printmsg(0,"process_sys: Can't specify 'mu' flags without active file. System %s",f1);
-      panic();
-    }
-  }
-  memset(buf,0,BUFSIZ * 8);
-}
+      char dirname[FILENAME_MAX];
 
-void init_sys(FILE *sys_file)
+      sprintf( dirname,
+               "%s/%s/%.8s/togo",
+               E_newsdir,
+               OUTGOING_NEWS,
+               node->sysname );
+
+      node->command = newstr( dirname );
+   }
+
+  } /* flags */
+
+/*--------------------------------------------------------------------*/
+/*       If we are batching or using the default UUX command, then    */
+/*       verify the system name is valid.                             */
+/*--------------------------------------------------------------------*/
+
+    if ((node->flag.f ||
+         node->flag.F ||
+         node->flag.I ||
+         node->flag.n ||
+         (node->command == NULL )) &&
+        ! equal( node->sysname, E_nodename ) &&
+        (checkreal( node->sysname ) == BADHOST))
+    {
+       printmsg(0,"Invalid host %s listed for news batching in SYS file",
+                  node->sysname );
+       panic();
+    }
+
+
+/*--------------------------------------------------------------------*/
+/*       If the command field was not filled in by the user or        */
+/*       defaulted (via batching mode), provide our default           */
+/*       command to send news onto the next system.                   */
+/*--------------------------------------------------------------------*/
+
+   if ( node->command == NULL )
+   {
+      char command[ FILENAME_MAX * 4 ];
+
+      sprintf(command, "uux -p -g%c -n -x %d -C %%s!rnews",
+              E_newsGrade,
+              debuglevel );
+
+      node->command = newstr( command );
+
+   }
+
+} /* process_sys */
+
+void init_sys()
 {
 
+  char       sysFileName[FILENAME_MAX];
   long       where;
   long       start;
   char       line[BUFSIZ];
   char       *t;
-  char       *buf;
+  char       buf[BUFSIZ * 8];
+  boolean    wantMore = TRUE;
 
-  buf = malloc(BUFSIZ * 8);
-  if (buf == NULL)
+  mkfilename(sysFileName, E_confdir, "SYS");
+
+/*--------------------------------------------------------------------*/
+/*               Generate a new SYS file if we need to                */
+/*--------------------------------------------------------------------*/
+
+   if ( stater( sysFileName, &where ) == -1 )
+      bootStrap( sysFileName );
+
+  sysFileStream = fopen(sysFileName, "rb");
+
+  if ( sysFileStream == NULL )
   {
-    printmsg(0,"Insuffient memory to allocate sys buffer");
-    panic();
+     printerr(sysFileName);
+     panic();
   }
 
-  printmsg(3,"init_sys: reading system file");
-  sysfile = sys_file;
-  fseek(sysfile,0,SEEK_SET);
+  printmsg(3, "init_sys: reading system file %s", sysFileName);
+  fseek(sysFileStream, 0, SEEK_SET);
 
   where = 0;
-  memset(buf,0,sizeof buf);
-  while (fgets(line,sizeof line,sysfile) != NULL)
+  memset(buf, 0, sizeof buf);
+
+  while (fgets(line, sizeof line, sysFileStream) != NULL)
   {
-    printmsg(6,"init_sys: read line length %i, \"%s\"",strlen(line),line);
-    if (*line == '#')
-      process_sys(start,buf);
-    else
+
+/*--------------------------------------------------------------------*/
+/*       Trim trailing spaces and cr/lf.  (Prevents empty lines in    */
+/*       the log file).                                               */
+/*--------------------------------------------------------------------*/
+
+   t = line + strlen(line) - 1;
+
+   while ((t >= line) && isspace(*t))
+     *t-- = '\0';
+
+/*--------------------------------------------------------------------*/
+/*                      Also trim leading spaces                      */
+/*--------------------------------------------------------------------*/
+
+   t = line;
+
+   while (t && isspace(*t))
+      t++;
+
+   printmsg(6, "init_sys: read line length %u, \"%s\"",
+               strlen(t),
+               t);
+
+/*--------------------------------------------------------------------*/
+/*       Process any buffered data if this line is empty (which       */
+/*       terminates the entry)                                        */
+/*--------------------------------------------------------------------*/
+
+    if ( *buf && (! strlen(t) || ! wantMore ))
+                                    /* Previous entry complete?      */
     {
-      t = line;
-      while (*t == ' ')
-       t++;
-
-      /* cr lf */
-      if (strlen(t) == 2)
-        process_sys(start,buf);
-      else
-      {
-        if (strlen(buf) == 0)
-          start = where;
-        strcat(buf,line);
-
-        /*
-         * does line end with continuation character? lenient search, allows
-         * spaces after '\' before end of line.
-         */
-
-        printmsg(5,"Checking end of line for continuation");
-        t = strchr(line,0) - 3; /* find the end of string (subtract crlf0)*/
-        while (*t == ' ')
-          t--;
-        printmsg(5,"Last non space character on line is %i(%c)",(int) *t,*t);
-
-        if (*t != '\\')
-          process_sys(start,buf);
-      }
+       process_sys(start, buf );    /* Yes --> end of entry, process */
+       *buf = '\0';                 /* Also, reset buffer to empty   */
     }
-    where = ftell(sysfile);
-  }
-  process_sys(start,buf);
-  free(buf);
-}
+
+/*--------------------------------------------------------------------*/
+/*           Buffer the new data if this is not a comment line        */
+/*--------------------------------------------------------------------*/
+
+    if (*t != '#')                  /* Comment line?                 */
+    {                               /* No --> Add it to our buffer   */
+
+       if (strlen(buf) == 0)        /* First line of entry?             */
+         start = where + (t - line );/* Yes, remember where it is        */
+
+       strcat(buf, line);
+
+       /*
+        * does line end with continuation character? lenient search, allows
+        * spaces after '\' before end of line.
+        */
+
+       wantMore = (*t == '\\') ? TRUE : FALSE;
+
+    }  /* else if (*t != '#') */
+
+    where = ftell(sysFileStream);
+
+  } /* while (fgets(line, sizeof line, sysFileStream) != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                Process the final system entry, if any              */
+/*--------------------------------------------------------------------*/
+
+   if ( *buf )
+      process_sys(start, buf);
+
+} /* init_sys */
 
 /*
  * this could also be done by copying path into a temp buffer, and
@@ -336,114 +504,165 @@ void init_sys(FILE *sys_file)
  * intensive.
  */
 
-boolean excluded(char *list,char *path)
+boolean excluded(char *list, char *path)
 {
-  char    *t1,*t2,*t3;
+  char    *t1, *t2, *t3;
   int     temp;
 
-  printmsg(5,"exclude: checking %s against %s",list,path);
-  t1 = strtok(list,",");
+  printmsg(5, "exclude: checking %s against %s", list, path);
+
+  t1 = strtok(list, ", ");
+
   while (t1 != NULL)
   {
-    t2 = strstr(path,t1);
+    t2 = strstr(path, t1);
+
     while (t2 != NULL)
     {
       /* MUST be start of string or preceded by '!' */
+
       if ((t2 == path) ||
           (*(t2 - 1) == '!'))
       {
         /* is this the only entry left ? */
-        if (equal(t1,t2))
+
+        if (equal(t1, t2))
           return TRUE;
 
         /* must be directly followed by a '!' */
-        t3 = strchr(t2,'!');
+
+        t3 = strchr(t2, '!');
+
         if (t3 != NULL)
         {
           *t3 = 0;
-          temp = strcmp(t1,t2);
+          temp = strcmp(t1, t2);
           *t3 = '!';
           if (temp == 0)
             return TRUE;
         }
       }
+
       /* search for another occurence */
-      t2 = strstr(t2 + 1,t1);
+      t2 = strstr(t2 + 1, t1);
+
     }
-    t1 = strtok(NULL,",");
-  }
-  printmsg(5,"exclude: results in FALSE");
+
+    t1 = strtok(NULL, ", ");
+
+  } /* while (t1 != NULL) */
+
+  printmsg(5, "exclude: results in FALSE");
   return FALSE;
-}
 
-/*
- * these are not as simple as above, there are matching/non matching
- * issues.  !distrib is not a match, and "all" matches all! :(
- */
+} /* excluded */
 
-boolean distributions(char *list,char *distrib)
+/*--------------------------------------------------------------------*/
+/*       d i s t r i b u t i o n s                                    */
+/*                                                                    */
+/*       These are not as simple as above, there are matching/non     */
+/*       matching issues.  !distrib is not a match, and "all"         */
+/*       matches all unless an negation exists!  :(                   */
+/*--------------------------------------------------------------------*/
+
+boolean distributions(char *list, const char *distrib)
 {
-  char    *t1,*t3,*t4;
-  boolean bRet,bAll,bNot,bExit;
 
-  while (*distrib == ' ')
+  char *listPtr;
+
+  boolean bAll  = FALSE;
+  boolean bRet  = FALSE;
+  boolean bFail = FALSE;
+
+  while (isspace(*distrib))
     distrib++;
 
-  printmsg(5,"distributions: checking %s against %s",list,distrib);
+  printmsg(5, "distributions: checking %s against %s", list, distrib);
 
-  bRet  = FALSE;  /* must match something specific */
-  bAll  = FALSE;
-  bExit = FALSE;
-  t1 = strtok(list,",");
-  while ((t1 != NULL) && !bExit)
+/*--------------------------------------------------------------------*/
+/*       Outer loop steps through SYS file list, inner loop steps     */
+/*       through list from the article to be processed                */
+/*--------------------------------------------------------------------*/
+
+  while ((listPtr = strtok(list, ", ")) != NULL)
   {
-    bNot = *t1 == '!';
-    if (bNot)
-      t1++;
 
-    bAll = bAll || (!bNot && equali(t1,"all"));
+    char  tempDistrib[BUFSIZ];
+    char  *distribPtr = tempDistrib;
+    char  *nextDistrib = tempDistrib;
 
-    t3 = distrib;
-    while (t3 != NULL)
+    const boolean bNot = (*listPtr == '!') ? TRUE : FALSE;
+
+    strcpy( tempDistrib, distrib );
+
+    list = strtok( NULL, "" );  /* Save rest of list                */
+
+    if ( bNot )
+      listPtr++;                 /* Step to beginning of word        */
+
+    bAll = bAll || (!bNot && equali(listPtr, "all"));
+    bAll = bAll || (!bNot && equali(listPtr, "world"));
+
+    strncpy( tempDistrib , distrib, sizeof tempDistrib );
+    tempDistrib[ sizeof tempDistrib - 1] = '\0';
+
+/*--------------------------------------------------------------------*/
+/*       Scan the article's distribution list against this entry      */
+/*       in our SYS file.                                             */
+/*--------------------------------------------------------------------*/
+
+    while ((distribPtr = strtok(nextDistrib, ", ")) != NULL )
     {
-      t4 = strchr(t3,',');
-      if (t4 != NULL)
-        *t4 = 0;
+      nextDistrib = NULL;     /* Continue scan with next token
+                                 on following pass                */
 
-      if (bNot && equali(t1,distrib))
+      if (equali(listPtr, distrib))
       {
-        bExit = TRUE;
-        bRet = FALSE;
+
+         if ( bNot )
+            bFail = TRUE;
+         else
+            bRet = TRUE;
       }
 
-      bRet = bRet || equali(t1,distrib);
+    } /* while ((distribPtr = strtok(nextDistrib, ", ")) != NULL ) */
 
-      t3 = t4;
-      if (t3 != NULL)
-        *t3++ = ',';
-    }
-    t1 = strtok(NULL,",");
-  }
-  printmsg(5,"distributions: results %s",bRet || bAll ? "TRUE" : "FALSE");
-  return bRet || bAll;
-}
+    list    = strtok( list, "" );
 
-boolean match(char *group,char *pattern,int *iSize)
+  } /* while ((listPtr = strtok(list, ", ")) != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*       If we found a specific exclusion, approve the                */
+/*       distribution only if another distribtion allows it (but      */
+/*       ignore a global distribution).  Otherwise, accept any        */
+/*       distribution, including all/world.                           */
+/*--------------------------------------------------------------------*/
+
+  bRet = (bFail) ? bRet : bRet || bAll;
+
+  printmsg(5, "distributions: results %s", bRet ? "TRUE" : "FALSE");
+
+  return bRet;
+
+} /* distributions */
+
+boolean match(char *group, char *pattern, int *iSize)
 {
 
   boolean bMatch;
-  char *t1,*t2,*t3,*t4;
+  char *t1, *t2, *t3, *t4;
 
   bMatch = TRUE;
   *iSize = 0;
   t1 = group;
   t3 = pattern;
+
   while (bMatch && (t1 != NULL) && (t3 != NULL))
   {
-    t2 = strchr(t1,'.');
+    t2 = strchr(t1, '.');
     if (t2 != NULL)
       *t2 = 0;
-    t4 = strchr(t3,'.');
+    t4 = strchr(t3, '.');
     if (t4 != NULL)
       *t4 = 0;
 
@@ -453,10 +672,10 @@ boolean match(char *group,char *pattern,int *iSize)
      * counts as 8.
      */
 
-    if (equal(t3,"all"))
+    if (equal(t3, "all"))
       *iSize += 8;
     else
-      if (equal(t1,t3))
+      if (equal(t1, t3))
         *iSize += 10;
       else
         bMatch = FALSE;
@@ -480,19 +699,20 @@ boolean match(char *group,char *pattern,int *iSize)
      )
     bMatch = (t3 == NULL);
 
-  printmsg(5,"match: matching %s to %s resulting in %s with size %i",
-              group,pattern,bMatch ? "TRUE" : "FALSE", *iSize);
+  printmsg(5, "match: matching %s to %s resulting in %s with size %i",
+              group, pattern, bMatch ? "TRUE" : "FALSE", *iSize);
 
   return bMatch;
-}
 
-boolean newsgroups(char *list,char *groups)
+} /* match */
+
+boolean newsgroups(char *list, char *groups)
 {
-  char    *t1,*t2,*t3,*t4;
-  boolean bMatch,bNoMatch,bNot;
-  int     iMatch,iNoMatch,iSize;
+  char    *t1, *t2, *t3, *t4;
+  boolean bMatch, bNoMatch, bNot;
+  int     iMatch, iNoMatch, iSize;
 
-  printmsg(5,"newsgroups: checking %s against %s",list,groups);
+  printmsg(5, "newsgroups: checking %s against %s", list, groups);
 
   iMatch   = 0;
   iNoMatch = 0;
@@ -502,17 +722,17 @@ boolean newsgroups(char *list,char *groups)
   t1 = groups;
   while (t1 != NULL)
   {
-    t2 = strchr(t1,',');
+    t2 = strchr(t1, ',');
     if (t2 != NULL)
       *t2 = 0;
 
-    while (*t1 == ' ')
+    while (isspace(*t1))
       t1++;
 
     t3 = list;
     while (t3 != NULL)
     {
-      t4 = strchr(t3,',');
+      t4 = strchr(t3, ',');
       if (t4 != NULL)
         *t4 = 0;
 
@@ -520,15 +740,14 @@ boolean newsgroups(char *list,char *groups)
       if (bNot)
         t3++;
 
-      if (match(t1,t3,&iSize))
+      if (match(t1, t3, &iSize))
         if (bNot)
         {
           bNoMatch = TRUE;
           if (iSize > iNoMatch)
             iNoMatch = iSize;
         }
-        else
-        {
+        else {
           bMatch = TRUE;
           if (iSize > iMatch)
             iMatch = iSize;
@@ -543,12 +762,12 @@ boolean newsgroups(char *list,char *groups)
   }
 
   if (bMatch)
-    printmsg(7,"newsgroups: match found, size is %d",iMatch);
+    printmsg(7, "newsgroups: match found, size is %d", iMatch);
 
   if (bNoMatch)
-    printmsg(7,"newsgroups: mismatch found, size is %d",iNoMatch);
+    printmsg(7, "newsgroups: mismatch found, size is %d", iNoMatch);
 
-  printmsg(5,"newsgroups: results in %s",
+  printmsg(5, "newsgroups: results in %s",
               bMatch && (!bNoMatch || (iMatch > iNoMatch)) ? "TRUE" : "FALSE");
 
   return (bMatch &&
@@ -556,109 +775,111 @@ boolean newsgroups(char *list,char *groups)
            (iMatch > iNoMatch)));  /* see SYS.DOC for explanation */
 }
 
-void read_block(long from,long f_to,char *buf)
+/*--------------------------------------------------------------------*/
+/*       r e a d _ b l o c k                                          */
+/*                                                                    */
+/*       Read a block of data from the open SYS file                  */
+/*--------------------------------------------------------------------*/
+
+void read_block(long from, long f_to, char *buf)
 {
-  int  read,size;
-  char *t1,*t2;
+  int  read, size;
+  char *t1, *t2;
 
   size = (int) (f_to - from);
-  memset(buf,0,BUFSIZ * 8);
-  fseek(sysfile,from,SEEK_SET);
-  read = fread(buf,1,size,sysfile);
+  memset(buf, 0, BUFSIZ * 8);
+  if ( fseek(sysFileStream, from, SEEK_SET) )
+  {
+      printmsg(0, "Unable to seek SYS file to offset %ld.", from);
+      printerr("seek" );
+      panic();
+  }
+
+  read = fread(buf, 1, size, sysFileStream);
+
   if (read != size)
   {
-    printmsg(0,"Unable to read sys file from %ld for %ld bytes.",from,size);
+    printmsg(0, "Unable to read sys file from %ld for %ld bytes.", from, size);
+
+    if ( read < 0 )
+       printerr( "read" );
     panic();
+
   }
 
   /* compress out spaces, continuations and eoln's */
-  t1 = strchr(buf,'\\');
+
+  t1 = strchr(buf, '\\');
   while (t1 != NULL)
   {
-    memmove(t1,t1 + 1,strlen(t1));
-    t1 = strchr(t1,'\\');
-  }
-  t1 = strchr(buf,'\n');
-  while (t1 != NULL)
-  {
-    memmove(t1,t1 + 1,strlen(t1));
-    t1 = strchr(t1,'\n');
-  }
-  t1 = strchr(buf,'\r');
-  while (t1 != NULL)
-  {
-    memmove(t1,t1 + 1,strlen(t1));
-    t1 = strchr(t1,'\r');
-  }
-  t1 = strchr(buf,' ');
-  while (t1 != NULL)
-  {
-    t2 = t1;
-    while (*++t2 == ' ');
-    memmove(t1,t2,strlen(t2) + 1);
-    t1 = strchr(t1,' ');
+    memmove(t1, t1 + 1, strlen(t1));
+    t1 = strchr(t1, '\\');
   }
 
-}
+  t1 = buf;                         /* rescan for whitespace from start */
+  while( *t1 )
+  {
+    if ( isspace( *t1 ) )
+      memmove(t1, t1 + 1, strlen(t1));
+    else
+      t1 ++;
+  }
 
-boolean check_sys(struct sys *entry,char *groups,char *distrib,char *path)
+} /* read_block */
+
+/*--------------------------------------------------------------------*/
+/*       c h e c k _ s y s                                            */
+/*                                                                    */
+/*       Process posting criteria for a given article                 */
+/*--------------------------------------------------------------------*/
+
+boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 {
 
   char *buf;
-  boolean bRet,bDistrib;
+  boolean bRet = !excluded(entry->sysname, path);
 
   buf = malloc(BUFSIZ * 8);
   if (buf == NULL)
   {
-    printmsg(0,"check_sys:  Unable to allocate memory to read sys entry");
+    printmsg(0, "check_sys:  Unable to allocate memory to read sys entry");
     panic();
   }
 
-  printmsg(3,"check_sys: checking!");
-  printmsg(5,"check_sys: node: %s",entry->sysname);
-  printmsg(5,"check_sys: groups: %s",groups);
-  printmsg(5,"check_sys: distrib: %s",distrib);
-  printmsg(5,"check_sys: path: %s",path);
+  printmsg(3, "check_sys: checking!");
+  printmsg(5, "check_sys: node: %s", entry->sysname);
+  printmsg(5, "check_sys: groups: %s", groups);
+  printmsg(5, "check_sys: distrib: %s", distrib);
+  printmsg(5, "check_sys: path: %s", path);
 
-  bRet = !excluded(entry->sysname,path);
   if (bRet && (entry->bExclude))
   {
-    printmsg(3,"check_sys: checking exclusions");
-    read_block(entry->excl_from,entry->excl_to,buf);
-    bRet = !excluded(buf,path);
+    printmsg(3, "check_sys: checking exclusions");
+    read_block(entry->excl_from, entry->excl_to, buf);
+    bRet = !excluded(buf, path);
   }
-
-  bDistrib = FALSE;
 
   if (bRet && (entry->bDistrib))
   {
-    printmsg(3,"check_sys: checking distributions");
-    read_block(entry->dist_from,entry->dist_to,buf);
-    bDistrib = distributions(buf,distrib);
+    printmsg(3, "check_sys: checking distributions");
+    read_block(entry->dist_from, entry->dist_to, buf);
+    bRet = distributions(buf, distrib);
   }
 
   if (bRet && (entry->bGroups))
   {
-    printmsg(3,"check_sys: checking groups");
-    if (!bDistrib)
-    {
-      read_block(entry->grp_from,entry->grp_to,buf);
-      bDistrib = newsgroups(buf,distrib);
-    }
-    if (bDistrib)
-    {
-      read_block(entry->grp_from,entry->grp_to,buf);
-      bRet = newsgroups(buf,groups);
-    }
+    printmsg(3, "check_sys: checking groups");
+
+    read_block(entry->grp_from, entry->grp_to, buf);
+    bRet = newsgroups(buf, groups);
   }
 
-  bRet = bRet && bDistrib;
-
-  printmsg(3,"check_sys: returning %s",bRet ? "TRUE" : "FALSE");
+  printmsg(3, "check_sys: returning %s", bRet ? "TRUE" : "FALSE");
 
   free(buf);
   return bRet;
-}
+
+} /* check_sys */
 
 void exit_sys(void)
 {
@@ -671,5 +892,88 @@ void exit_sys(void)
     sys_list = sys_list -> next;
     free(sys_entry);
   }
+
   sys_list = NULL;
+
+   if (sysFileStream != NULL)
+     fclose(sysFileStream);
 }
+
+/*--------------------------------------------------------------------*/
+/*       b o o t S t r a p                                            */
+/*                                                                    */
+/*       Generate a new SYS for a site missing one                    */
+/*--------------------------------------------------------------------*/
+
+static void bootStrap( const char *fileName )
+{
+
+   FILE *stream = FOPEN( fileName, "w", TEXT_MODE );
+   char *sysname = getenv( "UUPCSHADOWS" );
+
+   if ( stream == NULL )
+   {
+      printmsg(0, "Cannot generate new SYS file for news processing.");
+      printerr( fileName );
+      panic();
+   }
+
+   fprintf( stream, "# News configuration file, automatically generated by "
+                    "%s %s\n# at %s\n",
+                     compilep,
+                     compilev,
+                     arpadate() );
+
+/*--------------------------------------------------------------------*/
+/*     We get everything, like we did before the SYS file existed     */
+/*--------------------------------------------------------------------*/
+
+   fprintf( stream, "# The local system, %s\n", E_nodename );
+   fprintf( stream, "ME:all\n" );
+
+/*--------------------------------------------------------------------*/
+/*         Everyone else gets our full feed sans-local stuff.         */
+/*--------------------------------------------------------------------*/
+
+   fprintf( stream, "# Our news feed, not batched to speed our posts\n");
+
+   fprintf( stream, "%s:all/!local::\n", E_newsserv );
+                           /* Uncompressed feed for speedy posts     */
+
+   if ( sysname != NULL )
+   {
+
+      char *buf = strdup( sysname );
+      checkref( buf );
+
+      fprintf( stream,
+               "# Systems we feed, batched/compressed for high throughput\n" );
+
+      sysname = strtok( buf, WHITESPACE );
+
+      while( sysname != NULL )
+      {
+         fprintf( stream, "%s:all/!local:F:\n", sysname );
+         sysname = strtok( NULL, WHITESPACE );
+      }
+
+      free( buf );
+
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*      Check all our I/O worked, then close up shop and return       */
+/*--------------------------------------------------------------------*/
+
+   if ( ferror( stream ) )
+   {
+      printerr( fileName );
+      panic();
+   }
+
+   fclose( stream );
+
+   printmsg(0, "Generated new %s file for routing news",
+              fileName );
+
+} /* bootStrap */

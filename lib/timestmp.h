@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.h 1.4 1994/01/01 19:09:57 ahd v1-12k $
+ *    $Id: timestmp.h 1.5 1994/12/22 00:13:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.h $
+ *    Revision 1.5  1994/12/22 00:13:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/01 19:09:57  ahd
  *    Annual Copyright Update
  *
@@ -41,7 +44,7 @@
  */
 
 extern char compilev[];           /* UUPC version number           */
-extern char compilep[];           /* UUPC Program name             */
+extern char compilep[];           /* Suuite name (UUPC/extended)   */
 extern char compilet[];           /* UUPC compile time             */
 extern char compiled[];           /* UUPC compile date             */
 extern char *compilen;            /* Current program name          */

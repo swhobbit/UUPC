@@ -19,9 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.15 1994/12/27 20:51:35 ahd Exp $
+ *       $Id: inews.c 1.16 1994/12/27 23:35:28 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.16  1994/12/27 23:35:28  ahd
+ * Various contributed news fixes; make processing consistent, improve logging,
+ * use consistent host names
+ *
  * Revision 1.15  1994/12/27 20:51:35  ahd
  * Only searcher headers for specific fields in headers, not body
  *
@@ -84,7 +88,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.15 1994/12/27 20:51:35 ahd Exp $";
+      "$Id: inews.c 1.16 1994/12/27 23:35:28 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -116,11 +120,8 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void usage( void );
-static int complete_header(FILE *input, FILE *output, char *origin);
-static int remote_news(FILE *article, char *origin);
-static int spool_news(char *sysname, FILE *article, char *command);
 
-static char grade = 'd';
+static int complete_header(FILE *input, FILE *output, char *origin);
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -137,6 +138,8 @@ void main( int argc, char **argv)
   char origin[BUFSIZ];
   FILE *article;
   struct stat st;
+
+   int result = 0;
 
 /*--------------------------------------------------------------------*/
 /*     Report our version number and date/time compiled               */
@@ -161,16 +164,8 @@ void main( int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
   while ((c = getopt(argc, argv, "g:x:h?")) !=  EOF)
-    switch(c) {
-
-    case 'g':
-      if (isalnum(*optarg) && (strlen(optarg) == 1))
-        grade = *optarg;
-      else {
-        printmsg(0,"Invalid grade for news: %s", optarg);
-        usage();
-      }
-      break;
+    switch(c)
+    {
 
     case 'x':
       debuglevel = atoi( optarg );
@@ -212,35 +207,26 @@ void main( int argc, char **argv)
 
   mktempname(tempname, "tmp");
 
-  if ((article = FOPEN(tempname, "w", IMAGE_MODE)) == NULL) {
+  if ((article = FOPEN(tempname, "w", IMAGE_MODE)) == NULL)
+  {
     printmsg(0,"inews: cannot create temporary file \"%s\"", tempname);
     printerr( tempname );
     panic();
   }
 
   if (complete_header(stdin, article, origin) == -1)
-    panic();
+     panic();
 
   fclose(article);
-
-/*--------------------------------------------------------------------*/
-/*                     spool for remote delivery                      */
-/*--------------------------------------------------------------------*/
 
   if (stat(tempname, &st) == -1)
     panic();
-  printmsg(1, "Spooling news (%ld bytes) from %s via %s",
-         (long) st.st_size, E_mailbox, E_newsserv);
-
-  article = FOPEN(tempname, "r", TEXT_MODE);
-  remote_news(article, origin);
-  fclose(article);
 
 /*--------------------------------------------------------------------*/
 /*                         deliver locally                            */
 /*--------------------------------------------------------------------*/
 
-  execute(RNEWS, NULL, tempname, NULL, TRUE, FALSE);
+  result = execute(RNEWS, NULL, tempname, NULL, TRUE, FALSE);
 
 /*--------------------------------------------------------------------*/
 /*                             cleanup                                */
@@ -248,7 +234,7 @@ void main( int argc, char **argv)
 
   unlink(tempname);
 
-  exit(0);
+  exit( result );
 
 } /* main */
 
@@ -260,8 +246,10 @@ void main( int argc, char **argv)
 
 static void usage( void )
 {
-  printf( "Usage: inews [-g GRADE] [-h]\n");
+
+  printf( "Usage: inews [-h] [-x debuglevel]\n");
   exit(1);
+
 } /* usage */
 
 /*--------------------------------------------------------------------*/
@@ -279,7 +267,8 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
     if (strncmp(buffer, name, strlen(name)) == 0)  /* Find header?   */
       return 0;                        /* Yes, return success        */
 
-    if ( equal( buffer, "\n" ))        /* Run out of header to scan? */
+    if (buffer[0] == ' ' || buffer[0] == '\n' || buffer[0] == '\r')
+                                       /* Run out of header to scan? */
        return -1;                      /* Yes -> Return failure      */
   }
 
@@ -303,11 +292,10 @@ static int complete_header(FILE *input, FILE *output, char *origin)
 
   if (get_header(input, buf, sizeof(buf), "Path:") == -1)
   {
-    strcpy(origin, E_fdomain );
-    fprintf(output,"Path: %s!%s\n", E_fdomain, E_mailbox);
+    strcpy(origin, E_nodename);
+    fprintf(output,"Path: %s\n" );
   }
-  else
-  {
+  else {
     for (ptr = buf + 5; isspace(*ptr); ptr++);
     for (i = 0, sys = ptr; *sys && !isspace(*sys) && *sys != '!'; i++, sys++)
       origin[i] = *sys;
@@ -324,10 +312,12 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   else
     fputs(buf, output);
 
-  if (get_header(input, buf, sizeof(buf), "Newsgroups:") == -1) {
+  if (get_header(input, buf, sizeof(buf), "Newsgroups:") == -1)
+  {
     printmsg(0, "inews: no Newsgroup: line, nothing sent.");
     return -1;
   }
+
   fputs(buf, output);
 
   if (get_header(input, buf, sizeof(buf), "Subject:") == -1)
@@ -335,8 +325,10 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   else
     fputs(buf, output);
 
-  if (strncmp(buf, "Subject: cmsg ", 14) == 0) {
+  if (strncmp(buf, "Subject: cmsg ", 14) == 0)
+  {
     char cmsg[256]; /* for old-style control messages such as from TRN */
+
     strcpy(cmsg, buf + 14);
     if (get_header(input, buf, sizeof(buf), "Control:") == -1)
       fprintf(output, "Control: %s", cmsg);
@@ -346,11 +338,15 @@ static int complete_header(FILE *input, FILE *output, char *origin)
 
   if (get_header(input, buf, sizeof(buf), "Distribution:") == -1)
     strcpy(buf, "Distribution: world\n");
+
   ptr = buf + strlen("Distribution:");
+
   while (*ptr && isspace(*ptr))
     ptr++;
+
   if (*ptr == 0 || *ptr == '\n')
     strcpy(buf, "Distribution: world\n");
+
   fputs(buf, output);
 
   if (get_header(input, buf, sizeof(buf), "Message-ID:") == -1)
@@ -369,8 +365,10 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   OK = FALSE;
   rewind(input);
 
-  while (fgets(buf, sizeof(buf), input) != NULL) {
-    if (buf[0] == ' ' || buf[0] == '\n' || buf[0] == '\r') {
+  while (fgets(buf, sizeof(buf), input) != NULL)
+  {
+    if (buf[0] == ' ' || buf[0] == '\n' || buf[0] == '\r')
+    {
       OK = TRUE;
       break;
     }
@@ -385,14 +383,17 @@ static int complete_header(FILE *input, FILE *output, char *origin)
         strncmp(buf,"X-Posting-Software:", 19) == 0 ||
         strncmp(buf,"Date:", 5) == 0)
       continue;
+
     if ((ptr = strchr(buf, ':')) == NULL)
       continue;
+
     for (ptr++; *ptr && isspace(*ptr); ptr++);
     if (strlen(ptr) > 1)
       fputs(buf, output);
   }
 
-  if (!OK) {
+  if (!OK)
+  {
     printmsg(0, "inews: cannot find message body, nothing sent.\n");
     return -1;
   }
@@ -401,233 +402,23 @@ static int complete_header(FILE *input, FILE *output, char *origin)
     lines++;
 
   fprintf(output, "X-Posting-Software: %s %s inews (%2.2s%3.3s%2.2s %5.5s)\n",
-          compilep, compilev,
-          &compiled[4], &compiled[0], &compiled[9], compilet);
+          compilep,
+          compilev,
+          &compiled[4],
+          &compiled[0],
+          &compiled[9],
+          compilet);
+
   fprintf(output, "Lines: %d\n\n", lines);
   rewind(input);
 
   while (fgets(buf, sizeof(buf), input) != NULL)
     if (buf[0] == ' ' || buf[0] == '\n' || buf[0] == '\r')
       break;
+
   while (fgets(buf, sizeof(buf), input) != NULL)
     fputs(buf, output);
 
   return 0;
+
 } /* complete_header */
-
-/*--------------------------------------------------------------------*/
-/*    H o s t A l i a s                                               */
-/*                                                                    */
-/*    Resolve a host alias to its real canonized name                 */
-/*--------------------------------------------------------------------*/
-
-char *HostAlias( char *input)
-{
-   struct HostTable *hostp;
-
-   hostp = checkname(input);
-
-/*--------------------------------------------------------------------*/
-/*     If nothing else to look at, return original data to caller     */
-/*--------------------------------------------------------------------*/
-
-   if (hostp == BADHOST)
-      return input;
-
-/*--------------------------------------------------------------------*/
-/*       If the entry has no alias and is not a real system, it's     */
-/*       a routing entry and we should ignore it.                     */
-/*--------------------------------------------------------------------*/
-
-   if ((hostp->status.hstatus == phantom) && ( hostp->realname == NULL ))
-      return input;
-
-/*--------------------------------------------------------------------*/
-/*      If we already chased this chain, return result to caller      */
-/*--------------------------------------------------------------------*/
-
-   if (hostp->aliased)
-   {
-      if ( hostp->realname  == NULL )
-      {
-         printmsg(0,"Alias table loop detected with host %s",
-               hostp->hostname);
-      }
-
-      return hostp->realname;
-   } /* if */
-
-   hostp->aliased = TRUE;        /* Prevent limitless recursion       */
-
-/*--------------------------------------------------------------------*/
-/*                  Determine next host in the chain                  */
-/*--------------------------------------------------------------------*/
-
-   if ( hostp->realname == NULL)  /* End of the line?        */
-      hostp->realname = hostp->hostname;
-   else
-      hostp->realname = HostAlias(hostp->realname);
-
-/*--------------------------------------------------------------------*/
-/*                        Announce our results                        */
-/*--------------------------------------------------------------------*/
-
-   printmsg( 5 , "HostAlias: \"%s\" is alias of \"%s\"",
-                  input,
-                  hostp->realname);
-
-   return hostp->realname;
-
-} /* HostAlias */
-
-/*--------------------------------------------------------------------*/
-/*    r e m o t e _ n e w s                                           */
-/*                                                                    */
-/*    Transmit news to other systems                                  */
-/*--------------------------------------------------------------------*/
-
-static int remote_news(FILE *article, char *origin)
-{
-  char buf[BUFSIZ], *sysname;
-
-  rewind(article);
-  origin = HostAlias(origin);
-
-  if ( (sysname = getenv("UUPCSHADOWS")) != NULL )
-  {
-    strcpy(buf, sysname);
-
-    for (sysname = strtok(buf, WHITESPACE); sysname != NULL;
-         sysname = strtok(NULL, WHITESPACE))
-      if (!equali(HostAlias(sysname), origin))
-      {                       /* do not send it to where it came from */
-        rewind(article);
-        spool_news(sysname, article, "rnews");
-      }
-  }
-
-  return spool_news(E_newsserv, article,
-                    bflag[F_UUPCNEWSSERV] ? "inews" : "rnews");
-}
-
-/*--------------------------------------------------------------------*/
-/*    s p o o l _ n e w s                                             */
-/*                                                                    */
-/*    Spool news to other systems                                     */
-/*--------------------------------------------------------------------*/
-
-static int spool_news(char *sysname, FILE *article, char *command)
-{
-  static char *spool_fmt = SPOOLFMT; /* spool file name */
-  static char *dataf_fmt = DATAFFMT;
-  static char *send_cmd  = "S %s %s %s - %s 0666\n";
-  static long seqno = 0;
-  FILE *out_stream;             /* For writing out data                */
-  char buf[BUFSIZ];
-  unsigned len;
-
-  char msfile[FILENAME_MAX];    /* MS-DOS format name of files         */
-  char msname[22];              /* MS-DOS format w/o path name         */
-  char *seq;
-
-  char tmfile[15];              /* Call file, UNIX format name         */
-
-  char idfile[15];              /* Data file, UNIX format name         */
-  char rdfile[15];              /* Data file name on remote system,
-                                   UNIX format                         */
-
-  char ixfile[15];              /* eXecute file for remote system,
-                                   UNIX format name for local system   */
-  char rxfile[15];              /* Remote system UNIX name of eXecute
-                                   file                                */
-
-/*--------------------------------------------------------------------*/
-/*          Create the UNIX format of the file names we need          */
-/*--------------------------------------------------------------------*/
-
-  seqno = getseq();
-  seq = JobNumber(seqno);
-
-  sprintf(tmfile, spool_fmt, 'C', sysname, grade, seq);
-  sprintf(idfile, dataf_fmt, 'D', E_nodename , seq, 'd');
-  sprintf(rdfile, dataf_fmt, 'D', E_nodename , seq, 'r');
-  sprintf(ixfile, dataf_fmt, 'D', E_nodename , seq, 'e');
-  sprintf(rxfile, dataf_fmt, 'X', E_nodename , seq, 'r');
-
-/*--------------------------------------------------------------------*/
-/*                     create remote X (xqt) file                     */
-/*--------------------------------------------------------------------*/
-
-  importpath(msname, ixfile, sysname);
-  mkfilename(msfile, E_spooldir, msname);
-
-  if ( (out_stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
-  {
-    printmsg(0, "spool_news: cannot create X file %s", msfile);
-    printerr(msfile);
-    return -1;
-  } /* if */
-
-  fprintf(out_stream, "U news %s\n", E_nodename);
-  fprintf(out_stream, "R news %s\n", E_domain);
-  fprintf(out_stream, "F %s\n", rdfile);
-  fprintf(out_stream, "I %s\n", rdfile);
-  fprintf(out_stream, "C %s\n", command);
-
-  fclose(out_stream);
-
-/*--------------------------------------------------------------------*/
-/*  Create the data file with the data to send to the remote system   */
-/*--------------------------------------------------------------------*/
-
-  importpath(msname, idfile, sysname);
-  mkfilename(msfile, E_spooldir, msname);
-
-  if ((out_stream = FOPEN(msfile, "w", IMAGE_MODE)) == NULL )
-  {
-    printmsg(0, "spool_news: Cannot create D file %s", msfile);
-    printerr(msfile);
-    return -1;
-  }
-
-/*--------------------------------------------------------------------*/
-/*                       Loop to copy the data                        */
-/*--------------------------------------------------------------------*/
-
-  rewind(article);
-
-  while ((len = fread(buf, 1, sizeof(buf), article)) != 0)
-  {
-    if (fwrite(buf, 1, len, out_stream) != len) /* I/O error? */
-    {
-      printerr(msfile);
-      fclose(out_stream);
-      return -1;
-    } /* if */
-  } /* while */
-
-  fclose(out_stream);
-
-/*--------------------------------------------------------------------*/
-/*                     create local C (call) file                     */
-/*--------------------------------------------------------------------*/
-
-  importpath(msname, tmfile, sysname);
-  mkfilename(msfile, E_spooldir, msname);
-
-  if ((out_stream = FOPEN(msfile, "w",TEXT_MODE)) == NULL)
-  {
-    printerr( msname );
-    printmsg(0, "spool_news: cannot create C file %s", msfile);
-    return -1;
-  }
-
-  fprintf(out_stream, send_cmd, idfile, rdfile, "news", idfile);
-  fprintf(out_stream, send_cmd, ixfile, rxfile, "news", ixfile);
-
-  fclose(out_stream);
-
-  return 0;
-} /* spool_news */
-
-/* end of inews.c */

@@ -16,8 +16,18 @@ struct grp {
 extern struct grp *group_list;   /* List of all groups */
 
 void get_active(void);     /* Read in the active newsgroups file */
+
 void put_active(void);     /* Write the active newsgroups file */
+
 void validate_newsgroups(void);  /* Make sure the directory structure exists */
+
+struct grp *find_newsgroup(const char *grp); /* Find pointer for group     */
+
+boolean add_newsgroup(const char *grp, const boolean moderated);
+
+boolean del_newsgroup(const char *grp);
+
+boolean get_snum(const char *group, char *snum);
 
 #ifndef MAXGRP
 #define MAXGRP FILENAME_MAX   /* Max length of a news group name      */
