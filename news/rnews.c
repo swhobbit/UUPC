@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.7 1993/04/16 12:55:36 dmwatt Exp $
+ *       $Id: RNEWS.C 1.8 1993/04/17 13:23:37 ahd Exp $
  *
  *       $Log: RNEWS.C $
+ * Revision 1.8  1993/04/17  13:23:37  ahd
+ * make snews option more compatible with snews (which is brain dead)
+ *
  * Revision 1.7  1993/04/16  12:55:36  dmwatt
  * Bounds check group lengths
  *
@@ -58,7 +61,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.7 1993/04/16 12:55:36 dmwatt Exp $";
+         "$Id: RNEWS.C 1.8 1993/04/17 13:23:37 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -221,6 +224,8 @@ void main( int argc, char **argv)
 
    if ( bflag[F_SNEWS])
    {
+      char *savetemp = E_tempdir;   /* Save the real temp directory  */
+
       if (bflag[F_HISTORY])
       {
          printmsg(0,
@@ -228,13 +233,12 @@ void main( int argc, char **argv)
          panic();
       } /* else if */
 
-      char *savetemp = E_tempdir;   /* Save the real temp directory  */
 
       E_tempdir = E_newsdir;        /* Generate this file in news    */
       mktempname(filename, "ART");  /* Get the file name             */
       E_tempdir = savetemp;         /* Restore true directory name   */
-      exit copy_snews( filename, stream );
-                                    /* Dump news into NEW directory  */
+      exit (copy_snews( filename, stdin ));
+                                    /* Dump news into NEWS directory */
    }
    else
       mktempname(filename, "tmp");  /* Make normal temp name         */
@@ -243,9 +247,9 @@ void main( int argc, char **argv)
 /*             Load the active file and validate its data             */
 /*--------------------------------------------------------------------*/
 
-      get_active();           /* Get sequence numbers for groups
-                                 from active file                 */
-      validate_newsgroups();  /* Make sure all directories exist  */
+   get_active();           /* Get sequence numbers for groups
+                              from active file                 */
+   validate_newsgroups();  /* Make sure all directories exist  */
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize history processing                    */
