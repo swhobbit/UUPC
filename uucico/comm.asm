@@ -1,8 +1,11 @@
 	TITLE	COMM
 	PAGE	83,132
-;	$Id: comm.asm 1.7 1993/05/31 01:39:23 ahd Exp $
+;	$Id: comm.asm 1.9 1993/10/12 00:04:16 ahd Exp $
 ;
 ;	$Log: comm.asm $
+;; Revision 1.9  1993/10/12  00:04:16  ahd
+;; rhg changes for 8250 and RTS flow control
+;;
 ;; Revision 1.7  1993/05/31  01:39:23  ahd
 ;; Add return to spin loop (fix by Bill Plummer)
 ;; Drop FIFO size to 8
@@ -125,8 +128,8 @@
 ; Buffer sizes -- *** MUST be powers of 2 ****
 
 IFDEF UUPC
-	R_SIZE	EQU	4096
-	S_SIZE	EQU	4096
+	R_SIZE	EQU	8192	; 7 1K data packets + header
+	S_SIZE	EQU	8192	; 7 1K data packets + header
 ENDIF
 
 ; If not set above, maybe on assembler command line.  But if not, ...
@@ -151,7 +154,7 @@ VECIRQ4 EQU	08H+4		; IRQ4 VECTOR FROM 8259
 VECIRQ5 EQU	08H+5		; IRQ5 VECTOR FROM 8259
 
 IRQ3	EQU	2*2*2		; 8259A OCW1 MASK, M3=1, A0=0
-IRQ4	EQU	2*2*2*2		; 8259A OCW1 MASK, M4=1, A0=0
+IRQ4	EQU	2*2*2*2 	; 8259A OCW1 MASK, M4=1, A0=0
 IRQ5	EQU	2*2*2*2*2	; 8259A OCW1 MASK, M4=1, A0=0
 
 NIRQ3	EQU	NOT IRQ3 AND 0FFH ; COMPLEMENT OF ABOVE
@@ -193,7 +196,7 @@ NIRQ		DB	?	; COMPLEMENT OF ABOVE
 EOI		DB	?	; 8259A OCW2 SPECIFIC END OF INTERRUPT
 ; INTERRUPT HANDLERS FOR THIS LEVEL
 INT_HNDLR	DW	?	; OFFSET TO INTERRUPT HANDLER
-OLD_COM		DD	?	; OLD HANDLER'S OFFSET AND SEGMENT
+OLD_COM 	DD	?	; OLD HANDLER'S OFFSET AND SEGMENT
 ; ATTRIBUTES
 BAUD_RATE	DW	?	; 19200 MAX (maybe 38400 or 57600 with 16550?)
 CONNECTION	DB	?	; M(ODEM), D(IRECT)
@@ -205,7 +208,7 @@ UART_SILO_LEN	DB	?	; Size of a transmit silo chunk (1 for 8250)
 HOST_OFF	DB	?	; HOST XOFF'ED (1=YES,0=NO)
 PC_OFF		DB	?	; PC XOFF'ED (1=YES,0=NO)
 URGENT_SEND	DB	?	; We MUST send one byte (XON/XOFF)
-SEND_OK		DB	?	; DSR and CTS bits, masked from MSR
+SEND_OK 	DB	?	; DSR and CTS bits, masked from MSR
 IER_SHADOW	DB	?	; shadow copy of what we last wrote to IER
 ; ERROR COUNTS
 ERROR_BLOCK	DW	8 DUP(?); EIGHT ERROR COUNTERS
@@ -232,11 +235,11 @@ SP_TAB		ENDS
 
 ; SP_TAB EQUATES
 ; WE HAVE TO USE THESE BECAUSE OF PROBLEMS WITH STRUC
-EOVFLOW		EQU	ERROR_BLOCK	; BUFFER OVERFLOWS
+EOVFLOW 	EQU	ERROR_BLOCK	; BUFFER OVERFLOWS
 EOVRUN		EQU	ERROR_BLOCK+2	; RECEIVE OVERRUNS
 EBREAK		EQU	ERROR_BLOCK+4	; BREAK CHARS
 EFRAME		EQU	ERROR_BLOCK+6	; FRAMING ERRORS
-EPARITY		EQU	ERROR_BLOCK+8	; PARITY ERRORS
+EPARITY 	EQU	ERROR_BLOCK+8	; PARITY ERRORS
 EXMIT		EQU	ERROR_BLOCK+10	; TRANSMISSION ERRORS
 EDSR		EQU	ERROR_BLOCK+12	; DATA SET READY ERRORS
 ECTS		EQU	ERROR_BLOCK+14	; CLEAR TO SEND ERRORS
@@ -287,12 +290,12 @@ AREA3	SP_TAB	<3,0,VECIRQ4,IRQ4,NIRQ4,EOI4,OFFSET COM_TEXT:INT_HNDLR3> ; COM3
 AREA4	SP_TAB	<4,0,VECIRQ3,IRQ3,NIRQ3,EOI3,OFFSET COM_TEXT:INT_HNDLR4> ; COM4
 CURRENT_AREA	DW OFFSET DGROUP:AREA1	; CURRENTLY SELECTED AREA
 
-DIV50		DW 2304			; ACTUAL DIVISOR FOR 50 BAUD IN USE
+DIV50		DW 2304 		; ACTUAL DIVISOR FOR 50 BAUD IN USE
 
 IFDEF DEBUG
- ST8250		DB "8250 or 16450$"
+ ST8250 	DB "8250 or 16450$"
  ST16550	DB "16550AN$"
- STUART		DB " UART detected", 0DH, 0AH, '$'
+ STUART 	DB " UART detected", 0DH, 0AH, '$'
 ENDIF
 
 _DATA	ENDS
@@ -450,10 +453,10 @@ _select_port PROC FAR
 	CMP	AX,4			; Port 4?
 	 MOV	BX,OFFSET DGROUP:AREA4	; SELECT COM4 DATA AREA
 	 JE	SPX			; Yes
-	INT 20H				; N.O.T.A. ????? Halt for debugging!
+	INT 20H 			; N.O.T.A. ????? Halt for debugging!
 	; Assume port 1 if continued
 SP1:	MOV	BX,OFFSET DGROUP:AREA1	; SELECT COM1 DATA AREA
-SPX:	MOV	CURRENT_AREA,BX		; SET SELECTION IN MEMORY
+SPX:	MOV	CURRENT_AREA,BX 	; SET SELECTION IN MEMORY
 	mov sp,bp
 	pop bp
 	RET
@@ -467,13 +470,13 @@ _select_port ENDP
 _save_com PROC FAR
 	PUSH SI
 	PUSH	ES			; SAVE EXTRA SEGMENT
-	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
+	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
 
 ; Save old interrupt vector
 	MOV	AH,35H			; FETCH INTERRUPT VECTOR CONTENTS
 	MOV	AL,IRQVEC[SI]		; INTERRUPT NUMBER
 	INT	DOS			; DOS 2 FUNCTION
-	MOV	WORD PTR OLD_COM[SI],BX	; SAVE ES:BX
+	MOV	WORD PTR OLD_COM[SI],BX ; SAVE ES:BX
 	MOV	WORD PTR OLD_COM[SI+2],ES ; FOR LATER RESTORATION
 	POP	ES			; RESTORE ES
 	POP SI
@@ -527,11 +530,11 @@ IFDEF DEBUG
 	XOR AX,AX			; A zero to store
 	MOV ES,START_TDATA[SI]		; Transmit buffer location
 	MOV DI,AX
-	MOV CX,S_SIZE/2			; Size of buffer
+	MOV CX,S_SIZE/2 		; Size of buffer
 	REP STOSW			; Clear entire buffer
 	MOV ES,START_RDATA[SI]		; Receive buffer location
 	MOV DI,AX
-	MOV CX,R_SIZE/2			; Size of buffer
+	MOV CX,R_SIZE/2 		; Size of buffer
 	REP STOSW			; Clear entire buffer
 	POP DI
 ENDIF
@@ -624,7 +627,7 @@ INST2:	CMP	AX,RS232_BASE		; INSTALLED?
 	CMP	AX,RS232_BASE+4 	; INSTALLED?
 	 JE	INST2A			; JUMP IF SO
 	CMP	AX,RS232_BASE+6 	; INSTALLED?
-	 JNE	INSTFREEBOTH 		; JUMP IF NOT
+	 JNE	INSTFREEBOTH		; JUMP IF NOT
 	; Fall into INST2A
 
 INST2A: MOV	BX,DATREG		; OFFSET OF TABLE OF PORTS
@@ -841,8 +844,8 @@ STOP1:	MOV	DX,LCR[SI]		; LINE CONTROL REGISTER
 	OUT	DX,AL			; SET UART PARITY MODE AND DLAB=0
 
 ; Initialize the FIFOs
-	
-	CMP UART_SILO_LEN[SI],1		; Is it a 16550A?
+
+	CMP UART_SILO_LEN[SI],1 	; Is it a 16550A?
 	 JE P5				; jump if 8250, 16450, or 16550(no A)
 	MOV	DX,FCR[SI]		; I/O Address of FIFO control register
 	MOV	AL,FIFO_INIT		; Clear FIFOs, set size, enable FIFOs
@@ -880,13 +883,13 @@ _ioctl_com PROC FAR
 	 JE IOCTLX			; No good.  Just return.
 	PUSHF				; Save interrupt context
 	CLI				; Prevent surprises
-	; MOV AX,[BP+6]			; Flags
+	; MOV AX,[BP+6] 		; Flags
 	; Check bits here...
 	MOV AX,[BP+8]			; Line speed
 	MOV BAUD_RATE[SI],AX		; Save in parameter block
 	CALL Set_Baud			; Set the baud rate in UART
 	POPF				; Restore interrupt state
-IOCTLX:	POP SI
+IOCTLX: POP SI
 	MOV SP,BP
 	POP BP
 	RET
@@ -1036,10 +1039,10 @@ DTRON6: TEST	AL,10H			; Clear To Send?
 	PAGE;
 ; Failure return
 
-DTRONF:	MOV CONNECTION[SI],'D'          ; Switch to DIR connection (MSTATINT)
+DTRONF: MOV CONNECTION[SI],'D'          ; Switch to DIR connection (MSTATINT)
 	; Fall into DTRDIR
 
-DTRDIR:	MOV SEND_OK[SI],30H		; Make believe DSR & CTS are up!!!
+DTRDIR: MOV SEND_OK[SI],30H		; Make believe DSR & CTS are up!!!
 	; Fall into DTRONS
 
 ; Successful return
@@ -1062,8 +1065,8 @@ _dtr_on ENDP
 ;
 _rts_off PROC FAR
 	PUSH SI
-	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
-	TEST	INSTALLED[SI],1		; PORT INSTALLED?
+	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
+	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	RFX			; ABORT IF NOT
 	MOV DX,MCR[SI]			; Modem Control Register
 	MOV AL,00001001B		; OUT 2, DTR
@@ -1078,15 +1081,15 @@ _rts_off	ENDP
 ;
 _rts_on PROC FAR
 	PUSH SI
-	MOV	SI,CURRENT_AREA		; SI POINTS TO DATA AREA
-	TEST	INSTALLED[SI],1		; PORT INSTALLED?
+	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
+	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
 	 JZ	RNX			; ABORT IF NOT
 	MOV DX,MCR[SI]			; Modem Control Register
 	MOV AL,00001011B		; OUT 2, RTS, DTR
 	OUT DX,AL
 RNX:	POP SI
 	RET
-_rts_on	ENDP
+_rts_on ENDP
 	PAGE;
 ;
 ; Wait for specified time using the 18.2 ticks/second clock
@@ -1215,7 +1218,7 @@ _s_count PROC FAR
 	CWD				; Avoid returning a negative number
 	NOT DX
 	AND AX,DX			; return 0 if it was negative
-SCX:	MOV DX,S_SIZE-1			; Leave 1 byte for a SENDII call
+SCX:	MOV DX,S_SIZE-1 		; Leave 1 byte for a SENDII call
 	POP SI
 	RET
 _s_count ENDP
@@ -1248,7 +1251,7 @@ SEND1:	CMP	SIZE_TDATA[SI],S_SIZE-1 ; BUFFER FULL? (Leave room for SENDII)
 	 JNE SEND2			; No. Still can't enable TX ints
 	PUSHF				; Save interrupt state
 	CLI
-	TEST IER_SHADOW[SI],02H		; Tx interrupts enabled?
+	TEST IER_SHADOW[SI],02H 	; Tx interrupts enabled?
 	 JNZ SEND3			; Jump if so: transmit already running
 	MOV DX,IER[SI]			; Interrupt Enable Register
 	MOV AL,0FH			; Rx, Tx, Line & Modem enable bits
@@ -1284,7 +1287,7 @@ SENDI3: CLI				; TURN OFF INTERRUPTS
 
 SENDI4: CALL	SENDII			; CALL INTERNAL SEND IMMEDIATE
 	POPF				; Restore interrupt state
-SENDIX:	POP SI
+SENDIX: POP SI
 	mov sp,bp
 	pop bp
 	RET
@@ -1298,9 +1301,9 @@ _sendi_com ENDP
 ;
 SENDII	PROC NEAR
 	TEST	IER_SHADOW[SI],02H	; Tx interrupts enabled?
-	 JNZ	SENDII1			; Jump if so: transmit already running
-	CMP	SEND_OK[SI],30H		; See if Data Set Ready & CTS are on
-	 JNE	SENDII1			; No. Still can't enable TX ints
+	 JNZ	SENDII1 		; Jump if so: transmit already running
+	CMP	SEND_OK[SI],30H 	; See if Data Set Ready & CTS are on
+	 JNE	SENDII1 		; No. Still can't enable TX ints
 ; Was idle: transmit the character without buffering; enable TX interrupt
 	PUSH	DX
 	MOV	DX,DATREG[SI]		; I/O address of data register
@@ -1323,7 +1326,7 @@ SENDII1:PUSH BX
 
 SENDII2:DEC BX				; Back it up
 	AND BX,S_SIZE-1 		; Ring it
-	MOV WORD PTR START_TDATA[SI],BX	; Save new value
+	MOV WORD PTR START_TDATA[SI],BX ; Save new value
 	INC	SIZE_TDATA[SI]		; ONE MORE CHARACTER IN X-MIT BUFFER
 	; No check for PC_OFF here.  Flow control ALWAYS gets sent!
 SENDII4:MOV ES:[BX],AL			; Move character to buffer
@@ -1408,7 +1411,7 @@ _break_com PROC FAR
 	CALL WaitN
 	MOV	DX,LCR[SI]		; LINE CONTROL REGISTER
 	IN	AL,DX			; GET CURRENT SETTING
-	AND	AL,NOT 40H 		; TURN OFF BREAK BIT
+	AND	AL,NOT 40H		; TURN OFF BREAK BIT
 	JMP SHORT $+2
 	OUT	DX,AL			; RESTORE LINE CONTROL REGISTER
 BREAKX: POP SI
@@ -1592,21 +1595,21 @@ RXI:	LES	BX,END_RDATA[SI]	; ES:BX points to free space
 RXI0:	MOV	DX,DATREG[SI]		; UART DATA REGISTER
 	IN	AL,DX			; Get data, clear status
 	CMP	XON_XOFF[SI],'E'        ; XON/XOFF FLOW CONTROL ENABLED?
-	 JE	RXI1			; Yes.  Check for XON/XOFF
+	 JE	RXI1			; Yes.	Check for XON/XOFF
 	CMP	SIZE_RDATA[SI],R_SIZE	; Any room in buffer?
 	 JAE	RXIFUL			; No room left
 	MOV	ES:[BX],AL		; Put character in buffer
 	INC	SIZE_RDATA[SI]		; GOT ONE MORE CHARACTER
 	INC	BX			; Bump pointer past location just used
 	AND	BX,R_SIZE-1		; Ring the pointer
-RXINXT:	MOV	DX,LSR[SI]		; Line Status Register
+RXINXT: MOV	DX,LSR[SI]		; Line Status Register
 	IN	AL,DX			; Read it
 	SHR	AL,1			; Check the RECV DATA READY bit
 	 JC	RXI0			; More data; go get it
 	MOV	WORD PTR END_RDATA[SI],BX ; Store updated pointer
 	JMP	SHORT LSI2		; No more data; count errors if any
 
-RXIFUL:	INC	WORD PTR EOVFLOW[SI]	; BUMP OVERFLOW ERROR COUNT
+RXIFUL: INC	WORD PTR EOVFLOW[SI]	; BUMP OVERFLOW ERROR COUNT
 	MOV	WORD PTR END_RDATA[SI],BX ; Store updated pointer
 	JMP	REPOLL
 
@@ -1646,7 +1649,7 @@ RXI3:	CMP	SIZE_RDATA[SI],R_SIZE	; SEE IF ANY ROOM
 ;
 	even
 	assume	DS:DGROUP
-TXI:	CMP	SEND_OK[SI],30H		; Hardware (CTS & DSR on) OK?
+TXI:	CMP	SEND_OK[SI],30H 	; Hardware (CTS & DSR on) OK?
 	 JNE	TXI9			; No.  Must wait 'til cable right!
 	MOV	CX,1			; Transfer count for flow ctl
 	CMP	URGENT_SEND[SI],CL	; Flow control character to send?
