@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.6 1993/10/24 21:51:14 ahd Exp ahd $
+ *    $Id: suspend2.c 1.7 1993/11/07 19:09:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.7  1993/11/07  19:09:56  ahd
+ * Zap name in error message to show pipe name
+ *
  * Revision 1.6  1993/10/24  21:51:14  ahd
  * Delay if suspending/resuming same port multiple times
  *
@@ -71,13 +74,6 @@
  */
 
 /*--------------------------------------------------------------------*/
-/*       Note that the 32 bit API doesn't handle signals like it's    */
-/*       16 bit older cousin.  For now, we support the client of      */
-/*       the of the pipe to suspend a 16 bit UUCICO, but a 32 bit     */
-/*       UUCICO cannot be suspended.                                  */
-/*--------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------*/
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
@@ -113,11 +109,17 @@
 #include "ssleep.h"
 #include "usrcatch.h"
 
+#if defined(__OS2__) && !defined(__32BIT)
+#define __32BIT__
+#endif
+
 #define STACKSIZE 8192
 
 boolean suspend_processing = FALSE;
 
-/* This module creates a new thread. Because this thread has a stack
+/* Note for the 16-bit version only:
+ *
+ * This module creates a new thread. Because this thread has a stack
  * segment different from the DGROUP (unlike the main thread) this
  * normally requires compilation with different options. To avoid this
  * (possible because the thread does not use any library routines),
@@ -125,27 +127,35 @@ boolean suspend_processing = FALSE;
  * static global variables. There are chances that even accessing stack
  * variables would work (if BP is used) but that can't be ensured.
  * The same is done (to be on the safe side) for the system signal handler.
+ *
+ * And since most of the code is used for the 32-bit version too,
+ * we just keep it that way.
  */
 
 static HPIPE hPipe;
 static char nChar;
 static char *portName;
 
-#ifdef __OS2__
+#ifdef __32BIT__
 
 static HEV semWait, semFree;
 static ULONG postCount;
-static ULONG nBytes;
+static BOOL bDummyKill;
+
+typedef ULONG U_INT;
 
 #else
 
 static ULONG semWait, semFree;
 static PFNSIGHANDLER old;
 static USHORT nAction;
-static int nBytes;
-typedef USHORT APIRET ;  /* Define older API return type              */
+
+typedef USHORT APIRET;   /* Define older API return type              */
+typedef USHORT U_INT;
 
 #endif
+
+static U_INT nBytes;
 
 currentfile();
 
@@ -155,15 +165,17 @@ currentfile();
 #pragma check_stack( off )
 #endif
 
-#ifndef __OS2__
-
 /*--------------------------------------------------------------------*/
 /*       S u s p e n d T h r e a d                                    */
 /*                                                                    */
 /*       Accept request to release serial port                        */
 /*--------------------------------------------------------------------*/
 
+#ifdef __32BIT__
+static VOID APIENTRY SuspendThread(ULONG nArg)
+#else
 static VOID FAR SuspendThread(VOID)
+#endif
 {
 
 
@@ -175,7 +187,7 @@ static VOID FAR SuspendThread(VOID)
   for (;;)
   {
 
-#ifdef __OS2__
+#ifdef __32BIT__
     if ( DosConnectNPipe(hPipe) )
       break;
 #else
@@ -216,9 +228,11 @@ static VOID FAR SuspendThread(VOID)
           else {
             suspend_processing = TRUE;
 
-#ifdef __OS2__
-            raise(SIGUSR1);
-            nChar = (char) (DosWaitEventSem(&semFree, 20000) ? 'T' : 'O');
+#ifdef __32BIT__
+	    bDummyKill = TRUE;
+	    DosKillProcess(DKP_PROCESS, getpid());
+            nChar = (char) (DosWaitEventSem(semFree, 20000) ? 'T' : 'O');
+            DosResetEventSem(semFree, &postCount);
 #else
             DosFlagProcess(getpid(), FLGP_PID, PFLG_A, 0);
             nChar = (char) (DosSemSetWait(&semFree, 20000) ? 'T' : 'O');
@@ -236,8 +250,8 @@ static VOID FAR SuspendThread(VOID)
           else {
             suspend_processing = FALSE;
 
-#ifdef __OS2__
-            DosResetEventSem( &semWait, &postCount );
+#ifdef __32BIT__
+            DosPostEventSem(semWait);
 #else
             DosSemClear(&semWait);
 #endif
@@ -264,7 +278,7 @@ static VOID FAR SuspendThread(VOID)
 /*         Drop the connection now we're done with this client.       */
 /*--------------------------------------------------------------------*/
 
-#ifdef __OS2__
+#ifdef __32BIT__
     DosDisConnectNPipe(hPipe);
 #else
     DosDisConnectNmPipe(hPipe);
@@ -281,6 +295,26 @@ static VOID FAR SuspendThread(VOID)
 /*                                                                    */
 /*       Signal handler for suspend hander                            */
 /*--------------------------------------------------------------------*/
+
+#ifdef __32BIT__
+
+static void SuspendHandler(int nSig)
+{
+  if ( bDummyKill ) 
+  {
+    bDummyKill = FALSE;
+    signal(SIGTERM, SuspendHandler);
+    raise(SIGUSR2);
+  }
+  else 
+  {
+    signal(SIGTERM, SIG_DFL);
+    DosKillProcess(DKP_PROCESS, getpid());
+  }
+
+} /* SuspendHandler */
+
+#else
 
 static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 {
@@ -308,11 +342,11 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 void suspend_init(const char *port )
 {
 
-#ifndef __OS2__
-
   char szPipe[FILENAME_MAX];
+#ifndef __32BIT__
   SEL selStack;
   PSZ pStack;
+#endif
   TID tid;
   APIRET rc;
 
@@ -320,6 +354,9 @@ void suspend_init(const char *port )
 /*      Set up the handler for signals from our suspend monitor       */
 /*--------------------------------------------------------------------*/
 
+#ifdef __32BIT__
+  signal(SIGTERM, SuspendHandler);
+#else
   rc = DosSetSigHandler(SuspendHandler,
                         &old,
                         &nAction,
@@ -331,6 +368,7 @@ void suspend_init(const char *port )
     printOS2error( "DosSetSigHandler", rc);
     return;
   }
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                Set up the pipe name to listen upon                 */
@@ -342,7 +380,7 @@ void suspend_init(const char *port )
 
   printmsg(4,"Creating locking pipe %s", szPipe );
 
-#ifdef __OS2__
+#ifdef __32BIT__
   rc = DosCreateNPipe( szPipe,
                      &hPipe,
                      NP_ACCESS_DUPLEX | NP_NOINHERIT | NP_NOWRITEBEHIND,
@@ -373,14 +411,27 @@ void suspend_init(const char *port )
   }
 #endif
 
+#ifdef __32BIT__
+
+/*--------------------------------------------------------------------*/
+/*       Now allocate the required semaphores.                        */
+/*--------------------------------------------------------------------*/
+
+  rc = DosCreateEventSem(NULL, &semFree, 0, 0);
+  if (rc)
+    printOS2error( "DosCreateEventSem", rc);
+
+  rc = DosCreateEventSem(NULL, &semWait, 0, 0);
+  if (rc)
+    printOS2error( "DosCreateEventSem", rc);
+
+#else
+
 /*--------------------------------------------------------------------*/
 /*       Now allocate memory for the monitor thread which will        */
 /*       notify us if some program wants our port.                    */
 /*--------------------------------------------------------------------*/
 
-#ifdef __OS2__
-  pStack = malloc( STACKSIZE );
-#else
   rc = DosAllocSeg(STACKSIZE, &selStack, SEG_NONSHARED);
 
   if (rc)
@@ -390,13 +441,18 @@ void suspend_init(const char *port )
   }
 
   pStack = (PSZ) MAKEP(selStack, 0) + STACKSIZE -2 ;
+
 #endif
 
 /*--------------------------------------------------------------------*/
 /*                    Now fire off the monitor thread                 */
 /*--------------------------------------------------------------------*/
 
+#ifdef __32BIT__
+  rc = DosCreateThread(&tid, SuspendThread, 0, 0, STACKSIZE);
+#else
   rc = DosCreateThread(SuspendThread, &tid, pStack);
+#endif
 
   if (rc)
   {
@@ -414,8 +470,6 @@ void suspend_init(const char *port )
       panic();
   }
 
-#endif
-
 } /* suspend_init */
 
 /*--------------------------------------------------------------------*/
@@ -429,11 +483,7 @@ int suspend_other(const boolean suspend,
 {
   char szPipe[FILENAME_MAX];
   HFILE hPipe;
-#ifdef __OS2__
-  ULONG nAction, nBytes;
-#else
-  USHORT nAction, nBytes;
-#endif
+  U_INT nAction, nBytes;
   UCHAR nChar;
   APIRET rc = 1;
   boolean firstPass = TRUE;
@@ -473,7 +523,7 @@ int suspend_other(const boolean suspend,
         {
            firstPass = FALSE;
 
-#ifdef __OS2__
+#ifdef __32BIT__
            rc = DosWaitNPipe( szPipe, 5000 ); /* Wait up to 5 sec for pipe  */
            if (rc)
            {
@@ -583,24 +633,23 @@ int suspend_other(const boolean suspend,
 
 CONN_STATE suspend_wait(void)
 {
-
-#ifdef __OS2__
-   return CONN_INITIALIZE;
-#else
-
    APIRET rc;
 
    printmsg(0,"suspend_wait: Port %s released, program sleeping",
                portName );
 
-#ifdef __OS2__
-   rc = DosResetEventSem( &semFree, &postCount);
+#ifdef __32BIT__
+   rc = DosPostEventSem(semFree);
    if (rc)
-      printOS2error( "DosResetEventSem", rc);
+      printOS2error( "DosPostEventSem", rc);
 
-   rc = DosWaitEventSem(&semWait, SEM_INDEFINITE_WAIT);
+   rc = DosWaitEventSem(semWait, SEM_INDEFINITE_WAIT);
    if (rc)
       printOS2error( "DosWaitEventSem", rc);
+
+   rc = DosResetEventSem(semWait, &postCount);
+   if (rc)
+      printOS2error( "DosResetEventSem", rc);
 
 #else
 
@@ -619,7 +668,5 @@ CONN_STATE suspend_wait(void)
       return CONN_EXIT;
    else
       return CONN_INITIALIZE;
-
-#endif
 
 } /* suspend_wait */
