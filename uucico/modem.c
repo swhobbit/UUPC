@@ -17,10 +17,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.61 1995/07/21 13:27:00 ahd v1-12q $
+ *    $Id: modem.c 1.62 1996/01/02 00:00:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.62  1996/01/02 00:00:24  ahd
+ *    Break out search loop for configuration file keywords from
+ *    processing of them.
+ *    Use proper binary search for configuration file keywords rather
+ *    than lineaer search.  Also includes pre-computing size of configuration
+ *    tables.
+ *
  *    Revision 1.61  1995/07/21 13:27:00  ahd
  *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
  *
@@ -325,16 +332,15 @@ static CONFIGTABLE modemTable[] = {
    { "priority",       &M_priority,       0, B_SHORT  },
    { "prioritydelta",  &M_prioritydelta,  0, B_SHORT  },
    { "ring",           &ring,             0, B_LIST   },
-   { "scripttimeout",  &scriptTimeout,    0, B_SHORT  },
    { "scriptechotimeout",  &scriptEchoTimeout,0, B_SHORT },
+   { "scripttimeout",  &scriptTimeout,    0, B_SHORT  },
    { "startuptimeout", &M_startupTimeout, 0, B_SHORT  },
    { "suite",          &M_suite,          0, B_TOKEN  },
-   { "transferbuffer", &M_xfer_bufsize,   0, B_LONG   },
    { "tpackettimeout", &M_tPacketTimeout, 0, B_SHORT  },
+   { "transferbuffer", &M_xfer_bufsize,   0, B_LONG   },
    { "version",        0,                 0, B_TOKEN  },
    { "vpacketsize",    &vPacketSize,      0, B_SHORT  },
    { "vwindowsize",    &vWindowSize,      0, B_SHORT  }
-
 }; /* modemTable */
 
 static size_t modemTableSize = sizeof modemTable / (sizeof (CONFIGTABLE));
