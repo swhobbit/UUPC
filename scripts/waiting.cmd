@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: waiting.cmd 1.5 1993/01/23 19:15:47 ahd Exp ahd $
+ *       $Id: WAITING.CMD 1.6 1993/04/04 05:01:49 ahd Exp $
  *
- *       $Log: waiting.cmd $
+ *       $Log: WAITING.CMD $
+ *Revision 1.6  1993/04/04  05:01:49  ahd
+ *Use common getuupc.cmd for variable retrieval
+ *
 *     Revision 1.5  1993/01/23  19:15:47  ahd
 *     Load required subroutine packages before using them
 *
@@ -65,8 +68,26 @@ do;
       say 'No mail waiting in' maildir;
    else
       say 'No mail waiting for' who;
+   return;
 end;
-else  do i = 1 to data.0
+/*--------------------------------------------------------------------*/
+/*                 Do a simple exchange sort by name                  */
+/*--------------------------------------------------------------------*/
+do i = 1 to data.0 - 1;
+   parse value space(data.i) with . . . . fname;
+   do j = i + 1 to data.0;
+      parse value space(data.j) with . . . . newname;
+      if newname < fname then
+      do;
+         save = data.j
+         fname = newname;
+         data.j = data.i
+         data.i = save;
+      end;
+   end j
+end i;
+
+do i = 1 to data.0
    parse value space(data.i) with mmddyy hhmmss bytes attr fname;
    if bytes > 0 then
    do
