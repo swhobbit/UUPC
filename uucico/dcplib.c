@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.12 1993/12/09 12:48:33 rommel Exp $
+ *    $Id: dcplib.c 1.13 1994/01/01 19:19:00 ahd Exp $
  *
  *    $Log: dcplib.c $
+ * Revision 1.13  1994/01/01  19:19:00  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.12  1993/12/09  12:48:33  rommel
  * Move extra terminating character when inserting substitution strings
  *
@@ -436,9 +439,8 @@ static void LoginShell( const   struct UserTable *userp )
             insert = line;
             break;
 
-         case 'u':                  /* User id                       */
-            insert = (char *) userp->uid;
-            break;
+         case 'm':
+            insert = E_inmodem;     /* Modem file name               */
 
          case 'p':
             insert = M_device;      /* Port name                     */
@@ -449,10 +451,15 @@ static void LoginShell( const   struct UserTable *userp )
             insert = line;
             break;                  /* Current line speed            */
 
+         case 'w':                  /* Alias for user id             */
+         case 'u':                  /* User id                       */
+            insert = (char *) userp->uid;
+            break;
+
          default:
             printmsg(0,"LoginShell: Unknown substitution character %c",
                      s[1] );
-            line[0] = s[1];
+            line[0] = s[1];         /* Perform a self-insert         */
             line[1] = '\0';
             insert = line;
             break;
