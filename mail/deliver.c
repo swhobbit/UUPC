@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.20 1993/12/07 04:57:53 ahd Exp $
+ *    $Id: deliver.c 1.21 1993/12/09 04:51:21 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.21  1993/12/09  04:51:21  ahd
+ * Delete bogus case from CopyData()
+ *
  * Revision 1.20  1993/12/07  04:57:53  ahd
  * rename from fromUser and fromNode
  *
@@ -807,14 +810,15 @@ static int CopyData( const boolean remotedelivery,
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
                               /* Assume no Kanji translation needed   */
+   time_t now;
 
-   if ( bflag[F_SHORTFROM] )
-      sprintf(trailer, " %.24s", ctime( &now ));
-   else {
-      time_t now;
+   time( &now );
 
-      time( &now );
-      sprintf(trailer, " %.24s remote from %s", ctime( &now ), E_nodename);
+   sprintf(trailer, " %.24s", ctime( &now ));
+   if ( !bflag[F_SHORTFROM] )
+   {
+      strcat( trailer, " remote from " );
+      strcat( trailer, E_nodename );
    }
 
 /*--------------------------------------------------------------------*/
