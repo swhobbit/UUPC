@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: mkfilenm.c 1.2 1993/06/16 04:03:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mkfilenm.c $
+ *     Revision 1.2  1993/06/16  04:03:25  ahd
+ *     drop duplicated slashes (caused by root directory support *sigh*)
+ *
  */
 
 #include <stdio.h>
@@ -46,7 +49,10 @@ void mkfilename(char *pathname,
                 const char *path,
                 const char *name)
 {
+   char *s = pathname;
    sprintf(pathname, "%s/%s", path, name);
-   strcpy( pathname, normalize( pathname ));
+
+   while ((s = strchr(s, '\\')) != NULL)
+      *s++ = '/';                             /* Normalize slashes */
 
 } /*mkfilename*/
