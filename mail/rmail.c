@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.24 1994/02/21 16:38:58 ahd Exp $
+ *    $Id: rmail.c 1.25 1994/02/23 04:20:27 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.25  1994/02/23  04:20:27  ahd
+ * Don't eat first line in the body of the message
+ * Don't emit the Date: field in RFC-822 mode when one exists!
+ *
  * Revision 1.24  1994/02/21  16:38:58  ahd
  * Add routine name to failed to parse address message
  *
@@ -855,7 +859,8 @@ static char **Parse822( boolean *header,
          {
             size_t headerLen = strlen( headerTable[subscript].text );
 
-            if ( equalni( buf + offset,
+            if (( ! offset || equalni(buf, resent, offset )) &&
+                  equalni( buf + offset,
                           headerTable[subscript].text,
                           headerLen ))
             {
