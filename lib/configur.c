@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\CONFIGUR.C 1.7 1993/04/04 04:57:01 ahd Exp $
+ *    $Id: E:\SRC\UUPC\LIB\RCS\CONFIGUR.C 1.8 1993/04/05 04:32:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.8  1993/04/05  04:32:19  ahd
+ *     Set timezone, windows input mode in common routine
+ *
  *     Revision 1.7  1993/04/04  04:57:01  ahd
  *     Default configuration directory from UUPCSYSRC
  *     Default system directories from Configuration directory
@@ -657,7 +660,7 @@ boolean configure( CONFIGBITS program)
 /*               Process the system configuration file                */
 /*--------------------------------------------------------------------*/
 
-   if ((fp = FOPEN(sysrc, "r", TEXT)) == nil(FILE))
+   if ((fp = FOPEN(sysrc, "r",TEXT_MODE)) == nil(FILE))
    {
       printmsg(0, "Cannot open system configuration file \"%s\"", sysrc);
       printerr(sysrc);
@@ -682,7 +685,7 @@ boolean configure( CONFIGBITS program)
    if (usrrc != nil(char))
    {
       usrrc = normalize( usrrc );
-      if ((fp = FOPEN(usrrc, "r", TEXT)) == nil(FILE))
+      if ((fp = FOPEN(usrrc, "r",TEXT_MODE)) == nil(FILE))
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
          PopDir();

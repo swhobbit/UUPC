@@ -3,7 +3,7 @@
 /*                                                                    */
 /*       UUPC/extended file backup routines                           */
 /*                                                                    */
-/*       Copyright (c) 1991-1992 by Andrew H. Derbyshire;             */
+/*       Copyright (c) 1991-1993 by Andrew H. Derbyshire;             */
 /*       all rights reserved except as granted by UUPC/extended       */
 /*       license included with documention.                           */
 /*--------------------------------------------------------------------*/
@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\FILEBKUP.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Id: E:\SRC\UUPC\LIB\RCS\FILEBKUP.C 1.2 1992/11/19 02:57:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: FILEBKUP.C $
+ * Revision 1.2  1992/11/19  02:57:51  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *

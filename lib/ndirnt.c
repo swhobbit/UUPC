@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: NDIRNT.C 1.2 1993/01/01 01:21:29 dmwatt Exp $
+ *       $Id: NDIRNT.C 1.3 1993/04/10 21:22:29 dmwatt Exp $
  *
  *       $Log: NDIRNT.C $
+ *     Revision 1.3  1993/04/10  21:22:29  dmwatt
+ *     Windows/NT fixes
+ *
  *     Revision 1.2  1993/01/01  01:21:29  dmwatt
  *     Add currentfile() to support strpool memory handling
  *

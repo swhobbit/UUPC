@@ -5,9 +5,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ACTIVE.C 1.2 1992/11/23 03:56:06 ahd Exp $
+ *    $Id: ACTIVE.C 1.3 1993/03/06 22:48:23 ahd Exp $
  *
  *    $Log: ACTIVE.C $
+ * Revision 1.3  1993/03/06  22:48:23  ahd
+ * Correct header files
+ *
  * Revision 1.2  1992/11/23  03:56:06  ahd
  * Use strpool for news group names
  *
@@ -111,7 +114,7 @@ void get_active( void )
 /*--------------------------------------------------------------------*/
 
    mkfilename(active_filename, E_confdir, ACTIVE);
-   g = FOPEN(active_filename,"r",TEXT);
+   g = FOPEN(active_filename,"r",TEXT_MODE);
 
    if (g == NULL)
    {
@@ -119,7 +122,7 @@ void get_active( void )
 
       mkfilename(active_filename, E_newsdir, ACTIVE);
       fallback= TRUE;
-      g = FOPEN(active_filename,"r",TEXT);
+      g = FOPEN(active_filename,"r",TEXT_MODE);
    } /* if */
 
    if (g == NULL) {
@@ -194,7 +197,7 @@ void put_active()
 
    filebkup( active_filename );
 
-   g = FOPEN(active_filename,"w",TEXT);
+   g = FOPEN(active_filename,"w",TEXT_MODE);
 
    if (g == NULL) {
       printmsg(0, "rnews: Cannot update active %s", active_filename );

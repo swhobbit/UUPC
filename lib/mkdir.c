@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.4 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: MKDIR.C 1.3 1993/03/24 01:57:30 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: MKDIR.C $
+ *     Revision 1.3  1993/03/24  01:57:30  ahd
+ *     Delete unneeded currentfile()
+ *
  */
 
 #include <stdio.h>

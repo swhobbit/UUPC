@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFVARS.H 1.1 1993/03/06 23:09:50 ahd Exp $
+ *    $Id: CONFVARS.H 1.2 1993/04/04 05:01:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFVARS.H $
+ * Revision 1.2  1993/04/04  05:01:08  ahd
+ * Add configurable OS/2 priority values
+ *
  * Revision 1.1  1993/03/06  23:09:50  ahd
  * Initial revision
  *

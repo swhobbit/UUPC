@@ -3,7 +3,7 @@
 /*                                                                    */
 /*    Clear host status information for UUPC/extended                 */
 /*                                                                    */
-/*    Copyright (c) 1989-1992, Andrew H. Derbyshire                   */
+/*    Copyright (c) 1989-1993, Andrew H. Derbyshire                   */
 /*    Copyright (c) 1992, Mitch Mitchell                              */
 /*--------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ void HostReset( const char *name )
    mkfilename( fname, E_spooldir, DCSTATUS );
 
 
-   if ((stream  = FOPEN(fname , "w", BINARY)) == NULL)
+   if ((stream  = FOPEN(fname , "w", BINARY_MODE)) == NULL)
    {
       printmsg(1,"HostReset: Unable to open host status file");
       printerr( fname );

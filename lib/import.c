@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: IMPORT.C 1.2 1992/11/22 21:06:14 ahd Exp $
  *
- *    $Log$
+ *    $Log: IMPORT.C $
+ * Revision 1.2  1992/11/22  21:06:14  ahd
+ * Correct mapping of dos paths with trailing slashes
+ *
  */
 
 #include <stdio.h>

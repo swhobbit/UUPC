@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp ahd $
+ *    $Id: UUTYPES.H 1.1 1993/03/06 23:09:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: UUTYPES.H $
+ * Revision 1.1  1993/03/06  23:09:50  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
