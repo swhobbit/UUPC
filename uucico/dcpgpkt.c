@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.11 1993/04/13 03:00:05 ahd Exp $
+ *      $Id: DCPGPKT.C 1.12 1993/04/13 03:19:45 ahd Exp $
  *
  *      $Log: DCPGPKT.C $
+ * Revision 1.12  1993/04/13  03:19:45  ahd
+ * Only perform copy to gspkt if input to gsendpkt is non-null
+ *
  * Revision 1.11  1993/04/13  03:00:05  ahd
  * Correct gspkt declare
  *
@@ -98,7 +101,7 @@
 #include "dcpgpkt.h"
 #include "hostable.h"
 #include "security.h"
-#include "ulib.h"
+#include "commlib.h"
 #include "modem.h"
 #include "catcher.h"
 
@@ -174,16 +177,10 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
 #ifdef WIN32
-#define UUFAR
 #define MEMSET(p,c,l)  memset(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
 #else
-#ifdef __TURBOC__
-#define UUFAR far
-#else
-#define UUFAR _far
-#endif
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
 #define MEMMOVE(t,s,l) _fmemmove(t,s,l)
