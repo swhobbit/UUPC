@@ -1,17 +1,5 @@
-Microsoft Developer Studio Workspace File, Format Version 5.00
+Microsoft Developer Studio Workspace File, Format Version 6.00
 # WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
-
-###############################################################################
-
-Project: "lib"=.\lib\lib.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
 
 ###############################################################################
 
@@ -24,7 +12,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name lib
+    Project_Dep_Name uupclib
     End Project Dependency
 }}}
 
@@ -47,6 +35,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name uusmtpd
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uuxqt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uupclib"=.\lib\uupclib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -60,7 +63,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name lib
+    Project_Dep_Name uupclib
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name uucommt
@@ -78,10 +81,25 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name lib
+    Project_Dep_Name uupclib
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name uucommt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uuxqt"=.\uucp\uuxqt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name uupclib
     End Project Dependency
 }}}
 
