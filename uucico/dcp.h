@@ -1,7 +1,30 @@
 #ifndef __DCP
 #define __DCP
+
+/*--------------------------------------------------------------------*/
+/*    d c p . h                                                       */
+/*                                                                    */
+/*    UUCICO main program definitions                                 */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Copyright (C) Richard H. Lamb 1985, 1986, 1987                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
- *      History:77,17
+ *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
  *      Mon May 15 19:54:43 1989 change portactive to port_active
  *      Mon May 15 19:51:13 1989 Add portactive flag
  *      19 Mar 1990  Add hostable.h header                           ahd
@@ -13,11 +36,6 @@
         tab stops to every 4 columns.
 */
 
-/*
-        dcp.h
-*/
-
-/* DCP a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
 #define MAXPACK 512           /* Max packet size we can handle       */
 #define SMALL_PACKET 64       /* Max packet size most UUCP's can
@@ -115,12 +133,11 @@ extern char *Rmtname;           /* system we WANT to talk to    */
 
 extern char rmtname[20];        /* system we end up talking to  */
 
-extern char s_systems[FILENAME_MAX];
-                                /* full-name of systems file    */
 extern struct HostTable *hostp;
 extern struct HostStats remote_stats;
-                                 /* host status, as defined by hostatus */
+                                /* host status, as defined by hostatus */
 
 int    dcpmain(int  argc,char  * *argv);
+
 
 #endif /* __DCP */
