@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.h 1.1 1998/03/03 03:55:26 ahd Exp $
+ *       $Id: pop3mbox.h 1.2 1998/03/03 07:37:36 ahd v1-12v $
  *
  *       Revision history:
  *       $Log: pop3mbox.h $
+ *       Revision 1.2  1998/03/03 07:37:36  ahd
+ *       Add flags for requiring mbox update
+ *
  *       Revision 1.1  1998/03/03 03:55:26  ahd
  *       Initial revision
  *
@@ -55,7 +58,7 @@ char *
 popBoxUIDL( MailMessage *current );
 
 MailMessage *
-getPopMessageNext( MailMessage *current );
+getBoxPopNext( MailMessage *current );
 
 #define popBoxIsUpdated( current ) (current->deleted || current->fakeUIDL)
 

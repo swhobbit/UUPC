@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.5 1998/03/08 07:47:46 ahd Exp $
+ *       $Id: pop3user.c 1.6 1998/03/08 23:07:12 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.6  1998/03/08 23:07:12  ahd
+ *       Fully buffer transmitted text of messages
+ *
  *       Revision 1.5  1998/03/08 07:47:46  ahd
  *       Correct message text for msg retrieval
  *
@@ -55,18 +58,18 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.5 1998/03/08 07:47:46 ahd Exp $");
+RCSID("$Id: pop3user.c 1.6 1998/03/08 23:07:12 ahd Exp $");
 
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*       g e t P o p M e s s a g e                                    */
+/*       s el e c t P o p M e s s a g e                               */
 /*                                                                    */
-/*       Get pointer to requested POP message                         */
+/*       Return pointer to specified POP message                      */
 /*--------------------------------------------------------------------*/
 
 static MailMessage *
-getPopMessage(SMTPClient *client, const char *number)
+selectPopMessage(SMTPClient *client, const char *number)
 {
    long sequence = atol(number);
    char *errorText = NULL;
@@ -98,7 +101,7 @@ getPopMessage(SMTPClient *client, const char *number)
 
    return NULL;
 
-} /* getPopMessage */
+} /* selectPopMessage */
 
 /*--------------------------------------------------------------------*/
 /*       i s A l l P e r i o d s                                      */
@@ -336,7 +339,7 @@ commandDELE(SMTPClient *client,
             char **operands)
 {
 
-   MailMessage *current = getPopMessage(client, operands[0]);
+   MailMessage *current = selectPopMessage(client, operands[0]);
 
    if (current == NULL)
       return KWFalse;
@@ -387,7 +390,7 @@ commandLIST(SMTPClient *client,
 
    if (operands[0] != NULL)
    {
-      current = getPopMessage(client, operands[0]);
+      current = selectPopMessage(client, operands[0]);
       if (current == NULL)
          return KWFalse;
       listOneMessage(client, current, verb->successResponse);
@@ -412,7 +415,7 @@ commandLIST(SMTPClient *client,
    while(current != NULL)
    {
       listOneMessage(client, current, PR_DATA);
-      current = getPopMessageNext(current);
+      current = getBoxPopNext(current);
    } /* while(current != NULL) */
 
    /* Terminate the list of messages */
@@ -476,7 +479,7 @@ commandRETR(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
-   MailMessage *current = getPopMessage(client, operands[0]);
+   MailMessage *current = selectPopMessage(client, operands[0]);
 
    if (current == NULL)
       return KWFalse;
@@ -542,7 +545,7 @@ commandTOP(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands)
 {
-   MailMessage *current = getPopMessage(client, operands[0]);
+   MailMessage *current = selectPopMessage(client, operands[0]);
 
    if (current == NULL)
       return KWFalse;
@@ -597,7 +600,7 @@ commandUIDL(SMTPClient *client,
 
    if (operands[0] != NULL)
    {
-      current = getPopMessage(client, operands[0]);
+      current = selectPopMessage(client, operands[0]);
       if (current == NULL)
          return KWFalse;
       identifyOneMessage(client, current, verb->successResponse);
@@ -617,7 +620,7 @@ commandUIDL(SMTPClient *client,
    while(current != NULL)
    {
       identifyOneMessage(client, current, PR_DATA);
-      current = getPopMessageNext(current);
+      current = getBoxPopNext(current);
    } /* while(current != NULL) */
 
    /* Terminate the list of messages */
