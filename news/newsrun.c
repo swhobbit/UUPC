@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.53 1995/02/05 00:36:38 ahd Exp $
+ *       $Id: newsrun.c 1.1 1995/02/12 23:37:04 ahd Exp $
  *
- *       $Log: rnews.c $
+ *       $Log: newsrun.c $
+ *       Revision 1.1  1995/02/12 23:37:04  ahd
+ *       compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *       Revision 1.53  1995/02/05 00:36:38  ahd
  *       Don't report removal error for files which may not exist
  *
@@ -190,7 +193,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.53 1995/02/05 00:36:38 ahd Exp $";
+         "$Id: newsrun.c 1.1 1995/02/12 23:37:04 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -491,7 +494,7 @@ main( int argc, char **argv)
 
    if ( ! articles )
    {
-      printmsg(0,"%s No articles input to program");
+      printmsg(0,"%s No articles input to program", argv[0]);
       panic();
    }
 
@@ -1593,7 +1596,7 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
 
   FILE *output;
 
-  char buf[BUFSIZ];
+  char buf[BUFSIZ*2];
 
   KWBoolean skipHeader   = KWFalse;
   KWBoolean searchHeaders   = KWTrue;
@@ -1611,8 +1614,6 @@ static void copy_rmt_article( const char *filename, IMFILE *imf )
     printerr( filename );
     panic();
   }
-
-  fprintf( output, "#! rnews %ld\n", imlength( imf ));
 
 /*--------------------------------------------------------------------*/
 /*                     Main loop to process the data                  */
