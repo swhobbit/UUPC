@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutcpip.h 1.1 1997/06/03 03:26:38 ahd Exp $
+ *    $Id: uutcpip.h 1.2 1997/11/21 18:11:31 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: uutcpip.h $
+ *    Revision 1.2  1997/11/21 18:11:31  ahd
+ *    Add definition of UUCP port number
+ *
  *    Revision 1.1  1997/06/03 03:26:38  ahd
  *    Initial revision
  *
@@ -54,7 +57,7 @@
 typedef int SOCKET;
 #endif
 
-#include "psos2err.h"        /* Emulation of winsock error msgs */
+#include "../uucico/psos2err.h"        /* Emulation of winsock error msgs */
 
 #else /* DOS and Windows */
 #include <windows.h>

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.3 1997/11/25 05:05:06 ahd Exp $
+ *    $Id: smtpnetw.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.4  1997/11/26 03:34:11  ahd
+ *    Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *    Revision 1.3  1997/11/25 05:05:06  ahd
  *    More robust SMTP daemon
  *
@@ -44,16 +47,18 @@
 #include "uupcmoah.h"
 
 #include <limits.h>
+#include <ctype.h>
 
 #include "smtpnetw.h"
 #include "catcher.h"
 #include "ssleep.h"
+#include "smtpverb.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.3 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
 
 currentfile();
 
@@ -73,10 +78,10 @@ static const char crlf[] = "\r\n";
 /*                          Local prototypes                          */
 /*--------------------------------------------------------------------*/
 
-static int
+static size_t
 SMTPRead( SMTPClient *client );
 
-static int
+static size_t
 SMTPWrite(SMTPClient *client,
           const char UUFAR *data,
           unsigned int len);
@@ -101,7 +106,7 @@ KWBoolean
 SMTPGetLine( SMTPClient *client )
 {
    static const char mName[] = "SMTPGetLine";
-   int column;
+   size_t column;
 
    printmsg( 5, "%s: entered for client %d in mode 0x%04x "
                 "with %d bytes available",
@@ -127,10 +132,14 @@ SMTPGetLine( SMTPClient *client )
    }
 
 /*--------------------------------------------------------------------*/
-/*                    Read more data if we need it                    */
+/*       Read more data if we have some and need it, need being       */
+/*       defined as we have used 75% of the buffer or no CR/LF        */
+/*       was found during our last pass.                              */
 /*--------------------------------------------------------------------*/
 
-   if ( getClientReady( client ))
+   if ( getClientReady( client ) &&
+        ( (client->stalledReads > 0 ) ||
+          (client->receive.used < (client->receive.length / 4))))
    {
       if ( client->stalledReads )   /* Improve response time ...     */
          client->stalledReads--;
@@ -171,6 +180,19 @@ SMTPGetLine( SMTPClient *client )
                   client->receive.used );
       }
 
+      /* Silly hack to handle NETSPACE being lazy about
+         terminating QUIT commands                       */
+      if ( (client->receive.used > 3 ) &&
+           (client->receive.used < 6 ) &&
+           equalni( client->receive.data, "QUIT", 4 ))
+      {
+         printmsg(2, "%s: Client %d requires CR/LF after QUIT",
+                     mName,
+                     getClientSequence(client));
+         strcpy( client->receive.data + 4, crlf );
+         client->receive.used = 6;
+      }
+
    } /* if ( getClientMode( client ) != SM_DATA ) */
 
 /*--------------------------------------------------------------------*/
@@ -189,7 +211,7 @@ SMTPGetLine( SMTPClient *client )
                      2 ))
       {
          client->receive.data[column-1] = '\0';
-         printmsg( ( getClientMode( client ) == SM_DATA ) ? 8 : 2,
+         printmsg( (int) ((getClientMode( client ) == SM_DATA) ? 8 : 2),
                       "%d <<< %.75s",
                       getClientSequence(client),
                       client->receive.data );
@@ -205,7 +227,7 @@ SMTPGetLine( SMTPClient *client )
 
    if ( isClientEOF( client ))
    {
-      printmsg( 0, "%s: Client %d Terminated unexpectedly",
+      printmsg( 0, "%s: Client %d Terminated unexpectedly without QUIT",
                  mName,
                  getClientSequence( client ) );
       client->receive.data[ 0 ] = '\0';
@@ -228,7 +250,7 @@ SMTPGetLine( SMTPClient *client )
                    mName,
                    getClientSequence( client ),
                    client->receive.used );
-      setClientIgnore( client, ++client->stalledReads );
+      setClientIgnore( client, (time_t) ++client->stalledReads );
                                        /* Sleep client for few secs  */
       return KWFalse;                  /* Don't process command now  */
 
@@ -267,11 +289,26 @@ SMTPResponse( SMTPClient *client, int code, const char *text )
    size_t totalLength;
    KWBoolean buffered = KWFalse;
 
-   if ( code )
-      sprintf( buf, "%03.3d%c", code < 0 ? - code : code,
-                         code < 0 ? '-' : ' ' );
-   else
-      strcpy(buf, "??? " );
+   switch( code )
+   {
+         case 0:
+            strcpy(buf, "??? " );
+            break;
+
+         case POP_OKAY:
+            strcpy( buf, "-OK " );
+            break;
+
+         case POP_ERROR:
+            strcpy( buf, "-ERR " );
+            break;
+
+         default:
+            sprintf( buf, "%03.3d%c",
+                          (code < 0) ? - code : code,
+                          (code < 0) ? '-' : ' ' );
+
+   }
 
    printmsg( 2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
 
@@ -369,7 +406,6 @@ InitWinsock(void)
 #endif
 
    int status;
-   static KWBoolean firstPass = KWTrue;
 
    if ( winsockActive )
       return KWTrue;
@@ -467,20 +503,17 @@ openMaster(const char *name )
 /*                Fill in service information for tcp                 */
 /*--------------------------------------------------------------------*/
 
-   printmsg(NETDEBUG, "%s: determining port", mName);
+   printmsg(NETDEBUG, "%s: determining port for %s",
+                     mName,
+                     name );
 
-   if ( strlen( name ))
+   if ( isdigit(*name))
       sin.sin_port = htons((u_short) atoi(name));
-   else if ( (pse = getservbyname(UUCP_SERVICE, "tcp")) == NULL )
+   else if ( (pse = getservbyname((char *) name, "tcp")) == NULL )
    {
       int wsErr = WSAGetLastError();
-
-      sin.sin_port = htons(UUCP_PORT);
       printWSerror("getservbyname", wsErr);
-      printmsg(0, "%s: cannot locate service %s, using port %d",
-                  mName,
-                  UUCP_SERVICE,
-                  (int)ntohs(sin.sin_port));
+      return INVALID_SOCKET;
    }
    else
       sin.sin_port = pse->s_port;
@@ -583,7 +616,7 @@ openSlave(SOCKET pollingSock)
 /*       Write to the open socket                                     */
 /*--------------------------------------------------------------------*/
 
-static int
+static size_t
 SMTPWrite(SMTPClient *client,
           const char UUFAR *data,
           unsigned int len)
@@ -617,7 +650,7 @@ SMTPWrite(SMTPClient *client,
 /*              Return byte count transmitted to caller               */
 /*--------------------------------------------------------------------*/
 
-   return (int) len;
+   return len;
 
 } /* SMTPWrite */
 
@@ -629,7 +662,7 @@ SMTPWrite(SMTPClient *client,
 /*       select determines client is ready.                           */
 /*--------------------------------------------------------------------*/
 
-static int
+static size_t
 SMTPRead( SMTPClient *client )
 {
    static const char mName[] = "SMTPRead";
@@ -696,30 +729,6 @@ SMTPRead( SMTPClient *client )
       printmsg(0, "%s: client %d EOF on recv()",
                   mName,
                   getClientSequence( client ));
-
-      /* Stupid hack for netscape, which seems to skip the final CR/LF */
-      if (( client->receive.used >= 2 ) &&
-          ( client->receive.used < (client->receive.length -
-                                    (int) sizeof crlf)) &&
-            ! equaln( client->receive.data + client->receive.used - 2,
-                     crlf,
-                     2 ))
-      {
-
-#ifdef UDEBUG
-         client->receive.data[client->receive.used] = '\0';
-         printmsg( 5, "%s: Client %d needed final CR/LF at EOF: \"%.75s\"",
-                   mName,
-                   getClientSequence( client ),
-                   client->receive.data );
-#endif
-
-         memcpy( client->receive.data + client->receive.used,
-                 crlf,
-                 sizeof crlf );
-         client->receive.used += 2;    /* Don't add terminating NULL */
-
-      }
    }
    else if (received == SOCKET_ERROR)
    {
@@ -737,8 +746,8 @@ SMTPRead( SMTPClient *client )
       }
    }
    else {
-      incrementClientBytesRead( client, received );
-      client->receive.used += received;
+      incrementClientBytesRead( client, (size_t) received );
+      client->receive.used += (size_t) received;
    }
 
    return client->receive.used;
@@ -896,14 +905,16 @@ selectReadySockets( SMTPClient *master )
 
    do {
 
-      time_t timeout = getClientTimeout( current );
+      unsigned long timeout = (unsigned long) getClientTimeout( current );
 
-      if ( isClientValid( current ) && ! isClientIgnored( current ))
+      if ( isClientValid( current ) &&
+           ! getClientReady( current ) &&
+           ! isClientIgnored( current ))
       {
-            FD_SET((unsigned)getClientHandle( current ), &readfds);
+            FD_SET(((unsigned)getClientHandle( current )), &readfds);
 
-            if ( (int) getClientHandle( current ) > maxSocket )
-               maxSocket = getClientHandle( current );
+            if ( (int) getClientHandle( current ) >= maxSocket )
+               maxSocket = getClientHandle( current ) + 1;
 
             nSelected++;
       }
@@ -966,7 +977,7 @@ selectReadySockets( SMTPClient *master )
 
    do {
       if ( isClientValid(current) &&
-           FD_ISSET((unsigned) getClientHandle( current ), &readfds ))
+           FD_ISSET(((unsigned) getClientHandle( current )), &readfds ))
       {
          setClientReady( current, KWTrue );
          setClientProcess( current, KWTrue );

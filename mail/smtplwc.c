@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.3 1997/11/25 05:05:06 ahd Exp $
+ *       $Id: smtplwc.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.4  1997/11/26 03:34:11  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *       Revision 1.3  1997/11/25 05:05:06  ahd
  *       More robust SMTP daemon
  *
@@ -47,7 +50,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.3 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtplwc.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
 
 currentfile();
 
@@ -57,6 +60,7 @@ currentfile();
 /*       Accept a new client from our master listening socket         */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandAccept(SMTPClient *master,
               struct _SMTPVerb* verb,
               char **operands )
@@ -91,6 +95,7 @@ commandAccept(SMTPClient *master,
 /*       Perform initial client command processing (greeting)         */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandInit(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
@@ -122,6 +127,7 @@ commandInit(SMTPClient *client,
 /*       Respond to client greeting                                   */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandHELO(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
@@ -167,6 +173,7 @@ commandHELO(SMTPClient *client,
 /*       No-operation command                                         */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandNOOP(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
@@ -181,6 +188,7 @@ commandNOOP(SMTPClient *client,
 /*       Reset server state to allow new transaction                  */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandRSET(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
@@ -197,6 +205,7 @@ commandRSET(SMTPClient *client,
 /*       Respond to server termination                                */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
@@ -214,6 +223,7 @@ commandQUIT(SMTPClient *client,
 /*       Respond to out of sequence command                           */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandSequenceIgnore(SMTPClient *client,
                       struct _SMTPVerb* verb,
                       char **operands )
@@ -288,6 +298,7 @@ commandSequenceIgnore(SMTPClient *client,
 /*       Respond to remote that server is shutting down               */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandExiting(SMTPClient *client,
                struct _SMTPVerb* verb,
                char **operands )
@@ -323,6 +334,7 @@ commandTimeout(SMTPClient *client,
 /*       Handle a terminated (closed network connection) client       */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandTerminated(SMTPClient *client,
                   struct _SMTPVerb* verb,
                   char **operands )
@@ -337,6 +349,7 @@ commandTerminated(SMTPClient *client,
 /*       Inform client we do not know the command issued              */
 /*--------------------------------------------------------------------*/
 
+KWBoolean
 commandSyntax(SMTPClient *client,
               struct _SMTPVerb* verb,
               char **operands )

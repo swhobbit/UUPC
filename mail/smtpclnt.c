@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.4 1997/11/25 05:05:06 ahd Exp $
+ *       $Id: smtpclnt.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.5  1997/11/26 03:34:11  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *       Revision 1.4  1997/11/25 05:05:06  ahd
  *       More robust SMTP daemon
  *
@@ -40,8 +43,9 @@
 #include "smtpverb.h"
 #include "smtpnetw.h"
 #include "ssleep.h"
-#include <limits.h>
+#include "catcher.h"
 
+#include <limits.h>
 #include <ctype.h>
 
 /*--------------------------------------------------------------------*/
@@ -50,7 +54,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.4 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
 
 static long clientSequence = 0;
 
@@ -69,8 +73,12 @@ initializeClient( SOCKET handle, KWBoolean master )
    memset( client, 0, sizeof *client );
 
    client->sequence = ++clientSequence;
-   setClientMode( client, SM_CONNECTED );
    setClientProcess( client, KWTrue );
+
+   if ( terminate_processing )
+      setClientMode( client, SM_EXITING );
+   else
+      setClientMode( client, SM_CONNECTED );
 
 /*--------------------------------------------------------------------*/
 /*       Either accept a client from the master socket, or (if not    */
@@ -95,8 +103,8 @@ initializeClient( SOCKET handle, KWBoolean master )
 /*                  Allocate remaining buffers we need                */
 /*--------------------------------------------------------------------*/
 
-   client->receive.length = BUFSIZ;
-   client->receive.data   = malloc( client->receive.length );
+   client->receive.length = 10240;
+   client->receive.data   = malloc( (size_t) client->receive.length );
    checkref( client->receive.data );
 
    client->transmit.length = BUFSIZ;
@@ -195,10 +203,14 @@ void
 freeClient( SMTPClient *client )
 {
    static const char mName[] = "freeClient";
+   time_t now;
 
-   printmsg(2,"%s: Freeing client %d",
+   time( &now );
+
+   printmsg(1,"%s: Dropping client %d, age was %d seconds",
             mName,
-            getClientSequence( client ));
+            getClientSequence( client ),
+            now - client->connectTime );
 
 /*--------------------------------------------------------------------*/
 /*                        Perform housekeeping                        */
@@ -355,6 +367,10 @@ isClientTimedOut( const SMTPClient *client )
 
    time(&now);
 
+   if ( client->terminationTime > 0 &&
+       (client->terminationTime <= now ))
+      return KWTrue;
+
    /* Handle case of very large time out */
    if (getClientTimeout(client) > now)
       return KWFalse;
@@ -413,7 +429,9 @@ isClientIgnored( const SMTPClient *client )
    printmsg(0,"%s: Reached impossible point for client %d." ,
                mName,
                getClientSequence( client ) );
+
    panic();
+   return KWTrue;
 
 } /* isClientIgnored */
 
@@ -555,7 +573,7 @@ setClientIgnore( SMTPClient *client, time_t delay )
 
 } /* getClientTimeout */
 
-int
+size_t
 getClientSequence( const SMTPClient *client )
 {
    return client->sequence;
@@ -608,7 +626,7 @@ void incrementClientTrivialCount( SMTPClient *client )
    client->trivialTransactions++;
 }
 
-int getClientTrivialCount( const SMTPClient *client )
+size_t getClientTrivialCount( const SMTPClient *client )
 {
    return client->trivialTransactions;
 }

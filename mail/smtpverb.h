@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.4 1997/11/25 05:05:36 ahd Exp $
+ *       $Id: smtpverb.h 1.5 1997/11/26 03:34:44 ahd v1-12t $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.5  1997/11/26 03:34:44  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *       Revision 1.4  1997/11/25 05:05:36  ahd
  *       More robust SMTP daemon
  *
@@ -92,7 +95,7 @@ typedef struct _SMTPVerb
    ref_verbproc rejecter;           /* Processor for bad modes       */
    const char name[5];              /* VERB issued by client         */
    KWBoolean trivial;               /* trivial command used in DoS?  */
-   unsigned short validModes;       /* Modes we invoke comm proc for */
+   unsigned long validModes;        /* Modes we invoke comm proc for */
    SMTPMode newMode;                /* New mode if comm proc success */
    SR_VERB  successResponse;        /* Std resp if comm proc success */
    SR_VERB  modeErrorResponse;      /* Error code if wrong mode      */

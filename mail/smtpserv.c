@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.4 1997/11/25 05:05:06 ahd Exp $
+ *    $Id: smtpserv.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.5  1997/11/26 03:34:11  ahd
+ *    Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *    Revision 1.4  1997/11/25 05:05:06  ahd
  *    More robust SMTP daemon
  *
@@ -38,7 +41,7 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.4 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
 
 currentfile();
 
@@ -248,9 +251,9 @@ dropAllClientList( SMTPClient *master )
    }
 
    if ( count )
-      dropTerminatedClientList( master ); /* Terminate active clients*/
+      dropTerminatedClientList( master->next ); /* Terminate active clients*/
 
-   dropTerminatedClientList( master ); /* Free all remaining clients */
+   dropTerminatedClientList( master->next ); /* Free all remaining clients */
 
 /*--------------------------------------------------------------------*/
 /*                   Drop the master client itself                    */

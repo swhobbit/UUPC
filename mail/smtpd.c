@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.3 1997/11/25 05:05:06 ahd Exp $
+ *    $Id: smtpd.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.4  1997/11/26 03:34:11  ahd
+ *    Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *    Revision 1.3  1997/11/25 05:05:06  ahd
  *    More robust SMTP daemon
  *
@@ -44,6 +47,7 @@
 #include "uupcmoah.h"
 #include <signal.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "timestmp.h"
 #include "catcher.h"
@@ -57,7 +61,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.3 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtpd.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
 
 currentfile();
 
@@ -107,7 +111,9 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 /*                      Our main processing loop                      */
 /*--------------------------------------------------------------------*/
 
-   while( ! terminate_processing && isClientValid( master ))
+   while( ! terminate_processing &&
+           isClientValid( master ) &&
+           ! isClientTimedOut( master ))
    {
       flagReadyClientList( master );
       timeoutClientList( master );
@@ -132,7 +138,7 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 /*--------------------------------------------------------------------*/
 
 void
-usage()
+usage( void )
 {
    fprintf(stderr, "\nUsage:\tuusmtpd\t"
             "[-l logfile] [-t] [-U] [-x debug]\n"
@@ -146,11 +152,12 @@ usage()
 /*       Invocation of daemon for SMTP receipt                        */
 /*--------------------------------------------------------------------*/
 
+void
 main( int argc, char ** argv )
 {
    int exitStatus;
    char *logfile_name = NULL;
-   char *port = "25";
+   char *port = "smtp";
 
    int option;
    time_t exitTime = LONG_MAX;

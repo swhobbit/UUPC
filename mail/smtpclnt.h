@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.4 1997/11/25 05:05:36 ahd Exp $
+ *    $Id: smtpclnt.h 1.5 1997/11/26 03:34:44 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.5  1997/11/26 03:34:44  ahd
+ *    Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *    Revision 1.4  1997/11/25 05:05:36  ahd
  *    More robust SMTP daemon
  *
@@ -54,7 +57,9 @@ typedef enum
    SM_ABORT          = 0x0100,      /* We unexpectedly lost client   */
    SM_TIMEOUT        = 0x0200,      /* Client idle too long          */
    SM_EXITING        = 0x0400       /* Server is shutting down       */
-} SMTPMode;
+};
+
+typedef unsigned long SMTPMode;
 
 #define SMTP_MODES_ALL        0xffff
 #define SMTP_MODES_NONE       0x0000
@@ -66,11 +71,11 @@ typedef enum
 typedef struct _SMTPBuffer
 {
    char *data;
-   int  used;                       /* Valid data byes in data       */
-   int  parsed;                     /* Valid data bytes processed    */
-   int  length;                     /* Total buffer length of data   */
-   int  bytesTransferred;           /* Bytes via network conn        */
-   int  linesTransferred;           /* CR/LF delimited lines via net */
+   size_t  used;                    /* Valid data byes in data       */
+   size_t  parsed;                  /* Valid data bytes processed    */
+   size_t  length;                  /* Total buffer length of data   */
+   size_t  bytesTransferred;        /* Bytes via network conn        */
+   size_t  linesTransferred;        /* CR/LF delimited lines via net */
 } SMTPBuffer;
 
 typedef struct _SMTPClient
@@ -93,7 +98,7 @@ typedef struct _SMTPClient
    time_t timeoutPeriod;
    time_t terminationTime;
 
-   long sequence;
+   size_t sequence;
    KWBoolean ready;                 /* Socket ready for read/accept  */
    KWBoolean process;               /* Client should be processed    */
    KWBoolean endOfTransmission;
@@ -150,14 +155,14 @@ void setClientIgnore( SMTPClient *client, time_t delay );
 time_t getClientTimeout( const SMTPClient *client );
 
 /* Get unique sequence number for this client, used in debug msgs */
-int getClientSequence( const SMTPClient *client );
+size_t getClientSequence( const SMTPClient *client );
 
 /* Read data if needed and call command processor for client */
 void processClient( SMTPClient *client );
 
 /* Transaction Counter to detect Denial of Sevice Attacks */
 void incrementClientTrivialCount( SMTPClient *client );
-int getClientTrivialCount( const SMTPClient *client );
+size_t getClientTrivialCount( const SMTPClient *client );
 
 /* Transmitted lines counters */
 void incrementClientLinesWritten( SMTPClient *client );
