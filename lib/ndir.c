@@ -100,7 +100,10 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    setdta((char far *)dtasave);
    strcpy(thisDirP->dirid, "DIR");
 
+#ifdef UDEBUG
    printmsg(2,"opendir: Address is %p", thisDirP );
+#endif
+
    openForBusiness = TRUE;
    return thisDirP;
 
@@ -211,7 +214,9 @@ void closedir(DIR *dirp)
    strcpy(dirp->dirid, "CLO");
    lastDirP = dirp;
    openForBusiness = FALSE;
+#ifdef UDEBUG
    printmsg(2,"closedir: Freeing dirp at %p", dirp );
+#endif
    free(dirp);
 
 } /*closedir*/
