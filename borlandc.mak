@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: borlandc.mak 1.86 1998/01/03 05:26:26 ahd Exp $
+#     $Id: borlandc.mak 1.87 1998/03/01 01:22:17 ahd v1-12v $
 #
 #     Revision history:
 #     $Log: borlandc.mak $
+#     Revision 1.87  1998/03/01 01:22:17  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.86  1998/01/03 05:26:26  ahd
 #     Support current aux files in release process better
 #     Move to version 1.12v
@@ -143,7 +146,7 @@ TDSTRIP=tdstrip
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.12v
+VERS = 1.12w
 
 # *--------------------------------------------------------------------*
 # *                           Directories                              *
