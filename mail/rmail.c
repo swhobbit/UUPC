@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.37 1995/01/07 17:35:06 ahd Exp $
+ *    $Id: rmail.c 1.38 1995/01/08 19:52:44 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.38  1995/01/08 19:52:44  ahd
+ *    Add in memory files to RMAIL, including additional support and
+ *    bug fixes.
+ *
  *    Revision 1.37  1995/01/07 17:35:06  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -248,8 +252,7 @@ static void Terminate( const int rc, IMFILE *imf, FILE *datain );
 static KWBoolean DaemonMail( const char *subject,
                            char **address,
                            int count,
-                           IMFILE *imf,
-                           FILE *datain );
+                           IMFILE *imf );
 
  static void usage( void );
 
@@ -279,7 +282,6 @@ void main(int argc, char **argv)
    int  tempHandle;              /* For redirecting stdin             */
    char **address;               /* Pointer to list of target
                                     addresses                         */
-   char *token;
    size_t addressees;            /* Number of targets in address      */
    size_t count;                 /* Loop variable for delivery        */
    size_t delivered = 0;         /* Count of successful deliveries    */
@@ -465,7 +467,7 @@ void main(int argc, char **argv)
    {
       addressees = argc - optind;
       address = &argv[optind];
-      DaemonMail( subject, address, addressees, imf, datain);
+      DaemonMail( subject, address, addressees, imf );
       header = KWFalse;
    }
    else if (ReadHeader)
@@ -1171,8 +1173,7 @@ static KWBoolean CopyTemp( IMFILE *imf,
 static KWBoolean DaemonMail( const char *subject,
                           char **address,
                           int count,
-                          IMFILE *imf,
-                          FILE *datain )
+                          IMFILE *imf )
 {
    char buf[BUFSIZ];
    char *username;

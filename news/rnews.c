@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.44 1995/01/07 23:52:37 ahd Exp $
+ *       $Id: rnews.c 1.45 1995/01/08 19:52:44 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.45  1995/01/08 19:52:44  ahd
+ *       NNS support
+ *
  *       Revision 1.44  1995/01/07 23:52:37  ahd
  *       Convert rnews to use in-memory files, debug associated functions
  *
@@ -159,7 +162,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.44 1995/01/07 23:52:37 ahd Exp $";
+         "$Id: rnews.c 1.45 1995/01/08 19:52:44 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -229,7 +232,6 @@ static int bad_articles = 0;
 static int no_delivery  = 0;
 static int junked       = 0;   /* counts SNEWS articles copied to JUNK */
 static int ignored      = 0;
-static int ourgroups    = 0;
 static int loc_articles = 0;  /* How many articles were for me */
 static int fwd_articles = 0;  /* How many articles were for others? */
 
@@ -811,7 +813,7 @@ static int Batched( FILE *stream)
    while( ! feof( stream ) && ! ferror( stream ))
    {
       long article_left;
-      int  max_read = (long) sizeof buf;
+      int  max_read = sizeof buf;
       long skipped_lines = 0;
       long skipped_bytes = 0;
       IMFILE *imf;
@@ -1019,6 +1021,8 @@ static char *getHeader( HEADERLIST table[],
                field );
 
    panic();
+
+   return NULL;                     /* Make compiler happy           */
 
 } /* getHeader */
 

@@ -18,10 +18,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.3 1995/01/07 23:52:37 ahd Exp $
+ *    $Id: imfile.c 1.4 1995/01/08 19:52:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.4  1995/01/08 19:52:44  ahd
+ *    Add in memory files to RMAIL, including additional support and
+ *    bug fixes.
+ *
  *    Revision 1.3  1995/01/07 23:52:37  ahd
  *    Convert rnews to use in-memory files, debug associated functions
  *
@@ -48,6 +52,7 @@
 #include <io.h>
 
 #include "imfile.h"
+#include "execute.h"
 
 /*--------------------------------------------------------------------*/
 /*                         Manifest constants                         */
@@ -294,13 +299,16 @@ int imprintf( IMFILE *imf, const char *fmt , ...  )
       char buffer[4096];
       int result = vsprintf(buffer, fmt, arg_ptr);
 
-      if ( strlen( buffer ) > 4096 )
+      if ( result )
       {
          printmsg(0, "imprintf: Memory overflow processing im memory file" );
          panic();                /* We corrupted the stack!          */
       }
 
-      return imputs( buffer, imf );
+      if ( imputs( buffer, imf ) == result )
+         return result;
+      else
+         return EOF;
 
    }  /* else */
 
@@ -379,7 +387,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
                (long) stringLength );
 #endif
 
-   p = imf->buffer + imf->position;
+   p = imf->buffer + (size_t) imf->position;
 
    while ( (long) subscript < stringLength )
    {
@@ -427,6 +435,8 @@ int imputc( int in, IMFILE *imf )
 
    if ( result != 1 )
       return EOF;
+   else
+      return c;
 
 } /* imputc */
 
@@ -461,7 +471,7 @@ size_t  imread( void *userBuffer,
    if ( imf->buffer == NULL )
       return fread( userBuffer, objectSize, objectCount, imf->stream );
 
-   if (( objectSize < 0 ) || (objectCount < 0))
+   if (( objectSize <= 0 ) || (objectCount <= 0))
    {
       printmsg(0, "imread: Requested read of less than zero bytes" );
       errno = EINVAL;
@@ -477,7 +487,7 @@ size_t  imread( void *userBuffer,
    if ( (long) bytes <= (imf->inUse - imf->position ))
    {
       MEMCPY( userBuffer,
-              imf->buffer + imf->position,
+              imf->buffer + (size_t) imf->position,
               bytes );
       imf->position += bytes;
       return objectCount;
@@ -531,7 +541,9 @@ size_t  imwrite(const void *userBuffer,
       return fwrite( userBuffer, objectSize, objectCount, imf->stream );
    else {
 
-      MEMCPY( imf->buffer + imf->position, userBuffer, (size_t) bytes );
+      MEMCPY( imf->buffer + (size_t) imf->position,
+              userBuffer,
+              (size_t) bytes );
 
       imf->position += bytes;
 

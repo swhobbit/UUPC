@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.7 1995/01/07 20:48:21 ahd Exp $
+ *    $Id: sys.c 1.8 1995/01/08 19:52:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.8  1995/01/08 19:52:44  ahd
+ *    NNS support
+ *
  *    Revision 1.7  1995/01/07 20:48:21  ahd
  *    Correct 16 compile warnings
  *
@@ -768,7 +771,7 @@ KWBoolean distributions(char *list, const char *distrib)
       nextDistrib = NULL;     /* Continue scan with next token
                                  on following pass                */
 
-      if (equali(listPtr, distrib))
+      if (equali(listPtr, distribPtr ))
       {
 
          if ( bNot )
