@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: USERTABL.C 1.4 1993/04/15 03:17:21 ahd Exp $
+ *    $Id: USERTABL.C 1.5 1993/05/06 03:41:48 ahd Exp $
  *
  *    $Log: USERTABL.C $
+ *     Revision 1.5  1993/05/06  03:41:48  ahd
+ *     Use expand_path to get reasonable correct drive for aliases file
+ *
  *     Revision 1.4  1993/04/15  03:17:21  ahd
  *     Use standard define for undefined user names
  *
@@ -174,7 +177,6 @@ struct UserTable *inituser(char *name)
 
 static size_t loaduser( void )
 {
-   char s_systems[FILENAME_MAX];
    FILE *stream;
    struct UserTable *userp;
    size_t hit;
@@ -194,11 +196,9 @@ static size_t loaduser( void )
 /*          user id:password:::user/system name:homedir:shell         */
 /*--------------------------------------------------------------------*/
 
-   mkfilename(s_systems, E_confdir, PASSWD);
-
-   if ((stream = FOPEN(s_systems, "r",TEXT_MODE)) == NULL)
+   if ((stream = FOPEN(E_passwd, "r",TEXT_MODE)) == NULL)
    {
-      printmsg(2,"loaduser: Cannot open password file %s",s_systems);
+      printmsg(2,"loaduser: Cannot open password file %s",E_passwd);
       users = realloc(users, UserElements *  sizeof(*users));
       checkref(users);
       return UserElements;
@@ -226,7 +226,7 @@ static size_t loaduser( void )
       if (userp->password != NULL)  /* Does the user already exist?  */
       {                       /* Yes --> Report and ignore           */
          printmsg(0,"loaduser: Duplicate entry for '%s' in '%s' ignored",
-               token,s_systems);
+               token,E_passwd);
          continue;            /* System already in /etc/passwd,
                                  ignore it.                          */
       }

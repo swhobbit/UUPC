@@ -18,9 +18,12 @@
  */
 
  /*
-  *      $Id: HOSTABLE.C 1.4 1993/04/04 04:57:01 ahd Exp $
+  *      $Id: HOSTABLE.C 1.5 1993/04/11 00:32:29 ahd Exp $
   *
   *      $Log: HOSTABLE.C $
+ *     Revision 1.5  1993/04/11  00:32:29  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.4  1993/04/04  04:57:01  ahd
  *     Trap existence of local host name in SYSTEMS file
  *
@@ -359,7 +362,7 @@ static size_t loadhost()
    FILE *ff;
    char buf[BUFSIZ];
    char *token;
-   char s_systems[FILENAME_MAX]; /* full-name of systems file        */
+   char s_hostable[FILENAME_MAX]; /* full-name of hostable file        */
    size_t hit;
 
    struct HostTable *hostp;
@@ -418,12 +421,11 @@ static size_t loadhost()
 /*                  Load names from the systems file                  */
 /*--------------------------------------------------------------------*/
 
-   mkfilename(s_systems, E_confdir, SYSTEMS);
 
-   ff = FOPEN(s_systems, "r",TEXT_MODE);
+   ff = FOPEN(E_systems, "r",TEXT_MODE);
    if (ff == NULL)
    {
-      printerr(s_systems);
+      printerr(E_systems);
       panic();
    }
 
@@ -461,9 +463,9 @@ static size_t loadhost()
 /*               Now the load the routing file, if any.               */
 /*--------------------------------------------------------------------*/
 
-   mkfilename(s_systems, E_confdir, PATHS);
+   mkfilename(s_hostable, E_confdir, PATHS);
 
-   if ((ff = FOPEN(s_systems, "r",TEXT_MODE)) != NULL)
+   if ((ff = FOPEN(s_hostable, "r",TEXT_MODE)) != NULL)
    {
 
       while (! feof(ff))
@@ -570,7 +572,7 @@ static size_t loadhost()
    }
    else {
       if ( debuglevel > 2 )
-         perror( s_systems );
+         perror( s_hostable );
    }
 
 /*--------------------------------------------------------------------*/
