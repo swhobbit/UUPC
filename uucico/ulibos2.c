@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.27 1993/11/06 13:04:13 ahd Exp $
+ *       $Id: ulibos2.c 1.28 1993/11/06 17:57:09 rhg Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.28  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.27  1993/11/06  13:04:13  ahd
  * Disable RTS handshaking ... OS/2 rejects it
  *
@@ -386,8 +389,11 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    com_dcbinfo.usWriteTimeout = 2999;  /* Write timeout 30 seconds   */
    com_dcbinfo.usReadTimeout = 24;     /* Read timeout .25 seconds   */
-   com_dcbinfo.fbCtlHndShake = (BYTE) MODE_DTR_CONTROL |
-                               (direct ? 0 : MODE_CTS_HANDSHAKE);
+   com_dcbinfo.fbCtlHndShake = (BYTE) (MODE_DTR_CONTROL |
+                                      (direct ? 0 : MODE_CTS_HANDSHAKE));
+                                       /* Always drop DTR at port close,
+                                          only use CTS handshaking on
+                                          requested ports.            */
 
    com_dcbinfo.fbFlowReplace = 0;   /* No RTS handshake, causes error */
 
