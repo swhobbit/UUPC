@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.14 1994/02/19 04:42:16 ahd Exp $
+  *      $Id: hostable.c 1.15 1994/02/20 19:07:38 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.15  1994/02/20  19:07:38  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.14  1994/02/19  04:42:16  ahd
  *     Use standard first header
  *
@@ -110,7 +113,9 @@ static size_t localdomainl;   /* Length of localdomain                */
 /*    recursive!                                                      */
 /*--------------------------------------------------------------------*/
 
-struct HostTable *checkname(const char *name)
+struct HostTable *checkName(const char *name,
+                            const int line,
+                            const char *function)
 {
    char  hostname[MAXADDR];   /* Local copy of name to process        */
    char *period;              /* Pointer "." in hostname              */
@@ -128,9 +133,8 @@ struct HostTable *checkname(const char *name)
 
    if ((name == NULL) || ((namel = strlen(name)) == 0))
    {
-      printmsg(0,"checkname: Invalid (missing) hostname passed");
-      panic();
-      return NULL;           /* Never executed                      */
+      printmsg(0,"checkName: Invalid (missing) hostname passed");
+      bugout(line, function);
    }
 
 /*--------------------------------------------------------------------*/
@@ -223,10 +227,25 @@ struct HostTable *checkname(const char *name)
 /*    Perform a search for a real (connected) simple host name        */
 /*--------------------------------------------------------------------*/
 
-struct HostTable *checkreal(const char *name)
+struct HostTable *checkReal(const char *name,
+                            const int line,
+                            const char *function)
 {
-   size_t  namel = max( strlen(name), HOSTLEN);
-   struct HostTable *hostp = searchname( name, namel );
+   size_t  namel;
+   struct HostTable *hostp;
+
+/*--------------------------------------------------------------------*/
+/*                       Validate the argument                        */
+/*--------------------------------------------------------------------*/
+
+   if ((name == NULL) || ((namel = strlen(name)) == 0))
+   {
+      printmsg(0,"checkReal: Invalid (missing) hostname passed");
+      bugout(line, function);
+   }
+
+   namel = max( strlen(name), HOSTLEN);
+   hostp = searchname( name, namel );
 
 /*--------------------------------------------------------------------*/
 /*             If we didn't find the host, return failure             */
