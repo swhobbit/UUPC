@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.56 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: modem.c 1.57 1995/02/17 23:54:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.57  1995/02/17 23:54:56  ahd
+ *    Terminate processing on a minute boundary
+ *
  *    Revision 1.56  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -245,7 +248,6 @@ static char **answer, **initialize, **dropline, **ring, **connect;
 static char **noconnect;
 static char *dialPrefix, *dialSuffix;
 static char *M_suite;
-static char *dummy;
 
 static KEWSHORT dialTimeout, modemTimeout, scriptTimeout, scriptEchoTimeout;
 static KEWSHORT answerTimeout;
@@ -288,7 +290,7 @@ static CONFIGTABLE modemtable[] = {
    { "biggwindowsize", &GWindowSize,      0, B_SHORT  },
    { "chardelay",      &M_charDelay,      0, B_SHORT  },
    { "connect",        &connect,          0, B_LIST   },
-   { "description",    &dummy,            0, B_TOKEN  },
+   { "description",    0,                 0, B_TOKEN  },
    { "device",         &M_device,         0, B_TOKEN  | B_REQUIRED },
    { "dialprefix",     &dialPrefix,       0, B_STRING | B_REQUIRED },
    { "dialsuffix",     &dialSuffix,       0, B_STRING },
@@ -306,7 +308,7 @@ static CONFIGTABLE modemtable[] = {
    { "modemtimeout",   &modemTimeout,     0, B_SHORT  },
    { "noconnect",      &noconnect,        0, B_LIST   },
    { "options",        bmodemflag,        0, B_BOOLEAN},
-   { "porttimeout",    NULL,              0, B_OBSOLETE },
+   { "porttimeout",    0,                 0, B_OBSOLETE },
    { "priority",       &M_priority,       0, B_SHORT  },
    { "prioritydelta",  &M_prioritydelta,  0, B_SHORT  },
    { "ring",           &ring,             0, B_LIST   },
@@ -316,7 +318,7 @@ static CONFIGTABLE modemtable[] = {
    { "suite",          &M_suite,          0, B_TOKEN  },
    { "transferbuffer", &M_xfer_bufsize,   0, B_LONG   },
    { "tpackettimeout", &M_tPacketTimeout, 0, B_SHORT  },
-   { "version",        &dummy,            0, B_TOKEN  },
+   { "version",        0,                 0, B_TOKEN  },
    { "vpacketsize",    &vPacketSize,      0, B_SHORT  },
    { "vwindowsize",    &vWindowSize,      0, B_SHORT  },
    { nil(char) }
@@ -708,7 +710,8 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    for (tptr = modemtable; tptr->sym != nil(char); tptr++)
-      if (tptr->flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST))
+      if (tptr->loc &&
+          (tptr->flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST)))
          *((char **) tptr->loc) = nil(char);
 
    for (subscript = 0; subscript < MODEM_LAST; subscript++)

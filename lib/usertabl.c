@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.13 1994/05/07 21:45:33 ahd v1-12k $
+ *    $Id: usertabl.c 1.14 1995/01/29 16:43:03 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.14  1995/01/29 16:43:03  ahd
+ *    IBM C/Set compiler warnings
+ *
  *    Revision 1.13  1994/05/07 21:45:33  ahd
  *    Handle empty passwords different from blocked (asterisk) passwords
  *
@@ -97,7 +100,9 @@ struct UserTable *checkuser(const char *name)
       panic();
    }
 
-   printmsg(14,"checkuser: Searching for user id %s",name);
+#ifdef UDEBUG
+   printmsg(14,"checkuser: Searching for user id %s", name);
+#endif
 
  /*-------------------------------------------------------------------*/
  /*             Initialize the host name table if needed              */
@@ -224,8 +229,11 @@ static size_t loaduser( void )
 
    if ((stream = FOPEN(E_passwd, "r",TEXT_MODE)) == NULL)
    {
-      printmsg(2,"loaduser: Cannot open password file %s",E_passwd);
+      if ( debuglevel > 2 )
+         printerr( E_passwd );
+
       users = realloc(users, userElements *  sizeof(*users));
+
       checkref(users);
       return userElements;
    } /* if */

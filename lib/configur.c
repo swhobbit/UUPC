@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.63 1995/02/20 17:28:43 ahd Exp $
+ *    $Id: configur.c 1.64 1995/02/20 18:54:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.64  1995/02/20 18:54:08  ahd
+ *    news panic support
+ *
  *    Revision 1.63  1995/02/20 17:28:43  ahd
  *    Add rnewspanic option
  *    Various compiler warning clean up
@@ -389,13 +392,13 @@ CONFIGTABLE envtable[] = {
    {"path",         &E_uuxqtpath,    B_UUXQT,   B_STRING|B_GLOBAL },
    {"permissions",  &E_permissions,  B_ALL,     B_GLOBAL|B_PATH },
    {"postmaster",   &E_postmaster,   B_ALL,     B_REQUIRED|B_GLOBAL|B_TOKEN },
-   {"priority",     0     ,          B_OBSOLETE  },
-   {"prioritydelta",0     ,          B_OBSOLETE  },
+   {"priority",     0,               B_OBSOLETE  },
+   {"prioritydelta",0,               B_OBSOLETE  },
    {"pubdir",       &E_pubdir,       B_ALL,     B_GLOBAL|B_PATH },
    {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
    {"replytoList",  &E_replyToList,  B_MUA,     B_LIST },
-   {"rmail",        0     ,          B_OBSOLETE  },
-   {"rnews",        0     ,          B_OBSOLETE  },
+   {"rmail",        0,               B_OBSOLETE  },
+   {"rnews",        0,               B_OBSOLETE  },
    {"signature",    &E_signature,    B_NEWS|B_MUA, B_TOKEN },
    {"spooldir",     &E_spooldir,     B_ALL,     B_GLOBAL|B_PATH },
    {"systems",      &E_systems,      B_ALL,     B_GLOBAL|B_PATH },
@@ -557,7 +560,8 @@ KWBoolean processconfig(char *buff,
    } /* else */
 
 /*--------------------------------------------------------------------*/
-/*                    Scan the table for its value                    */
+/*       Core loop to scan for keyword and process its value into     */
+/*       our configuration                                            */
 /*--------------------------------------------------------------------*/
 
    for (tptr = table; tptr->sym != nil(char); tptr++)
@@ -582,6 +586,17 @@ KWBoolean processconfig(char *buff,
 
         else if (tptr->flag & B_OBSOLETE)
             printmsg(2,"Obsolete keyword \"%s\" ignored.", keyword);
+
+/*--------------------------------------------------------------------*/
+/*          Handle options for which no storage is allocated          */
+/*--------------------------------------------------------------------*/
+
+        else if ( tptr->loc == 0 )
+        {
+#ifdef UDEBUG
+            printmsg(10,"Dummy entry %s ignored.", keyword );
+#endif
+        }
 
 /*--------------------------------------------------------------------*/
 /*                  Handle mis-placed system options                  */

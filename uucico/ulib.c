@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.30 1994/12/22 00:36:25 ahd Exp $
+ *    $Id: ulib.c 1.31 1995/01/07 16:40:09 ahd Exp $
  *
  *    $Log: ulib.c $
+ *    Revision 1.31  1995/01/07 16:40:09  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.30  1994/12/22 00:36:25  ahd
  *    Annual Copyright Update
  *
@@ -288,7 +291,10 @@ unsigned int nsread(char UUFAR *input,
          return 0;
       }
 
+
+#ifdef UDEBUG
       printmsg(20, "nsread: pending=%d, wanted=%d", pending, wanted);
+#endif
 
       if (pending >= wanted) {   /* got enough in the buffer? */
          unsigned int i;
@@ -306,8 +312,12 @@ unsigned int nsread(char UUFAR *input,
                 return 0;                   /* Indicate carrier loss */
             }
             *buffer++ = (char) Received;
+
+#ifdef UDEBUG
             if ( debuglevel >= 19 )
                printmsg( 19, "nsread: char = %c", Received );
+#endif
+
          }
 
          traceData( input, wanted, KWFalse );
@@ -434,7 +444,9 @@ int nswrite(const char UUFAR *input, unsigned int len)
 void nssendbrk(unsigned int duration)
 {
 
+#ifdef UDEBUG
    printmsg(12, "nssendbrk: %d", duration);
+#endif
 
    break_com();
 

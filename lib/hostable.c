@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.19 1995/01/07 16:12:32 ahd Exp $
+  *      $Id: hostable.c 1.20 1995/01/29 16:43:03 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.20  1995/01/29 16:43:03  ahd
+  *      IBM C/Set compiler warnings
+  *
   *      Revision 1.19  1995/01/07 16:12:32  ahd
   *      Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
   *
@@ -315,9 +318,15 @@ struct HostTable *searchname(const char *name, const size_t namel)
       else if ((hit < 0) || (strlen(hosts[midpoint].hostname) > namel))
          upper = midpoint - 1;
       else {
+
+#ifdef UDEBUG
             printmsg(8,"searchname: Looking for \"%s\" of length %d,\
  found \"%s\"",
-            name, namel, hosts[midpoint].hostname);
+            name,
+            namel,
+            hosts[midpoint].hostname);
+#endif
+
          return &hosts[midpoint];
       }
    }
@@ -326,8 +335,11 @@ struct HostTable *searchname(const char *name, const size_t namel)
 /*         We didn't find the host.  Return failure to caller         */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
    printmsg(8,"searchname: Looking for \"%s\", did not find it",
             name);
+#endif
+
    return BADHOST;
 
 }  /* searchname */
@@ -379,15 +391,23 @@ struct HostTable *inithost(char *name)
    if (hosts == NULL)
    {
       hosts = calloc(max_elements, sizeof(*hosts));
+
+#ifdef UDEBUG
       printmsg(5,"inithost: Allocated room for %d host entries",
                max_elements);
+#endif
+
    }
    else if ( max_elements == HostElements )
    {
       max_elements = max_elements * 2;
       hosts = realloc(hosts , max_elements * sizeof(*hosts));
+
+#ifdef UDEBUG
       printmsg(5,"inithost: reallocated room for %d host entries",
                max_elements);
+#endif
+
    }
    checkref(hosts);
 
