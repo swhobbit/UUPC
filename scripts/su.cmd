@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SU.CMD 1.3 1993/05/09 03:51:26 ahd Exp $
+ *       $Id: SU.CMD 1.4 1994/01/01 19:16:19 ahd Exp $
  *
  *       $Log: SU.CMD $
+ *Revision 1.4  1994/01/01  19:16:19  ahd
+ *Annual Copyright Update
+ *
  *      Revision 1.3  1993/05/09  03:51:26  ahd
  *      Don't uppercase the input
  *
@@ -72,6 +75,7 @@ end;
 
 call SetLocal;
 uupcusrc = value( 'UUPCUSRRC',uupcusrc,'OS2ENVIRONMENT');
+logname = value( 'LOGNAME',who,'OS2ENVIRONMENT');
 
 if words(what) == 0 then
 do;
@@ -86,6 +90,7 @@ else
 
 uupcusrc = value( 'UUPCUSRRC',uupcusrc,'OS2ENVIRONMENT');
                                  /* Restore original value           */
+logname = value( 'LOGNAME',logname,'OS2ENVIRONMENT');
 call endlocal;
 exit rc;
 
