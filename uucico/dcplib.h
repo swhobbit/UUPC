@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------*/
-/* d c p l i b . h                                                    */
+/*       d c p l i b . h                                              */
 /*                                                                    */
-/* System dependent (non-communications related) routines for         */
-/* UUPC/extended.                                                     */
+/*       System dependent (non-communications related) routines       */
+/*       for UUPC/extended.                                           */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.21 1994/04/24 20:17:29 dmwatt Exp $
+ *    $Id: dcplib.h 1.2 1994/05/06 03:58:32 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: dcplib.h $
+ *        Revision 1.2  1994/05/06  03:58:32  ahd
+ *        Add copyright
+ *
  */
 
 boolean login(void);
