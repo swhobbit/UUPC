@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: strpool.c 1.4 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: strpool.c 1.5 1993/10/12 00:48:44 ahd Exp $
  *
  *    $Log: strpool.c $
+ *     Revision 1.5  1993/10/12  00:48:44  ahd
+ *     Normalize comments
+ *
  *     Revision 1.4  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support
@@ -176,7 +179,7 @@ char *strpool( const char *input , const char *file, size_t line)
       pools ++;
 
       save = malloc( sizeof *save );
-      checkptr(save, file, line);
+      if ( !save) checkptr( file, line);
 
       if ( anchor == NULL )
       {
