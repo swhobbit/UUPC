@@ -1,8 +1,6 @@
 /*--------------------------------------------------------------------*/
 /*    Program:    fmt.c          14 August 1990                       */
 /*    Author:     Andrew H. Derbyshire                                */
-/*                108 Decatur St, Apt 9                               */
-/*                Arlington, MA 02174                                 */
 /*    Function:   Format lines into user specified width rows         */
 /*    Arguments:  width, input file, output file.                     */
 /*--------------------------------------------------------------------*/
@@ -20,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: fmt.c 1.9 1997/04/24 01:30:57 ahd v1-12u $
+ *    $Id: fmt.c 1.10 1998/03/01 01:36:26 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: fmt.c $
+ *    Revision 1.10  1998/03/01 01:36:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1997/04/24 01:30:57  ahd
  *    Annual Copyright Update
  *
@@ -58,12 +59,19 @@
 
 #include "uupcmoah.h"
 
-static const char rcsid[] =
-      "$Id: fmt.c 1.9 1997/04/24 01:30:57 ahd v1-12u $";
+RCSID("$Id$");
 
 #include <ctype.h>
 
+#include "getopt.h"
 #include "timestmp.h"
+
+void static
+usage( void )
+{
+   fprintf(stderr, "Usage:\tfmt\t[-#] infile outfile\n");
+   exit(1);
+}
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -73,13 +81,20 @@ static const char rcsid[] =
 
  main( int argc, char *argv[] )
  {
+   int option;
    int width = 0;          /* Width of current line                  */
    int maxwidth = 72;      /* Max width of line allowed              */
    char buf[BUFSIZ];       /* Our I/O buffer                         */
-   int punct = 0;          /* Last character in last word was punct  */
    int argx = 1;           /* Current argument being processed       */
+   KWBoolean punct = KWFalse;
+                           /* Last character in last word was punct  */
+   KWBoolean splitOnly = KWFalse;
+                           /* Don't join lines together     */
+   char *continueString = NULL;
    FILE *input;
    FILE *output;
+   char *inputName = NULL;
+   char *outputName = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                        Announce our version                        */
@@ -87,53 +102,97 @@ static const char rcsid[] =
 
    banner( argv );
 
-/*--------------------------------------------------------------------*/
-/*                            Handle help                             */
-/*--------------------------------------------------------------------*/
-
-   if (( argc > 1 ) && equal(argv[1],"-?"))
+   while ((option = getopt(argc,
+                           argv,
+                           "sc:i:o:0:1:2:3:4:5:6:7:8:9:")) != EOF)
    {
-      printf("Usage:\tfmt\t[-#] infile outfile\n");
-      exit(1);
-   }
+      switch (option)
+      {
+         case '0':
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+            sprintf( buf, "%c%s", (char) option, optarg);
+            maxwidth = atoi(buf);
+            break;
+
+         case 'o':
+            outputName = optarg;
+            break;
+
+         case 'i':
+            inputName = optarg;
+            break;
+
+         case 'c':
+            continueString = strdup(optarg);
+            break;
+
+         case 's':
+            splitOnly = KWTrue;
+            break;
+
+         default:
+            usage();
+            break;
+
+      } /* switch (option) */
+
+   } /* while() */
+
 
 /*--------------------------------------------------------------------*/
-/*       Get the line width if the user specified it                  */
+/*               Get the file names to process, if any                */
 /*--------------------------------------------------------------------*/
 
-    if ((argx < argc) && (*argv[argx] == '-'))
-      maxwidth = atoi( argv[argx++] );
+    if (optind != argc)
+      inputName = argv[optind++];
+
+    if (optind != argc)
+      outputName = argv[optind++];
 
 /*--------------------------------------------------------------------*/
-/*                  Get the input file name, if any                   */
+/*                        Open the input file                         */
 /*--------------------------------------------------------------------*/
 
-    if (argx == argc)
+    if (inputName == NULL)
+    {
       input = stdin;
+      inputName = "stdin";
+    }
     else {
 
-      input = fopen(argv[argx++],"r");
+      input = fopen(inputName,"r");
 
       if (input == NULL)
       {
-         perror(argv[--argx]);
+         perror(inputName);
          exit (100);
       }
     }
 
 /*--------------------------------------------------------------------*/
-/*                  Get the output file name, if any                  */
+/*                        Open the output file                        */
 /*--------------------------------------------------------------------*/
 
-    if (argx == argc )
-      output = stdout;
-    else {
 
-      output = fopen(argv[argx++],"w");
+    if (outputName == NULL)
+    {
+      output = stdout;
+      outputName = "stdout";
+    }
+    else {
+      output = fopen(outputName,"w");
 
       if (output == NULL)
       {
-         perror(argv[--argx]);
+         perror(outputName);
          exit( 200 );
       }
     }
@@ -146,50 +205,77 @@ static const char rcsid[] =
     {
       char *token = strtok(buf, " \t\n");
 
-      if (token == NULL )
+      if (token == NULL)
       {
+         /* Terminate Previous line if we had one */
+         if (width > 0)
+            fputc('\n',output);
+
+         /* Copy this (empty) line out as well */
          fputc('\n',output);
          width = punct = 0;
       }
-      else while(token != NULL)
-      {
+      else {
 
-         register int toklen = (int) strlen(token);
-         width = toklen + width + 1 + punct;
-
-         if (width > max(maxwidth, toklen + 1))
+         while(token != NULL)
          {
-            fputc('\n',output);
-            width = toklen;
-            punct = 0;
-         }
-         else {
 
-            if (width > (toklen + 1))
+            register int toklen = (int) strlen(token);
+            width = toklen + width + 1 + punct;
+
+            if (width > max(maxwidth, toklen + 1))
             {
-               fputc(' ',output);
-               if (punct)
-                  fputc(' ',output);
-
-            }
-            else
+               if (continueString != NULL)
+                  fputs(continueString, output);
+               fputc('\n',output);
                width = toklen;
+               punct = 0;
+            }
+            else {
 
-            punct = ispunct( token[toklen - 1] ) ? 1 : 0;
+               if (width > (toklen + 1))
+               {
+                  fputc(' ',output);
+                  if (punct)
+                     fputc(' ',output);
 
-         } /* else */
+               }
+               else
+                  width = toklen;
 
-         fputs(token, output);
-         token = strtok(NULL, " \t\n");
+               punct = ispunct( token[toklen - 1] ) ? 1 : 0;
 
-      } /* else while */
+            } /* else */
+
+            fputs(token, output);
+            token = strtok(NULL, " \t\n");
+
+         } /* while */
+
+         if (splitOnly)
+         {
+            fputc('\n', output);
+            width = punct = 0;
+         }
+
+      } /* else */
 
    } /* while */
 
+/*--------------------------------------------------------------------*/
+/*                    Clean up and exit processing                    */
+/*--------------------------------------------------------------------*/
+
    if (ferror(input))
    {
-      perror(argv[1]);
+      perror(inputName);
       clearerr(input);
+   }
+
+   if (ferror(output))
+   {
+      perror(outputName);
+      clearerr(output);
    }
 
    fclose(input);
