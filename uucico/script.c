@@ -21,10 +21,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: script.c 1.9 1994/01/01 19:20:47 ahd Exp $
+ *    $Id: script.c 1.10 1994/02/19 05:09:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: script.c $
+ *        Revision 1.10  1994/02/19  05:09:59  ahd
+ *        Use standard first header
+ *
+ *        Revision 1.10  1994/02/19  05:09:59  ahd
+ *        Use standard first header
+ *
  * Revision 1.9  1994/01/01  19:20:47  ahd
  * Annual Copyright Update
  *
@@ -447,7 +453,7 @@ static boolean writestr(register char *s,
          case 'z':   /* set serial port speed */
          case 'Z':
             flushScriptBuffer();
-            SIOSpeed(atoi(++s));
+            SIOSpeed(atol(++s));
             while (isdigit(*(s+1)))
                s++;
             break;
