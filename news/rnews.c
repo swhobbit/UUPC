@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.20 1993/10/24 21:51:14 ahd Exp $
+ *       $Id: rnews.c 1.21 1993/10/28 00:18:10 ahd Exp rommel $
  *
  *       $Log: rnews.c $
+ * Revision 1.21  1993/10/28  00:18:10  ahd
+ * Drop unneeded tzset() call
+ *
  * Revision 1.20  1993/10/24  21:51:14  ahd
  * Use one token on Requestor line, per rhg
  *
@@ -97,7 +100,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.20 1993/10/24 21:51:14 ahd Exp $";
+         "$Id: rnews.c 1.21 1993/10/28 00:18:10 ahd Exp rommel $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -133,7 +136,11 @@ static const char rcsid[] =
 /*                           Global defines                           */
 /*--------------------------------------------------------------------*/
 
-#define UNCOMPRESS "uncompre"
+#define MAGIC_FIRST       0x1F   /* Magic numbers for compressed batches */
+#define MAGIC_COMPRESS    0x9D
+#define MAGIC_FREEZE      0x9F
+#define MAGIC_GZIP        0x8B
+
 #ifdef BIT32ENV
 #define DISNEY (BUFSIZ*2)
 #else
@@ -147,26 +154,33 @@ static const char rcsid[] =
 currentfile();
 
 extern struct grp *group_list;   /* List of all groups */
-
-FILE *hfile = NULL;           /* History file */
-char history_date[12];        /* dd/mm/yyyy + null + 1 for no good reason */
+time_t now;
+void *history;
 
 /*--------------------------------------------------------------------*/
 /*                       Functions in this file                       */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_article(char *art_fname);
+static boolean deliver_article(char *art_fname, long art_size);
                               /* Distribute the article to the
                                  proper newsgroups                   */
 
-static void copy_file(FILE *f,
-            char *group,
+static boolean copy_file(FILE *f, char *group,
             char *xref);      /* Copy file (f) to newsgroup          */
 
 static struct grp *find_newsgroup(const char *grp);
                               /* Get the grp struct for the newsgroup */
 
-static void get_snum(const char *group, char *snum);
+static void add_newsgroup(const char *grp, boolean moderated);
+                              /* add new group to active file */
+
+static void del_newsgroup(const char *grp);
+                              /* delete group from active file */
+
+static void control_message(const char *control);
+                              /* process control message */
+
+static int get_snum(const char *group, char *snum);
                                     /* Get (and format) the next article
                                        number in group                 */
 
@@ -174,7 +188,8 @@ static void fixEOF( char *buf, int bytes );
 
 static int Single( char *filename , FILE *stream );
 
-static int Compressed( char *filename , FILE *in_stream );
+static int Compressed( char *filename , FILE *in_stream ,
+		       char *unpacker , char *suffix );
 
 static int Batched( char *filename, FILE *stream);
 
@@ -201,14 +216,14 @@ static int copy_snews( char *filename, FILE *stream );
 void main( int argc, char **argv)
 {
 
-   struct tm *local_now;
-
    time_t now = time(nil(time_t));
    FILE *f;
    char in_filename[FILENAME_MAX];
    char filename[FILENAME_MAX];
    int c;
    int status;
+
+   now = time(nil(long));
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
@@ -297,34 +312,11 @@ void main( int argc, char **argv)
    validate_newsgroups();  /* Make sure all directories exist  */
 
 /*--------------------------------------------------------------------*/
-/*                   Initialize history processing                    */
-/*--------------------------------------------------------------------*/
-
-   local_now = localtime(&now);
-
-   sprintf(history_date, "%2.2d/%2.2d/%4d",  local_now->tm_mday,
-                                 local_now->tm_mon+1,
-                                 local_now->tm_year+1900);
-
-/*--------------------------------------------------------------------*/
 /*                 Open (or create) the history file                  */
 /*--------------------------------------------------------------------*/
 
    if ( bflag[F_HISTORY] )
-   {
-      if (history_exists())
-         hfile = open_history(history_date);
-      else
-         hfile = create_history(history_date);
-
-      if (hfile == NULL)
-      {
-         printmsg(0, "Error %s history file", history_exists() ?
-            "opening" : "creating");
-            panic();
-      }
-
-   } /* if */
+     history = open_history("history");
 
 /*--------------------------------------------------------------------*/
 /*    This loop copies the file to the NEWS directory.                */
@@ -361,7 +353,7 @@ void main( int argc, char **argv)
    c = getc(stdin);
    ungetc(c, stdin);
 
-   if (c != '#') {
+   if (c != '#' && c != MAGIC_FIRST) {
 
       /***********************************************/
       /* 1  single (unbatched, uncompressed) article */
@@ -372,16 +364,48 @@ void main( int argc, char **argv)
    }
    else {
 
-      char buf[BUFSIZ];
-      int fields = fscanf(stdin, "#! %s ", &buf);
-      if ((fields == 1) && (strcmp(buf, "cunbatch") == 0))
+      unsigned char buf[BUFSIZ];
+      int bytes;
+      char *unpacker = NULL, *suffix = NULL;
+
+      bytes = fread(buf, 1, 12, stdin);
+
+      if (bytes == 12 && strncmp(buf, "#! ", 3) == 0 
+	              && strncmp(buf + 4, "unbatch", 7) == 0 )
+      {
+	/* ignore headers like "#! cunbatch" where the 'c' can  *
+         * also be one of "fgz" for frozen or [g]zipped batches */
+	bytes = fread(buf, 2, 1, stdin);
+	fseek(stdin, 12L, SEEK_SET);
+      }
+      else
+	fseek(stdin, 0L, SEEK_SET);
+
+      if (buf[0] == MAGIC_FIRST)
+	switch (buf[1])
+	{
+	case MAGIC_COMPRESS:
+	  unpacker = "compress";
+	  suffix = "Z";
+	  break;
+	case MAGIC_FREEZE:
+	  unpacker = "freeze";
+	  suffix = "F";
+	  break;
+	case MAGIC_GZIP:
+	  unpacker = "gzip";
+	  suffix = "z";
+	  break;
+	}
+
+      if (unpacker != NULL)
       {
 
          /***********************************************/
          /*  2  Compressed batch                        */
          /***********************************************/
 
-         status = Compressed(filename, stdin);
+         status = Compressed(filename, stdin, unpacker, suffix);
 
       }
       else {
@@ -400,8 +424,8 @@ void main( int argc, char **argv)
 
    put_active();
 
-   if (hfile != NULL)
-      fclose(hfile);
+   if ( bflag[F_HISTORY] )
+      close_history(history);
 
    exit(status);
 
@@ -420,6 +444,7 @@ static int Single( char *filename , FILE *stream )
    char buf[BUFSIZ];
    unsigned chars_read;
    unsigned chars_written;
+   long article_size = 0;
 
 
 /*--------------------------------------------------------------------*/
@@ -442,6 +467,7 @@ static int Single( char *filename , FILE *stream )
    {
 
       chars_written = fwrite(buf, sizeof(char), chars_read, tmpf);
+      article_size += chars_written;
       if (chars_written != chars_read)
       {
          printerr( filename );
@@ -458,7 +484,7 @@ static int Single( char *filename , FILE *stream )
 
    fclose(tmpf);
 
-   deliver_article(filename);
+   deliver_article(filename, article_size);
    unlink( filename );
    return 0;
 
@@ -470,7 +496,8 @@ static int Single( char *filename , FILE *stream )
 /*    Decompress news                                                 */
 /*--------------------------------------------------------------------*/
 
-static int Compressed( char *filename , FILE *in_stream )
+static int Compressed( char *filename , FILE *in_stream , 
+		       char *unpacker , char *suffix )
 {
 
    FILE *work_stream;
@@ -480,7 +507,6 @@ static int Compressed( char *filename , FILE *in_stream )
    char buf[BUFSIZ];
 
    boolean first_time = TRUE;
-   char *program, *args;
    long cfile_size = 0L;
    size_t chars_read, i;
    int status = 0;
@@ -492,12 +518,9 @@ static int Compressed( char *filename , FILE *in_stream )
 /*        Copy the compressed file to the "holding" directory         */
 /*--------------------------------------------------------------------*/
 
-   fseek(in_stream, 0L, SEEK_SET);      /* Back to the beginning      */
-
-
    while( needtemp )
    {
-      mktempname( zfile , "Z" );          /* Generate "compressed" file
+      mktempname( zfile , suffix );    /* Generate "compressed" file
                                           name                       */
       strcpy( unzfile, zfile );
       unzfile[ strlen(unzfile)-2 ] = '\0';
@@ -530,21 +553,6 @@ static int Compressed( char *filename , FILE *in_stream )
    while ((chars_read = fread(buf,sizeof(char), BUFSIZ, in_stream)) != 0)
    {
       char *t_buf = buf;
-      if (first_time)
-      {
-         t_buf += sizeof("#! cunbatch");
-
-         first_time = FALSE;
-         chars_read -= (t_buf - buf);
-
-         while ((*t_buf == ' ') || (*t_buf == '\n') || (*t_buf == '\r'))
-         {
-            t_buf++;
-            chars_read--;
-         } /* while */
-
-      } /* if */
-
       i = fwrite(t_buf,sizeof(char),chars_read,work_stream);
 
       if (i != chars_read)
@@ -600,26 +608,8 @@ static int Compressed( char *filename , FILE *in_stream )
 /*          Uncompress the article and feed it back to rnews          */
 /*--------------------------------------------------------------------*/
 
-   if ( E_uncompress == NULL )
-   {
-      program = UNCOMPRESS;
-      args    = zfile;
-      printmsg(2,"Compressed: %s %s", program , args);
-   }
-   else {
-      sprintf( buf, E_uncompress, zfile, unzfile );
-      printmsg(2,"Compressed: %s", buf );
-
-      program = strtok( buf, WHITESPACE );
-      args = strtok( NULL, "");
-
-      if ( args != NULL )
-         while (isspace(*args))
-            args++;
-
-   } /* else */
-
-   status = execute( program, args, NULL, NULL, TRUE, FALSE);
+   sprintf(buf, "-d %s", zfile);
+   status = execute( unpacker, buf, NULL, NULL, TRUE, FALSE);
 
    unlink( zfile );           /* Kill the compressed input file      */
 
@@ -628,11 +618,11 @@ static int Compressed( char *filename , FILE *in_stream )
       if (status == -1)
       {
           printmsg( 0, "Compress: spawn failed completely" );
-          printerr( program );
+          printerr( unpacker );
       }
       else
           printmsg(0, "%s command failed (exit code %d)",
-                        UNCOMPRESS, status);
+                        unpacker, status);
       panic();
    } /* if status != 0 */
 
@@ -830,6 +820,7 @@ static int Batched( char *filename, FILE *stream)
 
          } while( ! gotsize );
 
+	 article_size = actual_size;
          printmsg(2,"Batched: Article %d size %ld",
                      articles + 1,
                      actual_size );
@@ -840,7 +831,7 @@ static int Batched( char *filename, FILE *stream)
  /*--------------------------------------------------------------------*/
 
       fclose(tmpf);
-      if ( ! deliver_article(filename) )
+      if ( ! deliver_article(filename, article_size) )
          ignored ++;
       unlink( filename );
       articles ++;
@@ -891,7 +882,7 @@ static void fixEOF( char *buf, int bytes )
 /*    Determine delivery of a posting                                 */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_article(char *art_fname)
+static boolean deliver_article(char *art_fname, long art_size)
 {
 
    char groupy[MAXGRP];
@@ -905,9 +896,11 @@ static boolean deliver_article(char *art_fname)
    FILE *tfile;            /* The article file */
 
    int n_hdrs;             /* Number of desired headers seen */
-   int b_xref;
+   int b_xref = FALSE;
+   int b_control = FALSE;
+   int b_saved = FALSE;
 
-   int line_len;
+   int line_len, groups_found;
 
    char hist_record[DISNEY];  /* buffer for history file
                                  (also used for article)             */
@@ -929,7 +922,7 @@ static boolean deliver_article(char *art_fname)
 /*--------------------------------------------------------------------*/
 
    n_hdrs = b_xref = 0;
-   while (n_hdrs < 2)
+   while (n_hdrs < 3)
    {
       /* Get the next line */
       gc_ptr = fgets(hist_record, sizeof(hist_record), tfile);
@@ -945,11 +938,9 @@ static boolean deliver_article(char *art_fname)
             printmsg(0, "Article has no Message-ID:, discarded");
          else {
             if (newsgroups == NULL)
-            {
                printmsg(0,
                     "Article %s has no Newsgroups: line, discarded",
                     messageID);
-            } /* if */
             else
                break;
          } /* else */
@@ -973,8 +964,10 @@ static boolean deliver_article(char *art_fname)
          if (newsgroups == NULL)
          {
             gc_ptr += strlen("Newsgroups:") + 1;
+	    while (isspace(*gc_ptr))
+	      gc_ptr++;
             newsgroups = strcpy(groups, gc_ptr);
-            newsgroups[strlen(newsgroups)+1] = '\0';  /* Guard char for rescan */
+            newsgroups[strlen(newsgroups)+1] = '\0';/* Guard char for rescan */
             n_hdrs++;
             b_xref = (strchr(newsgroups, ',') != NULL); /* more than 1 group */
      }                     /* i.e. do we need to create a Xrefs: line ? */
@@ -987,16 +980,37 @@ static boolean deliver_article(char *art_fname)
          if (messageID == NULL)
          {
             gc_ptr += strlen("Message-ID:") + 1;
+	    while (isspace(*gc_ptr))
+	      gc_ptr++;
             messageID = message_buf;
             messageID[0] = '\0';
-            if (*gc_ptr != '<') strcat(messageID, "<");
+            if (*gc_ptr != '<') 
+	      strcat(messageID, "<");
                strcat(messageID, gc_ptr);
             if (messageID[strlen(messageID)-1] != '>')
                strcat(messageID,">");
             n_hdrs++;
          } /* if (messageID == NULL) */
       }
+      else if (equalni(hist_record, "Control:", strlen("Control:")))
+      {
+         /* Handle Control: line*/
+         if (!b_control)
+         {
+	    control_message(hist_record);
+            b_control = TRUE;
+            n_hdrs++;
+         }
+         else
+            printmsg(0, "Article has multiple Control: lines");
+      }
    }  /* while getting Newsgroups: and Message-ID: */
+
+   if (b_control)
+   {
+     memcpy(newsgroups, "control\0\0", 9);
+     b_xref = FALSE;
+   }
 
 /*--------------------------------------------------------------------*/
 /*           Check whether article has been received before           */
@@ -1004,7 +1018,7 @@ static boolean deliver_article(char *art_fname)
 
    if ( bflag[ F_HISTORY ] )
    {
-      if (is_in_history(hfile, messageID))
+      if (get_histentry(history, messageID) != NULL)
       {
          printmsg(2, "rnews: Duplicate article %s", messageID);
          fclose(tfile);
@@ -1012,42 +1026,45 @@ static boolean deliver_article(char *art_fname)
       }
 
       /* Start building the history record for this article */
-      strcpy(hist_record, messageID);
-      strcat(hist_record, " ");
-      strcat(hist_record, history_date);
-      strcat(hist_record, " ");
+      sprintf(hist_record, "%ld %ld ", now, art_size);
+      groups_found = 0;
 
-      gc_ptr1 = newsgroups;
-      while ((gc_ptr = strchr(gc_ptr1, ',')) != NULL) {
-         gc_ptr[0] = '\0';
-         if (strlen(gc_ptr1) > MAXGRP - 1) { /* Bounds check the newsgroup len */
+      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
+      {
+	 if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
+	    *gc_ptr1++ = '\0';
+         if (strlen(gc_ptr) > MAXGRP - 1) { 
+	    /* Bounds check the newsgroup length */
             printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
-            gc_ptr1 = gc_ptr + 1;
             continue; /* Punt the newsgroup history record */
          }
-         strcpy(groupy, gc_ptr1);
-         strcat(hist_record, groupy);
-         strcat(hist_record, ":");
-         gc_ptr1 = gc_ptr + 1;
-         get_snum(groupy,snum);
-         strcat(hist_record, snum);
+         strcpy(groupy, gc_ptr);
+         if (get_snum(groupy,snum)) {
+	   if (groups_found)
            strcat(hist_record, ",");
-      }
-      strcpy(groupy, gc_ptr1);
       strcat(hist_record, groupy);
       strcat(hist_record, ":");
-      get_snum(groupy,snum);
       strcat(hist_record, snum);
-      strcat(hist_record, "\n");
+	   groups_found++;
+	 }
+      }
 
       /* Restore the newsgroups line */
-      while (newsgroups[strlen(newsgroups)+1] != '\0') {
+      while (newsgroups[strlen(newsgroups)+1] != '\0')
          newsgroups[strlen(newsgroups)] = ',';
+
+      if (groups_found == 0) { 
+	printmsg(2, "rnews: no group to deliver to: %s", messageID);
+	strcpy(newsgroups, "junk");
+	/* try "junk" group if none of the target groups is known here */
+	if (get_snum("junk",snum))
+	  sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
+	else
+	  return fclose(tfile), FALSE;
       }
 
       /* Post the history record */
-      fseek(hfile, 0L, SEEK_END);
-      fwrite(hist_record, sizeof(char), strlen(hist_record), hfile);
+      add_histentry(history, messageID, hist_record);
    } /* if ( bflag[ F_HISTORY ] ) */
 
 /*--------------------------------------------------------------------*/
@@ -1057,58 +1074,47 @@ static boolean deliver_article(char *art_fname)
    if (b_xref) {
       strcpy(hist_record, "Xref: ");
       strcat(hist_record, E_nodename);
-      strcat(hist_record, " ");
 
-      gc_ptr1 = newsgroups;
-      while ((gc_ptr = strchr(gc_ptr1, ',')) != NULL)
+      for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
       {
-         gc_ptr[0] = '\0';
-         if (strlen(gc_ptr1) > MAXGRP - 1) { /* Bounds check the newsgroup len */
-            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr1);
-            gc_ptr1 = gc_ptr + 1;
+	 if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
+	    *gc_ptr1++ = '\0';
+         if (strlen(gc_ptr) > MAXGRP - 1) { 
+	    /* Bounds check the newsgroup length */
+            printmsg(0, "rnews: newsgroup name too long -- %s", gc_ptr);
             continue; /* Punt the newsgroup history record */
          }
-         strcpy(groupy, gc_ptr1);
+         strcpy(groupy, gc_ptr);
+         if (get_snum(groupy,snum)) {
+	   strcat(hist_record, " ");
          strcat(hist_record, groupy);
          strcat(hist_record, ":");
-         gc_ptr1 = gc_ptr + 1;
-         get_snum(groupy,snum);
          strcat(hist_record, snum);
-         strcat(hist_record, " ");
+	 }
       }
 
-      strcpy(groupy, gc_ptr1);
-      strcat(hist_record, groupy);
-      strcat(hist_record, ":");
-      get_snum(groupy,snum);
-      strcat(hist_record, snum);
       strcat(hist_record, "\n");
 
         /* Restore the newsgroups line */
-      while (newsgroups[strlen(newsgroups)+1] != '\0') {
+      while (newsgroups[strlen(newsgroups)+1] != '\0')
          newsgroups[strlen(newsgroups)] = ',';
       }
-
-    }
 
 /*--------------------------------------------------------------------*/
 /*       We now need to copy the file to each group in groupys        */
 /*--------------------------------------------------------------------*/
 
-   gc_ptr1 = newsgroups;
-   while ((gc_ptr = strchr(gc_ptr1, ',')) != NULL)
+   for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1)
    {
-      gc_ptr[0] = '\0';
-      strcpy(groupy, gc_ptr1);
-      gc_ptr1 = gc_ptr + 1;
-      copy_file(tfile, groupy, b_xref ? hist_record : NULL);
+      if ((gc_ptr1 = strchr(gc_ptr, ',')) != NULL)
+	 *gc_ptr1++ = '\0';
+      strcpy(groupy, gc_ptr);
+      b_saved |= copy_file(tfile, groupy, b_xref ? hist_record : NULL);
    }
 
-   strcpy(groupy, gc_ptr1);
-   copy_file(tfile, groupy, b_xref ? hist_record : NULL);
    fclose(tfile);
 
-   return TRUE;
+   return b_saved;
 } /* deliver_article */
 
 /*--------------------------------------------------------------------*/
@@ -1133,12 +1139,107 @@ static struct grp *find_newsgroup(const char *grp)
 }
 
 /*--------------------------------------------------------------------*/
+/*    a d d _ n e w s g r o u p                                       */
+/*                                                                    */
+/*    Add a news group to our list                                    */
+/*--------------------------------------------------------------------*/
+
+static void add_newsgroup(const char *grp, boolean moderated)
+{
+   struct grp *cur = group_list;
+
+   while ((strcmp(grp,cur->grp_name) != 0)) {
+      if (cur->grp_next != NULL) {
+         cur = cur->grp_next;
+      } else {
+	 cur->grp_next = (struct grp *) malloc(sizeof(struct grp));
+         cur = cur->grp_next;
+	 checkref(cur);
+	 cur->grp_next = NULL;
+	 cur->grp_name = newstr(grp);
+	 cur->grp_high = 1;
+	 cur->grp_low  = 0;
+	 cur->grp_can_post = (char) (moderated ? 'n' : 'y');
+	 break;
+      }
+   }
+}
+
+/*--------------------------------------------------------------------*/
+/*    d e l _ n e w s g r o u p                                       */
+/*                                                                    */
+/*    Remove a news group from our list                               */
+/*--------------------------------------------------------------------*/
+
+static void del_newsgroup(const char *grp)
+{
+   struct grp *cur = group_list;
+   struct grp *prev = NULL;
+
+   while ((strcmp(grp,cur->grp_name) != 0)) {
+      if (cur->grp_next != NULL) {
+	 prev = cur;
+         cur = cur->grp_next;
+      } else {
+         return;
+      }
+   }
+
+   if (prev == NULL)
+     group_list = cur->grp_next;
+   else
+     prev->grp_next = cur->grp_next;
+
+   free(cur);
+   /* name string is not free'ed because it's in the string pool */
+}
+
+/*--------------------------------------------------------------------*/
+/*    c o n t r o l _ m e s s a g e                                   */
+/*                                                                    */
+/*    Handle control message                                          */
+/*--------------------------------------------------------------------*/
+
+static void control_message(const char *control)
+{
+  char *ctrl = strdup(control);
+  char *cmd, *group, *mod, *msg;
+  boolean moderated;
+  
+  strtok(ctrl, " \t");
+  cmd = strtok(NULL, " \t");
+
+  if (stricmp(cmd, "newgroup") == 0) {
+    group = strtok(NULL, " \t");
+    mod = strtok(NULL, " \t");
+    moderated = (mod != NULL) && (strcmp(mod, "moderated") == 0);
+    add_newsgroup(group, moderated);
+    printmsg(1, "rnews: newsgroup added: %s", group);
+  } else if (stricmp(cmd, "rmgroup") == 0) {
+    group = strtok(NULL, " \t");
+    del_newsgroup(group);
+    printmsg(1, "rnews: newsgroup removed: %s", group);
+  } else if (stricmp(cmd, "cancel") == 0) {
+    msg = strtok(NULL, " \t");
+    cancel_article(history, msg);
+  } else if (stricmp(cmd, "ihave") == 0 || stricmp(cmd, "sendme") == 0 ||
+	     stricmp(cmd, "sendsys") == 0 || stricmp(cmd, "version") == 0 ||
+	     stricmp(cmd, "checkgroups") == 0) {
+    printmsg(1, "rnews: control message not implemented: %s", cmd);
+  } else {
+    printmsg(1, "rnews: control message unknown: %s", cmd);
+  }
+
+  free(ctrl);
+}
+
+/*--------------------------------------------------------------------*/
 /*    c o p y _ f i l e                                               */
 /*                                                                    */
 /*    Write an article to it's final resting place                    */
 /*--------------------------------------------------------------------*/
 
-static void copy_file(FILE *input,
+static boolean copy_file(FILE *input,
                       char *group,
                       char *xref)
 {
@@ -1156,7 +1257,7 @@ static void copy_file(FILE *input,
    if (cur == NULL)
    {
       printmsg(3, "rnews: Article cross-posted to %s", group);
-      return;
+      return FALSE;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1176,7 +1277,7 @@ static void copy_file(FILE *input,
    {
       printerr( filename );
       printmsg(0, "rnews: Unable to save article");
-      return;
+      return FALSE;
    }
 
    rewind(input);
@@ -1215,6 +1316,8 @@ static void copy_file(FILE *input,
 
    fclose(output);
 
+   return TRUE;
+
 } /* copy_file */
 
 /*--------------------------------------------------------------------*/
@@ -1223,16 +1326,17 @@ static void copy_file(FILE *input,
 /*    Get highest article number of newsgroup                         */
 /*--------------------------------------------------------------------*/
 
-static void get_snum(const char *group, char *snum)
+static int get_snum(const char *group, char *snum)
 {
    struct grp *cur;
 
    strcpy(snum, "0");
    cur = find_newsgroup(group);
    if (cur == NULL)
-      return;
+   return FALSE;
 
-   sprintf(snum, "%d", cur->grp_high);
+   sprintf(snum, "%ld", cur->grp_high);
+   return TRUE;
 
 } /* snum */
 
