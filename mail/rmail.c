@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.5 1992/12/05 23:38:43 ahd Exp $
+ *    $Id: RMAIL.C 1.6 1993/04/11 00:33:05 ahd Exp $
  *
  *    $Log: RMAIL.C $
+ * Revision 1.6  1993/04/11  00:33:05  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.5  1992/12/05  23:38:43  ahd
  * Let logger close the log, not rmail
  *
@@ -64,7 +67,9 @@
 /*                2  No mail delivered                                */
 /*                3 Configuration file error                          */
 /*                4 Invalid option/help specified                     */
-/*                5 Invalid option/help specified                     */
+/*                5 Input/output error                                */
+/*                6 Input/output error                                */
+/*                7 Input/output error                                */
 /*                                                                    */
 /*    Note:       When parsing RFC-822 headers, this program          */
 /*                expects them to be "well-behaved", that is in       */
@@ -306,7 +311,7 @@ void main(int argc, char **argv)
    if (datain == NULL )
    {
       printerr(namein);
-      Terminate(3);
+      Terminate(6);
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -511,7 +516,7 @@ static void ParseFrom()
       if (ferror(dataout))
       {
          printerr(tempname);
-         Terminate(3);
+         Terminate(6);
       } /* if */
    } /* if */
 
@@ -783,7 +788,7 @@ static boolean CopyTemp( void )
    if (ferror(datain))        /* Clean end of file on input?         */
    {
       printerr(namein);
-      Terminate(3);
+      Terminate(7);
    }
 
    if ( !newline )            /* Is the file terminated properly?    */
