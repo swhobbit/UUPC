@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.11 1993/10/25 01:21:22 ahd Exp $
+ *    $Id: uucp.c 1.12 1993/10/30 17:19:50 rhg Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.12  1993/10/30  17:19:50  rhg
+ * Additional clean-up for UUX support
+ *
+ * Revision 1.12  1993/10/30  17:19:50  rhg
+ * Additional clean-up for UUX support
+ *
  * Revision 1.11  1993/10/25  01:21:22  ahd
  * Force directory for destination when input is wildcarded
  *
@@ -158,10 +164,15 @@ static int cp(char *from, char *to)
       char        buf[BUFSIZ*4]; /* faster if we alloc a big buffer   */
 
       if ((fd_from = open(from, O_RDONLY | O_BINARY)) == -1)
+      {
+         printerr(from);
          return(1);        /* failed                                   */
+      }
       /* what if the to is a directory? */
       /* possible with local source & dest uucp */
-      if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1) {
+      if ((fd_to = open(to, O_CREAT | O_BINARY | O_WRONLY, S_IWRITE | S_IREAD)) == -1)
+      {
+         printerr(to);
          close(fd_from);
          return(1);        /* failed                                   */
          /* NOTE - this assumes all the required directories exist!  */
@@ -322,6 +333,7 @@ int   do_copy(char *src_syst,
       DIR *dirp = NULL;
       struct direct *dp = NULL;
       char subseq = 'A';
+      boolean makeDirectory = TRUE;    /* May need to build spool dir  */
 
       long    int     sequence;
       char    *remote_syst;   /* Non-local system in copy              */
@@ -350,11 +362,14 @@ int   do_copy(char *src_syst,
          }
          printmsg(1, "uucp - from \"%s\" - control = %s", src_syst,
                   tmfile);
-         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE )) == NULL)  {
+
+         if ((cfile = FOPEN(icfilename, "a",TEXT_MODE )) == NULL)
+         {
             printerr( icfilename );
             fprintf(stderr, "uucp: cannot append to %s\n", icfilename);
             panic();
          }
+
          fprintf(cfile, "R %s %s %s -%s %s 0777 %s\n", src_file, dest_file,
                E_mailbox, flags, *spool_file ? spool_file : "dummy", remote_user);
          fclose(cfile);
@@ -435,21 +450,41 @@ int   do_copy(char *src_syst,
                printf("Queueing file %s for %s!%s\n", src_file, dest_syst,
                         dest_file);
             }
-            if (spool_flag)  {
-               sprintf(idfile , spool_fmt, 'D', E_nodename, (char) subseq++,
+
+            if (spool_flag)
+            {
+               sprintf(idfile, spool_fmt, 'D', E_nodename, (char) subseq++,
                            sequence_s);
                importpath(work, idfile, remote_syst);
                mkfilename(idfilename, E_spooldir, work);
-               /* Do we need a MKDIR here for the system? */
-               if (cp(src_file, idfilename) != 0)  {
+
+               if ( makeDirectory )
+               {
+                  char *lastPath = strrchr( idfilename , '/' );
+
+                  if ( lastPath != NULL )
+                  {
+                     *lastPath = '\0';
+                     MKDIR( idfilename );
+                     *lastPath = '/';     /* Restore last segment of name  */
+                     makeDirectory = FALSE;
+                  } /* if ( lastPath != NULL ) */
+
+               } /* if ( makeDirectory ) */
+
+               if (cp(src_file, idfilename) != 0)
+               {
                   printmsg(0, "copy \"%s\" to \"%s\" failed",
-                     src_file, idfilename);           /* copy data     */
-                  closedir( dirp );
+                              src_file,
+                              idfilename);
+                  if (dirp != NULL )
+                     closedir( dirp );
                   exit(1);
                }
             }
             else
                strcpy(idfile, "D.0");
+
             if ((cfile = FOPEN(icfilename, "a",TEXT_MODE)) == NULL)  {
                printerr( icfilename );
                printf("uucp: cannot append to %s\n", icfilename);
