@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.16 1994/01/01 19:07:41 ahd Exp $
+ *    $Id: confvars.h 1.17 1994/01/24 03:09:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.17  1994/01/24  03:09:53  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.16  1994/01/01  19:07:41  ahd
  *     Annual Copyright Update
  *
@@ -72,7 +75,7 @@
  *
  */
 
-#include <uutypes.h>
+#include "uutypes.h"
 
 /*--------------------------------------------------------------------*/
 /*      Configuration file strings                                    */

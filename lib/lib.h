@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.17 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: lib.h 1.18 1994/01/01 19:09:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.18  1994/01/01  19:09:08  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.17  1993/12/24  05:22:49  ahd
  *     Allow for more generic use of UUFAR type modifier
  *
@@ -92,7 +95,7 @@
 #define BIT32ENV
 #endif
 
-#include <confvars.h>
+#include "confvars.h"
 
 /*--------------------------------------------------------------------*/
 /*     Environment variables set by UUXQT before invoking modules     */
