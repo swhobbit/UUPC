@@ -1,10 +1,13 @@
-#       $Id: nmakedos.mak 1.13 1995/12/02 14:07:05 ahd Exp $
+#       $Id: nmakedos.mak 1.14 1996/01/01 20:47:36 ahd Exp $
 #
 #       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakedos.mak $
+#       Revision 1.14  1996/01/01 20:47:36  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.13  1995/12/02 14:07:05  ahd
 #       Make default build for DOS all .exe files
 #       Go to version 1.12r
@@ -83,7 +86,7 @@ UUCICOOBJ3= $(OBJ)\comm.obj $(OBJ)\fossil.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulib.obj $(OBJ)\ulibfs.obj $(OBJ)\ulib14.obj
 
 !ifndef STACKSIZE
-STACKSIZE=3000                  # In hex, because /F below is brain dead
+STACKSIZE=2000                  # In hex, because /F below is brain dead
 !endif
 
 EXTRAT  = comm34.$(COMEXE)            # Include in test build ...
