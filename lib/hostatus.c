@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.13 1994/02/19 04:42:27 ahd Exp $
+ *    $Id: hostatus.c 1.14 1994/02/20 19:05:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.14  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.13  1994/02/19  04:42:27  ahd
  *     Use standard first header
  *
@@ -131,7 +134,7 @@ void HostStatus( void )
 /*                       Actually open the file                       */
 /*--------------------------------------------------------------------*/
 
-   if ((stream  = FOPEN(fname , "r", BINARY_MODE)) == NULL)
+   if ((stream  = FOPEN(fname , "r", IMAGE_MODE)) == NULL)
    {
 
       perror( fname );
