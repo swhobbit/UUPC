@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.c 1.10 1993/10/30 22:07:49 dmwatt Exp $
+ *    $Id: ulibip.c 1.11 1993/11/06 17:56:09 rhg Exp $
  *
  *    $Log: ulibip.c $
+ * Revision 1.11  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.10  1993/10/30  22:07:49  dmwatt
  * Host byte ordering corrections
  *
@@ -437,6 +440,8 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
    time_t stop_time ;
    time_t now ;
 
+   boolean firstPass = TRUE;
+
 /*--------------------------------------------------------------------*/
 /*           Determine if our internal buffer has the data            */
 /*--------------------------------------------------------------------*/
@@ -502,15 +507,15 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 /*       needs to be tuned)                                           */
 /*--------------------------------------------------------------------*/
 
-      if (stop_time > now )
+      if ( stop_time <= now ) 
       {
-         tm.tv_sec = stop_time - now;
-         tm.tv_usec = 0;
-      }
-      else {
-
          tm.tv_usec = 5000;
          tm.tv_sec = 0;
+      }
+      else {
+         tm.tv_sec = stop_time - now;
+         tm.tv_usec = 0;
+
       }
 
 /*--------------------------------------------------------------------*/
@@ -541,8 +546,11 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
       else {
          received = recv(connectedSock,
                          commBuffer + commBufferUsed,
-                         needed,
+                         firstPass ?
+                            commBufferLength - commBufferUsed : needed,
                          0);
+
+         firstPass = FALSE;
 
          if (received == SOCKET_ERROR)
          {
@@ -575,12 +583,15 @@ unsigned int tsread(char *output, unsigned int wanted, unsigned int timeout)
 /*--------------------------------------------------------------------*/
 
       commBufferUsed += received;
-      if ( commBufferUsed == wanted )
+      if ( commBufferUsed >= wanted )
       {
-         memcpy( output, commBuffer, commBufferUsed);
-         commBufferUsed = 0;
+         memcpy( output, commBuffer, wanted );
+         commBufferUsed -= wanted;
+         if ( commBufferUsed )   /* Any data left over?              */
+            memmove( commBuffer, commBuffer + wanted, commBufferUsed );
 
          return wanted;
+
       } /* if */
 
 /*--------------------------------------------------------------------*/

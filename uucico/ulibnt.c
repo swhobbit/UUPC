@@ -21,8 +21,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.6 1993/10/03 22:09:09 ahd Exp $
+ *       $Id: ulibnt.c 1.9 1993/11/06 17:57:09 rhg Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.9  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
+ * Revision 1.8  1993/10/12  01:33:23  ahd
+ * Normalize comments to PL/I style
+ *
+ * Revision 1.7  1993/10/07  22:56:45  ahd
+ * Use dynamically allocated buffer
+ *
  * Revision 1.6  1993/10/03  22:09:09  ahd
  * Use unsigned long to display speed
  *
@@ -116,7 +125,7 @@
 
 currentfile();
 
-static boolean   carrierdetect = FALSE;  /* Modem is not connected     */
+static boolean   carrierdetect = FALSE;  /* Modem is not connected    */
 
 static boolean hangupNeeded = FALSE;
 static boolean console = FALSE;
@@ -154,8 +163,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
    DWORD dwError;
    BOOL rc;
 
-   if (portActive)              /* Was the port already active?     ahd   */
-      closeline();               /* Yes --> Shutdown it before open  ahd   */
+   if (portActive)              /* Was the port already active?     ahd  */
+      closeline();               /* Yes --> Shutdown it before open  ahd  */
 
 #ifdef UDEBUG
    printmsg(15, "nopenline: %s, %lu",
@@ -205,8 +214,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( equal(name,"CON"))
    {
-      portActive = TRUE;     /* record status for error handler        */
-      carrierdetect = FALSE;  /* Modem is not connected                 */
+      portActive = TRUE;     /* record status for error handler       */
+      carrierdetect = FALSE;  /* Modem is not connected                */
       console = TRUE;
       return 0;
    }
@@ -359,6 +368,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 {
+   static LPVOID psave;
    DWORD dwError;
    BOOL rc;
    time_t stop_time ;
@@ -449,11 +459,14 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
       if (!console)
       {
           portTimeout *= 10; /* OS/2 is in hundredths; NT in msec */
-          CommTimeout.ReadTotalTimeoutConstant =
-             (portTimeout == 0 ? 0 : 1);
+          CommTimeout.ReadTotalTimeoutConstant = portTimeout;
           CommTimeout.WriteTotalTimeoutConstant = 0;
-          CommTimeout.ReadIntervalTimeout =
-             (portTimeout == 0 ? MAXDWORD : portTimeout);
+
+/* ReadIntervalTimeout has to be set to MAXDWORD to get a ReadFile() to
+   return immediately -- see the description of the COMMTIMEOUT structure
+   in volume 5 of the Win32 API for an explanation */
+
+          CommTimeout.ReadIntervalTimeout = (portTimeout != 0) ? 0 : MAXDWORD;
           CommTimeout.ReadTotalTimeoutMultiplier = 0;
           CommTimeout.WriteTotalTimeoutMultiplier = 0;
           rc = SetCommTimeouts(hCom, &CommTimeout);
@@ -691,7 +704,7 @@ void nhangup( void )
 
    printmsg(3,"hangup: Dropped DTR");
    carrierdetect = FALSE;  /* Modem is not connected                 */
-   ddelay(500);            /* Really only need 250 milliseconds         */
+   ddelay(500);            /* Really only need 250 milliseconds        */
 
 /*--------------------------------------------------------------------*/
 /*                          Bring DTR back up                         */
@@ -703,7 +716,7 @@ void nhangup( void )
       panic();
    }
 
-   ddelay(2000);           /* Now wait for the poor thing to recover    */
+   ddelay(2000);           /* Now wait for the poor thing to recover   */
 
 } /* nhangup */
 
