@@ -64,21 +64,20 @@ FILE *FSOPEN(const char *name, const char *mode)
 /*       mode (no retries).                                           */
 /*--------------------------------------------------------------------*/
 
-   if (results != nil(FILE) ||
-      ( (*mode == 'r') && !bflag[ F_MULTITASK ]) && (errno != EACCES) )
+   if (results != nil(FILE))
       return results;
 
-/*--------------------------------------------------------------------*/
-/*       Verify all intermediate directories in the path exist        */
-/*--------------------------------------------------------------------*/
-
-
-   if ((*mode != 'r') && ((last = strrchr(name, '/')) != nil(char)))
+   if (*mode == 'r')
    {
+      if ((!bflag[ F_MULTITASK ]) || access( fname, 0 ))
+         return results;
+   }
+   else if ((last = strrchr(name, '/')) != nil(char))
+   {                                // Make any needed directories
       *last = '\0';
       MKDIR(name);
       *last = '/';
-   }
+   } /* else */
 
 /*--------------------------------------------------------------------*/
 /*                         Now try open again                         */
