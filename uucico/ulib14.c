@@ -41,9 +41,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB.C 1.11 1993/05/30 00:08:03 ahd Exp $
+ *    $Id: ULIB14.C 1.2 1993/05/30 15:25:50 ahd Exp $
  *
- *    $Log: ULIB.C $
+ *    $Log: ULIB14.C $
+ * Revision 1.2  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  *
  *   30 Nov 92 - Adapt for use with INT14 drivers.
  *               Currently this is guaranteed to work only with
@@ -133,7 +136,7 @@ int iopenline(char *name, BPS bps, const boolean direct)
    if (portActive)              /* Was the port already active?      */
       closeline();               /* Yes --> Shutdown it before open  */
 
-   printmsg(15, "openline: %s, %d", name, bps);
+   printmsg(15, "openline: %s, %lu", name, bps);
 
    currentDirect = (char) (direct ? 'D' : 'M');
 

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBFS.C 1.1 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: ULIBFS.C 1.2 1993/05/30 15:25:50 ahd Exp $
  *
  *    History:
  *    $Log: ULIBFS.C $
+ * Revision 1.2  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  * Revision 1.1  1993/05/30  00:01:47  ahd
  * Initial revision
  *
@@ -390,19 +393,21 @@ void fSIOSpeed(BPS bps)
 
    if ( rates[speed] < 0 )
    {
-      printmsg(0,"fSIOSpeed: Invalid modem speed %d, using %d",
-                  (long) bps, (long) rates[speed]);
+      printmsg(0,"fSIOSpeed: Invalid modem speed %lu, using %lu",
+                  (unsigned long) bps,
+                  (unsigned long) rates[speed]);
       speed = best;
    }
 
-   printmsg(4,"fSIOSspeed: Changing port speed from %ld BPS to %ld BPS",
-               (long) currentBPS, (long) rates[speed]);
+   printmsg(4,"fSIOSspeed: Changing port speed from %lu BPS to %lu BPS",
+               (unsigned long) currentBPS,
+               (unsigned long) rates[speed]);
 
    FSSetSpeed( speed, FS_NO_PARITY, FS_STOPBIT_1, FS_CHARLEN_8);
 
    showModem( FSStatus());    // Report modem status if changed
 
-   currentBPS = (short) rates[speed];
+   currentBPS = rates[speed];
 
 } /* fSIOSpeed */
 

@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnmp.c 1.5 1993/09/29 04:49:20 ahd Exp $
+ *       $Id: ulibnmp.c 1.6 1993/10/03 20:37:34 ahd Exp $
  *       $Log: ulibnmp.c $
+ * Revision 1.6  1993/10/03  20:37:34  ahd
+ * Delete redundant error messages
+ *
  * Revision 1.5  1993/09/29  04:49:20  ahd
  * Delete obsolete variable
  *
@@ -83,7 +86,7 @@ static boolean   carrierDetect = FALSE;  /* Modem is not connected     */
 
 static boolean hangupNeeded = FALSE;
 
-static currentSpeed = 0;
+static BPS currentSpeed = 0;
 
 static boolean passive;
 
@@ -119,7 +122,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
       closeline();                  /* Yes --> Shutdown it before open */
 
 #ifdef UDEBUG
-   printmsg(15, "popenpassive: %s, %d", name, baud);
+   printmsg(15, "ppassiveopenline: %s, %d", name, baud);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -165,7 +168,7 @@ int ppassiveopenline(char *name, BPS baud, const boolean direct )
 /*                           Set baud rate                            */
 /*--------------------------------------------------------------------*/
 
-   SIOSpeed(57600);        // Just any old large number.
+   SIOSpeed(baud);         // Just any old large number.
 
    traceStart( name );     // Enable logging
 

@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.21 1993/09/29 05:25:21 ahd Exp $
+ *       $Id: ulibos2.c 1.22 1993/10/01 01:17:44 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.22  1993/10/01  01:17:44  ahd
+ * Drop unneeded special case for port in use message
+ *
  * Revision 1.21  1993/09/29  05:25:21  ahd
  * Don't die after duplicate port close
  *
@@ -741,8 +744,7 @@ int nswrite(const char *input, unsigned int len)
    rc = DosWrite( com_handle, data , len, &bytes);
    if (rc)
    {
-      printmsg(0,"nswrite: Return code from DosWrite was %#04x (%d)",
-               (int) rc , (int) rc);
+      printOS2error( "DosWrite", rc );
       return bytes;
    } /*if */
 
@@ -1070,7 +1072,7 @@ void nSIOSpeed(BPS baud)
 #endif
 
 #ifdef UDEBUG
-   printmsg(15,"SIOSpeed: Setting baud rate to %ul",
+   printmsg(15,"SIOSpeed: Setting baud rate to %lu",
                (unsigned long) baud);
 #endif
 
@@ -1106,7 +1108,7 @@ void nSIOSpeed(BPS baud)
 
    if (rc)
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %ul",
+      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %lu",
                baud);
       printOS2error( "DosDevIOCtl", rc );
       panic();

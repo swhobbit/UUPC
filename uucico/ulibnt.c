@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.4 1993/09/25 03:07:56 ahd Exp $
+ *       $Id: ulibnt.c 1.5 1993/09/26 03:32:27 dmwatt Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.5  1993/09/26  03:32:27  dmwatt
+ * Use Standard Windows NT error message module
+ *
  * Revision 1.4  1993/09/25  03:07:56  ahd
  * Add standard Windows NT error message calls
  *
@@ -151,7 +154,9 @@ int nopenline(char *name, BPS baud, const boolean direct )
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
-   printmsg(15, "nopenline: %s, %d", name, baud);
+   printmsg(15, "nopenline: %s, %lu",
+                 name,
+                 (unsigned long) baud);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -687,14 +692,16 @@ void nSIOSpeed(BPS baud)
    USHORT rc;
 
 #ifdef UDEBUG
-   printmsg(15,"SIOSpeed: Setting baud rate to %u", (unsigned int) baud);
+   printmsg(15,"SIOSpeed: Setting baud rate to %lu",
+               (unsigned long) baud);
 #endif
 
    GetCommState (hCom, &dcb);
    dcb.BaudRate = baud;
    rc = SetCommState (hCom, &dcb);
    if (!rc && !console) {
-      printmsg(0,"SIOSpeed: Unable to set baud rate for port to %d",baud);
+      printmsg(0,"SIOSpeed: Unable to set baud rate for port to %lu",
+                  (unsigned long) baud);
       panic();
 
    }

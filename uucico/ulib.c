@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.16 1993/09/27 04:04:06 ahd Exp $
+ *    $Id: ulib.c 1.17 1993/09/29 13:18:06 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.17  1993/09/29  13:18:06  ahd
+ * Use new dummy setprty function
+ *
  * Revision 1.16  1993/09/27  04:04:06  ahd
  * Normalize references to modem speed to avoid incorrect displays
  *
@@ -145,7 +148,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
    if (portActive)              /* Was the port already active?     */
       closeline();              /* Yes --> Shutdown it before open  */
 
-   printmsg(15, "openline: %s, %ul", name, bps);
+   printmsg(15, "openline: %s, %lu", name, bps);
 
    current_direct = (char) (direct ? 'D' : 'M') ;
 

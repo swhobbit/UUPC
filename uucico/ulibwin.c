@@ -21,10 +21,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.5 1993/09/29 13:18:06 ahd Exp $
+ *    $Id: ulibwin.c 1.6 1993/10/01 02:36:45 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.6  1993/10/01  02:36:45  dmwatt
+ * Suppress odd debugging messages in normal compile
+ * Reformat source
+ *
  * Revision 1.5  1993/09/29  13:18:06  ahd
  * Use new dummy setprty function
  *
@@ -140,7 +144,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
-   printmsg(15, "openline: %s, %d", name, baud);
+   printmsg(15, "openline: %s, %ul", name, (unsigned long) baud);
 #endif
 
    if (!equaln(name, "COM", 3 ))
@@ -594,8 +598,8 @@ void nSIOSpeed(BPS baud)
    WORD rc;
 
    currentSpeed = (UINT) baud;
-   printmsg(15,"SIOSpeed: Setting baud rate to %d",
-               (int) currentSpeed);
+   printmsg(15,"SIOSpeed: Setting baud rate to %lu",
+               (unsigned long) currentSpeed);
 
    ShowModem();
    GetCommState (nCid, &dcb);
@@ -605,11 +609,10 @@ void nSIOSpeed(BPS baud)
 
    if (rc)
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",
-                 (int) currentSpeed);
+      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %lu",
+                 (unsigned long) currentSpeed);
       panic();
    }
-
 
 } /* nSIOSpeed */
 
