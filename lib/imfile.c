@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.12 1995/02/20 00:40:12 ahd Exp $
+ *    $Id: imfile.c 1.13 1995/02/20 17:28:43 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.13  1995/02/20 17:28:43  ahd
+ *    16 bit compiler warning message clean up
+ *
  *    Revision 1.12  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -160,11 +163,7 @@ static int imReserve( IMFILE *imf, const unsigned long length )
       if ( newLength > IM_MAX_LENGTH )    /* Is the pad allowed?     */
          newLength = IM_MAX_LENGTH; /* No --> Just use max           */
 
-#ifdef BIT32ENV
-      newBuffer = realloc( imf->buffer, newLength );
-#else
-      newBuffer = _frealloc( imf->buffer, (size_t) newLength );
-#endif
+      newBuffer = REALLOC( imf->buffer, newLength );
 
       if ( newBuffer == NULL )
          printerr( "realloc" );
@@ -245,11 +244,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
       else
          imf->length = (unsigned long) length;
 
-#ifdef BIT32ENV
-         imf->buffer = malloc( imf->length );
-#else
-         imf->buffer = _fmalloc( (size_t) imf->length );
-#endif
+         imf->buffer = MALLOC( imf->length );
 
       if ( imf->buffer == NULL )
          printerr( "malloc" );
@@ -300,13 +295,7 @@ int imclose( IMFILE *imf)
    imStatus( imf );
 
    if ( imf->buffer != NULL )
-   {
-#ifdef BIT32ENV
-      free( imf->buffer );
-#else
-      _ffree( imf->buffer );
-#endif
-   }
+      FREE( imf->buffer );
 
    if ( imf->stream != NULL )
    {
@@ -748,11 +737,7 @@ void imrewind( IMFILE *imf)
                      imf->inUse );
 #endif
 
-#ifdef BIT32ENV
-         imf->buffer = realloc( imf->buffer, (size_t) imf->inUse );
-#else
-         imf->buffer = _frealloc( imf->buffer, (size_t) imf->inUse );
-#endif
+         imf->buffer = REALLOC( imf->buffer, (size_t) imf->inUse );
          checkref( imf->buffer );
          imf->length = imf->inUse;
 
