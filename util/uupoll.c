@@ -58,9 +58,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.5 1993/04/04 04:57:01 ahd Exp $
+ *    $Id: UUPOLL.C 1.6 1993/04/10 21:25:16 dmwatt Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.6  1993/04/10  21:25:16  dmwatt
+ * Add Windows/NT support
+ *
+ * Revision 1.6  1993/04/10  21:25:16  dmwatt
+ * Add Windows/NT support
+ *
  * Revision 1.5  1993/04/04  04:57:01  ahd
  * Return exit code of UUCICO upon exit
  *
@@ -82,7 +88,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.5 1993/04/04 04:57:01 ahd Exp $";
+         "$Id: UUPOLL.C 1.6 1993/04/10 21:25:16 dmwatt Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -414,7 +420,11 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
       if (first >= 0)
+      {
          next = nextpoll(first,interval);
+         if ( next > exittime )
+            next = exittime;
+      }
       else
          next = exittime;
 
