@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.11 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: batch.c 1.12 1995/02/20 00:03:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.12  1995/02/20 00:03:07  ahd
+ *    Don't print message if unable to delete previously deleted batch
+ *
  *    Revision 1.11  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -617,7 +620,7 @@ void process_batch(const struct sys *node,
 /*       batch compressed.                                            */
 /*--------------------------------------------------------------------*/
 
-     if ( access( batchName, 0) && unlink(batchName) )
+     if ( !access( batchName, 0) && unlink(batchName) )
         printerr( batchName );
 
    } while (articleCount && ! done);
@@ -641,7 +644,7 @@ void process_batch(const struct sys *node,
       filebkup( articleListName );  /* Mostly for debugging          */
 #endif
 
-      if ( access( articleListName, 0 ) && unlink(articleListName) )
+      if ( !access( articleListName, 0 ) && unlink(articleListName) )
          printerr( articleListName );
 
    } /* if (!done) */
