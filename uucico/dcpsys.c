@@ -39,9 +39,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.13 1993/04/11 00:34:11 ahd Exp $
+ *     $Id: DCPSYS.C 1.14 1993/05/06 03:41:48 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.14  1993/05/06  03:41:48  ahd
+ * Save true host name of caller in hostp->via field for use by
+ * SYSLOG processing.
+ *
  * Revision 1.13  1993/04/11  00:34:11  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -298,7 +302,7 @@ CONN_STATE sysend()
 /*    write a ^P type msg to the remote uucp                          */
 /*--------------------------------------------------------------------*/
 
-void wmsg(char *msg, const boolean synch)
+void wmsg(const char *msg, const boolean synch)
 {
 
    if (synch)
@@ -467,14 +471,19 @@ CONN_STATE startup_server(const char recvgrade )
       return CONN_TERMINATE; /* wrong host */              /* ahd */
    }
 
-   /* sprintf(msg, "S%.7s -Q0 -x%d", E_nodename, debuglevel); */
-   /* -Q0 -x16 remote debuglevel set */
+/*--------------------------------------------------------------------*/
+/*    Setup our hello message with system name and optional debug     */
+/*    and call grade levels.                                          */
+/*--------------------------------------------------------------------*/
+
+   sprintf(msg, "S%s", securep->myname );
+
+   if ( bflag[F_SENDDEBUG] )
+      sprintf( msg + strlen(msg), " -x%d", debuglevel );
 
    if (recvgrade != ALL_GRADES)
-     sprintf(msg, "S%s -p%c -vgrade=%c", securep->myname,
+      sprintf( msg + strlen(msg), " -p%c -vgrade=%c",
                   recvgrade, recvgrade );
-   else
-     sprintf(msg, "S%s", securep->myname );
 
    wmsg(msg, TRUE);
 
@@ -601,7 +610,8 @@ CONN_STATE startup_client( char *sendgrade )
                break;
 
             case 'x' :
-               sscanf(flds[i], "-x%d", &xdebug);
+               if ( bflag[ F_HONORDEBUG ] )
+                  sscanf(flds[i], "-x%d", &xdebug);
                break;
 
             case 'p' :
@@ -619,7 +629,6 @@ CONN_STATE startup_client( char *sendgrade )
                break;
          } /* switch */
    } /* for */
-
 
    *sendgrade = min(grade,*sendgrade);
 
@@ -653,14 +662,6 @@ CONN_STATE startup_client( char *sendgrade )
 
          hostp->via = newstr( sysname );
          sysname = ANONYMOUS_HOST;
-
-         if ((xdebug > 3)  && (xdebug > debuglevel))
-         {
-            wmsg("RDebug (-x) level too high for anonymous UUCP - rejected",
-                  TRUE);
-            printmsg(0,"Excessive debug for anonymous system \"%s\"",sysname);
-            return CONN_TERMINATE;
-         } /* if (xdebug > 3) */
 
       }    /* if (E_anonymous != NULL) */
       else {
