@@ -2,14 +2,28 @@
 /*    u u c p . c                                                     */
 /*                                                                    */
 /*    UUCP lookalike for IBM PC.                                      */
-/*                                                                    */
-/*    Changes Copyright (c) 1989-1992 by Andrew H. Derbyshire         */
-/*    Compilation Copyright (c) 1989-1992 by Andrew H. Derbyshire     */
-/*                                                                    */
-/*    This program may be freely distributed if the original          */
-/*    source documentation are distributed with it, and all           */
-/*    copyrights and acknowledgements are maintained.                 */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
+/*                                                                    */
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: LIB.H $
+ */
 
 /*--------------------------------------------------------------------*/
 /*                                                                    */
@@ -233,16 +247,16 @@ int   do_copy(char *src_syst,
               char *dest_syst,
               char *dest_file)
 {
-      char        *p, *p1;
+      char        *p;
       boolean wild_flag = FALSE;
       boolean write_flag;
       char        tmfile[15];       /* Unix style name for c file */
       char        idfile[15];       /* Unix style name for data file copy */
-      char        work[66];            /* temp area for filename hacking */
-      char        search_file[66];
-      char        source_path[66];
-      char        icfilename[66]; /* our hacked c file path */
-      char        idfilename[66]; /* our hacked d file path */
+      char        work[FILENAME_MAX];   /* temp area for filename hacking */
+      char        search_file[FILENAME_MAX];
+      char        source_path[FILENAME_MAX];
+      char        icfilename[FILENAME_MAX]; /* our hacked c file path */
+      char        idfilename[FILENAME_MAX]; /* our hacked d file path */
 
       struct  stat    statbuf;
       DIR *dirp = NULL;
@@ -262,11 +276,14 @@ int   do_copy(char *src_syst,
       importpath(work, tmfile, remote_syst);
       mkfilename(icfilename, E_spooldir, work);
 
-      if (!equal(src_syst, E_nodename))  {
+      if (!equal(src_syst, E_nodename))
+      {
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
+         strcpy( dest_file, normalize( dest_file ));
          p  = src_file;
-         while (*p) {
+         while (*p)
+         {
             if (*p ==  '\\')
                *p = '/';
             p++;
@@ -293,6 +310,7 @@ int   do_copy(char *src_syst,
 
          if (expand_path(src_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
+         normalize( src_file );
 
          p  = dest_file;
 
@@ -345,11 +363,12 @@ int   do_copy(char *src_syst,
 
          while (write_flag)
          {
-            if (wild_flag)  {
+            if (wild_flag)
+            {
                strcpy(src_file, source_path);
-               printmsg(5,"do_copy: got file %s", dp->d_name );
                strlwr( dp->d_name );
-               strcat( src_file , dp->d_name );
+               strcat( strcpy(src_file, source_path), dp->d_name );
+               strcpy( src_file, normalize( src_file ));
                printf("Queueing file %s for %s!%s\n", src_file, dest_syst,
                         dest_file);
             }
@@ -395,7 +414,8 @@ int   do_copy(char *src_syst,
             exit(1);
          if (expand_path(dest_file, NULL, E_homedir, NULL) == NULL)
             exit(1);
-         if (strcmp(src_file, dest_file) == 0)  {
+         if (strcmp(src_file, dest_file) == 0)
+         {
             fprintf(stderr, "%s %s - same file; can't copy\n",
                   src_file, dest_file);
             exit(1);
@@ -415,10 +435,6 @@ void  main(int argc, char *argv[])
 {
       int         i;
       int         option;
-/*
-      boolean s_remote = FALSE;
-      boolean d_remote = FALSE;
-*/
       boolean j_flag = FALSE;
       char        src_system[100], dest_system[100];
       char        src_inter[100],  dest_inter[100];
