@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.11  1993/08/08  17:39:55  ahd
+ *     Define denormalize() macro
+ *
  *     Revision 1.10  1993/07/22  23:26:19  ahd
  *     First pass of changes for Robert Denny's Windows 3.1 support
  *
@@ -55,6 +58,10 @@
 
 #ifndef __LIB
 #define __LIB
+
+#if defined(WIN32) || defined(__OS2__)
+#define BIT32ENV
+#endif
 
 #include <confvars.h>
 
@@ -122,7 +129,7 @@
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
 #define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH)
 
-#define B_INTEGER  0x00010000L /* Pointer is to short int, not string */
+#define B_KEWSHORT 0x00010000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x00020000L /* Pointer is one word, ignore blanks  */
 #define B_BOOLEAN  0x00040000L /* Pointer is to boolean keywords      */
 #define B_LIST     0x00080000L /* Pointer to array of char pointers   */
@@ -136,6 +143,7 @@
 #define B_OBSOLETE 0x00800000L /* Option is obsolete, should be
                                   deleted                             */
 #define B_MALLOC   0x01000000L  /* Use malloc(), not newstr()         */
+#define B_LONG     0x02000000L  /* Pointer is to long, not string     */
 #define B_PATH     (B_TOKEN | B_NORMAL)
                                /* DOS Path name                       */
 
