@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.5 1993/10/03 00:03:45 ahd Exp $
+ *    $Id: safeio.c 1.6 1993/10/12 00:49:39 ahd Exp rommel $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.6  1993/10/12  00:49:39  ahd
+ *     Normalize comments
+ *
  *     Revision 1.5  1993/10/03  00:03:45  ahd
  *     Only use currentfile() under Windows NT
  *
@@ -194,11 +197,10 @@ boolean safepeek( void )
 
     KbdPeek( &kki, 0 );
 
-#ifdef __OS2__
-    return (kki.fbStatus & KBDTRF_FINAL_CHAR_IN);
-#else
-    return (kki.fbStatus & FINAL_CHAR_IN);
+#if defined(KBDTRF_FINAL_CHAR_IN)
+    #define FINAL_CHAR_IN KBDTRF_FINAL_CHAR_IN
 #endif
+    return (kki.fbStatus & FINAL_CHAR_IN);
 
 #else /* FAMILYAPI */
 
