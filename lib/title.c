@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title.c 1.1 1994/04/24 20:35:08 ahd Exp $
+ *    $Id: title.c 1.2 1994/05/04 02:40:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: title.c $
+ * Revision 1.2  1994/05/04  02:40:52  ahd
+ * Add missing stdarg.h
+ *
  * Revision 1.1  1994/04/24  20:35:08  ahd
  * Initial revision
  *
@@ -31,11 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+#include "title.h"
+#include "timestmp.h"
 
 #ifdef _Windows
 #include <windows.h>
 #include <winutil.h>
-#include <timestmp.h>
 #include <stdarg.h>
 #endif
 

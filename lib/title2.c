@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.2 1994/05/04 02:02:19 ahd Exp $
+ *    $Id: title2.c 1.3 1994/05/30 02:21:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ * Revision 1.3  1994/05/30  02:21:23  ahd
+ * Properly restore original title on exit
+ *
  * Revision 1.2  1994/05/04  02:02:19  ahd
  * Blank out title upon program exit
  *
@@ -35,12 +38,14 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #define  INCL_PM
 #include <os2.h>
 #include <process.h>
 #include <stdarg.h>
 
 #include "timestmp.h"
+#include "title.h"
 
 void restoreOriginalTitle( void );
 

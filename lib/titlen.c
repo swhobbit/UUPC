@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: titlen.c 1.1 1994/04/24 20:07:58 dmwatt Exp $
+ *    $Id: titlen.c 1.2 1994/05/29 16:29:08 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: titlen.c $
+ * Revision 1.2  1994/05/29  16:29:08  dmwatt
+ * Add program name as prefix to user supplied title
+ *
  * Revision 1.1  1994/04/24  20:07:58  dmwatt
  * Initial revision
  *
@@ -33,6 +36,7 @@
 #include "uupcmoah.h"
 #include <windows.h>
 
+#include "title.h"
 #include "timestmp.h"
 
 /*--------------------------------------------------------------------*/
