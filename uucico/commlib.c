@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.11 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: commlib.c 1.12 1993/11/06 17:56:09 rhg Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.12  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.11  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -293,14 +296,14 @@ boolean chooseCommunications( const char *name )
 #ifdef BIT32ENV
       commBufferLength = (MAXPACK * 4);      /* Generous to reduce I/O's  */
 #else
-      commBufferLength = (MAXPACK * 4) / 3;  /* Packet plus header     */
+      commBufferLength = (MAXPACK * 2) + 20; /* 2 packet plus headers    */
 #endif
 
       commBuffer = malloc( commBufferLength );
       checkref( commBuffer );
 
    } /* if */
-   else if ( suite[subscript].buffered && ! commBufferLength )
+   else if ( (! suite[subscript].buffered) && commBufferLength )
    {
       commBufferLength = 0;
       free( commBuffer );
