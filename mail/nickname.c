@@ -1,35 +1,47 @@
 /*--------------------------------------------------------------------*/
-/*    alias.c                                                         */
+/*    a l i a s . c                                                   */
 /*                                                                    */
-/*    Smart routing and alias routines for pcmail.                    */
+/*    Smart routing and alias routines for UUPC/extend mail           */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
 /*                                                                    */
-/*    Copyright (C) 1989 Andrew H. Derbyshire                         */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
 /*                                                                    */
 /*    Additional code                                                 */
 /*       Copyright (c) Richard H. Lamb 1985, 1986, 1987               */
 /*       Changes Copyright (c) Stuart Lynne 1987                      */
-/*                                                                    */
-/*    Updates:                                                        */
-/*                                                                    */
-/*    02 Oct 89   Alter large strings/structures to use               */
-/*                malloc()/free()                              ahd    */
-/*    08 Feb 90   Correct failure of ExtractAddress to return         */
-/*                non-names                                    ahd    */
-/*    18 Mar 90   Move checkname() and associated routines into       */
-/*                hostable.c                                   ahd    */
-/*    22 Apr 90   Modify user_at_node to correctly handle .UUCP       */
-/*                alias on local host.                         ahd    */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ALIAS.C 1.3 1993/04/11 00:33:05 ahd Exp $
+ *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
  *
+ *    Revision history:
  *    $Log: ALIAS.C $
+ * Revision 1.4  1993/05/06  03:41:48  ahd
+ * Use expand_path to get reasonable correct drive for aliases file
+ *
  * Revision 1.3  1993/04/11  00:33:05  ahd
  * Global edits for year, TEXT, etc.
  *
  * Revision 1.2  1992/11/22  21:06:14  ahd
  * Use strpool for memory allocation
+ *
+ *    02 Oct 89   Alter large strings/structures to use
+ *                malloc()/free()                              ahd
+ *    08 Feb 90   Correct failure of ExtractAddress to return
+ *                non-names                                    ahd
+ *    18 Mar 90   Move checkname() and associated routines into
+ *                hostable.c                                   ahd
+ *    22 Apr 90   Modify user_at_node to correctly handle .UUCP
+ *                alias on local host.                         ahd
  *
  */
 
@@ -383,8 +395,12 @@ size_t LoadAliases(void)
                               /* Resize table to final known size    */
    checkref(alias);
 
-   for ( subscript = 0; subscript < UserElements; subscript++, elements++)
+   for ( subscript = 0; subscript < UserElements;  subscript++)
    {
+      if ( equal(users[subscript].realname,EMPTY_GCOS) )
+         continue;
+
+      elements++;
       alias[elements].anick = "";   /* No nickname, only good for addr  */
       if (bflag[F_BANG])
          sprintf(buf, "(%s) %s!%s",
