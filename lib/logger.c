@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.4 1992/11/23 03:56:06 ahd Exp $
+ *    $Header: E:\src\uupc\LIB\RCS\LOGGER.C 1.5 1993/01/23 19:08:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOGGER.C $
+ *     Revision 1.5  1993/01/23  19:08:09  ahd
+ *     Correct sleep.h include
+ *
  * Revision 1.4  1992/11/23  03:56:06  ahd
  * Do not use expand_path to build log file name
  * Use strpool for names
@@ -140,7 +143,7 @@ void openlog( const char *log )
 /*--------------------------------------------------------------------*/
 
    fprintf(logfile,
-               "-----------\n%s %s: %s %s (%s %s)\n",
+               "%s %s: %s %s (%s %s)\n",
                dater( time( NULL ), NULL),
                compilen, compilep, compilev, compiled, compilet);
 
