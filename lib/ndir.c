@@ -67,6 +67,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
 
    /* allocate control block */
    thisDirP = malloc(sizeof(DIR));
+   checkref( thisDirP );
 
 /*--------------------------------------------------------------------*/
 /*                     Set disk transfer address                      */
