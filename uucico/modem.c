@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.60 1995/02/26 02:51:34 ahd v1-12n $
+ *    $Id: modem.c 1.61 1995/07/21 13:27:00 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *    Revision 1.61  1995/07/21 13:27:00  ahd
+ *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
+ *
  *    Revision 1.60  1995/02/26 02:51:34  ahd
  *    Reduce default packet size to 512 bytes - 1024 is 3 mile freight train
  *
@@ -292,7 +295,7 @@ static FLAGTABLE modemFlags[] = {
    { nil(char) }
 }           ;
 
-static CONFIGTABLE modemtable[] = {
+static CONFIGTABLE modemTable[] = {
    { "answer",         &answer,           0, B_LIST   },
    { "answerdelay",    &answerDelay,      0, B_SHORT  },
    { "answertimeout",  &answerTimeout,    0, B_SHORT  },
@@ -330,10 +333,11 @@ static CONFIGTABLE modemtable[] = {
    { "tpackettimeout", &M_tPacketTimeout, 0, B_SHORT  },
    { "version",        0,                 0, B_TOKEN  },
    { "vpacketsize",    &vPacketSize,      0, B_SHORT  },
-   { "vwindowsize",    &vWindowSize,      0, B_SHORT  },
-   { nil(char) }
+   { "vwindowsize",    &vWindowSize,      0, B_SHORT  }
 
-}; /* modemtable */
+}; /* modemTable */
+
+static size_t modemTableSize = sizeof modemTable / (sizeof (CONFIGTABLE));
 
 static KWBoolean reEnable = KWFalse;
 
@@ -727,10 +731,10 @@ KWBoolean getmodem( const char *brand)
 /*                        Initialize the table                        */
 /*--------------------------------------------------------------------*/
 
-   for (tptr = modemtable; tptr->sym != nil(char); tptr++)
-      if (tptr->loc &&
-          (tptr->flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST)))
-         *((char **) tptr->loc) = nil(char);
+   for (subscript = 0; subscript < modemTableSize; subscript++ )
+      if (modemTable[subscript].loc &&
+          (modemTable[subscript].flag & (B_TOKEN | B_STRING | B_LIST | B_CLIST)))
+         *((char **) modemTable[subscript].loc) = nil(char);
 
    for (subscript = 0; subscript < MODEM_LAST; subscript++)
       bmodemflag[subscript] = KWFalse;
@@ -787,7 +791,12 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    printmsg(3,"getmodem: loading modem configuration file %s", filename);
-   success = getconfig(fp, MODEM_CONFIG, 0, modemtable, modemFlags);
+   success = getconfig(fp,
+                       MODEM_CONFIG,
+                       0,
+                       modemTable,
+                       modemTableSize,
+                       modemFlags);
    fclose(fp);
 
    if (!success)
@@ -798,13 +807,14 @@ KWBoolean getmodem( const char *brand)
 /*--------------------------------------------------------------------*/
 
    success = KWTrue;
-   for (tptr = modemtable; tptr->sym != nil(char); tptr++)
+
+   for (subscript = 0; subscript < modemTableSize; subscript++ )
    {
 
-      if ((tptr->flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
+      if ((modemTable[subscript].flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "getmodem: configuration parameter \"%s\" must be set.",
-            tptr->sym);
+            modemTable[subscript].sym);
          success = KWFalse;
       } /* if */
 

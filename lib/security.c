@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1995 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1996 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.25 1995/01/29 16:43:03 ahd Exp $
+ *    $Id: security.c 1.26 1995/02/12 23:37:04 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.26  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.25  1995/01/29 16:43:03  ahd
  *    IBM C/Set compiler warnings
  *
@@ -292,7 +295,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
   static char *callback, *xpubdir, *machine, *noread, *nowrite;
   static char *request, *read, *sendfiles,  *write, *logname;
 
-  static CONFIGTABLE securetable[] =
+  static CONFIGTABLE secureTable[] =
   {
      { "callback",      &callback,     0, B_TOKEN  } ,
      { "commands",      &commands,     0, B_CLIST  } ,
@@ -308,7 +311,10 @@ static KWBoolean InitEntry( char *buf, const char *fname)
      { "validate",      &validate,     0, B_CLIST  } ,
      { "write",         &write,        0, B_TOKEN  | B_MALLOC } ,
      { nil(char) }
-}; /* securetable */
+   }; /* secureTable */
+
+   static size_t secureTableSize =
+                           (sizeof secureTable) / (sizeof (CONFIGTABLE));
 
    struct HostSecurity *anchor = malloc( sizeof *anchor );
 
@@ -323,7 +329,7 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 /*--------------------------------------------------------------------*/
 
    KWBoolean success = KWTrue;
-   CONFIGTABLE *tptr;
+   size_t subscript;
    char *token = buf;
    char *parameter;
    struct UserTable *userp;
@@ -341,9 +347,9 @@ static KWBoolean InitEntry( char *buf, const char *fname)
 /*                        Initialize the table                        */
 /*--------------------------------------------------------------------*/
 
-   for (tptr = securetable; tptr->sym != nil(char); tptr++)
-      if (tptr->flag & (B_TOKEN | B_STRING | B_LIST| B_CLIST))
-         *((char **) tptr->loc) = nil(char);
+   for (subscript = 0; subscript < secureTableSize; subscript++ )
+      if (secureTable[subscript].flag & (B_TOKEN | B_STRING | B_LIST| B_CLIST))
+         *((char **) secureTable[subscript].loc) = nil(char);
 
 /*--------------------------------------------------------------------*/
 /*                 Parse the information in the table                 */
@@ -365,7 +371,8 @@ static KWBoolean InitEntry( char *buf, const char *fname)
       if (!processconfig(parameter,
                          SYSTEM_CONFIG,
                          0,
-                         securetable,
+                         secureTable,
+                         secureTableSize,
                          NULL))
       {
          printmsg(0, "Unknown keyword \"%s\" in %s ignored",

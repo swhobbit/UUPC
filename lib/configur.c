@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1995 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1996 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.70 1995/04/02 00:01:39 ahd Exp $
+ *    $Id: configur.c 1.71 1995/08/27 23:30:21 ahd v1-12q $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.71  1995/08/27 23:30:21  ahd
+ *    Change variable case
+ *
  *    Revision 1.70  1995/04/02 00:01:39  ahd
  *    Add option for Kai Uwe Rommel to suppress display of UUPC/extended
  *    version, system name, etc. at remote login time.
@@ -367,10 +370,11 @@ static char *getregistry(char *envName, char **value);
 #endif
 
 /*--------------------------------------------------------------------*/
-/*  The following table controls the configuration files processing   */
+/*       UUPC.RC/personal.RC configuration variables.  This table     */
+/*       MUST be kept sorted to allow a binary search.                */
 /*--------------------------------------------------------------------*/
 
-CONFIGTABLE envtable[] = {
+CONFIGTABLE rcTable[] = {
    {"aliases",      &E_nickname,     B_MUA,     B_TOKEN },
    {"altsignature", &E_altsignature, B_MUA,     B_TOKEN },
    {"anonymouslogin", &E_anonymous,  (B_ALL & ~ B_MAIL), B_GLOBAL|B_TOKEN },
@@ -431,9 +435,10 @@ CONFIGTABLE envtable[] = {
    {"version",      &E_version,      B_INSTALL, B_TOKEN },
    {"vmail",        &E_vmail,        B_MTA,     B_PATH },
    {"vmsqueuedir",  &E_vmsQueueDir,  B_MTA,     B_PATH },
-   {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT,   B_PATH },
-   { nil(char) }
+   {"xqtrootdir",   &E_xqtRootDir,   B_UUXQT,   B_PATH }
 }; /* table */
+
+static size_t rcTableSize = (sizeof rcTable / sizeof (CONFIGTABLE));
 
 /*--------------------------------------------------------------------*/
 /*               Boolean options shared by all programs               */
@@ -490,22 +495,304 @@ FLAGTABLE configFlags[] = {
 }           ;
 
 /*--------------------------------------------------------------------*/
+/*             Operating environment configuration table              */
+/*--------------------------------------------------------------------*/
+
+typedef struct _ENVLIST
+{
+   char *name;
+   ENV_TYPE value;
+} ENVLIST;
+
+static ENVLIST osEnvTable[] =
+{
+   { "dos",      ENV_DOS      },
+   { "16bit",    ENV_BIT16    },
+   { "32bit",    ENV_BIT32    },
+   { "32bitos2", ENV_OS2_16BIT},
+   { "16bitos2", ENV_OS2_32BIT},
+   { "os2",      ENV_OS2      },
+   { "win32",    ENV_WIN_32BIT},
+   { "win16",    ENV_WIN_16BIT},
+   { "32bitwin", ENV_WIN_32BIT},
+   { "16bitwin", ENV_WIN_16BIT},
+   { "win",      ENV_WIN      },
+   { NULL,       ENV_UNKNOWN  }
+};
+
+/*--------------------------------------------------------------------*/
+/*       Configuration variables extracted from environment, and      */
+/*       their names                                                  */
+/*--------------------------------------------------------------------*/
+
+typedef struct _ENV_VARS
+{
+   char *envName;
+   char *confName;
+} ENV_VARS;
+
+static ENV_VARS envVarList[] =
+{
+   { "EDITOR",   "EDITOR"   },
+   { "HOME",     "HOME"     },
+   { "NAME",     "NAME"     },
+   { "HOSTNAME", "NODENAME" },   /* Useful for OS/2 TCP/IP        */
+   { "MAILBOX",  "MAILBOX"  },
+   { "LOGNAME",  "MAILBOX"  },   /* Same as RCS                   */
+   { "USER",     "MAILBOX"  },   /* Useful for OS/2 TCP/IP        */
+   { "USERNAME", "MAILBOX"  },   /* Useful for NT                 */
+   { "TEMP",     "TEMPDIR"  },
+   { "TMP",      "TEMPDIR"  },
+   { "TZ",       "TZ"       },
+   { NULL,       NULL       }
+} ;
+
+typedef struct _DEFAULTS
+{
+   char **value;
+   char *literal;
+   KWBoolean path;
+} DEFAULTS;
+
+/*--------------------------------------------------------------------*/
+/*       List of directories automatically initialized to be off      */
+/*       root configuration directory, if needed.                     */
+/*--------------------------------------------------------------------*/
+
+static DEFAULTS directoryList[] =
+{
+   {&E_archivedir,   "archive" , KWTrue },
+   {&E_maildir,      "mail"    , KWTrue },
+   {&E_newsdir,      "news"    , KWTrue },
+   {&E_pubdir,       "public"  , KWTrue },
+   {&E_spooldir,     "spool"   , KWTrue },
+   {&E_tempdir,      "tmp"     , KWTrue },
+   {&E_systems,      "systems" , KWTrue },
+   {&E_passwd,       "passwd"  , KWTrue },
+   {&E_permissions,  "permissn", KWTrue },
+   { NULL  }
+} ;
+
+/*--------------------------------------------------------------------*/
+/*    p r o c e s s K e y w o r d                                     */
+/*                                                                    */
+/*    Given a keyword in the configuration, process it                */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+processKeyword( CONFIGTABLE *tptr,
+                char *cp )
+{
+   char **varPtr = tptr->loc;
+
+/*--------------------------------------------------------------------*/
+/*                      Handle obsolete options                       */
+/*--------------------------------------------------------------------*/
+
+   if (tptr->flag & B_OBSOLETE)
+   {
+      printmsg(2,"Obsolete keyword \"%s\" ignored.", tptr->sym );
+      return KWFalse;
+   }
+
+/*--------------------------------------------------------------------*/
+/*          Handle options for which no storage is allocated          */
+/*--------------------------------------------------------------------*/
+
+   if ( tptr->loc == 0 )
+   {
+
+#ifdef UDEBUG
+      printmsg(10,"Dummy entry %s ignored.", tptr->sym );
+#endif
+      return KWFalse;
+
+   }
+
+/*--------------------------------------------------------------------*/
+/*                       Handle integer values                        */
+/*--------------------------------------------------------------------*/
+
+   if (tptr->flag & (B_SHORT|B_LONG))
+   {
+      long foo;
+      cp = strtok(cp,WHITESPACE);
+
+      if ( equal(cp,"0"))
+         foo = 0;
+      else {
+
+         foo = atol(cp);
+
+         if ( foo == 0)
+         {
+            printmsg(0,
+               "Unable to convert \"%s\" value \"%s\" to integer",
+               tptr->sym, cp);
+
+            return KWFalse;
+
+         } /* if */
+
+      } /* else */
+
+#ifdef UDEBUG
+      printmsg(10,"Assigning keyword %s numeric value %ld",
+                   tptr->sym,
+                   foo );
+#endif
+
+      if (tptr->flag & B_LONG)
+         *((long *) tptr->loc) = foo;
+      else
+         *((KEWSHORT *) tptr->loc) = (KEWSHORT) foo;
+
+      return KWTrue;
+
+   } /* if (tptr->flag & (B_SHORT|B_LONG)) */
+
+/*--------------------------------------------------------------------*/
+/*       Begin processing character types:  lists, strings,           */
+/*       tokens, and single characters                                */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+      printmsg(10,"Assigning keyword %s string value \"%s\"",
+                   tptr->sym,
+                   cp );
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                       Handle lists of tokens                       */
+/*--------------------------------------------------------------------*/
+
+   if (tptr->flag & (B_LIST | B_CLIST))
+   {
+      char **list = malloc( (MAXLIST+1) * sizeof (*list));
+      char *colon;
+      int words;
+
+      checkref( list );
+
+      if (tptr->flag & B_CLIST)  /* Use colon as delimiter?  */
+      {
+         while ( (colon = strchr( cp , ':')) != NULL)
+            *colon = ' ';     /* Make colons spaces ...      */
+      }
+
+      words = getargs(cp, list);
+
+      if( words > MAXLIST)
+         panic();
+
+      if (words > 0)
+      {
+         if ( *(varPtr) )
+            free( *(varPtr) );
+
+         list = realloc( list, (size_t) (words+1) * sizeof(*list));
+         checkref( list );
+         *(varPtr) = (char *) list;
+         list[words] = NULL;
+
+         while( *list != NULL)
+         {
+
+            if (strlen(*list))
+            {
+               *list = newstr(*list);
+               checkref( *list++ );
+            }
+            else
+               *list++ = "";
+
+         } /* while */
+
+      } /* if (words > 0) */
+      else {
+
+         printmsg(0,"No parameters given for keyword \"%s\"",
+                  tptr->sym);
+
+         return KWFalse;
+
+      } /* else */
+
+      return KWTrue;
+
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*                  Handle single tokens and strings                  */
+/*--------------------------------------------------------------------*/
+
+   while( *cp == ' ' )     /* Trim leading whitespace     */
+      cp++;
+
+   if (*cp == '\0')
+   {
+      printmsg(0,"No parameter given for keyword \"%s\""
+               ", ignored.",
+               tptr->sym);
+
+      return KWFalse;
+   } /* if */
+
+   if (tptr->flag & (B_TOKEN|B_CHAR))  /* One word value?   */
+      cp = strtok(cp,WHITESPACE); /* Yes --> Tokenize */
+
+   if (tptr->flag & B_NORMAL)  /* Normalize path?     */
+      cp = normalize( cp );
+
+   if (tptr->flag & B_CHAR )   /* Simple character?   */
+   {
+      if ( strlen( cp ) > 1 )
+      {
+         printmsg(0,"Keyword %s value \"%s\" "
+                    "length exceeds one character",
+                    tptr->sym,
+                    cp );
+         return KWFalse;
+      }
+      else
+         *((char *) tptr->loc) = *cp;
+
+   } /* if (tptr->flag & B_CHAR ) */
+   else if (tptr->flag & B_MALLOC)  /* Allocate normally?  */
+   {
+      *(varPtr) = strdup(cp);    /* Save string           */
+
+      checkref( *(varPtr) );     /* Verify malloc()       */
+   }
+   else
+      *(varPtr) = newstr(cp);    /* Save string           */
+
+   return KWTrue;
+
+}  /* processKeyword */
+
+/*--------------------------------------------------------------------*/
 /*    p r o c e s s c o n f i g                                       */
 /*                                                                    */
 /*    Handle a single line of a configuration file                    */
 /*--------------------------------------------------------------------*/
 
-KWBoolean processconfig(char *buff,
-                  SYSMODE sysmode,
-                  CONFIGBITS program,
-                  CONFIGTABLE *table,
-                  FLAGTABLE *btable)
+KWBoolean
+processconfig( char *buff,
+               SYSMODE sysmode,
+               CONFIGBITS program,
+               CONFIGTABLE *table,
+               const size_t tableSize,
+               FLAGTABLE *btable)
 {
-   CONFIGTABLE *tptr;
+   CONFIGTABLE *tptr = NULL;
    char *cp;
    char *period;
    char *keyword;
    ENV_TYPE target_env;
+
+   int lower = 0;
+   int upper = (int) tableSize - 1;
 
 /*--------------------------------------------------------------------*/
 /*                break out the keyword from its value                */
@@ -515,9 +802,11 @@ KWBoolean processconfig(char *buff,
    {
       printmsg(0,"Missing equals sign after keyword \"%s\", ignored",
                   buff);
-      return KWTrue;
+      return KWFalse;
    }
+
    *cp++ = '\0';
+
    strlwr(buff);
 
 /*--------------------------------------------------------------------*/
@@ -534,292 +823,106 @@ KWBoolean processconfig(char *buff,
    }
    else {
 
-      typedef struct _ENVLIST
-      {
-         char *name;
-         ENV_TYPE value;
-      } ENVLIST;
-
-      static ENVLIST envtable[] =
-      {
-         { "dos",      ENV_DOS      },
-         { "16bit",    ENV_BIT16    },
-         { "32bit",    ENV_BIT32    },
-         { "32bitos2", ENV_OS2_16BIT},
-         { "16bitos2", ENV_OS2_32BIT},
-         { "os2",      ENV_OS2      },
-         { "win32",    ENV_WIN_32BIT},
-         { "win16",    ENV_WIN_16BIT},
-         { "32bitwin", ENV_WIN_32BIT},
-         { "16bitwin", ENV_WIN_16BIT},
-         { "win",      ENV_WIN      },
-         { NULL,       ENV_UNKNOWN  }
-       };
-
       short subscript = 0;
 
       *keyword++ = '\0';      /* Terminate environment string         */
       target_env = ENV_UNKNOWN;
 
-      while( envtable[subscript].name != NULL)
+      while( osEnvTable[subscript].name != NULL)
       {
-         if (equal( envtable[subscript].name, buff ))
+
+         if (equal( osEnvTable[subscript].name, buff ))
          {
-            target_env = envtable[subscript].value;
+            target_env = osEnvTable[subscript].value;
             break;
          }
          else
             subscript ++;
+
       } /* while */
 
       if ( target_env == ENV_UNKNOWN )
       {
          printmsg(0,"Unknown environment \"%s\", keyword \"%s\" ignored",
                buff, keyword );
-         return KWFalse;
+
+         return KWTrue;
       }
 
    } /* else */
 
+   if ( period != NULL )
+      *period = '.';
+
 /*--------------------------------------------------------------------*/
-/*       Core loop to scan for keyword and process its value into     */
-/*       our configuration                                            */
+/*            Binary search to locate keyword in the table            */
 /*--------------------------------------------------------------------*/
 
-   for (tptr = table; tptr->sym != nil(char); tptr++)
+   while( (tptr == NULL) && (lower <= upper) )
    {
-      KWBoolean error = KWFalse;
-      char **varPtr = tptr->loc;
+      int midpoint = ( lower + upper ) / 2;
+      int hit = strcmp( keyword, table[midpoint].sym );
 
-      if (equal(keyword, tptr->sym))
-      {
+      if (hit > 0)
+         lower = midpoint + 1;
+      else if (hit < 0)
+         upper = midpoint - 1;
+      else
+         tptr = &table[midpoint];
+   }
+
+   if ( tptr == NULL )              /* Search fail?                  */
+      return KWFalse;               /* Yes, report same to caller    */
 
 /*--------------------------------------------------------------------*/
 /*            Skip the keyword because of the environment?            */
 /*--------------------------------------------------------------------*/
 
-        if (!(((unsigned long) active_env) & (unsigned long) target_env) )
-            printmsg(2,"%s-environment keyword \"%s\" skipped.",
-                        strupr(buff), keyword);
-
-/*--------------------------------------------------------------------*/
-/*                      Handle obsolete options                       */
-/*--------------------------------------------------------------------*/
-
-        else if (tptr->flag & B_OBSOLETE)
-            printmsg(2,"Obsolete keyword \"%s\" ignored.", keyword);
-
-/*--------------------------------------------------------------------*/
-/*          Handle options for which no storage is allocated          */
-/*--------------------------------------------------------------------*/
-
-        else if ( tptr->loc == 0 )
-        {
-#ifdef UDEBUG
-            printmsg(10,"Dummy entry %s ignored.", keyword );
-#endif
-        }
+   if (!(((unsigned long) active_env) & (unsigned long) target_env) )
+   {
+       printmsg(2,"%s-environment keyword \"%s\" skipped.",
+                   strupr(buff), keyword);
+       return KWTrue;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                  Handle mis-placed system options                  */
 /*--------------------------------------------------------------------*/
 
-        else if ((tptr->flag & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
-            printmsg(0,
-               "User specified system keyword \"%s\" ignored.",
-               keyword);
+   if ((tptr->flag & B_GLOBAL) && (sysmode != SYSTEM_CONFIG))
+   {
+       printmsg(0,
+          "User specified system keyword \"%s\" ignored.",
+          keyword);
+       return KWTrue;
+   }
 
 /*--------------------------------------------------------------------*/
 /*       Skip options we don't need for this particular program       */
 /*--------------------------------------------------------------------*/
 
-         else if (program && !(tptr->program & program))
-         {
-                  /* No operation if we don't need the keyword    */
-         }
+   if (program && !(tptr->program & program))
+   {
+      tptr->flag |= B_FOUND;
+      return KWTrue;                /* No operation if we don't need
+                                       the keyword                   */
+   }
 
 /*--------------------------------------------------------------------*/
 /*                       Handle Boolean options                       */
 /*--------------------------------------------------------------------*/
 
-         else if (tptr->flag & B_BOOLEAN )
-            options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
+   if (tptr->flag & B_BOOLEAN )
+      options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
 
 /*--------------------------------------------------------------------*/
-/*                       Handle integer values                        */
+/*                        Process the keyword                         */
 /*--------------------------------------------------------------------*/
 
-         else if (tptr->flag & (B_SHORT|B_LONG))
-         {
-            long foo;
-            cp = strtok(cp,WHITESPACE);
+  else if (processKeyword( tptr, cp ))
+     tptr->flag |= B_FOUND;
 
-            if ( equal(cp,"0"))
-               foo = 0;
-            else {
-
-               foo = atol(cp);
-
-               if ( foo == 0)
-               {
-                  printmsg(0,
-                     "Unable to convert \"%s\" value \"%s\" to integer",
-                     keyword, cp);
-                  error = KWTrue;
-
-               } /* if */
-
-            } /* else */
-
-#ifdef UDEBUG
-            printmsg(10,"Assigning keyword %s numeric value %ld",
-                         tptr->sym,
-                         foo );
-#endif
-
-            if (tptr->flag & B_LONG)
-               *((long *) tptr->loc) = foo;
-            else
-               *((KEWSHORT *) tptr->loc) = (KEWSHORT) foo;
-
-         } /* else if (tptr->flag & (B_SHORT|B_LONG)) */
-
-/*--------------------------------------------------------------------*/
-/*       Begin processing character types:  lists, strings,           */
-/*       tokens, and single characters                                */
-/*--------------------------------------------------------------------*/
-
-         else {
-#ifdef UDEBUG
-            printmsg(10,"Assigning keyword %s string value \"%s\"",
-                         tptr->sym,
-                         cp );
-#endif
-
-/*--------------------------------------------------------------------*/
-/*                       Handle lists of tokens                       */
-/*--------------------------------------------------------------------*/
-
-            if (tptr->flag & (B_LIST | B_CLIST))
-            {
-               char **list = malloc( (MAXLIST+1) * sizeof (*list));
-               char *colon;
-               int words;
-
-               checkref( list );
-
-               if (tptr->flag & B_CLIST)  /* Use colon as delimiter?  */
-               {
-                  while ( (colon = strchr( cp , ':')) != NULL)
-                     *colon = ' ';     /* Make colons spaces ...      */
-               }
-
-               words = getargs(cp, list);
-
-               if( words > MAXLIST)
-                  panic();
-
-               if (words > 0)
-               {
-                  if ( *(varPtr) )
-                     free( *(varPtr) );
-
-                  list = realloc( list, (size_t) (words+1) * sizeof(*list));
-                  checkref( list );
-                  *(varPtr) = (char *) list;
-                  list[words] = NULL;
-
-                  while( *list != NULL)
-                  {
-
-                     if (strlen(*list))
-                     {
-                        *list = newstr(*list);
-                        checkref( *list++ );
-                     }
-                     else
-                        *list++ = "";
-
-                  } /* while */
-
-               } /* if (words > 0) */
-               else {
-
-                  printmsg(0,"No parameters given for keyword \"%s\"",
-                           keyword);
-
-                  error = KWTrue;
-
-               } /* else */
-
-            } /* else if */
-
-/*--------------------------------------------------------------------*/
-/*                  Handle single tokens and strings                  */
-/*--------------------------------------------------------------------*/
-
-            else {
-
-               while( *cp == ' ' )     /* Trim leading whitespace     */
-                  cp++;
-
-               if (*cp == '\0')
-               {
-                  error = KWTrue;
-                  printmsg(0,"No parameter given for keyword \"%s\""
-                           ", ignored.",
-                           keyword);
-               } /* if */
-
-               if (tptr->flag & (B_TOKEN|B_CHAR))  /* One word value?   */
-                  cp = strtok(cp,WHITESPACE); /* Yes --> Tokenize */
-
-               if (tptr->flag & B_NORMAL)  /* Normalize path?     */
-                  cp = normalize( cp );
-
-               if (tptr->flag & B_CHAR )   /* Simple character?   */
-               {
-                  if ( strlen( cp ) > 1 )
-                  {
-                     printmsg(0,"Keyword %s value \"%s\" "
-                                "length exceeds one character",
-                                keyword,
-                                cp );
-                     error = KWTrue;
-                  }
-                  else
-                     *((char *) tptr->loc) = *cp;
-
-               } /* if (tptr->flag & B_CHAR ) */
-               else if (tptr->flag & B_MALLOC)  /* Allocate normally?  */
-               {
-                  *(varPtr) = strdup(cp);    /* Save string           */
-                  checkref( *(varPtr) );     /* Verify malloc()       */
-               }
-               else
-                  *(varPtr) = newstr(cp);    /* Save string           */
-
-            } /* else */
-
-         } /* else */
-
-         if (!error)
-            tptr->flag |= B_FOUND;
-
-         return KWTrue;        /* Report we found the keyword      */
-
-      } /* if (equal(keyword, tptr->sym)) */
-
-   } /* for */
-
-/*--------------------------------------------------------------------*/
-/*      We didn't find the keyword; report failure to the caller      */
-/*--------------------------------------------------------------------*/
-
-   if ( period )
-      *period = '.';          /* Restore period in keyword           */
-
-   return KWFalse;
+  return KWTrue;
 
 } /* processconfig */
 
@@ -833,6 +936,7 @@ KWBoolean getconfig(FILE *fp,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
+                  const size_t tableSize,
                   FLAGTABLE *btable)
 {
 
@@ -861,6 +965,7 @@ KWBoolean getconfig(FILE *fp,
 /*--------------------------------------------------------------------*/
 
       cp = buff;
+
       while( isspace( *cp ) )
          cp ++ ;
 
@@ -868,16 +973,24 @@ KWBoolean getconfig(FILE *fp,
 /*                 If line was not blank, process it.                 */
 /*--------------------------------------------------------------------*/
 
-      if ( (*cp != '\0') && !processconfig(cp,sysmode,program,table,btable))
-         printmsg(0,
+     if (*cp != '\0')
+     {
+        if ( ! processconfig( cp,
+                              sysmode,
+                              program,
+                              table,
+                              tableSize,
+                              btable) )
+            printmsg(0,
                "Unknown keyword \"%s\" in %s configuration file ignored",
                buff, sysmode ? "system" : "user");
+     }
 
-   } /*while*/
+   } /* while */
 
    return KWTrue;
 
-} /*getconfig*/
+} /* getconfig */
 
 /*--------------------------------------------------------------------*/
 /*    o p t i o n s                                                   */
@@ -885,7 +998,8 @@ KWBoolean getconfig(FILE *fp,
 /*    Process a line of KWBoolean option flags.                        */
 /*--------------------------------------------------------------------*/
 
-void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
+void
+options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
 {
    char *token;
 
@@ -950,51 +1064,6 @@ KWBoolean configure( CONFIGBITS program)
    int subscript = 0;
    char *s;
 
-   CONFIGTABLE *tptr;
-
-   typedef struct _ENVNAMES
-   {
-      char *envName;
-      char *confName;
-   } ENVNAMES;
-
-   static ENVNAMES envlist[] =
-   {
-      { "EDITOR",   "EDITOR"   },
-      { "HOME",     "HOME"     },
-      { "NAME",     "NAME"     },
-      { "HOSTNAME", "NODENAME" },   /* Useful for OS/2 TCP/IP        */
-      { "MAILBOX",  "MAILBOX"  },
-      { "LOGNAME",  "MAILBOX"  },   /* Same as RCS                   */
-      { "USER",     "MAILBOX"  },   /* Useful for OS/2 TCP/IP        */
-      { "USERNAME", "MAILBOX"  },   /* Useful for NT                 */
-      { "TEMP",     "TEMPDIR"  },
-      { "TMP",      "TEMPDIR"  },
-      { "TZ",       "TZ",      },
-      { NULL }
-   } ;
-
-   typedef struct _DEFAULTS
-   {
-      char **value;
-      char *literal;
-      KWBoolean path;
-   } DEFAULTS;
-
-   static DEFAULTS deflist[] =
-   {
-      {&E_archivedir,   "archive" , KWTrue },
-      {&E_maildir,      "mail"    , KWTrue },
-      {&E_newsdir,      "news"    , KWTrue },
-      {&E_pubdir,       "public"  , KWTrue },
-      {&E_spooldir,     "spool"   , KWTrue },
-      {&E_tempdir,      "tmp"     , KWTrue },
-      {&E_systems,      "systems" , KWTrue },
-      {&E_passwd,       "passwd"  , KWTrue },
-      {&E_permissions,  "permissn", KWTrue },
-      { NULL  }
-   } ;
-
 /*--------------------------------------------------------------------*/
 /*     In Windows/NT, set the console input mode to non-linebased     */
 /*--------------------------------------------------------------------*/
@@ -1018,24 +1087,25 @@ KWBoolean configure( CONFIGBITS program)
 /*          Extract selected variables from our environment           */
 /*--------------------------------------------------------------------*/
 
-   for ( subscript = 0; envlist[subscript].envName != NULL; subscript++ )
+   for ( subscript = 0; envVarList[subscript].envName != NULL; subscript++ )
    {
-      s = getenv( envlist[subscript].envName );
+      s = getenv( envVarList[subscript].envName );
 
       if (s != NULL )
       {
-         sprintf(buf,"%s=%s", envlist[subscript].confName, s );
+         sprintf(buf,"%s=%s", envVarList[subscript].confName, s );
          printmsg(5,"Inserting environment variable %s as %s",
                      s, buf );
 
          if ( !processconfig( buf,
                               SYSTEM_CONFIG,
                               program,
-                              envtable,
+                              rcTable,
+                              rcTableSize,
                               configFlags))
          {
             printmsg(0,"Internal error: Invalid keyword %s",
-                       envlist[subscript].confName  );
+                       envVarList[subscript].confName  );
             panic();
          }
 
@@ -1087,7 +1157,12 @@ KWBoolean configure( CONFIGBITS program)
 
    PushDir( E_confdir );
 
-   success = getconfig(fp, SYSTEM_CONFIG, program, envtable, configFlags);
+   success = getconfig(fp,
+                       SYSTEM_CONFIG,
+                       program,
+                       rcTable,
+                       rcTableSize,
+                       configFlags);
 
    fclose(fp);
    if (!success)
@@ -1110,7 +1185,12 @@ KWBoolean configure( CONFIGBITS program)
          return KWFalse;
       }
 
-      success = getconfig(fp, USER_CONFIG, program, envtable, configFlags);
+      success = getconfig(fp,
+                           USER_CONFIG,
+                           program,
+                           rcTable,
+                           rcTableSize,
+                           configFlags);
       fclose(fp);
 
       if (!success)
@@ -1129,7 +1209,7 @@ KWBoolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes and Compilation Copyright (c) 1989-1995 by Kendra Electronic\n"
+"Changes and Compilation Copyright (c) 1989-1996 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");
@@ -1138,14 +1218,14 @@ KWBoolean configure( CONFIGBITS program)
 /*          Validate that all required parameters were given          */
 /*--------------------------------------------------------------------*/
 
-   for (tptr = envtable; tptr->sym != nil(char); tptr++)
+   for (subscript = 0; subscript < rcTableSize; subscript++ )
    {
 
-      if ((tptr->flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
+      if ((rcTable[subscript].flag & (B_REQUIRED | B_FOUND)) == B_REQUIRED)
       {
          printmsg(0, "%s configuration parameter \"%s\" must be set.",
-            (tptr->flag & B_GLOBAL) ? "System" : "User",
-            tptr->sym);
+            (rcTable[subscript].flag & B_GLOBAL) ? "System" : "User",
+            rcTable[subscript].sym);
          success = KWFalse;
       } /* if */
 
@@ -1156,12 +1236,13 @@ KWBoolean configure( CONFIGBITS program)
 /*--------------------------------------------------------------------*/
 
    subscript = 0;
-   while( deflist[subscript].value != NULL )
+
+   while( directoryList[subscript].value != NULL )
    {
-      if ( *(deflist[subscript].value) == NULL )
-         *(deflist[subscript].value) = deflist[subscript].path ?
-                     newstr( normalize(deflist[subscript].literal) ) :
-                     deflist[subscript].literal;
+      if ( *(directoryList[subscript].value) == NULL )
+         *(directoryList[subscript].value) = directoryList[subscript].path ?
+                     newstr( normalize(directoryList[subscript].literal) ) :
+                     directoryList[subscript].literal;
       subscript++;
    }
 
@@ -1200,7 +1281,7 @@ KWBoolean getrcnames(char **sysp,char **usrp)
 #endif
    )
    {
-      printf("environment variable %s must be specified\n", SYSRCSYM);
+      printf("Environment variable %s must be specified\n", SYSRCSYM);
       return KWFalse;
    }
 
@@ -1235,7 +1316,6 @@ KWBoolean IsDOS( void )
 
 } /* IsDOS */
 
-
 #if defined(WIN32)
 static HKEY uupcMachineKey = INVALID_HANDLE_VALUE;
 static HKEY uupcUserKey = INVALID_HANDLE_VALUE;
@@ -1252,6 +1332,7 @@ char *getregistry(char *envName, char **value)
    if (uupcMachineKey == INVALID_HANDLE_VALUE)
    {
       result = RegOpenKey(HKEY_LOCAL_MACHINE, REGISTRYHIVE, &uupcMachineKey);
+
       if (result != ERROR_SUCCESS)
       {
          printmsg(2, "getregistry: could not open LOCAL_MACHINE hive");
