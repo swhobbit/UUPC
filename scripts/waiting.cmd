@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1990-1992 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1994 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: WAITING.CMD 1.6 1993/04/04 05:01:49 ahd Exp $
+ *       $Id: waiting.cmd 1.7 1994/02/13 04:56:14 ahd Exp $
  *
- *       $Log: WAITING.CMD $
+ *       $Log: waiting.cmd $
+ *       Revision 1.7  1994/02/13  04:56:14  ahd
+ *       Sort mailboxes by name
+ *
  *Revision 1.6  1993/04/04  05:01:49  ahd
  *Use common getuupc.cmd for variable retrieval
  *

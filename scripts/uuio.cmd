@@ -1,11 +1,15 @@
 /*
- *       $Id$
+ *       $Id: uuio.cmd 1.2 1994/04/26 03:32:25 ahd Exp $
  *
- *       $Log$
+ *       $Log: uuio.cmd $
+ *       Revision 1.2  1994/04/26  03:32:25  ahd
+ *       Don't print status if hot handle on command line (speeds
+ *       up TCP/IP starts from INETD)
+ *
  */
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1990-1994 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1994 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
