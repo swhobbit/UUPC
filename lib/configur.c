@@ -24,10 +24,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFIGUR.C 1.10 1993/04/15 03:17:21 ahd Exp $
+ *    $Id: CONFIGUR.C 1.11 1993/05/09 03:49:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.11  1993/05/09  03:49:21  ahd
+ *     Support banner, motd strings
+ *     Support longname, honordebug, senddebug options
+ *
  *     Revision 1.10  1993/04/15  03:17:21  ahd
  *     Add bounce system option
  *
@@ -98,6 +102,8 @@ char *E_archivedir = NULL;
 char *E_backup = NULL;
 char *E_banner = NULL;
 char *E_charset = NULL;
+char *E_passwd  = NULL;
+char *E_systems = NULL;
 char *E_confdir = NULL;
 char *E_domain = NULL;
 char *E_editor = NULL;
@@ -196,6 +202,8 @@ static CONFIGTABLE envtable[] = {
    {"rnews",        &dummy,          B_OBSOLETE },
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
    {"spooldir",     &E_spooldir,     B_GLOBAL|B_PATH|B_ALL},
+   {"systems",      &E_systems,      B_GLOBAL|B_PATH|B_ALL},
+   {"passwd",       &E_passwd,       B_GLOBAL|B_PATH|B_ALL},
    {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
@@ -594,6 +602,8 @@ boolean configure( CONFIGBITS program)
         {&E_pubdir,       "public"  },
         {&E_spooldir,     "spool"   },
         {&E_tempdir,      "tmp"     },
+        {&E_systems,      SYSNAME   },
+        {&E_passwd,       PASSNAME  },
         { NULL  }
         } ;
 
