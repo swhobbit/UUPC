@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.55 1995/02/14 04:38:42 ahd Exp $
+ *       $Id: rnews.c 1.56 1995/02/15 01:56:18 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.56  1995/02/15 01:56:18  ahd
+ *       Allow concurrent exploiting of NNS. SNEWS, and SYS file support
+ *
  *       Revision 1.55  1995/02/14 04:38:42  ahd
  *       Correct problems with directory processing under NT
  *
@@ -33,7 +36,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.55 1995/02/14 04:38:42 ahd Exp $";
+         "$Id: rnews.c 1.56 1995/02/15 01:56:18 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -439,7 +442,7 @@ main( int argc, char **argv)
 
       sprintf( workName, "%s\\SYS", E_confdir );
 
-      if ( access( workName, 0 ))
+      if ( access( workName, 0 ) && (getenv( "UUPCSHADOWS" ) == NULL ))
       {
          if ( debuglevel > 2 )
             printerr( workName );
