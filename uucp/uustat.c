@@ -716,14 +716,12 @@ static CALLTYPE open_call( const char *callname,
 {
    FILE *stream;
    char buf[BUFSIZ];
-   struct data_queue *current;
+   struct data_queue *current = NULL;
    CALLTYPE this_call = POLL_CALL;
 
    char host[FILENAME_MAX];
    char type[FILENAME_MAX], fname[FILENAME_MAX], tname[FILENAME_MAX];
    char flgs[FILENAME_MAX], dname[FILENAME_MAX];
-
-   current = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                    Open the file for processing                    */
@@ -785,6 +783,10 @@ static CALLTYPE open_call( const char *callname,
 
             if ( this_call == SEND_CALL )
             {
+               time_t created;
+               long size;
+               created   = stater( host,  &size);
+
                if (equal(dname, "D.0"))
                   importpath( host, fname, remote );
                else
@@ -793,8 +795,10 @@ static CALLTYPE open_call( const char *callname,
                switch  ( action )
                {
                   case JOB_STATUS:
-                     current->created   = stater( host,  &current->size);
-                     if ((current->created != -1) &&
+                     current->created = created;
+                     current->size    = size;
+
+                     if ((created != -1) &&
                          (equaln(tname ,"X.",2)))  /* Execute file?  */
                      {
                         open_data( host, user, sys, current->name );
@@ -807,7 +811,7 @@ static CALLTYPE open_call( const char *callname,
                      break;
 
                   case JOB_KILL:
-                     if ((current->created != -1) && !equal(dname, "D.0"))
+                     if ((created != -1) && !equal(dname, "D.0"))
                      {
                         unlink( host );
                         printf("Deleted file %s (%s)\n", dname, host);
@@ -815,7 +819,7 @@ static CALLTYPE open_call( const char *callname,
                      break;
 
                   case JOB_REFRESH:
-                     if ((current->created != -1) && !equal(dname, "D.0"))
+                     if ((created != -1) && !equal(dname, "D.0"))
                         touch( host );
                      break;
 
