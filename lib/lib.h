@@ -1,13 +1,13 @@
 /*--------------------------------------------------------------------*/
-/*      l i b . h                                                     */
+/*       l i b . h                                                    */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.9  1993/07/19  02:53:32  ahd
+ *     Update copyright year'
+ *
  *     Revision 1.8  1993/06/13  14:12:29  ahd
  *     Changes per Mike McLagan for outbound batched news support
  *
@@ -60,6 +63,7 @@
 #define UU_MACHINE "UU_MACHINE"
 #define LOGNAME "LOGNAME"
 #define RMAIL   "rmail"
+#define RNEWS   "rnews"
 
 /*--------------------------------------------------------------------*/
 /*                   Global configuration variables                   */
@@ -277,6 +281,12 @@ extern   char *copywrong;
 extern   long *lowcore;
 #endif   /* defined(__CORE__)   */
 
-#define msdos                 /* Required by dain bramaged compiler  */
+/*--------------------------------------------------------------------*/
+/*     This triggers a "nice" break into the debugger under BC++      */
+/*--------------------------------------------------------------------*/
+
+#ifdef __TURBOC__
+#define BREAKPOINT   _asm INT 3
+#endif
 
 #endif   /* ifndef __LIB */

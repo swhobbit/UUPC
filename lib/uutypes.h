@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUTYPES.H 1.5 1993/05/30 00:11:03 ahd Exp $
+ *    $Id: uutypes.h 1.6 1993/06/13 14:12:29 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUTYPES.H $
+ *    $Log: uutypes.h $
+ *     Revision 1.6  1993/06/13  14:12:29  ahd
+ *     Changes per Mike McLagan for outbound batched news support
+ *
  *     Revision 1.5  1993/05/30  00:11:03  ahd
  *     Add UUFAR (far modifier)
  *
@@ -41,7 +44,7 @@
 /*         Define unique FAR keyword for selected memory hogs         */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_Windows)
 #define UUFAR
 #else
 #ifdef __TURBOC__

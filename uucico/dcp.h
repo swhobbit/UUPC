@@ -24,7 +24,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: DCP.H 1.4 1993/05/30 00:19:06 ahd Exp $
  *      Mon May 15 19:54:43 1989 change portactive to port_active
  *      Mon May 15 19:51:13 1989 Add portactive flag
  *      19 Mar 1990  Add hostable.h header                           ahd
@@ -44,8 +44,8 @@
 #define RECV_BUF 4096         /* COMMFIFO Buffer size                */
 #endif
 
-#define ERROR   10
-#define EMPTY   11
+#define DCP_ERROR   10
+#define DCP_EMPTY   11
 
 /*--------------------------------------------------------------------*/
 /*    Define high level state machine levels.  These levels define    */
@@ -106,9 +106,9 @@ typedef enum {
       XFER_EXIT               /* Return to caller                    */
       } XFER_STATE ;
 
-#define RETRY   (-2)
-#define FAILED  (-1)
-#define OK              0
+#define DCP_RETRY   (-2)
+#define DCP_FAILED  (-1)
+#define DCP_OK      0
 
 typedef short   (*procref)();
 
