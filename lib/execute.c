@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.17 1993/11/13 17:37:02 ahd Exp $
+ *    $Id: execute.c 1.18 1993/11/14 20:51:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.18  1993/11/14  20:51:37  ahd
+ * Correct Windows 3.1 compile error
+ *
  * Revision 1.17  1993/11/13  17:37:02  ahd
  * Only use system() call for CMD files under OS/2
  *
@@ -89,9 +92,7 @@
 #include <process.h>
 #include <io.h>
 
-#ifdef WIN32
-#include <windows.h>
-#elif defined(WIN32)
+#if defined(WIN32)
 #include <windows.h>
 #include <signal.h>
 #elif defined(__OS2__) || defined(FAMILYAPI)
@@ -134,7 +135,7 @@ static boolean internal( const char *command );
 
 static boolean batch( const char *input, char *output);
 
-#if defined(__OS2__) || defined(FAMILYAPI)
+#if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
 
 static int executeAsync( const char *command,
                          const char *parameters,
@@ -282,191 +283,6 @@ int execute( const char *command,
 
 } /* execute */
 
-#elif defined(WIN32)
-
-/*--------------------------------------------------------------------*/
-/*    e x e c u t e                             (Windows NT version)  */
-/*                                                                    */
-/*    Execute an external program                                     */
-/*--------------------------------------------------------------------*/
-
-int execute( const char *command,
-             const char *parameters,
-             const char *input,
-             const char *output,
-             const boolean synchronous,
-             const boolean foreground )
-{
-   int result;
-   char path[BUFSIZ];
-
-/*--------------------------------------------------------------------*/
-/*                    Validate command redirection                    */
-/*--------------------------------------------------------------------*/
-
-   if ( ((input != NULL) || (output != NULL)) && ! synchronous )
-   {
-      printerr( "execute: Internal error, cannot redirect asynchronous command %s",
-                 command );
-      panic();
-   }
-
-/*--------------------------------------------------------------------*/
-/*               Redirect STDIN and STDOUT as required                */
-/*--------------------------------------------------------------------*/
-
-   if ((input != NULL) && (freopen(input , "rb", stdin) == NULL))
-   {
-      printerr(input);
-      return -2;
-   }
-
-   if ((output != NULL) && (freopen(output, "wt", stdout) == NULL))
-   {
-      printerr( output );
-      if ( input != NULL )
-      {
-         FILE *temp = freopen("con", "rt", stdin);
-
-         if ( (temp == NULL) && (errno != 0) )
-         {
-            printerr("stdin");
-            panic();
-         }
-         setvbuf( stdin, NULL, _IONBF, 0);
-
-      } /* if ( input != NULL ) */
-      return -2;
-   }
-
-/*--------------------------------------------------------------------*/
-/*                  Execute the command in question                   */
-/*--------------------------------------------------------------------*/
-
-   strcpy(path, command);
-
-   if (internal(path) ||
-       batch(command, path))        /* Internal or batch command?     */
-   {
-
-      if ( parameters == NULL )
-         result = system( path );
-      else {
-
-         strcat( path, " ");
-         strcat( path, parameters );
-
-         result = system( path );
-
-      } /* else */
-
-   } /* if (internal(command)) */
-   else  {                       /* No --> Invoke normally            */
-      STARTUPINFO si;
-      PROCESS_INFORMATION pi;
-      void *oldCtrlCHandler;
-
-      if ( ! *path )                /* Did search fail?               */
-         return -2;                 /* Yes --> Msg issued, just return */
-
-      memset(&si, 0, sizeof(STARTUPINFO));
-      si.cb = sizeof(STARTUPINFO);
-      si.lpTitle = (LPSTR)command;
-      si.dwFlags = STARTF_USESHOWWINDOW;
-      si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
-
-      if (parameters != NULL)
-      {
-         strcat( path, " ");
-         strcat( path, parameters );
-      }
-
-      result = CreateProcess(NULL,
-                             path,
-                             NULL,
-                             NULL,
-                             TRUE,
-                             0,
-                             NULL,
-                             NULL,
-                             &si,
-                             &pi);
-
-      if (!result)                  /* Did CreateProcess() fail?      */
-      {                             /* Yes --> Report error           */
-         DWORD dwError = GetLastError();
-         printmsg(0, "execute:  CreateProcess failed");
-         printNTerror("CreateProcess", dwError);
-      }
-      else {
-
-         if (synchronous)
-         {
-
-/*--------------------------------------------------------------------*/
-/*       Set things up so that we ignore Ctrl-C's coming in to the    */
-/*       child, and wait for other application to finish.             */
-/*--------------------------------------------------------------------*/
-
-            oldCtrlCHandler = signal(SIGINT, SIG_IGN);
-
-            WaitForSingleObject(pi.hProcess, INFINITE);
-            GetExitCodeProcess(pi.hProcess, &result);
-
-            signal(SIGINT, oldCtrlCHandler); /* Re-enable Ctrl-C handling */
-
-         }  /* if (synchronous) */
-         else
-            result = 0;
-
-/*--------------------------------------------------------------------*/
-/*       If we're spawning asynchronously, we assume that we don't    */
-/*       care about the exit code from the spawned process.           */
-/*       Closing these makes it impossible to get at the old          */
-/*       process's exit code.                                         */
-/*--------------------------------------------------------------------*/
-
-         CloseHandle(pi.hProcess);
-         CloseHandle(pi.hThread);
-
-      } /* else !result */
-
-   } /* else internal command */
-
-/*--------------------------------------------------------------------*/
-/*                  Re-open our standard i/o streams                  */
-/*--------------------------------------------------------------------*/
-
-   if ( output != NULL )
-   {
-      freopen("con", "wt", stdout);
-      setvbuf( stdout, NULL, _IONBF, 0);
-   }
-
-   if ( input != NULL )
-   {
-      FILE *temp = freopen("con", "rt", stdin);
-
-      if ( (temp == NULL) && (errno != 0) )
-      {
-         printerr("stdin");
-         panic();
-      }
-
-      setvbuf( stdin, NULL, _IONBF, 0);
-
-   } /* if ( input != NULL ) */
-
-/*--------------------------------------------------------------------*/
-/*                     Report results of command                      */
-/*--------------------------------------------------------------------*/
-
-   printmsg( 4 ,"Result of spawn %s is ... %d", command, result);
-
-   return result;
-
-} /* execute */
-
 #else
 
 #if _MSC_VER >= 700
@@ -474,7 +290,7 @@ int execute( const char *command,
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       e x e c u t e                       (OS/2 + DOS version)     */
+/*       e x e c u t e                 (OS/2, DOS, and NT version)    */
 /*                                                                    */
 /*       Generic execute external command with optional redirection   */
 /*       of standard input and output                                 */
@@ -566,15 +382,17 @@ int execute( const char *command,
       result = executeAsync( path, parameters, synchronous, foreground );
 #endif
    else {
-
+#ifdef WIN32
+      result = executeAsync( path, parameters, synchronous, foreground );
+#else
       result = spawnlp( P_WAIT,
                         (char *) path,
                         (char *) command,
                         (char *) parameters,
                         NULL);
-
       if (result == -1)       /* Did spawn fail?                   */
          printerr(command);   /* Yes --> Report error              */
+#endif
 
    } /* else */
 
@@ -1017,5 +835,112 @@ static int executeAsync( const char *command,
    return rc;
 
 } /* executeAsync */
+
+#elif defined(WIN32)
+/*--------------------------------------------------------------------*/
+/*    e x e c u t e A s y n c                   (Windows NT version)  */
+/*                                                                    */
+/*    Execute an external program                                     */
+/*--------------------------------------------------------------------*/
+
+int executeAsync( const char *command,
+             const char *parameters,
+             const boolean synchronous,
+             const boolean foreground )
+{
+   int result;
+   char path[BUFSIZ];
+   STARTUPINFO si;
+   PROCESS_INFORMATION pi;
+   void *oldCtrlCHandler;
+   DWORD fdwCreate;
+
+/*--------------------------------------------------------------------*/
+/*                  Execute the command in question                   */
+/*--------------------------------------------------------------------*/
+
+   strcpy(path, command);
+
+   if ( ! *path )                /* Did search fail?               */
+      return -2;                 /* Yes --> Msg issued, just return */
+
+   memset(&si, 0, sizeof(STARTUPINFO));
+   si.cb = sizeof(STARTUPINFO);
+   si.lpTitle = (LPSTR)command;
+   si.dwFlags = STARTF_USESHOWWINDOW;
+   si.wShowWindow = foreground ? SW_MAXIMIZE : SW_SHOWMINNOACTIVE;
+
+   if (parameters != NULL)
+   {
+      strcat( path, " ");
+      strcat( path, parameters );
+   }
+
+   if (!synchronous)
+      fdwCreate = CREATE_NEW_CONSOLE;
+   else if (synchronous && foreground)
+      fdwCreate = CREATE_NEW_CONSOLE;
+   else
+      fdwCreate = 0;
+
+   result = CreateProcess(NULL,
+                          path,
+                          NULL,
+                          NULL,
+                          TRUE,
+                          fdwCreate,
+                          NULL,
+                          NULL,
+                          &si,
+                          &pi);
+
+   if (!result)                  /* Did CreateProcess() fail?      */
+   {                             /* Yes --> Report error           */
+      DWORD dwError = GetLastError();
+      printmsg(0, "execute:  CreateProcess failed");
+      printNTerror("CreateProcess", dwError);
+   }
+   else {
+
+      if (synchronous)
+      {
+
+/*--------------------------------------------------------------------*/
+/*       Set things up so that we ignore Ctrl-C's coming in to the    */
+/*       child, and wait for other application to finish.             */
+/*--------------------------------------------------------------------*/
+
+         oldCtrlCHandler = signal(SIGINT, SIG_IGN);
+
+         WaitForSingleObject(pi.hProcess, INFINITE);
+         GetExitCodeProcess(pi.hProcess, &result);
+
+         signal(SIGINT, oldCtrlCHandler); /* Re-enable Ctrl-C handling */
+
+      }  /* if (synchronous) */
+      else
+         result = 0;
+
+/*--------------------------------------------------------------------*/
+/*       If we're spawning asynchronously, we assume that we don't    */
+/*       care about the exit code from the spawned process.           */
+/*       Closing these makes it impossible to get at the old          */
+/*       process's exit code.                                         */
+/*--------------------------------------------------------------------*/
+
+      CloseHandle(pi.hProcess);
+      CloseHandle(pi.hThread);
+
+   } /* else !result */
+
+/*--------------------------------------------------------------------*/
+/*                     Report results of command                      */
+/*--------------------------------------------------------------------*/
+
+   printmsg( 4 ,"Result of spawn %s is ... %d", command, result);
+
+   return result;
+
+} /* execute */
 
 #endif
