@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.4 1992/12/04 01:00:27 ahd Exp $
+ *    $Id: RMAIL.C 1.5 1992/12/05 23:38:43 ahd Exp $
  *
  *    $Log: RMAIL.C $
+ * Revision 1.5  1992/12/05  23:38:43  ahd
+ * Let logger close the log, not rmail
+ *
  * Revision 1.4  1992/12/04  01:00:27  ahd
  * Add copyright messages
  *
@@ -258,7 +261,7 @@ void main(int argc, char **argv)
          DeleteInput = TRUE;
       case 'f':
          namein = optarg;
-         datain = FOPEN(namein , "r", TEXT);
+         datain = FOPEN(namein , "r",TEXT_MODE);
          break;
 
       case '?':
@@ -311,7 +314,7 @@ void main(int argc, char **argv)
 /*--------------------------------------------------------------------*/
 
    tempname = mktempname( NULL , "TMP");
-   dataout = FOPEN(tempname, "w", TEXT);
+   dataout = FOPEN(tempname, "w",TEXT_MODE);
 
    if (dataout == NULL)
    {
