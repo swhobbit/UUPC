@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.16 1995/01/07 16:11:54 ahd v1-12n $
+ *    $Id: catcher.c 1.17 1995/02/23 15:58:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.17  1995/02/23 15:58:39  ahd
+ *    Add RCS id to allow tracing module
+ *
  *    Revision 1.16  1995/01/07 16:11:54  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -72,7 +75,7 @@
  */
 
  static const char rcsid[] =
-         "$Id$";
+         "$Id: catcher.c 1.17 1995/02/23 15:58:39 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*    Since C I/O functions are not safe inside signal routines,      */
@@ -128,8 +131,6 @@ KWBoolean winsockActive = KWFalse;    /* Set/reset in ulibip.c          */
 
 currentfile();
 #endif
-
-int panic_rc = 69;
 
 #define INVALID_CHAR '*'
 

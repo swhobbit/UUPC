@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.10 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: bugout.c 1.11 1994/12/22 00:07:21 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.11  1994/12/22 00:07:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/12/09 03:42:09  ahd
  *    All suppressbeep support to allow NOT making any sound
  *
@@ -64,6 +67,14 @@
 #ifdef _Windows
 #include "winutil.h"
 #endif
+
+/*--------------------------------------------------------------------*/
+/*                           Global variables                         */
+/*--------------------------------------------------------------------*/
+
+int panic_rc = 69;                  /* Actually defined in catcher.h,
+                                       but not all routines need the
+                                       catcher.                      */
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */
