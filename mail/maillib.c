@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.12 1994/02/19 04:18:12 ahd Exp $
+ *    $Id: maillib.c 1.13 1994/02/25 03:17:43 ahd Exp $
  *
  *    $Log: maillib.c $
+ * Revision 1.13  1994/02/25  03:17:43  ahd
+ * Allow configurable ignore and reply to search lists
+ * Insert X-previous- in front of aged resent- headers when doing
+ * new resends.
+ *
  * Revision 1.12  1994/02/19  04:18:12  ahd
  * Use standard first header
  *
@@ -123,11 +128,6 @@ boolean Pager(const int msgnum,
               copyopt received,
               const boolean reset)
 {
-   long nextloc;
-   char *browse   = NULL;
-   char buf[BUFSIZ];
-   boolean exit  = FALSE;        /* Flag for PRE-MATURE exit   ahd   */
-   FILE *fmailbag;
 
    if (msgnum == -1)
       return FALSE;
@@ -140,7 +140,10 @@ boolean Pager(const int msgnum,
 
    if (external && (E_pager != nil(char)))
    {
-      browse = mktempname( NULL,"tmp" );/* Get a temporary file name */
+      char browse[FILENAME_MAX];
+      FILE *fmailbag;
+
+      mktempname( browse,"tmp" );      /* Get a temporary file name */
 
       if ((fmailbag = FOPEN(browse, "w",TEXT_MODE)) == nil(FILE))
       {
@@ -148,17 +151,21 @@ boolean Pager(const int msgnum,
          printmsg(0,"Cannot open browse file %s",browse);
          return FALSE;
       } /* if */
+
       CopyMsg(msgnum, fmailbag, received, FALSE);
       fclose(fmailbag);
 
       Invoke(E_pager, browse, bflag[F_NEWPAGERSESSION]);
       remove(browse);
-      free(browse);
 
-   } /* if */
+   } /* if (external && (E_pager != nil(char))) */
    else {
+
+      char buf[BUFSIZ];
+      long nextloc = letters[msgnum + 1].adr;
+      boolean exit  = FALSE;        /* Flag for PRE-MATURE exit   ahd   */
+
       fseek(fmailbox, letters[msgnum].adr , SEEK_SET);
-      nextloc = letters[msgnum + 1].adr;
 
       if ( reset )
          ClearScreen();
@@ -167,8 +174,10 @@ boolean Pager(const int msgnum,
 
       sprintf(buf,"Mailbox item %d:\n",msgnum + 1);
       PageLine(buf);
-      while (ftell(fmailbox) < nextloc && (!exit) &&
-         fgets(buf, BUFSIZ, fmailbox) != nil(char))
+
+      while ((ftell(fmailbox) < nextloc) &&
+             (!exit) &&
+             (fgets(buf, sizeof buf, fmailbox) != nil(char)))
       {
          boolean print = TRUE;
 
@@ -211,9 +220,11 @@ boolean Pager(const int msgnum,
 
       if (equal(buf,"\n") && (!exit))                 /* ahd   */
          putchar('\n');                               /* ahd   */
+
    } /* else */
 
    return ! exit;
+
 } /*Pager*/
 
 /*--------------------------------------------------------------------*/
@@ -237,21 +248,26 @@ void Sub_Pager(const char *tinput,
    else {
       FILE *finput;
       char buf[BUFSIZ];
+
       finput = FOPEN(tinput, "r",TEXT_MODE);
       if (finput == NULL) {
          printmsg(0,"Cannot open file %s for display",tinput);
          printerr(tinput);
          return;
       }
+
       PageReset();
       ClearScreen();
-      while ( (!exit) && fgets(buf, BUFSIZ, finput) != nil(char))
+
+      while ( (!exit) && fgets(buf, sizeof buf, finput) != nil(char))
       {
         if (PageLine(buf))         /* Exit if the user hits Q  */
            exit = TRUE;
       }
+
       fclose(finput);
-   }
+
+   } /* else */
 
 } /*Sub_Pager*/
 
@@ -314,7 +330,7 @@ boolean PageLine(char *line)
 
    return FALSE;
 
-} /*PageLine*/
+} /* PageLine */
 
 /*--------------------------------------------------------------------*/
 /*    C o p y M s g                                                   */
@@ -325,7 +341,10 @@ boolean PageLine(char *line)
 /*    specified in the copyopt data type.                             */
 /*--------------------------------------------------------------------*/
 
-boolean CopyMsg(int msgnum, FILE *f, copyopt headerFlag, boolean indent)
+boolean CopyMsg(const int msgnum,
+                FILE *f,
+                const copyopt headerFlag,
+                const boolean indent)
 {
    long nextloc;
    boolean print;                   /* Header line should be printed */
@@ -368,7 +387,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headerFlag, boolean indent)
          fprintf(f,"On %s,", sp );
       } /* if */
 
-      if (RetrieveLine(letters[msgnum].from, buf, BUFSIZ))
+      if (RetrieveLine(letters[msgnum].from, buf, sizeof buf))
       {
          while (!isspace(*sp) && (*sp != '\0'))
             sp++;
@@ -389,7 +408,7 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headerFlag, boolean indent)
    nextloc = letters[msgnum + 1].adr;
 
    while (ftell(fmailbox) < nextloc &&
-      fgets(buf, BUFSIZ, fmailbox) != nil(char)) {
+      fgets(buf, sizeof buf, fmailbox) != nil(char)) {
 
 /*--------------------------------------------------------------------*/
 /*               Determine if we should write the line                */
@@ -519,7 +538,9 @@ boolean CopyMsg(int msgnum, FILE *f, copyopt headerFlag, boolean indent)
 /*    Read a line from a mail header, if available                    */
 /*--------------------------------------------------------------------*/
 
-boolean RetrieveLine(long adr, char *line, const size_t len)
+boolean RetrieveLine(const long adr,
+                     char *line,
+                     const size_t len)
 {
    char *cp = line;
    size_t count;
@@ -530,6 +551,9 @@ boolean RetrieveLine(long adr, char *line, const size_t len)
 
    if (fseek(fmailbox, adr, SEEK_SET)) /* Position to data           */
    {                          /* Have a problem?                     */
+      printmsg(0,"Failure seeking to %ld offset in mailbox ...",
+               adr );
+
       printerr("mailbox");    /* Yes --> Report and return           */
       return FALSE;
    }
@@ -574,37 +598,38 @@ boolean RetrieveLine(long adr, char *line, const size_t len)
 
    return TRUE;
 
-} /*RetrieveLine*/
+} /* RetrieveLine */
 
 /*--------------------------------------------------------------------*/
 /*    R e t u r n A d d r e s s                                       */
 /*                                                                    */
 /*    Returns the user name (if available and requested) or           */
 /*    E-mail address of the user                                      */
-/*                                                                    */
-/*    Written by ahd 15 July 1989                                     */
 /*--------------------------------------------------------------------*/
 
-void ReturnAddress(char *line, struct ldesc *ld)
+void ReturnAddress(char *line, const long adr )
 {
    char buffer[BUFSIZ];
 
-   if (!RetrieveLine(ld->from, buffer, BUFSIZ))
-                                          /* From: line available?   */
-      strcpy(line,"-- Unknown --");       /* No --> Return error     */
-   else {
+   if (RetrieveLine(adr, buffer, sizeof buffer))
+   {
       char *begin = buffer;
-      while (!isspace(*begin) && (*begin != '\0'))
+
+      while (isgraph(*begin))    /* Find end of header name          */
          begin++;
+
+      printmsg(4,"ReturnAddress: Input buffer: %s",buffer);
+
       if (strlen(begin))
          ExtractName(line,begin);         /* Yes --> Return name     */
       else
          strcpy(line,"-- Invalid From: line --");
-   }
 
-   return;
+   } /* else */
+   else
+      strcpy(line,"-- Unknown --");       /* No --> Return error     */
 
-} /*ReturnAddress*/
+} /* ReturnAddress */
 
 /*--------------------------------------------------------------------*/
 /*    s a y o p t i o n s                                             */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.12 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: mailblib.c 1.13 1994/02/25 02:23:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ * Revision 1.13  1994/02/25  02:23:42  ahd
+ * Rename selected copyopt enums to make them more self-documenting
+ *
  * Revision 1.12  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -860,7 +863,7 @@ static boolean SearchUser( char *token , char **input, const int bits)
          } /* else */
       } /* if */
       else {
-         ReturnAddress(line,&letters[item - 1]);
+         ReturnAddress(line, letters[item - 1].from);
                            /* Get standard error text for letter  */
          printmsg(2,"SearchUser: Default address %d is: %s",
                   item-1,line);

@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.12 1994/02/19 04:17:41 ahd Exp $
+ *    $Id: alias.c 1.13 1994/02/20 19:07:38 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ * Revision 1.13  1994/02/20  19:07:38  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.12  1994/02/19  04:17:41  ahd
  * Use standard first header
  *
@@ -129,6 +132,7 @@ boolean InitRouter()
 /*--------------------------------------------------------------------*/
 
    return success;
+
 } /* InitRouter */
 
 /*--------------------------------------------------------------------*/
@@ -138,16 +142,17 @@ boolean InitRouter()
 /*    is not available.                                               */
 /*--------------------------------------------------------------------*/
 
-void ExtractName(char *result, char *column)
+void ExtractName(char *result, const char *input)
 {
       static int recursion = 0;
 
       recursion++;
 
-      printmsg((recursion > 2) ? 1:8,
-            "ExtractName: Getting name from '%s'",column);
+      printmsg((recursion > 2) ? 1 : 8,
+            "ExtractName: Getting name from '%s'",input);
 
-      ExtractAddress(result, column, TRUE);  /* Get the full name     */
+      ExtractAddress(result, input, TRUE);   /* Get the full name     */
+
       if (!strlen(result))       /* Did we get the name?              */
       {                          /* No --> Get the e-mail address     */
          char addr[MAXADDR];
@@ -155,24 +160,25 @@ void ExtractName(char *result, char *column)
          char node[MAXADDR];
          char *fullname;
 
-         ExtractAddress(addr,column, FALSE);
-         user_at_node(addr,path,node,result);
+         ExtractAddress(addr, input, FALSE);
+
+         user_at_node(addr, path, node, result);
                                  /* Reduce address to basics */
          fullname = AliasByAddr(node,result);
+
          if (fullname == NULL)
          {
-            strcat(result,"@");
-            strcat(result,node);
+            strcat(result, "@");
+            strcat(result, node);
          }
          else
-            strcpy(result,fullname);
+            strcpy(result, fullname);
       }
 
       printmsg((recursion > 2) ? 1: 8,"ExtractName: name is '%s'",result);
 
       recursion--;
 
-      return;
 }  /*ExtractName*/
 
 /*--------------------------------------------------------------------*/
