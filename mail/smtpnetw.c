@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.10 1998/03/06 06:51:28 ahd Exp $
+ *    $Id: smtpnetw.c 1.11 1998/03/08 04:50:04 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.11  1998/03/08 04:50:04  ahd
+ *    Close socket after read errors
+ *
  *    Revision 1.10  1998/03/06 06:51:28  ahd
  *    Add commands to make Netscape happy
  *
@@ -78,7 +81,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.10 1998/03/06 06:51:28 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.11 1998/03/08 04:50:04 ahd Exp $");
 
 currentfile();
 
@@ -317,6 +320,11 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
             printLevel = 0;
             break;
 
+         case PR_TEXT:
+            *buf = '\0';
+            printLevel = 8;
+            break;
+
          case PR_DATA:
             *buf = '\0';
             break;
@@ -353,21 +361,44 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    } /* switch(code) */
 
-   printmsg(printLevel,"%d >>> %s%.75s",
-                       getClientSequence(client),
-                       buf,
-                       text);
+   if ( printLevel >= debuglevel )
+   {
+      printmsg(printLevel,"%d >>> %s%.75s",
+                          getClientSequence(client),
+                          buf,
+                          text);
+   }
 
-   incrementClientLinesWritten(client);
+   totalLength = strlen(buf) + strlen(text);
    incrementClientBytesWritten(client, totalLength);
+   incrementClientLinesWritten(client);
 
-   totalLength = strlen(buf) + strlen(text) + strlen(crlf);
+/*--------------------------------------------------------------------*/
+/*       Special case for raw text with CR/LF already appended        */
+/*--------------------------------------------------------------------*/
+
+   if (code == PR_TEXT)
+   {
+      if(!SMTPWrite(client, text, totalLength))
+      {
+         printmsg(0,"Error sending response text to remote host: %s%.75s",
+                    buf,
+                    text);
+         return KWFalse;
+      }
+
+      return KWTrue;
+
+   } /* if (code == PR_TEXT) */
 
 /*--------------------------------------------------------------------*/
 /*       If all three parts of the message fit, pack it into one      */
-/*       buffer so we only call the network write once and send       */
+/*       buffer so we only call the network write once to send        */
 /*       one packet.                                                  */
 /*--------------------------------------------------------------------*/
+
+   totalLength += strlen(crlf);
+   incrementClientBytesWritten(client, strlen(crlf));
 
    if (totalLength < sizeof buf)
    {
@@ -956,7 +987,6 @@ selectReadySockets(SMTPClient *master)
 
    do {
 
-      unsigned long timeout = (unsigned long) getClientTimeout(current);
 
       if (isClientValid(current) &&
            ! isClientIgnored(current) &&
@@ -971,8 +1001,14 @@ selectReadySockets(SMTPClient *master)
             nSelected++;
       }
 
-      if (timeout < (unsigned long) timeoutPeriod.tv_sec)
-          timeoutPeriod.tv_sec = timeout;
+
+      /* If we can better the timeout period, examine current client */
+      if ( timeoutPeriod.tv_sec > 0 )
+      {
+         unsigned long timeout = (unsigned long) getClientTimeout(current);
+         if (timeout < (unsigned long) timeoutPeriod.tv_sec)
+             timeoutPeriod.tv_sec = timeout;
+      }
 
       nTotal++;
       current = current->next;
