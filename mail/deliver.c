@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.14 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: deliver.c 1.15 1993/09/20 04:41:54 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.15  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.14  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -219,7 +222,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
                                  /* Yes!                             */
       else
          return Bounce( input,
-                 "No delivery path for address",
+                 "No known delivery path for host",
                   address,
                   address,
                   validate );
