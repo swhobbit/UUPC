@@ -16,7 +16,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Copyright 1990-1992 By Kendra Electronic Wonderworks;        */
+/*       Copyright 1989-1994 By Kendra Electronic Wonderworks;        */
 /*       may be distributed freely if original documentation and      */
 /*       source are included, and credit is given to the authors.     */
 /*       For additional instructions, see README.PRN in UUPC/         */
@@ -29,9 +29,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SU.CMD 1.4 1994/01/01 19:16:19 ahd Exp $
+ *       $Id: su.cmd 1.5 1994/05/04 02:05:03 ahd Exp $
  *
- *       $Log: SU.CMD $
+ *       $Log: su.cmd $
+ *       Revision 1.5  1994/05/04  02:05:03  ahd
+ *       Also set LOGNAME for various OS/2 programs
+ *
  *Revision 1.4  1994/01/01  19:16:19  ahd
  *Annual Copyright Update
  *
@@ -64,6 +67,11 @@ do
    say 'No configuration directory defined, cannot continue'
    exit 98
 end
+/*--------------------------------------------------------------------*/
+/*                  Don't double the last backslash                   */
+/*--------------------------------------------------------------------*/
+if  right( confDir , 1 ) == '\' then
+   confDir = left(confDir, length( confdir ) - 1);
 
 uupcusrc = confDir || '\' || who || '.RC'
 who      = getuupc("MAILBOX",who,uupcusrc)
