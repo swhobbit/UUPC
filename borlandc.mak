@@ -1,30 +1,29 @@
 # *--------------------------------------------------------------------*
 # *     Program:        MAKEFILE                15 May 1989            *
 # *     Author:         Andrew H. Derbyshire                           *
+# *                     Kendra Electronic Wonderworks                  *
 # *                     P.O. Box 132                                   *
 # *                     Arlington, MA 02174                            *
 # *     Function:       Build UUPC/extended from source files          *
 # *     Processor:      Borland MAKE version 3.5                       *
 # *     External files: MASM or TASM    (8088 Assembler)               *
-# *                     BCC             (Borland C++ 2.0 compiler)     *
+# *                     BCC             (Borland C++ 3.1 compiler)     *
 # *                     LINK or TLINK   (MS-DOS Linker)                *
 # *                     TDSTRIP         (Turbo debugger utility).      *
 # *                     MOVE.COM        (Rename files between          *
 # *                                     directories)                   *
 # *                     Input source files.                            *
 # *                                                                    *
-# *   Changes Copyright (c) 1989 by Andrew H. Derbyshire.              *
-# *                                                                    *
-# *   Changes Copyright (c) 1990-1992 by Kendra Electronic             *
+# *   Changes Copyright (c) 1989-1993 by Kendra Electronic             *
 # *   Wonderworks.                                                     *
 # *                                                                    *
 # *   All rights reserved except those explicitly granted by the       *
 # *   UUPC/extended license agreement.                                 *
 # *                                                                    *
-# *     Note:   If you don't have Turbo Debugger, you can modify the   *
-# *             BCC options to not generate debugging information      *
-# *             and then just copy the modules to the production       *
-# *             directory.  See options file, below.                   *
+# *     Note:   This file and the associated sources really do         *
+# *             require the Borland C++ 3.1 compiler; various          *
+# *             functions within the source call ANSI functions        *
+# *             not available in older versions of the compiler.       *
 # *                                                                    *
 # *     Note:   MOVE can be created by putting a COPY followed by a    *
 # *             ERASE in a MOVE.BAT file.  This is slower than a true  *
@@ -32,10 +31,16 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.8 1992/12/18 13:05:00 ahd Exp $
+#     $Id: Makefile 1.9 1992/12/30 12:40:31 plummer Exp $
 #
 #     Revision history:
-#     $Log: makefile $
+#     $Log: Makefile $
+#       Revision 1.9  1992/12/30  12:40:31  plummer
+#       Update version
+#
+#       Revision 1.9  1992/12/30  12:40:31  plummer
+#       Update version
+#
 #       Revision 1.8  1992/12/18  13:05:00  ahd
 #       Drop system aliases
 #
@@ -58,11 +63,11 @@
 #       Revision 1.2  1992/11/18  01:34:57  ahd
 #       Drop -k flag
 #
-#    Revision 1.1  1992/11/10  04:11:14  ahd
-#    Initial revision
+#       Revision 1.1  1992/11/10  04:11:14  ahd
+#       Initial revision
 #
-#Revision 1.2  1992/05/03  17:19:14  ahd
-#Add library inclusion to generation of small .COM files
+#       Revision 1.2  1992/05/03  17:19:14  ahd
+#       Add library inclusion to generation of small .COM files
 #
 
 .autodepend
@@ -447,12 +452,11 @@ $(PROD)\waiting.bat: $(SCRIPT)\waiting.bat
 # *                           UUPCSRC.ZIP                              *
 # *--------------------------------------------------------------------*
 
-$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)nmake.gcc $(SRCSLASH)nmake $(TIMESTMP) $(FMT)
+$(SRCZIPV1): $(MAKEFILE) $(SRCSLASH)nmake $(TIMESTMP) $(FMT)
         - mkdir $:.
         $(FMT) -0 &&!
 $(MAKEFILE)
 nmake
-nmake.gcc
 lib\*.c
 lib\*.h
 lib\*.mak
@@ -471,7 +475,7 @@ uucp\*.mak
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) source files (1 of 2)
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -497,7 +501,7 @@ util\*.mak
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) source files (2 of 2)
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -517,7 +521,7 @@ winword\manual.dot
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) Unformatted Documents
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -536,7 +540,7 @@ $(REQUIRED)
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (1 of 3)
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -555,7 +559,7 @@ $(OPTIONAL)
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (2 of 3)
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -574,7 +578,7 @@ $(NEWS)
        pkbanner $<  &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) DOS executables (3 of 3)
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
@@ -601,7 +605,7 @@ $(LIVEFILES)
        pkbanner $< &&!
 Kendra Electronic Wonderworks: UUPC/extended $(VERS) documents and sample files
 
-Changes and Compilation Copyright (c) 1990-1992 by Kendra Electronic
+Changes and Compilation Copyright (c) 1989-1993 by Kendra Electronic
 Wonderworks.  May be distributed freely if original source and documentation
 files are included.  Please direct all questions on UUPC/extended to
 help@kew.com.
