@@ -21,9 +21,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.26 1999/01/04 03:53:30 ahd Exp $
+ *    $Id: expire.c 1.27 1999/01/08 02:20:52 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.27  1999/01/08 02:20:52  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.26  1999/01/04 03:53:30  ahd
  *    Annual copyright change
  *
@@ -105,7 +108,7 @@
 
 #include "uupcmoah.h"
 
-RCSID("$Id: expire.c 1.26 1999/01/04 03:53:30 ahd Exp $");
+RCSID("$Id: expire.c 1.27 1999/01/08 02:20:52 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -113,6 +116,7 @@ RCSID("$Id: expire.c 1.26 1999/01/04 03:53:30 ahd Exp $");
 
 #include <ctype.h>
 #include <limits.h>
+#include <errno.h>
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -175,12 +179,16 @@ backupNewsFile(  const char *nextGeneration, const char *previous )
 /*       Punt the old file, and return if there is no new file        */
 /*--------------------------------------------------------------------*/
 
-   if (REMOVE(file_previous) && (debuglevel > 1))
+   if (REMOVE(file_previous) &&
+       ((errno == ENOENT) || (debuglevel > 1)))
    {
       printmsg(0,"%s: Unable to delete backup file %s",
                  mName,
                  file_previous );
       printerr( file_previous );
+
+      if (errno != ENOENT)
+         panic();
    }
 
    if ( nextGeneration == NULL )
@@ -203,6 +211,7 @@ backupNewsFile(  const char *nextGeneration, const char *previous )
 #ifdef UDEBUG
    else
       printmsg(2, "%s: Renamed %s to %s",
+                  mName,
                   file_new,
                   file_previous );
 #endif
