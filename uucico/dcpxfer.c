@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.42 1994/02/20 19:11:18 ahd Exp $
+ *       $Id: dcpxfer.c 1.43 1994/02/26 17:20:48 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.43  1994/02/26  17:20:48  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.42  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -1006,6 +1009,18 @@ XFER_STATE rrfile( void )
 
    if ( ! spool )
       expand_path( fileName, securep->pubdir, securep->pubdir , NULL );
+
+/*--------------------------------------------------------------------*/
+/*         Don't allow transfers into spool of anonymous host         */
+/*--------------------------------------------------------------------*/
+
+   if ( spool && equal(rmtname, ANONYMOUS_HOST ))
+   {
+      if (!pktsendstr("SN2")) /* Report access denied to requestor   */
+         return XFER_LOST;
+      else
+         return XFER_FILEDONE;   /* Look for next file from master   */
+   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
