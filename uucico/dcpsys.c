@@ -39,9 +39,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.17 1993/08/26 05:00:25 ahd Exp $
+ *     $Id: dcpsys.c 1.18 1993/09/20 04:48:25 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.18  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  * Revision 1.17  1993/08/26  05:00:25  ahd
  * Debugging code for odd failures on J. McBride's network
  *
@@ -131,6 +136,17 @@
 #include "commlib.h"
 
 currentfile();
+
+/*--------------------------------------------------------------------*/
+/*                     Define available protocols                     */
+/*--------------------------------------------------------------------*/
+
+typedef struct {
+        char type;
+        procref getpkt, sendpkt, openpk, closepk, rdmsg, wrmsg, eofpkt,
+                  filepkt;
+        boolean network;
+} Proto;
 
 Proto Protolst[] = {
        { 'g', ggetpkt, gsendpkt, gopenpk, gclosepk,
