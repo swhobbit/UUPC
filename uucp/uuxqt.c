@@ -1,19 +1,19 @@
-/*
-      Program:    uuxqt.c              23 September 1991
-      Author:     Mitch Mitchell
-      Email:      mitch@harlie.lonestar.org
-
-      This is a re-write of the (much cleaner) UUXQT.C originally
-      distributed with UUPC/Extended.  The modifications were
-      intended primarily to lay a foundation for support for the
-      more advanced features of UUX.
-
-      Richard H. Gumpertz (RHG@CPS.COM) built upon that foundation
-      and added most of the code necessary for implementing UUXQT
-      correctly, but there may still be many minor problems.
-
-      Usage:      uuxqt -xDEBUG -sSYSTEM
-*/
+/*--------------------------------------------------------------------*/
+/*    Program:    uuxqt.c              23 September 1991              */
+/*    Author:     Mitch Mitchell                                      */
+/*    Email:      mitch@harlie.lonestar.org                           */
+/*                                                                    */
+/*    This is a re-write of the (much cleaner) UUXQT.C originally     */
+/*    distributed with UUPC/Extended.  The modifications were         */
+/*    intended primarily to lay a foundation for support for the      */
+/*    more advanced features of UUX.                                  */
+/*                                                                    */
+/*    Richard H. Gumpertz (RHG@CPS.COM) built upon that foundation    */
+/*    and added most of the code necessary for implementing UUXQT     */
+/*    correctly, but there may still be many minor problems.          */
+/*                                                                    */
+/*    Usage:      uuxqt -xDEBUG -sSYSTEM                              */
+/*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
 /*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.28 1993/12/06 01:59:07 ahd Exp $
+ *    $Id: uuxqt.c 1.29 1993/12/06 23:12:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.29  1993/12/06  23:12:15  ahd
+ * Use pair of buffers for setting requestor environment variable
+ *
  * Revision 1.28  1993/12/06  01:59:07  ahd
  * Delete all unneeded environment variable resets to reduce
  * environment mangling
@@ -141,8 +144,8 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "arpadate.h"
 #include "dater.h"
+#include "execute.h"
 #include "expath.h"
 #include "getopt.h"
 #include "getseq.h"
@@ -156,7 +159,7 @@
 #include "security.h"
 #include "timestmp.h"
 #include "usertabl.h"
-#include "execute.h"
+#include "uundir.h"
 
 #ifdef _Windows
 #include "winutil.h"
@@ -250,6 +253,8 @@ static int shell(char *command,
 static boolean MailStatus(char *tempfile,
                           char *address,
                           char *subject);
+
+static void purify( const char *where );
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -348,14 +353,14 @@ void main( int argc, char **argv)
 
    if ( E_uuxqtpath != NULL )
    {
-      char buf[BUFSIZ];
+      char buf[4096];
       char *p;
       sprintf(buf,"PATH=%s", E_uuxqtpath);
       p = newstr(buf);
 
       if (putenv( p ))
       {
-         printmsg(0,"Unable to set path \"%s\"", p);
+         printmsg(0,"Unable to set path %s", p);
          panic();
       } /* if (putenv( p )) */
 
@@ -408,7 +413,7 @@ static boolean do_uuxqt( const char *sysname )
           hostp = checkreal( sysname );
 
       if (hostp  ==  BADHOST) {
-         printmsg(0, "Unknown host \"%s\".", sysname );
+         printmsg(0, "Unknown host %s.", sysname );
          exit(1);
       }
 
@@ -442,9 +447,8 @@ static boolean do_uuxqt( const char *sysname )
 /*                Initialize security for this remote                 */
 /*--------------------------------------------------------------------*/
 
-      if ( !equal(sysname, E_nodename) &&
-           (securep = GetSecurity( hostp )) == NULL )
-         printmsg(0,"No security defined for \"%s\","
+      if ( (securep = GetSecurity( hostp )) == NULL )
+         printmsg(0,"No security defined for %s,"
                   " cannot process X.* files",
                   hostp->hostname );
       else {
@@ -457,7 +461,7 @@ static boolean do_uuxqt( const char *sysname )
 
          if (putenv( hostenv ))
          {
-            printmsg(0,"Unable to set environment \"%s\"",hostenv);
+            printmsg(0,"Unable to set environment %s",hostenv);
             panic();
          }
          else
@@ -483,7 +487,12 @@ static boolean do_uuxqt( const char *sysname )
          } /* while */
 
          if ( locked )
+         {
+            purify( executeDirectory );
+                                    /* Clean up after last command
+                                       for host                      */
             UnlockSystem();
+         } /* if ( locked ) */
 
       } /* else if */
 
@@ -515,9 +524,15 @@ static void process( const char *fname,
    char *command = NULL,
         *input = NULL,
         *output = NULL,
-        *job_id = NULL,
-        line[BUFSIZ];
+        *job_id = NULL;
    char hostfile[FILENAME_MAX];
+
+#if defined(BIT32ENV)
+   char   line[2048];   /* New OS/2, Windows NT environments   */
+#else
+   char line[BUFSIZ];
+#endif
+
    boolean skip = FALSE;
    boolean reject = FALSE;
    FILE *fxqt;
@@ -555,7 +570,7 @@ static void process( const char *fname,
 /*                  Begin loop to read the X.* file                   */
 /*--------------------------------------------------------------------*/
 
-   while (!skip & (fgets(line, BUFSIZ, fxqt) != NULL))
+   while (!skip & (fgets(line, sizeof line, fxqt) != NULL))
    {
       char *cp;
 
@@ -581,7 +596,7 @@ static void process( const char *fname,
       case 'U':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No user on U line in \"%s\"", fname );
+            printmsg(0,"No user on U line in %s", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -591,12 +606,12 @@ static void process( const char *fname,
                                     /* Get the system name            */
          if ( (cp = strtok(NULL, WHITESPACE)) == NULL)
          {                          /* Did we get a string?           */
-            printmsg(2,"No node on U line in \"%s\"", fname );
+            printmsg(2,"No node on U line in %s", fname );
             cp = (char *) remote;
          }
          else if (!equal(cp,remote))
          {
-            printmsg(2,"Node on U line in \"%s\" doesn't match remote",
+            printmsg(2,"Node on U line in %s doesn't match remote",
                      fname );
             cp = (char * ) remote;
          };
@@ -629,10 +644,9 @@ static void process( const char *fname,
          else
          {
             strcpy(hostfile, cp);
-            expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
+            expand_path(hostfile, securep->pubdir , securep->pubdir, NULL);
 
             if (!equal(remote, E_nodename))
-            /* Should the preceding "if (...)" be deleted?  --RHG */
                if (!ValidateFile( hostfile, ALLOW_READ))
                {
                   reject = xflag[S_NOREAD] = TRUE;
@@ -669,11 +683,10 @@ static void process( const char *fname,
          }
          else
          {
-            expand_path(hostfile, E_pubdir/*??*/, E_pubdir, NULL);
+            expand_path(hostfile, securep->pubdir, securep->pubdir, NULL);
 
-            if (!equal(remote, E_nodename))
-            /* Should the preceding "if (...)" be deleted?  --RHG */
-               if (ValidateFile( hostfile, ALLOW_WRITE))
+            if (!equal(remote, E_nodename) &&
+                ValidateFile( hostfile, ALLOW_WRITE))
                /* Taylor/GNU uuxqt also rejects it if the output would be in
                   E_spooldir (to keep people from setting up phony requests).
                   I am not sure whether we want to do likewise.  --RHG */
@@ -713,7 +726,7 @@ static void process( const char *fname,
       case 'J':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No job id on J line in \"%s\"", fname );
+            printmsg(0,"No job id on J line in %s", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -731,7 +744,7 @@ static void process( const char *fname,
          cp = strtok(line + 1, WHITESPACE);
          if (cp == NULL)
          {
-            printmsg(0,"Missing F parameter in \"%s\", command rejected",
+            printmsg(0,"Missing F parameter in %s, command rejected",
                        fname);
             reject = xflag[F_CORRUPT] = TRUE;
             break;
@@ -767,7 +780,7 @@ static void process( const char *fname,
          }
          else
          {
-            printmsg(0,"Invalid F parameter in \"%s\", command rejected",
+            printmsg(0,"Invalid F parameter in %s, command rejected",
                        fname);
             reject = xflag[F_BADF] = TRUE;
             break;
@@ -778,7 +791,7 @@ static void process( const char *fname,
          {
             if (!ValidDOSName(cp, FALSE))
             {  /* Illegal filename --> reject the whole request */
-               printmsg(0,"Illegal file \"%s\" in \"%s\", command rejected",
+               printmsg(0,"Illegal file %s in %s, command rejected",
                           cp, fname);
                reject = xflag[F_BADF] = TRUE;
                break;
@@ -800,7 +813,7 @@ static void process( const char *fname,
       case 'R':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No requestor on R line in \"%s\"", fname );
+            printmsg(0,"No requestor on R line in %s", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -817,7 +830,7 @@ static void process( const char *fname,
       case 'M':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No file name on M line in \"%s\"", fname);
+            printmsg(0,"No file name on M line in %s", fname);
             break;
          }
 
@@ -860,7 +873,7 @@ static void process( const char *fname,
          break;
 
       } /* switch */
-   } /* while (!skip & (fgets(line, BUFSIZ, fxqt) != NULL)) */
+   } /* while (!skip & (fgets(line, sizeof line, fxqt) != NULL)) */
 
    if ( fxqt != NULL )
       fclose(fxqt);
@@ -878,6 +891,58 @@ static void process( const char *fname,
 
    if ( !skip )
    {
+
+/*--------------------------------------------------------------------*/
+/*       Taylor/GNU uuxqt seems to check for both READ and WRITE      */
+/*       access if it starts with a '/' and also rejects most (but    */
+/*       not all) names containing "..".                              */
+/*                                                                    */
+/*       Also, what quoting conventions should we follow when         */
+/*       parsing?  The DOS COMMAND.COM certainly does not handle      */
+/*       \-style quoting, for example, so we don't want to get        */
+/*       fooled by handling such here.                                */
+/*--------------------------------------------------------------------*/
+
+      if ( ! reject && !equaln( command,"rmail ", 6))
+      {
+         char *next;
+
+         strcpy( line, command );
+         strtok( line, WHITESPACE);       /* Discard command name    */
+
+         next = strtok( NULL, "");        /* Get rest of string      */
+
+         while( next )
+         {
+            char *token = strtok( next, WHITESPACE "'\"" );
+            next = strtok( NULL, "");     /* Get rest of string      */
+
+            strncpy( hostfile, token, sizeof hostfile);
+
+            if (( strlen( token ) > sizeof hostfile ) ||
+                 (expand_path(hostfile,
+                              executeDirectory,
+                              securep->pubdir,
+                              NULL) == NULL ))
+            {
+               reject = xflag[E_NOACC] = TRUE;
+               break;
+            }
+
+            if (((strchr( token, ':' ) != NULL ) ||  /* drive letter? */
+                 (strchr( token, '/' ) != NULL ) ||  /* path sep? */
+                 (strchr( token, '\\') != NULL )) && /* path sep? */
+                 (!ValidateFile( hostfile, ALLOW_WRITE ) ||
+                  !ValidateFile( hostfile, ALLOW_READ  )))
+            {
+               reject = xflag[E_NOACC] = TRUE;
+               break;
+            } /* if */
+
+         } /* while( next ) */
+
+      } /* if ( ! reject && !equaln( command,"rmail ", 6)) */
+
       if ( !reject )
       {
          if ( user == NULL )
@@ -904,7 +969,7 @@ static void process( const char *fname,
          output = mktempname(NULL, "OUT");
 
          printmsg(equaln(command,RMAIL,5) ? 2 : 0,
-                  "uuxqt: executing \"%s\" for user \"%s\" at  \"%s\"",
+                  "uuxqt: executing \"%s\" for user %s at %s",
                       command, user, machine);
 
 /*--------------------------------------------------------------------*/
@@ -913,6 +978,8 @@ static void process( const char *fname,
 
          /* Make sure the directory exists before we copy the files */
          PushDir(executeDirectory);
+
+   //    purify( executeDirectory );
 
          {
             struct F_list *p;
@@ -925,7 +992,7 @@ static void process( const char *fname,
                      /* Should we try again later in case its a temporary
                         error like execute directory on a full disk?  For
                         now, just reject it completely. */
-                     printmsg(0, "Copy \"%s\" to \"%s\" failed",
+                     printmsg(0, "Copy %s to %s failed",
                                  p->spoolname, p->xqtname);
                      reject = xflag[F_NOCOPY] = TRUE;
                      break;
@@ -1099,24 +1166,7 @@ static int shell(char *command,
 
       if ( *parameters == '\0' )
          parameters = NULL;
-      else
-      {
-         /* MISSING CODE: we should check the parameters to see that all file
-            references are legitimate.  What do other implementations of uuxqt
-            do for this access check?  Maybe check for READ access if a path
-            is specified but accept anything that isn't a pathname (such as a
-            username for an RMAIL command)?  I'm not yet completely sure.
 
-            Taylor/GNU uuxqt seems to check for both READ and WRITE access
-            if it starts with a '/' and also rejects most (but not all) names
-            containing "..".
-
-            Also, what quoting conventions should we follow when parsing?
-            The DOS COMMAND.COM certainly does not handle \-style quoting,
-            for example, so we don't want to get fooled by handling such here.
-
-                                                                      --RHG */
-      }
    } /* if ( parameters != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -1125,7 +1175,7 @@ static int shell(char *command,
 
    if ( (!equal(remotename, E_nodename)) && (!ValidateCommand( cmdname )) )
    {
-      printmsg(0,"Command \"%s\" not allowed at this site", cmdname);
+      printmsg(0,"Command %s not allowed at this site", cmdname);
       xflag[E_NOEXE] = TRUE;
       return 99;
    }
@@ -1376,7 +1426,7 @@ static void create_environment(const char *requestor)
    {
       if (putenv( envp[subscript] ))
       {
-         printmsg(0,"Unable to set environment \"%s\"",envp[subscript]);
+         printmsg(0,"Unable to set environment %s",envp[subscript]);
          panic();
       }
       else
@@ -1609,7 +1659,6 @@ static boolean AppendData( const char *input, FILE* dataout)
 
    if (datain == NULL) {
       printerr(input);
-      printmsg(0,"Unable to open input file \"%s\"", input);
       return FALSE;
    } /* datain */
 
@@ -1617,7 +1666,7 @@ static boolean AppendData( const char *input, FILE* dataout)
 /*                       Loop to copy the data                        */
 /*--------------------------------------------------------------------*/
 
-   while (fgets(buf, BUFSIZ, datain) != 0)
+   while (fgets(buf, sizeof buf, datain) != 0)
    {
       if (fputs(buf, dataout) == EOF)     /* I/O error?               */
       {
@@ -1695,3 +1744,47 @@ static boolean MailStatus(char *tempfile,
    return (status == 0 );
 
 } /*MailStatus*/
+
+/*--------------------------------------------------------------------*/
+/*       p u r i f y                                                  */
+/*                                                                    */
+/*       Clean out a directory                                        */
+/*--------------------------------------------------------------------*/
+
+static void purify( const char *where )
+{
+   DIR *dirp = opendir( where );
+   struct direct *dp;
+
+/*--------------------------------------------------------------------*/
+/*                     Open the directory to nuke                     */
+/*--------------------------------------------------------------------*/
+
+   if ( dirp == NULL )
+      return;
+
+/*--------------------------------------------------------------------*/
+/*       Simple loop to delete all files left in the directory so     */
+/*       it is safe for others to use.  Note that a subdirectory      */
+/*       will cause the program abort.  For now, it's a known         */
+/*       restriction.                                                 */
+/*--------------------------------------------------------------------*/
+
+   while ((dp = readdir(dirp)) != nil(struct direct))
+   {
+      char fname[FILENAME_MAX];
+
+      sprintf(fname, "%s/%s", where, dp->d_name);
+
+      printmsg(0,"purify: Deleting file %s", fname );
+      if ( chmod( fname, S_IREAD | S_IWRITE ) || unlink( fname ))
+      {
+         printerr( fname );
+         panic();
+      }
+
+   } /* while */
+
+   closedir(dirp);
+
+} /* purify */
