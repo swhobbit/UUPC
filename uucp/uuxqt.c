@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.59 1997/11/29 12:49:01 ahd v1-12u $
+ *    $Id: uuxqt.c 1.60 1998/03/01 01:46:25 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.60  1998/03/01  01:46:25  ahd
+ * Annual Copyright Update
+ *
  *    Revision 1.59  1997/11/29 12:49:01  ahd
  *    Don't dereference NULL pointer if missing operands when
  *    parsing RMAIL operands before RMAIL invocation
@@ -630,11 +633,7 @@ static void process( const char *eXecFileName,
 
    struct F_list *qPtr;
 
-#if defined(BIT32ENV)
-   char   line[2048];   /* New OS/2, Windows NT environments   */
-#else
-   char line[BUFSIZ];
-#endif
+   char line[KW_BUFSIZ];
 
    KWBoolean skip = KWFalse;
    KWBoolean reject = KWFalse;
@@ -681,6 +680,16 @@ static void process( const char *eXecFileName,
 
       if ( (cp = strchr(line, '\n')) != NULL )
          *cp = '\0';
+      else {
+         printmsg(0,"process: file %s: overlength line "
+                    "(exceeds %d characters) cannot be processed: "
+                    "%.80s ...",
+                    eXecFileName,
+                    sizeof line,
+                    line );
+         skip = KWTrue;
+      }
+
 
       printmsg(5, "Input read: %s", line);
 
@@ -1279,13 +1288,7 @@ static int shell(char *command,
 {
    int    result = 0;
 
-#if defined(BIT32ENV)
-   char   commandBuf[1024];   /* New OS/2, Windows NT environments   */
-#elif defined(FAMILYAPI)
-   char   commandBuf[255];    /* Original OS/2 1.x environment       */
-#else
-   char   commandBuf[128];    /* Original DOS environment            */
-#endif
+   char   commandBuf[COMMAND_TEXT_MAX];
 
    char   *cmdname;
    char   *parameters;
@@ -1572,7 +1575,7 @@ static KWBoolean copyLocal(const char *from, const char *to)
       int  fd_from, fd_to;
       int  nr;
       int  nw = -1;
-      char buf[BUFSIZ*2];        /* faster if we alloc a big buffer  */
+      char buf[KW_BUFSIZ];        /* faster if we alloc a big buffer  */
 
       /* This would be even faster if we determined that both files
          were on the same device, dos >= 3.0, and used the dos move
@@ -1904,7 +1907,7 @@ static void ReportResults(const int status,
 static void appendData( const char *input, FILE* dataout)
 {
    FILE    *datain;
-   char     buf[BUFSIZ];
+   char     buf[KW_BUFSIZ];
 
 /*--------------------------------------------------------------------*/
 /*                      Verify the input opened                       */
@@ -1963,7 +1966,7 @@ void mailStatus(const char *tempfile,
                 const char *subject)
 {
    int status;
-   char buf[BUFSIZ];
+   char buf[KW_BUFSIZ];
 
 /*--------------------------------------------------------------------*/
 /*                            Invoke RMAIL                            */

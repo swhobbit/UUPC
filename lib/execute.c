@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.46 1998/03/01 01:23:27 ahd v1-13b $
+ *    $Id: execute.c 1.47 1998/07/27 01:03:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.47  1998/07/27 01:03:54  ahd
+ *    Correct error message for dup()
+ *
  *    Revision 1.46  1998/03/01  01:23:27  ahd
  *    Annual Copyright Update
  *
@@ -251,7 +254,7 @@ int execute( const char *command,
 
    KWBoolean useBat = (input != NULL) || (output != NULL );
 
-   char path[FILENAME_MAX];         /* String for executable file   */
+   char path[COMMAND_TEXT_MAX];     /* String for executable file   */
    char batchFile[FILENAME_MAX];    /* String for batch driver file */
    char perfect[FILENAME_MAX];      /* String for results test file */
 
@@ -402,7 +405,7 @@ int execute( const char *command,
 {
    int result;
    int tempHandle;
-   char path[BUFSIZ];
+   char path[COMMAND_TEXT_MAX];
 
    printmsg(3,"Command = %s, parameters = \"%s\"%s%s%s%s, %s, %s.",
                command,
@@ -501,6 +504,16 @@ int execute( const char *command,
 
       if ( parameters != NULL )
       {
+         if ((strlen(path) + strlen(parameters) + 2) > sizeof path)
+         {
+            printmsg(0,"execute: command too long (> %d characters): "
+                     "%.80s %.80s ...",
+                     sizeof path,
+                     path,
+                     parameters );
+            panic();
+         }
+
          strcat( path, " ");
          strcat( path, parameters );
       }
@@ -599,10 +612,8 @@ int executeCommand( const char *command,
 {
    char *cmdname;
    char *parameters;
-   char buffer[BUFSIZ];
+   char *buffer = strdup( command );
    int result;
-
-   strcpy( buffer, command );
 
    cmdname = strtok( buffer, WHITESPACE );
    parameters = strtok( NULL, "\r\n" );
@@ -622,6 +633,8 @@ int executeCommand( const char *command,
                      output,
                      synchronous,
                      foreground );
+
+   free(buffer);
 
    return result;
 
@@ -1037,7 +1050,7 @@ int executeAsync( const char *command,
              const KWBoolean foreground )
 {
    int result;
-   char path[BUFSIZ];
+   char path[COMMAND_TEXT_MAX];
    STARTUPINFO si;
    PROCESS_INFORMATION pi;
    void *oldCtrlCHandler;
@@ -1060,6 +1073,16 @@ int executeAsync( const char *command,
 
    if (parameters != NULL)
    {
+      if ((strlen(path) + strlen(parameters) + 2) > sizeof path)
+      {
+         printmsg(0,"execute: command too long (> %d characters): "
+                  "%.80s %.80s ...",
+                  sizeof path,
+                  path,
+                  parameters );
+         panic();
+      }
+
       strcat( path, " ");
       strcat( path, parameters );
    }
