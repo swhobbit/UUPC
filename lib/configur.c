@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.90 1999/01/08 04:31:09 ahd Exp $
+ *    $Id: configur.c 1.91 2000/05/12 12:29:45 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.91  2000/05/12 12:29:45  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.90  1999/01/08 04:31:09  ahd
  *    Increase SMTP timeout
  *
@@ -170,7 +173,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.90 1999/01/08 04:31:09 ahd Exp $");
+RCSID("$Id: configur.c 1.91 2000/05/12 12:29:45 ahd v1-13g $");
 
 #define HOMEDIRLIT "*HOME*"
 
@@ -1224,7 +1227,7 @@ KWBoolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stderr,
-"Changes and Compilation Copyright 1989-1999 by Kendra Electronic\n"
+"Changes and Compilation Copyright 1989-2000 by Kendra Electronic\n"
 "Wonderworks.  May be freely distributed for reasonable copying fee\n"
 "if original documentation and source is included.  See license for\n"
 "details and restrictions.\n");
