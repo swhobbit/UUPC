@@ -9,27 +9,18 @@
 /*       21Nov1991 Break out of hlib.c                         ahd    */
 /*--------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <time.h>
-
-#ifdef __GNUC__
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
-
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\LIB\RCS\MKTEMPNM.C 1.2 1992/11/19 02:57:07 ahd Exp $
+ *    $Id: MKTEMPNM.C 1.3 1993/04/11 00:31:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: MKTEMPNM.C $
+ *     Revision 1.3  1993/04/11  00:31:04  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/19  02:57:07  ahd
  * drop rcsid
  *
@@ -37,6 +28,19 @@
  * Initial revision
  *
  */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include <time.h>
+
+#include <io.h>
+#include <process.h>
 
 
 /*--------------------------------------------------------------------*/
@@ -61,6 +65,10 @@ currentfile();
 char *mktempname( char *buf, char *extension)
 {
    static size_t file = 0;
+
+   if ( file == 0 )
+      file = getpid() & 0x7FFF;  // Make unique number less than 32K
+
    if (buf == NULL)           /* Do we need to allocate buffer?         */
    {
       buf = malloc( FILENAME_MAX );
