@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.29 1998/05/11 01:20:48 ahd Exp $
+ *    $Id: logger.c 1.30 1998/05/17 21:12:13 ahd v1-13b $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.30  1998/05/17  21:12:13  ahd
+ *    Correct RCSID
+ *
  *    Revision 1.29  1998/05/11 01:20:48  ahd
  *    Don't close temp log before copying to perm log, just rewind it
  *    Allow external routines to call copylog
@@ -76,7 +79,7 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id$");
+RCSID("$Id: logger.c 1.30 1998/05/17 21:12:13 ahd v1-13b $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -218,7 +221,7 @@ void openlog(const char *log)
 
 void copylog(void)
 {
-
+   static const char mName[] = "copylog";
    FILE *input;
    FILE *output;
    char buf[BUFSIZ];
@@ -249,7 +252,8 @@ void copylog(void)
    if (output == NULL)
    {
       printerr(permanentLogName);
-      printmsg(0,"Cannot merge log %s to %s",
+      printmsg(0,"%s: Cannot merge log %s to %s",
+                  mName,
                   currentLogName,
                   permanentLogName);
       fclose(logfile);
@@ -300,9 +304,21 @@ void copylog(void)
 /*--------------------------------------------------------------------*/
 
    fclose(input);
-   fclose(logfile);
-   logfile  = stderr;
 
-   REMOVE(currentLogName);
+   if (REMOVE(currentLogName))
+   {
+      printmsg(0,"%s: Unable to delete temporary log file %s",
+                  mName,
+                  currentLogName );
+      printerr(currentLogName);
+   }
+
+   printmsg(0,"%s: Spun off log %s to %s",
+               mName,
+               currentLogName,
+               permanentLogName);
+
+   fclose(logfile);
+   logfile = stderr;
 
 } /* copylog */
