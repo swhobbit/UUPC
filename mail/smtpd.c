@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.16 1999/01/08 02:21:05 ahd Exp $
+ *    $Id: smtpd.c 1.17 1999/01/17 17:19:16 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.17  1999/01/17 17:19:16  ahd
+ *    Give priority to accepting new connections
+ *    Make initialization of slave and master connections more consistent
+ *
  *    Revision 1.16  1999/01/08 02:21:05  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -99,13 +103,13 @@
 #include "getopt.h"
 #include "logger.h"
 #include "smtpcmds.h"
-#include "smtpnetw.h"
+#include "smtpnett.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.16 1999/01/08 02:21:05 ahd Exp $");
+RCSID("$Id: smtpd.c 1.17 1999/01/17 17:19:16 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       c l i e n t M o d e                                          */
@@ -114,7 +118,7 @@ RCSID("$Id: smtpd.c 1.16 1999/01/08 02:21:05 ahd Exp $");
 /*--------------------------------------------------------------------*/
 
 int
-clientMode( int hotHandle, KWBoolean runUUXQT )
+clientMode(int hotHandle, KWBoolean runUUXQT)
 {
 
    static const char mName[] = "clientMode";
@@ -122,32 +126,32 @@ clientMode( int hotHandle, KWBoolean runUUXQT )
 
    printmsg(1, "%s: Entering single client mode for handle %d",
                mName,
-               hotHandle );
+               hotHandle);
 
-   client = initializeClient( (SOCKET) hotHandle );
+   client = initializeClient((SOCKET) hotHandle);
 
-   if ( client == NULL )
+   if (client == NULL)
       return 4;
 
 /*--------------------------------------------------------------------*/
 /*                 Actual processing loop for client                  */
 /*--------------------------------------------------------------------*/
 
-   while( isClientValid( client ))
+   while(isClientValid(client))
    {
-      flagReadyClientList( client );
-      timeoutClientList( client );
-      processReadyClientList( client );
+      flagReadyClientList(client);
+      timeoutClientList(client);
+      processReadyClientList(client);
    }
 
 /*--------------------------------------------------------------------*/
 /*                   Clean up and return to caller                    */
 /*--------------------------------------------------------------------*/
 
-   if ( runUUXQT && getClientQueueRun( client ))
+   if (runUUXQT && getClientQueueRun(client))
       executeQueue();
 
-   freeClient( client );
+   freeClient(client);
 
    return 0;
 
@@ -161,12 +165,12 @@ clientMode( int hotHandle, KWBoolean runUUXQT )
 /*--------------------------------------------------------------------*/
 
 int
-daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
+daemonMode(char *port, time_t exitTime, KWBoolean runUUXQT)
 {
    static const char mName[] = "daemonMode";
-   SMTPClient *master = initializeMaster( port, exitTime );
+   SMTPClient *master = initializeMaster(port, exitTime);
 
-   if ( master == NULL )
+   if (master == NULL)
       return 4;
 
    printmsg(1,"%s: Beginning daemon mode processing.", mName);
@@ -175,20 +179,20 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 /*                      Our main processing loop                      */
 /*--------------------------------------------------------------------*/
 
-   while( ! terminate_processing &&
-           isClientValid( master ) &&
-           ! isClientTimedOut( master ))
+   while(! terminate_processing &&
+           isClientValid(master) &&
+           ! isClientTimedOut(master))
    {
-      flagReadyClientList( master );
-      timeoutClientList( master );
-      processReadyClientList( master );
-      dropTerminatedClientList( master->next, runUUXQT );
+      flagReadyClientList(master);
+      timeoutClientList(master);
+      processReadyClientList(master);
+      dropTerminatedClientList(master->next, runUUXQT);
 
-   } /* while( ! terminate_processing && isClientValid( master )) */
+   } /* while(! terminate_processing && isClientValid(master)) */
 
-   dropAllClientList( master, runUUXQT  );
+   dropAllClientList(master, runUUXQT);
 
-   if ( terminate_processing )
+   if (terminate_processing)
       return 100;
    else
       return 0;
@@ -202,12 +206,12 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 /*--------------------------------------------------------------------*/
 
 void
-usage( const char *myName )
+usage(const char *myName)
 {
    fprintf(stderr, "\nUsage:\t%s\t"
             "[-l logfile] [-t] [-U] [-x debug]\n"
             "\t\t[-h handle | -d hhmm]",
-            myName );
+            myName);
    exit(4);
 }
 
@@ -217,7 +221,7 @@ usage( const char *myName )
 /*       Invocation of daemon for SMTP receipt                        */
 /*--------------------------------------------------------------------*/
 
-main( int argc, char ** argv )
+main(int argc, char ** argv)
 {
    int exitStatus;
    char *logfile_name = NULL;
@@ -226,7 +230,7 @@ main( int argc, char ** argv )
    int option;
    time_t exitTime = LONG_MAX;
    KWBoolean runUUXQT = KWFalse;
-   int  hotHandle = -1;
+   int  hotHandle = getDefaultHandle();
 
    logfile = stderr;
 
@@ -234,42 +238,42 @@ main( int argc, char ** argv )
 /*          Report our version number and date/time compiled          */
 /*--------------------------------------------------------------------*/
 
-   banner( argv );
+   banner(argv);
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);
    checkref(copywrong);
 #endif
 
-   if (!configure( B_UUSMTPD ))
+   if (!configure(B_UUSMTPD))
       panic();
 
-   setDeliveryGrade( E_mailGrade );
+   setDeliveryGrade(E_mailGrade);
 
 /*--------------------------------------------------------------------*/
 /*       Parse our options, which will dictate how we process user    */
 /*       connections.                                                 */
 /*--------------------------------------------------------------------*/
 
-   while((option = getopt( argc, argv, "d:g:h:l:p:Ux:" )) != EOF)
+   while((option = getopt(argc, argv, "d:g:h:l:p:Ux:")) != EOF)
    {
-      switch( option )
+      switch(option)
       {
          case 'd':
-            exitTime = atoi( optarg );
+            exitTime = atoi(optarg);
             exitTime = time(NULL) + hhmm2sec(exitTime);
             break;
 
          case 'h':
-            hotHandle = atoi( optarg );   /* Handle opened for us       */
+            hotHandle = atoi(optarg);     /* Handle opened for us       */
             break;
 
          case 'g':
-            if ( isalnum(*optarg) && ( strlen( optarg) == 1 ))
+            if (isalnum(*optarg) && (strlen(optarg) == 1))
                setDeliveryGrade(*optarg);
             else {
-               printmsg(0,"Invalid grade for mail: %s", optarg );
-               usage( argv[0] );
+               printmsg(0,"Invalid grade for mail: %s", optarg);
+               usage(argv[0]);
             }
             break;
 
@@ -290,14 +294,14 @@ main( int argc, char ** argv )
             break;
 
          default:
-            fprintf( stdout, "Invalid option '%c'.\n", option);
+            fprintf(stdout, "Invalid option '%c'.\n", option);
             /* FALL THROUGH */
 
          case '?':
-            usage( argv[0] );
+            usage(argv[0]);
             break;
 
-      } /* switch( option ) */
+      } /* switch(option) */
    }
 
 /*--------------------------------------------------------------------*/
@@ -314,17 +318,17 @@ main( int argc, char ** argv )
 /*        Initialize logging and the name of the systems file         */
 /*--------------------------------------------------------------------*/
 
-   openlog( logfile_name );
+   openlog(logfile_name);
 
 /*--------------------------------------------------------------------*/
 /*         Only run if UUPC/extended multi-tasking is enabled         */
 /*--------------------------------------------------------------------*/
 
-   if ( !bflag[ F_MULTITASK ] )
+   if (!bflag[ F_MULTITASK ])
    {
       printmsg(0, "%s: options=multitask must be specified in "
                   "configuration file to use this program",
-                  argv[0] );
+                  argv[0]);
       panic();
    }
 
@@ -332,19 +336,19 @@ main( int argc, char ** argv )
 /*                        Trap control C exits                        */
 /*--------------------------------------------------------------------*/
 
-    if( signal( SIGINT, ctrlchandler ) == SIG_ERR )
+    if(signal(SIGINT, ctrlchandler) == SIG_ERR)
     {
         printerr("signal");
-        printmsg( 0, "Couldn't set SIGINT\n" );
+        printmsg(0, "Couldn't set SIGINT\n");
         panic();
     }
 
 #if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
 
-    if( signal( SIGTERM, ctrlchandler ) == SIG_ERR )
+    if(signal(SIGTERM, ctrlchandler) == SIG_ERR)
     {
         printerr("signal");
-        printmsg( 0, "Couldn't set SIGTERM\n" );
+        printmsg(0, "Couldn't set SIGTERM\n");
         panic();
     }
 
@@ -352,10 +356,10 @@ main( int argc, char ** argv )
 
 #if defined(__OS2__)
 
-    if( signal( SIGBREAK , ctrlchandler ) == SIG_ERR )
+    if(signal(SIGBREAK , ctrlchandler) == SIG_ERR)
     {
         printerr("signal");
-        printmsg( 0, "Couldn't set SIGBREAK\n" );
+        printmsg(0, "Couldn't set SIGBREAK\n");
         panic();
     }
 
@@ -367,16 +371,16 @@ main( int argc, char ** argv )
 /*                If loaded for single client, handle it              */
 /*--------------------------------------------------------------------*/
 
-   if (!InitWinsock())              /* Initialize library?           */
+   if (!InitializeNetwork())        /* Initialize library?           */
       panic();                      /* No --> Report error           */
 
-   if ( hotHandle == -1 )
-      exitStatus = daemonMode( port, exitTime, runUUXQT );
+   if (hotHandle == -1)
+      exitStatus = daemonMode(port, exitTime, runUUXQT);
    else {
-      exitStatus = clientMode( hotHandle, runUUXQT );
+      exitStatus = clientMode(hotHandle, runUUXQT);
    }
 
-   exit( exitStatus );
+   exit(exitStatus);
    return exitStatus;               /* Suppress compiler warning */
 
 } /* main */
