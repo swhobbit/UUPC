@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.33 1994/12/22 00:19:04 ahd Exp $
+ *    $Id: deliver.c 1.34 1995/01/07 16:18:37 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.34  1995/01/07 16:18:37  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.33  1994/12/22 00:19:04  ahd
  *    Annual Copyright Update
  *
@@ -161,6 +164,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#include "imfile.h"
 #include "address.h"
 #include "deliver.h"
 #include "expath.h"
@@ -187,12 +191,12 @@ currentfile();
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverLocal( const char *input,  /* Input file name    */
+static size_t DeliverLocal( IMFILE *imf,        /* Input file name    */
                           char *user,     /* Target address           */
                           KWBoolean validate); /* Validate/forward
                                                 local mail            */
 
-static int DeliverFile( const char *input,
+static int DeliverFile( IMFILE *imf,
                         const char *mboxname,
                         const long start,
                         const long end,
@@ -201,28 +205,28 @@ static int DeliverFile( const char *input,
                         const KWBoolean validate,
                         const char *user );
 
-static size_t DeliverRemote( const char *input, /* Input file name    */
+static size_t DeliverRemote( IMFILE *imf,          /* Input file name */
                              const char *address,  /* Target address  */
                              const char *path);
 
-static size_t DeliverVMS( const char *input,    /* Input file name    */
+static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
                           char *user,     /* Target address           */
                           KWBoolean validate); /* Validate/forward
                                                 local mail            */
 
-static size_t DeliverGateway(   const char *input,
+static size_t DeliverGateway(   IMFILE *imf,
                                 const char *user,
                                 const char *node,
                                 const struct HostTable *hostp,
                                 const KWBoolean validate );
 
 static int CopyData(   const KWBoolean remotedelivery,
-                       const char *input,
+                       IMFILE *imf,
                        FILE *mbox);
 
-static char *stats( const char *fname );
+static char *stats( IMFILE *imf );
 
-size_t Bounce( const char *input,
+size_t Bounce( IMFILE *imf,
                const char *text,
                const char *data,
                const char *address,
@@ -246,10 +250,9 @@ size_t Bounce( const char *input,
 /*    Deliver mail to one user                                        */
 /*--------------------------------------------------------------------*/
 
-size_t Deliver(       const char *input,    /* Input file name        */
-                            char *address,  /* Target address          */
-                          KWBoolean validate)  /* Validate/forward
-                                                local mail            */
+size_t Deliver( IMFILE *imf,        /* Input file                    */
+                char *address,      /* Target address                */
+                KWBoolean validate) /* Validate/forward local mail   */
 {
    char node[MAXADDR];
    char path[MAXADDR];
@@ -258,7 +261,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
    struct HostTable *hostp;
 
    if ( strlen( address ) >= MAXADDR )
-      return Bounce( input,
+      return Bounce( imf,
                      "Excessive address length",
                      address,
                      address,
@@ -273,11 +276,12 @@ size_t Deliver(       const char *input,    /* Input file name        */
    if (equal(path, E_nodename)) /* Local node?                        */
    {
       struct HostTable *hostx = checkname( node );
+
       if (hostx->status.hstatus == localhost)  /* Really the local node?     */
-         return DeliverLocal( input, user, validate );
+         return DeliverLocal( imf, user, validate );
                                  /* Yes!                              */
       else
-         return Bounce( input,
+         return Bounce( imf,
                  "No known delivery path for host",
                   address,
                   address,
@@ -289,7 +293,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
 /*--------------------------------------------------------------------*/
 
    if (hops > E_maxhops)
-      return Bounce(input,
+      return Bounce(imf,
              "Excessive number of hops",
              address,
              address,
@@ -300,15 +304,16 @@ size_t Deliver(       const char *input,    /* Input file name        */
 /*--------------------------------------------------------------------*/
 
    hostp = checkname( path );
+
    if ( (hostp != BADHOST) && (hostp->status.hstatus == gatewayed))
-      return DeliverGateway( input, user, node, hostp, validate );
+      return DeliverGateway( imf, user, node, hostp, validate );
 
 /*--------------------------------------------------------------------*/
 /*         Deliver mail to a system directory connected to us         */
 /*--------------------------------------------------------------------*/
 
    if (equal(path,node))   /* Directly connected system?          */
-      return DeliverRemote( input, user, path); /* Yes            */
+      return DeliverRemote( imf, user, path); /* Yes            */
 
 /*--------------------------------------------------------------------*/
 /*   Default delivery; strip any this node and the directly           */
@@ -318,6 +323,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
 
    strcpy(node,address);
    token = strtok(node,"!");  /* Get first host in path        */
+
    if (equal( HostAlias(token), E_nodename)) /* Local system?  */
    {
       token =  strtok(NULL,"");  /* Yes --> Get rest of addr   */
@@ -342,7 +348,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
                                  /* be a local address!        */
    } /* if */
 
-   return DeliverRemote( input, address, path );
+   return DeliverRemote( imf, address, path );
 
 } /* Deliver */
 
@@ -352,7 +358,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
 /*    Handle local delivery, including optional forwarding            */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverLocal( const char *input,
+static size_t DeliverLocal( IMFILE *imf,
                                           /* Input file name          */
                           char *user,     /* Target address           */
                           KWBoolean validate)  /* KWTrue = validate,
@@ -393,7 +399,7 @@ static size_t DeliverLocal( const char *input,
       if ( (aliasp != NULL) && ! aliasp->recurse )
       {
          aliasp->recurse = KWTrue;
-         delivered += DeliverFile( input,
+         delivered += DeliverFile( imf,
                                    SysAliases,
                                    aliasp->start,
                                    aliasp->end,
@@ -416,7 +422,7 @@ static size_t DeliverLocal( const char *input,
 
       if ( userp == BADUSER )    /* Invalid user id?                  */
       {                          /* Yes --> Dump in trash bin         */
-         return Bounce( input,
+         return Bounce( imf,
                         "Invalid local address (not defined in PASSWD or ALIASES)",
                         user,
                         user,
@@ -432,7 +438,7 @@ static size_t DeliverLocal( const char *input,
       if (access( mboxname, 0 )) /* The .forward file exists?         */
          announce = KWTrue;       /* No --> Fall through               */
       else {
-         delivered += DeliverFile( input,
+         delivered += DeliverFile( imf,
                                    mboxname,
                                    0,
                                    LONG_MAX,
@@ -461,7 +467,7 @@ static size_t DeliverLocal( const char *input,
                               /* No --> Build normal name             */
 
    printmsg(1,"Delivering mail %sfrom %s%s%s to %s",
-                        stats( input ),
+                        stats( imf ),
                         ruser,
                         remoteMail ? "@" : "",
                         remoteMail ? rnode : "",
@@ -482,7 +488,7 @@ static size_t DeliverLocal( const char *input,
    if (!isatty(fileno(mbox)))
       fputs(MESSAGESEP,mbox); /* Write separator line                 */
 
-   return CopyData( KWFalse, input , mbox );
+   return CopyData( KWFalse, imf , mbox );
 
 } /* DeliverLocal */
 
@@ -492,7 +498,7 @@ static size_t DeliverLocal( const char *input,
 /*       Process a local or system aliases file                       */
 /*--------------------------------------------------------------------*/
 
-static int DeliverFile( const char *input,
+static int DeliverFile( IMFILE *imf,
                         const char *fwrdname,
                         const long start,
                         const long end,
@@ -509,7 +515,7 @@ static int DeliverFile( const char *input,
    if ( fwrd == NULL )
    {
       printerr( fwrdname );
-      return Bounce( input,
+      return Bounce( imf,
                      "Cannot open forward file",
                      fwrdname,
                      user,
@@ -518,7 +524,6 @@ static int DeliverFile( const char *input,
 
    if ( start != 0 )
       fseek( fwrd, start, SEEK_SET);
-
 
    while((ftell(fwrd) < end) && (fgets( buf, BUFSIZ, fwrd) != NULL ))
    {
@@ -544,13 +549,12 @@ static int DeliverFile( const char *input,
 
       printmsg(2,"Expanding %s via %s to \"%s\"", user, fwrdname, s);
 
-
       if ( equalni( buf, INCLUDE, strlen(INCLUDE)))
       {
          nextfile = strtok( s + strlen(INCLUDE), WHITESPACE );
          if ( nextfile == NULL )
          {
-            return Bounce(input,
+            return Bounce(imf,
                           "Missing forwarding file for alias",
                           fwrdname,
                           user,
@@ -581,13 +585,14 @@ static int DeliverFile( const char *input,
             fclose(fwrd);
             PushDir( cwd );
             printmsg(1,"Piping mail%s from %s@%s for %s into %s",
-                        stats( input ),
+                        stats( imf ),
                         ruser,
                         rnode,
                         user,
                         s + 1 );
 
-            executeCommand( s + 1, input, NULL, KWTrue, KWFalse );
+            imrewind( imf );
+            executeIMFCommand( s + 1, imf, NULL, KWTrue, KWFalse );
             PopDir();
             delivered += 1;
             fwrd = FOPEN(fwrdname, "r", TEXT_MODE);
@@ -596,7 +601,7 @@ static int DeliverFile( const char *input,
          } /* case */
 
          case '\\':              /* Deliver without forwarding */
-            delivered += Deliver( input, &s[1], KWFalse );
+            delivered += Deliver( imf, &s[1], KWFalse );
             *announce = KWTrue;
             break;
 
@@ -605,7 +610,7 @@ static int DeliverFile( const char *input,
             char fname[FILENAME_MAX];
             strcpy( fname, nextfile);
             expand_path(nextfile, NULL, cwd, E_mailext);
-            delivered += DeliverFile( input,
+            delivered += DeliverFile( imf,
                                       nextfile,
                                       0,
                                       LONG_MAX,
@@ -617,14 +622,14 @@ static int DeliverFile( const char *input,
          }
 
          case '>':               /* Deliver to V-mail address specified */
-               delivered += DeliverVMS( input, s + 1, validate );
+               delivered += DeliverVMS( imf, s + 1, validate );
                break;
 
          case '/':               /* Save in absolute path name */
          case '~':
             if (expand_path(s, NULL, cwd, E_mailext) == NULL )
             {
-               return Bounce(input,
+               return Bounce(imf,
                              "Invalid path in forwarding file name",
                              s,
                              user,
@@ -632,12 +637,12 @@ static int DeliverFile( const char *input,
 
             }
             else
-               delivered += DeliverLocal( input, s, KWFalse );
+               delivered += DeliverLocal( imf, s, KWFalse );
             *announce = KWTrue;
             break;
 
          default:                /* Deliver normally           */
-              delivered += Deliver( input, s, validate );
+              delivered += Deliver( imf, s, validate );
       } /* switch */
    } /* while */
 
@@ -653,7 +658,7 @@ static int DeliverFile( const char *input,
 /*    Deliver mail via a gateway program                              */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverGateway(   const char *input,
+static size_t DeliverGateway(   IMFILE *imf,
                                 const char *user,
                                 const char *node,
                                 const struct HostTable *hostp,
@@ -678,14 +683,15 @@ static size_t DeliverGateway(   const char *input,
 
    printmsg(1,
       "Gatewaying mail %sfrom %s@%s to %s@%s via %s using \"%s\"",
-       stats( input ),
+       stats( imf ),
        ruser, rnode, user, node, hostp->hostname, hostp->via);
 
 /*--------------------------------------------------------------------*/
 /*  Run the command and return caller with count of mail delivered    */
 /*--------------------------------------------------------------------*/
 
-   rc = executeCommand( command, input, NULL, KWTrue, KWFalse );
+   imrewind( imf );
+   rc = executeIMFCommand( command, imf, NULL, KWTrue, KWFalse );
 
    if ( rc == 0 )
       return 1;
@@ -693,7 +699,7 @@ static size_t DeliverGateway(   const char *input,
       char who[MAXADDR];
 
       sprintf( who, "%s@%s", user, node );
-      return Bounce( input,
+      return Bounce( imf,
                      "Gateway command returned non-zero exit status",
                      command,
                      who,
@@ -710,7 +716,7 @@ static size_t DeliverGateway(   const char *input,
 /*       OS/2 problems.                                               */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverVMS( const char *input,    /* Input file name    */
+static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
                           char *user,     /* Target address           */
                           KWBoolean validate)  /* Validate/forward
                                                 local mail            */
@@ -721,7 +727,7 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
    FILE *stream;
 
    if (( E_vmsQueueDir == NULL ) || (E_vmail == NULL ))
-      return Bounce( input,
+      return Bounce( imf,
                      ( E_vmsQueueDir == NULL ) ?
                               "VMSQueueDir not defined" :
                               "VMail program name not defined",
@@ -744,14 +750,14 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
    if (stream == NULL )
    {
       printerr(dname);
-      return Bounce( input,
+      return Bounce( imf,
                      "Cannot open V-mail data file",
                      dname,
                      user,
                      validate );
    }
 
-   if (!CopyData( KWFalse, input , stream ))
+   if (!CopyData( KWFalse, imf , stream ))
    {
       remove( dname );
       return 0;
@@ -763,10 +769,11 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
 /*--------------------------------------------------------------------*/
 
    stream = FOPEN(xname, "w", TEXT_MODE );
+
    if (stream == NULL )
    {
       printerr(xname);
-      return Bounce( input,
+      return Bounce( imf,
                      "Cannot open V-mail command file",
                      xname,
                      user,
@@ -786,7 +793,7 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
    fclose( stream );
 
    printmsg(1,"Queueing mail %sfrom %s%s%s for V-mail alias %s",
-               stats( input ),
+               stats( imf ),
                ruser,
                remoteMail ? "@" : "",
                remoteMail ? rnode : "",
@@ -802,7 +809,7 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
 /*    Queue mail for delivery on another system via UUCP              */
 /*--------------------------------------------------------------------*/
 
-static size_t DeliverRemote( const char *input, /* Input file name    */
+static size_t DeliverRemote( IMFILE *imf,       /* Input file name    */
                     const char *address,  /* Target address           */
                     const char *path)
 {
@@ -830,7 +837,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
                                  file                                 */
 
    printmsg(1,"Spooling mail %sfrom %s%s%s to %s via %s",
-               stats( input ),
+               stats( imf ),
                ruser,
                remoteMail ? "@" : "",
                remoteMail ? rnode : "",
@@ -915,7 +922,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
       return 0;
    }
 
-   if (!CopyData( KWTrue, input , stream ))
+   if (!CopyData( KWTrue, imf , stream ))
    {
       remove( msfile );
       return 0;
@@ -954,10 +961,9 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
 /*--------------------------------------------------------------------*/
 
 static int CopyData( const KWBoolean remotedelivery,
-                     const char *input,
+                     IMFILE *imf,
                      FILE *dataout)
 {
-   FILE *datain = FOPEN(input, "r",TEXT_MODE);
    char buf[BUFSIZ];
    char trailer[BUFSIZ];
    int column = 0;
@@ -970,23 +976,14 @@ static int CopyData( const KWBoolean remotedelivery,
    time( &now );
 
    sprintf(trailer, " %.24s", ctime( &now ));
+
    if ( !bflag[F_SHORTFROM] )
    {
       strcat( trailer, " remote from " );
       strcat( trailer, E_nodename );
    }
 
-/*--------------------------------------------------------------------*/
-/*                      Verify the input opened                       */
-/*--------------------------------------------------------------------*/
-
-   if (datain == NULL)
-   {
-      printerr(input);
-      printmsg(0,"Unable to open input file \"%s\"", input);
-      fclose(dataout);
-      return 0;
-   } /* datain */
+   imrewind( imf );
 
 /*--------------------------------------------------------------------*/
 /*    When we do the From line, we also determine if we must          */
@@ -1081,7 +1078,7 @@ static int CopyData( const KWBoolean remotedelivery,
 /*                       Loop to copy the data                        */
 /*--------------------------------------------------------------------*/
 
-   while (fgets(buf, BUFSIZ, datain) != NULL)
+   while (imgets(buf, BUFSIZ, imf) != NULL)
    {
       if ((*put_string)(buf, dataout) == EOF)     /* I/O error? */
       {
@@ -1096,14 +1093,12 @@ static int CopyData( const KWBoolean remotedelivery,
 /*                      Close up shop and return                      */
 /*--------------------------------------------------------------------*/
 
-   if (ferror(datain))        /* Clean end of file on input?          */
+   if (imerror(imf))          /* Clean end of file on input?          */
    {
-      printerr(input);
-      clearerr(datain);
-      success = KWFalse;
+      printerr("imgets");
+      panic();
    }
 
-   fclose(datain);
    fclose(dataout);
    return success;
 
@@ -1121,13 +1116,13 @@ static int CopyData( const KWBoolean remotedelivery,
 /*       UUCP From line should be used.                               */
 /*--------------------------------------------------------------------*/
 
-size_t Bounce( const char *input,
+size_t Bounce( IMFILE *imf,
                const char *text,
                const char *data,
                const char *address ,
                const KWBoolean validate )
 {
-   FILE *newfile, *otherfile;
+   FILE *newfile;
    char tname[FILENAME_MAX]; /* name of temporary file used */
    char buf[BUFSIZ];
    char sender[MAXADDR];
@@ -1157,15 +1152,9 @@ size_t Bounce( const char *input,
       bounce = KWFalse;
 
    if ( ! bounce )
-     return Deliver( input, E_postmaster, validate );
+     return Deliver( imf, E_postmaster, validate );
 
    mktempname( tname , "tmp");  /* Generate a temp file name           */
-
-   if ((otherfile = FOPEN(input,"r", TEXT_MODE ))==NULL)
-   {
-       printerr( input );
-       panic();
-   };
 
    if ((newfile = FOPEN(tname, "w", TEXT_MODE ))==NULL)
    {
@@ -1193,11 +1182,9 @@ size_t Bounce( const char *input,
 
     fputs("\n------ Failed Message Follows -----\n", newfile);
 
-    while ( fgets(buf, sizeof buf, otherfile) != NULL)
-      fputs(buf, newfile);
-
+    imrewind( imf );
+    imunload( newfile, imf );
     fclose(newfile);
-    fclose(otherfile);
 
 /*--------------------------------------------------------------------*/
 /*          Recursively invoke RMAIL to deliver our message           */
@@ -1211,7 +1198,7 @@ size_t Bounce( const char *input,
             sender );
 
     if ( execute( myProgramName, buf, NULL, NULL, KWTrue, KWFalse ))
-         DeliverLocal( input, E_postmaster, validate);
+         DeliverLocal( imf, E_postmaster, validate);
 
     return (1);
 
@@ -1223,24 +1210,14 @@ size_t Bounce( const char *input,
 /*    Report size of file in message, if desired                      */
 /*--------------------------------------------------------------------*/
 
-static char *stats( const char *fname )
+static char *stats( IMFILE *imf )
 {
    if (bflag[ F_COLLECTSTATS ] )
    {
-      long size;
-      time_t ltime = stater(fname, &size);
-
-      if ( ltime == -1 )
-      {
-         printerr( fname );
-         return "(unknown size)";
-      }
-      else {
-         static char buf[25];  /* "(nnnnnnn bytes) " */
-                               /*  ....+....+....+.. */
-         sprintf(buf,   "(%ld bytes) ",size );
-         return buf;
-      } /* else */
+      static char buf[25];  /* "(nnnnnnn bytes) " */
+                            /*  ....+....+....+.. */
+      sprintf(buf,   "(%ld bytes) ", imlength( imf ));
+      return buf;
    } /* if */
    else
       return "";              /* Pretend we were never here       */

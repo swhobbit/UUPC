@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.2 1995/01/07 20:48:21 ahd Exp $
+ *    $Id: imfile.c 1.3 1995/01/07 23:52:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.3  1995/01/07 23:52:37  ahd
+ *    Convert rnews to use in-memory files, debug associated functions
+ *
  *    Revision 1.2  1995/01/07 20:48:21  ahd
  *    Correct 16 compile warnings
  *
@@ -156,6 +159,7 @@ static int imReserve( IMFILE *imf, const long length )
 
    if ( imf->stream == NULL )
    {
+      printerr( imf->filename );
       imf->flag |= IM_FLAG_ERROR;
       return -1;
    }
@@ -173,14 +177,14 @@ static int imReserve( IMFILE *imf, const long length )
 IMFILE *imopen( const long length )    /* Longest in memory
                                           buffer desired          */
 {
-   IMFILE *imf = malloc( sizeof imf );
+   IMFILE *imf = malloc( sizeof (IMFILE) );
 
 /*--------------------------------------------------------------------*/
 /*          Allocate our control structure and initialize it          */
 /*--------------------------------------------------------------------*/
 
    checkref( imf );
-   memset( imf, 0, sizeof imf );
+   memset( imf, 0, sizeof *imf );
 
 /*--------------------------------------------------------------------*/
 /*       Free our resources and return an error if we had problem     */
@@ -201,7 +205,7 @@ IMFILE *imopen( const long length )    /* Longest in memory
    if (bflag[F_IMFILE] && ( length <= IM_MAX_LENGTH ))
    {
 
-      if ( imf->length <= 0 )
+      if ( length <= 0 )
          imf->length = IM_MAX_LENGTH / 10;
       else
          imf->length = length;
@@ -292,7 +296,7 @@ int imprintf( IMFILE *imf, const char *fmt , ...  )
 
       if ( strlen( buffer ) > 4096 )
       {
-         printmsg(0,"Memory overflow processing im memory file" );
+         printmsg(0, "imprintf: Memory overflow processing im memory file" );
          panic();                /* We corrupted the stack!          */
       }
 
@@ -355,7 +359,6 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    if ( userLength < 2 )            /* Need room for \n and \0          */
    {
-      imf->flag |= IM_FLAG_ERROR;
       errno = EINVAL;
       return NULL;
    }
@@ -380,6 +383,12 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
 
    while ( (long) subscript < stringLength )
    {
+      if ( p[subscript] == '\0' )
+      {
+         printmsg(2,"imgets: Encountered null byte %ld bytes into search",
+                     (long) subscript );
+      }
+
       if ( p[subscript] == '\n' )
          break;
       else
@@ -391,7 +400,7 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
    imf->position += subscript;
 
 #ifdef UDEBUG
-   printmsg(5,"Returning %d bytes = \"%s\"",
+   printmsg(5,"imgets: Returning %d bytes = \"%s\"",
               subscript,
               userBuffer );
 #endif
@@ -399,6 +408,27 @@ char *imgets( char *userBuffer, int userLength, IMFILE *imf )
    return userBuffer;
 
 } /* imgets */
+
+/*--------------------------------------------------------------------*/
+/*       i m p u t c                                                  */
+/*                                                                    */
+/*       Write a single character to an in-memory file.  No doubt     */
+/*       this could be more efficient if it performed a subset of     */
+/*       imwrite directly and didn't call imwrite to perform a one    */
+/*       character memcpy, but if you want efficient, send a block    */
+/*       of characters to imwrite directly!                           */
+/*--------------------------------------------------------------------*/
+
+int imputc( int in, IMFILE *imf )
+{
+   char c = (char) in;
+
+   int result = imwrite( &c, sizeof c, 1, imf );
+
+   if ( result != 1 )
+      return EOF;
+
+} /* imputc */
 
 /*--------------------------------------------------------------------*/
 /*       i m p u t s                                                  */
@@ -430,6 +460,13 @@ size_t  imread( void *userBuffer,
 
    if ( imf->buffer == NULL )
       return fread( userBuffer, objectSize, objectCount, imf->stream );
+
+   if (( objectSize < 0 ) || (objectCount < 0))
+   {
+      printmsg(0, "imread: Requested read of less than zero bytes" );
+      errno = EINVAL;
+      return -1;
+   }
 
    if ( imeof( imf ) )
       return 0;
@@ -470,7 +507,7 @@ size_t  imwrite(const void *userBuffer,
 /*            Verify we have a reasonable amount to write             */
 /*--------------------------------------------------------------------*/
 
-   if ( bytes < 0 )
+   if ( bytes <= 0 )
    {
       errno = EINVAL;
       return -1;
@@ -495,9 +532,12 @@ size_t  imwrite(const void *userBuffer,
    else {
 
       MEMCPY( imf->buffer + imf->position, userBuffer, (size_t) bytes );
+
       imf->position += bytes;
+
       if ( imf->inUse < imf->position )
          imf->inUse = imf->position;
+
       return objectCount;
 
    } /* else */
@@ -607,7 +647,7 @@ void imrewind( IMFILE *imf)
       {                             /* Yes --> Shorten it up         */
 
 #ifdef UDEBUG
-         printmsg(4,"Shortening IMF %p from %ld to %ld bytes",
+         printmsg(4,"imrewind: Shortening IMF %p from %ld to %ld bytes",
                      imf,
                      imf->length,
                      imf->inUse );
@@ -643,3 +683,160 @@ long imlength( IMFILE *imf )
       return imf->inUse;
 
 }   /* imlength */
+
+/*--------------------------------------------------------------------*/
+/*       i m u n l o a d                                              */
+/*                                                                    */
+/*       Blast an in-memory file into a real file, beginning with     */
+/*       the current file position of both files.                     */
+/*--------------------------------------------------------------------*/
+
+int imunload( FILE *output, IMFILE *imf )
+{
+  char *ioBuf    = NULL;
+  int  ioBufSize = (28 * 1024);
+
+/*--------------------------------------------------------------------*/
+/*       We invert our normal logic, because 16 bit allocated in      */
+/*       FAR memory cannot be blasted directly to disk.  Thus, we     */
+/*       handle the simple (and fast) 32 bit copy first and save      */
+/*       the funky disk logic for last.                               */
+/*--------------------------------------------------------------------*/
+
+#ifdef BIT32ENV
+
+   if ( imf->buffer != NULL )
+   {
+      while (! imeof( imf ))
+      {
+         long bytes = imf->inUse - imf->position;
+
+         if ( bytes > fwrite( imf->buffer + imf->position,
+                              sizeof (char),
+                              (size_t) bytes,
+                              output ))
+            return -1;              /* Report error to caller        */
+
+         imf->position += bytes;
+
+      } /* for */
+
+      return 0;                     /* Return success to caller      */
+
+   } /* if ( imf->buffer != NULL ) */
+
+#endif /* BIT32ENV */
+
+/*--------------------------------------------------------------------*/
+/*       We need to buffer the input to output, process as normal     */
+/*       files                                                        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                     Allocate a nice I/O bufer                      */
+/*--------------------------------------------------------------------*/
+
+   while (( ioBuf == NULL ) && (ioBufSize >= BUFSIZ))
+   {
+
+      ioBuf = malloc( ioBufSize );
+
+      if (ioBuf == NULL)
+      {
+         if ( debuglevel > 2 )
+            printerr( "imunload: malloc:" );
+
+         ioBufSize /= 2;            /* Try for half the buffer       */
+      }
+
+   } /* while (( ioBuf == NULL ) && (ioBufSize >= BUFSIZ)) */
+
+   if ( ioBuf == NULL )
+   {
+      printmsg(0,"imunload: Unablet to allocate I/O buffer for copy");
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
+/*                         Now copy the file                          */
+/*--------------------------------------------------------------------*/
+
+   while (! imeof( imf ))
+   {
+      long bytes = imread( ioBuf, sizeof (char), ioBufSize, imf );
+
+      if ((imerror( imf ) || ((long) bytes < 0)))
+      {
+         free(ioBuf);
+         return -1;
+      }
+
+      if ( (long) bytes > fwrite( ioBuf,
+                                   sizeof (char),
+                                   (size_t) bytes,
+                                   output ))
+      {
+         free(ioBuf);
+         return -1;              /* Report error to caller        */
+      }
+
+   } /* for */
+
+   return 0;                     /* Return success to caller      */
+
+} /* imunload */
+
+/*--------------------------------------------------------------------*/
+/*       e x e c u t e I M F C o m m a n d                            */
+/*                                                                    */
+/*       Execute a command with IMF input by copying the in-memory    */
+/*       file to disk if needed.                                      */
+/*--------------------------------------------------------------------*/
+
+int executeIMFCommand( const char *command,
+                       IMFILE  *imf,
+                       const char *output,
+                       const KWBoolean synchronous,
+                       const KWBoolean foreground )
+{
+   char tempName[ FILENAME_MAX ];
+   FILE *stream;
+   int status;
+
+   if ( imf->buffer == NULL )
+      return executeCommand( command,
+                             imf->filename,
+                             output,
+                             synchronous,
+                             foreground );
+
+
+   mktempname( tempName, "TMP" );
+
+   stream = FOPEN( tempName, "w", TEXT_MODE );
+
+   if ( stream == NULL )
+   {
+      printerr( tempName );
+      return -1;
+   }
+
+   if ( imunload( stream, imf ) )
+   {
+      printerr( tempName );
+      return -1;
+   }
+
+   fclose( stream );
+
+   status = executeCommand( command,
+                            tempName,
+                            output,
+                            synchronous,
+                            foreground );
+
+   unlink( tempName );
+
+   return status;
+
+}  /* executeIMFCommand */

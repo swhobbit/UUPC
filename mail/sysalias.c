@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.8 1994/12/22 00:19:55 ahd Exp $
+ *    $Id: sysalias.c 1.9 1995/01/07 16:19:27 ahd Exp $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.9  1995/01/07 16:19:27  ahd
+ *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.8  1994/12/22 00:19:55  ahd
  *    Annual Copyright Update
  *
@@ -63,6 +66,7 @@
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
 
+#include "imfile.h"
 #include "deliver.h"
 #include "sysalias.h"
 
