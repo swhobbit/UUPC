@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.28 1995/01/07 16:37:46 ahd Exp $
+ *    $Id: commlib.c 1.29 1995/01/30 04:08:36 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ *    Revision 1.29  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.28  1995/01/07 16:37:46  ahd
  *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -252,17 +255,24 @@ KWBoolean chooseCommunications( const char *name )
 #if defined(BIT32ENV) || defined(FAMILYAPI)
           nGetComHandle,
           nSetComHandle,
-          KWFalse,                      /* Not network based           */
-          KWTrue,                       /* Buffered under OS/2 and Windows NT  */
+          KWFalse,                  /* Not network based                */
+          KWTrue,                   /* Buffered under OS/2 and NT       */
+#elif defined(_Windows)
+          dummyGetComHandle,
+          dummySetComHandle,
+          KWFalse,                  /* Not network based                */
+          KWTrue,                   /* Buffered under Windows 3.1 too   */
 #else
           dummyGetComHandle,
           dummySetComHandle,
-          KWFalse,                      /* Not network based           */
-          KWTrue,                       /* Unbuffered for DOS, Windows 3.x  */
+          KWFalse,                  /* Not network based             */
+          KWTrue,                   /* Unbuffered for DOS            */
 #endif
-          NULL                         /* No network device name      */
+          NULL                      /* No network device name        */
         },
+
 #if !defined(BIT32ENV) && !defined(_Windows) && !defined(FAMILYAPI)
+
         { "fossil",                    /* MS-DOS FOSSIL driver        */
           fopenline, fopenline, fsread, fswrite,
           fssendbrk, fcloseline, fSIOSpeed, fflowcontrol, fhangup,
@@ -271,11 +281,12 @@ KWBoolean chooseCommunications( const char *name )
           dummyWaitForNetConnect,
           dummyGetComHandle,
           dummySetComHandle,
-          KWFalse,                      /* Not network oriented        */
-          KWFalse,                      /* Not buffered                 */
+          KWFalse,                     /* Not network oriented        */
+          KWFalse,                     /* Not buffered                */
           NULL                         /* No network device name      */
         },
-#ifdef ARTICOMM
+
+#if defined(ARTICOMM)
         { "articomm",                  /* MS-DOS ARTISOFT INT14 driver  */
           iopenline, iopenline, isread, iswrite,
           issendbrk, icloseline, iSIOSpeed, iflowcontrol, ihangup,
@@ -394,11 +405,7 @@ KWBoolean chooseCommunications( const char *name )
       if ( BUFSIZ > commBufferLength )
          commBufferLength = BUFSIZ;
 
-#ifdef BIT32ENV
-      commBuffer = malloc( commBufferLength );
-#else
-      commBuffer = _fmalloc( commBufferLength );
-#endif
+      commBuffer = MALLOC( commBufferLength );
 
       checkref( commBuffer );
 
@@ -406,11 +413,7 @@ KWBoolean chooseCommunications( const char *name )
    else if ( (! suite[subscript].buffered) && commBufferLength )
    {
       commBufferLength = 0;
-#ifdef BIT32ENV
-      free( commBuffer );
-#else
-      _ffree( commBuffer );
-#endif
+      FREE( commBuffer );
       commBuffer = NULL;
    }
    commBufferUsed = 0;
@@ -439,11 +442,9 @@ KWBoolean traceStart( const char *port )
 /*               Perform a little common house keeping                */
 /*--------------------------------------------------------------------*/
 
-
 /*--------------------------------------------------------------------*/
 /*                  Don't trace if not requested to                   */
 /*--------------------------------------------------------------------*/
-
 
    if ( ! traceEnabled )
       return KWFalse;
@@ -518,7 +519,8 @@ void traceData( const char UUFAR *data,
       return;
 
    printmsg(network ? 4 : 15, "traceData: %u bytes %s "
-#ifdef BIT32ENV
+
+#if defined(BIT32ENV)
                "%p",
 #else
                "%Fp",
@@ -533,7 +535,7 @@ void traceData( const char UUFAR *data,
       traceMode = (short) output;
    }
 
-#ifdef VERBOSE
+#if defined(VERBOSE)
 
    for (subscript = 0; subscript < len; subscript++)
    {
@@ -578,11 +580,17 @@ int dummyGetComHandle( void )
    return -1;
 }
 
+#if defined(__TURBOC__)
+#pragma argsused
+#endif
 
 void dummySetComHandle( const int foo )
 {
 }
 
+#if defined(__TURBOC__)
+#pragma argsused
+#endif
 
 KWBoolean dummyWaitForNetConnect(const unsigned int timeout)
 {
