@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.h 1.6 1999/01/04 03:56:09 ahd Exp $
+ *    $Id: smtpnetw.h 1.7 1999/01/17 17:21:32 ahd Exp $
  *
  *    $Log: smtpnetw.h $
+ *    Revision 1.7  1999/01/17 17:21:32  ahd
+ *    Add test for one socket being ready
+ *
  *    Revision 1.6  1999/01/04 03:56:09  ahd
  *    Annual copyright change
  *
@@ -48,7 +51,10 @@
 #include "smtpclnt.h"
 
 KWBoolean
-InitWinsock(void);
+selectReadySockets( SMTPClient *master );
+
+KWBoolean
+isSocketReady(SMTPClient *current, time_t timeout);
 
 KWBoolean
 SMTPGetLine( SMTPClient *client );
@@ -56,23 +62,6 @@ SMTPGetLine( SMTPClient *client );
 KWBoolean
 SMTPResponse( SMTPClient *client, int code, const char *text );
 
-SOCKET
-openMaster(const char *name );
-
-SOCKET
-openSlave(SOCKET pollingSock);
-
-time_t
-getModeTimeout( SMTPMode );
-
-void closeSocket( SOCKET handle );
-
-KWBoolean
-selectReadySockets( SMTPClient *master );
-
-KWBoolean
-isSocketReady(SMTPClient *current, time_t timeout);
-
-#define XMIT_LENGTH  512
+#define XMIT_LENGTH  KW_BUFSIZ
 
 #endif /* _SMTPNETW_H */

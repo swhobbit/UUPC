@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpconn.h 1.3 1998/04/08 11:36:31 ahd v1-13f $
+ *    $Id: smtpconn.h 1.4 1999/01/17 17:21:32 ahd Exp $
  *
  *    $Log: smtpconn.h $
+ *    Revision 1.4  1999/01/17 17:21:32  ahd
+ *    Add test for one socket being ready
+ *
  *    Revision 1.3  1998/04/08 11:36:31  ahd
  *    Alter socket error processing
  *
@@ -35,6 +38,7 @@ typedef struct _SMTPConnection
    char hostName[MAXADDR];          /* Name DNS reports client to be */
    char hostAddr[30];               /* Host IP address as string     */
    KWBoolean reverseLookup;         /* KWTrue = DNS could resolve adr*/
+   KWBoolean localhost;             /* KWTrue = host is local        */
    int error;                       /* Last error code (zero if none)*/
    FILE *stream;                    /* Batch mode file input         */
 } SMTPConnection;
