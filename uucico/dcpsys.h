@@ -41,13 +41,13 @@ XFER_STATE scandir(char *remote, const char grade );
 int   rmsg(char *msg, const boolean synch, unsigned int msgtime, int max_len);
 void  wmsg(char *msg, const boolean synch);
 
-extern int (*sendpkt)(char *data, int len);
-extern int (*getpkt)(char *data, int *len);
-extern int (*openpk)(const boolean caller);
-extern int (*closepk)(void);
-extern int (*wrmsg)(char *data);
-extern int (*rdmsg)(char *data);
-extern int (*eofpkt)(void);
-extern int (*filepkt)(void);
+extern short (*sendpkt)(char *data, short len);
+extern short (*getpkt)(char *data, short *len);
+extern short (*openpk)(const boolean caller);
+extern short (*closepk)(void);
+extern short (*wrmsg)(char *data);
+extern short (*rdmsg)(char *data);
+extern short (*eofpkt)(void);
+extern short (*filepkt)(void);
 
 boolean CallWindow( const char callgrade );

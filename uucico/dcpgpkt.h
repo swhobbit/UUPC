@@ -9,19 +9,30 @@
       08 Sep 90   -  Create via Microsoft C compiler /Zg          ahd
  */
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
  /*
-  *      $Id$
+  *      $Id: dcpgpkt.h 1.2 1992/11/15 20:08:46 ahd Exp ahd $
   *
-  *      $Log$
+  *      $Log: dcpgpkt.h $
+ * Revision 1.2  1992/11/15  20:08:46  ahd
+ * Clean up modem file support for different protocols
+ *
   */
 
-int  vopenpk(const boolean master);
-int  Gopenpk(const boolean master);
-int  gopenpk(const boolean master);
-int  gclosepk(void);
-int  ggetpkt(char  *data,int  *len);
-int  gsendpkt(char  *data,int  len);
-int  gwrmsg(char *str);
-int  grdmsg(register char *str);
-int  geofpkt( void );
-int  gfilepkt( void );
+short  vopenpk(const boolean master);
+short  Gopenpk(const boolean master);
+short  gopenpk(const boolean master);
+short  gclosepk(void);
+short  ggetpkt(char  *data,short  *len);
+short  gsendpkt(char  *data,short  len);
+short  gwrmsg(char *str);
+short  grdmsg(register char *str);
+short  geofpkt( void );
+short  gfilepkt( void );

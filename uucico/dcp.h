@@ -92,7 +92,7 @@ typedef enum {
 #define FAILED  (-1)
 #define OK              0
 
-typedef int     (*procref)();
+typedef short   (*procref)();
 
 typedef struct {
         char type;

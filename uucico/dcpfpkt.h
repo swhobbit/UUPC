@@ -11,16 +11,19 @@
  */
 
  /*
-  *      $Id$
+  *      $Id: DCPFPKT.H 1.2 1992/11/15 20:08:29 ahd Exp $
   *
-  *      $Log$
+  *      $Log: DCPFPKT.H $
+ * Revision 1.2  1992/11/15  20:08:29  ahd
+ * Clean up modem file support for different procotols
+ *
   */
 
-int  fopenpk(const boolean master);
-int  fclosepk(void);
-int  fgetpkt(char  *data,int  *len);
-int  fsendpkt(char  *data,int  len);
-int  fwrmsg(char *str);
-int  frdmsg(char *str);
-int  feofpkt( void );
-int  ffilepkt( void );
+short  fopenpk(const boolean master);
+short  fclosepk(void);
+short  fgetpkt(char  *data,short  *len);
+short  fsendpkt(char  *data,short  len);
+short  fwrmsg(char *str);
+short  frdmsg(char *str);
+short  feofpkt( void );
+short  ffilepkt( void );
