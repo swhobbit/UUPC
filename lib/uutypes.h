@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUTYPES.H 1.2 1993/04/11 00:36:59 dmwatt Exp $
+ *    $Id: uutypes.h 1.3 1993/04/15 03:21:30 ahd Exp $
  *
  *    Revision history:
- *    $Log: UUTYPES.H $
+ *    $Log: uutypes.h $
+ * Revision 1.3  1993/04/15  03:21:30  ahd
+ * Add bounce to boolean option list
+ *
  * Revision 1.2  1993/04/11  00:36:59  dmwatt
  * Global edits for year, TEXT, etc.
  *
@@ -41,7 +44,6 @@ typedef enum {
                F_ASKCC,       /* TRUE = ask for Carbon copies              */
                F_DOSKEY,      /* TRUE = Use DOSKEY under DOS 5 if available*/
                F_BACKUP,      /* TRUE = Backup mailbox before rewriting    */
-               F_BOUNCE,      /* TRUE = Bounce bad mail to sender          */
                F_DOT,         /* TRUE = period ends a message              */
                F_AUTOPRINT,   /* TRUE = print next message automatically   */
                F_AUTOEDIT,    /* TRUE = no line prompt, always edit        */
@@ -66,20 +68,23 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
                F_BANG,        /* TRUE = re-write addresses in bang (!) form*/
+               F_BOUNCE,      /* TRUE = Bounce bad mail to sender          */
                F_COLLECTSTATS,/* TRUE = Report additional information in
                                         various logs                       */
                F_DIRECT,      /* TRUE = Deliver to subdirectories, not
                                         files                              */
+               F_HONORDEBUG,  /* True = Accept -x flag from remote systems */
                F_ESCAPE,      /* TRUE = Allow ESCAPE to act as Ctrl-Break  */
-               F_HPFS,        /* TRUE = Exploit HPFS names under OS/2      */
                F_HISTORY,     /* TRUE = Maintain history of of articles
                                         read and posted                    */
                F_KANJI,       /* TRUE = enable Kanji (Japanese) support    */
+               F_LONGNAME,    /* TRUE = Exploit long names under OS/2, NT  */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on
                                         remote host at once                */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
                                         for race conditions                */
                F_ONECASE,     /* TRUE = Remote host is case insensitive    */
+               F_SENDDEBUG,   /* True = Send -x flag to remote systems     */
                F_SNEWS,       /* TRUE = Use Simple news delivery           */
                F_SYMMETRICGRADES,
                               /* TRUE = Use send grade as receive grade    */
