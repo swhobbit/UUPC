@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.29 1997/05/11 04:27:40 ahd v1-12s $
+  *      $Id: hostable.c 1.30 1997/11/24 02:58:14 ahd v1-12t ahd $
   *
   *      $Log: hostable.c $
+  *      Revision 1.30  1997/11/24 02:58:14  ahd
+  *      Don't allow non-mail programs to call checkname(), which could use
+  *      uninitialized local domain name.
+  *
   *      Revision 1.29  1997/05/11 04:27:40  ahd
   *      SMTP client support for RMAIL/UUXQT
   *
@@ -171,6 +175,13 @@ struct HostTable *checkName(const char *name,
    }
 
    namel = strlen(name);
+
+ /*-------------------------------------------------------------------*/
+ /*             Initialize the host name table if needed              */
+ /*-------------------------------------------------------------------*/
+
+   if (HostElements == 0)           /* host table initialized yet?    */
+      HostElements = loadhost();        /* No --> load it             */
 
 /*--------------------------------------------------------------------*/
 /*       Validate our environment; if the domain information is       */
