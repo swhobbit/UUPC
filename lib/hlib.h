@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.15 1996/11/19 00:25:20 ahd Exp $
+ *    $Id: hlib.h 1.16 1997/03/31 06:59:35 ahd v1-12s $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.16  1997/03/31 06:59:35  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1996/11/19 00:25:20  ahd
  *    Correct C++ scoping
  *
@@ -70,11 +73,8 @@
 /*              Define the device name of the bit bucket              */
 /*--------------------------------------------------------------------*/
 
-#ifdef WIN32
-#define BIT_BUCKET "NUL:"
-#else
-#define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
-#endif
+#define BIT_BUCKET "nul"
+
 
 char *normalize( const char *path );
 
