@@ -13,15 +13,17 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.1 1992/11/16 05:00:26 ahd Exp $
+ *    $Header: E:\SRC\UUPC\LIB\RCS\LOGGER.C 1.2 1992/11/19 02:58:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: LOGGER.C $
+ * Revision 1.2  1992/11/19  02:58:22  ahd
+ * drop rcsid
+ *
  * Revision 1.1  1992/11/16  05:00:26  ahd
  * Initial revision
  *
  */
-
 
 /*--------------------------------------------------------------------*/
 /*                   Standard library include files                   */
@@ -136,8 +138,6 @@ void openlog( const char *log )
       panic();
    }
 
-   printmsg(5,"Logging to %s",tempname );
-
 } /* openlog */
 
 /*--------------------------------------------------------------------*/
@@ -152,7 +152,6 @@ static void copylog( void )
    FILE *input;
    FILE *output;
    char buf[BUFSIZ];
-   int  retry = 0;
    int chars_read, chars_written;
 
 /*--------------------------------------------------------------------*/
@@ -170,10 +169,7 @@ static void copylog( void )
 /*            We're multitasking; copy the file gracefully            */
 /*--------------------------------------------------------------------*/
 
-
-   while (((output = FOPEN( logname ,"a", TEXT)) == NULL) &&
-            (retry++ < 10))
-      ssleep( retry );              /* Give time for problem to clear */
+   output = FOPEN( logname ,"a", TEXT);
 
    if ( output == NULL )
    {
