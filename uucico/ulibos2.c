@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ULIBOS2.C 1.7 1992/12/30 13:02:55 dmwatt Exp $
+ *       $Id: ULIBOS2.C 1.8 1993/04/04 04:57:01 ahd Exp $
  *       $Log: ULIBOS2.C $
+ * Revision 1.8  1993/04/04  04:57:01  ahd
+ * Add configurable OS/2 priority values
+ *
  * Revision 1.7  1992/12/30  13:02:55  dmwatt
  * Dual path for Windows/NT and OS/2
  *
@@ -1230,13 +1233,11 @@ void flowcontrol( boolean flow )
    rc = SetCommState(hCom, &dcb);
 
    if ( !rc )
-
    {
 
       printmsg(0,"flowcontrol: Unable to set flow control");
 
       printmsg(0,"Return code from SetCommState() was %d",
-
                GetLastError());
 
       panic();
@@ -1289,12 +1290,12 @@ BPS GetSpeed( void )
 
 boolean CD( void )
 {
-   boolean online = carrierdetect;
+   boolean previous_carrierdetect = carrierdetect;
    USHORT rc;
 
 #ifdef WIN32
    DWORD status;
-   static DWORD oldstatus = (DWORD) 0xDEADDEAD;
+   static DWORD oldstatus = (DWORD) 0xDEADBEEF;
 #else /* OS/2 */
    BYTE status;
    static BYTE oldstatus = (BYTE) 0xDEAD;
@@ -1330,9 +1331,10 @@ boolean CD( void )
 #endif
 
    if ( status != oldstatus )
+   {
       ShowModem( status );
-
-   oldstatus = status;
+      oldstatus = status;
+   }
 
 /*--------------------------------------------------------------------*/
 /*    If we previously had carrier detect but have lost it, we        */
@@ -1344,8 +1346,9 @@ boolean CD( void )
 
    carrierdetect = status && MS_RLSD_ON;
 
-   if (online)
-      return (status && (MS_RLSD_ON && MS_DSR_ON));
+   if (previous_carrierdetect)
+      return (status && (MS_RLSD_ON || MS_DSR_ON)) ==
+                        (MS_RLSD_ON || MS_DSR_ON);
    else
       return (status && MS_DSR_ON);
 
@@ -1353,8 +1356,8 @@ boolean CD( void )
 
    carrierdetect = status && DCD_ON;
 
-   if (online)
-      return (status && (DCD_ON && DSR_ON));
+   if (previous_carrierdetect)
+      return carrierdetect;
    else
       return (status && DSR_ON);
 
