@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.35 1994/10/03 01:05:58 ahd Exp $
+ *       $Id: rnews.c 1.36 1994/12/09 03:52:46 ahd v1-12k $
  *
  *       $Log: rnews.c $
+ *       Revision 1.36  1994/12/09 03:52:46  ahd
+ *       Generate 'U' line first in X.* files to operate with brain dead MKS
+ *
  * Revision 1.35  1994/10/03  01:05:58  ahd
  * Correct flag for posting to 'y'/'n'
  *
@@ -155,7 +158,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.35 1994/10/03 01:05:58 ahd Exp $";
+         "$Id: rnews.c 1.36 1994/12/09 03:52:46 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -174,6 +177,7 @@ static const char rcsid[] =
 #include "getopt.h"
 #include "getseq.h"
 #include "history.h"
+#include "hostable.h"
 #include "import.h"
 #include "importng.h"
 #include "logger.h"
@@ -226,7 +230,8 @@ static void add_newsgroup(const char *grp, boolean moderated);
 static void del_newsgroup(const char *grp);
                               /* delete group from active file */
 
-static void control_message(const char *control);
+static void control_message(const char *control,
+                            const char *filename );
                               /* process control message */
 
 static int get_snum(const char *group, char *snum);
@@ -290,6 +295,8 @@ void main( int argc, char **argv)
 
    if (!configure( B_NEWS ))
       exit(1);    /* system configuration failed */
+
+   checkname( E_nodename );      /* Fill in fdomain                  */
 
    openlog( NULL );           /* Begin logging to disk            */
 
@@ -1057,7 +1064,7 @@ static boolean deliver_article(char *art_fname, long art_size)
          /* Handle Control: line*/
          if (!b_control)
          {
-            control_message(hist_record);
+            control_message(hist_record, art_fname);
             b_control = TRUE;
             n_hdrs++;
          }
@@ -1084,7 +1091,7 @@ static boolean deliver_article(char *art_fname, long art_size)
          if (get_snum("duplicates",snum))
          {
             memcpy(newsgroups, "duplicates\0\0", 12);
-            sprintf(messageID, "%s.duplicate.%s@%s",
+            sprintf(messageID, "<%s.duplicate.%s@%s>",
                     snum, E_nodename, E_domain); /* we need a new unique ID */
             b_xref = FALSE;
          }
@@ -1183,6 +1190,13 @@ static boolean deliver_article(char *art_fname, long art_size)
       b_saved |= copy_file(tfile, groupy, b_xref ? hist_record : NULL);
    }
 
+/*--------------------------------------------------------------------*/
+/*       No group to deliver to? try "junk"-group                     */
+/*--------------------------------------------------------------------*/
+
+   if (b_saved == FALSE)
+       b_saved |= copy_file (tfile, "junk", b_xref ? hist_record : NULL);
+
    fclose(tfile);
 
    return b_saved;
@@ -1275,14 +1289,14 @@ static void del_newsgroup(const char *grp)
 /*    Handle control message                                          */
 /*--------------------------------------------------------------------*/
 
-static void control_message(const char *control)
+static void control_message(const char *control,
+                            const char *article )
 {
   char *ctrl = strdup(control);
   char *cmd, *mod;
   boolean moderated;
   char buf[200];
   char *operand;
-  static char bucket[] = BIT_BUCKET;
 
   printmsg(1,"Control Message: %s", control);
 
@@ -1334,7 +1348,7 @@ static void control_message(const char *control)
 
   sprintf( buf,
            "-wf %s -s\"(%s) %.100s\" %s",
-           bucket,
+           article,
            (const char *) (bflag[F_HONORCTRL] ? "executed" : "suppressed"),
            control,
            E_postmaster );          /* Do we need newsmaster as well? */
@@ -1450,7 +1464,8 @@ static boolean copy_file(FILE *input,
          header = FALSE;
       else if (equalni(buf, "Path:", strlen("Path:")))
       {
-         fprintf(output, "Path: %s!%s", E_nodename,
+         fprintf(output, "Path: %s!%s",
+                         E_fdomain,
                          buf + strlen("Path:") + 1);
          continue;
       }

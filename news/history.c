@@ -13,9 +13,13 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.5 1994/02/19 04:21:49 ahd Exp $";
+      "$Id: history.c 1.6 1994/06/14 01:19:24 ahd v1-12k $";
 
 /* $Log: history.c $
+/* Revision 1.6  1994/06/14 01:19:24  ahd
+/* Clean yp RCS information
+/* patches from Kai Uwe Rommel
+/*
  * Revision 1.5  1994/02/19  04:21:49  ahd
  * Use standard first header
  *
@@ -329,7 +333,8 @@ void cancel_article(void *hdbm_file, char *messageID)
     groups = strchr(val.dptr, ' ') + 1;  /* date */
     groups = strchr(groups, ' ') + 1;    /* size */
     printmsg(0,"cancelling %s", groups);
-    delete_histentry(hdbm_file, messageID);
     purge_article(val.dptr, NULL);
+    delete_histentry(hdbm_file, messageID);
   }
-}
+
+} /* cancel_article */

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.14 1994/12/22 00:24:43 ahd Exp $
+ *       $Id: inews.c 1.15 1994/12/27 20:51:35 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.15  1994/12/27 20:51:35  ahd
+ * Only searcher headers for specific fields in headers, not body
+ *
  * Revision 1.14  1994/12/22 00:24:43  ahd
  * Annual Copyright Update
  *
@@ -81,7 +84,7 @@
 #include "uupcmoah.h"
 
 const static char rcsid[] =
-      "$Id: inews.c 1.14 1994/12/22 00:24:43 ahd Exp $";
+      "$Id: inews.c 1.15 1994/12/27 20:51:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -148,6 +151,8 @@ void main( int argc, char **argv)
 
   if (!configure( B_NEWS ))
     exit(1);                    /* system configuration failed */
+
+  checkname( E_nodename );      /* Fill in fdomain                  */
 
   openlog( NULL );
 
@@ -293,14 +298,13 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   time_t now;
   int OK, i;
   unsigned lines = 0;
-  char *X_fdomain = E_fdomain ? E_fdomain : E_domain;
 
   time(&now);
 
   if (get_header(input, buf, sizeof(buf), "Path:") == -1)
   {
-    strcpy(origin, X_fdomain);
-    fprintf(output,"Path: %s!%s\n", X_fdomain, E_mailbox);
+    strcpy(origin, E_fdomain );
+    fprintf(output,"Path: %s!%s\n", E_fdomain, E_mailbox);
   }
   else
   {
@@ -309,14 +313,14 @@ static int complete_header(FILE *input, FILE *output, char *origin)
       origin[i] = *sys;
     origin[i] = 0;
 
-    if (equali(origin, X_fdomain)) /* is our system is already there? */
+    if (equali(origin, E_fdomain)) /* is our system is already there? */
       fputs(buf, output);  /* yes (perhaps from a site hidden behind us) */
     else
-      fprintf(output,"Path: %s!%s", X_fdomain, ptr); /* else append ours */
+      fprintf(output,"Path: %s!%s", E_fdomain, ptr); /* else append ours */
   }
 
   if (get_header(input, buf, sizeof(buf), "From:") == -1)
-    fprintf(output,"From: %s@%s (%s)\n", E_mailbox, X_fdomain, E_name);
+    fprintf(output,"From: %s@%s (%s)\n", E_mailbox, E_fdomain, E_name);
   else
     fputs(buf, output);
 
@@ -353,12 +357,12 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   {
     for (i = 0; i < (int) strlen(E_nodename); i++)
       sprintf(buf + i * 2, "%02x", E_nodename[i] & 0x5F);
-    fprintf(output, "Message-ID: <%lx.%s@%s>\n", now, buf, X_fdomain);
+    fprintf(output, "Message-ID: <%lx.%s@%s>\n", now, buf, E_fdomain);
   }
   else
     fputs(buf, output);
 
-  /* fprintf(output, "Sender: %s@%s\n", E_postmaster, X_fdomain); */
+  /* fprintf(output, "Sender: %s@%s\n", E_postmaster, E_fdomain); */
 
   fprintf(output, "Date: %s\n", arpadate());
 
