@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uux.c 1.5 1993/09/20 04:48:25 ahd Exp $
+ *    $Id: uux.c 1.6 1993/09/28 01:38:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: uux.c $
+ * Revision 1.6  1993/09/28  01:38:19  ahd
+ * Corrections from Robert H. Gumpertz (rhg@cps.com)
+ *
  * Revision 1.5  1993/09/20  04:48:25  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -969,10 +972,16 @@ static boolean do_remote(int optind, int argc, char **argv)
 
             else if (s_remote && d_remote)
             {
-               if (!do_uuxqt(job_id, src_system, src_file, dest_system, dest_file))
+               if (!do_uuxqt(job_id,
+                             src_system,
+                             remote_file,
+                             dest_system,
+                             dest_file))
                    return FALSE;
+
                if (!do_copy(src_system, src_file, E_nodename, dest_file))
                    return FALSE;
+
             } /* else if (s_remote && d_remote) */
 
             continue;
