@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp ahd $
+ *    $Id: CONFVARS.H 1.1 1993/03/06 23:09:50 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: CONFVARS.H $
+ * Revision 1.1  1993/03/06  23:09:50  ahd
+ * Initial revision
+ *
  */
 
 #include <uutypes.h>
@@ -50,6 +53,8 @@ extern char *E_charset;
 extern char *E_anonymous;
 extern char *E_version;
 extern char *E_uncompress;
+extern INTEGER E_priority;
+extern INTEGER E_prioritydelta;
 extern INTEGER E_maxhops;
 
 #endif

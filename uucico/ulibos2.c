@@ -19,8 +19,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.6 1992/12/11 12:45:11 ahd Exp $
- *       $Log: ulibos2.c $
+ *       $Id: ULIBOS2.C 1.7 1992/12/30 13:02:55 dmwatt Exp $
+ *       $Log: ULIBOS2.C $
+ * Revision 1.7  1992/12/30  13:02:55  dmwatt
+ * Dual path for Windows/NT and OS/2
+ *
  * Revision 1.6  1992/12/11  12:45:11  ahd
  * Correct RTS handshake
  *
@@ -151,6 +154,10 @@ int openline(char *name, BPS baud, const boolean direct )
 #else
    USHORT rc;
    USHORT action;
+   USHORT priority = (E_priority == -99) ?
+                           PRTYC_FOREGROUNDSERVER : (USHORT) E_priority;
+   USHORT prioritydelta = (E_prioritydelta == -99) ?
+                           0 : (USHORT) (E_prioritydelta + PRTYD_MINIMUM);
 #endif
 
    if (port_active)              /* Was the port already active?     ahd   */
@@ -507,10 +514,13 @@ int openline(char *name, BPS baud, const boolean direct )
       panic();
    } /*if */
 
-   rc = DosSetPrty(PRTYS_PROCESS, PRTYC_TIMECRITICAL, 0, 0);
+   rc = DosSetPrty(PRTYS_PROCESS, priority, prioritydelta, 0);
+
    if (rc)
    {
-      printmsg(0,"openline: Unable to set priority for task");
+      printmsg(0,"openline: Unable to set priority %u,%u for task",
+                   priority, prioritydelta);
+
       printmsg(0,"Return code from DosSetPrty was %#04x (%d)",
                (int) rc , (int) rc);
    } /*if */
@@ -727,7 +737,12 @@ unsigned int sread(char *output, unsigned int wanted, unsigned int timeout)
 
       rc = DosRead( com_handle, &save[bufsize], needed, &received );
 
-      if ( rc != 0 )
+      if ( rc == ERROR_INTERRUPT)
+      {
+         printmsg(2,"Read Interrupted");
+         return 0;
+      }
+      else if ( rc != 0 )
       {
          printmsg(0,"sread: Read from comm port for %d bytes failed.",
                   needed);
