@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnews.cmd 1.3 1994/12/22 00:29:24 ahd Exp $
+ *    $Id: pnews.cmd 1.4 1995/01/02 00:32:29 ahd Exp $
  *
  *    $Log: pnews.cmd $
+ *    Revision 1.4  1995/01/02 00:32:29  ahd
+ *    Handle environment without UUPCUSRRC set (use LOGNAME)
+ *
  *    Revision 1.3  1994/12/22 00:29:24  ahd
  *    Annual Copyright Update
  *
@@ -58,6 +61,7 @@ if uupcusrrc = '' then
    uupcusrrc    = value( 'LOGNAME',,'OS2ENVIRONMENT') || '.rc'
 
 domain       = getuupc("fromDomain", getuupc("domain"));
+nodename     = getuupc("nodename" );
 editor       = getuupc("editor",,uupcusrrc);
 home         = getuupc("home",,uupcusrrc);
 mailbox      = getuupc("mailbox",,uupcusrrc);
@@ -72,7 +76,7 @@ tempdir      = getuupc("TEMPDIR" )
 
 dfile        = SysTempFileName( tempdir || '\POST????.TXT');
 
-call lineout dfile,'Path:' domain || '!' || mailbox;
+call lineout dfile,'Path:' mailbox;
 call lineout dfile,'From:' mailbox || '@' || domain '(' || name || ')';
 
 if organization <> "NOT!" then
@@ -81,7 +85,7 @@ if organization <> "NOT!" then
 call lineout dfile,'Newsgroups:' prompt( 'Newsgroups' );
 call lineout dfile,'Subject:' prompt('Subject');
 
-call lineout dfile,'Distribution: world'
+call lineout dfile,'Distribution:' prompt('Distribution','world')
 call lineout dfile,'';           /* Terminate the header             */
 call lineout dfile;              /* Close the file                   */
 
@@ -128,7 +132,7 @@ say 'Copy saved in' savefile;
 /*--------------------------------------------------------------------*/
 
 do until (post == 'Y') | (post == 'N')
-   post = prompt('Really post')
+   post = prompt('Really post','y')
    post = left(post,1);
    if post = 'y' then
       post = 'Y'
@@ -180,13 +184,20 @@ exit rc;
 /*--------------------------------------------------------------------*/
 
 prompt:procedure
-parse arg prompt
+parse arg prompt, default
 result = ''
+if default <> '' then
+   prompt = prompt '(' || default || ')';
+
 do until words( result) > 0
-   call charout ,prompt || '? '
+   call charout , prompt || '? '
    parse pull result;
    if ( result = '.') then
       exit;
+
+   if ( result = '' ) then
+      result = default;
+
 end;
 
 result = strip(result);
