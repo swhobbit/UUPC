@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.11 1998/03/06 06:52:34 ahd Exp $
+ *       $Id: smtpclnt.c 1.12 1998/03/08 04:50:04 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.12  1998/03/08 04:50:04  ahd
+ *       Allow setting client timeout for specific client
+ *
  *       Revision 1.11  1998/03/06 06:52:34  ahd
  *       Shorten timeout processing for  ignored clients
  *
@@ -76,7 +79,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.11 1998/03/06 06:52:34 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.12 1998/03/08 04:50:04 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -181,6 +184,7 @@ initializeMaster(const char *portName, time_t exitTime)
    setClientMode(master, SM_MASTER);
    setClientHandle(master, openMaster(portName));
    master->connectTime = master->lastTransactionTime = time(NULL);
+   master->listening   = KWTrue;
 
    if (getClientHandle(master) == INVALID_SOCKET)
    {
@@ -556,6 +560,18 @@ getClientReady(const SMTPClient *client)
    return client->ready;
 } /* getClientReady */
 
+
+void setClientQueueRun(SMTPClient *client, KWBoolean needQueueRun)
+{
+   client->needQueueRun = needQueueRun;
+}
+
+KWBoolean
+getClientQueueRun(const SMTPClient *client)
+{
+   return client->needQueueRun;
+}
+
 void
 setClientProcess(SMTPClient *client, KWBoolean process)
 {
@@ -593,26 +609,38 @@ setClientHandle(SMTPClient *client, SOCKET handle)
 time_t
 getClientTimeout(const SMTPClient *client)
 {
+   time_t now;
+   time_t maximumTimeout = LONG_MAX;
+
    /* Clients ready to process should not be held up */
    if (getClientProcess(client))
       return 0;
 
+   if ((client->ignoreUntilTime != 0) ||(client->terminationTime != 0))
+      time(&now);
+
    /* Ignored clients timeout when they get out of penalty box */
    if (client->ignoreUntilTime != 0)
    {
-      time_t now;
-      time(&now);
-
       if (client->ignoreUntilTime > now)
          return client->ignoreUntilTime - now;
    }
 
+   if (client->terminationTime > 0)
+   {
+      if ( client->terminationTime <= now )
+         return 0;
+      else
+         maximumTimeout = client->terminationTime - now;
+
+   }
+
    /* Use client specfied timeout, if provided */
    if ( client->timeout > 0 )
-      return client->timeout;
+      return min( client->timeout, maximumTimeout );
 
    /* All other sockets timeout according to current client mode */
-   return getModeTimeout(client->mode);
+   return min( getModeTimeout(client->mode), maximumTimeout );
 
 } /* getClientTimeout */
 
