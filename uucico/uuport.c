@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.12 1994/03/09 02:29:49 rommel Exp $
+ *    $Id: uuport.c 1.13 1994/05/04 02:52:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *        Revision 1.13  1994/05/04  02:52:15  ahd
+ *        Correct declare of main() to suppress compile warning
+ *
  * Revision 1.12  1994/03/09  02:29:49  rommel
  * Exit with status 4 if UUCICO unable to respond to request
  *
@@ -99,6 +102,7 @@
 #ifdef _Windows
 #include "winutil.h"
 #include "logger.h"
+#include "ssleep.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -217,16 +221,32 @@ void main(int argc, char **argv)
     fflush(stdout);
   }
 
+#if defined(_Windows)
+   ddelay(0);                    /* Give up time slice to allow
+                                    Windows to function              */
+#endif
+
   if ( write(file, &cmd, sizeof(cmd)) != sizeof(cmd) )
   {
     printf("\nError sending message to uucico.\n");
     exit(3);
   }
+
+#if defined(_Windows)
+   ddelay(0);                    /* Give up time slice to allow
+                                    Windows to function              */
+#endif
+
   if ( read(file, &cmd, sizeof(cmd)) != sizeof(cmd) )
   {
     printf("\nError reading message from uucico.\n");
     exit(3);
   }
+
+#if defined(_Windows)
+   ddelay(0);                    /* Give up time slice to allow
+                                    Windows to function              */
+#endif
 
   close(file);
 
