@@ -17,9 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.17 1998/04/22 01:19:54 ahd Exp $
+ *    $Id: smtpnetw.c 1.18 1998/04/24 03:30:13 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.18  1998/04/24 03:30:13  ahd
+ *    Use local buffers, not client->transmit.buffer, for output
+ *    Rename receive buffer, use pointer into buffer rather than
+ *         moving buffered data to front of buffer every line
+ *    Restructure main processing loop to give more priority
+ *         to client processing data already buffered
+ *    Add flag bits to client structure
+ *    Add flag bits to verb tables
+ *
  *    Revision 1.17  1998/04/22 01:19:54  ahd
  *    Performance improvements for SMTPD data mode
  *
@@ -103,7 +112,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.17 1998/04/22 01:19:54 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.18 1998/04/24 03:30:13 ahd Exp $");
 
 currentfile();
 
@@ -240,30 +249,34 @@ SMTPGetLine(SMTPClient *client)
 
    if (lineBreak == NULL)
    {
-       printmsg(0,"%s: No additional data for client after read", mName);
 
-       if (isClientEOF(client))
-       {
-          printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
+      if (isClientEOF(client))
+      {
+         static const char quit[] = "quit";
+         static const size_t quitLength = sizeof quit - 1;
+
+         if ((client->receive.next == client->receive.buffer) &&
+             (client->receive.used == quitLength) &&
+             equalni(client->receive.buffer, "quit", quitLength))
+         {
+            printmsg(8,"%s: Applying CR/LF after Netscape %s/EOF",
                      mName,
-                     getClientSequence(client));
-          client->receive.line = NULL;
+                     quit);
+            lineBreak = client->receive.buffer + quitLength;
+            client->receive.used += 2;
+         }
+         else {
+            printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
+                       mName,
+                       getClientSequence(client));
+            client->receive.line = NULL;
 
-          /* Abort client immediately */
-          setClientMode(client, SM_ABORT);
-          return KWTrue;
-       }
-
-   } /* if (client->receive.next == NULL) */
-
-/*--------------------------------------------------------------------*/
-/*       We did not find the end of the command; this is an error     */
-/*       only if we are also out of buffer space.                     */
-/*--------------------------------------------------------------------*/
-
-   if (lineBreak == NULL)
-   {
-      if (client->receive.used < client->receive.allocated)
+            /* Abort client immediately */
+            setClientMode(client, SM_ABORT);
+            return KWTrue;
+         }
+      }
+      else if (client->receive.used < client->receive.allocated)
       {
          printmsg(2, "%s: Client %d Input buffer "
                       "(%d bytes) waiting for data.",
