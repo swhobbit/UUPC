@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.25 1994/01/18 13:29:22 ahd Exp $
+ *    $Id: ulib.c 1.26 1994/02/19 05:10:55 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.26  1994/02/19  05:10:55  ahd
+ * Use standard first header
+ *
  * Revision 1.25  1994/01/18  13:29:22  ahd
  * Delete comment
  *
@@ -199,7 +202,7 @@ int nopenline(char *name, BPS bps, const boolean direct)
    if (!install_com())
    {
       printmsg(0,"Communications handler install failed; "
-                  "probable cause ... memory shortage.");
+                  "probable cause ... memory shortage or invalid serial port configuration.");
 
 #ifdef __TURBOC__
       printmsg(0,"FAR DOS Memory free = %ld bytes",
