@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.7 1993/11/07 19:09:56 ahd Exp $
+ *    $Id: suspend2.c 1.8 1993/12/23 01:41:15 rommel Exp $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.8  1993/12/23  01:41:15  rommel
+ * 32 bit support for suspending port access
+ *
  * Revision 1.7  1993/11/07  19:09:56  ahd
  * Zap name in error message to show pipe name
  *
@@ -229,8 +232,8 @@ static VOID FAR SuspendThread(VOID)
             suspend_processing = TRUE;
 
 #ifdef __32BIT__
-	    bDummyKill = TRUE;
-	    DosKillProcess(DKP_PROCESS, getpid());
+            bDummyKill = TRUE;
+            DosKillProcess(DKP_PROCESS, getpid());
             nChar = (char) (DosWaitEventSem(semFree, 20000) ? 'T' : 'O');
             DosResetEventSem(semFree, &postCount);
 #else
@@ -300,13 +303,18 @@ static VOID FAR SuspendThread(VOID)
 
 static void SuspendHandler(int nSig)
 {
-  if ( bDummyKill ) 
+  if ( bDummyKill )
   {
     bDummyKill = FALSE;
+#if defined(__BORLANDC__)
+    signal(SIGTERM, (void (__cdecl *)(int))SuspendHandler);
+#else
     signal(SIGTERM, SuspendHandler);
+#endif
+
     raise(SIGUSR2);
   }
-  else 
+  else
   {
     signal(SIGTERM, SIG_DFL);
     DosKillProcess(DKP_PROCESS, getpid());
@@ -354,7 +362,9 @@ void suspend_init(const char *port )
 /*      Set up the handler for signals from our suspend monitor       */
 /*--------------------------------------------------------------------*/
 
-#ifdef __32BIT__
+#if defined(__BORLANDC__)
+  signal(SIGTERM, (void (__cdecl *)(int)) SuspendHandler);
+#elif defined(__32BIT__)
   signal(SIGTERM, SuspendHandler);
 #else
   rc = DosSetSigHandler(SuspendHandler,
@@ -464,7 +474,11 @@ void suspend_init(const char *port )
 /*                    Finally, our signal handler                     */
 /*--------------------------------------------------------------------*/
 
+#if defined(__BORLANDC__)
+  if ( signal( SIGUSR2, (void (__cdecl *)(int))usrhandler ) == SIG_ERR )
+#else
   if ( signal( SIGUSR2, usrhandler ) == SIG_ERR )
+#endif
   {
       printmsg( 0, "Couldn't set SIGUSR2\n" );
       panic();
