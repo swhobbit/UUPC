@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.16 1995/11/30 12:47:07 ahd v1-12q $
+#       $Id: nmakewnt.mak 1.17 1996/01/01 20:47:56 ahd v1-12r $
 #
 #       Copyright (c) 1989-1996 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.17  1996/01/01 20:47:56  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.16  1995/11/30 12:47:07  ahd
 #       *** empty log message ***
 #
@@ -59,6 +62,7 @@
 #     Initial revision
 #
 #
+!include <win32.mak>
 
 !ifdef NODEBUG
 UDEBUGFLAG=
@@ -66,6 +70,7 @@ UDEBUGFLAG=
 UDEBUGFLAG=-DUDEBUG
 !endif
 
+WIN32ENV=1
 COMMOPT = -nologo  -MT $(cdebug)
 CCOPT   = $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
 !ifndef PROD
