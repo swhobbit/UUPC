@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.20 1993/10/09 22:21:55 rhg Exp $
+ *      $Id: dcpgpkt.c 1.21 1993/10/12 01:32:08 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.21  1993/10/12  01:32:08  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.20  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -250,6 +253,8 @@ static char *gspkt = NULL;       /* Local buffer dir                  */
 #endif
 
 static boolean variablepacket;  /* "v" or in modem file              */
+
+static time_t idletimer = 0;
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
@@ -670,7 +675,9 @@ static short initialize(const boolean caller, const char protocol )
             memavail());
 #endif
 
-   return(DCP_OK); /* channel open */
+   time( &idletimer );              /* Flag our link has been used   */
+
+   return(DCP_OK);                  /* Channel open to caller        */
 
 } /*initialize*/
 
@@ -1002,7 +1009,6 @@ short grdmsg( char *s)
 
 static short gmachine(const short timeout )
 {
-   static time_t idletimer = 0;
 
    boolean done   = FALSE;    /* True = drop out of machine loop  */
    boolean close  = FALSE;    /* True = terminate connection upon
