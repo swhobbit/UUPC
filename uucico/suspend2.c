@@ -4,7 +4,6 @@
 /*    suspend/resume uupoll/uucico daemon (for OS/2)                  */
 /*                                                                    */
 /*    Author: Kai Uwe Rommel                                          */
-/*                                                                    */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -24,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.12 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: suspend2.c 1.1 1993/09/27 00:45:20 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: suspend2.c $
+ * Revision 1.1  1993/09/27  00:45:20  ahd
+ * Initial revision
+ *
  */
 
 /*
@@ -73,12 +75,11 @@
 #include "lib.h"
 #include "dcp.h"
 #include "dcpsys.h"
+#include "safeio.h"
 #include "modem.h"
 #include "catcher.h"
-
-#ifdef __OS2__
 #include "pos2err.h"
-#endif
+#include "suspend.h"
 
 #define STACKSIZE 8192
 
@@ -96,6 +97,7 @@ boolean suspend_processing = FALSE;
 
 static HPIPE hPipe;
 static char nChar;
+static char *portName;
 
 #ifdef __OS2__
 
@@ -113,6 +115,7 @@ typedef USHORT APIRET ;  // Define older API return type
 
 #endif
 
+currentfile();
 
 #ifdef __TURBOC__
 #pragma -N-
@@ -149,76 +152,76 @@ static VOID FAR SuspendThread(VOID)
       switch ( nChar )
       {
 
-      case 'Q': /* query */
+        case 'Q': /* query */
 
-        nChar = (char) (suspend_processing ? 'S' : 'R');
-        DosWrite(hPipe, &nChar, 1, &nBytes);
+          nChar = (char) (suspend_processing ? 'S' : 'R');
+          DosWrite(hPipe, &nChar, 1, &nBytes);
 
-        break;
+          break;
 
-      case 'S': /* suspend */
+        case 'S': /* suspend */
 
-        if ( suspend_processing ||
-             interactive_processing ||
-             terminate_processing )
-          nChar = 'E';
-        else
-        {
-          suspend_processing = TRUE;
-
-#ifdef __OS2__
-          raise(SIGUSR1);
-#else
-          DosFlagProcess(getpid(), FLGP_PID, PFLG_A, 0);
-#endif
+          if ( suspend_processing ||
+               interactive_processing ||
+               terminate_processing )
+          {
+            nChar = 'E';
+          }
+          else {
+            suspend_processing = TRUE;
 
 #ifdef __OS2__
-          nChar = (char) (DosWaitEventSem(&semFree, 20000) ? 'T' : 'O');
+            raise(SIGUSR1);
+            nChar = (char) (DosWaitEventSem(&semFree, 20000) ? 'T' : 'O');
 #else
-          nChar = (char) (DosSemSetWait(&semFree, 20000) ? 'T' : 'O');
+            DosFlagProcess(getpid(), FLGP_PID, PFLG_A, 0);
+            nChar = (char) (DosSemSetWait(&semFree, 20000) ? 'T' : 'O');
 #endif
-        }
+          } /* else */
 
-        DosWrite(hPipe, &nChar, 1, &nBytes);
+          DosWrite(hPipe, &nChar, 1, &nBytes);
 
-        break;
+          break;
 
-      case 'R': /* release */
+        case 'R': /* release */
 
-        if ( !suspend_processing )
-          nChar = 'E';
-        else
-        {
-          suspend_processing = FALSE;
+          if ( !suspend_processing )
+            nChar = 'E';
+          else {
+            suspend_processing = FALSE;
 
 #ifdef __OS2__
-          DosResetEventSem( &semWait, &postCount );
+            DosResetEventSem( &semWait, &postCount );
 #else
-          DosSemClear(&semWait);
+            DosSemClear(&semWait);
 #endif
-          nChar = 'O';
-        }
+            nChar = 'O';
 
-        DosWrite(hPipe, &nChar, 1, &nBytes);
+          } /* else */
 
-        break;
+          DosWrite(hPipe, &nChar, 1, &nBytes);
 
-      default:
+          break;
 
-        nChar = 'U';
-        DosWrite(hPipe, &nChar, 1, &nBytes);
+        default:
 
-        break;
+          nChar = 'U';
+          DosWrite(hPipe, &nChar, 1, &nBytes);
 
-      }
-    }
+          break;
+
+      } /* switch */
+
+    } /* for (;;) */
+
 
 #ifdef __OS2__
     DosDisConnectNPipe(hPipe);
 #else
     DosDisConnectNmPipe(hPipe);
 #endif
-  }
+
+  } /* for (;;) */
 
   DosExit(EXIT_THREAD, 0);
 
@@ -236,7 +239,7 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 
   DosSetSigHandler(SuspendHandler, &old, &nAction,
                    SIGA_ACKNOWLEDGE, SIG_PFLG_A);
-  raise(SIGINT);
+  raise(SIGUSR2);
 
 } /* SuspendHandler */
 
@@ -254,9 +257,9 @@ static VOID FAR PASCAL SuspendHandler(USHORT nArg, USHORT nSig)
 /*       Initialize thread to handle port suspension                  */
 /*--------------------------------------------------------------------*/
 
-void suspend_init(void)
+void suspend_init(const char *port )
 {
-  char szPipe[64];
+  char szPipe[FILENAME_MAX];
   SEL selStack;
   PSZ pStack;
   TID tid;
@@ -267,8 +270,11 @@ void suspend_init(void)
     return;
 #endif
 
-  strcpy(szPipe, "\\PIPE\\UUCICO\\");
-  strcat(szPipe, E_inmodem);
+  strcpy(szPipe, SUSPEND_PIPE);
+  portName =  szPipe + strlen(szPipe);
+  strcpy(portName, port );
+
+  printmsg(4,"Creating locking pipe %s", szPipe );
 
 #ifdef __OS2__
   if ( DosCreateNPipe( szPipe,
@@ -279,7 +285,7 @@ void suspend_init(void)
                      32,
                      5000) )
     return;
-#lse
+#else
   if ( DosMakeNmPipe(szPipe,
                      &hPipe,
                      NP_ACCESS_DUPLEX | NP_NOINHERIT | NP_NOWRITEBEHIND,
@@ -300,6 +306,7 @@ void suspend_init(void)
 #endif
 
   DosCreateThread(SuspendThread, &tid, pStack);
+
 } /* suspend_init */
 
 /*--------------------------------------------------------------------*/
@@ -308,34 +315,59 @@ void suspend_init(void)
 /*       Request another UUCICO give up a modem                       */
 /*--------------------------------------------------------------------*/
 
-int suspend_other(boolean suspend)
+int suspend_other(const boolean suspend,
+                  const char *port )
 {
-  char szPipe[64];
+  char szPipe[FILENAME_MAX];
   HFILE hPipe;
   USHORT nAction, nBytes;
   UCHAR nChar;
+  APIRET rc;
 
-  strcpy(szPipe, "\\PIPE\\UUCICO\\");
-  strcat(szPipe, flds[FLD_TYPE]);
+  strcpy(szPipe, SUSPEND_PIPE);
+  strcat(szPipe, port );
+  printmsg(4,"Checking locking pipe %s", szPipe );
 
-  if ( DosOpen(szPipe,
+  rc = DosOpen(szPipe,
                &hPipe,
                &nAction,
                0,
                0,
                FILE_OPEN,
                OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE,
-               0) )
+               0);
+
+  if ( rc )
+  {
+    if ( debuglevel > 4 )              // No error if no passive UUCICO
+      printOS2error( "DosOpen", rc );
     return 0;
+  }
 
-  if ( DosWrite(hPipe, suspend ? "S" : "R", 1, &nBytes) || nBytes != 1 )
-    return DosClose(hPipe), -1;
+  rc = DosWrite(hPipe, suspend ? "S" : "R", 1, &nBytes);
+  if ( rc )
+  {
+    printOS2error( "DosWrite", rc );
+    DosClose(hPipe);
+    return -1;
+  }
 
-  printmsg(1, "Waiting for background uucico to %s ...",
-           suspend ? "suspend" : "resume");
+  if ( nBytes != 1 )
+    return -1;
 
-  if ( DosRead(hPipe, &nChar, 1, &nBytes) || nBytes != 1 )
-    return DosClose(hPipe), -1;
+  printmsg(1, "Waiting for background uucico to %s use of %s ...",
+           suspend ? "suspend" : "resume", port);
+
+  rc = DosRead(hPipe, &nChar, 1, &nBytes);
+  if ( rc )
+  {
+    printOS2error( "DosRead", rc );
+    DosClose(hPipe);
+    return -1;
+  }
+
+  if ( nBytes != 1 )
+    return -1;
 
   if ( nChar != 'O' )
   {
@@ -344,9 +376,14 @@ int suspend_other(boolean suspend)
     return -2;
   }
 
+/*--------------------------------------------------------------------*/
+/*              Success!  Close up and return to caller               */
+/*--------------------------------------------------------------------*/
+
   DosClose(hPipe);
 
   return 1;
+
 } /* suspend_other */
 
 /*--------------------------------------------------------------------*/
@@ -359,24 +396,33 @@ CONN_STATE suspend_wait(void)
 {
    APIRET rc;
 
+   printmsg(0,"suspend_wait: Port %s released, program sleeping",
+               portName );
+
 #ifdef __OS2__
-   DosResetEventSem( &semFree, &postCount);
+   rc = DosResetEventSem( &semFree, &postCount);
+   if ( rc )
+      printOS2error( "DosResetEventSem", rc );
 
    rc = DosWaitEventSem(&semWait, SEM_INDEFINITE_WAIT);
+   if ( rc )
+      printOS2error( "DosWaitEventSem", rc );
+
 #else
-   DosSemClear(&semFree);
+
+   rc = DosSemClear(&semFree);
+
+   if ( rc )
+      printOS2error( "DosSemClear", rc );
 
    rc = DosSemSetWait(&semWait, SEM_INDEFINITE_WAIT);
+   if ( rc )
+      printOS2error( "DosSemSetWait", rc );
+
 #endif
 
    if ( rc )
-   {
-
-#ifdef __OS2__
-      printOS2error( "DosWaitEventSem", rc );
-#endif
       return CONN_EXIT;
-   }
    else
       return CONN_INITIALIZE;
 
