@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpdns.c 1.3 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: smtpdns.c 1.4 1999/01/08 02:21:05 ahd Exp $
  *
  *    $Log: smtpdns.c $
+ *    Revision 1.4  1999/01/08 02:21:05  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.3  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -42,7 +45,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpdns.c 1.3 1999/01/04 03:54:27 ahd Exp $");
+RCSID("$Id: smtpdns.c 1.4 1999/01/08 02:21:05 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       g e t H o s t N a m e F r o m S o c k e t                    */
@@ -54,29 +57,67 @@ KWBoolean
 getHostNameFromSocket( SMTPConnection *connection )
 {
    static const char mName[] = "getHostNameFromSocket";
-   SOCKADDR_IN sin;
+   SOCKADDR_IN peerSin;
+   SOCKADDR_IN localSin;
    LPHOSTENT phe;
-   int len = sizeof sin;
+   int len = sizeof localSin;
 
-/*--------------------------------------------------------------------*/
-/*         Stary by getting the IP address of the remote peer         */
-/*--------------------------------------------------------------------*/
 
-   memset( &sin, '\0', sizeof sin );
+   memset( &localSin, '\0', sizeof localSin );
 
-   if ( getpeername( connection->handle,
-                     (SOCKADDR *) &sin,
+   if ( getsockname( connection->handle,
+                     (SOCKADDR *) &localSin,
                      &len ))
    {
       int wsErr = WSAGetLastError();
-      printWSerror("getservbyname", wsErr);
+      printWSerror("getsockname", wsErr);
       return KWFalse;
    }
 
-   sprintf( connection->hostAddr, "[%s]",inet_ntoa( sin.sin_addr ));
+/*--------------------------------------------------------------------*/
+/*             Get the IP address of the remote peer                  */
+/*--------------------------------------------------------------------*/
 
-   phe = gethostbyaddr( (char *) &sin.sin_addr.s_addr,
-                        sizeof sin.sin_addr.s_addr,
+   len = sizeof peerSin;
+   memset( &peerSin, '\0', sizeof peerSin );
+
+   if ( getpeername( connection->handle,
+                     (SOCKADDR *) &peerSin,
+                     &len ))
+   {
+      int wsErr = WSAGetLastError();
+      printWSerror("getpeername", wsErr);
+      return KWFalse;
+   }
+
+   sprintf( connection->hostAddr, "[%s]",inet_ntoa( peerSin.sin_addr ));
+
+/*--------------------------------------------------------------------*/
+/*            Short circuit connections from local system             */
+/*--------------------------------------------------------------------*/
+
+   /* Local loop back address? */
+   if (ntohl(peerSin.sin_addr.s_addr) == 0x7f000001)
+   {
+      strcpy(connection->hostName, "localhost");
+      connection->localhost = KWTrue;
+      return KWTrue;
+   }
+
+   /* Local IP address (serial/Ethernet link?) */
+   if (peerSin.sin_addr.s_addr == localSin.sin_addr.s_addr)
+   {
+      strcpy(connection->hostName, E_domain);
+      connection->localhost = KWTrue;
+      return KWTrue;
+   }
+
+/*--------------------------------------------------------------------*/
+/*           Not special address, ask DNS for the full name           */
+/*--------------------------------------------------------------------*/
+
+   phe = gethostbyaddr( (char *) &peerSin.sin_addr.s_addr,
+                        sizeof peerSin.sin_addr.s_addr,
                         AF_INET );
 
    if ( phe == NULL )
