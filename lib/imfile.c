@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.4 1995/01/08 19:52:44 ahd Exp $
+ *    $Id: imfile.c 1.5 1995/01/08 21:02:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.5  1995/01/08 21:02:02  ahd
+ *    Correct BC++ 3.1 compiler warnings
+ *
  *    Revision 1.4  1995/01/08 19:52:44  ahd
  *    Add in memory files to RMAIL, including additional support and
  *    bug fixes.
@@ -299,7 +302,10 @@ int imprintf( IMFILE *imf, const char *fmt , ...  )
       char buffer[4096];
       int result = vsprintf(buffer, fmt, arg_ptr);
 
-      if ( result )
+      if ( result == EOF )
+         return EOF;
+
+      if ( result > (sizeof buffer) )
       {
          printmsg(0, "imprintf: Memory overflow processing im memory file" );
          panic();                /* We corrupted the stack!          */
