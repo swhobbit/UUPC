@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.33 1999/01/04 03:52:28 ahd Exp $
+ *    $Id: logger.c 1.34 1999/01/08 02:20:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.34  1999/01/08 02:20:48  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.33  1999/01/04 03:52:28  ahd
  *    Annual copyright change
  *
@@ -87,7 +90,7 @@
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: logger.c 1.33 1999/01/04 03:52:28 ahd Exp $");
+RCSID("$Id: logger.c 1.34 1999/01/08 02:20:48 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -202,7 +205,7 @@ void openlog(const char *log)
 
    debuglevel = 0;                  /* Insure we time stamp          */
 
-   printmsg(0,"%s: %s %s (%s %s)",
+   printmsg(-1,"%s: %s %s (%s %s)",
             compilen, compilep, compilev, compiled, compilet);
    debuglevel = saveDebuglevel;
 
