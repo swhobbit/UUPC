@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.8 1999/01/08 02:21:01 ahd Exp $
+ *       $Id: smtputil.c 1.9 2000/05/12 12:35:45 ahd v1-13g ahd $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.9  2000/05/12 12:35:45  ahd
+ *       Annual copyright update
+ *
  *       Revision 1.8  1999/01/08 02:21:01  ahd
  *       Convert currentfile() to RCSID()
  *
@@ -64,7 +67,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.8 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: smtputil.c 1.9 2000/05/12 12:35:45 ahd v1-13g ahd $");
 
 /*--------------------------------------------------------------------*/
 /*          s t r i p A d d r e s s                                   */
@@ -178,6 +181,10 @@ isValidAddress(const char *address,
    char node[MAXADDR];
    char user[MAXADDR];
    char path[MAXADDR];
+
+   size_t nodeLength;
+   size_t localDomainLength;
+
    struct HostTable *hostp;
    *ourProblem = KWTrue;         /* Assume it's our mail             */
 
@@ -260,9 +267,23 @@ isValidAddress(const char *address,
 /*         Deliver mail to a system directly connected to us          */
 /*--------------------------------------------------------------------*/
 
-   if (equal(path,node))         /* Directly connected system?       */
+   if (equal(path, node))        /* Directly connected system?       */
    {
-      strcpy(response, "Neighborhood remote address");
+      strcpy(response, "Neighborhood UUCP remote address");
+      return KWTrue;
+   }
+
+/*--------------------------------------------------------------------*/
+/*         Deliver mail to a system in our local domain               */
+/*--------------------------------------------------------------------*/
+
+   nodeLength = strlen(node);
+   localDomainLength = strlen(E_localdomain);
+
+   if ((nodeLength >= localDomainLength) &&
+       equali(E_localdomain, node + (nodeLength - localDomainLength)))
+   {
+      strcpy(response, "Neighborhood domain address");
       return KWTrue;
    }
 
