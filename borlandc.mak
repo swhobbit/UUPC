@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.58 1994/03/06 12:24:47 ahd Exp $
+#     $Id: makefile 1.59 1994/03/12 13:40:47 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.59  1994/03/12  13:40:47  ahd
+#         Add NMAKE included files to ZIP dependents
+#
 #         Revision 1.58  1994/03/06  12:24:47  ahd
 #         Update makefile names for non-Borland compilers
 #
@@ -232,7 +235,7 @@
 
 .autodepend
 
-.silent
+#.silent
 
 #       The memory model to be built, and other environment
 #       specific information
@@ -261,11 +264,13 @@ ENVIRONMENT=MS-DOS
 !endif
 
 #       Silly hack to allow back slash as last character in variable
+!if !$d(SRCSLASH) && !$d(SHORTPATH)
 !if $d(__OS2__)
 SRCSLASH=
 !else
 SRC      = e:/src/uupc/
 SRCSLASH = $(SRC:/=\)
+!endif
 !endif
 
 # *--------------------------------------------------------------------*
@@ -1530,7 +1535,6 @@ OBJ        = $(OBJ)
 PSUFFIX    = $(PSUFFIX)
 RN         = $(RN)
 RNEWS      = $(RNEWS)
-SRC        = $(SRC)
 STARTUP    = $(STARTUP)
 STARTUPT   = $(STARTUPT)
 SUFFIX     = $(SUFFIX)
