@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.9 1998/03/01 19:43:33 ahd v1-12v $
+ *       $Id: smtprecv.c 1.10 1998/03/06 06:51:28 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.10  1998/03/06 06:51:28  ahd
+ *       Correct false detection of NULL in input
+ *
  *       Revision 1.9  1998/03/01 19:43:33  ahd
  *       First compiling POP3 server which accepts user id/password
  *
@@ -70,7 +73,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.9 1998/03/01 19:43:33 ahd v1-12v $");
+RCSID("$Id: smtprecv.c 1.10 1998/03/06 06:51:28 ahd Exp $");
 
 currentfile();
 
@@ -443,7 +446,7 @@ commandPeriod(SMTPClient *client,
 /*       we have ALL been waiting for ... delivery of the message.    */
 /*--------------------------------------------------------------------*/
 
-   bflag[F_FASTSMTP] = KWFalse;  /* Don't do outbound SMTP           */
+   bflag[F_FASTSMTP] = KWFalse;  /* Don't attempt outbound SMTP      */
 
    tokenizeAddress( client->transaction->sender, NULL, fHost, fUser );
 
@@ -452,6 +455,8 @@ commandPeriod(SMTPClient *client,
    sender.relay   = client->clientName;
    sender.host    = fHost;
    sender.user    = fUser;
+   sender.remote  = KWTrue;
+   sender.activeUser = "uusmtpd";
 
    for (count = 0; count < client->transaction->addressCount; count++)
       delivered += Deliver(client->transaction->imf,
@@ -472,8 +477,11 @@ commandPeriod(SMTPClient *client,
             "Message accepted for delivery to %d mail boxes",
             delivered);
 
+   /* Queue UUXQT to run when client terminates */
+   setClientQueueRun( client, KWTrue );
+
+   /* Let client continue on */
    SMTPResponse(client, verb->successResponse, client->transmit.data);
-                                    /* Let client continue on        */
 
    incrementClientMajorTransaction( client );
    return KWTrue;
