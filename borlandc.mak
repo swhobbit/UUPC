@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.61 1994/03/20 00:54:41 ahd Exp $
+#     $Id: makefile 1.62 1994/05/04 02:00:57 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.62  1994/05/04  02:00:57  ahd
+#         Allow disabling TDSTRIP
+#
 #         Revision 1.61  1994/03/20  00:54:41  ahd
 #         Go to version 1.12j
 #
@@ -608,6 +611,7 @@ install:
         $(SRCZIPV1) $(SRCZIPV2) $(SRCZIPV3) $(SRCZIPV4)
 !else
 install: installx $(WREQZIPV) $(WOPTZIPV) $(WNEWZIPV)
+        - del *.sym
 !endif
 
 doczip:  $(DOCZIPV)
