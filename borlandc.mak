@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.10 1993/04/11 21:09:10 ahd Exp ahd $
+#     $Id: makefile 1.11 1993/04/16 02:31:47 ahd Exp ahd $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.11  1993/04/16  02:31:47  ahd
+#         Drop broken rn/newsetup from build for now
+#
 #         Revision 1.10  1993/04/11  21:09:10  ahd
 #         Drop GNU oriented Makefile
 #
@@ -487,9 +490,9 @@ help@kew.com.
 $(SRCZIPV2): $(FMT)
         - mkdir $:.
         $(FMT) -0 &&!
-rn\*.c
-rn\*.h
-rn\*.mak
+xrn\*.c
+xrn\*.h
+xrn\*.mak
 rnews\*.c
 rnews\*.h
 rnews\*.mak
