@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.24 2000/05/25 03:41:49 ahd v1-13g ahd $
+ *       $Id: smtprecv.c 1.25 2000/09/15 00:18:38 ahd Exp ahd $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.25  2000/09/15 00:18:38  ahd
+ *       Compare domain in case insensitive manner
+ *
  *       Revision 1.24  2000/05/25 03:41:49  ahd
  *       Use more conservative buffering to avoid aborts
  *
@@ -123,7 +126,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.24 2000/05/25 03:41:49 ahd v1-13g ahd $");
+RCSID("$Id: smtprecv.c 1.25 2000/09/15 00:18:38 ahd Exp ahd $");
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d V R F Y                                        */
@@ -571,10 +574,29 @@ commandPeriod(SMTPClient *client,
    tokenizeAddress( client->transaction->sender, NULL, fHost, fUser );
 
    memset( &sender, 0, sizeof sender );
-   sender.address = client->transaction->sender;
+
+   /* Change <> (SMTP postmaster) to "UUCP" */
+   if (equal(fUser, SMTP_BOUNCE_POSTMASTER))
+   {
+      char sBuffer[MAXADDR];
+
+      sender.user   = UUCP_BOUNCE_POSTMASTER;
+      sender.host   = E_domain; /* Use long local name           */
+
+      sprintf(sBuffer, "%s@%s", sender.user, E_domain);
+      sender.address = newstr(sBuffer);
+      sender.relay = NULL;   /* Flag address as local            */
+   }
+   else
+   {
+       /* Just use the provided information */
+       sender.address = client->transaction->sender;
+       sender.host    = fHost;
+       sender.user    = fUser;
+   }
+
+   /* Also set common information */
    sender.relay   = client->clientName;
-   sender.host    = fHost;
-   sender.user    = fUser;
    sender.remote  = KWTrue;
    sender.daemon  = KWTrue;
    sender.activeUser = "uusmtpd";
