@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.27 1993/09/29 05:25:21 ahd Exp $
+ *    $Id: modem.c 1.28 1993/09/29 13:18:06 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.28  1993/09/29  13:18:06  ahd
+ * Clear raise before calling script processor in shutDown
+ *
+ * Revision 1.28  1993/09/29  13:18:06  ahd
+ * Clear raise before calling script processor in shutDown
+ *
  * Revision 1.27  1993/09/29  05:25:21  ahd
  * Correct resetting of raised flag
  *
@@ -758,7 +764,7 @@ static void autobaud( const BPS speed )
             if ((new_speed != speed) && (new_speed > 300))
             {
                printmsg(2, "autobaud: speed select %s", token);
-               SIOSpeed(atoi(token));
+               SIOSpeed(new_speed);
             } /* if */
          } /* if */
       } /* if */
