@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.29 1994/01/01 19:18:41 ahd Exp $
+ *      $Id: dcpgpkt.c 1.30 1994/02/13 13:51:22 rommel Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.30  1994/02/13  13:51:22  rommel
+ * Correct 32 bit ifdef
+ *
  * Revision 1.29  1994/01/01  19:18:41  ahd
  * Annual Copyright Update
  *
@@ -260,11 +263,6 @@ static char UUFAR inbuf[NBUF][MAXPACK];
 static time_t ftimer[NBUF];
 static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
-static unsigned char *grpkt = NULL;
-
-#if !defined(BIT32ENV)
-static char *gspkt = NULL;       /* Local buffer dir                  */
-#endif
 
 static boolean variablepacket;  /* "v" or in modem file              */
 
@@ -365,8 +363,6 @@ static short initialize(const boolean caller, const char protocol )
                      protocol);
 
    variablepacket = bmodemflag[MODEM_VARIABLEPACKET] || (protocol == 'v');
-
-   grpkt = malloc( r_pktsize + HDRSIZE );
 
 /*--------------------------------------------------------------------*/
 /*                     Initialize error counters                      */
@@ -654,14 +650,6 @@ static short initialize(const boolean caller, const char protocol )
 /*                    Allocate the needed buffers                     */
 /*--------------------------------------------------------------------*/
 
-   grpkt = realloc( grpkt, r_pktsize + HDRSIZE );
-   checkref( grpkt );
-
-#if !defined(BIT32ENV)
-   gspkt = malloc( s_pktsize );
-   checkref( gspkt );
-#endif
-
    nerr = 0;
    lazynak = 0;
 
@@ -726,18 +714,6 @@ short gclosepk()
       if (gmachine(M_gPacketTimeout) == CLOSE)
          break;
    } /* for (i = 0; i < MAXTRY; i++) */
-
-/*--------------------------------------------------------------------*/
-/*                        Release our buffers                         */
-/*--------------------------------------------------------------------*/
-
-   free( grpkt );
-   grpkt = NULL;
-
-#if !defined(BIT32ENV)
-   free( gspkt );
-   gspkt = NULL;
-#endif
 
 /*--------------------------------------------------------------------*/
 /*                Report the results of our adventures                */
@@ -1488,6 +1464,8 @@ static short grpack(unsigned *yyy,
                     char UUFAR *data,
                     const short timeout)
 {
+   static unsigned char UUFAR grpkt[MAXPACK+HDRSIZE];
+
    static short got_hdr  = FALSE;
    static int received = 0;       /* Bytes already read into buffer */
    int needed;
@@ -1510,7 +1488,7 @@ static short grpack(unsigned *yyy,
    start = 0;
    while (!got_hdr)
    {
-      unsigned char *psync;
+      unsigned char UUFAR *psync;
 
       needed = HDRSIZE - received;
       if ( needed > 0 )       /* Have enough bytes for header?       */
@@ -1529,7 +1507,7 @@ static short grpack(unsigned *yyy,
                wait = 0;      /* Make it no time out                 */
          } /* else */
 
-         if (sread((char *) &grpkt[received], needed, wait ) <
+         if (sread((char UUFAR *) grpkt + received, needed, wait ) <
              (unsigned short) needed )
                               /* Did we get the needed data?         */
             return DCP_EMPTY; /* No --> Return to caller             */
@@ -1546,14 +1524,15 @@ static short grpack(unsigned *yyy,
                received, needed);
 #endif
 
-      psync = memchr( grpkt, '\020', received );
+      psync = MEMCHR( grpkt, '\020', received );
+
       if ( psync == NULL )    /* Did we find the sync character?     */
          received = 0;        /* No --> Reset to empty buffer        */
       else if ( psync != grpkt ) /* First character in buffer?       */
       {                       /* No --> Make it first character      */
          received -= psync - grpkt;
          shifts++;
-         memmove( grpkt, psync, received );
+         MEMMOVE( grpkt, psync, received );
                               /* Shift buffer over                   */
       } /* else */
 
@@ -1576,7 +1555,7 @@ static short grpack(unsigned *yyy,
          else {               /* No  --> Flag it, continue loop      */
             badhdr++;
             printmsg(GDEBUG, "*** bad pkt header ***");
-            memmove( grpkt, &grpkt[ 1 ], --received );
+            MEMMOVE( grpkt, grpkt + 1, --received );
                               /* Begin scanning for sync character
                                  with next byte                      */
          } /* else */
@@ -1637,8 +1616,9 @@ get_data:
 /*--------------------------------------------------------------------*/
 
       if ((needed > 0) &&
-          (sread((char *) &grpkt[HDRSIZE+total-needed], needed, timeout) <
-           (unsigned short)needed))
+          (sread((char UUFAR *) grpkt + HDRSIZE + total - needed,
+                  needed,
+                  timeout) < (unsigned short)needed))
          return(DCP_EMPTY);
 
       got_hdr = FALSE;           /* Must re-process header next pass */
@@ -1653,13 +1633,13 @@ get_data:
       *xxx = c >> 3;
       *yyy = c & 0x07;
       check = ((grpkt[3] & 0xff) << 8) | (grpkt[2] & 0xff);
-      checkchk = checksum( (char *) grpkt + HDRSIZE , total);
+      checkchk = checksum( (char UUFAR *) grpkt + HDRSIZE , total);
       i = (unsigned char) ((grpkt[4] | 0x80) & 0xff);
       checkchk = (0xaaaa - (checkchk ^ i)) & 0xffff;
       if (checkchk != check)
       {
          printmsg(4, "*** checksum error ***");
-         memmove( grpkt, grpkt + HDRSIZE, total );
+         MEMMOVE( grpkt, grpkt + HDRSIZE, total );
                               /* Save data so we can scan for sync   */
          received = total;    /* Note the amount of the data in buf  */
          return(DCP_ERROR);   /* Return to caller with error         */
@@ -1700,8 +1680,12 @@ get_data:
       type, *yyy, *xxx, *len);
 
 #ifdef UDEBUG
+#ifdef BIT32ENV
    printmsg(13, " checksum rec=%04x comp=%04x\ndata=|%.*s|",
-      check, checkchk, total, grpkt + HDRSIZE);
+#else
+   printmsg(13, " checksum rec=%04x comp=%04x\ndata=|%.*Fs|",
+#endif
+               check, checkchk, total, grpkt + HDRSIZE);
 #endif
 
    return(type);
