@@ -8,10 +8,16 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.17 1993/12/02 13:47:46 ahd Exp $
+#     $Id: uucico.mak 1.18 1994/01/01 19:24:50 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.18  1994/01/01  19:24:50  ahd
+# Annual Copyright Update
+#
+# Revision 1.18  1994/01/01  19:24:50  ahd
+# Annual Copyright Update
+#
 # Revision 1.17  1993/12/02  13:47:46  ahd
 # 'e' protocol support
 #
@@ -130,7 +136,7 @@ uucicow  ICON uucicow.ico
 | $<
 !endif
 !if !$d(__OS2__)
-        tdstrip -s $<
+        $(TDSTRIP) -s $<
 !endif
 
 uuport$(PSUFFIX).exe: $(COMMON) $(OBJ)\uuport.obj $(LIBRARIES)
@@ -143,7 +149,7 @@ $(LIBRARY)
 $(DEFFILE)
 |
 !if !$d(__OS2__)
-        tdstrip -s $<
+        $(TDSTRIP) -s $<
 !endif
 
 $(OBJ)\comm.obj: $(UUCICO)\comm.asm
