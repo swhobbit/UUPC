@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3mbox.c 1.2 1998/03/03 07:36:28 ahd v1-12v $
+ *       $Id: pop3mbox.c 1.3 1998/03/06 16:07:39 ahd Exp $
  *
  *       Revision History:
  *       $Log: pop3mbox.c $
+ *       Revision 1.3  1998/03/06 16:07:39  ahd
+ *       Delete extra new line from delete message
+ *
  *       Revision 1.2  1998/03/03 07:36:28  ahd
  *       Add deletion support
  *
@@ -38,6 +41,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+#include <errno.h>
 
 #include "pop3mbox.h"
 #include "mail.h"
@@ -46,13 +50,12 @@
 #include "timestmp.h"
 #include "arpadate.h"
 #include "deliver.h"
-#include "errno.h"
 
 /*--------------------------------------------------------------------*/
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3mbox.c 1.2 1998/03/03 07:36:28 ahd v1-12v $");
+RCSID("$Id: pop3mbox.c 1.3 1998/03/06 16:07:39 ahd Exp $");
 
 currentfile();
 
