@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.15 1993/09/27 00:45:20 ahd Exp $
+ *    $Id: ulib.c 1.16 1993/09/27 04:04:06 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.16  1993/09/27  04:04:06  ahd
+ * Normalize references to modem speed to avoid incorrect displays
+ *
  * Revision 1.15  1993/09/27  00:45:20  ahd
  * Cosmetic clean up
  *
@@ -575,13 +578,19 @@ static void ShowModem( void )
 
 } /* ShowModem */
 
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       s e t P r t y                                                */
 /*                                                                    */
 /*       No operation under DOS                                       */
 /*--------------------------------------------------------------------*/
 
-void setPrty( void ) { }
+void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
+{
+}
 
 /*--------------------------------------------------------------------*/
 /*       r e s e t P r t y                                            */

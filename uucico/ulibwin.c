@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibwin.c 1.3 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: ulibwin.c 1.4 1993/09/27 00:48:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibwin.c $
+ * Revision 1.4  1993/09/27  00:48:43  ahd
+ * Add dummy set and reset priority functions
+ *
  * Revision 1.3  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -728,7 +731,13 @@ static void ShowError( int status )
 /*       No operation under Windows                                   */
 /*--------------------------------------------------------------------*/
 
-void setPrty( void ) { }
+#ifdef __TURBOC__
+#pragma argsused
+#endif
+
+void setPrty( const KEWSHORT priorityIn, const KEWSHORT prioritydeltaIn )
+{
+}
 
 /*--------------------------------------------------------------------*/
 /*       r e s e t P r t y                                            */
