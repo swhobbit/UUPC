@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.12 1995/01/22 04:15:00 ahd Exp $
+#       $Id: nmakewnt.mak 1.13 1995/02/23 04:26:17 ahd v1-12n $
 #
 #       Copyright (c) 1989-1995 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.13  1995/02/23 04:26:17  ahd
+#       Correct extra install variable names
+#
 #       Revision 1.12  1995/01/22 04:15:00  ahd
 #       Convert internal zip names to match external names
 #
@@ -48,8 +51,14 @@
 #
 #
 
+!ifdef NODEBUG
+UDEBUGFLAG=
+!else
+UDEBUGFLAG=-DUDEBUG
+!endif
+
 COMMOPT = -nologo  -MT $(cdebug)
-CCOPT   = $(COMMOPT) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
+CCOPT   = $(COMMOPT) $(UDEBUGFLAG) $(cflags) $(cvarsmt) -I$(UULIB) -Fo$@
 PROD    = \uupc\ntbin
 ZIPID   = n
 ERASE   = del
