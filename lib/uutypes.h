@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.16 1994/01/01 19:10:20 ahd Exp $
+ *    $Id: uutypes.h 1.17 1994/01/24 03:10:52 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.17  1994/01/24  03:10:52  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.16  1994/01/01  19:10:20  ahd
  *     Annual Copyright Update
  *
@@ -90,11 +93,13 @@
 
 #if defined(BIT32ENV)
 #define MEMSET(p,c,l)  memset(p,c,l)
+#define MEMCHR(p,c,l)  memchr(p,c,l)
 #define MEMCPY(t,s,l)  memcpy(t,s,l)
 #define MEMMOVE(t,s,l) memmove(t,s,l)
 #else
 #define MEMSET(p,c,l)  _fmemset(p,c,l)
 #define MEMCPY(t,s,l)  _fmemcpy(t,s,l)
+#define MEMCHR(t,s,l)  _fmemchr(t,s,l)
 #define MEMMOVE(t,s,l) _fmemmove(t,s,l)
 #endif
 
