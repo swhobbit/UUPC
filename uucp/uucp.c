@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucp.c 1.6 1993/08/02 03:24:59 ahd Exp $
+ *    $Id: uucp.c 1.7 1993/09/20 04:48:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucp.c $
+ * Revision 1.7  1993/09/20  04:48:25  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2)
+ *
  * Revision 1.6  1993/08/02  03:24:59  ahd
  * Further changes in support of Robert Denny's Windows 3.x support
  *
@@ -418,7 +423,7 @@ int   do_copy(char *src_syst,
                   closedir( dirp );
                exit(1);
             }
-            fprintf(cfile, "S %s %s %s -%s %s 0666 %s\n", src_file, dest_file,
+            fprintf(cfile, "S %s %s %s -%s %s 0644 %s\n", src_file, dest_file,
                      E_mailbox, flags, idfile, remote_user);
             fclose(cfile);
             if (wild_flag)  {
