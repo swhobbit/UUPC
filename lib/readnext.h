@@ -6,7 +6,15 @@
 /*    Copyright 1991 (C), Andrew H. Derbyshire                        */
 /*--------------------------------------------------------------------*/
 
-char       *readnext(char *xname,
-                    const char *remote,
-                    const char *subdir,
-                          char *pattern );
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
+char     *readnext(char *xname,
+                   const char *remote,
+                   const char *subdir,
+                   char *pattern,
+                   time_t *modified,
+                   long   *size );
