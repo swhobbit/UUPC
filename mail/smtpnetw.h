@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *    $Id: smtpnetw.h 1.1 1997/11/21 18:16:32 ahd Exp $
  *
- *    $Log$
+ *    $Log: smtpnetw.h $
+ *    Revision 1.1  1997/11/21 18:16:32  ahd
+ *    Command processing stub SMTP daemon
+ *
  */
 
 #include "smtpclnt.h"
@@ -43,5 +46,8 @@ time_t
 getModeTimeout( SMTPMode );
 
 void closeSocket( SOCKET handle );
+
+KWBoolean
+selectReadySockets( SMTPClient *master );
 
 #endif /* _SMTPNETW_H */

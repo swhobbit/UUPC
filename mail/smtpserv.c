@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *    $Id: smtpserv.c 1.2 1997/11/21 18:15:18 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.2  1997/11/21 18:15:18  ahd
+ *    Command processing stub SMTP daemon
+ *
  *    Revision 1.1  1997/06/03 03:25:31  ahd
  *    Initial revision
  *
@@ -27,41 +30,24 @@
 
 #include "uupcmoah.h"
 #include "smtpserv.h"
+#include "smtpnetw.h"
 
-#include "../uucico/uutcpip.h"
-#include "ssleep.h"
-
-RCSID("$Id: smtpclnt.c 1.1 1997/06/03 03:25:31 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.2 1997/11/21 18:15:18 ahd Exp $");
 
 currentfile();
 
 /*--------------------------------------------------------------------*/
-/*       f l a g R e a d y S o c k e t s                              */
+/*       f l a g R e a d y C l i e n t s                              */
 /*                                                                    */
 /*       Perform select to determine what sockets are ready,          */
 /*       waiting if needed                                            */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-flagReadySockets( SMTPClient *master )
+flagReadyClients( SMTPClient *master )
 {
    static const char mName[] = "flagReadySockets";
    SMTPClient *current = master;
-
-   fd_set readfds;
-   int nReady;
-   int nSelected = 0;
-   int nTotal = 0;
-   int maxSocket = 0;
-   time_t now;
-   struct timeval tm;
-
-   tm.tv_sec = 60;
-   tm.tv_usec = 0;
-
-   FD_ZERO(&readfds);
-
-   time( &now );
 
 /*--------------------------------------------------------------------*/
 /*       Loop through the list of valid sockets, adding each one      */
@@ -85,141 +71,96 @@ flagReadySockets( SMTPClient *master )
 
       if ( isClientEOF( current ))
       {
-         printmsg( 5, "%s: Client %d has reached EOF",
+         printmsg( 4, "%s: Client %d has reached EOF",
                       mName,
                       getClientSequence( current ));
-         setClientReady( current, KWTrue );
-         tm.tv_sec = 0;       /* Process client immediately */
+         setClientProcess( current, KWTrue );
       }
-      else if ( isClientValid( current ))
+      else if ( isClientIgnored( current ))
       {
-         if ( getClientHandle( current ) < 0 )
-         {
-            printmsg( 5, "%s: Client %d has invalid handle %d",
-                         mName,
-                         getClientSequence( current ),
-                         getClientHandle( current ));
-            panic();
-         }
+         printmsg( 4, "%s: Client %d ignored",
+                      mName,
+                      getClientSequence( current ));
 
-         if ( isClientIgnored( current ))
-         {
-            printmsg( 5, "%s: Client %d ignored",
-                         mName,
-                         getClientSequence( current ));
-
-         } /* if ( isClientIgnored( current )) */
-         else {
-
-#ifdef UDEBUG
-            printmsg( 5, "%s: Client %d valid",
-                         mName,
-                         getClientSequence( current ) );
-#endif
-
-            FD_SET((unsigned)getClientHandle( current ), &readfds);
-
-            if ( (int) getClientHandle( current ) > maxSocket )
-               maxSocket = getClientHandle( current );
-
-            nSelected++;
-
-         } /* else */
-
-         if ( getClientTimeout( current ) < tm.tv_sec )
-            tm.tv_sec = getClientTimeout( current );
-
-      } /* if ( isClientValid( current )) */
-      else {
+      } /* if ( isClientIgnored( current )) */
+      else if ( ! isClientValid( current ))
+      {
          printmsg( 5, "%s: Client %d invalid",
                       mName,
                       getClientSequence( current ));
-         setClientReady( current, KWTrue );
-         tm.tv_sec = 0;       /* Process client immediately */
+         setClientProcess( current, KWTrue );
       }
+      else if ( getClientBufferedData( current ) )
+         setClientProcess( current, KWTrue );
+      else if ( getClientHandle( current ) < 0 )
+      {
+         printmsg( 4, "%s: Client %d has invalid handle %d",
+                      mName,
+                      getClientSequence( current ),
+                      getClientHandle( current ));
+         panic();
+      } /* if ( isClientValid( current )) */
 
-      nTotal++;
       current = current->next;
 
    } while( current );
 
-   if ( ! maxSocket )
-   {
-      printmsg(0, "%s: All sockets of %d ignored!",
-                  mName,
-                  nTotal );
-      ssleep( tm.tv_sec ? tm.tv_sec : 1);
-      return KWFalse;
-   }
-
 /*--------------------------------------------------------------------*/
-/*             Perform actual selection and check for errors          */
+/*          Actually select the sockets and return to caller          */
 /*--------------------------------------------------------------------*/
 
-   nReady = select(maxSocket, &readfds, NULL, NULL, &tm);
-
-   if (nReady == SOCKET_ERROR)
-   {
-      int wsErr = WSAGetLastError();
-
-      printmsg(0, "%s: select() of %d (out of %d) sockets failed" ,
-               mName,
-               nSelected,
-               nTotal );
-      printWSerror("select", wsErr);
-      panic();
-   }
-   else if (nReady == 0)
-   {
-      printmsg(5, "%s: select() timed out for %d (out of %d) sockets",
-                  mName,
-                  nSelected,
-                  nTotal );
-      return KWFalse;
-   }
-
-   printmsg( 4, "%s: %d of %d (out of %d) sockets were ready.",
-             mName,
-             nReady,
-             nSelected,
-             nTotal );
+   return selectReadySockets( master );
 
 /*--------------------------------------------------------------------*/
 /*                   Update list of sockets to process                */
 /*--------------------------------------------------------------------*/
 
-   current = master;
+} /* flagReadyClients */
 
-   do {
-      if ( isClientValid(current) &&
-           FD_ISSET((unsigned) getClientHandle( current ), &readfds ))
+/*--------------------------------------------------------------------*/
+/*       t i m e o u t C l i e n t s                                  */
+/*                                                                    */
+/*       Update the status of all clients which have been idle too    */
+/*       long                                                         */
+/*--------------------------------------------------------------------*/
+
+void
+timeoutClients( SMTPClient *current )
+{
+   static const char mName[] = "timeoutClients";
+
+   while( current != NULL )
+   {
+      if ( isClientTimedOut( current ))
       {
-         setClientReady( current, KWTrue );
-      }
+         printmsg(0, "%s: Client %d has timed out",
+                  mName,
+                  getClientSequence( current ));
+         setClientMode( current, SM_TIMEOUT );
+
+      } /* if ( isClientTimedOut( current )) */
 
       current = current->next;
 
-   } while( current );
+   } /* while( current != NULL ) */
 
-   return KWTrue;
-
-} /* flagReadySockets */
+} /* timeoutClients */
 
 /*--------------------------------------------------------------------*/
-/*       p r o c e s s R e a d y S o c k e t s                        */
+/*       p r o c e s s R e a d y C l i e n t s                        */
 /*                                                                    */
 /*       Process clients that have ready sockets                      */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-processReadySockets( SMTPClient *current )
+processReadyClients( SMTPClient *current )
 {
    while ( current != NULL )
    {
-      if ( getClientReady( current ))
+      if ( getClientProcess( current ))
       {
          processClient( current );
-         setClientReady( current, KWFalse );
+         setClientProcess( current, KWFalse );
       }
 
       current = current->next;
@@ -227,20 +168,7 @@ processReadySockets( SMTPClient *current )
 
    return KWTrue;
 
-} /* processReadySockets */
-
-/*--------------------------------------------------------------------*/
-/*       a d d C l i e n t                                            */
-/*                                                                    */
-/*       Add a new client to the list of clients to be serviced       */
-/*--------------------------------------------------------------------*/
-
-void
-addClient( SMTPClient *master, SMTPClient *client )
-{
-   client->next = master->next;
-   master->next = client;
-} /* addClient */
+} /* processReadyClients */
 
 /*--------------------------------------------------------------------*/
 /*       d r o p T e r m i n a t e d C l i e n t s                    */
@@ -272,7 +200,7 @@ dropTerminatedClients( SMTPClient *current )
         current = next;
    }
 
-   printmsg( (freed > 0) ? 1 : 5,
+   printmsg( (freed > 0) ? 4 : 8,
             "%s: freed %d of %d client connections.",
             mName,
             freed,
@@ -308,18 +236,13 @@ dropAllClients( SMTPClient *master )
       {
          setClientMode(current, SM_EXITING);
          processClient( current );
-         ssleep(1);
-         processClient( current );
          count ++;
       }
       current = current->next;
    }
 
    if ( count )
-   {
-      ssleep( 1 );                     /* Let messages go out        */
       dropTerminatedClients( master ); /* Terminate active clients   */
-   }
 
    dropTerminatedClients( master ); /* Free all remaining clients    */
 

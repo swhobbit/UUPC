@@ -1,9 +1,10 @@
-#ifndef _SMTPSERV_H
-#define _SMTPSERV_H
+#ifndef _SMTPUTIL_H
+#define _SMTPUTIL_H
+
 /*--------------------------------------------------------------------*/
-/*       s m t p s e r v . h                                          */
+/*       s m t p u t i l . c                                          */
 /*                                                                    */
-/*       SMTP server support routines for clients                     */
+/*       SMTP commands utility functions                              */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -19,30 +20,22 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.h 1.2 1997/11/21 18:16:32 ahd Exp $
+ *       $Id: smtprecv.c 1.1 1997/11/21 18:15:18 ahd Exp $
  *
- *    $Log: smtpserv.h $
- *    Revision 1.2  1997/11/21 18:16:32  ahd
- *    Command processing stub SMTP daemon
- *
- *    Revision 1.1  1997/06/03 03:26:38  ahd
- *    Initial revision
+ *       Revision History:
+ *       $Log: smtprecv.c $
  *
  */
 
-#include "smtpclnt.h"
+KWBoolean
+isValidAddress( const char *address,
+                char buffer[MAXADDR],
+                KWBoolean *ourProblem);
 
 KWBoolean
-flagReadyClients( SMTPClient *master );
+isValidLocalAddress( const char *local );
 
 KWBoolean
-processReadyClients( SMTPClient *current );
+stripAddress( char *address, char *response );
 
-void
-timeoutClients( SMTPClient *current );
-
-void dropTerminatedClients( SMTPClient *master );
-
-void dropAllClients( SMTPClient *master );
-
-#endif  /* _SMTPSERV_H */
+#endif /* _SMTPUTIL_H */

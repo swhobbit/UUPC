@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uusmtpd.c 1.2 1997/06/03 03:25:31 ahd Exp $
+ *    $Id: smtpd.c 1.1 1997/11/21 18:15:18 ahd Exp $
  *
- *    $Log: uusmtpd.c $
+ *    $Log: smtpd.c $
+ *    Revision 1.1  1997/11/21 18:15:18  ahd
+ *    Command processing stub SMTP daemon
+ *
  *    Revision 1.2  1997/06/03 03:25:31  ahd
  *    First compiling SMTPD
  *
@@ -47,7 +50,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: uusmtpd.c 1.2 1997/06/03 03:25:31 ahd Exp $");
+RCSID("$Id: smtpd.c 1.1 1997/11/21 18:15:18 ahd Exp $");
 
 currentfile();
 
@@ -91,26 +94,17 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
    if ( master == NULL )
       return 4;
 
-   printmsg(4,"%s: Beginning daemon mode processing.", mName);
+   printmsg(1,"%s: Beginning daemon mode processing.", mName);
 
+/*--------------------------------------------------------------------*/
+/*                      Our main processing loop                      */
+/*--------------------------------------------------------------------*/
 
    while( ! terminate_processing && isClientValid( master ))
    {
-
-      flagReadySockets( master );
-
-      if ( isClientReady( master ))
-      {
-         SMTPClient *client = initializeClient( getClientHandle( master ),
-                                                KWTrue );
-         if ( client != NULL )
-            addClient( master, client );
-
-         setClientReady( master, KWFalse );
-      }
-
-      processReadySockets( master->next );
-
+      flagReadyClients( master );
+      timeoutClients( master );
+      processReadyClients( master );
       dropTerminatedClients( master );
 
    } /* while( ! terminate_processing && isClientValid( master )) */
@@ -154,7 +148,7 @@ main( int argc, char ** argv )
    checkref(copywrong);
 #endif
 
-   if (!configure( B_UUCICO ))
+   if (!configure( B_UUSMTPD ))
       panic();
 
 /*--------------------------------------------------------------------*/
@@ -265,10 +259,10 @@ main( int argc, char ** argv )
 /*                If loaded for single client, handle it              */
 /*--------------------------------------------------------------------*/
 
-   if ( hotHandle != -1 )
-      exitStatus = clientMode( hotHandle, runUUXQT );
-   else
+   if ( hotHandle == -1 )
       exitStatus = daemonMode( port, exitTime, runUUXQT );
+   else
+      exitStatus = clientMode( hotHandle, runUUXQT );
 
    exit( exitStatus );
 

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.1 1997/06/03 03:26:38 ahd Exp $
+ *    $Id: smtpclnt.h 1.2 1997/11/21 18:16:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.2  1997/11/21 18:16:32  ahd
+ *    Command processing stub SMTP daemon
+ *
  *    Revision 1.1  1997/06/03 03:26:38  ahd
  *    Initial revision
  *
@@ -41,10 +44,9 @@ typedef enum
    SM_ADDR_FIRST  = 0x0020,         /* Have MAIL, need RCPT          */
    SM_ADDR_SECOND = 0x0040,         /* Have MAIL, need RCPT or DATA  */
    SM_DATA        = 0x0080,         /* Processing message body       */
-   SM_PERIOD      = 0x0100,         /* End of data, we're sending    */
-   SM_ABORT       = 0x0200,         /* We unexpectedly lost client   */
+   SM_ABORT       = 0x0100,         /* We unexpectedly lost client   */
+   SM_TIMEOUT     = 0x0200,         /* Client idle too long          */
    SM_EXITING     = 0x0400          /* Server is shutting down       */
- /*SM_TERMINATED  = 0x0800   */     /* Client sent QUIT command      */
 } SMTPMode;
 
 #define SMTP_MODES_ALL        0xffff
@@ -71,34 +73,38 @@ typedef struct _SMTPClient
    SMTPBuffer transmit;
    SMTPMode mode;
 
-   char *sender;
    char *SMTPName;                  /* Name client *claims* to be    */
-   char **address;
+   char *TrueName;                  /* Name DNS reports client to be */
+   char *sender;                    /* RFC-822 address of sender     */
+   char **address;                  /* List of addresses             */
    IMFILE *imf;
 
-   size_t addressCount;
+   size_t addressLength;            /* Size of address array         */
+   size_t addressCount;             /* Number entries in array used  */
    size_t trivialTransactions;
-   size_t senderLength;
 
    time_t ignoreUntilTime;
    time_t lastTransactionTime;
+   time_t connectTime;
    time_t timeoutPeriod;
    time_t expirationTime;
 
    long sequence;
-   KWBoolean ready;
+   KWBoolean ready;                 /* Socket ready for read/accept  */
+   KWBoolean process;               /* Client should be processed    */
    KWBoolean endOfTransmission;
+   KWBoolean esmtp;
    struct _SMTPClient *next;
 
 } SMTPClient;
 
 KWBoolean isClientValid( const SMTPClient *client );
 
-KWBoolean isClientReady( const SMTPClient *client );
-
 KWBoolean isClientIgnored( const SMTPClient *client );
 
 KWBoolean isClientEOF( const SMTPClient *client );
+
+KWBoolean isClientTimedOut( const SMTPClient *client );
 
 SMTPClient *initializeClient( SOCKET socket, KWBoolean needAccept );
 
@@ -110,7 +116,11 @@ SMTPMode getClientMode( const SMTPClient *client );
 
 void setClientReady(SMTPClient *client, KWBoolean ready );
 
+void setClientProcess(SMTPClient *client, KWBoolean process );
+
 KWBoolean getClientReady( const SMTPClient *client );
+
+KWBoolean getClientProcess( const SMTPClient *client );
 
 time_t getClientTimeout( const SMTPClient *client );
 
@@ -128,6 +138,8 @@ void freeClient( SMTPClient *client );
 void processClient( SMTPClient *client );
 
 void setClientClosed( SMTPClient *client );
+
+KWBoolean getClientBufferedData( const SMTPClient *client );
 
 /*--------------------------------------------------------------------*/
 /*                     Transmitted data counters                      */

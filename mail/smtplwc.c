@@ -17,11 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *       $Id: smtplwc.c 1.1 1997/11/21 18:15:18 ahd Exp $
  *
  *       Revision History:
- *       $Log$
+ *       $Log: smtplwc.c $
+ *       Revision 1.1  1997/11/21 18:15:18  ahd
+ *       Command processing stub SMTP daemon
+ *
  */
+
+/*--------------------------------------------------------------------*/
+/*                           Include files                            */
+/*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
 #include "smtplwc.h"
@@ -29,14 +36,51 @@
 #include "smtpnetw.h"
 #include "timestmp.h"
 
-RCSID("$Id: smtpclnt.c 1.1 1997/06/03 03:25:31 ahd Exp $");
+/*--------------------------------------------------------------------*/
+/*                            Global files                            */
+/*--------------------------------------------------------------------*/
+
+RCSID("$Id: smtplwc.c 1.1 1997/11/21 18:15:18 ahd Exp $");
 
 currentfile();
 
 /*--------------------------------------------------------------------*/
+/*       c o m m a n d A c c e p t                                    */
+/*                                                                    */
+/*       Accept a new client from our master listening socket         */
+/*--------------------------------------------------------------------*/
+
+commandAccept(SMTPClient *master,
+              struct _SMTPVerb* verb,
+              char **operands )
+{
+   SMTPClient *client = initializeClient( getClientHandle( master ),
+                                          KWTrue );
+
+/*--------------------------------------------------------------------*/
+/*         If the client initialized, insert it into the list         */
+/*--------------------------------------------------------------------*/
+
+   if ( client != NULL )
+   {
+      SMTPClient *current = master;
+
+      /* Step to the last link of the list */
+      while( current->next != NULL )
+         current = current->next;
+
+      current->next = client;
+
+   } /* if ( client != NULL ) */
+
+   return KWTrue;
+
+} /* commandAccept */
+
+/*--------------------------------------------------------------------*/
 /*       c o m m a n d I n i t                                        */
 /*                                                                    */
-/*       Perform initial command processing (greeting)                */
+/*       Perform initial client command processing (greeting)         */
 /*--------------------------------------------------------------------*/
 
 commandInit(SMTPClient *client,
@@ -83,11 +127,16 @@ commandHELO(SMTPClient *client,
 
    client->SMTPName = strdup( operands[0] );
    checkref( client->SMTPName );
-   if ( strlen( client->SMTPName ) > MAXADDR )
+
+   if ( strlen( client->SMTPName ) >= MAXADDR )
    {
-      client->SMTPName[ MAXADDR ] = '\0'; /* Truncate to allow ignoring
-                                             length else where in code  */
+      client->SMTPName[ MAXADDR - 1 ] = '\0';
+                                    /* Truncate to allow ignoring
+                                       length else where in code     */
    }
+
+   if ( equali( verb->name, "EHLO" ))
+      client->esmtp = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*            Format our name (and theirs) in the HELO reply.         */
@@ -143,12 +192,10 @@ commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
-   cleanupClientMail( client );
    sprintf( client->transmit.data,
             "%s Closing connection, adios",
             E_domain  );
    SMTPResponse( client, verb->successResponse, client->transmit.data );
-   setClientClosed( client );
    return KWTrue;
 }
 
@@ -170,12 +217,12 @@ commandSequenceIgnore(SMTPClient *client,
 
    static CMD_LKUP table[] =
    {
-      { SM_EXITING,     "QUIT",      503 },
-      { SM_UNGREETED,   "HELO",      503 },
-      { SM_IDLE,        "MAIL",      503 },
-      { SM_ADDR_FIRST,  "RCPT",      503 },
-      { SM_ADDR_SECOND, "DATA",      503 },
-      { 0,              "different", 503 }
+      { SM_EXITING,     "QUIT",      SR_PE_ORDERING },
+      { SM_UNGREETED,   "HELO",      SR_PE_ORDERING },
+      { SM_IDLE,        "MAIL",      SR_PE_ORDERING },
+      { SM_ADDR_FIRST,  "RCPT",      SR_PE_ORDERING },
+      { SM_ADDR_SECOND, "DATA",      SR_PE_ORDERING },
+      { 0,              "different", SR_PE_ORDERING }
    };
 
    CMD_LKUP *current = table;
@@ -239,10 +286,27 @@ commandExiting(SMTPClient *client,
    SMTPResponse( client,
                  SR_TE_SHUTDOWN,
                  "Server shutdown in progress, please try later" );
-   cleanupClientMail( client );
-   setClientClosed( client );
    return KWTrue;
-}
+
+} /* commandExiting */
+
+/*--------------------------------------------------------------------*/
+/*       c o m m a n d T i m e o u t                                  */
+/*                                                                    */
+/*       Drop a client which has been idle too long                   */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+commandTimeout(SMTPClient *client,
+               struct _SMTPVerb* verb,
+               char **operands )
+{
+   SMTPResponse( client,
+                 SR_TE_SHUTDOWN,
+                 "Idle timeout, closing connection");
+   return KWTrue;
+
+} /* commandTimeout */
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d T e r m i n a t e d                            */
@@ -254,15 +318,14 @@ commandTerminated(SMTPClient *client,
                   struct _SMTPVerb* verb,
                   char **operands )
 {
-   cleanupClientMail( client );
-   setClientClosed( client );
    return KWTrue;
-}
+
+}  /* commandTerminated */
 
 /*--------------------------------------------------------------------*/
 /*       c o m m a n d S y n t a x                                    */
 /*                                                                    */
-/*       No-operation command                                         */
+/*       Inform client we do not know the command issued              */
 /*--------------------------------------------------------------------*/
 
 commandSyntax(SMTPClient *client,
@@ -275,4 +338,5 @@ commandSyntax(SMTPClient *client,
             getClientMode( client ));
    SMTPResponse( client, verb->successResponse, client->transmit.data );
    return KWTrue;
-}
+
+}  /* commandSyntax */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.57 1997/05/11 18:15:50 ahd v1-12s $
+ *    $Id: rmail.c 1.58 1997/06/03 03:25:31 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.58  1997/06/03 03:25:31  ahd
+ *    First compiling SMTPD
+ *
  *    Revision 1.57  1997/05/11 18:15:50  ahd
  *    Allow faster SMTP delivery via fastsmtp flag
  *    Move TCP/IP dependent code from rmail.c to deliver.c
@@ -339,11 +342,6 @@ static KWBoolean DaemonMail( const char *subject,
 /*--------------------------------------------------------------------*/
 
  currentfile();               /* Declare file name for checkref()    */
-
- char fromUser[MAXADDR] = ""; /* User id of originator               */
- char fromNode[MAXADDR] = ""; /* Node id of originator               */
- char *myProgramName = NULL;  /* Name for recursive invocation       */
- char grade ;                 /* Grade for mail sent                 */
 
  static char received[] = "Received:";
  static char receivedlen = sizeof( received) - 1;

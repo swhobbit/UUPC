@@ -20,13 +20,21 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.1 1997/06/03 03:25:31 ahd Exp $
+ *       $Id: smtplwc.h 1.1 1997/11/21 18:16:32 ahd Exp $
  *
  *       Revision History:
- *       $Log$
+ *       $Log: smtplwc.h $
+ *       Revision 1.1  1997/11/21 18:16:32  ahd
+ *       Command processing stub SMTP daemon
+ *
  */
 
 #include "smtpverb.h"
+
+KWBoolean
+commandAccept(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands );
 
 KWBoolean
 commandInit(SMTPClient *client,
@@ -67,6 +75,11 @@ KWBoolean
 commandTerminated(SMTPClient *client,
                   struct _SMTPVerb* verb,
                   char **operands );
+
+KWBoolean
+commandTimeout(SMTPClient *client,
+               struct _SMTPVerb* verb,
+               char **operands );
 
 KWBoolean
 commandSyntax(SMTPClient *client,

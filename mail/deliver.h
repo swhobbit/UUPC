@@ -18,9 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.20 1997/05/11 04:28:53 ahd Exp $
+ *    $Id: deliver.h 1.21 1997/05/11 18:17:27 ahd v1-12s $
  *
  *    $Log: deliver.h $
+ *    Revision 1.21  1997/05/11 18:17:27  ahd
+ *    Add flag for fastsmtp delivery
+ *    Move TCP/IP dependent delivery code from rmail to deliver
+ *
  *    Revision 1.20  1997/05/11 04:28:53  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -111,8 +115,8 @@ extern KEWSHORT hops;
 
 extern KWBoolean remoteMail;
 
-extern char fromUser[];
-extern char fromNode[];
+extern char fromUser[MAXADDR];
+extern char fromNode[MAXADDR];
 
 extern char *ruser;
 extern char *rnode;

@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.52 1997/05/11 04:27:40 ahd Exp $
+ *    $Id: deliver.c 1.53 1997/05/11 18:15:50 ahd v1-12s $
  *
  *    $Log: deliver.c $
+ *    Revision 1.53  1997/05/11 18:15:50  ahd
+ *    Allow faster SMTP delivery via fastsmtp flag
+ *    Move TCP/IP dependent code from rmail.c to deliver.c
+ *    Allow building rmail without SMTP or TCP/IP support
+ *
  *    Revision 1.52  1997/05/11 04:27:40  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -253,6 +258,15 @@
 #endif
 
 /*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+ char fromUser[MAXADDR] = ""; /* User id of originator               */
+ char fromNode[MAXADDR] = ""; /* Node id of originator               */
+ char *myProgramName = NULL;  /* Name for recursive invocation       */
+ char grade ;                 /* Grade for mail sent                 */
+
+/*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
@@ -393,7 +407,7 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
    }  /* if */
 
 /*--------------------------------------------------------------------*/
-/*         Deliver mail to a system directory connected to us         */
+/*         Deliver mail to a system directly connected to us          */
 /*--------------------------------------------------------------------*/
 
    if (equal(path,node))   /* Directly connected system?        */

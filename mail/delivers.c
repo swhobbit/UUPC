@@ -50,7 +50,7 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.38 1997/03/31 07:00:15 ahd Exp $
+ *    $Id: delivers.c 1.3 1997/05/11 04:27:40 ahd v1-12s $
  */
 
 #include "uupcmoah.h"
@@ -62,7 +62,7 @@
 
 currentfile();
 
-RCSID("$Id$");
+RCSID("$Id: delivers.c 1.3 1997/05/11 04:27:40 ahd v1-12s $");
 
 #define SMTP_PORT_NUMBER 25
 
@@ -75,7 +75,8 @@ KWBoolean suspend_processing = KWFalse;
 /* ROLE Send a command to sendmail.                                  $*/
 /*--------------------------------------------------------------------*/
 
-KWBoolean SendSMTPCmd(
+static KWBoolean
+SendSMTPCmd(
   char        *cmd      /* IN The command to send $*/
 )
 {
@@ -103,7 +104,8 @@ KWBoolean SendSMTPCmd(
 /*  .PP returns pointer to buffer or NULL if error/connection lost.  $*/
 /*--------------------------------------------------------------------*/
 
-char* GetsSMTP(
+static char*
+GetsSMTP(
   char          *buf,   /* IN Buffer in which to store $*/
   int           len     /* IN Number max of bytes in buffer $*/
 )
@@ -138,7 +140,8 @@ char* GetsSMTP(
 /*  .PP returns reply code or -1 if error or EOF                     $*/
 /*--------------------------------------------------------------------*/
 
-int GetSMTPReply(void)
+static int
+GetSMTPReply(void)
 {
 
   /* PSEUDO Get line $*/
@@ -159,7 +162,7 @@ int GetSMTPReply(void)
 /*  .PP returns KWTrue if okay, else bounces message and returns KWFalse   $*/
 /*--------------------------------------------------------------------------*/
 
-KWBoolean
+static KWBoolean
 SendSMTPAddressCmd(
    IMFILE *imf,
    const char *address,
@@ -233,7 +236,8 @@ SendSMTPAddressCmd(
 /*  .PP Return reply code or -1 if error or EOF                      $*/
 /*--------------------------------------------------------------------*/
 
-KWBoolean SendSMTPCmdCheckReply(
+static KWBoolean
+SendSMTPCmdCheckReply(
   char        *cmd,        /* IN The command to send $*/
   int          expected    /* IN The reply waited for $*/
 )
@@ -260,7 +264,8 @@ KWBoolean SendSMTPCmdCheckReply(
 
 } /* SendSMTPCmdCheckReply */
 
-KWBoolean SendSMTPData(
+static KWBoolean
+SendSMTPData(
    IMFILE *imf                   /* Contents of message            */
 )
 {
@@ -372,7 +377,7 @@ KWBoolean SendSMTPData(
 
 } /* SendSMTPData */
 
-void
+static void
 shutdownSMTP( void )
 {
    if ( CD() )
