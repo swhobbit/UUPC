@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIB14.H 1.2 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: ulib14.h 1.3 1994/01/01 19:24:25 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIB14.H $
+ *    $Log: ulib14.h $
+ * Revision 1.3  1994/01/01  19:24:25  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1993/12/24  05:22:49  ahd
  * Use UUFAR pointer for comm buffers
  *

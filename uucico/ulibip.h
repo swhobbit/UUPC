@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulibip.h 1.3 1993/12/30 02:56:28 dmwatt Exp $
+ *    $Id: ulibip.h 1.4 1994/01/01 19:24:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: ulibip.h $
+ * Revision 1.4  1994/01/01  19:24:40  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.3  1993/12/30  02:56:28  dmwatt
  * Correct compile warnings
  *

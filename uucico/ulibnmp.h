@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ULIBNMP.H 1.2 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: ulibnmp.h 1.3 1994/01/01 19:24:45 ahd Exp $
  *
  *    Revision history:
- *    $Log: ULIBNMP.H $
+ *    $Log: ulibnmp.h $
+ * Revision 1.3  1994/01/01  19:24:45  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.2  1993/12/24  05:22:49  ahd
  * Use UUFAR pointer for comm buffers
  *
