@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
-/*    a l i a s . c                                                   */
+/*    n i c k n a m e . c                                             */
 /*                                                                    */
-/*    Smart routing and alias routines for UUPC/extend mail           */
+/*    Smart routing and nickname routines for UUPC/extend mail        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.21 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: nickname.c 1.22 1996/01/01 21:04:06 ahd Exp $
  *
  *    Revision history:
- *    $Log: alias.c $
+ *    $Log: nickname.c $
+ *    Revision 1.22  1996/01/01 21:04:06  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -109,19 +112,31 @@
 #include "hostable.h"
 #include "security.h"
 #include "usertabl.h"
-#include "alias.h"
+#include "nickname.h"
 #include "address.h"
 #include "expath.h"
 
-static size_t AliasCount = 0;
+static size_t nicknameCount = 0;
 
-static struct AliasTable *alias = NULL;
+static NICKNAME *nickname = NULL;
 
-int nickcmp( const void *a, const void *b );
-
-static size_t LoadAliases( void ) ;
+static size_t loadAliases( void ) ;
 
 currentfile();
+
+/*--------------------------------------------------------------------*/
+/*   n i c k C o m p a r e                                            */
+/*                                                                    */
+/*   Accepts indirect pointers to two strings and compares them using */
+/*   stricmp (case insensitive string compare)                        */
+/*--------------------------------------------------------------------*/
+
+int nickCompare( const void *a, const void *b )
+{
+   return stricmp(((NICKNAME *)a)->anick,
+         ((NICKNAME *)b)->anick);
+
+}  /* nickCompare */
 
 /*--------------------------------------------------------------------*/
 /*    I n i t R o u t e r                                             */
@@ -200,7 +215,7 @@ void ExtractName(char *result, const char *input)
             return;
          }
 
-         fullname = AliasByAddr(node, result);
+         fullname = nicknameByAddr(node, result);
 
          if (fullname == NULL)
          {
@@ -215,12 +230,12 @@ void ExtractName(char *result, const char *input)
 
       recursion--;
 
-}  /*ExtractName*/
+}  /* ExtractName */
 
 /*--------------------------------------------------------------------*/
 /*    B u i l d A d d r e s s                                         */
 /*                                                                    */
-/*    Builds a standard address format, with aliasing as              */
+/*    Builds a standard address format, with nickname resolution as   */
 /*    required.                                                       */
 /*--------------------------------------------------------------------*/
 
@@ -249,7 +264,7 @@ void BuildAddress(char *result, const char *input)
          return;
       }
 
-      fulladdr = AliasByAddr(node, user);  /* Alias for the address? */
+      fulladdr = nicknameByAddr(node, user);  /* Alias for the address? */
 
       if (fulladdr != NULL)            /* Yes --> Use it             */
       {
@@ -296,21 +311,21 @@ void BuildAddress(char *result, const char *input)
 } /* BuildAddress */
 
 /*--------------------------------------------------------------------*/
-/*    A l i a s B y N i c k                                           */
+/*    N i c k n a m e B y N i c k                                     */
 /*                                                                    */
-/*    Locate a mail address by search the alias table.  Returns KWTrue  */
-/*    if alias found and has address, otherwise KWFalse.               */
+/*    Locate a mail address by search the nickname table.  Returns    */
+/*    true if nickname found and has address, otherwise False.        */
 /*--------------------------------------------------------------------*/
 
-char *AliasByNick(const char *nick)
+char *nicknameByNick(const char *nick)
 {
    int   upper;
    int   lower;
 
-   if (!AliasCount)
-      AliasCount = LoadAliases();
+   if (!nicknameCount)
+      nicknameCount = loadAliases();
 
-   upper = (int) AliasCount - 1;
+   upper = (int) nicknameCount - 1;
    lower = 0;
 
    while (upper >= lower)
@@ -319,14 +334,14 @@ char *AliasByNick(const char *nick)
       int hit;
 
       midpoint = ( upper + lower ) / 2;
-      hit = stricmp(nick, alias[midpoint].anick);
+      hit = stricmp(nick, nickname[midpoint].anick);
 
 /*--------------------------------------------------------------------*/
-/*                   We found the alias, return it                    */
+/*                   We found the nickname, return it                 */
 /*--------------------------------------------------------------------*/
 
       if (!hit)
-         return alias[midpoint].afull;
+         return nickname[midpoint].afull;
 
 /*--------------------------------------------------------------------*/
 /*       Determine if we are high or low and reset the table          */
@@ -346,75 +361,77 @@ char *AliasByNick(const char *nick)
 
    return NULL;
 
-}
+} /* nicknameByNick */
 
 /*--------------------------------------------------------------------*/
-/*    A l i a s B y A d d r                                           */
+/*    N i c k n a m e B y A d d r                                     */
 /*                                                                    */
-/*    Locate a mail address by search the alias table.  Returns KWTrue  */
-/*    if alias found and has address, otherwise KWFalse                */
+/*    Locate a mail address by search the nickname table.  Returns    */
+/*    true if nickname found and has address, otherwise False         */
 /*--------------------------------------------------------------------*/
 
-char *AliasByAddr(const char *node, const char *user)
+char *nicknameByAddr(const char *node, const char *user)
 {
    size_t current = 0;
 
-   if (!AliasCount)
-      AliasCount = LoadAliases();
+   if (!nicknameCount)
+      nicknameCount = loadAliases();
 
-   while (current < AliasCount)
+   while (current < nicknameCount)
    {
       int hit;
 
-      hit = stricmp(node, alias[current].anode);
+      hit = stricmp(node, nickname[current].anode);
       if (!hit)
       {
 
-         hit = stricmp(user, alias[current].auser);
+         hit = stricmp(user, nickname[current].auser);
 
          if (!hit)
-            return alias[current].afull;
+            return nickname[current].afull;
       }
 
       current++;
    }
+
    return NULL;
 
-}
+} /* nicknameByAddr */
 
 /*--------------------------------------------------------------------*/
-/*    L o a d A l i a s e s                                           */
+/*    l o a d N i c k n a m e e s                                     */
 /*                                                                    */
-/*    Initializes the address alias table; returns number of aliases  */
-/*    loaded                                                          */
+/*    Initializes the address nickname table; returns number of       */
+/*    nicknames loaded                                                */
 /*--------------------------------------------------------------------*/
 
-size_t LoadAliases(void)
+size_t loadAliases(void)
 {
    FILE *ff;
-   char buf[BUFSIZ];
    char *token;
    size_t   elements = 0;
    size_t   max_elements = userElements + 20;
    size_t   subscript;
-   struct AliasTable *hit;           /* temporary pointer for searching */
-   struct AliasTable target;
+   NICKNAME target;
+   char buf[BUFSIZ];
 
    checkuser( E_mailbox ); /* Force the table to be loaded            */
-   alias = calloc(max_elements, sizeof(*alias));
-   checkref(alias);
+   nickname = calloc(max_elements, sizeof(*nickname));
+   checkref(nickname);
 
 /*--------------------------------------------------------------------*/
-/*                   Actually load the alias table                    */
+/*                   Actually load the nickname table                 */
 /*--------------------------------------------------------------------*/
 
-   if (E_nickname != NULL )   /* Did the user specify aliases file?   */
+   if (E_nickname != NULL )   /* Did the user specify nicknames file?   */
    {
       char fname[FILENAME_MAX];
 
       strcpy( fname, E_nickname);
 
       expand_path( fname, E_homedir, E_homedir, NULL );
+
+      E_nickname = newstr( fname );
 
       ff = FOPEN(fname, "r", TEXT_MODE);
 
@@ -426,6 +443,15 @@ size_t LoadAliases(void)
 
       while (! feof(ff))
       {
+         char node[MAXADDR];
+         char user[MAXADDR];
+         char addr[MAXADDR];
+         char path[MAXADDR];
+         char *eos;              /* End of string pointer         */
+
+         size_t   quotes = 0;    /* Number of quotes in address   */
+         char *left, *right;     /* Bracket pointers              */
+
          if (fgets(buf, BUFSIZ, ff) == NULL)   /* Try to read a line     */
             break;                  /* Exit if end of file             */
 
@@ -437,152 +463,127 @@ size_t LoadAliases(void)
          if (token[0] == '#')
             continue;                  /* Line is a comment; loop again */
 
-         /* Add the alias to the table.  Note that we must add the nick */
-         /* to the table ourselves (rather than use lsearch) because   */
-         /* we must make a copy of the string; the *token we use for   */
-         /* the search is in the middle of our I/O buffer!             */
-         /*
-         /* I was burned, _you_ have been warned.                      */
-
          target.anick = token;
-
-         hit = (void *) lfind((void *) &target, (void *) alias,
-                              &elements, sizeof(alias[0]), nickcmp);
-
-         if (hit == NULL)
-         {
-            char node[MAXADDR];
-            char user[MAXADDR];
-            char path[MAXADDR];
-            char addr[MAXADDR];
-            char *eos;              /* End of string pointer         */
-
-            size_t   quotes = 0;    /* Number of quotes in address   */
-            char *left, *right;     /* Bracket pointers              */
 
 /*--------------------------------------------------------------------*/
 /*            Expand the nickname table if we're out of room          */
 /*--------------------------------------------------------------------*/
 
-            if (elements == max_elements)
-            {
-                max_elements = max_elements * 2;
-                alias = realloc(alias, max_elements * sizeof(*alias));
-                checkref(alias);
-            }
+         if (elements == max_elements)
+         {
+             max_elements = max_elements * 2;
+             nickname = realloc( nickname,
+                                 max_elements * sizeof(*nickname));
+             checkref(nickname);
+         }
 
 /*--------------------------------------------------------------------*/
-/*       Get the information for the nickname, strip                  */
-/*       leading/trailing whiteapce and verify there was              */
-/*       information provided.                                        */
+/*       Get the information for the nickname: strip leading/         */
+/*       trailing whitespace, and verify there was information        */
+/*       provided.                                                    */
 /*--------------------------------------------------------------------*/
 
-            token = strtok(NULL, "");    /* Get rest of string         */
+         token = strtok(NULL, "");    /* Get rest of string         */
 
-            while ( token && isspace(*token))
-               token++;
+         while ( token && isspace(*token))
+            token++;
 
-            if ( !token || !strlen(token) )
-            {
-               printmsg(0, "No information provided for nickname %s in "
-                           "%s, line ignored",
-                           target.anick,
-                           fname );
-               continue;            /* Ignore rest of this line      */
-            }
+         if ( !token || !strlen(token) )
+         {
+            printmsg(0, "No information provided for nickname %s in "
+                        "%s, line ignored",
+                        target.anick,
+                        fname );
+            continue;            /* Ignore rest of this line      */
+         }
 
-            eos = token + strlen(token) - 1;
-            while ( isspace(*eos))
-            {
-               *eos = '\0';
-               eos--;
-            }
+         eos = token + strlen(token) - 1;
+         while ( isspace(*eos))
+         {
+            *eos = '\0';
+            eos--;
+         }
 
-            target.afull = token;   /* Save location for later */
+         target.afull = token;   /* Save location for later */
 
 /*--------------------------------------------------------------------*/
 /*         Verify the quotes are balanced if they exist at all.       */
 /*--------------------------------------------------------------------*/
 
-            token = target.afull;
-            quotes = 0;
+         token = target.afull;
+         quotes = 0;
 
-            while( (token = strchr( token, '"' )) != NULL )
-            {
-               quotes ++;
-               token ++;            /* Step past quote               */
-            }
+         while( (token = strchr( token, '"' )) != NULL )
+         {
+            quotes ++;
+            token ++;            /* Step past quote               */
+         }
 
-            if ( quotes % 2 )
-            {
+         if ( quotes % 2 )
+         {
 
-               printmsg(0, "Unbalanced quotes in %s for nickname %s, "
-                          "entry ignored: %s",
-                          fname,
-                          target.anick,
-                          target.afull );
-               continue;
+            printmsg(0, "Unbalanced quotes in %s for nickname %s, "
+                       "entry ignored: %s",
+                       fname,
+                       target.anick,
+                       target.afull );
+            continue;
 
-            }
+         }
 
 /*--------------------------------------------------------------------*/
 /*       Also verify the general layout of angle brackets, another    */
 /*       common format error.                                         */
 /*--------------------------------------------------------------------*/
 
-            left = strchr( target.afull, '<' );
+         left = strchr( target.afull, '<' );
 
-            if ( (quotes > 0) && (left == NULL ) )
+         if ( (quotes > 0) && (left == NULL ) )
+         {
+            printmsg(0,
+                     "No address for nickname %s in %s, "
+                     "line ignored: %s",
+                      target.anick,
+                      fname,
+                      target.afull );
+            continue;
+         }
+
+         if ( left != NULL )
+         {
+            right = strchr( target.afull, '>' );
+            if ( (right == NULL) || (right < left ) )
             {
-               printmsg(0,
-                        "No address for nickname %s in %s, "
+               printmsg(0, "Invalid address for nickname %s in %s, "
                         "line ignored: %s",
                          target.anick,
                          fname,
                          target.afull );
                continue;
             }
-
-            if ( left != NULL )
-            {
-               right = strchr( target.afull, '>' );
-               if ( (right == NULL) || (right < left ) )
-               {
-                  printmsg(0, "Invalid address for nickname %s in %s, "
-                           "line ignored: %s",
-                            target.anick,
-                            fname,
-                            target.afull );
-                  continue;
-               }
-            }
+         }
 
 /*--------------------------------------------------------------------*/
 /*     Extract the address components for lookups by host and userid  */
 /*--------------------------------------------------------------------*/
 
-            ExtractAddress(addr, target.afull, ADDRESSONLY );
+         ExtractAddress(addr, target.afull, ADDRESSONLY );
 
-            if ( !tokenizeAddress(addr, path, node, user) )
-            {
-               printmsg(0,"%s: %s (alias %s ignored)",
-                        addr,
-                        path,
-                        target.anick );
-               continue;
-            }
-
-            alias[elements].anick = newstr(target.anick);
-            alias[elements].afull = newstr(target.afull);
-            alias[elements].anode = newstr(node);
-            alias[elements].auser = newstr(user);
-
-            elements ++;
+         if ( !tokenizeAddress(addr, path, node, user) )
+         {
+            printmsg(0,"%s: %s (nickname %s ignored)",
+                     addr,
+                     path,
+                     target.anick );
+            continue;
          }
-         else
-            printmsg(0, "LoadAliases: Duplicate nickname %s in %s, ingored.",
-                        token,
-                        fname );
+
+         nickname[elements].anick = newstr(target.anick);
+         nickname[elements].afull = newstr(target.afull);
+         nickname[elements].anode = newstr(node);
+         nickname[elements].auser = newstr(user);
+
+         elements ++;
 
       } /* while (! feof(ff)) */
 
@@ -591,19 +592,19 @@ size_t LoadAliases(void)
    } /* if (E_nickname != NULL ) */
 
 /*--------------------------------------------------------------------*/
-/*           Add the local users as final aliases in table            */
+/*           Add the local users as final nicknames in table          */
 /*--------------------------------------------------------------------*/
 
-   alias = realloc(alias, (elements + userElements) * sizeof(*alias));
+   nickname = realloc(nickname, (elements + userElements) * sizeof(*nickname));
                               /* Resize table to final known size     */
-   checkref(alias);
+   checkref(nickname);
 
    for ( subscript = 0; subscript < userElements;  subscript++)
    {
       if ( equal(users[subscript].realname, EMPTY_GCOS) )
          continue;
 
-      alias[elements].anick = "";   /* No nickname, only good for addr */
+      nickname[elements].anick = "";   /* No nickname, only good for addr */
 
       if (bflag[F_BANG])
          sprintf(buf, "(%s) %s!%s",
@@ -612,9 +613,9 @@ size_t LoadAliases(void)
       else
          sprintf(buf, "\"%s\" <%s@%s>", users[subscript].realname,
                users[subscript].uid, E_fdomain );
-      alias[elements].afull = newstr(buf);
-      alias[elements].anode = E_nodename;
-      alias[elements].auser = users[subscript].uid;
+      nickname[elements].afull = newstr(buf);
+      nickname[elements].anode = E_nodename;
+      nickname[elements].auser = users[subscript].uid;
 
       elements++;
 
@@ -624,22 +625,28 @@ size_t LoadAliases(void)
 /*                         Now sort the table                         */
 /*--------------------------------------------------------------------*/
 
-   qsort(alias, elements, sizeof(alias[0]), nickcmp);
-
-   return (elements);
-
-} /*LoadAliases*/
+   qsort(nickname, elements, sizeof(nickname[0]), nickCompare);
 
 /*--------------------------------------------------------------------*/
-/*   n i c k c m p                                                    */
-/*                                                                    */
-/*   Accepts indirect pointers to two strings and compares them using */
-/*   stricmp (case insensitive string compare)                        */
+/*                   Check for duplicate nicknames                    */
 /*--------------------------------------------------------------------*/
 
-int nickcmp( const void *a, const void *b )
-{
-   return stricmp(((struct AliasTable *)a)->anick,
-         ((struct AliasTable *)b)->anick);
+   for ( subscript = elements - 1;
+         (nickname[subscript].anick[0] != '\0') && (subscript > 0);
+         subscript--)
+   {
+      if ( equal( nickname[subscript].anick,
+                  nickname[subscript - 1].anick ))
+         printmsg(0,"loadAliases: Duplicate nickname %s in %s, "
+                    "use of nickname will be unpredictable!",
+                    nickname[subscript].anick,
+                    E_nickname );
+   }
 
-}  /*nickcmp*/
+/*--------------------------------------------------------------------*/
+/*                 Return number of entries to caller                 */
+/*--------------------------------------------------------------------*/
+
+   return elements;
+
+} /* loadAliases */

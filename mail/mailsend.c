@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.25 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: mailsend.c 1.26 1996/01/01 21:03:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.26  1996/01/01 21:03:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -107,7 +110,7 @@
 #include "expath.h"
 #include "execute.h"
 #include "mlib.h"
-#include "alias.h"
+#include "nickname.h"
 #include "mail.h"
 #include "maillib.h"
 #include "mailblib.h"
@@ -171,7 +174,7 @@ currentfile();                /* Define current file for panic()     */
       panic();
    }
 
-   fullname = AliasByNick(alias);
+   fullname = nicknameByNick(alias);
 
    printmsg(4,"Processing alias '%s', result '%s'", alias,
       (fullname == NULL) ? alias : fullname);
@@ -191,7 +194,7 @@ currentfile();                /* Define current file for panic()     */
          return header;             /* Use previous header!          */
       }
 
-      fullname = AliasByAddr( node, user);
+      fullname = nicknameByAddr( node, user);
 
       if (fullname == NULL)         /* Did we come up empty?         */
       {

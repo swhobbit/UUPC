@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.22 1995/03/11 22:28:10 ahd v1-12q $
+ *    $Id: maillib.c 1.23 1996/01/01 21:03:50 ahd Exp $
  *
  *    $Log: maillib.c $
+ *    Revision 1.23  1996/01/01 21:03:50  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.22  1995/03/11 22:28:10  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -115,7 +118,7 @@
 
 #include "address.h"
 #include "mlib.h"
-#include "alias.h"
+#include "nickname.h"
 #include "mail.h"
 #include "maillib.h"
 #include "scrsize.h"

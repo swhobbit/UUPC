@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.38 1995/03/11 22:27:46 ahd v1-12q $
+ *    $Id: mail.c 1.39 1996/01/01 21:02:35 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.39  1996/01/01 21:02:35  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.38  1995/03/11 22:27:46  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -166,7 +169,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.38 1995/03/11 22:27:46 ahd v1-12q $";
+      "$Id: mail.c 1.39 1996/01/01 21:02:35 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -193,7 +196,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "address.h"
-#include "alias.h"
+#include "nickname.h"
 #include "dater.h"
 #include "expath.h"
 #include "getopt.h"

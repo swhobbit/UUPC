@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.23 1995/11/30 03:06:56 ahd v1-12q $
+ *    $Id: mailblib.c 1.24 1996/01/01 21:01:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.24  1996/01/01 21:01:42  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1995/11/30 03:06:56  ahd
  *    Trap truly invalid addresses in tokenizer
  *
@@ -103,7 +106,7 @@
 #include "maillib.h"
 #include "mailblib.h"
 #include "mailsend.h"
-#include "alias.h"
+#include "nickname.h"
 #include "expath.h"
 #include "execute.h"
 
@@ -141,7 +144,7 @@ static KWBoolean SearchSubject( char *token,
 
 void ShowAlias( const char *alias)
 {
-   char *fullname = AliasByNick( alias );
+   char *fullname = nicknameByNick( alias );
    static int level = 0;
    int column = level * 2;
 
