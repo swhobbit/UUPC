@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.59 1997/11/24 02:52:26 ahd Exp $
+ *    $Id: rmail.c 1.60 1997/11/25 05:05:06 ahd v1-12t $
  *
  *    $Log: rmail.c $
+ *    Revision 1.60  1997/11/25 05:05:06  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.59  1997/11/24 02:52:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -625,7 +628,7 @@ int main(int argc, char **argv)
 
    if ( queueMode && remoteMail )
    {
-      if ( retrySMTPdelivery( imf, address, addressees ))
+      if ( retrySMTPdelivery( imf, address, (int) addressees ))
          Terminate( 0, imf, datain );
       else
          Terminate( EX_TEMPFAIL, imf, datain );
