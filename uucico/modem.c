@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MODEM.C 1.14 1993/05/30 00:04:53 ahd Exp $
+ *    $Id: MODEM.C 1.15 1993/05/30 15:25:50 ahd Exp $
  *
  *    Revision history:
  *    $Log: MODEM.C $
+ * Revision 1.15  1993/05/30  15:25:50  ahd
+ * Multiple driver support
+ *
  * Revision 1.14  1993/05/30  00:04:53  ahd
  * Multiple communications drivers support
  *
@@ -329,7 +332,7 @@ CONN_STATE callin( const time_t exit_time )
 
 /*--------------------------------------------------------------------*/
 /*    Determine how long we can wait for the telephone, up to         */
-/*    MAX_INT seconds.  Aside from Turbo C limits, this insures we    */
+/*    SHRT_MAX seconds.  Aside from Turbo C limits, this insures we   */
 /*    kick the modem once in a while.                                 */
 /*--------------------------------------------------------------------*/
 
@@ -337,8 +340,8 @@ CONN_STATE callin( const time_t exit_time )
       if ( left < 0 )               /* Any time left?                */
          return CONN_EXIT;             /* No --> shutdown            */
 
-      if ( left > INT_MAX)
-         offset = INT_MAX;
+      if ( left > SHRT_MAX)
+         offset = SHRT_MAX;
       else
          offset = (int) left;
 
