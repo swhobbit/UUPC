@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.19 1995/01/07 16:18:27 ahd Exp $
+ *    $Id: alias.c 1.20 1995/01/30 04:08:36 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: alias.c $
+ *    Revision 1.20  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.19  1995/01/07 16:18:27  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -185,8 +188,15 @@ void ExtractName(char *result, const char *input)
 
          ExtractAddress(addr, input, ADDRESSONLY);
 
-         user_at_node(addr, path, node, result);
-                                 /* Reduce address to basics */
+         if ( !tokenizeAddress(addr, path, node, result))
+         {
+            printmsg(0,"%s: %s",
+                     addr,
+                     path );
+            strcpy( result, "##invalid##" );
+            return;
+         }
+
          fullname = AliasByAddr(node, result);
 
          if (fullname == NULL)
@@ -228,7 +238,13 @@ void BuildAddress(char *result, const char *input)
 
       ExtractAddress(addr, input, ADDRESSONLY);
                                     /* Get user e-mail addr          */
-      user_at_node(addr, path, node, user);  /* Break address down   */
+
+      if ( ! tokenizeAddress(addr, path, node, user) )
+      {
+         printmsg(0,"%s: %s", addr, path );
+         sprintf( "%s@%s", "##INVALID##", E_domain );
+         return;
+      }
 
       fulladdr = AliasByAddr(node, user);  /* Alias for the address? */
 
@@ -544,7 +560,14 @@ size_t LoadAliases(void)
 
             ExtractAddress(addr, target.afull, ADDRESSONLY );
 
-            user_at_node(addr, path, node, user);
+            if ( !tokenizeAddress(addr, path, node, user) )
+            {
+               printmsg(0,"%s: %s (alias %s ignored)",
+                        addr,
+                        path,
+                        target.anick );
+               continue;
+            }
 
             alias[elements].anick = newstr(target.anick);
             alias[elements].afull = newstr(target.afull);

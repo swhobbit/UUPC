@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.47 1995/09/04 18:43:37 ahd v1-12o ahd $
+ *    $Id: rmail.c 1.48 1995/09/11 00:20:45 ahd v1-12p $
  *
  *    $Log: rmail.c $
+ *    Revision 1.48  1995/09/11 00:20:45  ahd
+ *    Add debugging information to X.* files
+ *    Use "--" option to insure user names with leading dash don't
+ *    cause problems.
+ *
  *    Revision 1.47  1995/09/04 18:43:37  ahd
  *    Correctly perform host lookup even if verification of sender is
  *    disabled
@@ -784,9 +789,16 @@ static void ParseFrom( const char *forwho, IMFILE *imf, FILE *datain)
       if (( *fromNode != '\0' ) && ( *fromUser != '\0' ))
       {
          sprintf(buf ,"%s!%s", fromNode, fromUser);
-         user_at_node(buf , buf, node, user);
-         ruser = newstr( user );
-         rnode = newstr( node );
+         if ( tokenizeAddress(buf , buf, node, user))
+         {
+            ruser = newstr( user );
+            rnode = newstr( node );
+         }
+         else {
+            printmsg(0,"%s!%s: %s", fromNode, fromUser, buf );
+            ruser = "##invalid##";
+            rnode = E_nodename;
+         }
       } /* if */
    }
 
@@ -1111,11 +1123,18 @@ static char **Parse822( KWBoolean *header,
 /*--------------------------------------------------------------------*/
 /*                Fill in the sender field, if needed                 */
 /*--------------------------------------------------------------------*/
-
-   user_at_node( headerTable[senderID].found ? sender : from,
+   if ( !tokenizeAddress( headerTable[senderID].found ? sender : from,
                  path,
                  fromNode,
-                 fromUser);      /* Separate portions of the address */
+                 fromUser))
+   {
+      printmsg( 0, "%s: %s",
+                    headerTable[senderID].found ? sender : from,
+                    path );
+      strcpy( fromNode, E_domain );
+      strcpy( fromUser, "##invalid##" );
+   }
+
 
    hostp = checkname( fromNode );   /* Look up real system name      */
 

@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.18 1995/03/12 16:42:24 ahd v1-12o $
+ *    $Id: address.c 1.19 1995/09/24 19:09:26 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.19  1995/09/24 19:09:26  ahd
+ *    Change 'address is local' message to more correct report detected
+ *    condition.
+ *
  *    Revision 1.18  1995/03/12 16:42:24  ahd
  *    Don't report a wild card as an alias of a remote system
  *
@@ -94,20 +98,21 @@ currentfile();
 static char *rfc_route( char *tptr, char **nptr, char **pptr );
 
 /*--------------------------------------------------------------------*/
-/*    u s e r _ a t _ n o d e                                         */
+/*    t o k e n i z e A d d r e s s                                   */
 /*                                                                    */
 /*    break a UUCP path or RFC-822 address into the basic user and    */
 /*    node components                                                 */
 /*                                                                    */
-/*    Note:    This routine assume an address of the form             */
+/*    Note:    This routine assumes an address of the form            */
 /*             path!node1!user@node2 is for a user@node1 routed via   */
 /*             node2 and then path.                                   */
 /*--------------------------------------------------------------------*/
 
-void user_at_node(const char *raddress,
-                  char *hispath,
-                  char *hisnode,
-                  char *hisuser)
+KWBoolean
+tokenizeAddress(const char *raddress,
+             char *hispath,
+             char *hisnode,
+             char *hisuser)
 {
 
    static char *saveaddr = NULL;
@@ -129,7 +134,8 @@ void user_at_node(const char *raddress,
    {
       printmsg(0, "Unable to process %d length address: %s",
             strlen(raddress), raddress );
-      panic();
+      strcpy( hispath ,"The address string is too long to parse." );
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -142,9 +148,11 @@ void user_at_node(const char *raddress,
       strcpy(hisnode, E_nodename);
       strcpy(hispath, E_nodename);
       strcpy(hisuser, raddress);
-      printmsg(5, "user_at_node: Address %s has userid only, no host name",
+
+      printmsg(5, "tokenizeAddress: Address %s has userid only, no host name",
                raddress);
-      return;
+
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -158,7 +166,7 @@ void user_at_node(const char *raddress,
       strcpy(hispath, savepath);
       strcpy(hisnode, savenode);
       strcpy(hisuser, saveuser);
-      return;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -187,6 +195,22 @@ void user_at_node(const char *raddress,
 
       if ( wptr != NULL )           /* Got one?                       */
          *wptr = '@';               /* Yup --> Make it an at sign at  */
+   }
+
+/*--------------------------------------------------------------------*/
+/*                        Look for bad strings                        */
+/*--------------------------------------------------------------------*/
+
+   tptr = address + strlen(address) - 1;
+
+   if ((*address == '!' ) ||
+       ( *tptr == '!' ) ||
+       ( *tptr == '@' ) ||
+       (strstr( address, "!!" ) != NULL ) ||
+       (strstr( address, "@@" ) != NULL ))
+   {
+      strcpy( hispath, "The address format is hopelessly invalid" );
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -236,7 +260,7 @@ void user_at_node(const char *raddress,
          tptr  = wptr;           /* Get node part of userid @node    */
 
 #ifdef UDEBUG
-      printmsg(4, "user_at_node: parsed user as \"%s\", node as \"%s\"",
+      printmsg(4, "tokenizeAddress: parsed user as \"%s\", node as \"%s\"",
                  uptr,
                  tptr );
 #endif
@@ -317,7 +341,7 @@ void user_at_node(const char *raddress,
       {                                /* No --> Route via default   */
 
          printmsg(5,
-            "user_at_node: Routing mail for \"%s\" via default mail server",
+            "tokenizeAddress: Routing mail for \"%s\" via default mail server",
                   nptr);
 
          pptr = E_mailserv;
@@ -330,7 +354,7 @@ void user_at_node(const char *raddress,
 /*--------------------------------------------------------------------*/
 
    printmsg(9,
-         "user_at_node: Address \"%s\" is \"%s\" at \"%s\" via \"%s\"",
+         "tokenizeAddress: Address \"%s\" is \"%s\" at \"%s\" via \"%s\"",
             raddress, uptr, nptr, pptr);
 
 /*--------------------------------------------------------------------*/
@@ -352,7 +376,9 @@ void user_at_node(const char *raddress,
 
    free(address);
 
-}  /* user_at_node */
+   return KWTrue;
+
+}  /* tokenizeAddress */
 
 /*--------------------------------------------------------------------*/
 /*    r f c _ r o u t e                                               */

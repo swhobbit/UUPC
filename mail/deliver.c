@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.45 1995/09/24 19:07:05 ahd v1-12p $
+ *    $Id: deliver.c 1.46 1995/09/27 11:15:53 ahd v1-12p $
  *
  *    $Log: deliver.c $
+ *    Revision 1.46  1995/09/27 11:15:53  ahd
+ *    Correct "No known delivery path for host" to report the failing
+ *    host name, not the current host name.
+ *
  *    Revision 1.45  1995/09/24 19:07:05  ahd
  *    Add comment to document use of monocase names for internal queue
  *
@@ -310,7 +314,14 @@ size_t Deliver( IMFILE *imf,        /* Input file                    */
                      address,
                      validate );
 
-   user_at_node(address, path, node, user);
+   if ( ! tokenizeAddress(address, path, node, user) )
+   {
+      return Bounce( imf,
+                     path,
+                     address,
+                     address,
+                     validate );
+   }
 
 /*--------------------------------------------------------------------*/
 /*                   Deliver to a gateway if needed                   */

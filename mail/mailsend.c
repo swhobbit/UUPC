@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.23 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: mailsend.c 1.24 1995/03/11 22:28:27 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.24  1995/03/11 22:28:27  ahd
+ *    Use macro for file delete to allow special OS/2 processing
+ *
  *    Revision 1.23  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -178,7 +181,13 @@ currentfile();                /* Define current file for panic()     */
       char bucket[MAXADDR];
 
       ExtractAddress(bucket, (char *) alias, ADDRESSONLY);
-      user_at_node(bucket, path, node, user);
+
+      if ( !tokenizeAddress(bucket, path, node, user) )
+      {
+         printmsg(0, "%s: %s (address skipped!)", bucket, path );
+         return header;             /* Use previous header!          */
+      }
+
       fullname = AliasByAddr( node, user);
 
       if (fullname == NULL)         /* Did we come up empty?         */
@@ -343,6 +352,7 @@ KWBoolean Send_Mail(FILE *datain,
       sprintf(buf, "(%s) %s!%s", E_name, E_fdomain, E_mailbox );
    else
       sprintf(buf, "\"%s\" <%s@%s>", E_name, E_mailbox, E_fdomain );
+
    PutHead("From:", buf, stream , resent);
 
    if (E_organization != NULL )
@@ -354,8 +364,12 @@ KWBoolean Send_Mail(FILE *datain,
          sprintf(buf,"\"%s\" <%s@%s>", E_name, E_replyto , E_fdomain);
       else
          sprintf(buf,"\"%s\" <%s>", E_name, E_replyto);
+
       PutHead("Reply-To:", buf, stream, resent );
    }
+
+   if ( bflag[F_AUTORECEIPT] )
+      PutHead( "Return-Receipt-To:", buf, stream, resent );
 
 /*--------------------------------------------------------------------*/
 /*                      Write the addressees out                      */
@@ -1055,7 +1069,9 @@ static void filter( char *tmailbag, char *command)
    result = executeCommand( command, tmailbag, pipename, KWTrue, KWTrue );
 
    if (result == -1)       /* Did spawn fail?            */
-         ;                 /* No operation               */
+   {
+      printmsg( 10, "Pipe %s failed completely", command );
+   }
    else if( stat( pipename, &statbuf) <0 )   /* Create output?    */
    {
       printf(0,"Cannot determine status of output %s",pipename);

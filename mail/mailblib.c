@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.21 1995/03/11 22:27:57 ahd Exp $
+ *    $Id: mailblib.c 1.22 1995/08/27 23:34:11 ahd v1-12p $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.22  1995/08/27 23:34:11  ahd
+ *    Allow COPY to work with PRN again
+ *
  *    Revision 1.21  1995/03/11 22:27:57  ahd
  *    Use macro for file delete to allow special OS/2 processing
  *
@@ -168,9 +171,11 @@ void ShowAlias( const char *alias)
       while(column-- > 0 )
          fputc(' ', stdout );
 
-      user_at_node(alias, path, node, user);
+      if ( ! tokenizeAddress(alias, path, node, user) )
                               /* Reduce address to basics */
-      printf("(%s@%s via %s)\n", user, node, path);
+         printf( "%s: %s\n", alias, path );
+      else
+         printf("(%s@%s via %s)\n", user, node, path);
    }
    else {
 
@@ -186,13 +191,17 @@ void ShowAlias( const char *alias)
             char node[MAXADDR];
 
             ExtractAddress(user,fullname, ADDRESSONLY);
-            user_at_node(user,path,node,user);
                                     /* Reduce address to basics */
             column = level * 2 + 2;
             while(column-- > 0 )
                fputc(' ', stdout );
 
-            printf("(%s@%s via %s)\n", user, node, path);
+            if ( ! tokenizeAddress(alias, path, node, user) )
+                                    /* Reduce address to basics */
+               printf( "%s: %s\n", alias, path );
+            else
+               printf("(%s@%s via %s)\n", user, node, path);
+
          }
       }
       else {
