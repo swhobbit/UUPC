@@ -69,9 +69,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.9 1993/05/13 01:39:04 ahd Exp $
+ *    $Id: UUPOLL.C 1.10 1993/06/06 15:04:05 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.10  1993/06/06  15:04:05  ahd
+ * Allow for batch command to run before regularly scheduled poll out
+ *
  * Revision 1.9  1993/05/13  01:39:04  ahd
  * Additional fix for correctly handling UUCLEAN once and only once daily
  *
@@ -108,7 +111,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.9 1993/05/13 01:39:04 ahd Exp $";
+         "$Id: UUPOLL.C 1.10 1993/06/06 15:04:05 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -128,7 +131,7 @@ static const char rcsid[] =
 
 #ifdef __TURBOC__
 #include <alloc.h>
-unsigned _stklen = 2048;            /* Reduce memory usage           */
+unsigned _stklen = 3172;            /* Reduce memory usage           */
 unsigned _heaplen = 2048;           /* Reduce memory usage           */
 #else /* __TURBOC__ */
 #ifndef FAMILYAPI
