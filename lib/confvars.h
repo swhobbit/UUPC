@@ -20,10 +20,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.25 1996/01/01 20:56:44 ahd Exp $
+ *    $Id: confvars.h 1.26 1996/01/07 14:18:18 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.26  1996/01/07 14:18:18  ahd
+ *    Provide external references to configuration functions and routines
+ *    needed by regsetup.
+ *
  *    Revision 1.25  1996/01/01 20:56:44  ahd
  *    Annual Copyright Update
  *
@@ -107,6 +111,10 @@
 /*      Configuration file strings                                    */
 /*--------------------------------------------------------------------*/
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 extern char **E_internal;
 extern char *E_altsignature;                                   /* pdm  */
 extern char *E_anonymous;
@@ -151,5 +159,9 @@ extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 extern long E_batchsize;         /* Size of remote batches                */
 extern KEWSHORT E_newsCache;     /* Pages of news index to cache        */
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.12 1995/03/12 16:39:40 ahd v1-12q $
+ *    $Id: hlib.h 1.13 1996/01/01 20:57:21 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.13  1996/01/01 20:57:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1995/03/12 16:39:40  ahd
  *    Pass in file name information for OS/2 remove error processingh
  *
@@ -65,6 +68,10 @@
 #define BIT_BUCKET "NUL:"
 #else
 #define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
+#endif
+
+#ifdef __cplusplus
+   extern "C" {
 #endif
 
 char *normalize( const char *path );

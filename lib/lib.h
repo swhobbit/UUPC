@@ -15,10 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.34 1996/01/04 04:01:44 ahd Exp $
+ *    $Id: lib.h 1.35 1996/01/07 14:18:18 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.35  1996/01/07 14:18:18  ahd
+ *    Provide external references to configuration functions and routines
+ *    needed by regsetup.
+ *
  *    Revision 1.34  1996/01/04 04:01:44  ahd
  *    Use sorted table for boolean options with binary search
  *
@@ -173,7 +177,7 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
-#define RCSID static const char UUFAR rcsid[] =
+#define RCSID(x) static const char UUFAR rcsid[] = x
 
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
@@ -265,8 +269,6 @@
 
 #ifdef SAFEFREE
 #define free(a)                  (safefree(a, cfnptr ,__LINE__))
-
-void safefree( void *input , const char *file, size_t line);
 #endif
 
 #define nil(type)               ((type *)NULL)
@@ -298,6 +300,14 @@ typedef struct FlagTable
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
+#ifdef SAFEFREE
+void safefree( void *input , const char *file, size_t line);
+#endif
+
 extern int debuglevel;
 extern FILE *logfile;
 extern KWBoolean bflag[F_LAST];
@@ -311,6 +321,10 @@ extern size_t rcTableSize;
 /*--------------------------------------------------------------------*/
 /*                        Function prototypes                         */
 /*--------------------------------------------------------------------*/
+
+#ifdef SAFEFREE
+void safefree( void *input , const char *file, size_t line);
+#endif
 
 void prterror(const size_t lineno, const char *fname, const char *prefix);
 
@@ -403,6 +417,10 @@ extern   long *lowcore;
 
 #ifdef __TURBOC__
 #define BREAKPOINT   _asm INT 3
+#endif
+
+#ifdef __cplusplus
+   }
 #endif
 
 #else

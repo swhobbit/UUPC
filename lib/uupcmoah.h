@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.3 1995/01/05 03:45:13 ahd v1-12q $
+ *    $Id: uupcmoah.h 1.4 1996/01/01 20:59:55 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.4  1996/01/01 20:59:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1995/01/05 03:45:13  ahd
  *    Don't allow Windows compiles under MSC, it doesn't work
  *
@@ -83,5 +86,9 @@
 #include "confvars.h"
 #include "lib.h"
 #include "hlib.h"
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif /* __UUPCMOAH */
