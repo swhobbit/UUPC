@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.66 1998/03/01 01:32:49 ahd v1-12v $
+ *    $Id: rmail.c 1.67 1998/03/08 23:07:12 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.67  1998/03/08 23:07:12  ahd
+ *    Better support of remote vs. local source of mail
+ *
  *    Revision 1.66  1998/03/01 01:32:49  ahd
  *    Annual Copyright Update
  *
@@ -218,6 +221,11 @@
 /*                           Local defines                            */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
+#define LOCAL_BUFSIZ 128
+#else
+#define LOCALBUFSIZ BUFSIZ
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                   Prototypes for internal files                    */
@@ -395,7 +403,7 @@ int main(int argc, char **argv)
 
     if(signal(SIGINT, ctrlchandler) == SIG_ERR)
     {
-        printmsg(0, "Couldn't set SIGINT\n");
+        printmsg(0, "Couldn't set SIGINT");
         panic();
     }
 
@@ -644,7 +652,7 @@ static void ParseFrom(
    static const size_t fromLen = sizeof from - 1;
 
    char *token;
-   char buf[BUFSIZ];
+   char buf[LOCAL_BUFSIZ];
    KWBoolean hit;
 
    sender->remote = KWTrue;
@@ -663,7 +671,7 @@ static void ParseFrom(
 /*            Now look at the UUCP From line, if it exists            */
 /*--------------------------------------------------------------------*/
 
-   if (fgets(buf, BUFSIZ, datain) == NULL)
+   if (fgets(buf, LOCAL_BUFSIZ, datain) == NULL)
    {
       printmsg(0,"ParseFrom: Input file is empty!");
       panic();
@@ -838,8 +846,8 @@ static char **Parse822(
                                        because we add 50% below!       */
 
    char **addrlist = calloc(sizeof *addrlist, allocated);
-   char buf[BUFSIZ];                /* Input buffer to read header     */
-   char outputBuffer[BUFSIZ+MAXADDR]; /* Output buffer for addresses   */
+   char buf[LOCAL_BUFSIZ];                /* Input buffer to read header     */
+   char outputBuffer[sizeof buf+MAXADDR]; /* Output buffer for addresses   */
    char address[MAXADDR];           /* Buffer for parsed address       */
    char fHost[MAXADDR];
    char fUser[MAXADDR];
@@ -932,7 +940,7 @@ static char **Parse822(
 /*                        Find the From: line                         */
 /*--------------------------------------------------------------------*/
 
-   while(*header && (fgets(buf, BUFSIZ, datain) != NULL))
+   while(*header && (fgets(buf, sizeof buf, datain) != NULL))
    {
       char *startAddress = buf;
 
@@ -1079,7 +1087,7 @@ static char **Parse822(
 
       } /* while */
 
-   } /* while((fgets(buf, BUFSIZ, datain) != NULL) && *header) */
+   } /* while((fgets(buf, sizeof buf, datain) != NULL) && *header) */
 
 /*--------------------------------------------------------------------*/
 /*               Now validate the information we received             */
@@ -1137,7 +1145,6 @@ static char **Parse822(
 
    sender->address = newstr( sender->address ); /* Make static copy    */
 
-
 /*--------------------------------------------------------------------*/
 /*                 Flag who is running the command                    */
 /*--------------------------------------------------------------------*/
@@ -1177,9 +1184,9 @@ static KWBoolean CopyTemp(IMFILE *imf,
                            KWBoolean header)
 {
    KWBoolean newline = KWTrue;
-   char buf[BUFSIZ];
+   char buf[LOCAL_BUFSIZ];
 
-   while (fgets(buf, BUFSIZ, datain) != NULL)
+   while (fgets(buf, sizeof buf, datain) != NULL)
    {
       if (header)
       {
@@ -1231,7 +1238,7 @@ static KWBoolean DaemonMail(
                           size_t count,
                           IMFILE *imf)
 {
-   char buf[BUFSIZ];
+   char buf[LOCAL_BUFSIZ];
    char *token;
    char *fullName;
    struct UserTable *userp;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.10 1998/03/06 06:51:28 ahd Exp $
+ *       $Id: smtprecv.c 1.11 1998/03/08 23:07:12 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.11  1998/03/08 23:07:12  ahd
+ *       Better support of remote vs. local delivery
+ *
  *       Revision 1.10  1998/03/06 06:51:28  ahd
  *       Correct false detection of NULL in input
  *
@@ -73,7 +76,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.10 1998/03/06 06:51:28 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.11 1998/03/08 23:07:12 ahd Exp $");
 
 currentfile();
 
@@ -456,6 +459,7 @@ commandPeriod(SMTPClient *client,
    sender.host    = fHost;
    sender.user    = fUser;
    sender.remote  = KWTrue;
+   sender.daemon  = KWTrue;
    sender.activeUser = "uusmtpd";
 
    for (count = 0; count < client->transaction->addressCount; count++)
