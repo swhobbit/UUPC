@@ -14,10 +14,13 @@
  * Created: Sun Aug 15 1993
  */
 
-static char *rcsid = "$Id$";
-static char *rcsrev = "$Revision$";
+static char *rcsid = "$Id: EXPIRE.C 1.1 1993/09/05 10:56:49 rommel Exp $";
+static char *rcsrev = "$Revision: 1.1 $";
 
-/* $Log$ */
+/* $Log: EXPIRE.C $
+ * Revision 1.1  1993/09/05  10:56:49  rommel
+ * Initial revision
+ * */
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -52,8 +55,6 @@ static char *rcsrev = "$Revision$";
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-currentfile();
-
 extern struct grp *group_list;   /* List of all groups */
 
 /*--------------------------------------------------------------------*/
@@ -66,11 +67,7 @@ extern struct grp *group_list;   /* List of all groups */
 /*                        Internal prototypes                         */
 /*--------------------------------------------------------------------*/
 
-static boolean numeric( char *start);
-
 static void ExpireAll( char **groups, const time_t expire_date );
-
-static boolean numeric( char *start);
 
 static void usage( void );
 
@@ -177,8 +174,8 @@ void main( int argc, char **argv)
                                  active file                      */
 
    /* think as if we would purge everything at the moment :-) */
-   for ( cur_grp = group_list; cur_grp != NULL; 
-	 cur_grp = cur_grp->grp_next )
+   for ( cur_grp = group_list; cur_grp != NULL;
+         cur_grp = cur_grp->grp_next )
      if (stricmp(cur_grp->grp_name, "junk") != 0)
        cur_grp->grp_low = cur_grp->grp_high;
 
@@ -224,10 +221,10 @@ void main( int argc, char **argv)
 
    if ( total_articles_purged)
       printmsg(1,"Purged %ld articles, %ld cross postings (%ld bytes).",
-	       total_articles_purged, total_cross_purged, total_bytes_purged );
-   
+               total_articles_purged, total_cross_purged, total_bytes_purged );
+
    printmsg(1,"Total of %ld articles, %ld cross postings (%ld bytes)." ,
-	    total_articles_kept, total_cross_kept, total_bytes_kept );
+            total_articles_kept, total_cross_kept, total_bytes_kept );
 
    exit(0);
 
@@ -268,18 +265,18 @@ static void SetGroupLower(char *histentry)
   long article;
 
   strcpy(value, histentry);
-  strtok(value, " ");	/* strip off date */
-  strtok(NULL, " ");	/* strip off size */
-  
-  while ((group = strtok(NULL, " ,\n")) != NULL) 
+  strtok(value, " ");   /* strip off date */
+  strtok(NULL, " ");    /* strip off size */
+
+  while ((group = strtok(NULL, " ,\n")) != NULL)
   {
     num = strchr(group, ':');
     *num++ = 0;
     article = atol(num);
-    
+
     if ( (cur_grp = find_newsgroup(group)) != NULL && article > 0 )
       if ( cur_grp->grp_low > article )
-	cur_grp->grp_low = article;
+        cur_grp->grp_low = article;
   }
 }
 
@@ -298,21 +295,21 @@ static void ExpireAll( char **groups, const time_t expire_date )
    int found;
 
    for (found = get_first_histentry(history, &messageID, &histentry); found;
-	found = get_next_histentry(history, &messageID, &histentry))
+        found = get_next_histentry(history, &messageID, &histentry))
    {
-     sscanf(histentry, "%ld %ld", 
-	    &article_date, &article_size);
+     sscanf(histentry, "%ld %ld",
+            &article_date, &article_size);
 
      remaining = total = count_postings(histentry);
 
      if (article_date < expire_date)
      {
        if ((histentry = purge_article(histentry, groups)) == NULL)
-	 remaining = 0;
+         remaining = 0;
        else
-	 remaining = count_postings(histentry);
+         remaining = count_postings(histentry);
      }
-     
+
      if ( remaining )
      {
        add_histentry(new_history, messageID, histentry);
