@@ -5,9 +5,11 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
+/*    Changes Copyright (c) David M. Watt 1993, All Rights Reserved   */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1989-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibnt.c 1.3 1993/09/21 01:42:13 ahd Exp $
+ *       $Id: ulibnt.c 1.4 1993/09/25 03:07:56 ahd Exp $
  *       $Log: ulibnt.c $
+ * Revision 1.4  1993/09/25  03:07:56  ahd
+ * Add standard Windows NT error message calls
+ *
  * Revision 1.3  1993/09/21  01:42:13  ahd
  * Use standard MAXPACK limit for save buffer size
  *

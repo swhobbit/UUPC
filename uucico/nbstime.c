@@ -17,10 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.8 1993/07/22 23:22:27 ahd Exp $
+ *    $Id: nbstime.c 1.9 1993/09/20 04:46:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.9  1993/09/20  04:46:34  ahd
+ * OS/2 2.x support (BC++ 1.0 support)
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ *
  * Revision 1.8  1993/07/22  23:22:27  ahd
  * First pass at changes for Robert Denny's Windows 3.1 support
  *
@@ -88,6 +93,10 @@
    currentfile();
 #endif
 
+#if defined(WIN32)
+#include "pnterr.h"
+#endif
+
 /*--------------------------------------------------------------------*/
 /*    n b s t i m e                                                   */
 /*                                                                    */
@@ -111,10 +120,10 @@ boolean nbstime( void )
 #ifdef WIN32
 
    SYSTEMTIME DateTime;
-   struct tm *tp;
    TOKEN_PRIVILEGES tkp;
    HANDLE hToken;
    USHORT rc;
+   DWORD dwError;
 
 #elif defined(FAMILYAPI) || defined(__OS2__)
 
@@ -262,8 +271,9 @@ boolean nbstime( void )
       TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
       &hToken))
    {
-      printmsg(0, "nbstime: OpenProcessToken failed: error = %u\n",
-         GetLastError());
+      dwError = GetLastError();
+      printmsg(0, "nbstime: OpenProcessToken failed");
+      printNTerror("OpenProcessToken", dwError);
       return FALSE;
    }
 
@@ -275,16 +285,18 @@ boolean nbstime( void )
    if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
       (PTOKEN_PRIVILEGES)NULL, 0))
    {
-      printmsg(0, "nbstime: first AdjustTokenPrivilege failed: returned %u\n",
-         GetLastError());
+      dwError = GetLastError();
+      printmsg(0, "nbstime: first AdjustTokenPrivilege failed");
+      printNTerror("AdjustTokenPrivileges", dwError);
       return FALSE;
    }
 
    rc = SetSystemTime( &DateTime );
    if ( !rc )
    {
-      printmsg(0, "nbstime: SetSystemTime failed: returned %u\n",
-         GetLastError());
+      dwError = GetLastError();
+      printmsg(0, "nbstime: SetSystemTime failed");
+      printNTerror("SetSystemTime", dwError);
    }
 
    tkp.Privileges[0].Attributes = 0;
@@ -292,8 +304,9 @@ boolean nbstime( void )
    if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
       (PTOKEN_PRIVILEGES)NULL, 0))
    {
-      printmsg(0, "nbstime: AdjustTokenPrivilege disable failed: returned %u\n",
-         GetLastError());
+      dwError = GetLastError();
+      printmsg(0, "nbstime: AdjustTokenPrivileges disable failed");
+      printNTerror("AdjustTokenPrivileges", dwError);
       return FALSE;
    }
 

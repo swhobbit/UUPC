@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.5 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: execute.c 1.6 1993/09/23 03:26:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.6  1993/09/23  03:26:51  ahd
+ * Use common file search routine
+ *
  * Revision 1.5  1993/09/20  04:38:11  ahd
  * TCP/IP support from Dave Watt
  * 't' protocol support
@@ -73,6 +76,10 @@
 
 #ifdef _Windows
 #include "winutil.h"
+#endif
+
+#ifdef WIN32
+#include "pnterr.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -321,8 +328,9 @@ int execute( const char *command,
 
       if (!result)                  // Did CreateProcess() fail?
       {                             // Yes --> Report error
-         printmsg(0, "execute:  CreateProcess failed, error %d",
-                     GetLastError());
+         DWORD dwError = GetLastError();
+         printmsg(0, "execute:  CreateProcess failed");
+         printNTerror("CreateProcess", dwError);
       }
       else {
 

@@ -15,9 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.6 1993/09/03 12:54:55 ahd Exp $
+ *    $Id: import.c 1.7 1993/09/20 04:38:11 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.7  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  *     Revision 1.6  1993/09/03  12:54:55  ahd
  *     Add missing endif
  *
@@ -63,6 +68,10 @@
 #include "hostable.h"
 #include "usertabl.h"
 #include "security.h"
+
+#ifdef WIN32
+#include "pnterr.h"
+#endif
 
 #define MAX_DIGITS 20         /* Number of digits for arb math */
 
@@ -808,8 +817,9 @@ static boolean advancedFS( const char *path )
 
    if ( !result )
    {
-      printmsg(0, "advancedFS: Unable to query file system for %s, error = %d",
-                  driveInfo, (int) GetLastError() );
+      DWORD dwError = GetLastError();
+      printmsg(0, "advancedFS: Unable to query file system for %s", driveInfo);
+      printNTerror("GetVolumeInformation", dwError);
       panic();
    }
 
