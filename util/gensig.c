@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: gensig.c 1.5 1993/12/23 03:16:03 rommel Exp $
+ *    $Id: gensig.c 1.6 1994/02/19 05:01:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: gensig.c $
+ * Revision 1.6  1994/02/19  05:01:57  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1993/12/23  03:16:03  rommel
  * OS/2 32 bit support for additional compilers
  *
@@ -38,7 +41,7 @@
 
 #include "uupcmoah.h"
 
-static char rcsid[] = "$Id: gensig.c 1.5 1993/12/23 03:16:03 rommel Exp $";
+static char rcsid[] = "$Id: gensig.c 1.6 1994/02/19 05:01:57 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                       Standard include files                       */
@@ -298,7 +301,7 @@ static long chooseit( struct stat *current_status,
 
    unlink( quoteused );          /* Make all quotes available        */
 
-   data   = fopen( fname, "rt");          /* Open data file to scan  */
+   data   = fopen( fname, "r");           /* Open data file to scan  */
    if ( data == NULL )                    /* Did it open?            */
    {
       perror( fname );                    /* No --> Error            */
