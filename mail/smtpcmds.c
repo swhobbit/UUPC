@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.4 1997/11/25 05:05:06 ahd Exp $
+ *       $Id: smtpcmds.c 1.1 1997/11/26 03:34:11 ahd v1-12t $
  *
- *       $Log$
+ *       $Log: smtpcmds.c $
+ *       Revision 1.1  1997/11/26 03:34:11  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -34,7 +37,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.4 1997/11/25 05:05:06 ahd Exp $");
+RCSID("$Id: smtpcmds.c 1.1 1997/11/26 03:34:11 ahd v1-12t $");
 
 /*--------------------------------------------------------------------*/
 /*       Master command verb table for SMTP                           */
@@ -97,7 +100,7 @@ SMTPVerb verbTable[] =
    {
       commandPeriod,
       commandSequenceIgnore,
-      ".",
+      ".\0",                        /* Only match full line          */
       KWFalse,
       SM_DATA,
       SM_IDLE,

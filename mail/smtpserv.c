@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
+ *    $Id: smtpserv.c 1.6 1997/11/28 04:52:10 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.6  1997/11/28 04:52:10  ahd
+ *    Initial UUSMTPD OS/2 support
+ *
  *    Revision 1.5  1997/11/26 03:34:11  ahd
  *    Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -41,7 +44,7 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpserv.c 1.6 1997/11/28 04:52:10 ahd Exp $");
 
 currentfile();
 
@@ -53,7 +56,7 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-flagReadyClientList( SMTPClient *master )
+flagReadyClientList(SMTPClient *master)
 {
    static const char mName[] = "flagReadyClientList";
    SMTPClient *current = master;
@@ -74,55 +77,57 @@ flagReadyClientList( SMTPClient *master )
       printmsg(8,"%s: Processing client %d, handle %d, "
                   "mode 0x%04x, %d bytes buffered",
                   mName,
-                  getClientSequence( current),
-                  getClientHandle( current),
-                  getClientMode( current ),
-                  getClientBufferedData( current ));
+                  getClientSequence(current),
+                  getClientHandle(current),
+                  getClientMode(current),
+                  getClientBufferedData(current));
 #endif
 
-      if ( isClientEOF( current ))
+      if (isClientEOF(current))
       {
-         printmsg( 4, "%s: Client %d has reached EOF",
+         printmsg(4, "%s: Client %d has reached EOF",
                       mName,
-                      getClientSequence( current ));
-         setClientProcess( current, KWTrue );
+                      getClientSequence(current));
+         setClientProcess(current, KWTrue);
       }
-      else if ( isClientIgnored( current ))
+      else if (isClientIgnored(current))
       {
 #ifdef UDEBUG
-         printmsg( 9, "%s: Client %d ignored",
+         printmsg(9, "%s: Client %d ignored",
                       mName,
-                      getClientSequence( current ));
+                      getClientSequence(current));
 #endif
 
-      } /* if ( isClientIgnored( current )) */
-      else if ( ! isClientValid( current ))
+      } /* if (isClientIgnored(current)) */
+      else if (! isClientValid(current))
       {
-         printmsg( 4, "%s: Client %d invalid",
+         printmsg(4, "%s: Client %d invalid",
                       mName,
-                      getClientSequence( current ));
-         setClientProcess( current, KWTrue );
+                      getClientSequence(current));
+         setClientProcess(current, KWTrue);
       }
-      else if ( getClientBufferedData( current ) )
-         setClientProcess( current, KWTrue );
-      else if ( getClientHandle( current ) < 0 )
+      else if (getClientReady(current))
+         setClientProcess(current, KWTrue);
+      else if (getClientBufferedData(current))
+         setClientProcess(current, KWTrue);
+      else if (getClientHandle(current) < 0)
       {
-         printmsg( 0, "%s: Client %d has invalid handle %d",
+         printmsg(0, "%s: Client %d has invalid handle %d",
                       mName,
-                      getClientSequence( current ),
-                      getClientHandle( current ));
+                      getClientSequence(current),
+                      getClientHandle(current));
          panic();
-      } /* if ( isClientValid( current )) */
+      } /* if (isClientValid(current)) */
 
       current = current->next;
 
-   } while( current );
+   } while(current);
 
 /*--------------------------------------------------------------------*/
 /*          Actually select the sockets and return to caller          */
 /*--------------------------------------------------------------------*/
 
-   return selectReadySockets( master );
+   return selectReadySockets(master);
 
 } /* flagReadyClientList */
 
@@ -134,25 +139,25 @@ flagReadyClientList( SMTPClient *master )
 /*--------------------------------------------------------------------*/
 
 void
-timeoutClientList( SMTPClient *current )
+timeoutClientList(SMTPClient *current)
 {
    static const char mName[] = "timeoutClientList";
 
-   while( current != NULL )
+   while(current != NULL)
    {
-      if ( isClientTimedOut( current ))
+      if (isClientTimedOut(current))
       {
          printmsg(0, "%s: Client %d has timed out",
                   mName,
-                  getClientSequence( current ));
-         setClientMode( current, SM_TIMEOUT );
-         setClientProcess( current, KWTrue );
+                  getClientSequence(current));
+         setClientMode(current, SM_TIMEOUT);
+         setClientProcess(current, KWTrue);
 
-      } /* if ( isClientTimedOut( current )) */
+      } /* if (isClientTimedOut(current)) */
 
       current = current->next;
 
-   } /* while( current != NULL ) */
+   } /* while(current != NULL) */
 
 } /* timeoutClientList */
 
@@ -163,14 +168,14 @@ timeoutClientList( SMTPClient *current )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-processReadyClientList( SMTPClient *current )
+processReadyClientList(SMTPClient *current)
 {
-   while ( current != NULL )
+   while (current != NULL)
    {
-      if ( getClientProcess( current ))
+      if (getClientProcess(current))
       {
-         processClient( current );
-         setClientProcess( current, KWFalse );
+         processClient(current);
+         setClientProcess(current, KWFalse);
       }
 
       current = current->next;
@@ -188,32 +193,32 @@ processReadyClientList( SMTPClient *current )
 /*--------------------------------------------------------------------*/
 
 void
-dropTerminatedClientList( SMTPClient *current )
+dropTerminatedClientList(SMTPClient *current)
 {
 
    static const char mName[] = "dropTerminatedClientList";
    int freed = 0;
    int total = 0;
 
-   while( current != NULL )
+   while(current != NULL)
    {
       SMTPClient *next = current->next;
       total++;
 
-      if ( ! isClientValid( current ))
+      if (! isClientValid(current))
       {
-         freeClient( current );
+         freeClient(current);
          freed++;
       }
 
       current = next;
    }
 
-   printmsg( (freed > 0) ? 4 : 8,
+   printmsg((freed > 0) ? 4 : 8,
             "%s: freed %d of %d client connections.",
             mName,
             freed,
-            total );
+            total);
 
 } /* dropTerminatedClientList */
 
@@ -225,40 +230,40 @@ dropTerminatedClientList( SMTPClient *current )
 /*--------------------------------------------------------------------*/
 
 void
-dropAllClientList( SMTPClient *master )
+dropAllClientList(SMTPClient *master)
 {
    static const char mName[] = "dropAllClientList";
    SMTPClient *current;
    int count = 0;
 
    printmsg(1,"%s: Dropping all clients prior to program termination.",
-               mName );
+               mName);
 
-   dropTerminatedClientList( master );
+   dropTerminatedClientList(master);
 
    current = master->next;
 
-   while( current != NULL )
+   while(current != NULL)
    {
 
-      if ( isClientValid( current ))
+      if (isClientValid(current))
       {
          setClientMode(current, SM_EXITING);
-         processClient( current );
+         processClient(current);
          count ++;
       }
       current = current->next;
    }
 
-   if ( count )
-      dropTerminatedClientList( master->next ); /* Terminate active clients*/
+   if (count)
+      dropTerminatedClientList(master->next); /* Terminate active clients*/
 
-   dropTerminatedClientList( master->next ); /* Free all remaining clients */
+   dropTerminatedClientList(master->next); /* Free all remaining clients */
 
 /*--------------------------------------------------------------------*/
 /*                   Drop the master client itself                    */
 /*--------------------------------------------------------------------*/
 
-   freeClient( master );
+   freeClient(master);
 
 } /* dropAllClientList */

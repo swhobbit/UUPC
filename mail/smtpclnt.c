@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
+ *       $Id: smtpclnt.c 1.6 1997/11/28 04:52:10 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.6  1997/11/28 04:52:10  ahd
+ *       Initial UUSMTPD OS/2 support
+ *
  *       Revision 1.5  1997/11/26 03:34:11  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -42,6 +45,7 @@
 #include "smtpclnt.h"
 #include "smtpverb.h"
 #include "smtpnetw.h"
+#include "smtpdns.h"
 #include "ssleep.h"
 #include "catcher.h"
 
@@ -54,9 +58,9 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpclnt.c 1.6 1997/11/28 04:52:10 ahd Exp $");
 
-static long clientSequence = 0;
+static size_t clientSequence = 0;
 
 /*--------------------------------------------------------------------*/
 /*       i n i t i a l i z e C l i e n t                              */
@@ -65,20 +69,21 @@ static long clientSequence = 0;
 /*--------------------------------------------------------------------*/
 
 SMTPClient *
-initializeClient( SOCKET handle, KWBoolean master )
+initializeClient(SOCKET handle, KWBoolean master)
 {
-   SMTPClient *client = malloc( sizeof *client );
+   static const char mName[] = "initializeClient";
+   SMTPClient *client = malloc(sizeof *client);
 
-   checkref( client );
-   memset( client, 0, sizeof *client );
+   checkref(client);
+   memset(client, 0, sizeof *client);
 
    client->sequence = ++clientSequence;
-   setClientProcess( client, KWTrue );
+   setClientProcess(client, KWTrue);
 
-   if ( terminate_processing )
-      setClientMode( client, SM_EXITING );
+   if (terminate_processing)
+      setClientMode(client, SM_EXITING);
    else
-      setClientMode( client, SM_CONNECTED );
+      setClientMode(client, SM_CONNECTED);
 
 /*--------------------------------------------------------------------*/
 /*       Either accept a client from the master socket, or (if not    */
@@ -86,37 +91,51 @@ initializeClient( SOCKET handle, KWBoolean master )
 /*       actual connection.                                           */
 /*--------------------------------------------------------------------*/
 
-   if ( master )
+   if (master)
    {
-      setClientHandle( client, openSlave( handle ));
+      setClientHandle(client, openSlave(handle));
 
-      if ( getClientHandle( client ) == INVALID_SOCKET )
+      if (getClientHandle(client) == INVALID_SOCKET)
       {
-         freeClient( client );
+         freeClient(client);
          return NULL;
       }
    }
    else
-      setClientHandle( client, handle );
+      setClientHandle(client, handle);
+
+   if (! getHostNameFromSocket(&client->connection))
+   {
+      printmsg(0,"%s: Client %d IP address retrieval failed",
+                  mName,
+                  getClientSequence(client));
+      freeClient(client);
+      return NULL;
+   }
 
 /*--------------------------------------------------------------------*/
 /*                  Allocate remaining buffers we need                */
 /*--------------------------------------------------------------------*/
 
    client->receive.length = 10240;
-   client->receive.data   = malloc( (size_t) client->receive.length );
-   checkref( client->receive.data );
+   client->receive.data   = malloc((size_t) client->receive.length);
+   checkref(client->receive.data);
 
    client->transmit.length = BUFSIZ;
-   client->transmit.data = malloc( client->transmit.length );
-   checkref( client->transmit.data );
+   client->transmit.data = malloc(client->transmit.length);
+   checkref(client->transmit.data);
 
 #ifdef UDEBUG
-   memset( client->transmit.data, 0, client->transmit.length );
-   memset( client->receive.data, 0, client->receive.length );
+   memset(client->transmit.data, 0, client->transmit.length);
+   memset(client->receive.data, 0, client->receive.length);
 #endif
 
-   client->connectTime = client->lastTransactionTime = time( NULL );
+   client->connectTime = client->lastTransactionTime = time(NULL);
+
+   printmsg(1, "%s: Client %d accepted from %s",
+               mName,
+               getClientSequence(client),
+               client->connection.hostName);
 
    return client;
 
@@ -130,30 +149,30 @@ initializeClient( SOCKET handle, KWBoolean master )
 /*--------------------------------------------------------------------*/
 
 SMTPClient *
-initializeMaster( const char *portName, time_t exitTime )
+initializeMaster(const char *portName, time_t exitTime)
 {
    static const char mName[] = "initializeMaster";
-   SMTPClient *master = malloc( sizeof *master);
+   SMTPClient *master = malloc(sizeof *master);
 
-   checkref( master );
-   memset( master, 0, sizeof *master);
+   checkref(master);
+   memset(master, 0, sizeof *master);
    master->sequence = ++clientSequence;
 
    setClientMode(master, SM_MASTER);
 
-   setClientHandle( master, openMaster( portName ) );
+   setClientHandle(master, openMaster(portName));
 
-   if ( getClientHandle( master ) == INVALID_SOCKET )
+   if (getClientHandle(master) == INVALID_SOCKET)
    {
       printmsg(0,"%s: Unable to open master port for listening.",
-                 mName );
-      free( master );
+                 mName);
+      free(master);
       return NULL;
    }
 
-   master->connectTime = master->lastTransactionTime = time( NULL );
+   master->connectTime = master->lastTransactionTime = time(NULL);
 
-   if ( exitTime )
+   if (exitTime)
       master->terminationTime = exitTime;
    else
       master->terminationTime = LONG_MAX;
@@ -169,26 +188,26 @@ initializeMaster( const char *portName, time_t exitTime )
 /*--------------------------------------------------------------------*/
 
 void
-setClientClosed( SMTPClient *client )
+setClientClosed(SMTPClient *client)
 {
    static const char mName[] = "setClientClosed";
 
-   if ( client->handle != INVALID_SOCKET )
+   if (getClientHandle(client) != INVALID_SOCKET)
    {
       printmsg(2,"%s: Closing client %d on handle %d",
                   mName,
-                  getClientSequence( client),
-                  getClientHandle( client) );
+                  getClientSequence(client),
+                  getClientHandle(client));
 
-      closeSocket( getClientHandle( client ));
-      client->handle = INVALID_SOCKET;
+      closeSocket(getClientHandle(client));
+      setClientHandle(client, INVALID_SOCKET);
       client->endOfTransmission = KWTrue;
    }
 #ifdef UDEBUG
    else
       printmsg(2,"%s: Client %d already closed",
                   mName,
-                  getClientSequence( client) );
+                  getClientSequence(client));
 #endif
 
 }  /* setClientClosed */
@@ -200,44 +219,47 @@ setClientClosed( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 void
-freeClient( SMTPClient *client )
+freeClient(SMTPClient *client)
 {
    static const char mName[] = "freeClient";
    time_t now;
 
-   time( &now );
+   time(&now);
 
-   printmsg(1,"%s: Dropping client %d, age was %d seconds",
-            mName,
-            getClientSequence( client ),
-            now - client->connectTime );
+   printmsg(1,"%s: Dropping client %d, "
+              "age was %d seconds, "
+              "processed %d transactions.",
+               mName,
+               getClientSequence(client),
+               now - client->connectTime,
+               getClientMajorTransaction( client ));
 
 /*--------------------------------------------------------------------*/
 /*                        Perform housekeeping                        */
 /*--------------------------------------------------------------------*/
 
-   setClientClosed( client );
-   cleanupTransaction( client );
+   setClientClosed(client);
+   cleanupTransaction(client);
 
 /*--------------------------------------------------------------------*/
 /*          Drop the memory we have pointers to which we own          */
 /*--------------------------------------------------------------------*/
 
-   if ( client->SMTPName )
+   if (client->SMTPName)
    {
-      free( client->SMTPName );
+      free(client->SMTPName);
       client->SMTPName = NULL;
    }
 
-   if ( client->receive.data )
+   if (client->receive.data)
    {
-      free( client->receive.data );
+      free(client->receive.data);
       client->receive.data = NULL;
    }
 
-   if ( client->transmit.data )
+   if (client->transmit.data)
    {
-      free( client->transmit.data );
+      free(client->transmit.data);
       client->transmit.data = NULL;
    }
 
@@ -245,10 +267,10 @@ freeClient( SMTPClient *client )
 /*           Drop ourselves from the linked list of clients           */
 /*--------------------------------------------------------------------*/
 
-   if ( client->previous )
+   if (client->previous)
       client->previous->next = client->next;
 
-   if ( client->next )
+   if (client->next)
       client->next->previous = client->previous;
 
 /*--------------------------------------------------------------------*/
@@ -256,9 +278,9 @@ freeClient( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 #ifdef UDEBUG
-   memset( client, 0xFF, sizeof *client );   /* Invalidate the data  */
+   memset(client, 0xFF, sizeof *client);     /* Invalidate the data  */
 #endif
-   free( client );
+   free(client);
 
 } /* freeClient */
 
@@ -269,24 +291,24 @@ freeClient( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 void
-processClient( SMTPClient *client )
+processClient(SMTPClient *client)
 {
    static const char mName[] = "processClient";
    client->ignoreUntilTime = 0;     /* If we're called, this out of
                                        date ... short circuit checks */
 
-   switch( getClientMode( client ) )
+   switch(getClientMode(client))
    {
 
       /* First command doesn't read any data before response */
       case SM_CONNECTED:
-         if ( getClientLinesWritten( client ) > 0 )
+         if (getClientLinesWritten(client) > 0)
          {
             printmsg(0, "%s: Client %d "
                         "returned to initial command state "
                         "after first message, terminating client.",
                         mName,
-                        getClientSequence( client ));
+                        getClientSequence(client));
             setClientMode(client, SM_ABORT);
             break;
          }
@@ -300,12 +322,12 @@ processClient( SMTPClient *client )
       case SM_ABORT:
       case SM_EXITING:
       case SM_TIMEOUT:
-         SMTPInvokeCommand( client );  /* Process command by state   */
+         SMTPInvokeCommand(client);    /* Process command by state   */
          break;
 
       default:
-         if ( SMTPGetLine( client ) )
-            SMTPInvokeCommand( client );  /* Process offered cmd     */
+         if (SMTPGetLine(client))
+            SMTPInvokeCommand(client);    /* Process offered cmd     */
          break;
    }
 
@@ -318,28 +340,21 @@ processClient( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-isClientValid( const SMTPClient *client )
+isClientValid(const SMTPClient *client)
 {
    static const char mName[] = "isClientValid";
    KWBoolean result;
 
-   if (client->mode == SM_DELETE_PENDING )
+   if (client->mode == SM_DELETE_PENDING)
       result = KWFalse;
    else
       result = KWTrue;
-
-#ifdef UDEBUG
-   printmsg( result ? 10: 5, "%s: Client %d is %svalid.",
-               mName,
-               getClientSequence( client ),
-               result ? "quite " : "in" );
-#endif
 
    return result;
 
 } /* isClientValid */
 
-KWBoolean isClientEOF( const SMTPClient *client )
+KWBoolean isClientEOF(const SMTPClient *client)
 {
    return client->endOfTransmission;
 }
@@ -352,37 +367,37 @@ KWBoolean isClientEOF( const SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-isClientTimedOut( const SMTPClient *client )
+isClientTimedOut(const SMTPClient *client)
 {
    static const char mName[] = "isClientTimedOut";
    time_t now;
 
    /* Special case, since timeout is zero to force processing */
-   if ( getClientProcess( client ))
+   if (getClientProcess(client))
       return KWFalse;
 
    /* Dead clients don't wear plaid ... or timeout */
-   if ( ! isClientValid( client ))
+   if (! isClientValid(client))
       return KWFalse;
 
    time(&now);
 
-   if ( client->terminationTime > 0 &&
-       (client->terminationTime <= now ))
+   if (client->terminationTime > 0 &&
+       (client->terminationTime <= now))
       return KWTrue;
 
    /* Handle case of very large time out */
    if (getClientTimeout(client) > now)
       return KWFalse;
 
-   if ( (getClientTimeout(client) + client->lastTransactionTime) < now)
+   if ((getClientTimeout(client) + client->lastTransactionTime) < now)
    {
 #ifdef UDEBUG
       printmsg(2, "%s: Client %d last transaction time was %.24s "
                   "(time out after %d seconds)",
                   mName,
-                  getClientSequence( client ),
-                  ctime( &client->lastTransactionTime ),
+                  getClientSequence(client),
+                  ctime(&client->lastTransactionTime),
                   getClientTimeout(client));
 #endif
       return KWTrue;
@@ -399,39 +414,32 @@ isClientTimedOut( const SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-isClientIgnored( const SMTPClient *client )
+isClientIgnored(const SMTPClient *client)
 {
    static const char mName[] = "isClientIgnored";
    time_t now;
 
-   if ( client->ignoreUntilTime == 0 )
+   if (client->ignoreUntilTime == 0)
       return KWFalse;
 
-   time( & now );
+   time(& now);
 
-   if ( client->ignoreUntilTime <= now )
+   if (client->ignoreUntilTime <= now)
    {
-      printmsg( 5, "%s: Client %d is active, time is valid.",
+      printmsg(5, "%s: Client %d is active, time is valid.",
                   mName,
-                  getClientSequence( client ) );
+                  getClientSequence(client));
       return KWFalse;
    }
    else {
       printmsg(8,"%s: Client %d with handle %d ignored, %ld > %ld",
                   mName,
-                  getClientSequence( client ),
-                  getClientHandle( client ),
+                  getClientSequence(client),
+                  getClientHandle(client),
                   client->ignoreUntilTime,
                   now);
       return KWTrue;
    }
-
-   printmsg(0,"%s: Reached impossible point for client %d." ,
-               mName,
-               getClientSequence( client ) );
-
-   panic();
-   return KWTrue;
 
 } /* isClientIgnored */
 
@@ -442,7 +450,7 @@ isClientIgnored( const SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 void
-setClientMode(SMTPClient *client, SMTPMode mode )
+setClientMode(SMTPClient *client, SMTPMode mode)
 {
 #ifdef UDEBUG
    static const char mName[] = "setClientMode";
@@ -450,54 +458,89 @@ setClientMode(SMTPClient *client, SMTPMode mode )
    printmsg(mode == client->mode ? 8 : 3,
            "%s: Changing client %d from mode 0x%04x to mode 0x%04x",
             mName,
-            getClientSequence( client ),
+            getClientSequence(client),
             client->mode,
-            mode );
+            mode);
 #endif
 
    client->mode = mode;
 }
 
+/*--------------------------------------------------------------------*/
+/*       g e t C l i e n t M o d e                                    */
+/*                                                                    */
+/*       Query the current client mode                                */
+/*--------------------------------------------------------------------*/
+
 SMTPMode
-getClientMode( const SMTPClient *client )
+getClientMode(const SMTPClient *client)
 {
    return client->mode;
 }
 
+/*--------------------------------------------------------------------*/
+/*       i n c r e m e n t C l i e n t M a j o r                      */
+/*       T r a n s a c t i o n                                        */
+/*                                                                    */
+/*       Count major transactions (mail delivers, etc) for client     */
+/*--------------------------------------------------------------------*/
+
+void incrementClientMajorTransaction(SMTPClient *client)
+{
+   client->majorTransactions++;
+}
+
+/*--------------------------------------------------------------------*/
+/*       g e t C l i e n t M a j o r T r a n s a c t i o n            */
+/*                                                                    */
+/*       Report major transactions for client                         */
+/*--------------------------------------------------------------------*/
+
+size_t getClientMajorTransaction(SMTPClient *client)
+{
+   return client->majorTransactions;
+}
+
+/*--------------------------------------------------------------------*/
+/*       g e t C l i e n t T e r m i n a t i o n T i m e              */
+/*                                                                    */
+/*       Report when this client must terminate processing            */
+/*--------------------------------------------------------------------*/
+
 time_t
-getClientTerminationTime( const SMTPClient *client )
+getClientTerminationTime(const SMTPClient *client)
 {
       return client->terminationTime;
 } /* getClientTerminationTime */
 
 void
-setClientReady(SMTPClient *client, KWBoolean ready )
+setClientReady(SMTPClient *client, KWBoolean ready)
 {
    client->ready = ready;
 }
 
 KWBoolean
-getClientReady( const SMTPClient *client )
+getClientReady(const SMTPClient *client)
 {
    return client->ready;
 } /* getClientReady */
 
 void
-setClientProcess(SMTPClient *client, KWBoolean process )
+setClientProcess(SMTPClient *client, KWBoolean process)
 {
    client->process = process;
 }
 
 KWBoolean
-getClientProcess( const SMTPClient *client )
+getClientProcess(const SMTPClient *client)
 {
    return client->process;
 } /* getClientProcess */
 
 KWBoolean
-getClientBufferedData( const SMTPClient *client )
+getClientBufferedData(const SMTPClient *client)
 {
-   if (client->receive.parsed < client->receive.used )
+   if (client->receive.parsed < client->receive.used)
       return KWTrue;
    else
       return KWFalse;
@@ -505,42 +548,42 @@ getClientBufferedData( const SMTPClient *client )
 } /* getClientBufferedData */
 
 SOCKET
-getClientHandle( const SMTPClient *client )
+getClientHandle(const SMTPClient *client)
 {
-   return client->handle;
+   return client->connection.handle;
 }
 
 void
-setClientHandle( SMTPClient *client, SOCKET handle )
+setClientHandle(SMTPClient *client, SOCKET handle)
 {
-   client->handle = handle;
+   client->connection.handle = handle;
 }
 
 time_t
-getClientTimeout( const SMTPClient *client )
+getClientTimeout(const SMTPClient *client)
 {
    /* Clients ready to process should not be held up */
-   if ( getClientProcess( client ) )
+   if (getClientProcess(client))
       return 0;
 
    /* Ignored clients timeout when they get out of penalty box */
-   if ( client->ignoreUntilTime != 0 )
+   if (client->ignoreUntilTime != 0)
    {
       time_t now;
-      time( &now );
+      time(&now);
 
-      if ( client->ignoreUntilTime > now )
+      if (client->ignoreUntilTime > now)
          return client->ignoreUntilTime - now +
-                getModeTimeout( client->mode );
+                getModeTimeout(client->mode);
    }
 
    /* All other sockets timeout according to current client mode */
-   return getModeTimeout( client->mode );
+   return getModeTimeout(client->mode);
 
 } /* getClientTimeout */
 
 void
-setClientIgnore( SMTPClient *client, time_t delay )
+setClientIgnore(SMTPClient *client, time_t delay)
 {
    static const char mName[] = "setClientIgnore";
 
@@ -550,83 +593,85 @@ setClientIgnore( SMTPClient *client, time_t delay )
 /*               Handle special case of resetting timer               */
 /*--------------------------------------------------------------------*/
 
-   if ( delay == 0 )
+   if (delay == 0)
    {
       client->ignoreUntilTime = 0;
       return;
    }
 
-   time( &timerPop );
+   time(&timerPop);
 
    timerPop += delay;
 
-   if ( client->ignoreUntilTime < timerPop )
+   if (client->ignoreUntilTime < timerPop)
       client->ignoreUntilTime = timerPop;
    else
       client->ignoreUntilTime += delay;
 
-   printmsg(4,"%s: Ignoring client %d for %d seconds (until %.24s)",
+   printmsg(2,"%s: Ignoring client %d in mode 0x%04x "
+               "for %d seconds (until %.24s)",
                mName,
-               getClientSequence( client ),
+               getClientSequence(client),
+               getClientMode(client),
                delay,
-               ctime( &client->ignoreUntilTime ));
+               ctime(&client->ignoreUntilTime));
 
 } /* getClientTimeout */
 
 size_t
-getClientSequence( const SMTPClient *client )
+getClientSequence(const SMTPClient *client)
 {
    return client->sequence;
 }
 
-void incrementClientLinesWritten( SMTPClient *client )
+void incrementClientLinesWritten(SMTPClient *client)
 {
    client->transmit.bytesTransferred++;
 }
 
-size_t getClientLinesWritten( SMTPClient *client )
+size_t getClientLinesWritten(SMTPClient *client)
 {
    return client->transmit.linesTransferred;
 }
 
-void incrementClientBytesWritten( SMTPClient *client,
+void incrementClientBytesWritten(SMTPClient *client,
                                size_t increment)
 {
    client->transmit.bytesTransferred += increment;
 }
 
-size_t getClientBytesWritten( SMTPClient *client )
+size_t getClientBytesWritten(SMTPClient *client)
 {
    return client->transmit.bytesTransferred;
 }
 
-void incrementClientLinesRead( SMTPClient *client )
+void incrementClientLinesRead(SMTPClient *client)
 {
    client->receive.linesTransferred++;
 }
 
-size_t getClientLinesRead( SMTPClient *client )
+size_t getClientLinesRead(SMTPClient *client)
 {
    return client->receive.bytesTransferred;
 }
 
-void incrementClientBytesRead( SMTPClient *client,
+void incrementClientBytesRead(SMTPClient *client,
                                size_t increment)
 {
    client->receive.bytesTransferred += increment;
 }
 
-size_t getClientBytesRead( SMTPClient *client )
+size_t getClientBytesRead(SMTPClient *client)
 {
    return client->receive.bytesTransferred;
 }
 
-void incrementClientTrivialCount( SMTPClient *client )
+void incrementClientTrivialCount(SMTPClient *client)
 {
    client->trivialTransactions++;
 }
 
-size_t getClientTrivialCount( const SMTPClient *client )
+size_t getClientTrivialCount(const SMTPClient *client)
 {
    return client->trivialTransactions;
 }

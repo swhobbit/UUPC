@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
+ *    $Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.5  1997/11/28 04:52:10  ahd
+ *    Initial UUSMTPD OS/2 support
+ *
  *    Revision 1.4  1997/11/26 03:34:11  ahd
  *    Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -58,7 +61,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $");
 
 currentfile();
 
@@ -79,7 +82,7 @@ static const char crlf[] = "\r\n";
 /*--------------------------------------------------------------------*/
 
 static size_t
-SMTPRead( SMTPClient *client );
+SMTPRead(SMTPClient *client);
 
 static size_t
 SMTPWrite(SMTPClient *client,
@@ -87,7 +90,7 @@ SMTPWrite(SMTPClient *client,
           unsigned int len);
 
 static void
-SMTPBurpBuffer( SMTPClient *client );
+SMTPBurpBuffer(SMTPClient *client);
 
 static KWBoolean
 isFatalSocketError(int err);
@@ -103,31 +106,31 @@ void AtWinsockExit(void);
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-SMTPGetLine( SMTPClient *client )
+SMTPGetLine(SMTPClient *client)
 {
    static const char mName[] = "SMTPGetLine";
    size_t column;
 
-   printmsg( 5, "%s: entered for client %d in mode 0x%04x "
+   printmsg(5, "%s: entered for client %d in mode 0x%04x "
                 "with %d bytes available",
                 mName,
-                getClientSequence( client ),
-                getClientMode( client ),
-                client->receive.used );
+                getClientSequence(client),
+                getClientMode(client),
+                client->receive.used);
 
-   SMTPBurpBuffer( client );
+   SMTPBurpBuffer(client);
 
 /*--------------------------------------------------------------------*/
 /*                   Handle previously signaled EOF                   */
 /*--------------------------------------------------------------------*/
 
-   if ( isClientEOF( client ) && ! client->receive.used )
+   if (isClientEOF(client) && ! client->receive.used)
    {
-      printmsg( 0, "%s: client %d is out of data (EOF)",
+      printmsg(0, "%s: client %d is out of data (EOF)",
                    mName,
-                   getClientSequence( client ));
+                   getClientSequence(client));
       client->receive.data[ 0 ] = '\0';
-      setClientMode( client, SM_ABORT );
+      setClientMode(client, SM_ABORT);
       return KWTrue;
    }
 
@@ -137,85 +140,85 @@ SMTPGetLine( SMTPClient *client )
 /*       was found during our last pass.                              */
 /*--------------------------------------------------------------------*/
 
-   if ( getClientReady( client ) &&
-        ( (client->stalledReads > 0 ) ||
-          (client->receive.used < (client->receive.length / 4))))
+   if (getClientReady(client) &&
+       ((client->stalledReads > 0) ||
+       (client->receive.used < (client->receive.length / 4))))
    {
-      if ( client->stalledReads )   /* Improve response time ...     */
+      if (client->stalledReads)     /* Improve response time ...     */
          client->stalledReads--;
-      SMTPRead( client );
+      SMTPRead(client);
    }
 
 /*--------------------------------------------------------------------*/
 /*           Locate start of input line if not in data mode           */
 /*--------------------------------------------------------------------*/
 
-   if ( getClientMode( client ) != SM_DATA )
+   if (getClientMode(client) != SM_DATA)
    {
-      for( column = 0;
+      for(column = 0;
            column < client->receive.used;
-           column ++ )
+           column ++)
       {
-            if ( ! isspace( client->receive.data[column] ))
+            if (! isspace(client->receive.data[column]))
                break;
       }
 
-      if ( column == client->receive.used )
+      if (column == client->receive.used)
       {
-         printmsg( 2, "%d <<<  (empty line with %d characters)",
+         printmsg(2, "%d <<<   (empty line with %d characters)",
                       getClientSequence(client),
                       client->receive.used);
          client->receive.used = 0;
          client->receive.data[ 0 ] = '\0';
-         setClientIgnore( client, 2 );    /* Make client wait */
+         setClientIgnore(client, 2);      /* Make client wait */
          return KWFalse;                  /* Ignore input line */
 
       }
-      else if ( column > 0 )
+      else if (column > 0)
       {
 
          client->receive.used -= column;
-         memmove( client->receive.data,
+         memmove(client->receive.data,
                   client->receive.data + column,
-                  client->receive.used );
+                  client->receive.used);
       }
 
       /* Silly hack to handle NETSPACE being lazy about
          terminating QUIT commands                       */
-      if ( (client->receive.used > 3 ) &&
-           (client->receive.used < 6 ) &&
-           equalni( client->receive.data, "QUIT", 4 ))
+      if ((client->receive.used > 3) &&
+           (client->receive.used < 6) &&
+           equalni(client->receive.data, "QUIT", 4))
       {
          printmsg(2, "%s: Client %d requires CR/LF after QUIT",
                      mName,
                      getClientSequence(client));
-         strcpy( client->receive.data + 4, crlf );
+         strcpy(client->receive.data + 4, crlf);
          client->receive.used = 6;
       }
 
-   } /* if ( getClientMode( client ) != SM_DATA ) */
+   } /* if (getClientMode(client) != SM_DATA) */
 
 /*--------------------------------------------------------------------*/
 /*    Locate the end of the input line; we deliberately parse past    */
 /*    embedded nulls ('\0') lest some idiot sent us binary data       */
 /*--------------------------------------------------------------------*/
 
-   for( column = 0;
+   for(column = 0;
         column < client->receive.used;
-        column ++ )
+        column ++)
    {
       /* After we have at least two characters, check for CR/LF pair */
-      if ( column &&
-           ! memcmp( client->receive.data + column - 1,
+      if (column &&
+           ! memcmp(client->receive.data + column - 1,
                      crlf,
-                     2 ))
+                     2))
       {
          client->receive.data[column-1] = '\0';
-         printmsg( (int) ((getClientMode( client ) == SM_DATA) ? 8 : 2),
+         printmsg((int) ((getClientMode(client) == SM_DATA) ? 8 : 2),
                       "%d <<< %.75s",
                       getClientSequence(client),
-                      client->receive.data );
-         incrementClientLinesRead( client );
+                      client->receive.data);
+         incrementClientLinesRead(client);
          client->receive.parsed = column + 1;
                                     /* Incr because count, not
                                        subscript for this            */
@@ -225,13 +228,13 @@ SMTPGetLine( SMTPClient *client )
 
    } /* for */
 
-   if ( isClientEOF( client ))
+   if (isClientEOF(client))
    {
-      printmsg( 0, "%s: Client %d Terminated unexpectedly without QUIT",
+      printmsg(0, "%s: Client %d Terminated unexpectedly without QUIT",
                  mName,
-                 getClientSequence( client ) );
+                 getClientSequence(client));
       client->receive.data[ 0 ] = '\0';
-      setClientMode( client, SM_ABORT );/* Abort client immediately   */
+      setClientMode(client, SM_ABORT);/* Abort client immediately     */
       return KWTrue;                 /* Process the abort immediately */
    }
 
@@ -240,35 +243,35 @@ SMTPGetLine( SMTPClient *client )
 /*       only if we are also out of buffer space.                     */
 /*--------------------------------------------------------------------*/
 
-   if ( client->receive.used < client->receive.length)
+   if (client->receive.used < client->receive.length)
    {
       client->receive.parsed = 0;      /* Flag buffer unprocessed    */
       client->receive.data[ client->receive.used ] = '\0';
 
-      printmsg( 4, "%s: Client %d Input buffer "
+      printmsg(4, "%s: Client %d Input buffer "
                    "(%d bytes) waiting for data.",
                    mName,
-                   getClientSequence( client ),
-                   client->receive.used );
-      setClientIgnore( client, (time_t) ++client->stalledReads );
+                   getClientSequence(client),
+                   client->receive.used);
+      setClientIgnore(client, (time_t) ++client->stalledReads);
                                        /* Sleep client for few secs  */
       return KWFalse;                  /* Don't process command now  */
 
-   } /* if ( client->received.used < client->receive.length) */
+   } /* if (client->received.used < client->receive.length) */
    else {
 
-     printmsg( 0, "%d <<< %.75s",
+     printmsg(0, "%d <<< %.75s",
                   getClientSequence(client),
-                  client->receive.data );
-     printmsg( 0, "%s: Client %d Input buffer (%d bytes) overrun.",
+                  client->receive.data);
+     printmsg(0, "%s: Client %d Input buffer (%d bytes) overrun.",
                    mName,
-                   getClientSequence( client ),
-                   client->receive.used );
+                   getClientSequence(client),
+                   client->receive.used);
 
      client->receive.parsed = client->receive.used;
      client->receive.data[ client->receive.used - 1 ] = '\0';
                                     /* Don't run off the buffer      */
-     setClientMode( client, SM_ABORT );/* Abort client immediately   */
+     setClientMode(client, SM_ABORT);/* Abort client immediately     */
      return KWTrue;                 /* Process the abort immediately */
 
    } /* else */
@@ -282,40 +285,40 @@ SMTPGetLine( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-SMTPResponse( SMTPClient *client, int code, const char *text )
+SMTPResponse(SMTPClient *client, int code, const char *text)
 {
 
    char buf[BUFSIZ];
    size_t totalLength;
    KWBoolean buffered = KWFalse;
 
-   switch( code )
+   switch(code)
    {
          case 0:
-            strcpy(buf, "??? " );
+            strcpy(buf, "??? ");
             break;
 
          case POP_OKAY:
-            strcpy( buf, "-OK " );
+            strcpy(buf, "-OK ");
             break;
 
          case POP_ERROR:
-            strcpy( buf, "-ERR " );
+            strcpy(buf, "-ERR ");
             break;
 
          default:
-            sprintf( buf, "%03.3d%c",
+            sprintf(buf, "%03.3d%c",
                           (code < 0) ? - code : code,
-                          (code < 0) ? '-' : ' ' );
+                          (code < 0) ? '-' : ' ');
 
    }
 
-   printmsg( 2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
+   printmsg(2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
 
-   incrementClientLinesWritten( client );
-   incrementClientBytesWritten( client, totalLength );
+   incrementClientLinesWritten(client);
+   incrementClientBytesWritten(client, totalLength);
 
-   totalLength = strlen( buf ) + strlen( text ) + strlen( crlf );
+   totalLength = strlen(buf) + strlen(text) + strlen(crlf);
 
 /*--------------------------------------------------------------------*/
 /*       If all three parts of the message fit, pack it into one      */
@@ -323,37 +326,37 @@ SMTPResponse( SMTPClient *client, int code, const char *text )
 /*       one packet.                                                  */
 /*--------------------------------------------------------------------*/
 
-   if ( totalLength < sizeof buf )
+   if (totalLength < sizeof buf)
    {
-      strcat( buf, text );
-      strcat( buf, crlf );
+      strcat(buf, text);
+      strcat(buf, crlf);
       buffered = KWTrue;
    }
 
-   if( !SMTPWrite( client, buf, strlen(buf)) )
+   if(!SMTPWrite(client, buf, strlen(buf)))
    {
       printmsg(0,"Error sending response code to remote host: %.4s %.75s",
                   buf,
-                  text );
+                  text);
       return KWFalse;
    }
 
-   if ( buffered )                  /* All info written from buffer? */
+   if (buffered)                    /* All info written from buffer? */
       return KWTrue;                /* Yes --> Report success        */
 
-   if( !SMTPWrite( client, text, strlen(text)) )
+   if(!SMTPWrite(client, text, strlen(text)))
    {
       printmsg(0,"Error sending response text to remote host: %s%.75s",
                  buf,
-                 text );
+                 text);
       return KWFalse;
    }
 
-   if( !SMTPWrite( client, crlf, strlen( crlf )) )
+   if(!SMTPWrite(client, crlf, strlen(crlf)))
    {
       printmsg(0, "Error sending CR/LF to remote host: %s%.75s",
                   buf,
-                  text );
+                  text);
       return KWFalse;
    }
 
@@ -368,15 +371,15 @@ SMTPResponse( SMTPClient *client, int code, const char *text )
 /*--------------------------------------------------------------------*/
 
 time_t
-getModeTimeout( SMTPMode mode )
+getModeTimeout(SMTPMode mode)
 {
 
-   switch( mode )
+   switch(mode)
    {
       case SM_DELETE_PENDING:     return 0;
       case SM_MASTER:             return LONG_MAX;
       case SM_CONNECTED:          return 0;
-      case SM_UNGREETED:          return MINUTE(1);
+      case SM_UNGREETED:          return MINUTE(5);
       case SM_IDLE:               return MINUTE(10);
       case SM_ADDR_FIRST:         return MINUTE(5);
       case SM_ADDR_SECOND:        return MINUTE(5);
@@ -387,7 +390,7 @@ getModeTimeout( SMTPMode mode )
 
       default:                    return MINUTE(1);
 
-   } /* switch( mode ) */
+   } /* switch(mode) */
 
 } /* getModeTimeout */
 
@@ -402,12 +405,13 @@ InitWinsock(void)
 {
 
 #if !defined(__OS2__)
+   static KWBoolean firstPass = KWTrue;
    WSADATA WSAData;
 #endif
 
    int status;
 
-   if ( winsockActive )
+   if (winsockActive)
       return KWTrue;
 
 /*--------------------------------------------------------------------*/
@@ -416,7 +420,7 @@ InitWinsock(void)
 /*--------------------------------------------------------------------*/
 
 #if !defined(__OS2__)
-   if ( firstPass )
+   if (firstPass)
    {
       firstPass = KWFalse;
       atexit(AtWinsockExit);
@@ -484,7 +488,7 @@ AtWinsockExit(void)
 #endif
 
 SOCKET
-openMaster(const char *name )
+openMaster(const char *name)
 {
    static const char mName[] = "masterOpen";
 
@@ -505,11 +509,11 @@ openMaster(const char *name )
 
    printmsg(NETDEBUG, "%s: determining port for %s",
                      mName,
-                     name );
+                     name);
 
-   if ( isdigit(*name))
+   if (isdigit(*name))
       sin.sin_port = htons((u_short) atoi(name));
-   else if ( (pse = getservbyname((char *) name, "tcp")) == NULL )
+   else if ((pse = getservbyname((char *) name, "tcp")) == NULL)
    {
       int wsErr = WSAGetLastError();
       printWSerror("getservbyname", wsErr);
@@ -525,9 +529,9 @@ openMaster(const char *name )
 /*                     Create and bind TCP socket                     */
 /*--------------------------------------------------------------------*/
 
-   printmsg(NETDEBUG + 1, "%s: doing socket()", mName );
+   printmsg(NETDEBUG + 1, "%s: doing socket()", mName);
 
-   pollingSock = socket( AF_INET, SOCK_STREAM, 0);
+   pollingSock = socket(AF_INET, SOCK_STREAM, 0);
 
    if (pollingSock == INVALID_SOCKET)
    {
@@ -551,20 +555,20 @@ openMaster(const char *name )
 
       printmsg(0, "%s: bind(pollingSock) failed", mName);
       printWSerror("bind", wsErr);
-      closeSocket( pollingSock );
+      closeSocket(pollingSock);
       return INVALID_SOCKET;        /* report failure            */
    }
 
    printmsg(NETDEBUG + 1, "%s: doing setsockopt()", mName);
 
-   if (setsockopt( pollingSock, SOL_SOCKET, SO_REUSEADDR,
+   if (setsockopt(pollingSock, SOL_SOCKET, SO_REUSEADDR,
          (char UUFAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
 
       printmsg(0, "%s: setsockopt() failed", mName);
       printWSerror("setsockopt", wsErr);
-      closeSocket( pollingSock );
+      closeSocket(pollingSock);
       return INVALID_SOCKET;
    }
 
@@ -576,7 +580,7 @@ openMaster(const char *name )
 
       printmsg(0, "%s: listen(pollingSock) failed", mName);
       printWSerror("listen", wsErr);
-      closeSocket( pollingSock );
+      closeSocket(pollingSock);
       return INVALID_SOCKET;
    }
 
@@ -624,7 +628,10 @@ SMTPWrite(SMTPClient *client,
    static const char mName[] = "SMTPWrite";
    int status;
 
-   status = send(client->handle, (char UUFAR *)data, (int) len, 0);
+   status = send(getClientHandle(client),
+                 (char UUFAR *)data,
+                 (int) len,
+                 0);
 
    if (status == SOCKET_ERROR)
    {
@@ -636,7 +643,8 @@ SMTPWrite(SMTPClient *client,
 
       if (isFatalSocketError(err))
       {
-         shutdown(client->handle, 2);  /* Fail both reads and writes   */
+         shutdown(getClientHandle(client),
+                  2);               /* Fail both reads and writes   */
       }
       return 0;
    }
@@ -663,7 +671,7 @@ SMTPWrite(SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
 static size_t
-SMTPRead( SMTPClient *client )
+SMTPRead(SMTPClient *client)
 {
    static const char mName[] = "SMTPRead";
    int received;
@@ -672,63 +680,61 @@ SMTPRead( SMTPClient *client )
 /*               Reset flag which drives our invocation               */
 /*--------------------------------------------------------------------*/
 
-   setClientReady( client, KWFalse );
+   setClientReady(client, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*                If no more data from client, return                 */
 /*--------------------------------------------------------------------*/
 
-   if ( client->endOfTransmission )
+   if (client->endOfTransmission)
       return client->receive.used;
 
 /*--------------------------------------------------------------------*/
 /*                 Make sure our buffer is big enough                 */
 /*--------------------------------------------------------------------*/
 
-   if ( client->receive.used >= client->receive.length )
+   if (client->receive.used >= client->receive.length)
    {
       if (client->receive.length < (16*1024))
       {
          printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
                     mName,
-                    getClientSequence( client ),
-                    client->receive.length );
+                    getClientSequence(client),
+                    client->receive.length);
          client->receive.length *= 2;
          client->receive.data =
-                       realloc( client->receive.data,
-                                 client->receive.length );
-         checkref( client->receive.data );
+                       realloc(client->receive.data,
+                                 client->receive.length);
+         checkref(client->receive.data);
 
       } /* if (client->receive.length < (16*1024)) */
       else {
           printmsg(0, "%s: Client %d overran of input buffer %d,"
                       " truncated.",
                       mName,
-                      getClientSequence( client ),
-                      client->receive.length );
+                      getClientSequence(client),
+                      client->receive.length);
           return client->receive.used;
 
       } /* else */
 
-   } /* if ( client->receive.used >= client->receive.length ) */
+   } /* if (client->receive.used >= client->receive.length) */
 
 /*--------------------------------------------------------------------*/
 /*                  Actually get our next data read                   */
 /*--------------------------------------------------------------------*/
 
-   received = recv(client->handle,
-                   client->receive.data +
-                           client->receive.used,
-                   client->receive.length -
-                           client->receive.used,
+   received = recv(getClientHandle(client),
+                   client->receive.data + client->receive.used,
+                   (int) (client->receive.length - client->receive.used),
                    0);
 
-   if ( received == 0 )
+   if (received == 0)
    {
       client->endOfTransmission = KWTrue;
       printmsg(0, "%s: client %d EOF on recv()",
                   mName,
-                  getClientSequence( client ));
+                  getClientSequence(client));
    }
    else if (received == SOCKET_ERROR)
    {
@@ -736,17 +742,18 @@ SMTPRead( SMTPClient *client )
 
       printmsg(0, "%s: client %d recv() failed",
                   mName,
-                  getClientSequence( client ));
+                  getClientSequence(client));
       printWSerror("recv", wsErr);
 
       if (isFatalSocketError(wsErr))
       {
-         shutdown(client->handle, 2); /* Fail both reads and writes  */
+         shutdown(getClientHandle(client), 2);
+                                      /* Fail both reads and writes  */
          return 0;                    /* Force termination of client */
       }
    }
    else {
-      incrementClientBytesRead( client, (size_t) received );
+      incrementClientBytesRead(client, (size_t) received);
       client->receive.used += (size_t) received;
    }
 
@@ -800,17 +807,17 @@ isFatalSocketError(int err)
 /*--------------------------------------------------------------------*/
 
 void
-closeSocket( SOCKET handle )
+closeSocket(SOCKET handle)
 {
    static const char mName[] = "closeSocket";
 
-   if ( handle == INVALID_SOCKET )
+   if (handle == INVALID_SOCKET)
    {
-      printmsg(0, "%s: Called for invalid socket", mName );
+      printmsg(0, "%s: Called for invalid socket", mName);
       panic();
    }
 
-   closesocket( handle );
+   closesocket(handle);
 
 } /* closeSocket */
 
@@ -821,7 +828,7 @@ closeSocket( SOCKET handle )
 /*--------------------------------------------------------------------*/
 
 static void
-SMTPBurpBuffer( SMTPClient *client )
+SMTPBurpBuffer(SMTPClient *client)
 {
 
    static const char mName[] = "SMTPBurpBuffer";
@@ -830,26 +837,26 @@ SMTPBurpBuffer( SMTPClient *client )
 /*                 Verify the status of the input buffer              */
 /*--------------------------------------------------------------------*/
 
-   if ( client->receive.length < client->receive.used )
+   if (client->receive.length < client->receive.used)
    {
          printmsg(0, "%s: Client has used more bytes (%d) "
                      "than buffer bytes allocated (%d)",
                     mName,
-                    getClientSequence( client ),
+                    getClientSequence(client),
                     client->receive.used,
-                    client->receive.length );
+                    client->receive.length);
 
       panic();
    }
 
-   if ( client->receive.used < client->receive.parsed )
+   if (client->receive.used < client->receive.parsed)
    {
          printmsg(0, "%s: Client has parsed more bytes (%d) "
                      "than bytes in use (%d)",
                     mName,
-                    getClientSequence( client ),
+                    getClientSequence(client),
                     client->receive.parsed,
-                    client->receive.used );
+                    client->receive.used);
 
       panic();
    }
@@ -858,17 +865,17 @@ SMTPBurpBuffer( SMTPClient *client )
 /*     Discard any data we have already processed from the client     */
 /*--------------------------------------------------------------------*/
 
-   if ( client->receive.parsed > 0 )
+   if (client->receive.parsed > 0)
    {
       client->receive.used -= client->receive.parsed;
 
-      if ( client->receive.used > 0 )
-         memmove( client->receive.data,
+      if (client->receive.used > 0)
+         memmove(client->receive.data,
                   client->receive.data + client->receive.parsed,
                   client->receive.used);
       client->receive.parsed = 0;
 
-   } /* if ( client->receive.parsed > 0 ) */
+   } /* if (client->receive.parsed > 0) */
 
 } /* SMTPBurpBuffer */
 
@@ -880,7 +887,7 @@ SMTPBurpBuffer( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-selectReadySockets( SMTPClient *master )
+selectReadySockets(SMTPClient *master)
 {
    static const char mName[] = "flagReadySockets";
    SMTPClient *current = master;
@@ -892,7 +899,7 @@ selectReadySockets( SMTPClient *master )
    int maxSocket = 0;
    struct timeval timeoutPeriod;
 
-   timeoutPeriod.tv_sec = (master->next == NULL) ? 900 : 30;
+   timeoutPeriod.tv_sec = (master->next == NULL) ? 300 : 30;
    timeoutPeriod.tv_usec = 0;
 
    FD_ZERO(&readfds);
@@ -905,27 +912,28 @@ selectReadySockets( SMTPClient *master )
 
    do {
 
-      unsigned long timeout = (unsigned long) getClientTimeout( current );
+      unsigned long timeout = (unsigned long) getClientTimeout(current);
 
-      if ( isClientValid( current ) &&
-           ! getClientReady( current ) &&
-           ! isClientIgnored( current ))
+      if (isClientValid(current) &&
+           ! isClientIgnored(current) &&
+           ! getClientReady(current))
       {
-            FD_SET(((unsigned)getClientHandle( current )), &readfds);
 
-            if ( (int) getClientHandle( current ) >= maxSocket )
-               maxSocket = getClientHandle( current ) + 1;
+            FD_SET(((unsigned)getClientHandle(current)), &readfds);
+
+            if ((int) getClientHandle(current) >= maxSocket)
+               maxSocket = getClientHandle(current) + 1;
 
             nSelected++;
       }
 
-      if ( timeout < timeoutPeriod.tv_sec )
+      if (timeout < (unsigned long) timeoutPeriod.tv_sec)
           timeoutPeriod.tv_sec = timeout;
 
       nTotal++;
       current = current->next;
 
-   } while( current );
+   } while(current);
 
 /*--------------------------------------------------------------------*/
 /*       If no sockets are to be checked and no clients are           */
@@ -933,14 +941,14 @@ selectReadySockets( SMTPClient *master )
 /*       and continue after a short pause                             */
 /*--------------------------------------------------------------------*/
 
-   if ( ! maxSocket )
+   if (! nSelected)
    {
-      if ( timeoutPeriod.tv_sec > 0 )
+      if (timeoutPeriod.tv_sec > 0)
       {
          printmsg(0, "%s: All sockets of %d ignored!",
                      mName,
-                     nTotal );
-         ssleep( 10 );
+                     nTotal);
+         ssleep(10);
       }
       return KWFalse;
    }
@@ -958,16 +966,16 @@ selectReadySockets( SMTPClient *master )
       printmsg(0, "%s: select() of %d (out of %d) sockets failed" ,
                mName,
                nSelected,
-               nTotal );
+               nTotal);
       printWSerror("select", wsErr);
       panic();
    }
 
-   printmsg( nReady ? 4 : 8, "%s: %d of %d (out of %d) sockets were ready.",
+   printmsg(nReady ? 4 : 8, "%s: %d of %d (out of %d) sockets were ready.",
              mName,
              nReady,
              nSelected,
-             nTotal );
+             nTotal);
 
 /*--------------------------------------------------------------------*/
 /*                   Update list of sockets to process                */
@@ -976,16 +984,16 @@ selectReadySockets( SMTPClient *master )
    current = master;
 
    do {
-      if ( isClientValid(current) &&
-           FD_ISSET(((unsigned) getClientHandle( current )), &readfds ))
+      if (isClientValid(current) &&
+           FD_ISSET(((unsigned) getClientHandle(current)), &readfds))
       {
-         setClientReady( current, KWTrue );
-         setClientProcess( current, KWTrue );
+         setClientReady(current, KWTrue);
+         setClientProcess(current, KWTrue);
       }
 
       current = current->next;
 
-   } while( current );
+   } while(current);
 
    return KWTrue;
 

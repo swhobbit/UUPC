@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
+ *    $Id: smtpd.c 1.5 1997/11/28 04:52:10 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.5  1997/11/28 04:52:10  ahd
+ *    Initial UUSMTPD OS/2 support
+ *
  *    Revision 1.4  1997/11/26 03:34:11  ahd
  *    Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -61,7 +64,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtpd.c 1.5 1997/11/28 04:52:10 ahd Exp $");
 
 currentfile();
 
@@ -152,7 +155,6 @@ usage( void )
 /*       Invocation of daemon for SMTP receipt                        */
 /*--------------------------------------------------------------------*/
 
-void
 main( int argc, char ** argv )
 {
    int exitStatus;
@@ -297,5 +299,6 @@ main( int argc, char ** argv )
       exitStatus = clientMode( hotHandle, runUUXQT );
 
    exit( exitStatus );
+   return exitStatus;               /* Suppress compiler warning */
 
 } /* main */

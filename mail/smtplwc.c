@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.4 1997/11/26 03:34:11 ahd v1-12t $
+ *       $Id: smtplwc.c 1.5 1997/11/28 04:52:10 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.5  1997/11/28 04:52:10  ahd
+ *       Initial UUSMTPD OS/2 support
+ *
  *       Revision 1.4  1997/11/26 03:34:11  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -50,7 +53,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.4 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtplwc.c 1.5 1997/11/28 04:52:10 ahd Exp $");
 
 currentfile();
 
@@ -63,28 +66,32 @@ currentfile();
 KWBoolean
 commandAccept(SMTPClient *master,
               struct _SMTPVerb* verb,
-              char **operands )
+              char **operands)
 {
-   SMTPClient *client = initializeClient( getClientHandle( master ),
-                                          KWTrue );
+   SMTPClient *client;
+
+   setClientReady(master, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*         If the client initialized, insert it into the list         */
 /*--------------------------------------------------------------------*/
 
-   if ( client != NULL )
+   client = initializeClient(getClientHandle(master), KWTrue);
+
+   if (client != NULL)
    {
       SMTPClient *current = master;
 
       /* Step to the last link of the list */
-      while( current->next != NULL )
+      while(current->next != NULL)
          current = current->next;
 
       client->previous = current;
       current->next = client;
 
-   } /* if ( client != NULL ) */
+   } /* if (client != NULL) */
 
+   incrementClientMajorTransaction(master, 1);
    return KWTrue;
 
 } /* commandAccept */
@@ -98,7 +105,7 @@ commandAccept(SMTPClient *master,
 KWBoolean
 commandInit(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
 
 /*--------------------------------------------------------------------*/
@@ -107,16 +114,16 @@ commandInit(SMTPClient *client,
 /*       can say that in the EHLO command.                            */
 /*--------------------------------------------------------------------*/
 
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "%s ESMTP (%s %s, built %s %s) on-line at %s",
             E_domain,
             compilep,
             compilev,
             compiled,
             compilet,
-            arpadate() );
+            arpadate());
 
-   SMTPResponse( client, SR_OK_CONNECT, client->transmit.data );
+   SMTPResponse(client, SR_OK_CONNECT, client->transmit.data);
 
    return KWTrue;
 }
@@ -130,7 +137,7 @@ commandInit(SMTPClient *client,
 KWBoolean
 commandHELO(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
 
 /*--------------------------------------------------------------------*/
@@ -140,29 +147,33 @@ commandHELO(SMTPClient *client,
 /*       the name), but we don't at this point.                       */
 /*--------------------------------------------------------------------*/
 
-   client->SMTPName = strdup( operands[0] );
-   checkref( client->SMTPName );
+   client->SMTPName = strdup(operands[0]);
+   checkref(client->SMTPName);
 
-   if ( strlen( client->SMTPName ) >= MAXADDR )
+   if (strlen(client->SMTPName) >= MAXADDR)
    {
       client->SMTPName[ MAXADDR - 1 ] = '\0';
                                     /* Truncate to allow ignoring
                                        length else where in code     */
    }
 
-   if ( equali( verb->name, "EHLO" ))
+   if (equali(verb->name, "EHLO"))
       client->esmtp = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*            Format our name (and theirs) in the HELO reply.         */
 /*--------------------------------------------------------------------*/
 
-   sprintf( client->transmit.data,
-            "%s Hello %.64s, pleased to meet you",
+   sprintf(client->transmit.data,
+            "%s Hello %.64s (%s%s%s), pleased to meet you",
             E_domain,
-            operands[0] );
+            operands[0],
+            client->connection.reverseLookup ?
+                     client->connection.hostName : "",
+            client->connection.reverseLookup ? " " : "",
+            client->connection.hostAddr);
 
-   SMTPResponse( client, SR_OK_GENERIC, client->transmit.data );
+   SMTPResponse(client, SR_OK_GENERIC, client->transmit.data);
 
    return KWTrue;
 }
@@ -176,9 +187,9 @@ commandHELO(SMTPClient *client,
 KWBoolean
 commandNOOP(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
-   SMTPResponse( client, verb->successResponse, "OK" );
+   SMTPResponse(client, verb->successResponse, "OK");
    return KWTrue;
 }
 
@@ -191,11 +202,11 @@ commandNOOP(SMTPClient *client,
 KWBoolean
 commandRSET(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
 
-   cleanupTransaction( client );
-   SMTPResponse( client, verb->successResponse, "Reset state" );
+   cleanupTransaction(client);
+   SMTPResponse(client, verb->successResponse, "Reset state");
    return KWTrue;
 }
 
@@ -208,12 +219,12 @@ commandRSET(SMTPClient *client,
 KWBoolean
 commandQUIT(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "%s Closing connection, adios",
-            E_domain  );
-   SMTPResponse( client, verb->successResponse, client->transmit.data );
+            E_domain);
+   SMTPResponse(client, verb->successResponse, client->transmit.data);
    return KWTrue;
 }
 
@@ -226,7 +237,7 @@ commandQUIT(SMTPClient *client,
 KWBoolean
 commandSequenceIgnore(SMTPClient *client,
                       struct _SMTPVerb* verb,
-                      char **operands )
+                      char **operands)
 {
    typedef struct _CMD_LKUP {
       SMTPMode mode;
@@ -252,12 +263,12 @@ commandSequenceIgnore(SMTPClient *client,
 /*       the HELO was received and reinvoke the command processor.    */
 /*--------------------------------------------------------------------*/
 
-   if (( getClientMode( client ) == SM_UNGREETED ) &&
-       ( verb->validModes & SM_IDLE ))
+   if ((getClientMode(client) == SM_UNGREETED) &&
+       (verb->validModes & SM_IDLE))
    {
-      sprintf( 0, "Client did not use HELO protocol.");
-      setClientMode( client, SM_IDLE );
-      SMTPInvokeCommand( client );  /* Run command in acceptable mode */
+      sprintf(0, "Client did not use HELO protocol.");
+      setClientMode(client, SM_IDLE);
+      SMTPInvokeCommand(client);    /* Run command in acceptable mode */
       return KWTrue;
    }
 
@@ -266,27 +277,27 @@ commandSequenceIgnore(SMTPClient *client,
 /*       a good return code for it.                                   */
 /*--------------------------------------------------------------------*/
 
-   for ( ;; )
+   for (;;)
    {
       /* Accept entry if flag is empty or matches current mode  */
 
-      if ( (! current->mode) ||
-           ( current->mode & getClientMode( client )))
+      if ((! current->mode) ||
+           (current->mode & getClientMode(client)))
          break;
 
       current++;                    /* Examine next table entry */
 
    }
 
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "Command %.4s issued out of sequence, "
             "expected %s command next",
             client->receive.data,
-            current->name );
+            current->name);
 
-   SMTPResponse( client,
+   SMTPResponse(client,
                  current->code,
-                 client->transmit.data );
+                 client->transmit.data);
 
    return KWFalse;
 
@@ -301,11 +312,11 @@ commandSequenceIgnore(SMTPClient *client,
 KWBoolean
 commandExiting(SMTPClient *client,
                struct _SMTPVerb* verb,
-               char **operands )
+               char **operands)
 {
-   SMTPResponse( client,
+   SMTPResponse(client,
                  SR_TE_SHUTDOWN,
-                 "Server shutdown in progress, please try later" );
+                 "Server shutdown in progress, please try later");
    return KWTrue;
 
 } /* commandExiting */
@@ -319,9 +330,9 @@ commandExiting(SMTPClient *client,
 KWBoolean
 commandTimeout(SMTPClient *client,
                struct _SMTPVerb* verb,
-               char **operands )
+               char **operands)
 {
-   SMTPResponse( client,
+   SMTPResponse(client,
                  SR_TE_SHUTDOWN,
                  "Idle timeout, closing connection");
    return KWTrue;
@@ -337,7 +348,7 @@ commandTimeout(SMTPClient *client,
 KWBoolean
 commandTerminated(SMTPClient *client,
                   struct _SMTPVerb* verb,
-                  char **operands )
+                  char **operands)
 {
    return KWTrue;
 
@@ -352,13 +363,13 @@ commandTerminated(SMTPClient *client,
 KWBoolean
 commandSyntax(SMTPClient *client,
               struct _SMTPVerb* verb,
-              char **operands )
+              char **operands)
 {
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "\"%.10s\" command is not understood (client state 0x%x)",
             client->receive.data,
-            getClientMode( client ));
-   SMTPResponse( client, verb->successResponse, client->transmit.data );
+            getClientMode(client));
+   SMTPResponse(client, verb->successResponse, client->transmit.data);
    return KWTrue;
 
 }  /* commandSyntax */

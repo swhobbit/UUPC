@@ -5,11 +5,11 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.4 1997/11/25 05:05:06 ahd Exp $
+ *       $Id: smtpverb.c 1.5 1997/11/26 03:34:11 ahd v1-12t $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.5  1997/11/26 03:34:11  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *       Revision 1.4  1997/11/25 05:05:06  ahd
  *       More robust SMTP daemon
  *
@@ -47,9 +50,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.4 1997/11/25 05:05:06 ahd Exp $");
-
-currentfile();
+RCSID("$Id: smtpverb.c 1.5 1997/11/26 03:34:11 ahd v1-12t $");
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */
@@ -58,9 +59,9 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void
-freeOperands( char **operands )
+freeOperands(char **operands)
 {
-   free( operands );
+   free(operands);
 
 } /* freeOperands */
 
@@ -75,53 +76,53 @@ freeOperands( char **operands )
 /*--------------------------------------------------------------------*/
 
 static char **
-getOperands( SMTPClient *client, SMTPVerb *verb )
+getOperands(SMTPClient *client, SMTPVerb *verb)
 {
    static const char mName[] = "getOperands";
 
    char **list = NULL;
-   char *token = client->receive.data + strlen( verb->name );
+   char *token = client->receive.data + strlen(verb->name);
 
 /*--------------------------------------------------------------------*/
 /*         Perform limited case insensitive pattern matching          */
 /*--------------------------------------------------------------------*/
 
-   if ( verb->pattern != NULL )
+   if (verb->pattern != NULL)
    {
-      while( *token != '\0' )
+      while(*token != '\0')
       {
-         if ( equalni( token, verb->pattern, strlen(verb->pattern)))
+         if (equalni(token, verb->pattern, strlen(verb->pattern)))
          {
-            token += strlen( verb->pattern );
+            token += strlen(verb->pattern);
             break;
          }
          else
             token ++;
       }
 
-      if ( token == '\0' )
+      if (token == '\0')
          token = NULL;
 
-   } /* if ( verb->pattern != NULL ) */
+   } /* if (verb->pattern != NULL) */
 
-   if ( token != NULL )
-      token = strtok( token, WHITESPACE );
+   if (token != NULL)
+      token = strtok(token, WHITESPACE);
 
-   if ( token == NULL )
+   if (token == NULL)
    {
-      SMTPResponse( client,
+      SMTPResponse(client,
                     SR_PE_OPER_MISS,
-                    "Command operand is missing" );
+                    "Command operand is missing");
       return NULL;
    }
 
-   list = malloc( 2 * sizeof *list );
+   list = malloc(2 * sizeof *list);
    list[0] = token;
 
    printmsg(5, "%s Returning client %d token %s",
                mName,
-               getClientSequence( client ),
-               token );
+               getClientSequence(client),
+               token);
    return list;
 }
 
@@ -134,7 +135,7 @@ getOperands( SMTPClient *client, SMTPVerb *verb )
 /*--------------------------------------------------------------------*/
 
 void
-SMTPInvokeCommand( SMTPClient *client )
+SMTPInvokeCommand(SMTPClient *client)
 {
    SMTPVerb *currentVerb = verbTable;
 
@@ -144,35 +145,35 @@ SMTPInvokeCommand( SMTPClient *client )
 /*               Locate the name of the verb to process               */
 /*--------------------------------------------------------------------*/
 
-   for ( ;; )
+   for (;;)
    {
-      if ( (getClientMode( client ) & currentVerb->validModes) &&
-            ! strlen( currentVerb->name ))
+      if ((getClientMode(client) & currentVerb->validModes) &&
+            ! strlen(currentVerb->name))
          break;
-      else if ( (*currentVerb->name != '\0') &&
-                equalni( currentVerb->name,
+      else if ((*currentVerb->name != '\0') &&
+                equalni(currentVerb->name,
                          client->receive.data,
-                         sizeof currentVerb->name - 1 ))
+                         strlen(currentVerb->name)))
          break;
       else
          currentVerb++;
    }
 
+   if (currentVerb->trivial)
+      incrementClientTrivialCount(client); /* Track for possible
+                                                denial of service
+                                                attack               */
+
 /*--------------------------------------------------------------------*/
 /*            If not proper mode for this verb, reject it             */
 /*--------------------------------------------------------------------*/
 
-   if ( ! (getClientMode( client ) & currentVerb->validModes))
+   if (! (getClientMode(client) & currentVerb->validModes))
    {
-      incrementClientTrivialCount( client );
-      currentVerb->rejecter( client, currentVerb, NULL );
+      incrementClientTrivialCount(client);
+      currentVerb->rejecter(client, currentVerb, NULL);
       return;
    }
-
-   if ( currentVerb->trivial )
-      incrementClientTrivialCount( client ); /* Track for possible
-                                                denial of service
-                                                attack               */
 
 /*--------------------------------------------------------------------*/
 /*       If we can get the needed operands (if any), execute          */
@@ -180,22 +181,22 @@ SMTPInvokeCommand( SMTPClient *client )
 /*       it will issue the error message itself.                      */
 /*--------------------------------------------------------------------*/
 
-   if ((currentVerb->minOperands == 0 ) ||
-       ((operands = getOperands( client, currentVerb )) != NULL ))
+   if ((currentVerb->minOperands == 0) ||
+       ((operands = getOperands(client, currentVerb)) != NULL))
    {
-      if ( currentVerb->processor( client, currentVerb, operands ) )
+      if (currentVerb->processor(client, currentVerb, operands))
       {
          /* If command worked, update client mode as needed */
-         if ( currentVerb->newMode != SM_SAME_MODE )
-            setClientMode( client, currentVerb->newMode );
+         if (currentVerb->newMode != SM_SAME_MODE)
+            setClientMode(client, currentVerb->newMode);
       }
 
-      if ( operands != NULL )
-         freeOperands( operands );
+      if (operands != NULL)
+         freeOperands(operands);
 
    } /* if */
 
    /* Flag this client was active */
-   time( &client->lastTransactionTime );
+   time(&client->lastTransactionTime);
 
-} /* SMTPInvokeCommand( SMTPClient *client ) */
+} /* SMTPInvokeCommand(SMTPClient *client) */

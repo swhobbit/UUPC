@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.2 1997/11/24 02:52:26 ahd Exp $
+ *       $Id: smtprecv.c 1.3 1997/11/26 03:34:11 ahd v1-12t $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.3  1997/11/26 03:34:11  ahd
+ *       Correct SMTP timeouts, break out protocol from rest of daemon
+ *
  *       Revision 1.2  1997/11/24 02:52:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -47,7 +50,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.2 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.3 1997/11/26 03:34:11 ahd v1-12t $");
 
 currentfile();
 
@@ -61,28 +64,28 @@ currentfile();
 KWBoolean
 commandVRFY(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
    char response[MAXADDR];
    KWBoolean ourProblem;
 
-   if ( ! stripAddress( operands[0], response ))
+   if (! stripAddress(operands[0], response))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%.100s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_SYNTAX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
       return KWFalse;
    }
 
-   if ( ! isValidAddress( operands[0], response, &ourProblem ))
+   if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_BAD_MAILBOX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
       return KWFalse;
    }
 
@@ -90,8 +93,8 @@ commandVRFY(SMTPClient *client,
 /*      We have a valid address, make it canonical and report it      */
 /*--------------------------------------------------------------------*/
 
-   sprintf( client->transmit.data, "<%s>", operands[0] );
-   SMTPResponse( client, verb->successResponse, client->transmit.data );
+   sprintf(client->transmit.data, "<%s>", operands[0]);
+   SMTPResponse(client, verb->successResponse, client->transmit.data);
    return KWTrue;
 
 } /* commandVRFY */
@@ -106,29 +109,29 @@ commandVRFY(SMTPClient *client,
 KWBoolean
 commandMAIL(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
    static const char mName[] = "commandMAIL";
    char response[MAXADDR];
    KWBoolean ourProblem;
 
-   if ( ! stripAddress( operands[0], response ))
+   if (! stripAddress(operands[0], response))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%.100s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_SYNTAX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
       return KWFalse;
    }
 
-   if ( ! isValidAddress( operands[0], response, &ourProblem ))
+   if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_BAD_MAILBOX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
       return KWFalse;
    }
 
@@ -137,31 +140,31 @@ commandMAIL(SMTPClient *client,
 /*       array                                                        */
 /*--------------------------------------------------------------------*/
 
-   if ( client->transaction != NULL )
+   if (client->transaction != NULL)
    {
       printmsg(0,"%s: Internal error, client %d transaction already allocated",
                  mName,
-                 getClientSequence( client ));
+                 getClientSequence(client));
    }
 
-   client->transaction = malloc( sizeof *(client->transaction));
-   checkref( client->transaction );
+   client->transaction = malloc(sizeof *(client->transaction));
+   checkref(client->transaction);
 
-   client->transaction->sender = strdup( operands[0] );
-   checkref( client->transaction->sender );
+   client->transaction->sender = strdup(operands[0]);
+   checkref(client->transaction->sender);
 
    client->transaction->addressLength = MAXADDRS;
    client->transaction->addressCount  = 0;
    client->transaction->address =
-               malloc( sizeof client->transaction->address[0] *
-                       client->transaction->addressLength );
-   checkref( client->transaction->address );
+               malloc(sizeof client->transaction->address[0] *
+                       client->transaction->addressLength);
+   checkref(client->transaction->address);
 
 /*--------------------------------------------------------------------*/
 /*           We're ready for the addressee list, ask for it           */
 /*--------------------------------------------------------------------*/
 
-   SMTPResponse( client,
+   SMTPResponse(client,
                  verb->successResponse,
                  "Okay, send receiver addresses");
    return KWTrue;
@@ -177,37 +180,37 @@ commandMAIL(SMTPClient *client,
 KWBoolean
 commandRCPT(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
    char response[MAXADDR];
    KWBoolean ourProblem;
 
-   if ( client->transaction->addressCount >=
-        client->transaction->addressLength )
+   if (client->transaction->addressCount >=
+        client->transaction->addressLength)
    {
-      SMTPResponse( client,
+      SMTPResponse(client,
                     SR_PE_TOO_MANY_ADDR,
                     "Cannot handle additional addresses in message");
       return KWFalse;
    }
 
-   if ( ! stripAddress( operands[0], response ))
+   if (! stripAddress(operands[0], response))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%.100s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_SYNTAX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
       return KWFalse;
    }
 
-   if ( ! isValidAddress( operands[0], response, &ourProblem ))
+   if (! isValidAddress(operands[0], response, &ourProblem))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "%s: %s",
                operands[0],
-               response );
-      SMTPResponse( client, SR_PE_BAD_MAILBOX, client->transmit.data);
+               response);
+      SMTPResponse(client, SR_PE_BAD_MAILBOX, client->transmit.data);
       return KWFalse;
    }
 
@@ -216,16 +219,16 @@ commandRCPT(SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
    client->transaction->address[ client->transaction->addressCount ] =
-                        strdup( operands[0] );
-   checkref( client->transaction->address[ client->transaction->addressCount ] );
+                        strdup(operands[0]);
+   checkref(client->transaction->address[ client->transaction->addressCount ]);
 
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "<%s>... Okay (%s)",
             client->transaction->address[ client->transaction->addressCount ],
-            response );
+            response);
    client->transaction->addressCount += 1;
 
-   SMTPResponse( client, verb->successResponse, client->transmit.data );
+   SMTPResponse(client, verb->successResponse, client->transmit.data);
 
    return KWTrue;
 
@@ -240,9 +243,9 @@ commandRCPT(SMTPClient *client,
 KWBoolean
 commandDATA(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
-   char *forwho = (char *) ((client->transaction->addressCount > 1 ) ?
+   char *forwho = (char *) ((client->transaction->addressCount > 1) ?
                               "multiple addresses" :
                               client->transaction->address[0]);
 
@@ -250,14 +253,14 @@ commandDATA(SMTPClient *client,
 /*              Open our data file, with error checking               */
 /*--------------------------------------------------------------------*/
 
-   client->transaction->imf = imopen( 0, TEXT_MODE );
+   client->transaction->imf = imopen(0, TEXT_MODE);
 
-   if ( client->transaction->imf == NULL )
+   if (client->transaction->imf == NULL)
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "Work file IMOpen failed: %s",
-               strerror(errno) );
-      SMTPResponse( client, SR_TE_SHORTAGE, client->transmit.data );
+               strerror(errno));
+      SMTPResponse(client, SR_TE_SHORTAGE, client->transmit.data);
       return KWFalse;
    }
 
@@ -282,7 +285,7 @@ commandDATA(SMTPClient *client,
 /*            We're ready to process the data, tell client            */
 /*--------------------------------------------------------------------*/
 
-   SMTPResponse( client,
+   SMTPResponse(client,
                  verb->successResponse,
                 "Enter mail, end with \".\" on a line by itself");
 
@@ -299,50 +302,50 @@ commandDATA(SMTPClient *client,
 KWBoolean
 commandDataInput(SMTPClient *client,
                  struct _SMTPVerb* verb,
-                 char **operands )
+                 char **operands)
 {
    char *token = client->receive.data;
    char *first = token;
    size_t len = (size_t) client->receive.parsed - 2;
    int written;
 
-   if ( client->transaction->imf == NULL )   /* Previously flushed?  */
+   if (client->transaction->imf == NULL)     /* Previously flushed?  */
       return KWFalse;               /* Yes --> Ignore data           */
 
 /*--------------------------------------------------------------------*/
 /*       Determine if the entire buffer is composed of periods        */
 /*--------------------------------------------------------------------*/
 
-   while( *token == '.' )           /* Scan until EOS or non period  */
+   while(*token == '.')             /* Scan until EOS or non period  */
       token++;
 
-   if ( token == '\0')              /* Was it EOS?                   */
+   if (token == '\0')               /* Was it EOS?                   */
    {
       first++;                      /* Yes --> Skip quoting period   */
       len--;
    }
 
-   if ( strlen( token ) < len )
+   if (strlen(token) < len)
    {
-      SMTPResponse( client,
+      SMTPResponse(client,
                     SR_PE_SYNTAX,
-                    "Data contains Null (0x00) characters" );
+                    "Data contains Null (0x00) characters");
 
       /* Flush the receipt of data */
-      imclose( client->transaction->imf );
+      imclose(client->transaction->imf);
       client->transaction->imf = NULL;
       return KWFalse;
    }
 
 #ifdef UDEBUG
-   if ( strlen( token ) > len )
+   if (strlen(token) > len)
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "Internal error: Data line (%d bytes)"
                " longer than expected (%d bytes)",
-               strlen( token ),
-               len );
-      SMTPResponse( client, SR_PE_SYNTAX, client->transmit.data );
+               strlen(token),
+               len);
+      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
       return KWFalse;
    }
 #endif
@@ -351,20 +354,20 @@ commandDataInput(SMTPClient *client,
 /*                          Write the data out                        */
 /*--------------------------------------------------------------------*/
 
-   written = imwrite( first, 1, len, client->transaction->imf );
+   written = imwrite(first, 1, len, client->transaction->imf);
 
-   if ( written < (int) strlen( first ))
+   if (written < (int) strlen(first))
    {
-      sprintf( client->transmit.data,
+      sprintf(client->transmit.data,
                "Work file write failed: %s",
-               strerror(errno) );
-      SMTPResponse( client, SR_TE_SHORTAGE, client->transmit.data );
-      imclose( client->transaction->imf );
+               strerror(errno));
+      SMTPResponse(client, SR_TE_SHORTAGE, client->transmit.data);
+      imclose(client->transaction->imf);
       client->transaction->imf = NULL;
       return KWFalse;
    }
 
-   imputc( '\n', client->transaction->imf );
+   imputc('\n', client->transaction->imf);
 
    return KWTrue;
 
@@ -379,7 +382,7 @@ commandDataInput(SMTPClient *client,
 KWBoolean
 commandPeriod(SMTPClient *client,
             struct _SMTPVerb* verb,
-            char **operands )
+            char **operands)
 {
 
    size_t count;
@@ -391,9 +394,9 @@ commandPeriod(SMTPClient *client,
 /*       additional message.                                          */
 /*--------------------------------------------------------------------*/
 
-   if ( client->transaction->imf == NULL )   /* Already flushed?     */
+   if (client->transaction->imf == NULL)     /* Already flushed?     */
    {
-      cleanupTransaction( client ); /* Handle any dangling states    */
+      cleanupTransaction(client); /* Handle any dangling states      */
       return KWTrue;                /* Allow return to idle state    */
    }
 
@@ -405,7 +408,7 @@ commandPeriod(SMTPClient *client,
                                        we are too busy               */
    remoteMail = KWTrue;
 
-   tokenizeAddress( client->transaction->sender,
+   tokenizeAddress(client->transaction->sender,
                     client->transmit.data,
                     fromNode,
                     fromUser);      /* No need to check return code,
@@ -422,26 +425,27 @@ commandPeriod(SMTPClient *client,
    bflag[F_FASTSMTP] = KWFalse;  /* Don't do outbound SMTP           */
    remoteMail = KWTrue;          /* Mail did not originate here      */
 
-   for ( count = 0; count < client->transaction->addressCount; count++)
+   for (count = 0; count < client->transaction->addressCount; count++)
       delivered += Deliver(client->transaction->imf,
                            client->transaction->address[count],
                            KWTrue);
 
-   flushQueues( client->transaction->imf );
+   flushQueues(client->transaction->imf);
 
-   cleanupTransaction( client );
+   cleanupTransaction(client);
 
 /*--------------------------------------------------------------------*/
 /*               Tell the client we delivered the message             */
 /*--------------------------------------------------------------------*/
 
-   sprintf( client->transmit.data,
+   sprintf(client->transmit.data,
             "Message accepted for delivery to %d mail boxes",
-            delivered );
+            delivered);
 
-   SMTPResponse( client, verb->successResponse, client->transmit.data );
+   SMTPResponse(client, verb->successResponse, client->transmit.data);
                                     /* Let client continue on        */
 
+   incrementClientMajorTransaction( client, 1 );
    return KWTrue;
 
 } /* commandPeriod */
@@ -453,40 +457,40 @@ commandPeriod(SMTPClient *client,
 /*--------------------------------------------------------------------*/
 
 void
-cleanupTransaction( SMTPClient *client )
+cleanupTransaction(SMTPClient *client)
 {
-   if ( client->transaction == NULL )
+   if (client->transaction == NULL)
       return;
 
-   if ( client->transaction->imf )
+   if (client->transaction->imf)
    {
-      imclose( client->transaction->imf );
+      imclose(client->transaction->imf);
       client->transaction->imf = NULL;
    }
 
-   if ( client->transaction->addressCount )
+   if (client->transaction->addressCount)
    {
       size_t count;
-      for ( count = 0;
+      for (count = 0;
             count < client->transaction->addressCount;
-            count ++ )
+            count ++)
       {
-         free( client->transaction->address[ count ] );
+         free(client->transaction->address[ count ]);
          client->transaction->address[ count ] = NULL;
       }
 
       client->transaction->addressCount = 0;
    }
 
-   if ( client->transaction->address )
+   if (client->transaction->address)
    {
-      free( client->transaction->address );
+      free(client->transaction->address);
       client->transaction->address = NULL;
    }
 
-   if ( client->transaction->sender )
+   if (client->transaction->sender)
    {
-      free( client->transaction->sender );
+      free(client->transaction->sender);
       client->transaction->sender = NULL;
    }
 
