@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: bugout.c 1.17 1998/04/08 11:32:07 ahd Exp $
+ *    $Id: bugout.c 1.18 1998/04/24 03:30:13 ahd v1-13a $
  *
  *    Revision history:
  *    $Log: bugout.c $
+ *    Revision 1.18  1998/04/24 03:30:13  ahd
+ *    Don't abort via memory error if running GUI
+ *
  *    Revision 1.17  1998/04/08 11:32:07  ahd
  *    Force a crash, not non-zero exit, when debugging
  *
@@ -84,6 +87,7 @@
 
 #include "catcher.h"
 #include "timestmp.h"
+#include "logger.h"
 
 #ifdef _Windows
 #include "winutil.h"
@@ -96,6 +100,7 @@
 int panic_rc = 69;                  /* Actually defined in catcher.h,
                                        but not all routines need the
                                        catcher.                      */
+RCSID("$Id$");
 
 /*--------------------------------------------------------------------*/
 /*    b u g o u t                                                     */
@@ -112,6 +117,7 @@ void bugout(  const char *fname, const size_t lineno )
 
   printmsg(0,"%s aborting at line %d in file %s",
               compilen, lineno, fname );
+  copylog();
 
 #ifdef _Windows
 
