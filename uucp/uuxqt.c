@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.18 1993/10/03 22:10:24 ahd Exp $
+ *    $Id: uuxqt.c 1.19 1993/10/12 01:34:47 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.19  1993/10/12  01:34:47  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.18  1993/10/03  22:10:24  ahd
  * Use signed for length of parameters
  *
@@ -1026,6 +1029,13 @@ static int shell(char *command,
 
    if ( result == 0 )
       xflag[E_NORMAL] = TRUE;
+   else if ( equal(cmdname, RNEWS) )
+                           /* Did command execution fail?            */
+   {
+      printmsg(0,"shell: command %s returned error code %d",
+            cmdname, result);
+      panic();
+   }
    else if ( result > 0 )
       xflag[E_STATUS] = TRUE;
 
