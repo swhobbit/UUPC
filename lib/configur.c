@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: CONFIGUR.C 1.9 1993/04/11 00:31:31 dmwatt Exp $
+ *    $Id: CONFIGUR.C 1.10 1993/04/15 03:17:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.10  1993/04/15  03:17:21  ahd
+ *     Add bounce system option
+ *
  *     Revision 1.9  1993/04/11  00:31:31  dmwatt
  *     Global edits for year, TEXT, etc.
  *
@@ -87,45 +90,46 @@ currentfile();
 
 boolean bflag[F_LAST];        /* Initialized to zero by compiler     */
 
+char **E_internal = NULL;
 char *E_aliases = NULL;
+char *E_altsignature = NULL;
 char *E_anonymous = NULL;
 char *E_archivedir = NULL;
+char *E_backup = NULL;
+char *E_banner = NULL;
+char *E_charset = NULL;
 char *E_confdir = NULL;
 char *E_domain = NULL;
-char *E_altsignature = NULL;
-char *E_backup = NULL;
-char *E_charset = NULL;
 char *E_editor = NULL;
-char *E_filesent = NULL;
-char *E_inmodem = NULL;
-char *E_mailext = NULL;
-char *E_pager = NULL;
-char *E_signature = NULL;
-char *E_uuxqtpath = NULL;
 char *E_fdomain = NULL;
+char *E_filesent = NULL;
 char *E_homedir = NULL;
+char *E_inmodem = NULL;
 char *E_localdomain = NULL;
 char *E_mailbox = NULL;
 char *E_maildir = NULL;
+char *E_mailext = NULL;
 char *E_mailserv = NULL;
+char *E_motd = NULL;
 char *E_name = NULL;
-char **E_internal = NULL;
 char *E_newsdir = NULL;
 char *E_newsserv = NULL;
 char *E_nodename = NULL;
 char *E_organization = NULL;
+char *E_pager = NULL;
 char *E_postmaster = NULL;
 char *E_pubdir = NULL;
 char *E_replyto = NULL;
+char *E_signature = NULL;
 char *E_spooldir = NULL;
 char *E_tempdir = NULL;
-char *E_version = NULL;
 char *E_uncompress = NULL;
-static char *dummy = NULL;
+char *E_uuxqtpath = NULL;
+char *E_version = NULL;
+INTEGER E_maxhops = 20;                                     /* ahd */
 INTEGER E_priority = -99;
 INTEGER E_prioritydelta = -99;
-
-INTEGER E_maxhops = 20;                                     /* ahd */
+static char *dummy = NULL;
 
 /*--------------------------------------------------------------------*/
 /*                       Local emumerated types                       */
@@ -153,12 +157,12 @@ static boolean getrcnames(char **sysp,char **usrp);
 static CONFIGTABLE envtable[] = {
    {"aliases",      &E_aliases,      B_TOKEN|B_MUA},
    {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
-   {"anonymouslogin",
-                    &E_anonymous,    B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
+   {"anonymouslogin", &E_anonymous,    B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
    {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
    {"backupext",    &E_backup,       B_TOKEN|B_MUA},
-   {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
+   {"banner",       &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
    {"charset",      &E_charset,      B_TOKEN|B_GLOBAL|B_SPOOL},
+   {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
    {"domain",       &E_domain,       B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"editor",       &E_editor,       B_STRING|B_MUA|B_NEWS},
    {"filesent",     &E_filesent,     B_TOKEN|B_MUA|B_NEWS},
@@ -166,15 +170,14 @@ static CONFIGTABLE envtable[] = {
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_MAIL|B_NEWS|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
-   {"internalcommands", (char **)   &E_internal,
-                                     B_GLOBAL|B_LIST|B_UUXQT},
+   {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_UUXQT},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
    {"mailbox",      &E_mailbox,      B_REQUIRED|B_TOKEN|B_ALL},
-   {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
+   {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
-   {"maximumhops",  (char **) &E_maxhops,
-                                     B_MTA | B_INTEGER | B_GLOBAL},
+   {"maximumhops",  (char **) &E_maxhops, B_MTA | B_INTEGER | B_GLOBAL},
+   {"motd",         &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
@@ -185,19 +188,17 @@ static CONFIGTABLE envtable[] = {
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
    {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
    {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_MTA},
+   {"priority",     (char **) &E_priority, B_INTEGER |B_UUCICO},
+   {"prioritydelta",(char **) &E_prioritydelta, B_INTEGER |B_UUCICO},
    {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
-   {"priority",     (char **) &E_priority,
-                                     B_INTEGER |B_UUCICO},
-   {"prioritydelta",(char **) &E_prioritydelta,
-                                     B_INTEGER |B_UUCICO},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
+   {"rmail",        &dummy,          B_OBSOLETE },
+   {"rnews",        &dummy,          B_OBSOLETE },
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
    {"spooldir",     &E_spooldir,     B_GLOBAL|B_PATH|B_ALL},
    {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
-   {"rmail",        &dummy,          B_OBSOLETE },
-   {"rnews",        &dummy,          B_OBSOLETE },
    { nil(char) }
 }; /* table */
 
@@ -234,12 +235,14 @@ FLAGTABLE configFlags[] = {
  { "collect",     F_COLLECTSTATS,B_GLOBAL},
  { "directory",   F_DIRECT,      B_GLOBAL},
  { "escape",      F_ESCAPE,      B_GLOBAL},
- { "hpfs",        F_HPFS,        B_GLOBAL},
  { "history",     F_HISTORY,     B_GLOBAL},
+ { "honordebug",  F_HONORDEBUG,  B_GLOBAL},
  { "kanji",       F_KANJI,       B_GLOBAL},
+ { "longname",    F_LONGNAME,    B_GLOBAL},
  { "monocase",    F_ONECASE,     B_GLOBAL},
  { "multiqueue",  F_MULTI,       B_GLOBAL},
  { "multitask",   F_MULTITASK,   B_GLOBAL},
+ { "senddebug",   F_SENDDEBUG,   B_GLOBAL},
  { "snews",       F_SNEWS,       B_GLOBAL},
  { "syslog",      F_SYSLOG,      B_GLOBAL},
  { "symmetricgrades",
