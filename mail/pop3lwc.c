@@ -17,10 +17,19 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: POP3LWC.C 1.4 1998/03/08 04:50:04 ahd Exp $
+ *       $Id: pop3lwc.c 1.5 1998/04/24 03:30:13 ahd v1-13b $
  *
  *       Revision History:
- *       $Log: POP3LWC.C $
+ *       $Log: pop3lwc.c $
+ * Revision 1.5  1998/04/24  03:30:13  ahd
+ * Use local buffers, not client->transmit.buffer, for output
+ * Rename receive buffer, use pointer into buffer rather than
+ *      moving buffered data to front of buffer every line
+ * Restructure main processing loop to give more priority
+ *      to client processing data already buffered
+ * Add flag bits to client structure
+ * Add flag bits to verb tables
+ *
  *       Revision 1.4  1998/03/08 04:50:04  ahd
  *       Drop unneeded header files
  *
@@ -53,7 +62,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: POP3LWC.C 1.4 1998/03/08 04:50:04 ahd Exp $");
+RCSID("$Id: pop3lwc.c 1.5 1998/04/24 03:30:13 ahd v1-13b $");
 
 currentfile();
 
@@ -98,6 +107,12 @@ commandUSER(SMTPClient *client,
             char **operands )
 {
    char xmitBuf[XMIT_LENGTH];
+
+   if ((strlen(operands[0]) + strlen(E_domain)) > MAXADDR)
+   {
+      SMTPResponse(client, PR_ERROR_GENERIC, "User id is too long" );
+      return KWFalse;
+   }
 
    /* Save off the client name, PASS command needs it */
    client->clientName = strdup( operands[0] );
