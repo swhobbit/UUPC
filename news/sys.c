@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.18 1995/03/07 23:38:22 ahd Exp $
+ *    $Id: sys.c 1.19 1995/03/12 16:42:24 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.19  1995/03/12 16:42:24  ahd
+ *    Comment match(), redo variable names to allow debugging
+ *
  *    Revision 1.18  1995/03/07 23:38:22  ahd
  *    Add (missing) maximum hop support
  *
@@ -315,7 +318,7 @@ process_sys( char *buf)
    if ( equal( node->sysname, canonical_news_name() ) )
       node->flag.local = KWTrue;
 
-  if (s1 != NULL)
+  if ((s1 != NULL) && strlen(s1))
   {
     node->exclude = newstr(trim(s1) );
     tempLen = strlen( node->exclude );
@@ -324,7 +327,7 @@ process_sys( char *buf)
       cacheLength = tempLen + 1;
   }
 
-  if (s2 != NULL)
+  if ((s2 != NULL) && strlen(s2))
   {
       node->distribution = newstr( trim(s2) );
       tempLen = strlen( node->distribution );
@@ -333,7 +336,7 @@ process_sys( char *buf)
          cacheLength = tempLen + 1;
   }
 
-  if (f2 != NULL)
+  if ((f2 != NULL) && strlen( f2 ))
   {
       node->groups = newstr( trim(f2) );
       tempLen = strlen( node->groups );
@@ -348,7 +351,7 @@ process_sys( char *buf)
                node->distribution   ? node->distribution : "(none)",
                node->groups         ? node->groups: "(none)" );
 
-  if (f3 != NULL)
+  if ((f3 != NULL) && strlen(f3))
   {
      printmsg(4, "Flags = %s, length = %i", f3, strlen(f3));
 
