@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.26 1993/11/06 13:04:13 ahd Exp $
+ *    $Id: uuxqt.c 1.27 1993/11/13 17:43:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.27  1993/11/13  17:43:26  ahd
+ * Update command line limit of RMAIL for 32 bit operating systems
+ *
  * Revision 1.26  1993/11/06  13:04:13  ahd
  * Don't use more than 8 characters in XQT directory name
  *
@@ -210,10 +213,7 @@ static void process( const char *fname,
                      const char *remote,
                      const char *executeDirectory);
 
-char **create_environment(const char *logname,
-                          const char *requestor);
-
-static void delete_environment( char **envp);
+static void create_environment(const char *requestor);
 
 static boolean AppendData( const char *input, FILE* dataout);
 
@@ -365,6 +365,16 @@ void main( int argc, char **argv)
       putenv( "DELDIR=");
 
 /*--------------------------------------------------------------------*/
+/*                  Define the current user as UUCP                   */
+/*--------------------------------------------------------------------*/
+
+   if ( putenv( "LOGNAME=uucp" ))
+   {
+      printmsg(0,"Unable to set current user to UUCP");
+      panic();
+   }
+
+/*--------------------------------------------------------------------*/
 /*    Actually invoke the processing routine for the eXecute files    */
 /*--------------------------------------------------------------------*/
 
@@ -453,6 +463,8 @@ static boolean do_uuxqt( const char *sysname )
             printmsg(0,"Unable to set environment \"%s\"",hostenv);
             panic();
          }
+         else
+            printmsg(6,"Set environment string %s", hostenv );
 
          sprintf(executeDirectory , pattern, hostp->hostname );
          printmsg(5,"Execute directory is %s", executeDirectory );
@@ -477,12 +489,6 @@ static boolean do_uuxqt( const char *sysname )
             UnlockSystem();
 
       } /* else if */
-
-/*--------------------------------------------------------------------*/
-/*                        Restore environment                         */
-/*--------------------------------------------------------------------*/
-
-      putenv( uu_machine );   /* Reset to empty string                 */
 
 /*--------------------------------------------------------------------*/
 /*    If processing all hosts, step to the next host in the queue     */
@@ -578,7 +584,7 @@ static void process( const char *fname,
       case 'U':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No user on U line in file \"%s\"", fname );
+            printmsg(0,"No user on U line in \"%s\"", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -588,12 +594,12 @@ static void process( const char *fname,
                                     /* Get the system name            */
          if ( (cp = strtok(NULL, WHITESPACE)) == NULL)
          {                          /* Did we get a string?           */
-            printmsg(2,"No node on U line in file \"%s\"", fname );
+            printmsg(2,"No node on U line in \"%s\"", fname );
             cp = (char *) remote;
          }
          else if (!equal(cp,remote))
          {
-            printmsg(2,"Node on U line in file \"%s\" doesn't match remote",
+            printmsg(2,"Node on U line in \"%s\" doesn't match remote",
                      fname );
             cp = (char * ) remote;
          };
@@ -710,7 +716,7 @@ static void process( const char *fname,
       case 'J':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No job id on J line in file \"%s\"", fname );
+            printmsg(0,"No job id on J line in \"%s\"", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -728,7 +734,7 @@ static void process( const char *fname,
          cp = strtok(line + 1, WHITESPACE);
          if (cp == NULL)
          {
-            printmsg(0,"Missing F parameter in file \"%s\", command rejected",
+            printmsg(0,"Missing F parameter in \"%s\", command rejected",
                        fname);
             reject = xflag[F_CORRUPT] = TRUE;
             break;
@@ -764,7 +770,7 @@ static void process( const char *fname,
          }
          else
          {
-            printmsg(0,"Invalid F parameter in file \"%s\", command rejected",
+            printmsg(0,"Invalid F parameter in \"%s\", command rejected",
                        fname);
             reject = xflag[F_BADF] = TRUE;
             break;
@@ -775,7 +781,7 @@ static void process( const char *fname,
          {
             if (!ValidDOSName(cp, FALSE))
             {  /* Illegal filename --> reject the whole request */
-               printmsg(0,"Illegal filename \"%s\" in file \"%s\", command rejected",
+               printmsg(0,"Illegal file \"%s\" in \"%s\", command rejected",
                           cp, fname);
                reject = xflag[F_BADF] = TRUE;
                break;
@@ -797,7 +803,7 @@ static void process( const char *fname,
       case 'R':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No requestor on R line in file \"%s\"", fname );
+            printmsg(0,"No requestor on R line in \"%s\"", fname );
             reject = xflag[F_CORRUPT] = TRUE;
             break;
          }
@@ -814,7 +820,7 @@ static void process( const char *fname,
       case 'M':
          if ( (cp = strtok(line + 1, WHITESPACE)) == NULL )
          {
-            printmsg(0,"No file name on M line in file \"%s\"", fname);
+            printmsg(0,"No file name on M line in \"%s\"", fname);
             break;
          }
 
@@ -937,16 +943,20 @@ static void process( const char *fname,
          if (!reject)
          {
             char *pipe;
-            char **envp = create_environment("uucp", requestor);
             char *cmd = strdup(command);        /* shell clobbers its arg */
             checkref(cmd);
 
-            /* The following code INTENTIONALLY ignores quoting of '|'
-               (with \ or "..." or '...') because we can't count on the DOS
-               shell (or spawnlp, etc.) to also handle quoting of '|' the
-               exact same way (or even at all).  We also prohibit '<' and '>'
-               for similar reasons.  (By the way, uux should have changed
-               I/O redirecting '<' and '>' to I and O lines, respectively.) */
+            create_environment( requestor);  /* Set requestor id     */
+
+/*--------------------------------------------------------------------*/
+/*       The following code INTENTIONALLY ignores quoting of '|'      */
+/*       (with \ or "..." or '...') because we can't count on the     */
+/*       DOS shell (or spawnlp, etc.) to also handle quoting of '|'   */
+/*       the exact same way (or even at all).  We also prohibit '<'   */
+/*       and '>' for similar reasons.  (By the way, uux should have   */
+/*       changed I/O redirecting '<' and '>' to I and O lines,        */
+/*       respectively.)                                               */
+/*--------------------------------------------------------------------*/
 
             if (strchr(cmd, '<') != NULL || strchr(cmd, '>') != NULL)
             {
@@ -987,7 +997,6 @@ static void process( const char *fname,
             }
 
             free(cmd);
-            delete_environment(envp);
          }
 
 /*--------------------------------------------------------------------*/
@@ -1333,42 +1342,31 @@ static boolean copylocal(const char *from, const char *to)
 /*    Create the environment array for subprocesses                   */
 /*--------------------------------------------------------------------*/
 
-char **create_environment(const char *logname,
-                          const char *requestor)
+static void create_environment(const char *requestor)
 {
-   char buffer[MAXADDR + 20];
+   static char buffer[MAXADDR + 20];
    int subscript = 0;
-   char **envp = (char **) malloc(sizeof(char *) * 3);
-
-   checkref(envp);
-
-/*--------------------------------------------------------------------*/
-/*              "Current" user id processing the request              */
-/*--------------------------------------------------------------------*/
-
-   if ( logname != NULL )
-   {
-     sprintf(buffer,"%s=%s", LOGNAME, logname);
-     envp[subscript] = strdup(buffer);
-     checkref(envp[subscript++]);
-   }
+   char *envp[3];
 
 /*--------------------------------------------------------------------*/
 /*               user id/nodename of original requestor               */
 /*--------------------------------------------------------------------*/
 
-   if ( requestor != NULL )
-   {
+   if ( requestor == NULL )
+      panic();
+   else if ( ! strlen( requestor ))
+      sprintf(buffer,"%s=%s %s", UU_USER, "uucp", E_nodename );
+   else {
       sprintf(buffer,"%s=%s",UU_USER, requestor);
-      envp[subscript] =  strdup(buffer);
-      checkref(envp[subscript++]);
    }
 
-   envp[subscript] =  NULL;   /* Terminate the list                    */
+   envp[subscript++] =  buffer;
 
 /*--------------------------------------------------------------------*/
 /*               Now put the data into our environment                */
 /*--------------------------------------------------------------------*/
+
+   envp[subscript] =  NULL;   /* Terminate the list                    */
 
    while( subscript-- > 0)
    {
@@ -1377,39 +1375,11 @@ char **create_environment(const char *logname,
          printmsg(0,"Unable to set environment \"%s\"",envp[subscript]);
          panic();
       }
+      else
+         printmsg(6,"Set environment string %s", envp[subscript] );
    } /* while */
 
-   return envp;
 } /* create_environment */
-
-/*--------------------------------------------------------------------*/
-/*    d e l e t e  _ e n v i r o n m e n t                            */
-/*                                                                    */
-/*    Delete variables inserted by create_enviroment                  */
-/*                                                                    */
-/*    Our environment goes away when we are done executing we; just   */
-/*    clean up the environment because we are freeing the storage     */
-/*--------------------------------------------------------------------*/
-
-static void delete_environment( char **envp )
-{
-   int subscript = 0;
-
-   while ( envp[subscript] != NULL )
-   {
-      char *equal = strchr(envp[subscript]  , '=' );
-      *++equal = '\0';        /* Terminate the string                 */
-      if (putenv( envp[subscript] ))
-      {
-         printmsg(0,"Unable to reset environment \"%s\"",envp[subscript]);
-         panic();
-      }
-      free( envp[subscript++] );
-   }
-
-   free( envp );
-} /* delete_environment */
-
 
 /*--------------------------------------------------------------------*/
 /*    d o _ c o p y                                                   */
@@ -1680,14 +1650,13 @@ static boolean MailStatus(char *tempfile,
                           char *subject)
 {
    boolean status;
-   char **envp;
    char buf[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
 /*                            Invoke RMAIL                            */
 /*--------------------------------------------------------------------*/
 
-   envp = create_environment( "uucp", NULL );
+   create_environment( "" );
 
    strcpy(buf, "-w -f " );
    strcat(buf, tempfile );
@@ -1700,8 +1669,6 @@ static boolean MailStatus(char *tempfile,
    strcat( buf, address );
 
    status = execute( RMAIL, buf, NULL, NULL, TRUE, FALSE );
-
-   delete_environment( envp );
 
 /*--------------------------------------------------------------------*/
 /*                       Report errors, if any                        */
