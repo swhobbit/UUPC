@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.22 1994/03/05 21:12:05 ahd Exp $
+ *    $Id: mail.c 1.23 1994/03/07 06:09:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.23  1994/03/07  06:09:51  ahd
+ * Add memory temporary mailbox for mail internal use
+ *
  * Revision 1.22  1994/03/05  21:12:05  ahd
  * Initialize variable to suppress compiler warning
  *
@@ -115,7 +118,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.22 1994/03/05 21:12:05 ahd Exp $";
+      "$Id: mail.c 1.23 1994/03/07 06:09:51 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -563,14 +566,26 @@ static void Interactive_Mail( const boolean PrintOnly,
       return;
    }
 
+   if (setvbuf(rmailbox, NULL, _IOFBF, 8192))
+   {
+      printerr( mfilename );
+      panic();
+   }
+
    mboxage = stater( mfilename, &mboxsize );
                               /* Remember mailbox information        */
 
-#if defined(__OS2__) && defined(__IBMC__)
-   tmailbox = "uupcmemr.spb";
+#if defined(__OS2__) && defined(__IBMC__) && defined(SUICIDE)
+   tmailbox = "uupc$box.mem";
    fmailbox = fopen( tmailbox, "wb,type=memory" );
 #else
    fmailbox = FOPEN(tmailbox, "w", IMAGE_MODE);
+
+   if ( setvbuf(fmailbox, NULL, _IOFBF, 8192) )
+   {
+      printerr( tmailbox );
+      panic();
+   }
 #endif
 
    if ( fmailbox == NULL )
@@ -586,8 +601,6 @@ static void Interactive_Mail( const boolean PrintOnly,
 /*                 Copy real mailbox to temporary one                 */
 /*--------------------------------------------------------------------*/
 
-   setvbuf(rmailbox, NULL, _IOFBF, 8192);
-   setvbuf(fmailbox, NULL, _IOFBF, 8192);
 
    letternum = CreateBox(rmailbox, fmailbox, tmailbox);
 
