@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.62 1995/02/20 00:38:04 ahd Exp $
+ *    $Id: configur.c 1.63 1995/02/20 17:28:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.63  1995/02/20 17:28:43  ahd
+ *    Add rnewspanic option
+ *    Various compiler warning clean up
+ *
  *    Revision 1.62  1995/02/20 00:38:04  ahd
  *    news index caching support
  *
@@ -446,6 +450,7 @@ FLAGTABLE configFlags[] = {
  { "monocase",                F_ONECASE,               B_GLOBAL},
  { "multiqueue",              F_MULTI,                 B_GLOBAL},
  { "multitask",               F_MULTITASK,             B_GLOBAL},
+ { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "nns",                     F_NNS,                   B_GLOBAL},
  { "newspanic",               F_NEWSPANIC,             B_GLOBAL},
  { "senddebug",               F_SENDDEBUG,             B_GLOBAL},

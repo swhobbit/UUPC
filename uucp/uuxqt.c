@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.43 1995/02/20 00:40:12 ahd Exp $
+ *    $Id: uuxqt.c 1.44 1995/02/20 17:28:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.44  1995/02/20 17:28:43  ahd
+ *    in-memory file support, 16 bit compiler clean up
+ *
  *    Revision 1.43  1995/02/20 00:40:12  ahd
  *    Correct C compiler warnings
  *
@@ -1381,7 +1384,7 @@ static int shell(char *command,
 
    if ( result == 0 )
       xflag[E_NORMAL] = KWTrue;
-   else if ( equal(cmdname, RNEWS) && bflag[F_RNEWSPANIC] )
+   else if ( equal(cmdname, RNEWS) && bflag[F_NEWSPANIC] )
                            /* Did command execution fail?            */
    {
       printmsg(0,"shell: command %s returned error code %d",
