@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------*/
 /*       m a i l . c                                                  */
 /*                                                                    */
-/*       Mailer User-Agent (UA)                                       */
+/*       UUPC/extended Mailer User-Agent (NUA)                        */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.19 1994/02/25 03:17:43 ahd Exp $
+ *    $Id: mail.c 1.20 1994/02/26 17:18:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.20  1994/02/26  17:18:40  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.19  1994/02/25  03:17:43  ahd
  * Allow configurable ignore and reply to search lists
  *
@@ -105,7 +108,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.19 1994/02/25 03:17:43 ahd Exp $";
+      "$Id: mail.c 1.20 1994/02/26 17:18:40 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -183,7 +186,8 @@ static void Interactive_Mail( const boolean PrintOnly,
 
 static void    IncludeNew( const char *target, const char *user);
 
-static void    PrintSubject(int msgnum, int letternum);
+static void    PrintSubject(const int msgnum,
+                            const int letternum);
 
 static void    UpdateMailbox(int letternum, boolean postoffice);
 
@@ -546,7 +550,8 @@ static void Interactive_Mail( const boolean PrintOnly,
 /*               Open real and temporary mailbox files                */
 /*--------------------------------------------------------------------*/
 
-   if ((rmailbox = FOPEN(mfilename, "r",TEXT_MODE)) == nil(FILE)) {
+   if ((rmailbox = FOPEN(mfilename, "r",TEXT_MODE)) == nil(FILE))
+   {
       printf("No mail in %s\n", mfilename);
       return;
    }
@@ -605,7 +610,8 @@ static void Interactive_Mail( const boolean PrintOnly,
 
    modified = postoffice && (!PrintOnly);
 
-   if (PrintOnly) {
+   if (PrintOnly)
+   {
       int j = 0;
       while (j < letternum)
       {
@@ -1061,28 +1067,30 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 /*--------------------------------------------------------------------*/
 
    int letternum = 0;
-   boolean inheader = FALSE;
-   long position;
+   boolean inHeader = FALSE;
    char line[LSIZE];
    char **list;
    size_t replyprior = 0;
    size_t dateprior = 0;
    size_t subjectprior = 0;
    size_t fromprior = 0;
+   int current;
 
-   struct ldesc *letter = NULL;
+   while ((fgets(line, LSIZE, rmailbox) != nil(char)) )
+   {
 
-   while ((fgets(line, LSIZE, rmailbox) != nil(char)) ){
-
-      if (inheader)
+      if (inHeader)
       {
          if (*line == '\n')
-            inheader = FALSE;
-      }  /* inheader */
+            inHeader = FALSE;
+      }  /* inHeader */
       else {               /* Determine if starting new message   */
+
          if (equal(line,MESSAGESEP) ||
             (bflag[F_FROMSEP] && equaln(line, "From ", 5)))
          {
+             long position;
+
              while (equal(line,MESSAGESEP))
              if (fgets(line, LSIZE, rmailbox) == NULL)
              {
@@ -1094,36 +1102,40 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 /*               Make the mailbox bigger if we need to                */
 /*--------------------------------------------------------------------*/
 
+            current = letternum++;
+
              position = ftell(fmailbox);
-             if ( (letternum+1) == maxletters )
+             if ( letternum == maxletters )
              {
                maxletters = max((int) ((maxletters * mboxsize) / position),
                                  (letternum * 11) / 10 );
                printmsg(2,"Reallocating mailbox array from %d to %d entries",
-                     letternum+1, maxletters );
+                     current,
+                     maxletters );
                letters = realloc( letters, maxletters *  sizeof(letters[0]));
                checkref( letters );
              }
 
 /*--------------------------------------------------------------------*/
-/*             Initialize this entry in th mailbox array              */
+/*             Initialize this entry in the mailbox array             */
 /*--------------------------------------------------------------------*/
 
-             letter = &letters[letternum++];
-
              fromprior = subjectprior = replyprior = dateprior = INT_MAX;
-             letter->from = letter->subject = letter->date =
-                  letter->replyto = MISSING;
-             letter->adr = position;
-             letter->status = M_UNREAD;
-             letter->lines = 0L;
-             inheader = TRUE;
-             printf("Reading message %d (%d%% done)\r",letternum,
+             letters[current].from    = MISSING;
+             letters[current].subject = MISSING;
+             letters[current].date    = MISSING;
+             letters[current].replyto = MISSING;
+             letters[current].adr     = position;
+             letters[current].status  = M_UNREAD;
+             letters[current].lines   = 0L;
+             inHeader = TRUE;
+
+             printf("Reading message %d (%d%% done)\r",
+                        letternum,
                         (int) (position * 100 / mboxsize));
          }
-         else
-         {
-            if(letter == NULL)   /* Did we find first letter?     */
+         else {
+            if( ! letternum )    /* Did we find first letter?     */
             {                    /* No --> Abort with message     */
                fprintf(stderr,"%s  %s\n\a",
                   "This mailbox is not in UUPC/extended format!",
@@ -1133,11 +1145,11 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
                panic();
             } /* if */
 
-            letter->lines++;
+            letters[current].lines++;
          } /* else */
       } /* else */
 
-      if (inheader)
+      if (inHeader)
       {
          size_t priority = 0;
 
@@ -1150,7 +1162,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
             if (equalni(line, datelist[priority],
                              strlen(datelist[priority]) ) )
             {
-               letter->date = ftell(fmailbox);
+               letters[current].date = ftell(fmailbox);
                dateprior = priority;
             }
             priority++;
@@ -1167,7 +1179,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
             if (equalni(line, subjectlist[priority],
                              strlen(subjectlist[priority]) ) )
             {
-               letter->subject = ftell(fmailbox);
+               letters[current].subject = ftell(fmailbox);
                subjectprior = priority;
             }
             priority++;
@@ -1184,7 +1196,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
             if (equalni(line, list[priority],
                              strlen(list[priority]) ) )
             {
-               letter->from = ftell(fmailbox);
+               letters[current].from = ftell(fmailbox);
                fromprior = priority;
             }
             priority++;
@@ -1201,12 +1213,12 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
             if (equalni(line, E_replyToList[priority],
                              strlen(E_replyToList[priority]) ) )
             {
-               letter->replyto = ftell(fmailbox);
+               letters[current].replyto = ftell(fmailbox);
                replyprior = priority;
             } /* if */
             priority++;
          }  /* while */
-      } /* inheader */
+      } /* inHeader */
 
       if (fputs(line, fmailbox) == EOF )
       {
@@ -1216,7 +1228,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 
    } /* while */
 
-   letters[letternum].adr = ftell(fmailbox);
+   letters[letternum].adr    = ftell(fmailbox);
    letters[letternum].status = M_DELETED;
 
    fclose(rmailbox);
@@ -1232,67 +1244,80 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 /*    Print the subject line of one or all messages in the mailbox    */
 /*--------------------------------------------------------------------*/
 
-void PrintSubject(int msgnum,int letternum)
+void PrintSubject(const int msgnum,
+                  const int letternum)
 {
-   struct ldesc *ld;
-   char from[LSIZE];
+   char from[MAXADDR];
    char subject[LSIZE];
    char date[LSIZE];
    char line[LSIZE];
 
-   int k, mink, maxk;
+   int current, mink, maxk;
 
    if (msgnum == -1)
    {                                         /* print all of them? */
-      sprintf(line," %d messages in file %s.\n",letternum,mfilename);
+      sprintf(line," %d messages in file %s.\n",
+              letternum,
+              mfilename);
       PageLine(line);
       mink = 0;
       maxk = letternum - 1;
-   } else
+   }
+   else
       mink = maxk = msgnum;
 
-   for (k = mink ; k <= maxk ; k++) {
+   for (current = mink ; current <= maxk ; current++)
+   {
 
-      ld = &letters[k];
-      if ((ld->status == M_DELETED) && (msgnum == -1))
+      if ((letters[current].status == M_DELETED) && (msgnum == -1))
          continue;
 
-      ReturnAddress(from,ld);       /* Get return address for letter */
+      memset(from,'?',sizeof from );
+
+      ReturnAddress(from, letters[current].from);
 
       /* Date: Wed May 13 23:59:53 1987 */
       *date = '\0';  /* default date to null */
-      if (RetrieveLine(ld->date, date, LSIZE)) {
+
+      if (RetrieveLine(letters[current].date, date, LSIZE))
+      {
          sscanf(date, "%*s %*s %s %s", line, subject);
          sprintf(date, "%s %s", line, subject);
       }
 
       strcpy(subject, "--- no subject ---");
-      if (RetrieveLine(ld->subject, line, LSIZE)) {
-         register char  *sp;
-         sp = line;
-         while (!isspace(*sp))
+
+      if (RetrieveLine(letters[current].subject, line, LSIZE))
+      {
+         register char  *sp = line;
+
+         while (*sp && !isspace(*sp))
             sp++;
+
          while (isspace(*sp))
             sp++;
+
          strcpy(subject, sp);
       }
 
-      /* make sure the fields aren't too long */
+/*--------------------------------------------------------------------*/
+/*                    Format the line and print it                    */
+/*--------------------------------------------------------------------*/
 
-      from[25] = '\0';
-      date[6] = '\0';
-      subject[30] = '\0';
-
-      sprintf(line, "%3d%c %6s  %-25s  %-30s  (%5ld)\n", k + 1,
-         ((ld->status == M_DELETED) ? '*' : ' '),
-            date, from, subject, ld->lines);
+      sprintf(line, "%3d%c %6.6s  %-25.25s  %-30.30s  (%5ld)\n",
+         current + 1,
+         ((letters[current].status == M_DELETED) ? '*' : ' '),
+         date,
+         from,
+         subject,
+         letters[current].lines);
 
       if (PageLine(line))
          break;
 
-   }
+   } /* for (current = mink ; k <= maxk ; current++) */
 
-} /*PrintSubject*/
+} /* PrintSubject */
 
 /*--------------------------------------------------------------------*/
 /*    U p d a t e  M a i l b o x                                      */
@@ -1388,7 +1413,9 @@ void UpdateMailbox(int letternum, boolean postoffice)
          default:
             printf("%c - Invalid Response\n",c);
             break;
+
       } /* switch */
+
    } /* while ( problem ) */
 
 /*--------------------------------------------------------------------*/
@@ -1414,7 +1441,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
 /*                    Begin re-writing the mailbox                    */
 /*--------------------------------------------------------------------*/
 
-   if ((fmailbag = FOPEN(mfilename, "w",TEXT_MODE)) == nil(FILE))
+   if ((fmailbag = FOPEN(mfilename, "w", TEXT_MODE)) == nil(FILE))
    {
       printf("UpdateMailbox: can't rewrite %s.\n", mfilename);
       Cleanup();
@@ -1471,6 +1498,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
       } /* else */
 
    } /* for */
+
    fputs(" done!\n", stdout);
 
 /*--------------------------------------------------------------------*/
@@ -1526,5 +1554,7 @@ static void usage( void )
    puts("\nUsage:\tmail [-s subject] recipient ... "
          "[-c recipient ...] [-b receipient ...]\n"
          "\tmail [-f mailbox] [-u user] [-t] [-p] [-x debug]");
+
    exit(1);
-}
+
+}  /* usage */
