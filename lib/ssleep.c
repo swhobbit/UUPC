@@ -15,13 +15,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header$
+ *    $Header: E:\SRC\UUPC\LIB\RCS\SSLEEP.C 1.1 1992/11/16 05:00:26 ahd Exp $
  *
  *    Revision history:
- *    $Log$
+ *    $Log: SSLEEP.C $
+ * Revision 1.1  1992/11/16  05:00:26  ahd
+ * Initial revision
+ *
  */
-
-static char rcsid[] = "$Id$";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -74,6 +75,7 @@ currentfile();
 
 #ifndef FAMILYAPI
 #define MULTIPLEX 0x2F
+#define DESQVIEW 0x15
 
 #ifdef _Windows
 
@@ -115,8 +117,10 @@ void WindowsDelay( int milliseconds )
 /*                      Local function declares                       */
 /*--------------------------------------------------------------------*/
 
-static void GiveUpTimeSlice(void);
+static void WinGiveUpTimeSlice(void);
 static int RunningUnderWindows(void);
+static int RunningUnderDesqview(void);
+static void DVGiveUpTimeSlice(void);
 
 /*--------------------------------------------------------------------*/
 /*              Use this first to see if the rest are OK              */
@@ -174,13 +178,13 @@ static int RunningUnderWindows(void)
 } /* RunningUnderWindows */
 
 /*--------------------------------------------------------------------*/
-/*    G i v e U p T i m e S l i c e                                   */
+/*    W i n G i v e U p T i m e S l i c e                             */
 /*                                                                    */
 /*    Surrender our time slice when executing under Windows/386       */
 /*    or Windows release 3.                                           */
 /*--------------------------------------------------------------------*/
 
-static void GiveUpTimeSlice(void)
+static void WinGiveUpTimeSlice(void)
 {
    union REGS inregs, outregs;
    int irq = MULTIPLEX;
@@ -191,7 +195,66 @@ static void GiveUpTimeSlice(void)
       printmsg(0,"Problem giving up timeslice:  %u\n", outregs.h.al);
       panic();
    }
-} /* GiveUpTimeSlice */
+} /* WinGiveUpTimeSlice */
+
+/*--------------------------------------------------------------------*/
+/*    R u n n i n g U n d e r D e s q v i e w                         */
+/*                                                                    */
+/*    Returns TRUE if running under that OTHER DOS multi-tasker.      */
+/*--------------------------------------------------------------------*/
+
+static int RunningUnderDesqview(void)
+{
+   static int result = 2;
+   union REGS inregs, outregs;
+
+   if (result != 2)           /* First call?                         */
+      return result;          /* No --> Return saved result          */
+
+   inregs.x.ax = 0x2B01;      /* Dos Set Date function */
+   inregs.x.cx = 0x4445;      /* CX DX = 'DESQ' */
+   inregs.x.dx = 0x5351;
+
+   intdos(&inregs, &outregs);
+   if (outregs.h.al == 0x7f) {
+      result = 0;
+   } else {
+        printmsg(2, "RunningUnderDesqview:  Running under DesqView");
+      result = 1;
+   }
+
+   return result;
+
+} /* RunningUnderDesqview */
+
+/*--------------------------------------------------------------------*/
+/*    D V G i v e U p T i m e S l i c e                               */
+/*                                                                    */
+/*    Surrender the CPU under DesqView                                */
+/*--------------------------------------------------------------------*/
+
+static void DVGiveUpTimeSlice(void)
+{
+#ifdef __TURBOC__
+   asm {
+#else
+   _asm \
+      {
+#endif
+      push ax
+      mov ax, 101AH
+                              /* Switch over to Desqview's stack  */
+      int     15H
+      mov ax, 1000H
+                              /* Give up the timeslice            */
+      int     15H
+      mov ax, 1025H
+                              /* Switch stack back to application */
+      int     15H
+      pop ax
+      }
+
+} /* DVGiveUpTimeSlice */
 
 #endif /* _Windows */
 #endif /* WIN32 */
@@ -210,7 +273,7 @@ void ssleep(time_t interval)
    time_t left = interval;
 
 /*--------------------------------------------------------------------*/
-/*            Bring the spin into chunk ddelay can handle             */
+/*            Break the spin into chunks ddelay can handle            */
 /*--------------------------------------------------------------------*/
 
    while ( (left*1000L) > (long) INT_MAX )
@@ -318,7 +381,9 @@ void   ddelay   (int milliseconds)
 #else
 
       if (RunningUnderWindows())
-         GiveUpTimeSlice( );
+         WinGiveUpTimeSlice( );
+      else if (RunningUnderDesqview())
+         DVGiveUpTimeSlice();
 
 #endif
       return;
@@ -337,7 +402,9 @@ void   ddelay   (int milliseconds)
 
 #else
       if (RunningUnderWindows())
-         GiveUpTimeSlice();
+         WinGiveUpTimeSlice();
+      else if (RunningUnderDesqview())
+         DVGiveUpTimeSlice();
       else {
 
 #ifdef __TURBOC__
