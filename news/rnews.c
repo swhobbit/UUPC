@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.13 1993/07/31 16:26:01 ahd Exp $
+ *       $Id: rnews.c 1.14 1993/09/20 04:41:54 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.14  1993/09/20  04:41:54  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.13  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -76,7 +79,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.13 1993/07/31 16:26:01 ahd Exp $";
+         "$Id: rnews.c 1.14 1993/09/20 04:41:54 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1171,7 +1174,7 @@ static void copy_file(FILE *input,
 
       if ( ! header )
          ;                 // No operation after end of header
-      if ( *buf == '\n' )
+      else if ( *buf == '\n' )
          header = FALSE;
       else if (equalni(buf, "Path:", strlen("Path:")))
       {
