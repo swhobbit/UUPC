@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.23 1994/03/07 06:09:51 ahd Exp $
+ *    $Id: mail.c 1.24 1994/03/09 01:55:39 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.24  1994/03/09  01:55:39  ahd
+ * Sanity check setvbuf() calls, and don't use setvbuf() if creating
+ * memory files
+ *
  * Revision 1.23  1994/03/07  06:09:51  ahd
  * Add memory temporary mailbox for mail internal use
  *
@@ -118,7 +122,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.23 1994/03/07 06:09:51 ahd Exp $";
+      "$Id: mail.c 1.24 1994/03/09 01:55:39 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -134,7 +138,10 @@
 
 #ifdef _Windows
 #include <windows.h>
-#include <alloc.h>
+#endif
+
+#ifndef BIT32ENV
+#include <malloc.h>        /* _fmalloc, etc.                         */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -179,11 +186,9 @@ static boolean useto = FALSE;
 
 FILE *fmailbox;
 
-#define MAXLETTERS   100
+static int maxLetters = 100;     /* Initial value only            */
 
-static int maxletters = MAXLETTERS;
-
-struct  ldesc *letters;
+struct ldesc UUFAR  *letters;
 
 /*--------------------------------------------------------------------*/
 /*                       Local procedure names                        */
@@ -594,7 +599,12 @@ static void Interactive_Mail( const boolean PrintOnly,
       return;
    }
 
-   letters = calloc(maxletters,sizeof(letters[0]));
+#ifdef BIT32ENV
+      letters = malloc( maxLetters * sizeof *letters);
+#else
+      letters = _fmalloc( maxLetters * sizeof *letters);
+#endif
+
    checkref(letters);
 
 /*--------------------------------------------------------------------*/
@@ -620,7 +630,12 @@ static void Interactive_Mail( const boolean PrintOnly,
 /*        Shrink mailbox status array to what we actually need        */
 /*--------------------------------------------------------------------*/
 
-   letters = realloc( letters, (letternum + 1) *  sizeof(letters[0]));
+#ifdef BIT32ENV
+      letters = realloc( letters, (letternum + 1) * sizeof *letters);
+#else
+      letters = _frealloc( letters, (letternum + 1) * sizeof *letters);
+#endif
+
    checkref(letters);
 
    fmailbox = FOPEN(tmailbox, "r", IMAGE_MODE);
@@ -983,8 +998,6 @@ static void Interactive_Mail( const boolean PrintOnly,
    if (modified)
       UpdateMailbox(letternum, postoffice);
 
-   free(letters);
-
 } /*Interactive_Mail*/
 
 /*--------------------------------------------------------------------*/
@@ -1130,14 +1143,19 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
             current = letternum++;
 
              position = ftell(fmailbox);
-             if ( letternum == maxletters )
+             if ( letternum == maxLetters )
              {
-               maxletters = max((int) ((maxletters * mboxsize) / position),
+               maxLetters = max((int) ((maxLetters * mboxsize) / position),
                                  (letternum * 11) / 10 );
-               printmsg(2,"Reallocating mailbox array from %d to %d entries",
+               printmsg(2,"\nReallocating mailbox array from %d to %d entries",
                      current,
-                     maxletters );
-               letters = realloc( letters, maxletters *  sizeof(letters[0]));
+                     maxLetters );
+
+#ifdef BIT32ENV
+               letters = realloc( letters, maxLetters * sizeof *letters);
+#else
+               letters = _frealloc( letters, maxLetters * sizeof *letters);
+#endif
                checkref( letters );
              }
 
