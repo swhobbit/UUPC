@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *       $Id: smtplwc.c 1.6 1997/11/28 23:11:38 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.6  1997/11/28 23:11:38  ahd
+ *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *       Revision 1.5  1997/11/28 04:52:10  ahd
  *       Initial UUSMTPD OS/2 support
  *
@@ -53,7 +56,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.5 1997/11/28 04:52:10 ahd Exp $");
+RCSID("$Id: smtplwc.c 1.6 1997/11/28 23:11:38 ahd Exp $");
 
 currentfile();
 
@@ -91,7 +94,7 @@ commandAccept(SMTPClient *master,
 
    } /* if (client != NULL) */
 
-   incrementClientMajorTransaction(master, 1);
+   incrementClientMajorTransaction(master);
    return KWTrue;
 
 } /* commandAccept */

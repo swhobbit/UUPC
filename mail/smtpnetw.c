@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpnetw.c 1.6 1997/11/28 23:11:38 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.6  1997/11/28 23:11:38  ahd
+ *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *    Revision 1.5  1997/11/28 04:52:10  ahd
  *    Initial UUSMTPD OS/2 support
  *
@@ -61,7 +64,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.5 1997/11/28 04:52:10 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.6 1997/11/28 23:11:38 ahd Exp $");
 
 currentfile();
 
@@ -189,7 +192,7 @@ SMTPGetLine(SMTPClient *client)
            (client->receive.used < 6) &&
            equalni(client->receive.data, "QUIT", 4))
       {
-         printmsg(2, "%s: Client %d requires CR/LF after QUIT",
+         printmsg(1, "%s: Client %d requires CR/LF after QUIT",
                      mName,
                      getClientSequence(client));
          strcpy(client->receive.data + 4, crlf);
@@ -311,7 +314,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
                           (code < 0) ? - code : code,
                           (code < 0) ? '-' : ' ');
 
-   }
+   } /* switch(code) */
 
    printmsg(2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
 
@@ -956,6 +959,14 @@ selectReadySockets(SMTPClient *master)
 /*--------------------------------------------------------------------*/
 /*             Perform actual selection and check for errors          */
 /*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
+   printmsg(5, "%s: Selecting total of %d sockets (through %d) for timeout of %d seconds",
+               mName,
+               nSelected,
+               maxSocket,
+               (long) timeoutPeriod.tv_sec );
+#endif
 
    nReady = select(maxSocket, &readfds, NULL, NULL, &timeoutPeriod);
 

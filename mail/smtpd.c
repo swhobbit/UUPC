@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.5 1997/11/28 04:52:10 ahd Exp $
+ *    $Id: smtpd.c 1.6 1997/11/28 23:11:38 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.6  1997/11/28 23:11:38  ahd
+ *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *    Revision 1.5  1997/11/28 04:52:10  ahd
  *    Initial UUSMTPD OS/2 support
  *
@@ -64,7 +67,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.5 1997/11/28 04:52:10 ahd Exp $");
+RCSID("$Id: smtpd.c 1.6 1997/11/28 23:11:38 ahd Exp $");
 
 currentfile();
 
@@ -78,13 +81,24 @@ int
 clientMode( int hotHandle, KWBoolean runUUXQT )
 {
 
-   SMTPClient *client = initializeClient( (SOCKET) hotHandle, KWFalse );
+   static const char mName[] = "clientMode";
+   SMTPClient *client;
+
+   printmsg(1, "%s: Entering single client mode for handle %d",
+               mName,
+               hotHandle );
+
+   client = initializeClient( (SOCKET) hotHandle, KWFalse );
 
    if ( client == NULL )
       return 4;
 
    while( isClientValid( client ))
-      processClient( client );
+   {
+      flagReadyClientList( client );
+      timeoutClientList( client );
+      processReadyClientList( client );
+   }
 
    freeClient( client );
 
@@ -121,7 +135,7 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
       flagReadyClientList( master );
       timeoutClientList( master );
       processReadyClientList( master );
-      dropTerminatedClientList( master );
+      dropTerminatedClientList( master->next );
 
    } /* while( ! terminate_processing && isClientValid( master )) */
 

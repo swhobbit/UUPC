@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.3 1997/11/26 03:34:11 ahd v1-12t $
+ *       $Id: smtprecv.c 1.4 1997/11/28 23:11:38 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.4  1997/11/28 23:11:38  ahd
+ *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *       Revision 1.3  1997/11/26 03:34:11  ahd
  *       Correct SMTP timeouts, break out protocol from rest of daemon
  *
@@ -50,7 +53,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.3 1997/11/26 03:34:11 ahd v1-12t $");
+RCSID("$Id: smtprecv.c 1.4 1997/11/28 23:11:38 ahd Exp $");
 
 currentfile();
 
@@ -445,7 +448,7 @@ commandPeriod(SMTPClient *client,
    SMTPResponse(client, verb->successResponse, client->transmit.data);
                                     /* Let client continue on        */
 
-   incrementClientMajorTransaction( client, 1 );
+   incrementClientMajorTransaction( client );
    return KWTrue;
 
 } /* commandPeriod */

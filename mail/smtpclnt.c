@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.6 1997/11/28 04:52:10 ahd Exp $
+ *       $Id: smtpclnt.c 1.7 1997/11/28 23:11:38 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.7  1997/11/28 23:11:38  ahd
+ *       Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
+ *
  *       Revision 1.6  1997/11/28 04:52:10  ahd
  *       Initial UUSMTPD OS/2 support
  *
@@ -51,6 +54,7 @@
 
 #include <limits.h>
 #include <ctype.h>
+#include <process.h>
 
 /*--------------------------------------------------------------------*/
 /*                    Global defines and variables                    */
@@ -58,7 +62,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.6 1997/11/28 04:52:10 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.7 1997/11/28 23:11:38 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -79,6 +83,7 @@ initializeClient(SOCKET handle, KWBoolean master)
 
    client->sequence = ++clientSequence;
    setClientProcess(client, KWTrue);
+   client->connectTime = client->lastTransactionTime = time(NULL);
 
    if (terminate_processing)
       setClientMode(client, SM_EXITING);
@@ -101,8 +106,11 @@ initializeClient(SOCKET handle, KWBoolean master)
          return NULL;
       }
    }
-   else
+   else {
+      InitWinsock();
+      client->sequence = getpid();
       setClientHandle(client, handle);
+   }
 
    if (! getHostNameFromSocket(&client->connection))
    {
@@ -129,8 +137,6 @@ initializeClient(SOCKET handle, KWBoolean master)
    memset(client->transmit.data, 0, client->transmit.length);
    memset(client->receive.data, 0, client->receive.length);
 #endif
-
-   client->connectTime = client->lastTransactionTime = time(NULL);
 
    printmsg(1, "%s: Client %d accepted from %s",
                mName,
@@ -159,8 +165,8 @@ initializeMaster(const char *portName, time_t exitTime)
    master->sequence = ++clientSequence;
 
    setClientMode(master, SM_MASTER);
-
    setClientHandle(master, openMaster(portName));
+   master->connectTime = master->lastTransactionTime = time(NULL);
 
    if (getClientHandle(master) == INVALID_SOCKET)
    {
@@ -169,8 +175,6 @@ initializeMaster(const char *portName, time_t exitTime)
       free(master);
       return NULL;
    }
-
-   master->connectTime = master->lastTransactionTime = time(NULL);
 
    if (exitTime)
       master->terminationTime = exitTime;
@@ -485,7 +489,8 @@ getClientMode(const SMTPClient *client)
 /*       Count major transactions (mail delivers, etc) for client     */
 /*--------------------------------------------------------------------*/
 
-void incrementClientMajorTransaction(SMTPClient *client)
+void
+incrementClientMajorTransaction(SMTPClient *client)
 {
    client->majorTransactions++;
 }
@@ -496,7 +501,8 @@ void incrementClientMajorTransaction(SMTPClient *client)
 /*       Report major transactions for client                         */
 /*--------------------------------------------------------------------*/
 
-size_t getClientMajorTransaction(SMTPClient *client)
+size_t
+getClientMajorTransaction(SMTPClient *client)
 {
    return client->majorTransactions;
 }
