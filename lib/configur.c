@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.5 1993/01/23 19:08:09 ahd Exp $
+ *    $Header: E:\src\uupc\LIB\RCS\CONFIGUR.C 1.6 1993/03/06 22:48:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: CONFIGUR.C $
+ *     Revision 1.6  1993/03/06  22:48:23  ahd
+ *     Don't fall off end of shorter tables
+ *
  *     Revision 1.5  1993/01/23  19:08:09  ahd
  *     Add Windows/NT to allowed environments
  *
@@ -108,6 +111,8 @@ char *E_tempdir = NULL;
 char *E_version = NULL;
 char *E_uncompress = NULL;
 static char *dummy = NULL;
+INTEGER E_priority = -99;
+INTEGER E_prioritydelta = -99;
 
 INTEGER E_maxhops = 20;                                     /* ahd */
 
@@ -138,10 +143,10 @@ static CONFIGTABLE envtable[] = {
    {"aliases",      &E_aliases,      B_TOKEN|B_MUA},
    {"altsignature", &E_altsignature, B_TOKEN|B_MUA},
    {"anonymouslogin",
-                    &E_anonymous,   B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
-   {"archivedir",   &E_archivedir,   B_REQUIRED|B_GLOBAL|B_PATH|B_NEWS},
+                    &E_anonymous,    B_GLOBAL|B_TOKEN|(B_ALL & ~ B_MAIL)},
+   {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
    {"backupext",    &E_backup,       B_TOKEN|B_MUA},
-   {"confdir",      &E_confdir,      B_REQUIRED|B_GLOBAL|B_PATH|B_ALL},
+   {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
    {"charset",      &E_charset,      B_TOKEN|B_GLOBAL|B_SPOOL},
    {"domain",       &E_domain,       B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"editor",       &E_editor,       B_STRING|B_MUA|B_NEWS},
@@ -155,25 +160,29 @@ static CONFIGTABLE envtable[] = {
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
    {"mailbox",      &E_mailbox,      B_REQUIRED|B_TOKEN|B_ALL},
    {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
-   {"maildir",      &E_maildir,      B_REQUIRED|B_GLOBAL|B_PATH|B_MAIL},
+   {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"maximumhops",  (char **) &E_maxhops,
                                      B_MTA | B_INTEGER | B_GLOBAL},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
-   {"newsdir",      &E_newsdir,      B_REQUIRED|B_GLOBAL|B_PATH|B_NEWS},
-   {"newsserv",     &E_newsserv,     B_GLOBAL|B_PATH|B_NEWS},
+   {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
+   {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
    {"nodename",     &E_nodename,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"options",      (char **) bflag, B_ALL|B_BOOLEAN},
    {"organization", &E_organization, B_STRING|B_MAIL|B_NEWS},
    {"pager",        &E_pager,        B_STRING|B_MUA|B_NEWS},
    {"path",         &E_uuxqtpath,    B_STRING|B_UUXQT|B_GLOBAL},
    {"postmaster",   &E_postmaster,   B_REQUIRED|B_GLOBAL|B_TOKEN|B_MTA},
-   {"pubdir",       &E_pubdir,       B_REQUIRED|B_GLOBAL|B_PATH|B_SPOOL},
+   {"pubdir",       &E_pubdir,       B_GLOBAL|B_PATH|B_ALL},
+   {"priority",     (char **) &E_priority,
+                                     B_INTEGER |B_UUCICO},
+   {"prioritydelta",(char **) &E_prioritydelta,
+                                     B_INTEGER |B_UUCICO},
    {"replyto",      &E_replyto,      B_TOKEN|B_MAIL|B_NEWS},
    {"signature",    &E_signature,    B_TOKEN|B_MUA|B_NEWS},
-   {"spooldir",     &E_spooldir,     B_REQUIRED|B_GLOBAL|B_PATH|B_SPOOL|B_NEWS},
-   {"tempdir",      &E_tempdir,      B_REQUIRED|B_GLOBAL|B_PATH|B_ALL},
+   {"spooldir",     &E_spooldir,     B_GLOBAL|B_PATH|B_ALL},
+   {"tempdir",      &E_tempdir,      B_GLOBAL|B_PATH|B_ALL},
    {"uncompress",   &E_uncompress,   B_GLOBAL|B_STRING|B_NEWS },
    {"version",      &E_version,      B_TOKEN|B_INSTALL},
    {"rmail",        &dummy,          B_OBSOLETE },
@@ -445,8 +454,6 @@ boolean getconfig(FILE *fp,
    char buff[BUFSIZ];
    char *cp;
 
-
-
    while(!(fgets(buff, sizeof buff, fp) == nil(char))) {
 
 /*--------------------------------------------------------------------*/
@@ -546,6 +553,11 @@ boolean configure( CONFIGBITS program)
    char *sysrc, *usrrc;
    FILE *fp;
    boolean success;
+   char buf[BUFSIZ];
+   int subscript = 0;
+   char *s;
+
+   CONFIGTABLE *tptr;
 
    static char *envlist[] = { "EDITOR",   "EDITOR",
                               "HOME",     "HOME",
@@ -555,9 +567,20 @@ boolean configure( CONFIGBITS program)
                               "TMP",      "TEMPDIR",
                               NULL } ;
 
-   int subscript = 0;
+   typedef struct _DEFAULTS {
+      char **value;
+      char *literal;
+   } DEFAULTS;
 
-   CONFIGTABLE *tptr;
+   static DEFAULTS deflist[] = {
+        {&E_archivedir,   "archive" },
+        {&E_maildir,      "mail"    },
+        {&E_newsdir,      "news"    },
+        {&E_pubdir,       "public"  },
+        {&E_spooldir,     "spool"   },
+        {&E_tempdir,      "tmp"     },
+        { NULL  }
+        } ;
 
 /*--------------------------------------------------------------------*/
 /*                  Determine the active environment                  */
@@ -579,17 +602,33 @@ boolean configure( CONFIGBITS program)
 
    while( envlist[subscript] != NULL )
    {
-      char *s = getenv( envlist[subscript++] );
+      s = getenv( envlist[subscript++] );
 
       if (s != NULL )
       {
-         char buf[BUFSIZ];
          sprintf(buf,"%s=%s",envlist[subscript], s );
          processconfig( buf, SYSTEM_CONFIG, program, envtable, configFlags);
       } /* if (sysrc != NULL ) */
 
       subscript++;            /* Step to next environment var in list   */
    }
+
+/*--------------------------------------------------------------------*/
+/*          Determine configuration directory from UUPCSYSRC          */
+/*--------------------------------------------------------------------*/
+
+   E_confdir = normalize( sysrc );     // Make 'em all slashes
+
+   s = strrchr( E_confdir, '/' );      // Get end of path component
+   if ( s == NULL )                    // There WAS one, right?
+   {                                   // Er, no, sorry.
+      printmsg(0,"No path name in UUPCSYSRC: %s", sysrc);
+      panic();
+   }
+
+   *s = '\0';                          // Terminate for Config Directory
+   E_confdir = newstr( E_confdir );    // Save in permanent pool
+   printmsg(5,"Configuration directory is %s", E_confdir );
 
 /*--------------------------------------------------------------------*/
 /*               Process the system configuration file                */
@@ -613,6 +652,13 @@ boolean configure( CONFIGBITS program)
 
    if (usrrc != nil(char))
    {
+      if ((strchr( usrrc , '/' ) == NULL ) &&   // Have a path?
+          (strchr( usrrc , '\\' ) == NULL ))
+      {                                         // No --> Give it one
+         mkfilename( buf, E_confdir , usrrc );  // Default is Config Dir
+         usrrc = buf;               // Point at new (full) User Rc file
+      }
+
       if ((fp = FOPEN(usrrc, "r", TEXT)) == nil(FILE))
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
@@ -633,10 +679,9 @@ boolean configure( CONFIGBITS program)
         (program != B_MTA) &&
         isatty(fileno(stdout)))
       fprintf(stdout,
-"Changes Copyright (c) 1989 by Andrew H. Derbyshire.  Changes and\n"
-"Compilation Copyright (c) 1990-%s by Kendra Electronic Wonderworks.  May\n"
-"be freely distributed if original documentation and source is included.\n",
-              &compiled[7]);
+"Changes and Compilation Copyright (c) 1990-1993 by Kendra Electronic\n"
+"Wonderworks.  May be freely distributed if original documentation and\n"
+"source is included.\n" );
 
 /*--------------------------------------------------------------------*/
 /*          Validate that all required parameters were given          */
@@ -654,6 +699,21 @@ boolean configure( CONFIGBITS program)
       } /* if */
 
    } /* for */
+
+/*--------------------------------------------------------------------*/
+/*                     Fill in derived parameters                     */
+/*--------------------------------------------------------------------*/
+
+   subscript = 0;
+   while( deflist[subscript].value != NULL )
+   {
+      if ( *(deflist[subscript].value) == NULL )
+      {
+         mkfilename( buf, E_confdir, deflist[subscript].literal);
+         *(deflist[subscript].value) = newstr( buf );
+      }
+      subscript++;
+   }
 
    return success;
 
