@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.13 1998/04/24 03:30:13 ahd v1-13a $
+ *       $Id: smtprecv.c 1.14 1998/05/08 02:42:15 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.14  1998/05/08 02:42:15  ahd
+ *       Initialize client transaction data structure after allocation
+ *       Free client transaction data structure at cleanup
+ *
  *       Revision 1.13  1998/04/24 03:30:13  ahd
  *       Use local buffers, not client->transmit.buffer, for output
  *       Rename receive buffer, use pointer into buffer rather than
@@ -88,7 +92,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.13 1998/04/24 03:30:13 ahd v1-13a $");
+RCSID("$Id: smtprecv.c 1.14 1998/05/08 02:42:15 ahd Exp $");
 
 currentfile();
 
@@ -154,6 +158,8 @@ commandMAIL(SMTPClient *client,
    char response[MAXADDR];
    char xmitBuf[XMIT_LENGTH];
    KWBoolean ourProblem;
+   size_t lenHost;
+   size_t lenDomain;
 
    if (! stripAddress(operands[0], response))
    {
@@ -185,6 +191,7 @@ commandMAIL(SMTPClient *client,
       printmsg(0,"%s: Internal error, client %d transaction already allocated",
                  mName,
                  getClientSequence(client));
+      cleanupTransaction(client);
    }
 
    client->transaction = malloc(sizeof *(client->transaction));
@@ -199,17 +206,39 @@ commandMAIL(SMTPClient *client,
                malloc(sizeof client->transaction->address[0] *
                        client->transaction->addressLength);
    checkref(client->transaction->address);
+   client->transaction->localSender = ourProblem;
+
+/*--------------------------------------------------------------------*/
+/*       Check true name of host to see if it is a local relay        */
+/*--------------------------------------------------------------------*/
+
+   lenHost = strlen(client->connection.hostName);
+   lenDomain  = strlen(E_localdomain);
+
+   if ((lenDomain >= lenHost) &&
+       (equal(client->connection.hostName, "localhost") ||
+        equal(E_localdomain,
+              client->connection.hostName + lenHost - lenDomain)))
+   {
+      client->transaction->localRelay = KWTrue;
+      printmsg(8,"%s: Client %s is a considered local relay.",
+                  mName,
+                  client->connection.hostName );
+
+   } /* if ((lenDomain >= lenHost) && ... */
 
 /*--------------------------------------------------------------------*/
 /*           We're ready for the addressee list, ask for it           */
 /*--------------------------------------------------------------------*/
 
    sprintf(xmitBuf,
-           "%s Sender Address okay, specify receiver addresses",
-           client->transaction->sender);
+           "%s Sender Address okay (%s), specify receiver addresses",
+           client->transaction->sender,
+           response);
+
    SMTPResponse(client,
-                 verb->successResponse,
-                 xmitBuf );
+                verb->successResponse,
+                xmitBuf );
    return KWTrue;
 
 } /* commandMAIL */
@@ -255,6 +284,22 @@ commandRCPT(SMTPClient *client,
                operands[0],
                response);
       SMTPResponse(client, SR_PE_BAD_MAILBOX, xmitBuf);
+      return KWFalse;
+   }
+
+
+/*--------------------------------------------------------------------*/
+/*      Don't relay for third parties unless explicitly allowed       */
+/*--------------------------------------------------------------------*/
+
+   if (!(ourProblem ||
+         bflag[F_PROMISCUOUSRELAY] ||
+         client->transaction->localRelay))
+   {
+      sprintf(xmitBuf,
+              "%s: Relaying for third-party denied by site policy",
+              operands[0] );
+      SMTPResponse(client, SR_PE_NOT_POLICY, xmitBuf);
       return KWFalse;
    }
 
@@ -378,7 +423,7 @@ commandDataInput(SMTPClient *client,
    if ( stringLength < lineLength)
    {
       SMTPResponse(client,
-                    SR_PE_TEMP_SYNTAX,
+                    SR_PE_SYNTAX,
                     "Data contains Null (0x00) characters");
 
       printmsg(0,"%s: NULL in data after %d characters, "
