@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.33 1994/08/08 00:21:00 ahd Exp $
+ *    $Id: execute.c 1.34 1994/10/02 20:47:38 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.34  1994/10/02  20:47:38  ahd
+ * Correct processing for synchronous command
+ *
  * Revision 1.33  1994/08/08  00:21:00  ahd
  * Further OS/2 cleanup
  *
@@ -807,9 +810,9 @@ static int executeAsync( const char *command,
 #endif
 
 /*--------------------------------------------------------------------*/
-/*            Special case foreground synchronous commands            */
+/*       Special case foreground synchronous commands; this           */
+/*       insures redirected input is processed properly.              */
 /*--------------------------------------------------------------------*/
-
 
    if ( synchronous )
    {
@@ -846,7 +849,9 @@ static int executeAsync( const char *command,
                         SSF_CONTROL_MAXIMIZE : SSF_CONTROL_MINIMIZE);
 
 /*--------------------------------------------------------------------*/
-/*          Build the queue to listen for the subtask ending          */
+/*       Build the queue to listen for the subtask ending.  This      */
+/*       code is actually correct, but ignored since we returned      */
+/*       after spawn() above.                                         */
 /*--------------------------------------------------------------------*/
 
    if ( synchronous )
@@ -972,12 +977,10 @@ int executeAsync( const char *command,
       strcat( path, parameters );
    }
 
-   if (!synchronous)
-      fdwCreate = CREATE_NEW_CONSOLE;
-   else if (synchronous && foreground)
-      fdwCreate = CREATE_NEW_CONSOLE;
-   else
+   if (synchronous)
       fdwCreate = 0;
+   else
+      fdwCreate = CREATE_NEW_CONSOLE;
 
    result = CreateProcess(NULL,
                           path,
@@ -1037,6 +1040,6 @@ int executeAsync( const char *command,
 
    return result;
 
-} /* execute */
+} /* executeAsync */
 
 #endif
