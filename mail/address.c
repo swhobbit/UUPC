@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.11 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: address.c 1.12 1994/02/21 16:38:58 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ * Revision 1.12  1994/02/21  16:38:58  ahd
+ * Don't terminate address parsing on a quoted comment
+ *
  * Revision 1.11  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -107,7 +110,7 @@ void user_at_node(const char *raddress,
    if ( strlen( raddress ) >= MAXADDR )
    {
       printmsg(0,"Unable to process %d length address: %s",
-            strlen(raddress) , raddress );
+            strlen(raddress), raddress );
       panic();
    }
 
@@ -314,7 +317,7 @@ static char *rfc_route( char *tptr, char **nptr, char **pptr )
    {
       *nptr = strtok(++tptr,",:");  /* First token is path/node       */
       tptr = strtok(NULL,""); /* Second has rest, including user id   */
-      *pptr = HostPath( *nptr , *pptr );
+      *pptr = HostPath( *nptr, *pptr );
                               /* Determine actual path                */
       printmsg(9,"rfc_route: RFC-822 explicit path: "
                   "\"%s\" routed via \"%s\" is via \"%s\"",
@@ -386,7 +389,7 @@ char *HostAlias( char *input)
 /*                        Announce our results                        */
 /*--------------------------------------------------------------------*/
 
-   printmsg( 5 , "HostAlias: \"%s\" is alias of \"%s\"",
+   printmsg( 5, "HostAlias: \"%s\" is alias of \"%s\"",
                   input,
                   hostp->realname);
 
@@ -466,7 +469,7 @@ char *HostPath( char *input, char *best)
 
    hostp->via = HostPath( hostp->via, best );
 
-   printmsg( 5 ,"HostPath: \"%s\" routed via \"%s\"", input, hostp->via);
+   printmsg( 5, "HostPath: \"%s\" routed via \"%s\"", input, hostp->via);
 
    return hostp->via;
 
@@ -480,7 +483,7 @@ char *HostPath( char *input, char *best)
 /*--------------------------------------------------------------------*/
 
 char *ExtractAddress(char *result,
-                    const char *input ,
+                    const char *input,
                     FULLNAME fullname)
 {
    char *nonblank = NULL;
@@ -631,6 +634,7 @@ char *ExtractAddress(char *result,
 
       state = newstate;
       column++;
+
    } /* while */
 
 /*--------------------------------------------------------------------*/
@@ -684,7 +688,7 @@ char *ExtractAddress(char *result,
 
       if ( strlen( nameptr ) >= MAXADDR )
       {
-         printmsg(0,"ExtractAddress: Truncating name %s" , nameptr);
+         printmsg(0,"ExtractAddress: Truncating name %s", nameptr);
          nameptr[ MAXADDR - 1 ] = '\0';
       }
 
@@ -696,11 +700,12 @@ char *ExtractAddress(char *result,
                         MAXADDR-6, addr );
             panic();
          }
+
          nameptr[ MAXADDR - len - 6] = '\0';
-         sprintf( result , "\"%s\" <%s>", nameptr, addr );
+         sprintf( result, "\"%s\" <%s>", nameptr, addr );
       }
       else
-         strncpy(result,nameptr, MAXADDR);
+         strncpy(result, nameptr, MAXADDR);
 
    } /* else */
 
