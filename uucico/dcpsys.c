@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.43 1995/01/07 16:38:39 ahd Exp $
+ *     $Id: dcpsys.c 1.44 1995/01/09 12:35:15 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.44  1995/01/09 12:35:15  ahd
+ *     Correct VC++ compiler warnings
+ *
  *     Revision 1.43  1995/01/07 16:38:39  ahd
  *     Change boolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -1029,7 +1032,7 @@ char nextGrade( const char grade )
    if ( saveGrade > grade )
       return '\0';
    else {
-      printmsg(2,"nextGrade: Processing %c grade files", saveGrade );
+      printmsg(2,"nextGrade: Processing grade %c files", saveGrade );
       return saveGrade;
    }
 
