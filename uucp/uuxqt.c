@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.63 1999/01/08 02:21:01 ahd Exp $
+ *    $Id: uuxqt.c 1.64 2000/05/12 12:32:55 ahd v1-13g $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.64  2000/05/12 12:32:55  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.63  1999/01/08 02:21:01  ahd
  *    Convert currentfile() to RCSID()
  *
@@ -62,170 +65,6 @@
  *    Revision 1.55  1997/04/24 01:41:35  ahd
  *    Annual Copyright Update
  *
- *    Revision 1.54  1996/01/01 21:34:38  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.53  1995/09/24 19:10:36  ahd
- *    Correct compiler warning
- *
- *    Revision 1.52  1995/09/11 00:20:45  ahd
- *    Use "--" on RMAIL commands to prevent destructive behavior from
- *    untrusted nodes, make loop to process overlength RMAIL lines
- *    simpler.
- *
- *    Revision 1.51  1995/07/21 13:18:16  ahd
- *    Correct scope of loop for rmail deliveries
- *
- *    Revision 1.50  1995/03/12 16:42:24  ahd
- *    Don't pass NULL pointers to file delete routines, they get annoyed
- *
- *    Revision 1.49  1995/03/11 22:31:15  ahd
- *    Use macro for file delete to allow special OS/2 processing
- *
- *    Revision 1.48  1995/03/08 03:01:54  ahd
- *    Always pass debuglevel to rnews under OS/2 to avoid C/Set++
- *    bug with spawns for with no program args
- *
- *    Revision 1.47  1995/02/25 18:21:44  ahd
- *    Don't require MAILSERV to be defined
- *
- *    Revision 1.46  1995/02/22 02:31:30  ahd
- *    Don't redirect output unless asked to by remote
- *
- *    Revision 1.45  1995/02/20 18:54:08  ahd
- *    news panic support
- *
- *    Revision 1.44  1995/02/20 17:28:43  ahd
- *    in-memory file support, 16 bit compiler clean up
- *
- *    Revision 1.43  1995/02/20 00:40:12  ahd
- *    Correct C compiler warnings
- *
- *    Revision 1.42  1995/02/12 23:37:04  ahd
- *    compiler cleanup, NNS C/news support, optimize dir processing
- *
- *    Revision 1.41  1995/01/07 16:42:05  ahd
- *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
- *
- *    Revision 1.40  1994/12/22 00:45:25  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.39  1994/10/23 23:29:44  ahd
- *    Be consistent in use of flags to execute() for foreground
- *    control.
- *
- * Revision 1.38  1994/10/03  01:01:25  ahd
- * Run programs foreground (drop silly OS/2 hack)
- *
- * Revision 1.37  1994/08/07  21:45:09  ahd
- * Correct selected changes in host title
- *
- * Revision 1.36  1994/03/05  21:12:05  ahd
- * Use standard name for NUL device
- *
- * Revision 1.35  1994/02/26  17:21:25  ahd
- * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
- *
- * Revision 1.34  1994/02/19  05:16:25  ahd
- * Use standard first header
- *
- * Revision 1.33  1994/01/06  12:45:33  ahd
- * Correct error message via mail when file is rejected
- *
- * Revision 1.32  1994/01/01  19:28:03  ahd
- * Annual Copyright Update
- *
- * Revision 1.31  1993/12/23  03:17:55  rommel
- * OS/2 32 bit support for additional compilers
- *
- * Revision 1.30  1993/12/23  01:52:33  ahd
- * Security enhancements
- *
- * Revision 1.29  1993/12/06  23:12:15  ahd
- * Use pair of buffers for setting requestor environment variable
- *
- * Revision 1.28  1993/12/06  01:59:07  ahd
- * Delete all unneeded environment variable resets to reduce
- * environment mangling
- *
- * Revision 1.27  1993/11/13  17:43:26  ahd
- * Update command line limit of RMAIL for 32 bit operating systems
- *
- * Revision 1.26  1993/11/06  13:04:13  ahd
- * Don't use more than 8 characters in XQT directory name
- *
- * Revision 1.25  1993/10/31  19:04:03  ahd
- * Use special name for NUL under Windows NT
- *
- * Revision 1.24  1993/10/30  17:23:37  ahd
- * Drop extra tzset() call
- *
- * Revision 1.23  1993/10/30  17:19:50  rhg
- * Additional clean up for UUX support
- *
- * Revision 1.22  1993/10/24  21:51:14  ahd
- * Drop unmigrated changes
- *
- * Revision 1.21  1993/10/24  19:42:48  rhg
- * Generalized support for UUX'ed commands
- *
- * Revision 1.20  1993/10/24  12:48:56  ahd
- * Trap RNEWS bad return code
- *
- * Revision 1.19  1993/10/12  01:34:47  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.18  1993/10/03  22:10:24  ahd
- * Use signed for length of parameters
- *
- * Revision 1.17  1993/10/03  20:43:08  ahd
- * Normalize comments to C++ double slash
- *
- * Revision 1.16  1993/09/29  23:29:56  ahd
- * Add xqtrootdir for UUXQT
- *
- * Revision 1.15  1993/09/20  04:48:25  ahd
- * TCP/IP support from Dave Watt
- * 't' protocol support
- * OS/2 2.x support (BC++ 1.0 for OS/2)
- *
- * Revision 1.14  1993/08/03  03:35:58  ahd
- * Correct path pointer to initialized variable
- *
- * Revision 1.13  1993/08/03  03:11:49  ahd
- * Initialize buffer for shell() in non-Windows environment
- *
- * Revision 1.12  1993/07/31  16:27:49  ahd
- * Changes in support of Robert Denny's Windows support
- *
- * Revision 1.11  1993/07/24  03:40:55  ahd
- * Agressively trap carriage returns at ends of lines (from X.* files
- * being edited by elves with DOS editors!)
- *
- * Revision 1.10  1993/07/20  21:45:37  ahd
- * Don't delete file after -2 abort from UUXQT
- *
- * Revision 1.9  1993/06/26  16:01:48  ahd
- * Normalize white space used to parse strings
- *
- * Revision 1.8  1993/06/13  14:06:00  ahd
- * Correct off-by-one error in RMAIL arg parse loop which crashed UUXQT
- * on long system names
- *
- * Revision 1.7  1993/04/11  00:35:46  ahd
- * Global edits for year, TEXT, etc.
- *
- * Revision 1.6  1993/04/05  04:35:40  ahd
- * Use timestamp/file size information returned by directory search
- *
- * Revision 1.5  1992/11/25  12:59:17  ahd
- * Change NUL to /dev/nul to prevent ImportPath() mangling.
- *
- * Revision 1.4  1992/11/23  03:56:06  ahd
- * Selected fixes for use of generlized uux commands
- *
- * Revision 1.3  1992/11/19  03:03:33  ahd
- * drop rcsid
  */
 
 /*--------------------------------------------------------------------*/
@@ -264,13 +103,14 @@
 #include "security.h"
 #include "timestmp.h"
 #include "usertabl.h"
+#include "stater.h"
 #include "uundir.h"
 
 #ifdef _Windows
 #include "winutil.h"
 #endif
 
-RCSID("$Id: uuxqt.c 1.63 1999/01/08 02:21:01 ahd Exp $");
+RCSID("$Id: uuxqt.c 1.64 2000/05/12 12:32:55 ahd v1-13g $");
 
 /*--------------------------------------------------------------------*/
 /*                      Execution flag defines                        */
@@ -318,7 +158,8 @@ static KWBoolean do_uuxqt( const char *sysname );
 
 static void process( const char *fname,
                      const char *remote,
-                     const char *executeDirectory);
+                     const char *executeDirectory,
+                     const time_t hostStartTime);
 
 static void create_environment(const char *requestor);
 
@@ -506,9 +347,11 @@ static KWBoolean do_uuxqt( const char *sysname )
 {
    struct HostTable *hostp;
    static char uu_machine[] = UU_MACHINE "=";
+   static char uuxqt_cookie_name[] = "UUXQT_COOKIE" "=";
    char hostenv[sizeof uu_machine + 25 + 2];
    char executeDirectory[FILENAME_MAX];
    char *pattern;
+   time_t hostStartTime = time(NULL);
 
 /*--------------------------------------------------------------------*/
 /*                 Determine if we have a valid host                  */
@@ -591,7 +434,10 @@ static KWBoolean do_uuxqt( const char *sysname )
          {
             if ( locked || LockSystem( hostp->hostname , B_UUXQT ))
             {
-               process( fname , hostp->hostname, executeDirectory );
+               process(fname,
+                       hostp->hostname,
+                       executeDirectory,
+                       hostStartTime);
                locked = KWTrue;
             }
             else
@@ -632,7 +478,8 @@ static KWBoolean do_uuxqt( const char *sysname )
 
 static void process( const char *eXecFileName,
                      const char *remote,
-                     const char *executeDirectory)
+                     const char *executeDirectory,
+                     const time_t hostStartTime)
 {
    char *command = NULL,
         *inputName = NULL,
@@ -1011,29 +858,44 @@ static void process( const char *eXecFileName,
       reject = xflag[F_CORRUPT] = KWTrue;
    }
 
+   if ( user == NULL )
+   {
+      user = strdup("uucp"); /* User if none given              */
+      checkref(user);
+   }
+
+   if ( machine == NULL )
+   {
+      machine = strdup( remote );
+      checkref( machine );
+   }
+
+   if (requestor == NULL)
+   {
+      requestor = strdup(user);
+      checkref(requestor);
+   }
+
+/*--------------------------------------------------------------------*/
+/*      Don't retry SMTP rmail multiple times in one UUXQT session    */
+/*--------------------------------------------------------------------*/
+
+   if (!skip &&
+       equal(remote, E_nodename) &&
+       (stater(eXecFileName, NULL) > hostStartTime) &&
+       equalni(command,"rmail ", 6))
+   {
+      printmsg(1,"Skipping very new X.* file %s this pass",
+               eXecFileName);
+      skip = KWTrue;
+   }
+
 /*--------------------------------------------------------------------*/
 /*           We have the data for this command; process it            */
 /*--------------------------------------------------------------------*/
 
    if ( !skip )
    {
-      if ( user == NULL )
-      {
-         user = strdup("uucp"); /* User if none given              */
-         checkref(user);
-      }
-
-      if ( machine == NULL )
-      {
-         machine = strdup( remote );
-         checkref( machine );
-      }
-
-      if (requestor == NULL)
-      {
-         requestor = strdup(user);
-         checkref(requestor);
-      }
 
 /*--------------------------------------------------------------------*/
 /*       Taylor/GNU uuxqt seems to check for both READ and WRITE      */
