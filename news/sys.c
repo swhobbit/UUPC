@@ -72,10 +72,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.17 1995/02/20 17:28:43 ahd v1-12n $
+ *    $Id: sys.c 1.18 1995/03/07 23:38:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.18  1995/03/07 23:38:22  ahd
+ *    Add (missing) maximum hop support
+ *
  *    Revision 1.17  1995/02/20 17:28:43  ahd
  *    in-memory file support, 16 bit compiler clean up
  *
@@ -909,10 +912,14 @@ KWBoolean match(char *group, char *pattern, int *iSize)
 
   while (bMatch && (t1 != NULL) && (t3 != NULL))
   {
+
     t2 = strchr(t1, '.');
+
     if (t2 != NULL)
       *t2 = 0;
+
     t4 = strchr(t3, '.');
+
     if (t4 != NULL)
       *t4 = 0;
 
@@ -924,16 +931,20 @@ KWBoolean match(char *group, char *pattern, int *iSize)
 
     if (equal(t3, "all"))
       *iSize += 8;
-    else
+    else {
       if (equal(t1, t3))
         *iSize += 10;
       else
         bMatch = KWFalse;
+    }
 
     t3 = t4;
+
     if (t3 != NULL)
       *t3++ = '.';
+
     t1 = t2;
+
     if (t1 != NULL)
       *t1++ = '.';
   }
@@ -968,7 +979,7 @@ KWBoolean match(char *group, char *pattern, int *iSize)
 
 KWBoolean newsgroups(char *list, char *groups)
 {
-  char    *t1, *t2, *t3, *t4;
+  char *currentGroup = groups;
   KWBoolean bMatch, bNoMatch, bNot, success;
   int     iMatch, iNoMatch, iSize;
 
@@ -979,57 +990,103 @@ KWBoolean newsgroups(char *list, char *groups)
   bMatch = KWFalse;
   bNoMatch = KWFalse;
 
-  t1 = groups;
-  while (t1 != NULL)
+/*--------------------------------------------------------------------*/
+/*          Outer loop to walk list of provided news groups           */
+/*--------------------------------------------------------------------*/
+
+  while (currentGroup != NULL)
   {
-    t2 = strchr(t1, ',');
-    if (t2 != NULL)
-      *t2 = 0;
+    char *sysGroup = list;          /* Group(s) in SYS file to match */
 
-    while (isspace(*t1))
-      t1++;
+    char *next = strchr(currentGroup, ',');
+                                    /* Actually, comma preceding
+                                       next group, if any            */
 
-    t3 = list;
-    while (t3 != NULL)
+    if (next != NULL)
+      *next = '\0';                 /* Terminate current group name  */
+
+    while (isspace(*currentGroup))
+      currentGroup++;               /* Trim leading space            */
+
+/*--------------------------------------------------------------------*/
+/*       Inner loop to walk our SYS file list of groups for single    */
+/*       group out of provided list                                   */
+/*--------------------------------------------------------------------*/
+
+    while (sysGroup != NULL)
     {
-      t4 = strchr(t3, ',');
-      if (t4 != NULL)
-        *t4 = 0;
 
-      if (*t3 == '!')
+      char *sysNext = strchr(sysGroup, ',');
+                                    /* Actually, comma preceding
+                                       next SYS file group, if any   */
+
+      if (sysNext != NULL)
+        *sysNext = 0;
+
+      if (*sysGroup == '!')
       {
          bNot = KWTrue;
-         t3++;
+         sysGroup++;
       }
       else
          bNot = KWFalse;
 
-      if (match(t1, t3, &iSize))
+      if (match(currentGroup, sysGroup, &iSize))
+      {
         if (bNot)
         {
           bNoMatch = KWTrue;
+
           if (iSize > iNoMatch)
             iNoMatch = iSize;
         }
         else {
           bMatch = KWTrue;
+
           if (iSize > iMatch)
             iMatch = iSize;
         }
-      t3 = t4;
-      if (t3 != NULL)
-        *t3++ = ',';
-    }
-    t1 = t2;
-    if (t1 != NULL)
-      *t1++ = ',';
-  }
+
+#ifdef UDEBUG
+        printmsg(7, "newsgroups: %smatch %s to %s, "
+                    "iSize =%d, iMatch = %d, iNoMatch = %d",
+                    (char *) ((bNot) ? "mis" : "" ),
+                    currentGroup,
+                    sysGroup,
+                    iSize,
+                    iMatch,
+                    iNoMatch );
+#endif
+
+      } /* if (match(currentGroup, sysGroup, &iSize)) */
+
+      sysGroup = sysNext;
+
+      if (sysGroup != NULL)
+        *sysGroup++ = ',';
+
+    } /* while (sysGroup != NULL) */
+
+    currentGroup = next;
+
+    if (currentGroup != NULL)
+      *currentGroup++ = ',';
+
+  } /* while (currentGroup != NULL) */
+
+/*--------------------------------------------------------------------*/
+/*                  Summarize results and it to caller                */
+/*--------------------------------------------------------------------*/
+
+#ifdef UDEBUG
 
   if (bMatch)
     printmsg(7, "newsgroups: match found, size is %d", iMatch);
 
   if (bNoMatch)
     printmsg(7, "newsgroups: mismatch found, size is %d", iNoMatch);
+
+#endif
 
   if ( bMatch && (!bNoMatch || (iMatch > iNoMatch)) )
      success = KWTrue;
