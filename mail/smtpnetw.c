@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.19 1998/04/27 01:45:15 ahd v1-13a $
+ *    $Id: smtpnetw.c 1.20 1998/05/11 01:20:48 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.20  1998/05/11 01:20:48  ahd
+ *    Length line of trace messages in log
+ *
  *    Revision 1.19  1998/04/27 01:45:15  ahd
  *    Revamp bufferring for larger buffers
  *
@@ -115,7 +118,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.19 1998/04/27 01:45:15 ahd v1-13a $");
+RCSID("$Id: smtpnetw.c 1.20 1998/05/11 01:20:48 ahd Exp $");
 
 currentfile();
 
@@ -766,7 +769,7 @@ SOCKET
 openSlave(SOCKET pollingSock)
 {
    static const char mName[] = "openSlave";
-   int bufferSize = 48 * 1024;
+   int bufferSize = 31 * 1024;
 
    SOCKET connectedSock = accept(pollingSock, NULL, NULL);
 
