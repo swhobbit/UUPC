@@ -9,10 +9,13 @@
 /* todo: moderated groups, shadow systems delivery */
 
 static char *rcsid =
-"$Id: INEWS.C 1.1 1993/10/30 11:40:00 rommel Exp $";
-static char *rcsrev = "$Revision: 1.1 $";
+"$Id: inews.c 1.2 1993/10/31 11:58:18 ahd Exp $";
+static char *rcsrev = "$Revision: 1.2 $";
 
-/* $Log: INEWS.C $
+/* $Log: inews.c $
+ * Revision 1.2  1993/10/31  11:58:18  ahd
+ * Delete unneeded tzset()
+ *
  * Revision 1.1  1993/10/30  11:40:00  rommel
  * Initial revision
  * */
@@ -42,6 +45,7 @@ static char *rcsrev = "$Revision: 1.1 $";
 #include "timestmp.h"
 #include "execute.h"
 #include "arpadate.h"
+#include "hostable.h"
 
 currentfile();
 
@@ -50,8 +54,8 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 static void usage( void );
-static int complete_header(FILE *input, FILE *output);
-static int remote_news(FILE *article);
+static int complete_header(FILE *input, FILE *output, char *origin);
+static int remote_news(FILE *article, char *origin);
 static int spool_news(char *sysname, FILE *article, char *command);
 
 /*--------------------------------------------------------------------*/
@@ -66,6 +70,7 @@ void main( int argc, char **argv)
   extern int   optind;
   int c;
   char tempname[FILENAME_MAX];  /* temporary input file     */
+  char origin[BUFSIZ];
   FILE *article;
 
 /*--------------------------------------------------------------------*/
@@ -110,6 +115,9 @@ void main( int argc, char **argv)
       break;
     }
 
+   if ( E_newsserv == NULL )
+      E_newsserv = E_mailserv;
+
 /*--------------------------------------------------------------------*/
 /*                             Initialize                             */
 /*--------------------------------------------------------------------*/
@@ -131,7 +139,7 @@ void main( int argc, char **argv)
     panic();
   }
 
-  if (complete_header(stdin, article) == -1)
+  if (complete_header(stdin, article, origin) == -1)
     panic();
 
   fclose(article);
@@ -140,10 +148,10 @@ void main( int argc, char **argv)
 /*                     spool for remote delivery                      */
 /*--------------------------------------------------------------------*/
 
-  printmsg(1, "Spooling news from %s via %s", E_mailbox, E_mailserv);
+  printmsg(1, "Spooling news from %s via %s", E_mailbox, E_newsserv);
 
   article = FOPEN(tempname, "r", TEXT_MODE);
-  remote_news(article);
+  remote_news(article, origin);
   fclose(article);
 
 /*--------------------------------------------------------------------*/
@@ -191,20 +199,33 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
   return -1;
 } /* get_header */
 
-static int complete_header(FILE *input, FILE *output)
+static int complete_header(FILE *input, FILE *output, char *origin)
 {
-  char buf[256], *ptr;
+  char buf[BUFSIZ], *ptr, *sys;
   time_t now;
-  int OK;
+  int OK, i;
   unsigned lines = 0;
   char *X_fdomain = E_fdomain ? E_fdomain : E_domain;
 
   time(&now);
 
   if (get_header(input, buf, sizeof(buf), "Path:") == -1)
-    fprintf(output,"Path: %s!%s\n", E_domain, E_mailbox);
+  {
+    strcpy(origin, X_fdomain);
+    fprintf(output,"Path: %s!%s\n", X_fdomain, E_mailbox);
+  }
   else
-    fprintf(output,"Path: %s!%s", E_domain, buf + 6);
+  {
+    for (ptr = buf + 5; isspace(*ptr); ptr++);
+    for (i = 0, sys = ptr; *sys && !isspace(*sys) && *sys != '!'; i++, sys++)
+      origin[i] = *sys;
+    origin[i] = 0;
+
+    if (equali(origin, X_fdomain)) /* is our system is already there? */
+      fputs(buf, output);  /* yes (perhaps from a site hidden behind us) */
+    else
+      fprintf(output,"Path: %s!%s", X_fdomain, ptr); /* else append ours */
+  }
 
   if (get_header(input, buf, sizeof(buf), "From:") == -1)
     fprintf(output,"From: %s@%s (%s)\n", E_mailbox, X_fdomain, E_name);
@@ -241,7 +262,11 @@ static int complete_header(FILE *input, FILE *output)
   fputs(buf, output);
 
   if (get_header(input, buf, sizeof(buf), "Message-ID:") == -1)
-    fprintf(output, "Message-ID: <%lx.%s@%s>\n", now, E_nodename, E_domain);
+  {
+    for (i = 0; i < (int) strlen(E_nodename); i++)
+      sprintf(buf + i * 2, "%02x", E_nodename[i] & 0x5F);
+    fprintf(output, "Message-ID: <%lx.%s@%s>\n", now, buf, X_fdomain);
+  }
   else
     fputs(buf, output);
 
@@ -298,6 +323,70 @@ static int complete_header(FILE *input, FILE *output)
   return 0;
 } /* complete_header */
 
+/*--------------------------------------------------------------------*/
+/*    H o s t A l i a s                                               */
+/*                                                                    */
+/*    Resolve a host alias to its real canonized name                 */
+/*--------------------------------------------------------------------*/
+
+char *HostAlias( char *input)
+{
+   struct HostTable *hostp;
+
+   hostp = checkname(input);
+
+/*--------------------------------------------------------------------*/
+/*     If nothing else to look at, return original data to caller     */
+/*--------------------------------------------------------------------*/
+
+   if (hostp == BADHOST)
+      return input;
+
+/*--------------------------------------------------------------------*/
+/*       If the entry has no alias and is not a real system, it's     */
+/*       a routing entry and we should ignore it.                     */
+/*--------------------------------------------------------------------*/
+
+   if ((hostp->hstatus == phantom) && ( hostp->realname == NULL ))
+      return input;
+
+/*--------------------------------------------------------------------*/
+/*      If we already chased this chain, return result to caller      */
+/*--------------------------------------------------------------------*/
+
+   if (hostp->aliased)
+   {
+      if ( hostp->realname  == NULL )
+      {
+         printmsg(0,"Alias table loop detected with host %s",
+               hostp->hostname);
+      }
+
+      return hostp->realname;
+   } /* if */
+
+   hostp->aliased = TRUE;        /* Prevent limitless recursion       */
+
+/*--------------------------------------------------------------------*/
+/*                  Determine next host in the chain                  */
+/*--------------------------------------------------------------------*/
+
+   if ( hostp->realname == NULL)  /* End of the line?        */
+      hostp->realname = hostp->hostname;
+   else
+      hostp->realname = HostAlias(hostp->realname);
+
+/*--------------------------------------------------------------------*/
+/*                        Announce our results                        */
+/*--------------------------------------------------------------------*/
+
+   printmsg( 5 , "HostAlias: \"%s\" is alias of \"%s\"",
+                  input,
+                  hostp->realname);
+
+   return hostp->realname;
+
+} /* HostAlias */
 
 /*--------------------------------------------------------------------*/
 /*    r e m o t e _ n e w s                                           */
@@ -305,12 +394,12 @@ static int complete_header(FILE *input, FILE *output)
 /*    Transmit news to other systems                                  */
 /*--------------------------------------------------------------------*/
 
-static int remote_news(FILE *article)
+static int remote_news(FILE *article, char *origin)
 {
-  char path[256], buf[256], *sysname;
+  char buf[BUFSIZ], *sysname;
 
   rewind(article);
-  get_header(article, path, sizeof(path), "Path:");
+  origin = HostAlias(origin);
 
   if ( (sysname = getenv("UUPCSHADOWS")) != NULL )
   {
@@ -318,14 +407,14 @@ static int remote_news(FILE *article)
 
     for (sysname = strtok(buf, WHITESPACE); sysname != NULL;
          sysname = strtok(NULL, WHITESPACE))
-      if (strncmp(sysname, path + 6, strlen(sysname)) != 0)
+      if (!equali(HostAlias(sysname), origin))
       {                       /* do not send it to where it came from */
         rewind(article);
         spool_news(sysname, article, "rnews");
       }
   }
 
-  return spool_news(E_mailserv, article,
+  return spool_news(E_newsserv, article,
                     bflag[F_UUPCNEWSSERV] ? "inews" : "rnews");
 }
 
