@@ -1,3 +1,6 @@
+#ifndef _WINUTIL_H
+#define _WINUTIL_H
+
 /*--------------------------------------------------------------------*/
 /*       w i n u t i l . h                                            */
 /*                                                                    */
@@ -21,10 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: winutil.h 1.1 1993/07/22 23:26:19 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: winutil.h $
+ * Revision 1.1  1993/07/22  23:26:19  ahd
+ * Initial revision
  */
 
 extern HTASK hOurTask;           // Our task handle
@@ -33,6 +38,11 @@ extern HINSTANCE _hInstance;     // Defined/set by TCWIN runtime
 
 
 HWND FindTaskWindow(HTASK hTask, LPSTR lpszClassName);
+
 void SetWndFixedFont(HWND hWnd, int nPtSize, char *lfFaceName);
-int SpawnWait(char *cmdLine, UINT fuCmdShow);
+
+int SpawnWait(const char *cmdLine, const UINT fuCmdShow);
+
 void CloseEasyWin(void);
+
+#endif

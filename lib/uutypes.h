@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.6 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: uutypes.h 1.7 1993/07/22 23:26:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.7  1993/07/22  23:26:19  ahd
+ *     First pass of changes for Robert Denny's Windows 3.1 support
+ *
  *     Revision 1.6  1993/06/13  14:12:29  ahd
  *     Changes per Mike McLagan for outbound batched news support
  *
@@ -86,6 +89,7 @@ typedef enum {
                F_SPEEDOVERMEMORY,
                               /* TRUE = Be lazy in strpool()               */
                F_VERBOSE,     /* TRUE = Verbose RMAIL output               */
+               F_WINDOWS,     /* TRUE = Run RMAIL/RNEWS as Windows programs*/
 
 /*--------------------------------------------------------------------*/
 /*                    Per system (GLOBAL) options                     */
