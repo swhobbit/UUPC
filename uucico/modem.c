@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.26 1993/09/29 04:49:20 ahd Exp $
+ *    $Id: modem.c 1.27 1993/09/29 05:25:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.27  1993/09/29  05:25:21  ahd
+ * Correct resetting of raised flag
+ *
  * Revision 1.26  1993/09/29  04:49:20  ahd
  * Allow unique signal handler for suspend port processing
  *
@@ -781,13 +784,16 @@ void shutDown( void )
    if ( !recurse )
    {
       boolean aborted = terminate_processing;
+      unsigned long saveRaised = raised;
       recurse = TRUE;
       terminate_processing = FALSE;
+      raised = 0;
       hangup();
       resetPrty();               // Drop out of hyperspace
       sendlist( dropline, modemTimeout, modemTimeout, NULL);
       recurse = FALSE;
       terminate_processing |= aborted;
+      saveRaised |= raised;
    }
 
    closeline();
