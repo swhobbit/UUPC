@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.8 1993/10/12 00:45:27 ahd Exp $
+  *      $Id: hostable.c 1.9 1994/01/01 19:02:25 ahd Exp $
   *
   *      $Log: hostable.c $
+ *     Revision 1.9  1994/01/01  19:02:25  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.8  1993/10/12  00:45:27  ahd
  *     Normalize comments
  *

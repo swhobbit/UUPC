@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.16 1993/12/29 03:34:37 dmwatt Exp $
+ *    $Id: import.c 1.17 1994/01/01 19:02:46 ahd Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.17  1994/01/01  19:02:46  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.16  1993/12/29  03:34:37  dmwatt
  *     Improve remote Windows NT drive support detection
  *

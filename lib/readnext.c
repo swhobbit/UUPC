@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: readnext.c 1.5 1993/08/26 05:00:25 ahd Exp $
+ *    $Id: readnext.c 1.6 1994/01/01 19:04:31 ahd Exp $
  *
  *    $Log: readnext.c $
+ *     Revision 1.6  1994/01/01  19:04:31  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1993/08/26  05:00:25  ahd
  *     Debugging code for odd failures on J. McBride's network
  *

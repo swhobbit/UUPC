@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkdir.c 1.5 1993/12/23 03:11:17 rommel Exp $
+ *    $Id: mkdir.c 1.6 1994/01/01 19:03:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkdir.c $
+ *     Revision 1.6  1994/01/01  19:03:02  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.5  1993/12/23  03:11:17  rommel
  *     OS/2 32 bit support for additional compilers
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Copyright (c) 1990-1994 by Kendra Electronic Wonderworks.       */
+/*    Copyright (c) 1989-1994 by Kendra Electronic Wonderworks.       */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
 /*    UUPC/extended license agreement.                                */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.14 1993/12/30 02:56:56 dmwatt Exp $
+ *    $Id: nbstime.c 1.15 1994/01/01 19:20:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.15  1994/01/01  19:20:23  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.14  1993/12/30  02:56:56  dmwatt
  * Suppress NT compiler warnings
  *

@@ -12,7 +12,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.H 1.10 1993/10/12 01:35:12 ahd Exp $
+ *    $Id: dcp.h 1.11 1994/01/01 19:22:49 ahd Exp $
  *
- *    $Log: DCP.H $
+ *    $Log: dcp.h $
+ * Revision 1.11  1994/01/01  19:22:49  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.10  1993/10/12  01:35:12  ahd
  * Normalize comments to PL/I style
  *

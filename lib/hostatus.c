@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.8 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: hostatus.c 1.9 1994/01/01 19:02:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.9  1994/01/01  19:02:32  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.8  1993/10/28  12:19:01  ahd
  *     Cosmetic time formatting twiddles and clean ups
  *

@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: FOSSIL.C 1.4 1993/11/06 17:56:09 rhg Exp $
+ *    $Id: fossil.c 1.5 1994/01/01 19:20:01 ahd Exp $
  *
  *    Revision history:
- *    $Log: FOSSIL.C $
+ *    $Log: fossil.c $
+ * Revision 1.5  1994/01/01  19:20:01  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *

@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.12 1993/12/24 05:22:49 ahd Exp $
+ *    $Id: commlib.h 1.13 1994/01/01 19:22:43 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ * Revision 1.13  1994/01/01  19:22:43  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.12  1993/12/24  05:22:49  ahd
  * Use UUFAR pointer for comm buffers
  *

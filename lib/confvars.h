@@ -4,7 +4,7 @@
 /*--------------------------------------------------------------------*/
 /*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
 /*                                                                    */
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.15 1993/12/29 02:48:21 ahd Exp $
+ *    $Id: confvars.h 1.16 1994/01/01 19:07:41 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *     Revision 1.16  1994/01/01  19:07:41  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.15  1993/12/29  02:48:21  ahd
  *     Add V-mail queuing support
  *

@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1990-1994 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1994 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.16 1993/12/26 16:20:17 ahd Exp $
+ *    $Id: commlib.c 1.17 1994/01/01 19:17:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.17  1994/01/01  19:17:54  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.16  1993/12/26  16:20:17  ahd
  * Build int14 version by default under DOS, not articomm
  * Buffer int14 and articomm
