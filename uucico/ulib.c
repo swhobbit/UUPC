@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.22 1993/12/30 03:11:05 ahd Exp $
+ *    $Id: ulib.c 1.23 1994/01/01 19:21:17 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.23  1994/01/01  19:21:17  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.22  1993/12/30  03:11:05  ahd
  * Correct pointer to UUFAR
  *
@@ -317,7 +320,7 @@ unsigned int nsread(char UUFAR *input,
 int nswrite(const char UUFAR *input, unsigned int len)
 {
    unsigned int i;
-   char *data = (char *) input;
+   char UUFAR *data = (char UUFAR *) input;
 
    hangup_needed = TRUE;
 
