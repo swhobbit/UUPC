@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.8 1995/01/14 01:40:50 ahd Exp $
+ *    $Id: imfile.c 1.9 1995/01/14 14:08:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.9  1995/01/14 14:08:59  ahd
+ *    Make sure that 65000 byte limit is processed as long constant
+ *
  *    Revision 1.8  1995/01/14 01:40:50  ahd
  *    Correct test for maximum file length under 16 bit compilers
  *
@@ -308,6 +311,39 @@ int imclose( IMFILE *imf)
    return result;
 
 } /* imclose */
+
+/*--------------------------------------------------------------------*/
+/*       i m c h s i z e                                              */
+/*                                                                    */
+/*       Change size of imfile                                        */
+/*--------------------------------------------------------------------*/
+
+int imchsize( IMFILE *imf, long length )
+{
+
+   if ( length > imf->length )
+      imReserve( imf, length - imf->length );
+
+   if ( imf->buffer == NULL )
+      return chsize( fileno( imf->stream ), length );
+
+   if ( length < 0 )
+   {
+      errno = EINVAL;
+      return -1;
+   }
+
+   if ( length > imf->inUse )
+      memset( imf + imf->inUse, length - imf->inUse, 0 );
+
+   imf->inUse = length;
+
+   if ( imf->position > imf->inUse )
+      imf->position = imf->inUse;
+
+   return 0;
+
+} /* imchsize */
 
 /*--------------------------------------------------------------------*/
 /*    i m p r i n t f                                                 */

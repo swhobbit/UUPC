@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.1 1995/01/07 15:48:31 ahd Exp $
+ *    $Id: imfile.h 1.2 1995/01/08 19:54:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: imfile.h $
+ *    Revision 1.2  1995/01/08 19:54:01  ahd
+ *    Add in-memory files to RMAIL
+ *
  *    Revision 1.1  1995/01/07 15:48:31  ahd
  *    Initial revision
  *
@@ -61,6 +64,8 @@ typedef struct _IMFILE
 
    int     imerror( IMFILE * );
 
+   int     imchsize( IMFILE *imf, long length );
+
    char   *imgets( char *, int, IMFILE * );
 
    int     imputs( const char *, IMFILE * );
@@ -76,6 +81,7 @@ typedef struct _IMFILE
    void    imrewind( IMFILE * );
 
    long    imlength( IMFILE *imf );
+
 
    int     imputc( int, IMFILE * );
 
