@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.6 1995/01/07 20:48:48 ahd Exp $
+ *    $Id: sys.h 1.7 1995/01/08 19:54:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.7  1995/01/08 19:54:01  ahd
+ *    NNS support
+ *
  *    Revision 1.6  1995/01/07 20:48:48  ahd
  *    Correct 16 bit compiler warnings
  *
@@ -65,7 +68,7 @@ typedef struct sys
                                   (supported by UUPC/extended only)   */
       KWBoolean F;             /* Batch, write file name only         */
       KWBoolean J;             /* NSS mode, just write batches w/o
-                                  transimitting them anywhere         */
+                                  transmitting them anywhere          */
       KWBoolean f;             /* Batch, write file name and length   */
       KWBoolean I;             /* Batch, write article message id     */
       KWBoolean n;             /* Batch, write file name and msg ID   */
@@ -84,5 +87,7 @@ void    exit_sys(void);
 extern struct sys *sys_list;
 
 #define OUTGOING_NEWS "going.out"   /* It would be out.going on UNIX or HPFS  */
+
+#define canonical_news_name()    E_nodename
 
 #endif /* _SYS_H */
