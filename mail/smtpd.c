@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.11 1998/03/01 19:40:21 ahd Exp $
+ *    $Id: smtpd.c 1.12 1998/03/03 03:53:54 ahd v1-12v $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.12  1998/03/03 03:53:54  ahd
+ *    Routines to handle messages within a POP3 mailbox
+ *
  *    Revision 1.11  1998/03/01 19:40:21  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -86,7 +89,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.11 1998/03/01 19:40:21 ahd Exp $");
+RCSID("$Id: smtpd.c 1.12 1998/03/03 03:53:54 ahd v1-12v $");
 
 currentfile();
 
@@ -112,12 +115,23 @@ clientMode( int hotHandle, KWBoolean runUUXQT )
    if ( client == NULL )
       return 4;
 
+/*--------------------------------------------------------------------*/
+/*                 Actual processing loop for client                  */
+/*--------------------------------------------------------------------*/
+
    while( isClientValid( client ))
    {
       flagReadyClientList( client );
       timeoutClientList( client );
       processReadyClientList( client );
    }
+
+/*--------------------------------------------------------------------*/
+/*                   Clean up and return to caller                    */
+/*--------------------------------------------------------------------*/
+
+   if ( runUUXQT && getClientQueueRun( client ))
+      executeQueue();
 
    freeClient( client );
 
@@ -154,11 +168,11 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
       flagReadyClientList( master );
       timeoutClientList( master );
       processReadyClientList( master );
-      dropTerminatedClientList( master->next );
+      dropTerminatedClientList( master->next, runUUXQT );
 
    } /* while( ! terminate_processing && isClientValid( master )) */
 
-   dropAllClientList( master );
+   dropAllClientList( master, runUUXQT  );
 
    if ( terminate_processing )
       return 100;
