@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.45 1995/03/23 01:42:52 ahd Exp ahd $
+ *    $Id: rmail.c 1.46 1995/07/21 13:23:19 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.46  1995/07/21 13:23:19  ahd
+ *    Correct wildcard routing for local host to reject mail not actually
+ *    destined to us.
+ *
  *    Revision 1.45  1995/03/23 01:42:52  ahd
  *    Handle empty forward files which result in no delivery more gracefully
  *
@@ -1109,6 +1113,8 @@ static char **Parse822( KWBoolean *header,
                  fromNode,
                  fromUser);      /* Separate portions of the address */
 
+   hostp = checkname( fromNode );   /* Look up real system name      */
+
 #ifdef VERIFY_SENDER
 
 /*--------------------------------------------------------------------*/
@@ -1117,8 +1123,6 @@ static char **Parse822( KWBoolean *header,
 
    if (equal(fromNode,HostAlias(E_fdomain))) /* Same as hidden site? */
       strcpy(fromNode, E_nodename);/* Yes --> Declare as local system */
-
-   hostp = checkname( fromNode );   /* Look up real system name      */
 
    if (!equal(fromUser,E_mailbox) ||
        (hostp == BADHOST) || (hostp->status.hstatus != localhost))
