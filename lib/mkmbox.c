@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.8 1993/06/13 14:12:29 ahd Exp $
+ *    $Id: mkmbox.c 1.2 1993/07/13 01:13:32 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mkmbox.c $
+ *     Revision 1.2  1993/07/13  01:13:32  ahd
+ *     Limit directory names for users to eight characters
+ *
  *
  *       21Nov1991 Break out of hlib.c                         ahd
  */
@@ -51,7 +54,7 @@ char *mkmailbox(char *buf, const char *userid)
 {
    boolean append = ( E_mailext != NULL );
 
-   if (buf == NULL)           /* Do we need to allocate buffer?         */
+   if (buf == NULL)           /* Do we need to allocate buffer?       */
    {
       buf = malloc( FILENAME_MAX );
       checkref(buf);
@@ -67,7 +70,7 @@ char *mkmailbox(char *buf, const char *userid)
       strcpy( tuser, userid );
 
       if (strchr(userid, '.') == NULL )
-         tuser[8] = '\0';        /* Auto-truncate mbox name          */
+         tuser[8] = '\0';        /* Auto-truncate mbox name           */
       else
          append = FALSE;
 

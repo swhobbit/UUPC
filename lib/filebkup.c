@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: E:\SRC\UUPC\LIB\RCS\FILEBKUP.C 1.2 1992/11/19 02:57:51 ahd Exp $
+ *    $Id: FILEBKUP.C 1.3 1993/04/11 00:33:38 dmwatt Exp $
  *
  *    Revision history:
  *    $Log: FILEBKUP.C $
+ *     Revision 1.3  1993/04/11  00:33:38  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/19  02:57:51  ahd
  * drop rcsid
  *
@@ -64,8 +67,8 @@ int filebkup( const char *input )
    char ftype[FILENAME_MAX];
    char backup[FILENAME_MAX];
 
-   if ( !bflag[F_BACKUP] )    /* Are we to not back it up?           */
-      return 1;               /* Yes --> Report we did not           */
+   if ( !bflag[F_BACKUP] )    /* Are we to not back it up?            */
+      return 1;               /* Yes --> Report we did not            */
 
 #ifdef __TURBOC__
    fnsplit( input, fdrive, fpath, fname, ftype );

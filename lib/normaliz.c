@@ -21,10 +21,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.7 1993/08/08 17:39:09 ahd Exp $
+ *    $Id: normaliz.c 1.8 1993/09/20 04:38:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: normaliz.c $
+ *     Revision 1.8  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  *     Revision 1.7  1993/08/08  17:39:09  ahd
  *     Denormalize path for opening on selected networks
  *
@@ -93,22 +98,22 @@ char *normalize( const char *pathx )
 /*--------------------------------------------------------------------*/
 
    if (  ( E_cwd != NULL ) &&
-         equaln( E_cwd, "//", 2 ) &&               // Network CWD drive
-       ! (isalpha( *path ) && (path[1] == ':')) && // Not explicit drive
-         (*path != '\\'))                          // Not explicit path
+         equaln( E_cwd, "//", 2 ) &&               /* Network CWD drive */
+       ! (isalpha( *path ) && (path[1] == ':')) && /* Not explicit drive */
+         (*path != '\\'))                          /* Not explicit path */
    {
       column = strlen( E_cwd );
       memmove( path + column + 1, path, strlen(path) + 1 );
-                                          // Make room for path
-      memcpy( path, E_cwd, column );      // Insert path
-      path[column] = '\\';                // Add directory sep
+                                          /* Make room for path       */
+      memcpy( path, E_cwd, column );      /* Insert path              */
+      path[column] = '\\';                /* Add directory sep        */
    }
 
-   p = path + 1;                 // Allow leading double slash for
-                                 // Network drives
+   p = path + 1;                 /* Allow leading double slash for    */
+                                 /* Network drives                    */
 
-   while ((p = strstr(p,"\\\\")) != NULL)  // Drop all double slashes
-      memmove(p, p+1, strlen(p));          // Includes trailing NULL
+   while ((p = strstr(p,"\\\\")) != NULL)  /* Drop all double slashes */
+      memmove(p, p+1, strlen(p));          /* Includes trailing NULL  */
 
 /*--------------------------------------------------------------------*/
 /*           Drop trailing slashes, OS/2 doesn't like them            */
@@ -130,16 +135,16 @@ char *normalize( const char *pathx )
       panic();
    }
 
-   while ((p = strchr(p,'\\')) != NULL)   // Back slashes to slashes
+   while ((p = strchr(p,'\\')) != NULL)   /* Back slashes to slashes  */
       *p++ = '/';
 
    if ( equaln( save + 1, "://", 3))
-      p = save + 2;                       // Drop drive if really network
+      p = save + 2;                       /* Drop drive if really network */
    else
-      p = save;                           // Else use as-is
+      p = save;                           /* Else use as-is           */
 
    column = strlen( p ) - 1;
-   if ((column > 2) && ( p[column] == '/' )) // Zap all but root trailing
+   if ((column > 2) && ( p[column] == '/' )) /* Zap all but root trailing */
        p[column] = '\0';
 
 /*--------------------------------------------------------------------*/

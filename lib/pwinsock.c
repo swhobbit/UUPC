@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.1 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: pwinsock.c 1.2 1993/09/27 00:45:20 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ * Revision 1.2  1993/09/27  00:45:20  ahd
+ * Add missing def for shutdown()
+ *
  * Revision 1.1  1993/09/20  04:39:51  ahd
  * Initial revision
  *
@@ -42,7 +45,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "lib.h"
-#include "pwinsock.h"      // definitions for 16 bit Winsock functions
+#include "pwinsock.h"      /* definitions for 16 bit Winsock functions */
 
 /*--------------------------------------------------------------------*/
 /*                  Define pointers to the functions                  */

@@ -30,7 +30,7 @@
 
 #ifndef __TURBOC__
 #include "getdta.h"           /* Custom versions of Disk Xfer Addr
-                                 functions for MS environment only   */
+                                 functions for MS environment only    */
 #endif
 
 /*--------------------------------------------------------------------*/

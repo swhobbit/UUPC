@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.9 1993/07/22 23:19:50 ahd Exp $
+ *    $Id: logger.c 1.10 1993/08/08 17:39:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *     Revision 1.10  1993/08/08  17:39:09  ahd
+ *     Denormalize path for opening on selected networks
+ *
  *     Revision 1.9  1993/07/22  23:19:50  ahd
  *     First pass for Robert Denny's Windows 3.x support changes
  *
@@ -115,15 +118,15 @@ void openlog( const char *log )
 
    if ( bflag[F_MULTITASK] )
    {
-      char *savedir = E_tempdir;    /* Save real tempory directory   */
+      char *savedir = E_tempdir;    /* Save real tempory directory    */
       short retries = 15;
 
       E_tempdir = E_spooldir;       /* Create log file in spool dir
                                        to allow for larger files
-                                       and/or system crashes         */
+                                       and/or system crashes          */
       while (( stream == NULL ) && retries-- )
       {
-         mktempname(fname, "LOG");  // Get a temp log file name
+         mktempname(fname, "LOG");  /* Get a temp log file name       */
 
          denormalize( fname );
          stream = _fsopen(fname, "at", SH_DENYWR);
@@ -133,16 +136,16 @@ void openlog( const char *log )
 
       } /* while */
 
-      E_tempdir = savedir;          // Restore true temp dir
-      tempname = newstr( fname );   // Save name we log to for posterity
+      E_tempdir = savedir;          /* Restore true temp dir          */
+      tempname = newstr( fname );   /* Save name we log to for posterity */
 
    } /* if */
    else {
-      tempname = logname;           /* Log directly to true log file */
+      tempname = logname;           /* Log directly to true log file  */
       stream  = FOPEN( tempname , "a",TEXT_MODE );
                               /* We append in case we are not in
                                  multitask mode and we do not want
-                                 to clobber the real log!            */
+                                 to clobber the real log!             */
    } /* else */
 
    if ( stream == NULL )
@@ -152,8 +155,8 @@ void openlog( const char *log )
    }
 
    full_log_file_name = tempname;   /* Tell printmsg() what our log
-                                       file name is                  */
-   logfile  = stream;               // And of the the stream itself
+                                       file name is                   */
+   logfile  = stream;               /* And of the the stream itself   */
 
 /*--------------------------------------------------------------------*/
 /*               Request the copy function be run later               */
@@ -221,8 +224,8 @@ static void copylog( void )
    }
 
    fclose( logfile );
-   logfile = output;                /* Log directly into real file   */
-   full_log_file_name = logname;    /* Tell printerr we switched     */
+   logfile = output;                /* Log directly into real file    */
+   full_log_file_name = logname;    /* Tell printerr we switched      */
 
    input = FOPEN( tempname, "r",TEXT_MODE );
 

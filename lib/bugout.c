@@ -2,12 +2,26 @@
 /*    b u g o u t . c                                                 */
 /*                                                                    */
 /*    Support routines for UUPC/extended                              */
-/*                                                                    */
-/*    Changes Copyright 1990, 1991 (c) Andrew H. Derbyshire           */
-/*                                                                    */
-/*    History:                                                        */
-/*       21Nov1991 Break out of lib.c                          ahd    */
 /*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.14 1993/10/09 15:48:20 rhg Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

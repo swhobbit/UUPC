@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.4 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: safeio.c 1.5 1993/10/03 00:03:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *     Revision 1.5  1993/10/03  00:03:45  ahd
+ *     Only use currentfile() under Windows NT
+ *
  *     Revision 1.4  1993/09/20  04:39:51  ahd
  *     OS/2 2.x support
  *
@@ -36,7 +39,7 @@
 /*    I/O operations outside the signal handler.                      */
 /*--------------------------------------------------------------------*/
 
-#define __MSC                 /* Make Borland C++ 2.0 act like MS C  */
+#define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
 #include <stdio.h>
 
@@ -233,7 +236,7 @@ void safeflush( void )
 #elif defined( FAMILYAPI ) || defined(__OS2__)
 
     KbdFlushBuffer( 0 );      /* That's all!  (Makes you love rich
-                                 API's, doesn't it?)                 */
+                                 API's, doesn't it?)                  */
 
 #else
 
@@ -243,9 +246,9 @@ void safeflush( void )
 
    union REGS regs;
 
-   regs.h.ah = 0x0C;       /* Flush buffer, read keyboard            */
-   regs.h.al = 0x00;       /* Don't actually read keyboard           */
-   intdos( &regs, &regs ); /* Make it happen                         */
+   regs.h.ah = 0x0C;       /* Flush buffer, read keyboard             */
+   regs.h.al = 0x00;       /* Don't actually read keyboard            */
+   intdos( &regs, &regs ); /* Make it happen                          */
 
 #endif /* _Windows */
 

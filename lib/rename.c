@@ -35,8 +35,8 @@ int RENAME(const char *oldname, const char *newname )
 /*                     Attempt to rename the file                     */
 /*--------------------------------------------------------------------*/
 
-   if (!rename( oldname, newname )) /* Success?                      */
-      return 0;                     /* Yes --> Return to caller      */
+   if (!rename( oldname, newname )) /* Success?                       */
+      return 0;                     /* Yes --> Return to caller       */
 
 /*--------------------------------------------------------------------*/
 /*      Try rebuilding the directory and THEN renaming the file       */

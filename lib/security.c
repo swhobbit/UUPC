@@ -12,10 +12,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.8 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: security.c 1.9 1993/10/03 20:37:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *     Revision 1.9  1993/10/03  20:37:34  ahd
+ *     Lower case all strings loaded into directory array
+ *
  *     Revision 1.8  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support
@@ -53,7 +56,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <sys/types.h>        /* Only really needed for MS C         */
+#include <sys/types.h>        /* Only really needed for MS C          */
 #include <sys/stat.h>
 #include <time.h>
 #include <direct.h>
@@ -103,7 +106,7 @@ currentfile();
 boolean LoadSecurity( void )
 {
    char fname[FILENAME_MAX];
-   char buffer[BUFSIZ*4];     /* Allows around 2K for the data       */
+   char buffer[BUFSIZ*4];     /* Allows around 2K for the data        */
    struct HostTable *hostp;
    FILE *stream;
 
@@ -114,8 +117,8 @@ boolean LoadSecurity( void )
    mkfilename(fname, E_confdir, PERMISSIONS);
    stream  = FOPEN( fname, "r",TEXT_MODE);
 
-   if ( stream == NULL )      /* Did the file open?                  */
-   {                          /* No --> Report failure to caller     */
+   if ( stream == NULL )      /* Did the file open?                   */
+   {                          /* No --> Report failure to caller      */
       printerr( fname );
       return FALSE;
    } /* ( stream == NULL ) */
@@ -151,7 +154,7 @@ boolean LoadSecurity( void )
          next = next + strlen( next ) - 1;
          if (*next == '\n')
             *next-- = '\0';
-         else if (!feof( stream ))  /* Did we hit EOF?               */
+         else if (!feof( stream ))  /* Did we hit EOF?                */
          {                    /* No --> Presume the buffer overflowed*/
             printmsg(0,"LoadSecurity: buffer overflow while reading %s",
              fname);
@@ -159,14 +162,14 @@ boolean LoadSecurity( void )
             return FALSE;
          }
 
-         while( isspace( *next ))   /* Dump trailing white space     */
+         while( isspace( *next ))   /* Dump trailing white space      */
             *next-- = '\0';
 
          if (*next == '\\')
             *next = '\0';
          else
             break;
-      } /* while( fgets( next, sizeof available, stream )) != NULL)) */
+      } /* while( fgets( next, sizeof available, stream )) != NULL))  */
 
 /*--------------------------------------------------------------------*/
 /*            Done read the data; verify we had no errors             */
@@ -202,7 +205,7 @@ boolean LoadSecurity( void )
    hostp->hsecure = malloc( sizeof *hostp->hsecure );
    checkref( hostp->hsecure );
    memset( hostp->hsecure , '\0', sizeof *hostp->hsecure);
-                              /* Clear pointers                      */
+                              /* Clear pointers                       */
    hostp->hsecure->local = TRUE;
 
 /*--------------------------------------------------------------------*/
@@ -274,7 +277,7 @@ static boolean InitEntry( char *buf, const char *fname)
 /*--------------------------------------------------------------------*/
 
    checkref( anchor );
-   memset( anchor , '\0', sizeof *anchor); /* Clear pointers         */
+   memset( anchor , '\0', sizeof *anchor); /* Clear pointers          */
 
 /*--------------------------------------------------------------------*/
 /*                        Initialize the table                        */
@@ -290,7 +293,7 @@ static boolean InitEntry( char *buf, const char *fname)
 
    while ( (parameter = strtok( token, WHITESPACE )) != NULL)
    {
-      token = strtok( NULL, ""); /* Save for next pass               */
+      token = strtok( NULL, ""); /* Save for next pass                */
 #ifdef _DEBUG
       printmsg(8,"InitEntry: Parameter is \"%s\"", parameter);
       if ( token != NULL )
@@ -404,9 +407,9 @@ static boolean InitEntry( char *buf, const char *fname)
          } /* if ( hostp == BADUSER ) */
          else
             hostp->anylogin = FALSE;   /* Flag we must use specific
-                                          login                      */
+                                          login                       */
 
-         plist++;             /* Step to next hostname in list       */
+         plist++;             /* Step to next hostname in list        */
 
       } /* while ( *plist != NULL ) */
 
@@ -607,8 +610,8 @@ static size_t InitDir( char *directories,
 /*               Verify it really is a valid directory                */
 /*--------------------------------------------------------------------*/
 
-      if ( strlen( field ) > 2 ) /* More than just drive/colon? (x:) */
-      {                       /* Yes --> Go check disk for path      */
+      if ( strlen( field ) > 2 ) /* More than just drive/colon? (x:)  */
+      {                       /* Yes --> Go check disk for path       */
          if (stat(field , &statbuf) != 0)
          {
             printmsg(0,"Warning ... invalid PERMISSIONS file entry %s:",
@@ -620,7 +623,7 @@ static size_t InitDir( char *directories,
                         field);
       } /* if ( strlen( field ) > 2 ) */
 
-      strlwr( field);            // Lower case for compares
+      strlwr( field);            /* Lower case for compares           */
 
 /*--------------------------------------------------------------------*/
 /*           Verify this directory not already in the list            */
@@ -646,7 +649,7 @@ static size_t InitDir( char *directories,
       anchor->dirlist[subscript].grant = grant;
       anchor->dirsize++;
 
-      field = NULL;           /* Look at next field next pass        */
+      field = NULL;           /* Look at next field next pass         */
 
    } /* while ( (field = NextField( field )) != NULL) */
 
@@ -700,14 +703,14 @@ boolean ValidateHost( const char *host )
 /*--------------------------------------------------------------------*/
 
    target = securep->validate;
-   if ( target == NULL )      /* No validate list for this user?     */
-   {                          /* Correct --> Use if none for host    */
+   if ( target == NULL )      /* No validate list for this user?      */
+   {                          /* Correct --> Use if none for host     */
       struct HostTable *hostp = checkreal( host );
-      if ( hostp == BADHOST ) /* Host exist?                         */
-         panic();             /* No --> Internal error, abort        */
+      if ( hostp == BADHOST ) /* Host exist?                          */
+         panic();             /* No --> Internal error, abort         */
 
       return hostp->anylogin; /* Allow action if generic access
-                                 allowed for host                    */
+                                 allowed for host                     */
    }  /* if ( target == NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -734,7 +737,7 @@ boolean ValidateHost( const char *host )
 /*    Allow or reject access to a file by name                        */
 /*--------------------------------------------------------------------*/
 
-boolean ValidateFile( const char *input,  /* Full path name          */
+boolean ValidateFile( const char *input,  /* Full path name           */
                       const REMOTE_ACCESS needed )
 {
    char path[FILENAME_MAX];
@@ -758,7 +761,7 @@ boolean ValidateFile( const char *input,  /* Full path name          */
 /*     Validate format of name; we don't allow parent directories     */
 /*--------------------------------------------------------------------*/
 
-   if ( strstr( input, "..") )            /* Games with parent dir?  */
+   if ( strstr( input, "..") )            /* Games with parent dir?   */
    {
       printmsg(0,"ValidateFile: Access rejected, name not normalized: %s",
                  input);
@@ -776,8 +779,8 @@ boolean ValidateFile( const char *input,  /* Full path name          */
 /*                        Handle local system                         */
 /*--------------------------------------------------------------------*/
 
-   if ( securep->local )      /* Local system?                       */
-      return TRUE;            /* Yes --> Bless the request           */
+   if ( securep->local )      /* Local system?                        */
+      return TRUE;            /* Yes --> Bless the request            */
 
 /*--------------------------------------------------------------------*/
 /*       Determine if the user is allowed to request files            */

@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.6 1993/10/09 15:46:15 rhg Exp $
+ *    $Id: printerr.c 1.7 1993/10/12 00:03:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *     Revision 1.7  1993/10/12  00:03:05  ahd
+ *     Perform extended diags under MS C 7.0
+ *
  *     Revision 1.6  1993/10/09  15:46:15  rhg
  *     ANSIify the source
  *
@@ -80,7 +83,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    if (( s[l-1] == '\n') & (l < sizeof buf ))
    {
       s = strcpy( buf, s);    /* Make buf copy of string we use below*/
-      s[l-1] = '\0';          /* Drop extra newline from string      */
+      s[l-1] = '\0';          /* Drop extra newline from string       */
    }
 
 /*--------------------------------------------------------------------*/
@@ -99,8 +102,8 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    {
       union REGS regs;
       struct SREGS sregs;
-      regs.h.ah = 0x59;       /* Extended error information          */
-      regs.x.bx = 0x00;       /* Set up for call                     */
+      regs.h.ah = 0x59;       /* Extended error information           */
+      regs.x.bx = 0x00;       /* Set up for call                      */
       intdosx(&regs, &regs, &sregs);
 
       printmsg(1,"Extended DOS Error Information: "
@@ -115,7 +118,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
                   (int) regs.x.ax, (int) regs.h.bh,
                   (int) regs.h.bl, (int) regs.h.ch );
          fputc('\n',stdout);  /* Allows compiler to avoid generating
-                                 second almost duplicate literal str */
+                                 second almost duplicate literal str  */
       } /* if ( redirect ) */
 
 /*--------------------------------------------------------------------*/

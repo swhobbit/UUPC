@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: USERTABL.C 1.6 1993/05/29 15:19:59 ahd Exp $
+ *    $Id: usertabl.c 1.7 1993/10/02 19:07:49 ahd Exp $
  *
- *    $Log: USERTABL.C $
+ *    $Log: usertabl.c $
+ *     Revision 1.7  1993/10/02  19:07:49  ahd
+ *     Drop unneeded checkref()
+ *
  *     Revision 1.6  1993/05/29  15:19:59  ahd
  *     Allow configured systems, passwd files
  *
@@ -50,9 +53,9 @@
 
 #define MAXUSERS  100         /* max number of unique users in PASSWD */
 
-struct UserTable *users = NULL;  /* Public to allow router.c to use it  */
+struct UserTable *users = NULL;  /* Public to allow router.c to use it */
 
-size_t  UserElements = 0;        /* Public to allow router.c to use it  */
+size_t  UserElements = 0;        /* Public to allow router.c to use it */
 
 static size_t loaduser( void );
 
@@ -83,12 +86,12 @@ struct UserTable *checkuser(const char *name)
 
    printmsg(14,"checkuser: Searching for user id %s",name);
 
- /*------------------------------------------------------------------*/
- /*             Initialize the host name table if needed             */
- /*------------------------------------------------------------------*/
+ /*-------------------------------------------------------------------*/
+ /*             Initialize the host name table if needed              */
+ /*-------------------------------------------------------------------*/
 
-   if (UserElements == 0)           /* host table initialized yet?   */
-      UserElements = loaduser();        /* No --> load it            */
+   if (UserElements == 0)           /* host table initialized yet?    */
+      UserElements = loaduser();        /* No --> load it             */
 
    lower = 0;
    upper = UserElements - 1;
@@ -206,55 +209,55 @@ static size_t loaduser( void )
       return UserElements;
    } /* if */
 
-   PushDir( E_confdir );      // Use standard reference point for
-                              // for directories
+   PushDir( E_confdir );      /* Use standard reference point for     */
+                              /* for directories                      */
 
 /*--------------------------------------------------------------------*/
 /*                 The password file is open; read it                 */
 /*--------------------------------------------------------------------*/
 
    while (! feof(stream)) {
-      if (fgets(buf,BUFSIZ,stream) == NULL)   /* Try to read a line      */
-         break;               /* Exit if end of file                 */
+      if (fgets(buf,BUFSIZ,stream) == NULL)   /* Try to read a line   */
+         break;               /* Exit if end of file                  */
       if ((*buf == '#') || (*buf == '\0'))
-         continue;            /* Line is a comment; loop again       */
+         continue;            /* Line is a comment; loop again        */
       if ( buf[ strlen(buf) - 1 ] == '\n')
          buf[ strlen(buf) - 1 ] = '\0';
       token = NextField(buf);
-      if (token    == NULL)   /* Any data?                           */
-         continue;            /* No --> read another line            */
-      userp = inituser(token);/* Initialize record for user          */
+      if (token    == NULL)   /* Any data?                            */
+         continue;            /* No --> read another line             */
+      userp = inituser(token);/* Initialize record for user           */
 
-      if (userp->password != NULL)  /* Does the user already exist?  */
-      {                       /* Yes --> Report and ignore           */
+      if (userp->password != NULL)  /* Does the user already exist?   */
+      {                       /* Yes --> Report and ignore            */
          printmsg(0,"loaduser: Duplicate entry for '%s' in '%s' ignored",
                token,E_passwd);
          continue;            /* System already in /etc/passwd,
-                                 ignore it.                          */
+                                 ignore it.                           */
       }
 
-      token = NextField(NULL);   /* Get the user password            */
-      if (!equal(token,"*"))     /* User can login?                  */
-         userp->password = newstr(token); /* Yes --> Set password    */
+      token = NextField(NULL);   /* Get the user password             */
+      if (!equal(token,"*"))     /* User can login?                   */
+         userp->password = newstr(token); /* Yes --> Set password     */
 
-      token = NextField(NULL);   /* Use  UNIX user number as tone    */
-                                 /* to beep at                       */
+      token = NextField(NULL);   /* Use  UNIX user number as tone     */
+                                 /* to beep at                        */
       if (token != NULL)
          userp->beep = newstr( token );
 
-      token = NextField(NULL);   /* Skip UNIX group number           */
+      token = NextField(NULL);   /* Skip UNIX group number            */
 
-      token = NextField(NULL);   /* Get the formal user name         */
-      if (token != NULL)         /* Did they provide user name?      */
-         userp->realname = newstr(token); /* Yes --> Copy            */
+      token = NextField(NULL);   /* Get the formal user name          */
+      if (token != NULL)         /* Did they provide user name?       */
+         userp->realname = newstr(token); /* Yes --> Copy             */
 
-      token = NextField(NULL);   /* Get home directory (optional)    */
+      token = NextField(NULL);   /* Get home directory (optional)     */
       if ( token != NULL)
          userp->homedir = newstr(normalize( token ));
 
-      token = NextField(NULL);   /* Get user shell (optional)        */
-      if ( token != NULL )       /* Did we get it?                   */
-         userp->sh = newstr(token); /* Yes --> Copy it in            */
+      token = NextField(NULL);   /* Get user shell (optional)         */
+      if ( token != NULL )       /* Did we get it?                    */
+         userp->sh = newstr(token); /* Yes --> Copy it in             */
 
    }  /* while */
 
@@ -305,12 +308,12 @@ char *NextField( char *input )
    static char *start = NULL;
    char *next = NULL;
 
-   if (input == NULL)         /* Starting a new field?               */
+   if (input == NULL)         /* Starting a new field?                */
    {
-      if ( start  == NULL )   /* Anything left to parse?             */
-         return NULL;         /* No --> Return empty string          */
+      if ( start  == NULL )   /* Anything left to parse?              */
+         return NULL;         /* No --> Return empty string           */
       else
-         input = start;       /* Yes --> Continue parse of old one   */
+         input = start;       /* Yes --> Continue parse of old one    */
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -322,20 +325,20 @@ char *NextField( char *input )
 
    if ((strlen(input) > 2) && isalpha(input[0]) && (input[1] == ':') &&
        ((input[2] == '/') || (input[2] == '\\')))
-      next = strchr( &input[2], ':');   /* Find start of next field  */
+      next = strchr( &input[2], ':');   /* Find start of next field   */
    else
-      next = strchr( input, ':');   /* Find start of next field      */
+      next = strchr( input, ':');   /* Find start of next field       */
 
-   if (next == NULL )         /* Last field?                         */
-      start = NULL;           /* Yes --> Make next call return NULL  */
-   else {                     /* No                                  */
-      *next = '\0';           /* Terminate the string                */
-      start = ++next;         /* Have next call look at next field   */
+   if (next == NULL )         /* Last field?                          */
+      start = NULL;           /* Yes --> Make next call return NULL   */
+   else {                     /* No                                   */
+      *next = '\0';           /* Terminate the string                 */
+      start = ++next;         /* Have next call look at next field    */
    } /* else */
 
-   if (strlen(input))         /* Did we get anything in the field?   */
-      return input;           /* Yes --> Return the string           */
+   if (strlen(input))         /* Did we get anything in the field?    */
+      return input;           /* Yes --> Return the string            */
    else
-      return NULL;            /* Field is empty, return NULL         */
+      return NULL;            /* Field is empty, return NULL          */
 
 } /* NextField */

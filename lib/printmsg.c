@@ -10,9 +10,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: PRINTMSG.C 1.3 1993/04/10 21:26:04 ahd Exp $
+ *    $Id: printmsg.c 1.4 1993/09/20 04:38:11 ahd Exp $
  *
- *    $Log: PRINTMSG.C $
+ *    $Log: printmsg.c $
+ *     Revision 1.4  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  *     Revision 1.3  1993/04/10  21:26:04  ahd
  *     Use unique buffer for printmsg() time stamp
  *
@@ -116,7 +121,7 @@ void printmsg(int level, char *fmt, ...)
    if (*lowcore != 0L)
    {
       putchar('\a');
-      debuglevel = level;  /* Force this last message to print ahd   */
+      debuglevel = level;  /* Force this last message to print ahd    */
    }
 #endif
 

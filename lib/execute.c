@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.11 1993/10/03 22:09:09 ahd Exp $
+ *    $Id: execute.c 1.12 1993/10/09 15:46:15 rhg Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.12  1993/10/09  15:46:15  rhg
+ * ANSIify the source
+ *
  * Revision 1.11  1993/10/03  22:09:09  ahd
  * Change debugging messages
  *
@@ -145,15 +148,15 @@ int execute( const char *command,
    }
    else if (batch( command, path ))
    {
-      if (useBat)                      // Using redirection?
+      if (useBat)                      /* Using redirection?          */
       {
          printmsg(0,"Cannot use redirection with batch file %s",
                      path );
          return -2;
       }
    } /* else */
-   else if ( !*path )                  // Error returned from search?
-      return -1;                       // Yes --> Error already reported
+   else if ( !*path )                  /* Error returned from search? */
+      return -1;                       /* Yes --> Error already reported */
 
 /*--------------------------------------------------------------------*/
 /*     Generate a batch file for redirected DOS programs, if needed   */
@@ -198,7 +201,7 @@ int execute( const char *command,
       }
       fclose( stream );
 
-      strcpy( path, batchFile );             // Run the batch command
+      strcpy( path, batchFile );             /* Run the batch command */
 
    } /* if ( useBat ) */
 
@@ -290,7 +293,7 @@ int execute( const char *command,
 /*--------------------------------------------------------------------*/
 
    if (internal(strcpy(path,command)) ||
-       batch(command, path))        // Internal or batch command?
+       batch(command, path))        /* Internal or batch command?     */
    {
 
       if ( parameters == NULL )
@@ -305,13 +308,13 @@ int execute( const char *command,
       } /* else */
 
    } /* if (internal(command)) */
-   else  {                       /* No --> Invoke normally           */
+   else  {                       /* No --> Invoke normally            */
       STARTUPINFO si;
       PROCESS_INFORMATION pi;
       void *oldCtrlCHandler;
 
-      if ( ! *path )                // Did search fail?
-         return -2;                 // Yes --> Msg issued, just return
+      if ( ! *path )                /* Did search fail?               */
+         return -2;                 /* Yes --> Msg issued, just return */
 
       memset(&si, 0, sizeof(STARTUPINFO));
       si.cb = sizeof(STARTUPINFO);
@@ -337,8 +340,8 @@ int execute( const char *command,
                              &si,
                              &pi);
 
-      if (!result)                  // Did CreateProcess() fail?
-      {                             // Yes --> Report error
+      if (!result)                  /* Did CreateProcess() fail?      */
+      {                             /* Yes --> Report error           */
          DWORD dwError = GetLastError();
          printmsg(0, "execute:  CreateProcess failed");
          printNTerror("CreateProcess", dwError);
@@ -358,7 +361,7 @@ int execute( const char *command,
             WaitForSingleObject(pi.hProcess, INFINITE);
             GetExitCodeProcess(pi.hProcess, &result);
 
-            signal(SIGINT, oldCtrlCHandler); // Re-enable Ctrl-C handling
+            signal(SIGINT, oldCtrlCHandler); /* Re-enable Ctrl-C handling */
 
          }  /* if (synchronous) */
          else
@@ -469,7 +472,7 @@ int execute( const char *command,
 /*--------------------------------------------------------------------*/
 
    if (internal(strcpy(path,command)) ||
-       batch(command,path))         // Internal command or batch file?
+       batch(command,path))         /* Internal command or batch file? */
    {
 
       if ( parameters == NULL )
@@ -483,7 +486,7 @@ int execute( const char *command,
       } /* else */
 
    } /* if (internal(command)) */
-   else  {                       /* No --> Invoke normally           */
+   else  {                       /* No --> Invoke normally            */
 
       if ( *path )
       {
@@ -503,11 +506,11 @@ int execute( const char *command,
                            (char *) parameters,
                            NULL);
 
-         if (result == -1)       /* Did spawn fail?                  */
-            printerr(command);   /* Yes --> Report error             */
+         if (result == -1)       /* Did spawn fail?                   */
+            printerr(command);   /* Yes --> Report error              */
       } /* else */
       else
-         result = -3;            // Flag we never ran command
+         result = -3;            /* Flag we never ran command         */
 
    } /* else */
 
@@ -681,10 +684,10 @@ static boolean batch( const char *input, char *output)
 
    period = strchr( (gotPath == NULL) ? input : gotPath, '.');
 
-   if ( period != NULL )         //    We have extension?
+   if ( period != NULL )         /*    We have extension?             */
    {
-      if ( gotPath )             // Extension + path?
-      {                          // Yes --> Just look for the file
+      if ( gotPath )             /* Extension + path?                 */
+      {                          /* Yes --> Just look for the file    */
 
          char *fname = normalize( input );
 
@@ -697,7 +700,7 @@ static boolean batch( const char *input, char *output)
       else
          _searchenv( input, "PATH", output );
 
-      if ( ! *output )           // No file found?
+      if ( ! *output )           /* No file found?                    */
       {
 
          printerr( input );
@@ -726,11 +729,11 @@ static boolean batch( const char *input, char *output)
       if ( gotPath )
       {
          strcpy( base, input );
-         search = "";                        // Force this to be last pass
+         search = "";                        /* Force this to be last pass */
       }
       else {
 
-         char *next = strchr(search,';');    // Find next path component
+         char *next = strchr(search,';');    /* Find next path component */
          size_t len;
 
          if ( next == NULL )
@@ -738,11 +741,11 @@ static boolean batch( const char *input, char *output)
          else
             len = (size_t) (next - search);
 
-         memcpy( base, search, len );        // Path for search ...
-         search += len + 1;                  // Step past semicolon
-         if ( base[len - 1 ] != '\\' )       // Ending in back slash?
-            base[len++] = '\\';              // No --> Add one
-         strcpy( base + len , input );       // ... plus file name
+         memcpy( base, search, len );        /* Path for search ...   */
+         search += len + 1;                  /* Step past semicolon   */
+         if ( base[len - 1 ] != '\\' )       /* Ending in back slash? */
+            base[len++] = '\\';              /* No --> Add one        */
+         strcpy( base + len , input );       /* ... plus file name    */
 
       } /* else */
 
@@ -783,7 +786,7 @@ static boolean batch( const char *input, char *output)
 
    printmsg(0, "batch: Unable to locate %s in search path", input);
 
-   *output = '\0';                  // Flag no file found!
+   *output = '\0';                  /* Flag no file found!            */
    return FALSE;
 
 } /* batch */

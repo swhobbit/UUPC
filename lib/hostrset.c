@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.3 1993/05/03 02:41:57 ahd Exp $
+ *    $Id: hostrset.c 1.4 1993/10/09 15:47:51 rhg Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *     Revision 1.4  1993/10/09  15:47:51  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.3  1993/05/03  02:41:57  ahd
  *     Use correct directory for new status file
  *
@@ -79,7 +82,7 @@ void HostReset( const char *name )
    {
       printmsg(1,"HostReset: Unable to open host status file");
       printerr( fname );
-      panic();                /* Critical error if unable to write   */
+      panic();                /* Critical error if unable to write    */
       return;
    } /* if */
 
@@ -114,14 +117,14 @@ void HostReset( const char *name )
 
       if ( (name == NULL) || equal(name,host->hostname) )
       {
-          host->hstats->calls     = 0l;  /* Total number of calls to host       */
+          host->hstats->calls     = 0l;  /* Total number of calls to host */
           host->hstats->connect   = 0l;  /* Total length of connections to host */
-          host->hstats->fsent     = 0l;  /* Total files sent to this host       */
+          host->hstats->fsent     = 0l;  /* Total files sent to this host */
           host->hstats->freceived = 0l;  /* Total files received from this host */
-          host->hstats->bsent     = 0l;  /* Total bytes sent to this host       */
+          host->hstats->bsent     = 0l;  /* Total bytes sent to this host */
           host->hstats->breceived = 0l;  /* Total bytes received from this host */
-          host->hstats->errors    = 0l;  /* Total transmission errors noted     */
-          host->hstats->packets   = 0l;  /* Total packets exchanged             */
+          host->hstats->errors    = 0l;  /* Total transmission errors noted */
+          host->hstats->packets   = 0l;  /* Total packets exchanged   */
       }
 
       host->hstats->save_hstatus = host->hstatus;

@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.9 1993/09/27 04:04:06 ahd Exp $
+ *    $Id: import.c 1.10 1993/10/09 15:46:15 rhg Exp $
  *
  *    $Log: import.c $
+ *     Revision 1.10  1993/10/09  15:46:15  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.9  1993/09/27  04:04:06  ahd
  *     Correct creation of pointer to file system name
  *
@@ -100,109 +103,109 @@ static void ImportName( char *local,
 
 static boolean advancedFS( const char *path );
 
-/*-------------------------------------------------------------------*/
-/*                                                                   */
-/*   i m p o r t p a t h                                             */
-/*                                                                   */
-/*   Convert a canonical name to a format the host can handle        */
-/*                                                                   */
-/*   These routines convert file name between canonical form, which  */
-/*   is defined as a 'unix' style pathname, and the MS-DOS all       */
-/*   uppercase "xxxxxxxx.xxx" format.                                */
-/*                                                                   */
-/*   If the canonical name does not have a path, that is the file is */
-/*   destined for the local spool directory, we can assume the UNIX  */
-/*   name will normally be in a format like this:                    */
-/*                                                                   */
-/*                                                                   */
-/*       X.hostid#######            (Execute files)                  */
-/*       C.hostid#######            (Call files)                     */
-/*       D.hostid#######            (Data files)                     */
-/*                                                                   */
-/*   where "hostid" may be most, but not always all, of the local    */
-/*   host or remote host (the file came from or is going to) and     */
-/*   "######" can be any character valid for the UNIX file system.   */
-/*   Note, however, that the routine has to be generic to allow for  */
-/*   other file names to be placed in the spool directory without    */
-/*   collisions.                                                     */
-/*                                                                   */
-/*   Avoiding collisions in the spool directory is important; when   */
-/*   receiving files with mixed case names longer than 11            */
-/*   characters, sooner or later a file name collision will occur.   */
-/*                                                                   */
-/*   We can also assume that only UUPC will see these names, which   */
-/*   means we can transform the name using any method we choose, so  */
-/*   long as the UUPC functions opening the file always call         */
-/*   importpath, and that importpath is reducible (that is, two      */
-/*   calls to importpath with the same argument always yield the     */
-/*   same result).  Note that if end user really wanted the file in  */
-/*   the spool directory, all he has to do is rename the file-- far  */
-/*   better than losing the data because duplicate file names.       */
-/*                                                                   */
-/*   For these files, we map the name as follows:                    */
-/*                                                                   */
-/*   0 - If the name is a valid MS-DOS name, use it without changing */
-/*                                                                   */
-/*   1 - Begin the output name by inserting up to the first eight    */
-/*       characters of the remote host name (followed by a slash) as */
-/*       a subdirectory name.                                        */
-/*                                                                   */
-/*   2 - If the input name begins with an uppercase alphabetic       */
-/*       character followed by a period, also insert the alphabetic  */
-/*       (followed by a slash) to make this a second subdirectory.   */
-/*       Then, move the logical start of the input name past the two */
-/*       characters.                                                 */
-/*                                                                   */
-/*   3 - Determine the number of characters the local host and       */
-/*       remote hosts have equal to the next characters of the input */
-/*       name, up to a maximum of 8, and zero the lower of the two   */
-/*       counts.  Then, step past the number of characters of the    */
-/*       larger count.                                               */
-/*                                                                   */
-/*       For example, if the file name is X.keane22222 and the local */
-/*       host name is kendra (2 characters match) and the remote     */
-/*       host is keane1 (5 characters match), zero the number of     */
-/*       characters matched by kendra, and make the new start of the */
-/*       file name five characters further (at the first "2").       */
-/*                                                                   */
-/*   4 - Convert the remaining string using a base conversion, with  */
-/*       the input character size being from ascii "#" to ascii "z"  */
-/*       (88 characters) to the allowed set of characters in MS-DOS  */
-/*       file names (charset, below, 52 characters).                 */
-/*                                                                   */
-/*   5 - Prepend to the string to be converted the length of the     */
-/*       remote host added to the length of the local host           */
-/*       multiplied by 8 (both lengths were computed in step 3,      */
-/*       above).  The base conversion is also applied to this        */
-/*       "character", we which know will be in the range 1-64.       */
-/*                                                                   */
-/*   6 - If the string created by steps 4 and 5 exceeds 8            */
-/*       characters, insert a period after the eighth character to   */
-/*       make it a valid MS-DOS file name.  If the string created by */
-/*       steps 4 and 5 exceeds 11 characters, truncate the string by */
-/*       using the first eight and last three characters.            */
-/*                                                                   */
-/*   7 - Append the string created in steps 4 through 6 to the path  */
-/*       name created in steps 1 and 2.                              */
-/*                                                                   */
-/*   If the canonical name has a path, it is destined for an end     */
-/*   user, so we should not radically transform it like we do for    */
-/*   files in the spool directory.  Thus, if the canonical name has  */
-/*   a path, mung the canonical file name as follows:                */
-/*                                                                   */
-/*   1 - skip any path from the canonical name                       */
-/*                                                                   */
-/*   2 - copy up to 8 character from the canonical name converting . */
-/*       to _ and uppercase to lowercase.                            */
-/*                                                                   */
-/*   3 - if the name was longer than 8 character copy a . to the     */
-/*       host name and then copy the up to three characters from     */
-/*       the tail of the canonical name to the host name.            */
-/*                                                                   */
-/*   Note that this set of rules will cause a collision with names   */
-/*   that only differ in case, but leaves the name in a recongizable */
-/*   format for the user.                                            */
-/*-------------------------------------------------------------------*/
+/*--------------------------------------------------------------------*/
+/*                                                                    */
+/*   i m p o r t p a t h                                              */
+/*                                                                    */
+/*   Convert a canonical name to a format the host can handle         */
+/*                                                                    */
+/*   These routines convert file name between canonical form, which   */
+/*   is defined as a 'unix' style pathname, and the MS-DOS all        */
+/*   uppercase "xxxxxxxx.xxx" format.                                 */
+/*                                                                    */
+/*   If the canonical name does not have a path, that is the file is  */
+/*   destined for the local spool directory, we can assume the UNIX   */
+/*   name will normally be in a format like this:                     */
+/*                                                                    */
+/*                                                                    */
+/*       X.hostid#######            (Execute files)                   */
+/*       C.hostid#######            (Call files)                      */
+/*       D.hostid#######            (Data files)                      */
+/*                                                                    */
+/*   where "hostid" may be most, but not always all, of the local     */
+/*   host or remote host (the file came from or is going to) and      */
+/*   "######" can be any character valid for the UNIX file system.    */
+/*   Note, however, that the routine has to be generic to allow for   */
+/*   other file names to be placed in the spool directory without     */
+/*   collisions.                                                      */
+/*                                                                    */
+/*   Avoiding collisions in the spool directory is important; when    */
+/*   receiving files with mixed case names longer than 11             */
+/*   characters, sooner or later a file name collision will occur.    */
+/*                                                                    */
+/*   We can also assume that only UUPC will see these names, which    */
+/*   means we can transform the name using any method we choose, so   */
+/*   long as the UUPC functions opening the file always call          */
+/*   importpath, and that importpath is reducible (that is, two       */
+/*   calls to importpath with the same argument always yield the      */
+/*   same result).  Note that if end user really wanted the file in   */
+/*   the spool directory, all he has to do is rename the file-- far   */
+/*   better than losing the data because duplicate file names.        */
+/*                                                                    */
+/*   For these files, we map the name as follows:                     */
+/*                                                                    */
+/*   0 - If the name is a valid MS-DOS name, use it without changing  */
+/*                                                                    */
+/*   1 - Begin the output name by inserting up to the first eight     */
+/*       characters of the remote host name (followed by a slash) as  */
+/*       a subdirectory name.                                         */
+/*                                                                    */
+/*   2 - If the input name begins with an uppercase alphabetic        */
+/*       character followed by a period, also insert the alphabetic   */
+/*       (followed by a slash) to make this a second subdirectory.    */
+/*       Then, move the logical start of the input name past the two  */
+/*       characters.                                                  */
+/*                                                                    */
+/*   3 - Determine the number of characters the local host and        */
+/*       remote hosts have equal to the next characters of the input  */
+/*       name, up to a maximum of 8, and zero the lower of the two    */
+/*       counts.  Then, step past the number of characters of the     */
+/*       larger count.                                                */
+/*                                                                    */
+/*       For example, if the file name is X.keane22222 and the local  */
+/*       host name is kendra (2 characters match) and the remote      */
+/*       host is keane1 (5 characters match), zero the number of      */
+/*       characters matched by kendra, and make the new start of the  */
+/*       file name five characters further (at the first "2").        */
+/*                                                                    */
+/*   4 - Convert the remaining string using a base conversion, with   */
+/*       the input character size being from ascii "#" to ascii "z"   */
+/*       (88 characters) to the allowed set of characters in MS-DOS   */
+/*       file names (charset, below, 52 characters).                  */
+/*                                                                    */
+/*   5 - Prepend to the string to be converted the length of the      */
+/*       remote host added to the length of the local host            */
+/*       multiplied by 8 (both lengths were computed in step 3,       */
+/*       above).  The base conversion is also applied to this         */
+/*       "character", we which know will be in the range 1-64.        */
+/*                                                                    */
+/*   6 - If the string created by steps 4 and 5 exceeds 8             */
+/*       characters, insert a period after the eighth character to    */
+/*       make it a valid MS-DOS file name.  If the string created by  */
+/*       steps 4 and 5 exceeds 11 characters, truncate the string by  */
+/*       using the first eight and last three characters.             */
+/*                                                                    */
+/*   7 - Append the string created in steps 4 through 6 to the path   */
+/*       name created in steps 1 and 2.                               */
+/*                                                                    */
+/*   If the canonical name has a path, it is destined for an end      */
+/*   user, so we should not radically transform it like we do for     */
+/*   files in the spool directory.  Thus, if the canonical name has   */
+/*   a path, mung the canonical file name as follows:                 */
+/*                                                                    */
+/*   1 - skip any path from the canonical name                        */
+/*                                                                    */
+/*   2 - copy up to 8 character from the canonical name converting .  */
+/*       to _ and uppercase to lowercase.                             */
+/*                                                                    */
+/*   3 - if the name was longer than 8 character copy a . to the      */
+/*       host name and then copy the up to three characters from      */
+/*       the tail of the canonical name to the host name.             */
+/*                                                                    */
+/*   Note that this set of rules will cause a collision with names    */
+/*   that only differ in case, but leaves the name in a recongizable  */
+/*   format for the user.                                             */
+/*--------------------------------------------------------------------*/
 
 void importpath(char *local, const char *canon, const char *remote)
 {
@@ -238,21 +241,21 @@ void importpath(char *local, const char *canon, const char *remote)
    if ((s = strrchr(canon, '/')) == NULL)
    {                          /* File for spooling directory, use
                                  internal character set to avoid
-                                 collisions                          */
+                                 collisions                           */
       static size_t range =  UNIX_END_C - UNIX_START_C + 1;
                               /* Determine unique number characters in
-                                 the UNIX file names we are mapping  */
+                                 the UNIX file names we are mapping   */
 
       size_t remlen = min(HOSTLEN, strlen(remote));
                               /* Length of the remote name passed
                                  in, shortened below to number of
-                                 characters matched in name          */
+                                 characters matched in name           */
       size_t nodelen = min(HOSTLEN, strlen(E_nodename));
                               /* Length of the local host name,
                                  shortened below to number of
-                                 characters matched in name          */
+                                 characters matched in name           */
       size_t subscript = 0;   /* Value of UNIX character to be
-                                 converted to MS-DOS character set   */
+                                 converted to MS-DOS character set    */
       char *next        = local + remlen;
       char tempname[FILENAME_MAX];
       unsigned char number[MAX_DIGITS];
@@ -278,8 +281,8 @@ void importpath(char *local, const char *canon, const char *remote)
 /*--------------------------------------------------------------------*/
 
       strncpy(local, remote, remlen);
-      *next++ = '/';          /* Add in the sub-directory seperator  */
-      s = (char *) canon;     /* Get the beginnging of the UNIX name */
+      *next++ = '/';          /* Add in the sub-directory seperator   */
+      s = (char *) canon;     /* Get the beginnging of the UNIX name  */
 
 /*--------------------------------------------------------------------*/
 /*    Files in the spooling directory generally start with "D.",      */
@@ -289,10 +292,10 @@ void importpath(char *local, const char *canon, const char *remote)
 
       if ((s[0] >= 'A') && (s[0] <= 'Z') && (s[1] == '.'))
       {
-         *next++ = *s;        /* Copy the input character            */
-         *next++ = '/';       /* Add the sub-directory indicator too */
+         *next++ = *s;        /* Copy the input character             */
+         *next++ = '/';       /* Add the sub-directory indicator too  */
          s += 2;              /* Step input string past the copied
-                                 data                                */
+                                 data                                 */
       }
 
       while( remlen > 0 )
@@ -319,34 +322,34 @@ void importpath(char *local, const char *canon, const char *remote)
          s += remlen;
       }
 
-      *next  = '\0';          /* Terminate first part of host string */
+      *next  = '\0';          /* Terminate first part of host string  */
 
 /*--------------------------------------------------------------------*/
 /*       Create a binary number which represents our file name        */
 /*--------------------------------------------------------------------*/
 
       for (subscript = 0; subscript < MAX_DIGITS; subscript++ )
-         number[subscript] = 0;  /* Initialize number to zero        */
+         number[subscript] = 0;  /* Initialize number to zero         */
 
       add(number, nodelen + remlen * HOSTLEN, MAX_DIGITS);
                                  /* Append host name info to the
-                                    front of the converted string    */
+                                    front of the converted string     */
 
       while( (*s != '\0') && (*number == '\0'))
       {
-         mult(number, range, MAX_DIGITS); /* Shift the number over   */
+         mult(number, range, MAX_DIGITS); /* Shift the number over    */
          add(number, *s++  - UNIX_START_C , MAX_DIGITS);
-                                          /* Add in new low order    */
+                                          /* Add in new low order     */
       } /* while */
 
-/*-------------------------------------------------------------------*/
-/*   We now have stripped off the leading x. and host name, if any;  */
-/*   now, convert the remaining characters in the name by doing a    */
-/*   range to charset base conversion.                               */
-/*-------------------------------------------------------------------*/
+/*--------------------------------------------------------------------*/
+/*   We now have stripped off the leading x. and host name, if any;   */
+/*   now, convert the remaining characters in the name by doing a     */
+/*   range to charset base conversion.                                */
+/*--------------------------------------------------------------------*/
 
       out = &tempname[FILENAME_MAX];
-      *--out = '\0';          /* Terminate the string we will build  */
+      *--out = '\0';          /* Terminate the string we will build   */
 
 /*--------------------------------------------------------------------*/
 /*         Here's the loop to actually do the base conversion         */
@@ -384,17 +387,17 @@ void importpath(char *local, const char *canon, const char *remote)
 
       if ( isalpha( *in ) && (in[1] == ':'))
       {
-         *out++ = *in++;      /* The drive letter                    */
-         *out++ = *in++;      /* The colon making it a driver letter */
+         *out++ = *in++;      /* The drive letter                     */
+         *out++ = *in++;      /* The colon making it a driver letter  */
       } /* if */
 
-      if ( *in == '/' )       /* Absolute path name?                 */
-         *out++ = *in++;      /* Yes, step past it                   */
+      if ( *in == '/' )       /* Absolute path name?                  */
+         *out++ = *in++;      /* Yes, step past it                    */
 
-      while( *in == '/')      /* Additional slashes?                 */
-         in++;                /* Skip them,  they mean nothing       */
+      while( *in == '/')      /* Additional slashes?                  */
+         in++;                /* Skip them,  they mean nothing        */
 
-      s = strchr( in, '/' );  /* Get end of next path segment        */
+      s = strchr( in, '/' );  /* Get end of next path segment         */
 
 /*--------------------------------------------------------------------*/
 /*              Now convert each simple name in the path              */
@@ -410,10 +413,10 @@ void importpath(char *local, const char *canon, const char *remote)
          if ( s == NULL )
             break;
          out = out + strlen( out );
-         *out++ = *s++ = '/'; /* Restore path to input and output    */
-         in = s;              /* Remember start of this simple name  */
-         while( *in == '/')   /* Additional slashes?                 */
-            in++;             /* Skip them,  they mean nothing       */
+         *out++ = *s++ = '/'; /* Restore path to input and output     */
+         in = s;              /* Remember start of this simple name   */
+         while( *in == '/')   /* Additional slashes?                  */
+            in++;             /* Skip them,  they mean nothing        */
          s = strchr( in , '/' );
       }
 
@@ -480,12 +483,12 @@ static void ImportName( char *local,
       {
          strncpy( out, in, column + 5 );
                                     /* Period, 3 char extension,
-                                       and terminating \0            */
+                                       and terminating \0             */
          best_period = &out[column];/* Remember output location of
-                                       period in name                */
+                                       period in name                 */
 
-         if ( len > (column + 4) )  /* Need to trunc extension to 3? */
-            strcpy( out + column + 1, in + len - 3 ); /* Yes         */
+         if ( len > (column + 4) )  /* Need to trunc extension to 3?  */
+            strcpy( out + column + 1, in + len - 3 ); /* Yes          */
 
          break;
       } /*if */
@@ -506,10 +509,10 @@ static void ImportName( char *local,
       if ( (best_period != NULL) && (best_period[1] != '\0') )
       {
          strncpy( &out[8], best_period, 4 ); /* Plus period and 3
-                                                in extension         */
+                                                in extension          */
 
-         if ( strlen( best_period) > 4 )     /* Long Extension?      */
-            out[12] = '\0';                  /* Yes --> Truncate     */
+         if ( strlen( best_period) > 4 )     /* Long Extension?       */
+            out[12] = '\0';                  /* Yes --> Truncate      */
 
       } /* if */
       else {                  /* No periods at all, generate one
@@ -525,7 +528,7 @@ static void ImportName( char *local,
 
       best_period = &out[8];              /* Remember location of
                                              period, okay if past
-                                             end of string           */
+                                             end of string            */
 
    } /* if ( best_period == NULL ) */
 
@@ -533,8 +536,8 @@ static void ImportName( char *local,
 /*                Now, clean up any invalid characters                */
 /*--------------------------------------------------------------------*/
 
-   if ( out[ strlen( out ) - 1 ] == '.' ) /* Trailing period?        */
-      out[ strlen( out ) - 1 ] = '\0';    /* Just truncate string    */
+   if ( out[ strlen( out ) - 1 ] == '.' ) /* Trailing period?         */
+      out[ strlen( out ) - 1 ] = '\0';    /* Just truncate string     */
 
    while( *out != '\0')
    {
@@ -649,7 +652,7 @@ boolean ValidDOSName( const char *s,
    if (len > 12)
       return FALSE;
 
-   strcpy( tempname, s);      /* Make a temp copy we can alter       */
+   strcpy( tempname, s);      /* Make a temp copy we can alter        */
 
 /*--------------------------------------------------------------------*/
 /*    Simple file name without extension must be eight characters     */
@@ -675,8 +678,8 @@ boolean ValidDOSName( const char *s,
 /*             Extension must be three characters or less             */
 /*--------------------------------------------------------------------*/
 
-      if ( strlen( ptr ) > 4) /* Three characters plus the period?   */
-         return FALSE;        /* No --> Too much                     */
+      if ( strlen( ptr ) > 4) /* Three characters plus the period?    */
+         return FALSE;        /* No --> Too much                      */
 
 /*--------------------------------------------------------------------*/
 /*                          Only one period                           */
@@ -690,10 +693,10 @@ boolean ValidDOSName( const char *s,
 /*                Must only be valid MS-DOS characters                */
 /*--------------------------------------------------------------------*/
 
-   strlwr( tempname );        /* Map into our desired character set  */
+   strlwr( tempname );        /* Map into our desired character set   */
    if ( ptr != NULL )
       *ptr = 'x';             /* We've already accounted for the
-                                 period, don't let it ruin our day   */
+                                 period, don't let it ruin our day    */
 
    if (strspn(tempname, E_charset ) == len)
    {
@@ -716,7 +719,7 @@ boolean ValidDOSName( const char *s,
 
 static boolean advancedFS( const char *path )
 {
-   char buf[BUFSIZ];             // One generic large buffer
+   char buf[BUFSIZ];             /* One generic large buffer          */
 
 #ifdef __OS2__
    ULONG bufSize = sizeof buf;
@@ -740,7 +743,7 @@ static boolean advancedFS( const char *path )
    else
       strncpy( driveInfo, E_cwd, 2 );
 
-   driveInfo[ sizeof(driveInfo) - 1 ] = '\0';   // Terminate string data
+   driveInfo[ sizeof(driveInfo) - 1 ] = '\0';   /* Terminate string data */
 
 /*--------------------------------------------------------------------*/
 /*      Query the drive (both 1.x and 2.x calls are supported).       */
@@ -800,16 +803,16 @@ static boolean advancedFS( const char *path )
    BOOL result;
    char *shareNameEnd;
 
-   if ( !path || *path == '\0' ) {       // use CWD
+   if ( !path || *path == '\0' ) {       /* use CWD                   */
       strncpy( driveInfo, E_cwd, 3);
       driveInfo[3] = '\0';
    }
    else if ( isalpha( *path ) && (path[1] == ':') )
-   {                                   // It's a local drive
+   {                                   /* It's a local drive          */
 
       printmsg(5, "advancedFS: it's a drive letter");
       strncpy( driveInfo, path, 3 );
-      driveInfo[3] = '\0';          // Terminate drive string data
+      driveInfo[3] = '\0';          /* Terminate drive string data    */
 
    }
    else
@@ -853,7 +856,7 @@ static boolean advancedFS( const char *path )
 
 static boolean advancedFS( const char *path )
 {
-   return FALSE;                 // DOS is always dumb on file systems!
+   return FALSE;                 /* DOS is always dumb on file systems! */
 } /* advancedFS for MS-DOS */
 
 #endif

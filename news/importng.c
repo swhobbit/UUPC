@@ -10,9 +10,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: IMPORTNG.C 1.2 1992/11/20 12:39:57 ahd Exp $
  *
- *    $Log$
+ *    $Log: IMPORTNG.C $
+ * Revision 1.2  1992/11/20  12:39:57  ahd
+ * Drop boring message reporting mapping of name
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -67,7 +70,7 @@ char *ImportNewsGroup( char *local,
       *s = '/';
 
    while ((s = strchr(E_newsdir, '\\')) != NULL)
-      *s = '/';                                 /* Normalize slashes */
+      *s = '/';                                 /* Normalize slashes  */
 
 /*--------------------------------------------------------------------*/
 /*    Now combine the name with the root news directory; we do        */
@@ -75,11 +78,11 @@ char *ImportNewsGroup( char *local,
 /*    path, which affects how ImportPath processes the file           */
 /*--------------------------------------------------------------------*/
 
-   mkfilename( fullpath , E_newsdir, partial ); /* Build the name    */
+   mkfilename( fullpath , E_newsdir, partial ); /* Build the name     */
 
    importpath( local, fullpath, NULL );        /* Truncate name and
                                                    zap bad chars as
-                                                   needed            */
+                                                   needed             */
    return local;
 
 } /* ImportNewsGroup */

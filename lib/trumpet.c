@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: trumpet.c 1.1 1993/07/31 16:22:16 ahd Exp $
+ *    $Id: trumpet.c 1.2 1993/09/20 04:39:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: trumpet.c $
+ * Revision 1.2  1993/09/20  04:39:51  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.1  1993/07/31  16:22:16  ahd
  * Initial revision
  *
@@ -90,14 +93,14 @@ void trumpet( const char *tune)
 #endif
 
    if (tune == NULL)          /* Should we announce?  */
-      return;                 /* No --> Return quietly (literally)   */
+      return;                 /* No --> Return quietly (literally)    */
 
 /*--------------------------------------------------------------------*/
 /*             We are to announce the arrival of the mail             */
 /*--------------------------------------------------------------------*/
 
 #ifdef SMARTBEEP
-   strcpy(buf,tune);          /* Save the data                       */
+   strcpy(buf,tune);          /* Save the data                        */
 
    while( (token = strtok( token, ",")) != NULL)
    {

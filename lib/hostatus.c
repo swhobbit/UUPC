@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostatus.c 1.4 1993/07/06 10:56:27 ahd Exp $
+ *    $Id: hostatus.c 1.6 1993/10/09 15:46:15 rhg Exp $
  *
  *    Revision history:
  *    $Log: hostatus.c $
+ *     Revision 1.6  1993/10/09  15:46:15  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.4  1993/07/06  10:56:27  ahd
  *     Always report bad record failures
  *
@@ -103,8 +106,8 @@ void HostStatus( void )
 
    age = stater( fname , &size );
 
-   if ( age == hstatus_age )  /* Unchanged file?                     */
-      return;                 /* Yes --> Just return quietly         */
+   if ( age == hstatus_age )  /* Unchanged file?                      */
+      return;                 /* Yes --> Just return quietly          */
 
 /*--------------------------------------------------------------------*/
 /*                       Actually open the file                       */

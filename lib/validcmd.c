@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>        /* Only really needed for MS C         */
+#include <sys/types.h>        /* Only really needed for MS C          */
 #include <sys/stat.h>
 #include <time.h>
 
@@ -51,7 +51,7 @@ boolean ValidateCommand( const char *command)
 /*                        Handle local system                         */
 /*--------------------------------------------------------------------*/
 
-   if ( securep->local )      /* Local system?                       */
+   if ( securep->local )      /* Local system?                        */
    {
 
 #ifdef UDEBUG
@@ -59,7 +59,7 @@ boolean ValidateCommand( const char *command)
             command );
 #endif
 
-      return TRUE;            /* Yes --> Bless the request           */
+      return TRUE;            /* Yes --> Bless the request            */
    }
 
 /*--------------------------------------------------------------------*/

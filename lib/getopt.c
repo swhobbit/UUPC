@@ -33,7 +33,7 @@
 #endif
 #include <stdio.h>
 
-#define ERR(s,c) fprintf(stderr,"%s%s%c\n", argv[0],s,c)    /* ahd   */
+#define ERR(s,c) fprintf(stderr,"%s%s%c\n", argv[0],s,c)    /* ahd    */
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */

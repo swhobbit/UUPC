@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.1 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: pnterr.c 1.1 1993/09/25 03:02:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ * Revision 1.1  1993/09/25  03:02:37  ahd
+ * Initial revision
+ *
  * Revision 1.1  1993/09/24  21:43:27  dmwatt
  * Initial revision
  *
@@ -95,7 +98,7 @@ void pNTErr(const size_t lineno,
    l = strlen( buf );
 
    if (( buf[l-1] == '\n') & (l < sizeof buf ))
-      buf[l-1] = '\0';          /* Drop extra newline from string      */
+      buf[l-1] = '\0';          /* Drop extra newline from string     */
 
 /*--------------------------------------------------------------------*/
 /*           Display the message with option file location            */

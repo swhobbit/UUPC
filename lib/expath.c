@@ -9,10 +9,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: normaliz.c 1.6 1993/07/06 10:55:20 ahd Exp $
+ *    $Id: expath.c 1.6 1993/08/08 17:39:09 ahd Exp $
  *
  *    Revision history:
- *    $Log: normaliz.c $
+ *    $Log: expath.c $
+ *     Revision 1.6  1993/08/08  17:39:09  ahd
+ *     Denormalize path for opening on selected networks
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -47,10 +50,10 @@
 /*   Expands ~, ~/ and relative paths                                 */
 /*--------------------------------------------------------------------*/
 
-char *expand_path(char *input,         /* Input/output path name     */
-                  const char *cur_dir, /* Default directory path     */
-                  const char *home,    /* Default home directory     */
-                  const char *ftype )  /* Default extension          */
+char *expand_path(char *input,         /* Input/output path name      */
+                  const char *cur_dir, /* Default directory path      */
+                  const char *home,    /* Default home directory      */
+                  const char *ftype )  /* Default extension           */
 {
    char        *p, *fname;
    char        save[FILENAME_MAX];
@@ -71,15 +74,15 @@ char *expand_path(char *input,         /* Input/output path name     */
 
    if ( ftype != NULL )
    {
-      p = strrchr(path,'/');  /* Get the last slash in name          */
+      p = strrchr(path,'/');  /* Get the last slash in name           */
 
-      if ( p == NULL )        /* No slash?                           */
-         p = path;            /* Okay, look at entire name           */
+      if ( p == NULL )        /* No slash?                            */
+         p = path;            /* Okay, look at entire name            */
 
       if (( strchr( p , '.') == NULL ) && (*p != '~'))
-                              /* Does name have a period?            */
+                              /* Does name have a period?             */
          strcat( strcat(p, ".") ,ftype );
-                              /* No --> Add extension                */
+                              /* No --> Add extension                 */
    } /* if ( ftype != NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -112,24 +115,24 @@ char *expand_path(char *input,         /* Input/output path name     */
 /*            Try to translate the file as a home directory path      */
 /*--------------------------------------------------------------------*/
 
-   p = path;                  /* Copy entire path                    */
+   p = path;                  /* Copy entire path                     */
    strcpy(save, p);
    if (save[0] == '~')
    {
       if (save[1] == '/')
       {
-         strcpy(path, home);  /* Use home dir for this user          */
-         fname = save + 2;    /* Step past directory for simple name */
+         strcpy(path, home);  /* Use home dir for this user           */
+         fname = save + 2;    /* Step past directory for simple name  */
       }
       else if ( save[1] == '\0')
       {
-         strcpy(path, home);  /* Use home dir for this user          */
-         fname = save + 1;    /* Step past directory for simple name */
+         strcpy(path, home);  /* Use home dir for this user           */
+         fname = save + 1;    /* Step past directory for simple name  */
       }
       else {
 
          if ((fname = strchr(save + 1, '/')) == NULL)
-            fname = save + strlen(save);  // That's all, folks!
+            fname = save + strlen(save);  /* That's all, folks!       */
          else
             *fname++ = '\0';           /* End string, step past it */
 
@@ -157,7 +160,7 @@ char *expand_path(char *input,         /* Input/output path name     */
 /*--------------------------------------------------------------------*/
 
    else {
-         fname = save;              // Save entire file name
+         fname = save;              /* Save entire file name          */
 
          if ( cur_dir == NULL )
             getcwd( path, FILENAME_MAX);
@@ -176,7 +179,7 @@ char *expand_path(char *input,         /* Input/output path name     */
       strcat( path, "/");
 
    strlwr( path );            /* Can lower case path, but not the
-                                 name because name may be UNIX!      */
+                                 name because name may be UNIX!       */
    strcat( path, fname );
 
 /*--------------------------------------------------------------------*/

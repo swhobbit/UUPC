@@ -73,7 +73,7 @@ FILE *FSOPEN(const char *name, const char *mode)
          return results;
    }
    else if ((last = strrchr(name, '/')) != nil(char))
-   {                                // Make any needed directories
+   {                                /* Make any needed directories    */
       *last = '\0';
       MKDIR(name);
       *last = '/';

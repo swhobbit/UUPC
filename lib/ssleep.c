@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.10 1993/09/27 02:42:11 ahd Exp $
+ *    $Id: ssleep.c 1.11 1993/10/09 15:47:51 rhg Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.11  1993/10/09  15:47:51  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.10  1993/09/27  02:42:11  ahd
  *     Use signed number for delay computations under DOS
  *
@@ -236,8 +239,8 @@ static int RunningUnderWindows(void)
    union REGS inregs, outregs;
    static const int irq = MULTIPLEX;
 
-   if (result != 2)           /* First call?                         */
-      return result;          /* No --> Return saved result          */
+   if (result != 2)           /* First call?                          */
+      return result;          /* No --> Return saved result           */
 
    inregs.x.ax = 0x1600;
    int86(irq, &inregs, &outregs);
@@ -281,8 +284,8 @@ static int RunningUnderDesqview(void)
    static int result = 2;
    union REGS inregs, outregs;
 
-   if (result != 2)           /* First call?                         */
-      return result;          /* No --> Return saved result          */
+   if (result != 2)           /* First call?                          */
+      return result;          /* No --> Return saved result           */
 
    inregs.x.ax = 0x2B01;      /* Dos Set Date function */
    inregs.x.cx = 0x4445;      /* CX DX = 'DESQ' */
@@ -352,7 +355,7 @@ void ssleep(time_t interval)
 
    while ( left > SHRT_MAX / 1000 )
    {
-      ddelay( 5000 );         /* Five seconds per pass               */
+      ddelay( 5000 );         /* Five seconds per pass                */
       if ((left = (long) quit - (long) time( NULL )) <= 0)
          return;
    } /* while */
@@ -390,19 +393,19 @@ void   ddelay   (KEWSHORT interval )
 /*           Check for user aborts via the ESC (escape) key           */
 /*--------------------------------------------------------------------*/
 
-   if (bflag[F_ESCAPE])       /* Special Ctrl-C processing avail?    */
+   if (bflag[F_ESCAPE])       /* Special Ctrl-C processing avail?     */
    {
       boolean beep = TRUE;
 
-      while (safepeek())      /* Yes --> While character in buffer   */
+      while (safepeek())      /* Yes --> While character in buffer    */
       {
-         if (safein() == '\033') /* Look for ESC                     */
-            raise( SIGINT );     /* Yes --> eject via std exit       */
+         if (safein() == '\033') /* Look for ESC                      */
+            raise( SIGINT );     /* Yes --> eject via std exit        */
          else if ( beep )
          {
-             putchar('\a');      /* No --> Complain to user          */
+             putchar('\a');      /* No --> Complain to user           */
              beep = FALSE;       /* But be nice about it ...
-                                    only once per pass through here  */
+                                    only once per pass through here   */
          } /* else if ( beep ) */
       } /* while */
 
@@ -465,7 +468,7 @@ void   ddelay   (KEWSHORT interval )
       return;
    } /* if */
 
-   ftime(&start);             /* Get a starting time                 */
+   ftime(&start);             /* Get a starting time                  */
 
    for( ; ; )
    {
@@ -491,10 +494,10 @@ void   ddelay   (KEWSHORT interval )
 
 #else
 
-         int volatile count;  /* Don't let compiler optimize this    */
+         int volatile count;  /* Don't let compiler optimize this     */
          for ( count = 0; count < 2400; count ++);
                               /* We spin so that interrupts are
-                                 enabled for most of the loop        */
+                                 enabled for most of the loop         */
 #endif
 
       } /* else */

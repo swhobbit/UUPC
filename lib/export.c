@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp $
+ *    $Id: export.c 1.2 1993/10/09 15:46:15 rhg Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: export.c $
+ *     Revision 1.2  1993/10/09  15:46:15  rhg
+ *     ANSIify the source
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -64,7 +67,7 @@ void exportpath(char *canon, const char *host, const char *remote)
 
    static size_t range =  UNIX_END_C - UNIX_START_C + 1;
                               /* Determine unique number characters in
-                                 the UNIX file names we are mapping  */
+                                 the UNIX file names we are mapping   */
    size_t charsetsize;
             /* Number of allowed characters in
                               MS-DOS file names                   */
@@ -123,15 +126,15 @@ void exportpath(char *canon, const char *host, const char *remote)
    for (subscript = 0; subscript < MAX_DIGITS; subscript++ )
       number[subscript] = 0;  /* Initialize number to zero        */
 
-   token = strtok( NULL, "/");   /* Get variable part of name        */
+   token = strtok( NULL, "/");   /* Get variable part of name         */
    while( (*token != '\0') && (*number == '\0'))
    {
       unsigned char digit;
-      mult(number, charsetsize, MAX_DIGITS); /* Shift the number over   */
+      mult(number, charsetsize, MAX_DIGITS); /* Shift the number over */
       digit = (unsigned char) (strchr( E_charset , *token++) - E_charset);
-      add(number, digit , MAX_DIGITS); /* Add in new low order       */
-      if (*token == '.')               /* Next character a period?   */
-         token ++;                     /* Yes --> Ignore it          */
+      add(number, digit , MAX_DIGITS); /* Add in new low order        */
+      if (*token == '.')               /* Next character a period?    */
+         token ++;                     /* Yes --> Ignore it           */
    } /* while */
 
    out = &tempname[FILENAME_MAX];
@@ -152,8 +155,8 @@ void exportpath(char *canon, const char *host, const char *remote)
 /*--------------------------------------------------------------------*/
 
       subscript = *out - UNIX_START_C;
-                              /* Convert back to pure number         */
-      token = canon + strlen( canon ); /* Remember end of string     */
+                              /* Convert back to pure number          */
+      token = canon + strlen( canon ); /* Remember end of string      */
       if (subscript > HOSTLEN)
       {
          subscript /= HOSTLEN;

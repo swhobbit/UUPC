@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.1 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: pos2err.c 1.2 1993/09/30 03:06:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ * Revision 1.2  1993/09/30  03:06:28  ahd
+ * Handle selected errors with special messages
+ *
  * Revision 1.1  1993/09/24  03:43:27  ahd
  * Initial revision
  *
@@ -126,7 +129,7 @@ void pOS2Err(const size_t lineno,
    l = strlen( buf );
 
    if (( buf[l-1] == '\n') & (l < sizeof buf ))
-      buf[l-1] = '\0';          /* Drop extra newline from string      */
+      buf[l-1] = '\0';          /* Drop extra newline from string     */
 
 /*--------------------------------------------------------------------*/
 /*           Display the message with option file location            */

@@ -9,9 +9,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: STRPOOL.C 1.3 1992/12/04 01:00:27 ahd Exp $
+ *    $Id: strpool.c 1.4 1993/09/20 04:38:11 ahd Exp $
  *
- *    $Log: STRPOOL.C $
+ *    $Log: strpool.c $
+ *     Revision 1.4  1993/09/20  04:38:11  ahd
+ *     TCP/IP support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support
+ *
  * Revision 1.3  1992/12/04  01:00:27  ahd
  * Delete allocating pool message; now handled by pools allocated summary
  *
@@ -138,7 +143,7 @@ char *strpool( const char *input , const char *file, size_t line)
                return target+diff;
             }
 
-            target += target_len + 1;  /* Step to start of next string  */
+            target += target_len + 1;  /* Step to start of next string */
 
          } /* while( offset < current->used ) */
       }  /* if */
@@ -157,7 +162,7 @@ char *strpool( const char *input , const char *file, size_t line)
       }
       else
          last =  current;        /* Save last buffer in case we
-                                    have to chain new buffer in      */
+                                    have to chain new buffer in       */
       current = current->next_link;
    }  /* while */
 
@@ -166,8 +171,8 @@ char *strpool( const char *input , const char *file, size_t line)
 /*    into our pool                                                   */
 /*--------------------------------------------------------------------*/
 
-   if ( save == NULL )           /* We find a buffer?                */
-   {                             /* No --> Allocate a new one        */
+   if ( save == NULL )           /* We find a buffer?                 */
+   {                             /* No --> Allocate a new one         */
       pools ++;
 
       save = malloc( sizeof *save );
@@ -277,7 +282,7 @@ void dump_pool( void )
                      strings,
                      target_len,
                      current->pool + offset);
-         offset += target_len +1;  /* Go to end of string            */
+         offset += target_len +1;  /* Go to end of string             */
 
       } /* while( offset < current->used ) */
 

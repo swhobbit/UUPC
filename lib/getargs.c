@@ -60,11 +60,11 @@ int getargs(char *line, char **flds)
                   break;
 
                case '\\':
-                  switch(*++line)         /* Unless the following    */
-                  {                       /* character is very       */
-                     default:             /* special we pass the \   */
+                  switch(*++line)         /* Unless the following     */
+                  {                       /* character is very        */
+                     default:             /* special we pass the \    */
                         if (!isspace(*line))
-                           *out++ = '\\'; /* and following char on   */
+                           *out++ = '\\'; /* and following char on    */
                      case '"':
                      case '\'':
                         *out++ = *line++;

@@ -1,10 +1,14 @@
 /*
- *    $Id: SETSTDIN.C 1.1 1993/04/09 06:22:00 dmwatt Exp $
+ *    $Id: SETSTDIN.C 1.1 1993/04/10 21:22:29 dmwatt Exp $
  *
  *    $Log: SETSTDIN.C $
+ * Revision 1.1  1993/04/10  21:22:29  dmwatt
+ * Initial revision
+ *
  *     Revision 1.1  1993/04/09  06:22:00  dmwatt
  *     Written
- *
+
+*
  */
 
 /*--------------------------------------------------------------------*/

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.2 1993/09/20 04:38:11 ahd Exp $
+ *    $Id: catcher.c 1.3 1993/09/29 04:49:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.3  1993/09/29  04:49:20  ahd
+ *     Use actual signal handler number for resetting handler
+ *
  *     Revision 1.2  1993/09/20  04:38:11  ahd
  *     TCP/IP support from Dave Watt
  *     't' protocol support
@@ -70,7 +73,7 @@ boolean interactive_processing = TRUE;
 boolean norecovery = TRUE;
 
 #if defined(WIN32) || defined(_Windows)
-boolean winsockActive = FALSE;      // Set/reset in ulibip.c
+boolean winsockActive = FALSE;      /* Set/reset in ulibip.c          */
 #endif
 
 int panic_rc = 69;
@@ -150,7 +153,7 @@ ctrlchandler( int sig )
       safeout( "\r\n" );
       safeout( compilen );
       safeout( ": Abort processing? (Y/N) " );
-      safeflush();            /* Flush any queued characters         */
+      safeflush();            /* Flush any queued characters          */
       ch = safein();
 
       switch( ch )

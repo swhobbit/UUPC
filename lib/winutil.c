@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.4 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: winutil.c 1.5 1993/10/02 19:07:49 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.5  1993/10/02  19:07:49  ahd
+ * Print module name when winexec() fails
+ *
  * Revision 1.4  1993/08/03  03:11:49  ahd
  * Further Windows 3.x fixes
  *
@@ -70,15 +73,15 @@
 /*      Globals needed by callback functions & useful elsewhere       */
 /*--------------------------------------------------------------------*/
 
-HTASK hOurTask;               // Our task handle
-HWND hOurWindow;              // Our EasyWin main window handle
+HTASK hOurTask;               /* Our task handle                      */
+HWND hOurWindow;              /* Our EasyWin main window handle       */
 
 /*--------------------------------------------------------------------*/
 /*                         Used only locally                          */
 /*--------------------------------------------------------------------*/
 
-static HINSTANCE hChildInst;            // Instance of child proc
-static HWND hTheWindow;                 // Used by WindCatcher() during enumeration
+static HINSTANCE hChildInst;            /* Instance of child proc     */
+static HWND hTheWindow;                 /* Used by WindCatcher() during enumeration */
 
 
 BOOL CALLBACK WindCatcher(HWND hWnd, LPARAM lparam);
@@ -87,7 +90,7 @@ BOOL CALLBACK NotifyCatcher(WORD wID, DWORD dwData);
 static LPFNNOTIFYCALLBACK lpfnNotifyCB;
 static FARPROC lpfnEnumWinCB;
 
-void _DoneEasyWin(void);      // In TCWIN library
+void _DoneEasyWin(void);      /* In TCWIN library                     */
 
 //------------------------------------------------------------------------
 //
@@ -316,11 +319,11 @@ BOOL CALLBACK WindCatcher (HWND hWnd, LPARAM lparam)
     int i;
 
     if ((i = GetClassName(hWnd, (LPSTR)buf, BUF_LEN)) == 0)
-       return(FALSE);                      // OOPS!
-    buf[i] = '\0';                          // Make cstr
-    if (lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) // If we found it
+       return(FALSE);                      /* OOPS!                   */
+    buf[i] = '\0';                          /* Make cstr              */
+    if (lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) /* If we found it */
     {
-                hTheWindow = hWnd;                  // Save it for called func
+                hTheWindow = hWnd;                  /* Save it for called func */
         return(FALSE);
     }
     return(TRUE);

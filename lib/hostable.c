@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: HOSTABLE.C 1.6 1993/05/29 15:19:59 ahd Exp $
+  *      $Id: hostable.c 1.7 1993/06/21 02:17:31 ahd Exp $
   *
-  *      $Log: HOSTABLE.C $
+  *      $Log: hostable.c $
+ *     Revision 1.7  1993/06/21  02:17:31  ahd
+ *     Correct errors in mail routing via HOSTPATH
+ *
  *     Revision 1.6  1993/05/29  15:19:59  ahd
  *     Allow configured systems, passwd files
  *
@@ -69,7 +72,7 @@ static size_t loadhost( void );
 
 static int hostcmp( const void *a , const void *b );
 
-static size_t localdomainl;   /* Length of localdomain               */
+static size_t localdomainl;   /* Length of localdomain                */
 
 /*--------------------------------------------------------------------*/
 /*    c h e c k n a m e                                               */
@@ -91,14 +94,14 @@ static size_t localdomainl;   /* Length of localdomain               */
 
 struct HostTable *checkname(const char *name)
 {
-   char  hostname[MAXADDR];   /* Local copy of name to process       */
-   char *period;              /* Pointer "." in hostname             */
-   size_t namel;              /* Length of the name input            */
-   size_t column;             /* Length of the name input            */
+   char  hostname[MAXADDR];   /* Local copy of name to process        */
+   char *period;              /* Pointer "." in hostname              */
+   size_t namel;              /* Length of the name input             */
+   size_t column;             /* Length of the name input             */
 
    static char savename[MAXADDR] = "";
                               /* Saved copy of name to make function
-                                 reducible                           */
+                                 reducible                            */
    static struct HostTable *hostz;
 
 /*--------------------------------------------------------------------*/
@@ -119,7 +122,7 @@ struct HostTable *checkname(const char *name)
 
    if (equali(name, savename))
       return hostz;
-   strcpy( savename, name);   /* Save for next pass                  */
+   strcpy( savename, name);   /* Save for next pass                   */
 
 /*--------------------------------------------------------------------*/
 /*                      Search for the full name                      */
@@ -176,16 +179,16 @@ struct HostTable *checkname(const char *name)
 /*               Perform a wildcard domain name search                */
 /*--------------------------------------------------------------------*/
 
-   period = (char *) name;    /* Begin at front of name              */
+   period = (char *) name;    /* Begin at front of name               */
    while( period != NULL )
    {
       sprintf( hostname,(*period == '.') ? "*%s" : "*.%s",period);
                               /* We add the missing period for the
-                                 first pass through the loop         */
+                                 first pass through the loop          */
       if ((hostz = searchname(hostname, MAXADDR)) != BADHOST)
          return hostz;
       period = strchr(++period,'.');   /* Not found, search for next
-                                          higher domain              */
+                                          higher domain               */
    }
 
 /*--------------------------------------------------------------------*/
@@ -212,10 +215,10 @@ struct HostTable *checkreal(const char *name)
 /*--------------------------------------------------------------------*/
 
    if ((hostp == BADHOST) || (hostp->hstatus >= nocall))
-      return hostp;           /* Return raw information              */
+      return hostp;           /* Return raw information               */
    else
       return BADHOST;         /* Not a real host, invalid for our
-                                 purposes                            */
+                                 purposes                             */
 
 } /* searchreal */
 
@@ -231,12 +234,12 @@ struct HostTable *searchname(const char *name, const size_t namel)
    int   lower;
    int   upper;
 
- /*------------------------------------------------------------------*/
- /*             Initialize the host name table if needed             */
- /*------------------------------------------------------------------*/
+ /*-------------------------------------------------------------------*/
+ /*             Initialize the host name table if needed              */
+ /*-------------------------------------------------------------------*/
 
-   if (HostElements == 0)           /* host table initialized yet?   */
-      HostElements = loadhost();        /* No --> load it            */
+   if (HostElements == 0)           /* host table initialized yet?    */
+      HostElements = loadhost();        /* No --> load it             */
 
    lower = 0;
    upper = HostElements - 1;
@@ -290,8 +293,8 @@ struct HostTable *nexthost( const boolean start )
 {
    static size_t current = 0;
 
-   if (HostElements == 0)     /* host table initialized yet?         */
-      HostElements = loadhost(); /* No --> load it                   */
+   if (HostElements == 0)     /* host table initialized yet?          */
+      HostElements = loadhost(); /* No --> load it                    */
 
    if (start)
       current = 0;
@@ -323,7 +326,7 @@ struct HostTable *inithost(char *name)
    size_t hit = HostElements;
    size_t element = 0;
    static size_t max_elements = 32; /* This is automatically
-                                       raised if we run out of room  */
+                                       raised if we run out of room   */
 
    if (hosts == NULL)
    {
@@ -364,7 +367,7 @@ struct HostTable *inithost(char *name)
       memset( &hosts[hit] , 0, sizeof hosts[hit] );
       hosts[hit].hostname = newstr(name);
       checkref( hosts[hit].hostname );
-      hosts[hit].anylogin = TRUE;   /* Allow generic login by default   */
+      hosts[hit].anylogin = TRUE;   /* Allow generic login by default */
       HostElements ++ ;
    } /* if */
 
@@ -383,7 +386,7 @@ static size_t loadhost()
    FILE *ff;
    char buf[BUFSIZ];
    char *token;
-   char s_hostable[FILENAME_MAX]; /* full-name of hostable file        */
+   char s_hostable[FILENAME_MAX]; /* full-name of hostable file       */
    size_t hit;
 
    struct HostTable *hostp;
@@ -407,7 +410,7 @@ static size_t loadhost()
    hostp = inithost(E_nodename);
    hostp->hstatus  = localhost;
    hostp->realname = E_nodename; /* Don't let user alias our system
-                                    name                             */
+                                    name                              */
 
 /*--------------------------------------------------------------------*/
 /*                Now do the local domain information                 */
@@ -415,11 +418,11 @@ static size_t loadhost()
 
    hostp = inithost(E_domain);
 
-   if (hostp->via == NULL )   /* Not initialized?                    */
-      hostp->via      = E_nodename;  /* Correct --> Route via local  */
+   if (hostp->via == NULL )   /* Not initialized?                     */
+      hostp->via      = E_nodename;  /* Correct --> Route via local   */
    else
       panic();                /* "Houston, we a have problem" -
-                                 Apollo 13                           */
+                                 Apollo 13                            */
 
    hostp->realname = E_nodename;
 
@@ -452,13 +455,13 @@ static size_t loadhost()
 
    while (! feof(ff))
    {
-      if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line      */
-         break;                  /* Exit if end of file              */
+      if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line       */
+         break;                  /* Exit if end of file               */
       token = strtok(buf,WHITESPACE);
-      if (token == NULL)         /* Any data?                        */
-         continue;               /* No --> read another line         */
+      if (token == NULL)         /* Any data?                         */
+         continue;               /* No --> read another line          */
       if (token[0] == '#')
-         continue;                  /* Line is a comment; loop again */
+         continue;                  /* Line is a comment; loop again  */
 
       if ( equali( token, E_nodename ))
       {
@@ -493,15 +496,15 @@ static size_t loadhost()
       {
          boolean freeit = FALSE;
 
-         if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line      */
-            break;                  /* Exit if end of file              */
+         if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line    */
+            break;                  /* Exit if end of file            */
          token = strtok(buf,WHITESPACE);
 
-         if (token == NULL)         /* Any data?                        */
-            continue;               /* No --> read another line         */
+         if (token == NULL)         /* Any data?                      */
+            continue;               /* No --> read another line       */
 
          if (*token == '#')
-            continue;               /* Line is a comment; loop again    */
+            continue;               /* Line is a comment; loop again  */
 
          hostp = inithost(token);
          token = strtok(NULL,WHITESPACE);
@@ -527,8 +530,8 @@ static size_t loadhost()
                while(isspace( *token ))   /* Drop leading white space only */
                   token++;
 
-               if (*token == '\0')        /* Empty string?           */
-                  freeit = TRUE;          /* Yes --> Flag for error  */
+               if (*token == '\0')        /* Empty string?            */
+                  freeit = TRUE;          /* Yes --> Flag for error   */
                else
                   hostp->via = token = newstr(token);
             } /* else if */
@@ -585,7 +588,7 @@ static size_t loadhost()
          if ( freeit )
          {
             if ( hostp->hstatus == phantom )
-               HostElements--;            /* Ignore the routing entry   */
+               HostElements--;            /* Ignore the routing entry */
          }
       }  /* end while */
 
@@ -600,15 +603,15 @@ static size_t loadhost()
 /*                   Provide default for fromdomain                   */
 /*--------------------------------------------------------------------*/
 
-   if (E_fdomain != NULL)     /* If fromdomain provided ...          */
+   if (E_fdomain != NULL)     /* If fromdomain provided ...           */
    {
       hostp = inithost(E_fdomain);
 
-      if (hostp->via == NULL)    /* Uninitialized?                   */
-         hostp->via = E_mailserv;   /* Yes --> Use default route     */
+      if (hostp->via == NULL)    /* Uninitialized?                    */
+         hostp->via = E_mailserv;   /* Yes --> Use default route      */
    }
    else
-      E_fdomain = E_domain;   /* Use domain as fromdomain            */
+      E_fdomain = E_domain;   /* Use domain as fromdomain             */
 
 /*--------------------------------------------------------------------*/
 /*    Shrink the table to whatever we actually need, then sort it     */
@@ -633,13 +636,13 @@ static size_t loadhost()
       if (E_localdomain == NULL)
          E_localdomain = "UUCP";
       else {
-         E_localdomain ++;    /* Step past the period                */
+         E_localdomain ++;    /* Step past the period                 */
 
          if ( !equali(E_localdomain, "UUCP" ) &&
               (strchr( E_localdomain, '.' ) == NULL ))
-                              /* Implied single level domain name?   */
+                              /* Implied single level domain name?    */
             E_localdomain = E_domain;
-                              /* Impossible, use both parts of name  */
+                              /* Impossible, use both parts of name   */
       } /* else */
 
       printmsg(3,"loadhost: local domain defined as \"%s\"",

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.7 1993/08/03 03:11:49 ahd Exp $
+ *    $Id: timestmp.c 1.8 1993/08/11 02:31:12 ahd Exp $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *     Revision 1.8  1993/08/11  02:31:12  ahd
+ *     Always display the banner
+ *
  *     Revision 1.7  1993/08/03  03:11:49  ahd
  *     Drop _EasyWinInit
  *
@@ -104,10 +107,10 @@ void banner (char **argv)
 
    wVersion = LOWORD(GetVersion());
    asm {
-         MOV      AX,0x400   // DPMI Get Version call
-         INT      0x31       // ax=ver,bx=win286/386...
-         AND      BX,3       // win386=1,win286=2
-         MOV      wMode,BX   // Put in local
+         MOV      AX,0x400   /* DPMI Get Version call                 */
+         INT      0x31       /* ax=ver,bx=win286/386...               */
+         AND      BX,3       /* win386=1,win286=2                     */
+         MOV      wMode,BX   /* Put in local                          */
    }
 
    switch(wMode)
@@ -154,7 +157,7 @@ void banner (char **argv)
          _splitpath( argv[0], dummy , dummy , program , dummy );
 #endif /* __TURBOC__ */
 
-         strcpy(argv[0], program);  /* Reset original program name   */
+         strcpy(argv[0], program);  /* Reset original program name    */
          compilen = argv[0];
 
 /*--------------------------------------------------------------------*/
@@ -163,7 +166,7 @@ void banner (char **argv)
 
 #ifndef _Windows
       if (!isatty(fileno(stdout))) /* Is the console I/O redirected?  */
-         return;                 /* Yes --> Run quietly              */
+         return;                 /* Yes --> Run quietly               */
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -207,8 +210,8 @@ void banner (char **argv)
    hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
    SetWindowText(hOurWindow, dummy);
 
-   ddelay(0);           // To insure we yield control at least once;
-                        // see comments in winutil.c.
+   ddelay(0);           /* To insure we yield control at least once;  */
+                        /* see comments in winutil.c.                 */
 #endif
 
 } /* banner */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeout.c 1.4 1993/09/20 04:39:51 ahd Exp $
+ *    $Id: safeout.c 1.5 1993/10/03 00:05:32 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeout.c $
+ *     Revision 1.5  1993/10/03  00:05:32  ahd
+ *     Only define currentfile() under Windows NT
+ *
  *     Revision 1.4  1993/09/20  04:39:51  ahd
  *     OS/2 2.x support
  *
@@ -36,7 +39,7 @@
 /*    I/O operations outside the signal handler.                      */
 /*--------------------------------------------------------------------*/
 
-#define __MSC                 /* Make Borland C++ 2.0 act like MS C  */
+#define __MSC                 /* Make Borland C++ 2.0 act like MS C   */
 
 #include <stdio.h>
 
@@ -131,7 +134,7 @@ void safeout( char *str )
         int86( 0x10, &inregs, &outregs );
     }
 
-    safeflush();              /* Flush keyboard                      */
+    safeflush();              /* Flush keyboard                       */
 
 #endif /* _Windows */
 } /* safeout */

@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.6 1993/05/03 02:41:57 ahd Exp $
+ *    $Id: scrsize.c 1.7 1993/10/09 15:46:15 rhg Exp $
  *
- *    $Log: SCRSIZE.C $
+ *    $Log: scrsize.c $
+ *     Revision 1.7  1993/10/09  15:46:15  rhg
+ *     ANSIify the source
+ *
  *     Revision 1.6  1993/05/03  02:41:57  ahd
  *     Trap funky screen size on pre-DOS 4.0 boxes (poor babies...)
  *
@@ -95,7 +98,7 @@ short scrsize( void )
 
    if ((_osmajor < 4) || error )
       return (short) (default_rows ? default_rows : *bios_rows);
-                                 /* Faster, but not well documented  */
+                                 /* Faster, but not well documented   */
 
 /*--------------------------------------------------------------------*/
 /*             Fill in information to perform processing              */
@@ -127,7 +130,7 @@ short scrsize( void )
                   (short) (default_rows ? default_rows : *bios_rows ));
       error = TRUE;
       return (short) (default_rows ? default_rows : *bios_rows);
-                                 /* Faster, but not well documented  */
+                                 /* Faster, but not well documented   */
    }
    else
       return info.dmRows;
