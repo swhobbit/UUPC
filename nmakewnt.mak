@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.20 1997/05/11 04:25:17 ahd Exp $
+#       $Id: nmakewnt.mak 1.21 1997/05/11 18:14:54 ahd v1-12s $
 #
 #       Copyright (c) 1989-1997 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.21  1997/05/11 18:14:54  ahd
+#       Allow co-existence of SMTP and non-SMTP rmail/rmailn modules
+#
 #       Revision 1.20  1997/05/11 04:25:17  ahd
 #       SMTP client support for RMAIL/UUXQT
 #
@@ -105,6 +108,7 @@ LDOPT    = $(COMMOPT) -Fe$@
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
 
-EXTRAT=regsetup.exe uupcdll.dll
+EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe
+EXTRA1=$(PROD)\uusmtpd.exe
 EXTRA2=$(PROD)\regsetup.exe
 EXTRA3=$(PROD)\uupcdll.dll

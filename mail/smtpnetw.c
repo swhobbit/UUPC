@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.2 1997/11/24 02:52:26 ahd Exp $
+ *    $Id: smtpnetw.c 1.3 1997/11/25 05:05:06 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.3  1997/11/25 05:05:06  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.2  1997/11/24 02:52:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -50,7 +53,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.2 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.3 1997/11/25 05:05:06 ahd Exp $");
 
 currentfile();
 
@@ -333,19 +336,19 @@ getModeTimeout( SMTPMode mode )
 
    switch( mode )
    {
-      case SM_INVALID:     return 0;
-      case SM_MASTER:      return LONG_MAX;
-      case SM_CONNECTED:   return 0;
-      case SM_UNGREETED:   return MINUTE(5);
-      case SM_IDLE:        return MINUTE(10);
-      case SM_ADDR_FIRST:  return MINUTE(5);
-      case SM_ADDR_SECOND: return MINUTE(5);
-      case SM_DATA:        return MINUTE(15);
-      case SM_ABORT:       return 0;
-      case SM_TIMEOUT:     return 0;
-      case SM_EXITING:     return 0;
+      case SM_DELETE_PENDING:     return 0;
+      case SM_MASTER:             return LONG_MAX;
+      case SM_CONNECTED:          return 0;
+      case SM_UNGREETED:          return MINUTE(1);
+      case SM_IDLE:               return MINUTE(10);
+      case SM_ADDR_FIRST:         return MINUTE(5);
+      case SM_ADDR_SECOND:        return MINUTE(5);
+      case SM_DATA:               return MINUTE(15);
+      case SM_ABORT:              return 0;
+      case SM_TIMEOUT:            return 0;
+      case SM_EXITING:            return 0;
 
-      default:             return MINUTE(1);
+      default:                    return MINUTE(1);
 
    } /* switch( mode ) */
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.3 1997/11/24 02:52:26 ahd Exp $
+ *    $Id: smtpserv.c 1.4 1997/11/25 05:05:06 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.4  1997/11/25 05:05:06  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.3  1997/11/24 02:52:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -35,7 +38,7 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.3 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.4 1997/11/25 05:05:06 ahd Exp $");
 
 currentfile();
 
@@ -65,7 +68,7 @@ flagReadyClientList( SMTPClient *master )
 
    do {
 #ifdef UDEBUG
-      printmsg(5,"%s: Processing client %d, handle %d, "
+      printmsg(8,"%s: Processing client %d, handle %d, "
                   "mode 0x%04x, %d bytes buffered",
                   mName,
                   getClientSequence( current),
@@ -140,6 +143,7 @@ timeoutClientList( SMTPClient *current )
                   mName,
                   getClientSequence( current ));
          setClientMode( current, SM_TIMEOUT );
+         setClientProcess( current, KWTrue );
 
       } /* if ( isClientTimedOut( current )) */
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.2 1997/11/24 02:52:26 ahd Exp $
+ *    $Id: smtpd.c 1.3 1997/11/25 05:05:06 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.3  1997/11/25 05:05:06  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.2  1997/11/24 02:52:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -48,12 +51,13 @@
 #include "smtpserv.h"
 #include "getopt.h"
 #include "logger.h"
+#include "deliver.h"                /* To set grade ... yuck         */
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.2 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtpd.c 1.3 1997/11/25 05:05:06 ahd Exp $");
 
 currentfile();
 
@@ -122,6 +126,21 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 } /* daemonMode */
 
 /*--------------------------------------------------------------------*/
+/*       u s a g e                                                    */
+/*                                                                    */
+/*       Print command line options and exit                          */
+/*--------------------------------------------------------------------*/
+
+void
+usage()
+{
+   fprintf(stderr, "\nUsage:\tuusmtpd\t"
+            "[-l logfile] [-t] [-U] [-x debug]\n"
+            "\t\t[-h handle | -d hhmm]");
+   exit(4);
+}
+
+/*--------------------------------------------------------------------*/
 /*       m a i n                                                      */
 /*                                                                    */
 /*       Invocation of daemon for SMTP receipt                        */
@@ -154,58 +173,61 @@ main( int argc, char ** argv )
    if (!configure( B_UUSMTPD ))
       panic();
 
+   grade = E_mailGrade;
+
 /*--------------------------------------------------------------------*/
 /*       Parse our options, which will dictate how we process user    */
 /*       connections.                                                 */
 /*--------------------------------------------------------------------*/
 
-   while((option = getopt( argc, argv, "d:h:l:p:Ux:" )) != EOF)
+   while((option = getopt( argc, argv, "d:g:h:l:p:Ux:" )) != EOF)
    {
       switch( option )
       {
-      case 'd':
-         exitTime = atoi( optarg );
-         exitTime = time(NULL) + hhmm2sec(exitTime);
-         break;
+         case 'd':
+            exitTime = atoi( optarg );
+            exitTime = time(NULL) + hhmm2sec(exitTime);
+            break;
 
-      case 'h':
-         hotHandle = atoi( optarg );   /* Handle opened for us       */
-         break;
+         case 'h':
+            hotHandle = atoi( optarg );   /* Handle opened for us       */
+            break;
 
-      case 'l':                     /* Log file name              */
-         logfile_name = optarg;
-         break;
+         case 'g':
+            if ( isalnum(*optarg) && ( strlen( optarg) == 1 ))
+               grade = *optarg;
+            else {
+               printmsg(0,"Invalid grade for mail: %s", optarg );
+               usage();
+            }
+            break;
 
-      case 'p':
-         port = optarg;
-         break;
+         case 'l':                     /* Log file name              */
+            logfile_name = optarg;
+            break;
 
-      case 'U':
-         runUUXQT = KWTrue;
-         break;
+         case 'p':
+            port = optarg;
+            break;
 
-      case 'x':
-         debuglevel = atoi(optarg);
-         printmsg(0,"optarg = %s (%d), debuglevel = %d",
-                     optarg,
-                     atoi( optarg ),
-                     debuglevel );
-         break;
+         case 'U':
+            runUUXQT = KWTrue;
+            break;
 
-      default:
-         fprintf( stdout, "Invalid option '%c'.\n", option);
-         /* FALL THROUGH */
+         case 'x':
+            debuglevel = atoi(optarg);
+            break;
 
-      case '?':
-         puts("\nUsage:\tuusmtpd\t"
-         "[-l logfile] [-t] [-U] [-x debug]\n"
-         "\t\t[-h handle | -d hhmm]");
-         exit(4);
+         default:
+            fprintf( stdout, "Invalid option '%c'.\n", option);
+            /* FALL THROUGH */
+
+         case '?':
+            usage();
+            break;
 
       } /* switch( option ) */
    }
-
-   printmsg(0,"Debuglevel is %d", debuglevel );
 
 /*--------------------------------------------------------------------*/
 /*                Abort if any options were left over                 */

@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.h 1.3 1997/11/24 02:53:26 ahd Exp $
+ *       $Id: smtpverb.h 1.4 1997/11/25 05:05:36 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.h $
+ *       Revision 1.4  1997/11/25 05:05:36  ahd
+ *       More robust SMTP daemon
+ *
  *       Revision 1.3  1997/11/24 02:53:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -37,6 +40,8 @@
 typedef enum
 {
    SR_AA_FIRST,
+
+   /* SMTP return codes */
    SR_OK_CONNECT       = 220,
    SR_OK_QUIT          = 221,
    SR_OK_GENERIC       = 250,
@@ -52,6 +57,10 @@ typedef enum
    SR_PE_TOO_MANY_ADDR = 552,
    SR_PE_BAD_MAILBOX   = 553,
    SR_PE_NOT_POLICY    = 571,
+
+   /* Following only used for POP3 server */
+   POP_OKAY            = 1001,
+   POP_ERROR,
    SR_ZZ_LAST
 } SR_VERB;
 
@@ -91,7 +100,17 @@ typedef struct _SMTPVerb
    const char *pattern;             /* Operand input pattern         */
 } SMTPVerb;
 
+
 void
 SMTPInvokeCommand( SMTPClient *client );
+
+/*--------------------------------------------------------------------*/
+/*         Declarations for data/functions unique to procotol         */
+/*--------------------------------------------------------------------*/
+
+SMTPVerb verbTable[];
+
+void
+cleanupTransaction( SMTPClient *client );
 
 #endif /* _SMTPVERB_H */

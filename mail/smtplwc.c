@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.c 1.2 1997/11/24 02:52:26 ahd Exp $
+ *       $Id: smtplwc.c 1.3 1997/11/25 05:05:06 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.c $
+ *       Revision 1.3  1997/11/25 05:05:06  ahd
+ *       More robust SMTP daemon
+ *
  *       Revision 1.2  1997/11/24 02:52:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -44,7 +47,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtplwc.c 1.2 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtplwc.c 1.3 1997/11/25 05:05:06 ahd Exp $");
 
 currentfile();
 
@@ -183,7 +186,7 @@ commandRSET(SMTPClient *client,
             char **operands )
 {
 
-   cleanupClientMail( client );
+   cleanupTransaction( client );
    SMTPResponse( client, verb->successResponse, "Reset state" );
    return KWTrue;
 }

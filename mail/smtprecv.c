@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.1 1997/11/21 18:15:18 ahd Exp $
+ *       $Id: smtprecv.c 1.2 1997/11/24 02:52:26 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.2  1997/11/24 02:52:26  ahd
+ *       First working SMTP daemon which delivers mail
+ *
  *       Revision 1.1  1997/11/21 18:15:18  ahd
  *       Command processing stub SMTP daemon
  *
@@ -44,7 +47,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.1 1997/11/21 18:15:18 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.2 1997/11/24 02:52:26 ahd Exp $");
 
 currentfile();
 
@@ -105,6 +108,7 @@ commandMAIL(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
+   static const char mName[] = "commandMAIL";
    char response[MAXADDR];
    KWBoolean ourProblem;
 
@@ -133,14 +137,25 @@ commandMAIL(SMTPClient *client,
 /*       array                                                        */
 /*--------------------------------------------------------------------*/
 
-   client->sender = strdup( operands[0] );
-   checkref( client->sender );
+   if ( client->transaction != NULL )
+   {
+      printmsg(0,"%s: Internal error, client %d transaction already allocated",
+                 mName,
+                 getClientSequence( client ));
+   }
 
-   client->addressLength = MAXADDRS;
-   client->addressCount  = 0;
-   client->address = malloc( sizeof client->address[0] *
-                             client->addressLength );
-   checkref( client->address );
+   client->transaction = malloc( sizeof *(client->transaction));
+   checkref( client->transaction );
+
+   client->transaction->sender = strdup( operands[0] );
+   checkref( client->transaction->sender );
+
+   client->transaction->addressLength = MAXADDRS;
+   client->transaction->addressCount  = 0;
+   client->transaction->address =
+               malloc( sizeof client->transaction->address[0] *
+                       client->transaction->addressLength );
+   checkref( client->transaction->address );
 
 /*--------------------------------------------------------------------*/
 /*           We're ready for the addressee list, ask for it           */
@@ -167,11 +182,12 @@ commandRCPT(SMTPClient *client,
    char response[MAXADDR];
    KWBoolean ourProblem;
 
-   if ( client->addressCount >= client->addressLength )
+   if ( client->transaction->addressCount >=
+        client->transaction->addressLength )
    {
       SMTPResponse( client,
                     SR_PE_TOO_MANY_ADDR,
-                    "We cannot handle additional addresses in one message");
+                    "Cannot handle additional addresses in message");
       return KWFalse;
    }
 
@@ -199,14 +215,15 @@ commandRCPT(SMTPClient *client,
 /*              The address is good, add it to the list               */
 /*--------------------------------------------------------------------*/
 
-   client->address[ client->addressCount ] = strdup( operands[0] );
-   checkref( client->address[ client->addressCount ] );
+   client->transaction->address[ client->transaction->addressCount ] =
+                        strdup( operands[0] );
+   checkref( client->transaction->address[ client->transaction->addressCount ] );
 
    sprintf( client->transmit.data,
             "<%s>... Okay (%s)",
-            client->address[ client->addressCount ],
+            client->transaction->address[ client->transaction->addressCount ],
             response );
-   client->addressCount += 1;
+   client->transaction->addressCount += 1;
 
    SMTPResponse( client, verb->successResponse, client->transmit.data );
 
@@ -225,17 +242,17 @@ commandDATA(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands )
 {
-   char *forwho = (char *) ((client->addressCount > 1 ) ?
+   char *forwho = (char *) ((client->transaction->addressCount > 1 ) ?
                               "multiple addresses" :
-                              client->address[0]);
+                              client->transaction->address[0]);
 
 /*--------------------------------------------------------------------*/
 /*              Open our data file, with error checking               */
 /*--------------------------------------------------------------------*/
 
-   client->imf = imopen( 0, TEXT_MODE );
+   client->transaction->imf = imopen( 0, TEXT_MODE );
 
-   if ( client->imf == NULL )
+   if ( client->transaction->imf == NULL )
    {
       sprintf( client->transmit.data,
                "Work file IMOpen failed: %s",
@@ -248,7 +265,8 @@ commandDATA(SMTPClient *client,
 /*             Generate required "Received" header lines              */
 /*--------------------------------------------------------------------*/
 
-   imprintf(client->imf,"%-10s from %s by %s (%s %s) with %sSMTP\n"
+   imprintf(client->transaction->imf,
+            "%-10s from %s by %s (%s %s) with %sSMTP\n"
                            "%-10s for %s; %s\n",
             "Received:",
             client->SMTPName,
@@ -288,7 +306,7 @@ commandDataInput(SMTPClient *client,
    size_t len = (size_t) client->receive.parsed - 2;
    int written;
 
-   if ( client->imf == NULL )       /* Previously flushed?           */
+   if ( client->transaction->imf == NULL )   /* Previously flushed?  */
       return KWFalse;               /* Yes --> Ignore data           */
 
 /*--------------------------------------------------------------------*/
@@ -311,8 +329,8 @@ commandDataInput(SMTPClient *client,
                     "Data contains Null (0x00) characters" );
 
       /* Flush the receipt of data */
-      imclose( client->imf );
-      client->imf = NULL;
+      imclose( client->transaction->imf );
+      client->transaction->imf = NULL;
       return KWFalse;
    }
 
@@ -333,7 +351,7 @@ commandDataInput(SMTPClient *client,
 /*                          Write the data out                        */
 /*--------------------------------------------------------------------*/
 
-   written = imwrite( first, 1, len, client->imf );
+   written = imwrite( first, 1, len, client->transaction->imf );
 
    if ( written < (int) strlen( first ))
    {
@@ -341,12 +359,12 @@ commandDataInput(SMTPClient *client,
                "Work file write failed: %s",
                strerror(errno) );
       SMTPResponse( client, SR_TE_SHORTAGE, client->transmit.data );
-      imclose( client->imf );
-      client->imf = NULL;
+      imclose( client->transaction->imf );
+      client->transaction->imf = NULL;
       return KWFalse;
    }
 
-   imputc( '\n', client->imf );
+   imputc( '\n', client->transaction->imf );
 
    return KWTrue;
 
@@ -373,9 +391,9 @@ commandPeriod(SMTPClient *client,
 /*       additional message.                                          */
 /*--------------------------------------------------------------------*/
 
-   if ( client->imf == NULL )       /* Stream previously flushed?    */
+   if ( client->transaction->imf == NULL )   /* Already flushed?     */
    {
-      cleanupClientMail( client );  /* Handle any dangling states    */
+      cleanupTransaction( client ); /* Handle any dangling states    */
       return KWTrue;                /* Allow return to idle state    */
    }
 
@@ -383,10 +401,11 @@ commandPeriod(SMTPClient *client,
 /*             Set flags up for the internal delivery engine          */
 /*--------------------------------------------------------------------*/
 
-   bflag[F_FASTSMTP] = KWFalse;
+   bflag[F_FASTSMTP] = KWFalse;     /* Never deliver immediately,
+                                       we are too busy               */
    remoteMail = KWTrue;
 
-   tokenizeAddress( client->sender,
+   tokenizeAddress( client->transaction->sender,
                     client->transmit.data,
                     fromNode,
                     fromUser);      /* No need to check return code,
@@ -394,8 +413,6 @@ commandPeriod(SMTPClient *client,
 
    rnode = fromNode;
    ruser = fromUser;
-   uuser = "uucp";
-   grade = E_mailGrade;          /* Get grade from configuration     */
 
 /*--------------------------------------------------------------------*/
 /*       And now, ladies and gentlemen, boys and girls, the moment    */
@@ -405,12 +422,14 @@ commandPeriod(SMTPClient *client,
    bflag[F_FASTSMTP] = KWFalse;  /* Don't do outbound SMTP           */
    remoteMail = KWTrue;          /* Mail did not originate here      */
 
-   for ( count = 0; count < client->addressCount; count++)
-      delivered += Deliver(client->imf, client->address[count], KWTrue);
+   for ( count = 0; count < client->transaction->addressCount; count++)
+      delivered += Deliver(client->transaction->imf,
+                           client->transaction->address[count],
+                           KWTrue);
 
-   flushQueues( client->imf );
+   flushQueues( client->transaction->imf );
 
-   cleanupClientMail( client );
+   cleanupTransaction( client );
 
 /*--------------------------------------------------------------------*/
 /*               Tell the client we delivered the message             */
@@ -426,3 +445,51 @@ commandPeriod(SMTPClient *client,
    return KWTrue;
 
 } /* commandPeriod */
+
+/*--------------------------------------------------------------------*/
+/*       c l e a n u p T r a n a c t i o n                            */
+/*                                                                    */
+/*       reset variables for a mail command                           */
+/*--------------------------------------------------------------------*/
+
+void
+cleanupTransaction( SMTPClient *client )
+{
+   if ( client->transaction == NULL )
+      return;
+
+   if ( client->transaction->imf )
+   {
+      imclose( client->transaction->imf );
+      client->transaction->imf = NULL;
+   }
+
+   if ( client->transaction->addressCount )
+   {
+      size_t count;
+      for ( count = 0;
+            count < client->transaction->addressCount;
+            count ++ )
+      {
+         free( client->transaction->address[ count ] );
+         client->transaction->address[ count ] = NULL;
+      }
+
+      client->transaction->addressCount = 0;
+   }
+
+   if ( client->transaction->address )
+   {
+      free( client->transaction->address );
+      client->transaction->address = NULL;
+   }
+
+   if ( client->transaction->sender )
+   {
+      free( client->transaction->sender );
+      client->transaction->sender = NULL;
+   }
+
+   client->transaction = NULL;
+
+} /* cleanupTransaction */

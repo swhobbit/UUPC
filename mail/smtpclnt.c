@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.3 1997/11/24 02:52:26 ahd Exp $
+ *       $Id: smtpclnt.c 1.4 1997/11/25 05:05:06 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.4  1997/11/25 05:05:06  ahd
+ *       More robust SMTP daemon
+ *
  *       Revision 1.3  1997/11/24 02:52:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -37,6 +40,7 @@
 #include "smtpverb.h"
 #include "smtpnetw.h"
 #include "ssleep.h"
+#include <limits.h>
 
 #include <ctype.h>
 
@@ -46,7 +50,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.3 1997/11/24 02:52:26 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.4 1997/11/25 05:05:06 ahd Exp $");
 
 static long clientSequence = 0;
 
@@ -141,6 +145,11 @@ initializeMaster( const char *portName, time_t exitTime )
 
    master->connectTime = master->lastTransactionTime = time( NULL );
 
+   if ( exitTime )
+      master->terminationTime = exitTime;
+   else
+      master->terminationTime = LONG_MAX;
+
    return master;
 
 } /* initializeMaster */
@@ -196,7 +205,7 @@ freeClient( SMTPClient *client )
 /*--------------------------------------------------------------------*/
 
    setClientClosed( client );
-   cleanupClientMail( client );
+   cleanupTransaction( client );
 
 /*--------------------------------------------------------------------*/
 /*          Drop the memory we have pointers to which we own          */
@@ -302,7 +311,7 @@ isClientValid( const SMTPClient *client )
    static const char mName[] = "isClientValid";
    KWBoolean result;
 
-   if (client->mode == SM_INVALID )
+   if (client->mode == SM_DELETE_PENDING )
       result = KWFalse;
    else
       result = KWTrue;
@@ -333,10 +342,15 @@ KWBoolean isClientEOF( const SMTPClient *client )
 KWBoolean
 isClientTimedOut( const SMTPClient *client )
 {
+   static const char mName[] = "isClientTimedOut";
    time_t now;
 
    /* Special case, since timeout is zero to force processing */
    if ( getClientProcess( client ))
+      return KWFalse;
+
+   /* Dead clients don't wear plaid ... or timeout */
+   if ( ! isClientValid( client ))
       return KWFalse;
 
    time(&now);
@@ -350,8 +364,10 @@ isClientTimedOut( const SMTPClient *client )
 #ifdef UDEBUG
       printmsg(2, "%s: Client %d last transaction time was %.24s "
                   "(time out after %d seconds)",
+                  mName,
+                  getClientSequence( client ),
                   ctime( &client->lastTransactionTime ),
-                  getClientTimeout(client) );
+                  getClientTimeout(client));
 #endif
       return KWTrue;
    }
@@ -413,7 +429,7 @@ setClientMode(SMTPClient *client, SMTPMode mode )
 #ifdef UDEBUG
    static const char mName[] = "setClientMode";
 
-   printmsg(2,
+   printmsg(mode == client->mode ? 8 : 3,
            "%s: Changing client %d from mode 0x%04x to mode 0x%04x",
             mName,
             getClientSequence( client ),
@@ -429,6 +445,12 @@ getClientMode( const SMTPClient *client )
 {
    return client->mode;
 }
+
+time_t
+getClientTerminationTime( const SMTPClient *client )
+{
+      return client->terminationTime;
+} /* getClientTerminationTime */
 
 void
 setClientReady(SMTPClient *client, KWBoolean ready )
@@ -580,48 +602,6 @@ size_t getClientBytesRead( SMTPClient *client )
 {
    return client->receive.bytesTransferred;
 }
-
-/*--------------------------------------------------------------------*/
-/*       c l e a n u p C l i e n t M a i l                            */
-/*                                                                    */
-/*       reset variables for a mail command                           */
-/*--------------------------------------------------------------------*/
-
-void
-cleanupClientMail( SMTPClient *client )
-{
-   if ( client->imf )
-   {
-      imclose( client->imf );
-      client->imf = NULL;
-   }
-
-   if ( client->addressCount )
-   {
-      size_t count;
-      for ( count = 0; count < client->addressCount; count ++ )
-      {
-         free( client->address[ count ] );
-         client->address[ count ] = NULL;
-      }
-
-      client->addressCount = 0;
-   }
-
-   if ( client->address )
-   {
-      free( client->address );
-      client->address = NULL;
-   }
-
-   if ( client->sender )
-   {
-      free( client->sender );
-      client->sender = NULL;
-   }
-
-} /* cleanupClientMail */
-
 
 void incrementClientTrivialCount( SMTPClient *client )
 {

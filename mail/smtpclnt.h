@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.3 1997/11/24 02:53:26 ahd Exp $
+ *    $Id: smtpclnt.h 1.4 1997/11/25 05:05:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.4  1997/11/25 05:05:36  ahd
+ *    More robust SMTP daemon
+ *
  *    Revision 1.3  1997/11/24 02:53:26  ahd
  *    First working SMTP daemon which delivers mail
  *
@@ -35,21 +38,22 @@
 
 #include "../uucico/uutcpip.h"
 #include "imfile.h"
+#include "smtptrns.h"
 
 typedef enum
 {
-   SM_SAME_MODE   = 0x0000,         /* Don't go to a new mode        */
-   SM_INVALID     = 0x0001,         /* Invalid client, to be dropped */
-   SM_MASTER      = 0x0002,         /* Master (listening) socket     */
-   SM_CONNECTED   = 0x0004,         /* Just connected, send own name */
-   SM_UNGREETED   = 0x0008,         /* We need a HELO command        */
-   SM_IDLE        = 0x0010,         /* Waiting for MAIL command      */
-   SM_ADDR_FIRST  = 0x0020,         /* Have MAIL, need RCPT          */
-   SM_ADDR_SECOND = 0x0040,         /* Have MAIL, need RCPT or DATA  */
-   SM_DATA        = 0x0080,         /* Processing message body       */
-   SM_ABORT       = 0x0100,         /* We unexpectedly lost client   */
-   SM_TIMEOUT     = 0x0200,         /* Client idle too long          */
-   SM_EXITING     = 0x0400          /* Server is shutting down       */
+   SM_SAME_MODE      = 0x0000,      /* Don't go to a new mode        */
+   SM_DELETE_PENDING = 0x0001,      /* Invalid client, to be dropped */
+   SM_MASTER         = 0x0002,      /* Master (listening) socket     */
+   SM_CONNECTED      = 0x0004,      /* Just connected, send own name */
+   SM_UNGREETED      = 0x0008,      /* We need a HELO command        */
+   SM_IDLE           = 0x0010,      /* Waiting for MAIL command      */
+   SM_ADDR_FIRST     = 0x0020,      /* Have MAIL, need RCPT          */
+   SM_ADDR_SECOND    = 0x0040,      /* Have MAIL, need RCPT or DATA  */
+   SM_DATA           = 0x0080,      /* Processing message body       */
+   SM_ABORT          = 0x0100,      /* We unexpectedly lost client   */
+   SM_TIMEOUT        = 0x0200,      /* Client idle too long          */
+   SM_EXITING        = 0x0400       /* Server is shutting down       */
 } SMTPMode;
 
 #define SMTP_MODES_ALL        0xffff
@@ -74,16 +78,12 @@ typedef struct _SMTPClient
    int handle;                      /* TCP/IP socket handle          */
    SMTPBuffer receive;
    SMTPBuffer transmit;
+   SMTPTransaction *transaction;    /* Actual transaction client owns*/
    SMTPMode mode;
 
-   char *SMTPName;                  /* Name client *claims* to be    */
    char *TrueName;                  /* Name DNS reports client to be */
-   char *sender;                    /* RFC-822 address of sender     */
-   char **address;                  /* List of addresses             */
-   IMFILE *imf;
+   char *SMTPName;                  /* Name client *claims* to be    */
 
-   size_t addressLength;            /* Size of address array         */
-   size_t addressCount;             /* Number entries in array used  */
    size_t trivialTransactions;
    size_t stalledReads;             /* Number of times read stalled  */
 
@@ -91,91 +91,88 @@ typedef struct _SMTPClient
    time_t lastTransactionTime;
    time_t connectTime;
    time_t timeoutPeriod;
+   time_t terminationTime;
 
    long sequence;
    KWBoolean ready;                 /* Socket ready for read/accept  */
    KWBoolean process;               /* Client should be processed    */
    KWBoolean endOfTransmission;
-   KWBoolean esmtp;
+   KWBoolean esmtp;                 /* SMTP specific, but not
+                                       transaction specific          */
    struct _SMTPClient *next;
    struct _SMTPClient *previous;
 
 } SMTPClient;
 
-KWBoolean isClientValid( const SMTPClient *client );
-
-KWBoolean isClientIgnored( const SMTPClient *client );
-
-KWBoolean isClientEOF( const SMTPClient *client );
-
-KWBoolean isClientTimedOut( const SMTPClient *client );
-
+/* Initialize */
 SMTPClient *initializeClient( SOCKET socket, KWBoolean needAccept );
-
 SMTPClient *initializeMaster( const char *port, time_t exitTime );
 
-void setClientMode(SMTPClient *client, SMTPMode mode );
-
-SMTPMode getClientMode( const SMTPClient *client );
-
-void setClientReady(SMTPClient *client, KWBoolean ready );
-
-void setClientProcess(SMTPClient *client, KWBoolean process );
-
-KWBoolean getClientReady( const SMTPClient *client );
-
-KWBoolean getClientProcess( const SMTPClient *client );
-
-time_t getClientTimeout( const SMTPClient *client );
-
-void
-setClientIgnore( SMTPClient *client, time_t delay );
-
-SOCKET getClientHandle( const SMTPClient *client );
-
-void setClientHandle( SMTPClient *client, SOCKET handle );
-
-int getClientSequence( const SMTPClient *client );
-
+/* Clean up */
 void freeClient( SMTPClient *client );
 
-void processClient( SMTPClient *client );
+/* Boolean queries, usually of derived values */
+KWBoolean isClientValid( const SMTPClient *client );
+KWBoolean isClientIgnored( const SMTPClient *client );
+KWBoolean isClientEOF( const SMTPClient *client );
+KWBoolean isClientTimedOut( const SMTPClient *client );
 
+/* Termination time (set only by initialization, so no method) */
+time_t getClientTerminationTime( const SMTPClient *client );
+
+/* Close client socket (opened in initialize functions */
 void setClientClosed( SMTPClient *client );
 
+/* Alter network socket id, used only when opening/closing it  */
+SOCKET getClientHandle( const SMTPClient *client );
+void setClientHandle( SMTPClient *client, SOCKET handle );
+
+/* Mode (state) flag */
+void setClientMode(SMTPClient *client, SMTPMode mode );
+SMTPMode getClientMode( const SMTPClient *client );
+
+/* Client network socket ready for processing */
+void setClientReady(SMTPClient *client, KWBoolean ready );
+KWBoolean getClientReady( const SMTPClient *client );
+
+/* Client genericly ready for processing (explicitly set true
+   by high level functions if if socket is ready) */
+void setClientProcess(SMTPClient *client, KWBoolean process );
+KWBoolean getClientProcess( const SMTPClient *client );
+
+/* Return count of bytes already in network input buffer */
 KWBoolean getClientBufferedData( const SMTPClient *client );
 
-void incrementClientTrivialCount( SMTPClient *client );
+/* Set client to not be flagged ready for delay seconds from present */
+void setClientIgnore( SMTPClient *client, time_t delay );
 
+/* Report timeout based on various flags, including mode and ignore */
+time_t getClientTimeout( const SMTPClient *client );
+
+/* Get unique sequence number for this client, used in debug msgs */
+int getClientSequence( const SMTPClient *client );
+
+/* Read data if needed and call command processor for client */
+void processClient( SMTPClient *client );
+
+/* Transaction Counter to detect Denial of Sevice Attacks */
+void incrementClientTrivialCount( SMTPClient *client );
 int getClientTrivialCount( const SMTPClient *client );
 
-/*--------------------------------------------------------------------*/
-/*                     Transmitted data counters                      */
-/*--------------------------------------------------------------------*/
-
+/* Transmitted lines counters */
 void incrementClientLinesWritten( SMTPClient *client );
-
 size_t getClientLinesWritten( SMTPClient *client );
 
-void incrementClientBytesWritten( SMTPClient *client,
-                               size_t count );
-
+/* Transmitted bytes counters */
+void incrementClientBytesWritten( SMTPClient *client, size_t count );
 size_t getClientBytesWritten( SMTPClient *client );
 
-/*--------------------------------------------------------------------*/
-/*                       Received data counters                       */
-/*--------------------------------------------------------------------*/
-
+/* Received lines counters */
 void incrementClientLinesRead( SMTPClient *client );
-
 size_t getClientLinesRead( SMTPClient *client );
 
-void incrementClientBytesRead( SMTPClient *client,
-                               size_t count );
-
+/* Received bytes counters */
+void incrementClientBytesRead( SMTPClient *client, size_t count );
 size_t getClientBytesRead( SMTPClient *client );
-
-void
-cleanupClientMail( SMTPClient *client );
 
 #endif  /* _SMTPCLIENT_H */
