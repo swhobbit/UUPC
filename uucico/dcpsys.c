@@ -39,9 +39,12 @@
 */
 
 /*
- *     $Id: DCPSYS.C 1.5 1992/11/18 03:49:21 ahd Exp $
+ *     $Id: DCPSYS.C 1.6 1992/11/19 03:00:51 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.6  1992/11/19  03:00:51  ahd
+ * drop rcsid
+ *
  * Revision 1.5  1992/11/18  03:49:21  ahd
  * Move check of call window to avoid premature lock file overhead
  *
@@ -514,7 +517,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*              Tell the remote host the protocol to use              */
 /*--------------------------------------------------------------------*/
 
-   sprintf(msg, "U%s", s);
+   sprintf(msg, "U%c", *s);
    wmsg(msg, TRUE);
 
    setproto(*s);
