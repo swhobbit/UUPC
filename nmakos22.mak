@@ -1,10 +1,13 @@
-#       $Id$
+#       $Id: NMAKOS22.MAK 1.1 1994/03/05 21:09:21 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
-#       $Log$
+#       $Log: NMAKOS22.MAK $
+#     Revision 1.1  1994/03/05  21:09:21  ahd
+#     Initial revision
+#
 #
 
 DEFFILE  = $(SRCSLASH)UUPCOS2.DEF
@@ -21,12 +24,16 @@ STACKSIZE= 0x80000
 WIDTH    = 32
 ZIPID    = 2
 
-#       Use this for debugging
-# DBGOPT  = -Ti -DUDEBUG -D__DEBUG_ALLOC__
+!ifdef NODEBUG
 #       Use this for production
 DBGOPT = -O
+!else
+#       Use this for debugging
+DBGOPT  = -Ti -DUDEBUG -Gd # -D__DEBUG_ALLOC__
+!endif
 
-CCOPT   = -q -Ss+ -Se -Gd $(DBGOPT) -I$(UULIB) -c -Fi -Si -Fo$@
-LDOPT   = $(DBGOPT) -B"/batch" -Fe $@
+COMMOPT = -Sv -Q $(DBGOPT)
+CCOPT   = $(COMMOPT) -Gs -Ss+ -Se -I$(UULIB) -c -Fi -Si -Fo$@
+LDOPT   = $(COMMOPT) -Fe $@
 UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
