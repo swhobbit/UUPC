@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.c 1.28 1998/03/01 01:24:02 ahd Exp $
+ *    $Id: imfile.c 1.29 1998/03/03 03:10:53 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: imfile.c $
+ *    Revision 1.29  1998/03/03 03:10:53  ahd
+ *    Correct cosmetic errors
+ *
  *    Revision 1.28  1998/03/01 01:24:02  ahd
  *    Annual Copyright Update
  *
@@ -122,6 +125,7 @@
 #endif
 
 #include <stdarg.h>
+#include <limits.h>
 #include <errno.h>
 #include <io.h>
 
@@ -133,9 +137,9 @@
 /*--------------------------------------------------------------------*/
 
 #ifdef BIT32ENV
-#define IM_MAX_LENGTH 1000000
+#define IM_MAX_LENGTH (4096 * 1024)
 #else
-#define IM_MAX_LENGTH 65000L        /* Under 64K, avoid silly ptr
+#define IM_MAX_LENGTH (63L * 1024L) /* Under 64K, avoid silly ptr
                                        wrap around                   */
 #endif
 
@@ -191,6 +195,7 @@ static int imReserve( IMFILE *imf, const unsigned long length )
 {
 
    unsigned long newLength = length + imf->position ;
+   unsigned long position;
 
 /*--------------------------------------------------------------------*/
 /*            If we have the memory allocated, return quietly         */
@@ -207,7 +212,7 @@ static int imReserve( IMFILE *imf, const unsigned long length )
    {
       char UUFAR *newBuffer;
 
-      newLength += newLength / 2;   /* Add a fifty percent  pad      */
+      newLength += newLength;   /* Add a 100 percent pad             */
 
       if ( newLength > IM_MAX_LENGTH )    /* Is the pad allowed?     */
          newLength = IM_MAX_LENGTH; /* No --> Just use max           */
@@ -215,7 +220,11 @@ static int imReserve( IMFILE *imf, const unsigned long length )
       newBuffer = REALLOC( imf->buffer, (size_t) newLength );
 
       if ( newBuffer == NULL )
+      {
          printerr( "realloc" );
+         imf->flag |= IM_FLAG_ERROR;
+         return -1;
+      }
       else {
          imf->length = newLength;
          imf->buffer = newBuffer;
@@ -252,6 +261,40 @@ static int imReserve( IMFILE *imf, const unsigned long length )
       return -1;
    }
 
+/*--------------------------------------------------------------------*/
+/*           We have a file, copy the memory buffer into it           */
+/*--------------------------------------------------------------------*/
+
+   position = 0;
+   while( position < imf->inUse )
+   {
+      int bytesToWrite = (int) min( imf->inUse - position,
+                                    (INT_MAX / 4096) * 4096);
+      int written = fwrite( imf->buffer + position,
+                            sizeof (char),
+                            bytesToWrite,
+                            imf->stream );
+
+
+      if ( bytesToWrite != written )
+      {
+         printerr( imf->filename );
+         imf->flag |= IM_FLAG_ERROR;
+         return -1;
+      }
+
+      position += written;
+
+   } /* while( position < imf->inUse ) */
+
+/*--------------------------------------------------------------------*/
+/*       Drop the old buffer and set pointer to NULL so routines      */
+/*       know what sort of I/O to perform.                            */
+/*--------------------------------------------------------------------*/
+
+   free( imf->buffer );
+   imf->buffer = NULL;
+
    return 0;
 
 } /* imReserve */
@@ -273,17 +316,6 @@ IMFILE *imopen( const long length,
 
    checkref( imf );
    memset( imf, 0, sizeof *imf );
-
-/*--------------------------------------------------------------------*/
-/*       Free our resources and return an error if we had problem     */
-/*       processing the open                                          */
-/*--------------------------------------------------------------------*/
-
-   if ( imf->flag & IM_FLAG_ERROR)
-   {
-      imclose( imf );
-      return NULL;
-   }
 
 /*--------------------------------------------------------------------*/
 /*       Determine if the file is image (binary) or text              */
@@ -313,7 +345,7 @@ IMFILE *imopen( const long length,
    }  /* if ( length <= IM_MAX_LENGTH ) */
    else
       printmsg(2,"imopen: Using disk for %ld byte file (max i-m is %ld)",
-                  imf->length,
+                  length,
                   (long) IM_MAX_LENGTH );
 
 /*--------------------------------------------------------------------*/
