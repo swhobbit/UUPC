@@ -17,10 +17,16 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.13 1994/01/01 19:12:56 ahd Exp $
+ *    $Id: mailsend.c 1.14 1994/02/19 04:18:30 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ * Revision 1.14  1994/02/19  04:18:30  ahd
+ * Use standard first header
+ *
+ * Revision 1.14  1994/02/19  04:18:30  ahd
+ * Use standard first header
+ *
  * Revision 1.13  1994/01/01  19:12:56  ahd
  * Annual Copyright Update
  *
@@ -719,9 +725,10 @@ static void Prompt_Input( char *tmailbag,
    printf("\nEnter message.  Enter ~? for help.  End input with %s\n",
           bflag[ F_DOT ] ?  "a period (.)" :
          "end-of-file (Control-Z)");
+
    for ( ; ; )
    {
-      if (Console_fgets(buf, LSIZE, "? "))
+      if (Console_fgets(buf, sizeof buf, "? "))
       {
          if (bflag[F_DOT] && equal(buf,".\n"))
             break;
@@ -739,7 +746,9 @@ static void Prompt_Input( char *tmailbag,
 
       if (buf[strlen(buf)-1] != '\n')
          fputc('\n', fmailbag);
+
    } /* for */
+
 } /* Prompt_Input */
 
 /*--------------------------------------------------------------------*/
