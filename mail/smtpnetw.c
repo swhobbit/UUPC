@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.11 1998/03/08 04:50:04 ahd Exp $
+ *    $Id: smtpnetw.c 1.12 1998/03/08 23:10:20 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.12  1998/03/08 23:10:20  ahd
+ *    Allow raw message transmission for POP messages
+ *    Make all receive errors fatal
+ *
  *    Revision 1.11  1998/03/08 04:50:04  ahd
  *    Close socket after read errors
  *
@@ -77,11 +81,13 @@
 #include "ssleep.h"
 #include "smtpverb.h"
 
+#define MAX_BUFFER_SIZE (1024 * 64)
+
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.11 1998/03/08 04:50:04 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.12 1998/03/08 23:10:20 ahd Exp $");
 
 currentfile();
 
@@ -771,7 +777,7 @@ SMTPRead(SMTPClient *client)
 
    if (client->receive.used >= client->receive.length)
    {
-      if (client->receive.length < (16*1024))
+      if (client->receive.length < MAX_BUFFER_SIZE)
       {
          printmsg(2, "%s: Client %d buffer size doubled to %d bytes",
                     mName,
@@ -783,7 +789,7 @@ SMTPRead(SMTPClient *client)
                                  client->receive.length);
          checkref(client->receive.data);
 
-      } /* if (client->receive.length < (16*1024)) */
+      } /* if (client->receive.length < MAX_BUFFER_SIZE) */
       else {
           printmsg(0, "%s: Client %d overran of input buffer %d,"
                       " truncated.",
@@ -974,7 +980,7 @@ selectReadySockets(SMTPClient *master)
    int maxSocket = 0;
    struct timeval timeoutPeriod;
 
-   timeoutPeriod.tv_sec = (master->next == NULL) ? 300 : 30;
+   timeoutPeriod.tv_sec = 30;
    timeoutPeriod.tv_usec = 0;
 
    FD_ZERO(&readfds);
