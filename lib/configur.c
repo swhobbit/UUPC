@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.46 1994/04/26 23:49:06 dmwatt Exp $
+ *    $Id: configur.c 1.47 1994/05/04 02:03:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.47  1994/05/04  02:03:11  ahd
+ *     Don't declare registry function if not under Windows NT
+ *
  *     Revision 1.46  1994/04/26  23:49:06  dmwatt
  *     Windows NT registry support
  *
@@ -347,58 +350,50 @@ CONFIGTABLE envtable[] = {
 /*--------------------------------------------------------------------*/
 
 FLAGTABLE configFlags[] = {
- { "askcc",       F_ASKCC,       B_LOCAL},
- { "autoedit",    F_AUTOEDIT,    B_LOCAL},
- { "autoinclude", F_AUTOINCLUDE, B_LOCAL},
- { "autoprint",   F_AUTOPRINT,   B_LOCAL},
- { "autosign",    F_AUTOSIGN,    B_LOCAL},
- { "backup",      F_BACKUP,      B_LOCAL},
- { "doskey",      F_DOSKEY,      B_LOCAL},
- { "dot",         F_DOT,         B_LOCAL},
- { "expert",      F_EXPERT,      B_LOCAL},
- { "forwardsave", F_SAVERESENT,  B_LOCAL},
- { "fromsep",     F_FROMSEP,     B_LOCAL},
- { "neweditorwindow",
-                  F_NEWEDITORSESSION,
-                                 B_LOCAL},
- { "newpagerwindow",
-                  F_NEWPAGERSESSION,
-                                 B_LOCAL},
- { "pager",       F_PAGER,       B_LOCAL},
- { "purge",       F_PURGE,       B_LOCAL},
- { "save",        F_SAVE,        B_LOCAL},
- { "suppresscopyright",
-                  F_SUPPRESSCOPYRIGHT,
-                                 B_LOCAL},
- { "speedovermemory",
-                  F_SPEEDOVERMEMORY,
-                                 B_LOCAL},
- { "undelete",    F_UNDELETE,    B_LOCAL},
- { "verbose",     F_VERBOSE,     B_LOCAL},
- { "windows",     F_WINDOWS,     B_LOCAL},
+ { "askcc",                   F_ASKCC,                 B_LOCAL},
+ { "autoedit",                F_AUTOEDIT,              B_LOCAL},
+ { "autoinclude",             F_AUTOINCLUDE,           B_LOCAL},
+ { "autoprint",               F_AUTOPRINT,             B_LOCAL},
+ { "autosign",                F_AUTOSIGN,              B_LOCAL},
+ { "backup",                  F_BACKUP,                B_LOCAL},
+ { "doskey",                  F_DOSKEY,                B_LOCAL},
+ { "dot",                     F_DOT,                   B_LOCAL},
+ { "expert",                  F_EXPERT,                B_LOCAL},
+ { "forwardsave",             F_SAVERESENT,            B_LOCAL},
+ { "fromsep",                 F_FROMSEP,               B_LOCAL},
+ { "neweditorwindow",         F_NEWEDITORSESSION,      B_LOCAL},
+ { "newpagerwindow",          F_NEWPAGERSESSION,       B_LOCAL},
+ { "pager",                   F_PAGER,                 B_LOCAL},
+ { "purge",                   F_PURGE,                 B_LOCAL},
+ { "save",                    F_SAVE,                  B_LOCAL},
+ { "speedovermemory",         F_SPEEDOVERMEMORY,       B_LOCAL},
+ { "suppresscopyright",       F_SUPPRESSCOPYRIGHT,     B_LOCAL},
+ { "undelete",                F_UNDELETE,              B_LOCAL},
+ { "verbose",                 F_VERBOSE,               B_LOCAL},
+ { "windows",                 F_WINDOWS,               B_LOCAL},
 
- { "bang",        F_BANG,        B_GLOBAL},
- { "bounce",      F_BOUNCE,      B_GLOBAL},
- { "collect",     F_COLLECTSTATS,B_GLOBAL},
- { "directory",   F_DIRECT,      B_GLOBAL},
- { "escape",      F_ESCAPE,      B_GLOBAL},
- { "history",     F_HISTORY,     B_GLOBAL},
- { "honordebug",  F_HONORDEBUG,  B_GLOBAL},
- { "honorcontrol",
-                  F_HONORCTRL,   B_GLOBAL},
- { "kanji",       F_KANJI,       B_GLOBAL},
- { "longname",    F_LONGNAME,    B_GLOBAL},
- { "monocase",    F_ONECASE,     B_GLOBAL},
- { "multiqueue",  F_MULTI,       B_GLOBAL},
- { "multitask",   F_MULTITASK,   B_GLOBAL},
- { "senddebug",   F_SENDDEBUG,   B_GLOBAL},
- { "shortfrom",   F_SHORTFROM,   B_GLOBAL},
- { "showspool",   F_SHOWSPOOL,   B_GLOBAL},
- { "snews",       F_SNEWS,       B_GLOBAL},
- { "suppressfrom",F_SUPPRESSFROM,B_GLOBAL},
- { "syslog",      F_SYSLOG,      B_GLOBAL},
- { "symmetricgrades", F_SYMMETRICGRADES, B_GLOBAL},
- { "uupcnewsserv", F_UUPCNEWSSERV, B_GLOBAL},
+ { "bang",                    F_BANG,                  B_GLOBAL},
+ { "bounce",                  F_BOUNCE,                B_GLOBAL},
+ { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
+ { "directory",               F_DIRECT,                B_GLOBAL},
+ { "escape",                  F_ESCAPE,                B_GLOBAL},
+ { "history",                 F_HISTORY,               B_GLOBAL},
+ { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
+ { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
+ { "kanji",                   F_KANJI,                 B_GLOBAL},
+ { "longname",                F_LONGNAME,              B_GLOBAL},
+ { "monocase",                F_ONECASE,               B_GLOBAL},
+ { "multiqueue",              F_MULTI,                 B_GLOBAL},
+ { "multitask",               F_MULTITASK,             B_GLOBAL},
+ { "senddebug",               F_SENDDEBUG,             B_GLOBAL},
+ { "shortfrom",               F_SHORTFROM,             B_GLOBAL},
+ { "showspool",               F_SHOWSPOOL,             B_GLOBAL},
+ { "snews",                   F_SNEWS,                 B_GLOBAL},
+ { "suppressemptypassword",   F_SUPPRESSEMPTYPASSWORD, B_GLOBAL},
+ { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
+ { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
+ { "syslog",                  F_SYSLOG,                B_GLOBAL},
+ { "uupcnewsserv",            F_UUPCNEWSSERV,          B_GLOBAL},
  { nil(char) }
 }           ;
 
