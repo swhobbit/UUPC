@@ -5,9 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989 by Andrew H. Derbyshire.             */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -19,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *    $Id: UUCP.C 1.2 1992/12/11 12:45:11 ahd Exp $
  *
  *    Revision history:
- *    $Log: LIB.H $
+ *    $Log: UUCP.C $
+ * Revision 1.2  1992/12/11  12:45:11  ahd
+ * Normalize paths for files read
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -64,7 +65,7 @@
 #include  "hlib.h"
 #include  "hostable.h"
 #include  "import.h"
-#include  "ndir.h"
+#include  "uundir.h"
 #include  "security.h"
 #include  "timestmp.h"
 

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\uucp\RCS\uuxqt.c 1.4 1992/11/23 03:56:06 ahd Exp ahd $
+ *    $Header: E:\src\uupc\UUCP\RCS\UUXQT.C 1.5 1992/11/25 12:59:17 ahd Exp $
  *
  *    Revision history:
- *    $Log: uuxqt.c $
+ *    $Log: UUXQT.C $
+ * Revision 1.5  1992/11/25  12:59:17  ahd
+ * Change NUL to /dev/nul to prevent ImportPath() mangling.
+ *
  * Revision 1.4  1992/11/23  03:56:06  ahd
  * Selected fixes for use of generlized uux commands
  *
@@ -357,7 +360,7 @@ static boolean do_uuxqt( const char *sysname )
 /*           Inner loop for processing files from one host            */
 /*--------------------------------------------------------------------*/
 
-         while (readnext(fname, hostp->hostname, "X", NULL) )
+         while (readnext(fname, hostp->hostname, "X", NULL, NULL, NULL) )
             if ( locked || LockSystem( hostp->hostname , B_UUXQT ))
             {
                process( fname , hostp->hostname );

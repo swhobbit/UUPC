@@ -366,7 +366,7 @@ void all( const char *system, const char *userid)
 /*   Examine all of the files in the spool directory for this host    */
 /*--------------------------------------------------------------------*/
 
-      while( readnext(fname , hostp->hostname, "C", NULL) )
+      while( readnext(fname , hostp->hostname, "C", NULL, &ltime, &size) )
       {
          boolean display = equal( userid, ALL );
          struct data_queue *data_link = NULL;
@@ -391,7 +391,6 @@ void all( const char *system, const char *userid)
             case POLL_CALL:
                if ( display )
                {
-                  ltime = stater(fname, &size);
                   hit = TRUE;
                   printf( "%s %s %s\n",canon+2,dater(ltime, NULL),
                         "(POLL)");
@@ -565,9 +564,8 @@ static void long_stats( const char *system )
 /*           Inner loop to count files and determine oldest           */
 /*--------------------------------------------------------------------*/
 
-      while( readnext(fname, hostp->hostname, "C", NULL) != NULL )
+      while( readnext(fname, hostp->hostname, "C", NULL, &ltime, &size) != NULL )
       {
-         ltime = stater( fname , &size);
          if ((ltime > -1) && (ltime < oldest_file ))
             oldest_file = ltime;
 
