@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: confvars.h 1.22 1994/12/27 20:50:28 ahd Exp $
+ *    $Id: confvars.h 1.23 1994/12/31 03:51:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: confvars.h $
+ *    Revision 1.23  1994/12/31 03:51:25  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.22  1994/12/27 20:50:28  ahd
  *    Smoother call grading
  *
@@ -140,5 +143,6 @@ extern char E_newsGrade;         /* Default grade for news              */
 extern KEWSHORT E_maxhops;
 extern KEWSHORT E_maxuuxqt;      /* Max length of command line for remote */
 extern long E_batchsize;         /* Size of remote batches                */
+extern KEWSHORT E_newsCache;     /* Pages of news index to cache        */
 
 #endif
