@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.1 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: batch.c 1.2 1995/01/02 05:03:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.2  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.1  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -54,10 +57,10 @@
 #include "import.h"
 #include "getseq.h"
 #include "batch.h"
+#include "execute.h"
 #include "sys.h"
 
 currentfile();
-static char buf[BUFSIZ];
 
 #define COMPRESS "compress"
 
@@ -106,15 +109,23 @@ static void queue_news( const char *sysName, const char *fname )
 static void copy_file_s2s(FILE *output, FILE *input, const char *filename)
 {
    size_t len;
+   char buf[BUFSIZ];
 
-   while ( (len = fread( buf, 1, sizeof buf, input)) != 0)
+   while ( (len = fread( buf, 1, sizeof buf, input)) > 0)
    {
       if (fwrite( buf, 1, len, output ) != len)     /* I/O error? */
       {
          printerr(filename);
          panic();
       } /* if */
+
    } /* while */
+
+   if ( ferror( input ))
+   {
+      printerr("read");
+      panic();
+   }
 
 } /* copy_file_s2s */
 
@@ -125,14 +136,14 @@ static void copy_file_s2s(FILE *output, FILE *input, const char *filename)
 /*       to our outgoing batch.                                       */
 /*--------------------------------------------------------------------*/
 
-void compress_batch(const char *system, const char *batchname)
+void compress_batch(const char *system, const char *batchName)
 {
    char zfile[FILENAME_MAX];
-   char filename[FILENAME_MAX];
+   char finalName[FILENAME_MAX];
    char *p;
 
    FILE *zfile_stream;
-   FILE *batch;
+   FILE *finalStream;
    int  status;
 
    char command[FILENAME_MAX * 4];
@@ -141,7 +152,7 @@ void compress_batch(const char *system, const char *batchname)
 /*                    Format the compressed file name                 */
 /*--------------------------------------------------------------------*/
 
-   strcpy(zfile, batchname);
+   strcpy(zfile, batchName);
 
    p = strrchr( zfile ,'\\' );   /* Get simple file name             */
    strtok(p ? p : zfile, "." );  /* Drop extension                   */
@@ -152,9 +163,9 @@ void compress_batch(const char *system, const char *batchname)
 /*--------------------------------------------------------------------*/
 
    if ( E_compress == NULL )
-      E_compress = COMPRESS "%s %s";
+      E_compress = COMPRESS " %s";
 
-   sprintf( command, E_compress, batchname, zfile );
+   sprintf( command, E_compress, batchName, zfile );
 
    status = executeCommand(command, NULL, NULL, TRUE, FALSE);
 
@@ -166,7 +177,7 @@ void compress_batch(const char *system, const char *batchname)
    {
       if ( status > 0 )
           printmsg(0, "%s command failed (exit code %d)",
-                        buf,
+                        command,
                         status);
       panic();
 
@@ -188,19 +199,23 @@ void compress_batch(const char *system, const char *batchname)
 /*                     Create a remote batch file                     */
 /*--------------------------------------------------------------------*/
 
-   fprintf(batch, "#! cunbatch\n");
+   mktempname( finalName, "TMP" );
+   finalStream = FOPEN( finalName, "w", IMAGE_MODE );
 
-   copy_file_s2s(batch, zfile_stream, filename);
-
-   fclose(batch);
-
-   /* use xmit only if we're not the destination in snews mode */
-
-   if (!equal(E_nodename, system))
+   if ( finalStream == NULL )
    {
-     queue_news(system, filename);
-     unlink(filename);
+      printerr( finalName );
+      panic();
    }
+
+   fprintf(finalStream, "#! cunbatch\n");
+
+   copy_file_s2s(finalStream, zfile_stream, finalName );
+
+   fclose(finalStream);
+
+   queue_news(system, finalName );
+   unlink(finalName);
 
    fclose(zfile_stream);
    unlink(zfile);
@@ -214,43 +229,34 @@ void compress_batch(const char *system, const char *batchname)
 /*       also the base for the uncompressed variation                 */
 /*--------------------------------------------------------------------*/
 
-static void build_batchname(FILE **batch,
-                            char *batchname,
+static void build_batchName(char *batchName,
                             const boolean nocompress )
 {
    char filename[FILENAME_MAX];
    boolean needtemp = TRUE;
 
-   if (! nocompress )
-   {
+   if (nocompress )
+     mktempname( filename, "TMP" );
+   else {
       while( needtemp )
       {
          mktempname( filename , "Z" );          /* Generate "compressed" file
                                                    name                       */
-         strcpy( batchname, filename );
-         batchname[ strlen(batchname)-2 ] = '\0';
+         strcpy( batchName, filename );
+         batchName[ strlen(batchName)-2 ] = '\0';
 
-         if ( access( batchname, 0 ))  /* Does the host file exist?       */
+         if ( access( batchName, 0 ))  /* Does the host file exist?       */
             needtemp = FALSE;        /* No, we have a good pair         */
          else
             printmsg(3, "Had compressed name %s, found %s already exists!",
-                     filename, batchname );
+                     filename, batchName );
 
       } /* while */
-   }
-   else
-     mktempname( filename, "TMP" );
 
-   denormalize( batchname );
-   *batch = FOPEN(batchname, "w", IMAGE_MODE);
+   }  /* else */
 
-   if (*batch == NULL)
-   {
-     printerr(batchname);
-     panic();
-   }
 
-} /* build_batchname */
+} /* build_batchName */
 
 /*--------------------------------------------------------------------*/
 /*       p r o c e s s _ b a t c h                                    */
@@ -261,61 +267,73 @@ static void build_batchname(FILE **batch,
 
 void process_batch(const struct sys *node,
                    const char *system,
-                   const char *artnames)
+                   const char *articleListName)
 {
 
    FILE    *article;
    FILE    *names;
-   FILE    *batch = NULL;
-   FILE    *temp;
+   FILE    *listCopy;
    long    where;
    int     done = FALSE;
 
-   char batchname[FILENAME_MAX];
-   char tempfilename[FILENAME_MAX];
+   char batchName[FILENAME_MAX];
+   char listCopyName[FILENAME_MAX];
 
    printmsg(2, "process_batch: batching for %s", system);
-   printmsg(4, "process_batch: batching from %s", artnames);
+   printmsg(4, "process_batch: batching from %s", articleListName);
 
    /* compressed batches are generated in the tempdir, with no extension */
 
-   names = FOPEN(artnames, "r", IMAGE_MODE);
+   names = FOPEN(articleListName, "r", IMAGE_MODE);
 
    if (names == NULL)  /* there are no article names to read */
      return;
 
-   mktempname(tempfilename, "TMP");
+   mktempname( listCopyName, "TMP");
 
-   temp = FOPEN(tempfilename, "w+", IMAGE_MODE);
+   listCopy = FOPEN( listCopyName, "w+", IMAGE_MODE);
 
-   if (temp == NULL)
+   if (listCopy == NULL)
    {
-     printerr(tempfilename);
+     printerr(listCopyName);
      panic();
    }
 
    while ((filelength(fileno(names)) > 0) || done)
    {
+     FILE    *batch = NULL;
+     char fileNameBuf[FILENAME_MAX];
 
-     build_batchname(&batch, batchname, node->flag.c );
+     build_batchName( batchName, node->flag.c );
+     denormalize( batchName );
+     batch = FOPEN(batchName, "w", IMAGE_MODE);
 
-     while (((E_batchsize == 0) ||
-             (filelength(fileno(batch)) < E_batchsize)) &&
-            (fgets(buf, FILENAME_MAX - 1, names) != NULL))
+     if (batch == NULL)
+     {
+       printerr(batchName);
+       panic();
+     }
+
+     while (filelength(fileno(batch)) < E_batchsize)
      {
        char filename[FILENAME_MAX];
 
-       strtok(buf, WHITESPACE); /* filename is first, dont need rest */
+      if (fgets(fileNameBuf, sizeof fileNameBuf, names) != NULL)
+         break;
 
-       printmsg(3, "Copying article %s", buf);
+       strtok(fileNameBuf, WHITESPACE);
+                                    /* filename is first, dont need rest */
 
-       denormalize( buf );
+       printmsg(3, "Copying article %s", fileNameBuf);
 
-       if (( *buf == '\\' ) ||               /* Full path name?      */
-           ( isalpha(*buf) && equalni( buf + 1, ":\\", 2 )))
-          strcpy( filename, buf );           /* Yes --> Just copy    */
+       denormalize( fileNameBuf );
+
+       if (( *fileNameBuf == '\\' ) ||    /* Full path name?         */
+           ( isalpha(*fileNameBuf) &&
+             equalni( fileNameBuf + 1, ":\\", 2 )))
+          strcpy( filename, fileNameBuf );   /* Yes --> Just copy    */
        else
-          mkfilename(filename, E_newsdir, buf);
+          mkfilename(filename, E_newsdir, fileNameBuf);
 
 /*--------------------------------------------------------------------*/
 /*                      Process a specific article                    */
@@ -325,16 +343,16 @@ void process_batch(const struct sys *node,
 
        if (article == NULL)
        {
-         printerr(buf);
-         fclose(temp);
-         unlink(tempfilename);
+         printerr(fileNameBuf);
+         fclose(listCopy);
+         unlink(listCopyName);
          fclose(batch);
-         unlink(batchname);
+         unlink(batchName);
          panic();
        }
 
        fprintf(batch, "#! rnews %ld\n", filelength(fileno(article)));
-       copy_file_s2s(batch, article, batchname);
+       copy_file_s2s(batch, article, batchName);
        fclose(article);
 
      } /* while names and batch small */
@@ -353,42 +371,43 @@ void process_batch(const struct sys *node,
        /* if we get back the compression happened ok */
 
        if (!node->flag.c)
-         compress_batch(system, batchname);
+         compress_batch(system, batchName);
        else
-         queue_news(system, batchname);
+         queue_news(system, batchName);
 
        /* keep the rest of the names in case of failure */
 
-       rewind(temp);
-       chsize(fileno(temp), 0); /* truncate the temp file */
+       rewind(listCopy);
+       chsize(fileno(listCopy), 0); /* truncate the listCopy file */
        where = ftell(names);
-       copy_file_s2s(temp, names, tempfilename);
+       copy_file_s2s(listCopy, names, listCopyName);
 
-       /* remove the stuff we just copied to temp */
+       /* remove the stuff we just copied to listCopy */
 
        fseek(names, 0, SEEK_SET);
        chsize(fileno(names), where);
 
        rewind(names);
 
-       while (fgets(buf, FILENAME_MAX - 1, names) != NULL)
+       while (fgets(fileNameBuf, sizeof fileNameBuf, names) != NULL)
        {
          char filename[FILENAME_MAX];
 
-         strtok(buf, WHITESPACE);   /* delete eoln chars             */
+         strtok(fileNameBuf, WHITESPACE);     /* delete eoln chars    */
 
-         denormalize( buf );
+         denormalize( fileNameBuf );
 
-         if (( *buf == '\\' ) ||               /* Full path name?      */
-             ( isalpha(*buf) && equalni( buf + 1, ":\\", 2 )))
-            strcpy( filename, buf );           /* Yes --> Just copy    */
+         if (( *fileNameBuf == '\\' ) ||     /* Full path name?      */
+             ( isalpha(*fileNameBuf) &&
+               equalni( fileNameBuf+ 1, ":\\", 2 )))
+            strcpy( filename, fileNameBuf );    /* Yes --> Just copy    */
          else
-            mkfilename(filename, E_newsdir, buf);
+            mkfilename(filename, E_newsdir, fileNameBuf);
 
          /* only delete article files stored in outgoing directory */
 
-         if ((strlen(buf) > strlen(E_newsdir)) &&
-              strstr(buf + strlen(E_newsdir), OUTGOING_NEWS ))
+         if ((strlen(filename) > strlen(E_newsdir)) &&
+              strstr(filename + strlen(E_newsdir), OUTGOING_NEWS ))
          {
            printmsg(3, "Deleting article %s", filename);
            unlink(filename);
@@ -398,24 +417,24 @@ void process_batch(const struct sys *node,
 
        /* restore the list of names we have not yet batched */
 
-       rewind(temp);
+       rewind(listCopy);
        rewind(names);
 
        chsize(fileno(names), 0); /* trunc the file completely */
 
-       copy_file_s2s(names, temp, artnames);
+       copy_file_s2s(names, listCopy, articleListName);
 
        rewind(names);
      }
      else
         done = TRUE;
 
-     unlink(batchname);
+     unlink(batchName);
 
    } /* while are names */
 
-   fclose(temp);
-   unlink(tempfilename);
+   fclose(listCopy);
+   unlink(listCopyName);
 
    fclose(names);
 
@@ -424,6 +443,6 @@ void process_batch(const struct sys *node,
     */
 
    if (!done)
-     unlink(artnames);
+     unlink(articleListName);
 
 } /* process_batch */

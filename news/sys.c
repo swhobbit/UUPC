@@ -47,9 +47,6 @@
 /*                                                                    */
 /*           n - Write message IDs after the filenames.               */
 /*                                                                    */
-/*        These do not work with SNEWS flag set, but will with either */
-/*        DISTRIBUTESNEWS or NODISTRIBUTESNEWS.                       */
-/*                                                                    */
 /*           m - transmit only moderated groups                       */
 /*                                                                    */
 /*           u - transmit only unmoderated groups                     */
@@ -77,10 +74,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.1 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: sys.c 1.2 1995/01/02 05:03:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.2  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.1  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -106,6 +106,7 @@
 #include "active.h"
 #include "hostable.h"
 #include "sys.h"
+#include "stater.h"
 
 currentfile();
 
@@ -126,19 +127,33 @@ static void bootStrap( const char *fileName );
 
 void process_sys(const long start, char *buf)
 {
-  struct sys *node;
+  struct sys *node = malloc(sizeof(struct sys));
+  static struct sys *previous = NULL;
   char       *f1, *f2, *f3, *f4, *s1, *s2, *t;
   long       start2;
 
-  printmsg(3, "process_sys: start %ld\nentry: %s", start, buf);
+  printmsg(3, "process_sys: start %ld, entry: %s", start, buf);
 
-  node = malloc(sizeof(struct sys));
 
   memset(node, 0, sizeof(struct sys));
-  node->next = sys_list;
+
+
+/*--------------------------------------------------------------------*/
+/*               Check this entry to the previous entry               */
+/*--------------------------------------------------------------------*/
+
+  if ( sys_list == NULL )
+     sys_list = node;
+  else
+     previous->next = node;
+
+  previous = node;                  /* Save this node for next pass  */
+
   node->maximumHops = USHRT_MAX;
 
-  sys_list = node;
+/*--------------------------------------------------------------------*/
+/*                    Begin processing the buffer                     */
+/*--------------------------------------------------------------------*/
 
   f1 = buf;                   /* node field    */
   f2 = strchr(f1, ':');       /* groups field  */
@@ -184,10 +199,13 @@ void process_sys(const long start, char *buf)
   /*
    * if the node field has a subfield, it's been stripped off already,
    * leaving the node name all by itself.  Note that ME is a special
-   * case, and refers to this machine, and is replaced by E_nodename.
+   * case, and refers to this machine, and is replaced by E_domain.
    */
 
-  node->sysname = newstr( equal(f1, ME) ? E_nodename : f1);
+  if ( equal(f1, ME ) || equal( f1, E_nodename ))
+     node->sysname = E_domain;
+  else
+     node->sysname = newstr( f1 );
 
   if (s1 != NULL)
   {
@@ -362,7 +380,7 @@ void process_sys(const long start, char *buf)
          node->flag.I ||
          node->flag.n ||
          (node->command == NULL )) &&
-        ! equal( node->sysname, E_nodename ) &&
+        ! equal( node->sysname, E_domain ) &&
         (checkreal( node->sysname ) == BADHOST))
     {
        printmsg(0,"Invalid host %s listed for news batching in SYS file",
@@ -570,9 +588,11 @@ boolean distributions(char *list, const char *distrib)
 
   char *listPtr;
 
-  boolean bAll  = FALSE;
-  boolean bRet  = FALSE;
-  boolean bFail = FALSE;
+  boolean bAll  = FALSE;      /* We saw "all" or "world"             */
+  boolean bRet  = FALSE;      /* Non-global forward status           */
+  boolean bFail = FALSE;      /* Punted by at least one distribution */
+  boolean bDef  = TRUE;       /* We have yet to see anything but
+                                 negations                           */
 
   while (isspace(*distrib))
     distrib++;
@@ -599,6 +619,8 @@ boolean distributions(char *list, const char *distrib)
 
     if ( bNot )
       listPtr++;                 /* Step to beginning of word        */
+    else
+      bDef  = FALSE;             /* We had a inclusive distribution  */
 
     bAll = bAll || (!bNot && equali(listPtr, "all"));
     bAll = bAll || (!bNot && equali(listPtr, "world"));
@@ -625,6 +647,17 @@ boolean distributions(char *list, const char *distrib)
             bRet = TRUE;
       }
 
+#ifdef UDEBUG
+      printmsg(6,"Comparing %s and %s, "
+                 "bAll = %s, bFail = %s, bRet = %s, bDef = %s",
+                 listPtr,
+                 distrib,
+                 bAll  ? "TRUE" : "FALSE",
+                 bFail ? "TRUE" : "FALSE",
+                 bRet  ? "TRUE" : "FALSE",
+                 bDef  ? "TRUE" : "FALSE" );
+#endif
+
     } /* while ((distribPtr = strtok(nextDistrib, ", ")) != NULL ) */
 
     list    = strtok( list, "" );
@@ -632,19 +665,30 @@ boolean distributions(char *list, const char *distrib)
   } /* while ((listPtr = strtok(list, ", ")) != NULL) */
 
 /*--------------------------------------------------------------------*/
-/*       If we found a specific exclusion, approve the                */
+/*       If no distributions were found to send to (as opposed to     */
+/*       exclude), we assume the implicit distribution all.           */
+/*                                                                    */
+/*       If we found a specific exclusion, then we approve the        */
 /*       distribution only if another distribtion allows it (but      */
-/*       ignore a global distribution).  Otherwise, accept any        */
-/*       distribution, including all/world.                           */
+/*       ignore a global distribution).                               */
+/*                                                                    */
+/*       If no exclusions were found, we accept any distribution,     */
+/*       including all/world.                                         */
 /*--------------------------------------------------------------------*/
 
-  bRet = (bFail) ? bRet : bRet || bAll;
+  bRet = bFail ? bRet : (bRet || bAll || bDef);
 
   printmsg(5, "distributions: results %s", bRet ? "TRUE" : "FALSE");
 
   return bRet;
 
 } /* distributions */
+
+/*--------------------------------------------------------------------*/
+/*       m a t c h                                                    */
+/*                                                                    */
+/*       Perform matching on news groups                              */
+/*--------------------------------------------------------------------*/
 
 boolean match(char *group, char *pattern, int *iSize)
 {
@@ -928,17 +972,21 @@ static void bootStrap( const char *fileName )
 /*     We get everything, like we did before the SYS file existed     */
 /*--------------------------------------------------------------------*/
 
-   fprintf( stream, "# The local system, %s\n", E_nodename );
+   fprintf( stream, "# The local system, %s (%s)\n",
+            E_domain,
+            E_nodename );
    fprintf( stream, "ME:all\n" );
 
 /*--------------------------------------------------------------------*/
 /*         Everyone else gets our full feed sans-local stuff.         */
 /*--------------------------------------------------------------------*/
 
-   fprintf( stream, "# Our news feed, not batched to speed our posts\n");
-
-   fprintf( stream, "%s:all/!local::\n", E_newsserv );
+   if ( E_newsserv )
+   {
+      fprintf( stream, "# Our news feed, not batched to speed our posts\n");
+      fprintf( stream, "%s:all/!local::\n", E_newsserv );
                            /* Uncompressed feed for speedy posts     */
+   }
 
    if ( sysname != NULL )
    {

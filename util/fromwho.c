@@ -23,14 +23,17 @@
 
   REVISION INFORMATION
 
-  $Revision: 1.1 $
+  $Revision: 1.2 $
 
-    $Author: rommel $
-      $Date: 1994/12/26 14:25:23 $
+    $Author: ahd $
+      $Date: 1994/12/27 20:47:55 $
 
   Modification Log:
 
   $Log: fromwho.c $
+  Revision 1.2  1994/12/27 20:47:55  ahd
+  Smoother call grading'
+
   Revision 1.1  1994/12/26 14:25:23  rommel
   Initial revision
 
@@ -58,6 +61,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include "timestmp.h"
+
 
 #include "getopt.h"
 currentfile();
@@ -235,7 +240,7 @@ int main(int argc, char **argv)
                   break;
       case 'a' :  addrflag = 1;
                   break;
-      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.1 $");
+      case 'v' :  puts("fromwho, by johnson earls.  $Revision: 1.2 $");
                   exit(0);
       default :   usage(prog);
     }

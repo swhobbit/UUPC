@@ -17,13 +17,16 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: hdbm.c 1.6 1994/06/14 01:19:24 ahd v1-12k $";
+      "$Id: hdbm.c 1.7 1994/12/22 00:24:36 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /* $Log: hdbm.c $
+/* Revision 1.7  1994/12/22 00:24:36  ahd
+/* Annual Copyright Update
+/*
 /* Revision 1.6  1994/06/14 01:19:24  ahd
 /* Clean yp RCS information
 /* patches from Kai Uwe Rommel
@@ -58,7 +61,7 @@ currentfile();
 
 datum nullitem = {NULL, 0};
 
-DBM *dbm_open(char *name, int flags, int mode)
+DBM *dbm_open(const char *name, const int flags, const int mode)
 {
   DBM *db;
   char filename[_MAX_PATH];
@@ -120,7 +123,7 @@ void dbm_close(DBM *db)
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-int dbm_store(DBM *db, datum key, datum val, int flag)
+int dbm_store(DBM *db, const datum key, const datum val, const int flag)
 {
   char buffer[BUFSIZ];
   long offset;
@@ -155,7 +158,7 @@ int dbm_store(DBM *db, datum key, datum val, int flag)
 #pragma warning(default:4100)   /* restore unref'ed formal param. warnings */
 #endif
 
-int dbm_delete(DBM *db, datum key)
+int dbm_delete(DBM *db, const datum key)
 {
   char buffer[BUFSIZ];
   long offset;
@@ -179,7 +182,7 @@ int dbm_delete(DBM *db, datum key)
   return 0;
 }
 
-datum dbm_fetch(DBM *db, datum key)
+datum dbm_fetch(DBM *db, const datum key)
 {
   datum val = nullitem;
   long offset;

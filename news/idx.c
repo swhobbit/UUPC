@@ -8,10 +8,13 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: idx.c 1.6 1994/03/20 23:35:57 rommel Exp $";
-static char *rcsrev = "$Revision: 1.6 $";
+static char *rcsid = "$Id: idx.c 1.7 1994/05/04 02:40:52 ahd v1-12k $";
+static char *rcsrev = "$Revision: 1.7 $";
 
 /* $Log: idx.c $
+/* Revision 1.7  1994/05/04 02:40:52  ahd
+/* Delete unreferenced variable
+/*
  * Revision 1.6  1994/03/20  23:35:57  rommel
  * Handle 16/32 bit compiler differences
  *
@@ -47,7 +50,7 @@ static long idx_new_page(IDX *idx)
   return idx -> page_number;
 }
 
-static int idx_get_page(IDX *idx, long number)
+static int idx_get_page(IDX *idx, const long number)
 {
   long offset;
 
@@ -95,7 +98,7 @@ static int idx_flush_page(IDX *idx)
   return 0;
 }
 
-static int idx_push_page(IDX *idx, long number)
+static int idx_push_page(IDX *idx, const long number)
 {
   idx_flush_page(idx);
 
@@ -119,7 +122,7 @@ static int idx_pop_page(IDX *idx)
 
 /* the workhorses */
 
-static int idx_search(IDX *idx, char *key)
+static int idx_search(IDX *idx, const char *key)
 {
   int n, cmp;
 
@@ -276,7 +279,7 @@ static int idx_add(IDX *idx, ITEM new)
 
 /* interface functions */
 
-IDX *idx_init(int file)
+IDX *idx_init(const int file)
 {
   IDX *idx;
   long size;
@@ -339,7 +342,10 @@ void idx_exit(IDX *idx)
   free(idx);
 }
 
-int idx_addkey(IDX *idx, char *key, long offset, int size)
+int idx_addkey(IDX *idx,
+               const char *key,
+               const long offset,
+               const int size)
 {
   ITEM new;
 
@@ -365,7 +371,7 @@ int idx_addkey(IDX *idx, char *key, long offset, int size)
 
 } /* idx_addkey */
 
-int idx_getkey(IDX *idx, char *key, long *offset, int *size)
+int idx_getkey(IDX *idx, const char *key, long *offset, int *size)
 {
   int pos;
 
@@ -387,7 +393,7 @@ int idx_getkey(IDX *idx, char *key, long *offset, int *size)
   return 0;
 }
 
-int idx_delkey(IDX *idx, char *key, long *offset, int *size)
+int idx_delkey(IDX *idx, const char *key, long *offset, int *size)
 {
   int pos;
 

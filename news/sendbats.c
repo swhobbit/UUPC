@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sendbats.c 1.1 1994/12/31 03:41:08 ahd Exp $
+ *    $Id: sendbats.c 1.2 1995/01/02 05:03:27 ahd Exp $
  *
  *    Revision history:
  *    $Log: sendbats.c $
+ *    Revision 1.2  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.1  1994/12/31 03:41:08  ahd
  *    First pass of integrating Mike McLagan's news SYS file suuport
  *
@@ -31,7 +34,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-            "$Id: sendbats.c 1.1 1994/12/31 03:41:08 ahd Exp $";
+            "$Id: sendbats.c 1.2 1995/01/02 05:03:27 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -55,6 +58,7 @@ static const char rcsid[] =
 #include "importng.h"
 #include "logger.h"
 #include "timestmp.h"
+#include "title.h"
 #include "batch.h"
 #include "sys.h"
 
@@ -99,7 +103,7 @@ int main( int argc, char **argv)
    if (!configure( B_BATCH ))
       exit(1);    /* system configuration failed */
 
-   openlog( argv[0] );        /* Begin logging to disk         */
+   openlog( NULL );                 /* Begin logging to disk         */
 
    if (bflag[F_FULLBATCH] && (E_batchsize == 0))
    {
@@ -118,11 +122,10 @@ int main( int argc, char **argv)
    while (sysnode != NULL)
    {
 
-     printmsg(0,"SENDBATS: Batching news for system %s",sysnode->sysname);
 
      /* skip us! */
 
-     if (equal(E_nodename,sysnode->sysname))
+     if (equal(E_domain, sysnode->sysname))
      {
        sysnode = sysnode -> next;
        continue;
@@ -141,14 +144,21 @@ int main( int argc, char **argv)
       */
 
      if (sysnode->flag.f || sysnode->flag.F || sysnode->flag.n)
+     {
+       setTitle( "Batching news for %s", sysnode->sysname );
+       printmsg(0,"SENDBATS: Batching news for system %s",
+                  sysnode->sysname);
+
        process_batch(sysnode, sysnode->sysname, sysnode->command);
+     }
      else if (sysnode->flag.I)   /* Unsupported on this end?         */
      {
-            printmsg(0,"Flag I is not handled for system %s",sysnode->sysname);
+            printmsg(0,"Flag I is not supported for system %s",
+                       sysnode->sysname);
             panic();
     }
 
-     sysnode = sysnode -> next;
+    sysnode = sysnode -> next;
 
    } /* while (sysnode != NULL) */
 

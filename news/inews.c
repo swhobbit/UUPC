@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.16 1994/12/27 23:35:28 ahd Exp $
+ *       $Id: inews.c 1.17 1995/01/02 05:03:27 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.17  1995/01/02 05:03:27  ahd
+ * Pass 2 of integrating SYS file support from Mike McLagan
+ *
  * Revision 1.16  1994/12/27 23:35:28  ahd
  * Various contributed news fixes; make processing consistent, improve logging,
  * use consistent host names
@@ -87,8 +90,8 @@
 
 #include "uupcmoah.h"
 
-const static char rcsid[] =
-      "$Id: inews.c 1.16 1994/12/27 23:35:28 ahd Exp $";
+static const char rcsid[] =
+      "$Id: inews.c 1.17 1995/01/02 05:03:27 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -121,7 +124,7 @@ currentfile();
 
 static void usage( void );
 
-static int complete_header(FILE *input, FILE *output, char *origin);
+static int complete_header(FILE *input, FILE *output );
 
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
@@ -135,7 +138,6 @@ void main( int argc, char **argv)
   extern int   optind;
   int c;
   char tempname[FILENAME_MAX];  /* temporary input file     */
-  char origin[BUFSIZ];
   FILE *article;
   struct stat st;
 
@@ -214,7 +216,7 @@ void main( int argc, char **argv)
     panic();
   }
 
-  if (complete_header(stdin, article, origin) == -1)
+  if (complete_header(stdin, article ) == -1)
      panic();
 
   fclose(article);
@@ -281,7 +283,7 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
 
 } /* get_header */
 
-static int complete_header(FILE *input, FILE *output, char *origin)
+static int complete_header(FILE *input, FILE *output )
 {
   char buf[BUFSIZ], *ptr, *sys;
   time_t now;
@@ -292,20 +294,11 @@ static int complete_header(FILE *input, FILE *output, char *origin)
 
   if (get_header(input, buf, sizeof(buf), "Path:") == -1)
   {
-    strcpy(origin, E_nodename);
-    fprintf(output,"Path: %s\n" );
+    fprintf(output,"Path: %s\n", E_mailbox );
   }
-  else {
-    for (ptr = buf + 5; isspace(*ptr); ptr++);
-    for (i = 0, sys = ptr; *sys && !isspace(*sys) && *sys != '!'; i++, sys++)
-      origin[i] = *sys;
-    origin[i] = 0;
+  else
+     fputs( buf, output );
 
-    if (equali(origin, E_fdomain)) /* is our system is already there? */
-      fputs(buf, output);  /* yes (perhaps from a site hidden behind us) */
-    else
-      fprintf(output,"Path: %s!%s", E_fdomain, ptr); /* else append ours */
-  }
 
   if (get_header(input, buf, sizeof(buf), "From:") == -1)
     fprintf(output,"From: %s@%s (%s)\n", E_mailbox, E_fdomain, E_name);
@@ -358,8 +351,6 @@ static int complete_header(FILE *input, FILE *output, char *origin)
   else
     fputs(buf, output);
 
-  /* fprintf(output, "Sender: %s@%s\n", E_postmaster, E_fdomain); */
-
   fprintf(output, "Date: %s\n", arpadate());
 
   OK = FALSE;
@@ -378,7 +369,6 @@ static int complete_header(FILE *input, FILE *output, char *origin)
         strncmp(buf,"Subject:", 8) == 0 ||
         strncmp(buf,"Distribution:", 13) == 0 ||
         strncmp(buf,"Message-ID:", 11) == 0 ||
-        strncmp(buf,"Sender:", 7) == 0 ||
         strncmp(buf,"Lines:", 6) == 0 ||
         strncmp(buf,"X-Posting-Software:", 19) == 0 ||
         strncmp(buf,"Date:", 5) == 0)

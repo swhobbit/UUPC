@@ -13,9 +13,13 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.6 1994/06/14 01:19:24 ahd v1-12k $";
+      "$Id: history.c 1.7 1994/12/27 23:35:28 ahd Exp $";
 
 /* $Log: history.c $
+/* Revision 1.7  1994/12/27 23:35:28  ahd
+/* Various contributed news fixes; make processing consistent, improve logging,
+/* use consistent host names
+/*
 /* Revision 1.6  1994/06/14 01:19:24  ahd
 /* Clean yp RCS information
 /* patches from Kai Uwe Rommel
@@ -98,14 +102,14 @@ void close_history(void *hdbm_file)
 /*    Check whether messageID is already in the history file.         */
 /*--------------------------------------------------------------------*/
 
-char *get_histentry(void *hdbm_file, char *messageID)
+char *get_histentry(void *hdbm_file, const char *messageID)
 {
   datum key, val;
 
   if (hdbm_file == NULL)
     return NULL;
 
-  key.dptr = messageID;
+  key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
 
   val = dbm_fetch(hdbm_file, key);
@@ -156,16 +160,18 @@ int get_next_histentry(void *hdbm_file, char **messageID, char **histentry)
 /*    Add messageID to the history file.                              */
 /*--------------------------------------------------------------------*/
 
-int add_histentry(void *hdbm_file, char *messageID, char *hist_record)
+int add_histentry(void *hdbm_file,
+                  const char *messageID,
+                  const char *hist_record)
 {
   datum key, val;
 
   if (hdbm_file == NULL)
     return FALSE;
 
-  key.dptr = messageID;
+  key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
-  val.dptr = hist_record;
+  val.dptr = (char *) hist_record;
   val.dsize = strlen(val.dptr) + 1;
 
   if (dbm_store(hdbm_file, key, val, DBM_REPLACE))
@@ -180,14 +186,14 @@ int add_histentry(void *hdbm_file, char *messageID, char *hist_record)
 /*    Delete messageID from the history file.                         */
 /*--------------------------------------------------------------------*/
 
-int delete_histentry(void *hdbm_file, char *messageID)
+int delete_histentry(void *hdbm_file, const char *messageID)
 {
   datum key;
 
   if (hdbm_file == NULL)
     return FALSE;
 
-  key.dptr = messageID;
+  key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
 
   if (dbm_delete(hdbm_file, key))
@@ -230,7 +236,7 @@ int count_postings(char *histentry)
 /*    Actually delete an article's file(s) and return remaining ones. */
 /*--------------------------------------------------------------------*/
 
-static int matches(char *group, char **grouplist)
+static int matches(const char *group, char **grouplist)
 {
   int len1 = strlen(group), len2, subgroups;
 
@@ -313,7 +319,7 @@ char *purge_article(char *histentry, char **groups)
 /*    Cancel an article in the database                               */
 /*--------------------------------------------------------------------*/
 
-void cancel_article(void *hdbm_file, char *messageID)
+void cancel_article(void *hdbm_file, const char *messageID)
 {
   datum key, val;
   char *groups;
@@ -321,7 +327,7 @@ void cancel_article(void *hdbm_file, char *messageID)
   if (hdbm_file == NULL)
     return;
 
-  key.dptr = messageID;
+  key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
 
   val = dbm_fetch(hdbm_file, key);
