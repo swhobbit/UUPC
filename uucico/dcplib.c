@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.25 1995/04/02 00:01:39 ahd v1-12q $
+ *    $Id: dcplib.c 1.26 1996/01/01 21:20:56 ahd v1-12r $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.26  1996/01/01 21:20:56  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.25  1995/04/02 00:01:39  ahd
  *    Correct processing to not send files below requested call grade
  *
@@ -267,7 +270,7 @@ KWBoolean login(void)
 
          wmsg("\r\nlogin: ", KWFalse);
 
-         if (rmsg(user, 2, M_startupTimeout, sizeof user) == TIMEOUT)
+         if (rmsg(user, SYNCH_ECHO, M_startupTimeout, sizeof user) == TIMEOUT)
                                     /* Did the user enter data?  */
             return KWFalse;  /* No --> Give up                */
 
@@ -303,7 +306,7 @@ KWBoolean login(void)
            (*(userp->password) != '\0'))
       {
          wmsg("\r\nPassword: ", KWFalse);
-         if (rmsg(pswd, 0, M_startupTimeout, sizeof pswd) == TIMEOUT)
+         if (rmsg(pswd, SYNCH_NONE, M_startupTimeout, sizeof pswd) == TIMEOUT)
             return KWFalse;
 
       }

@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.49 1995/04/02 00:01:39 ahd v1-12q $
+ *     $Id: dcpsys.c 1.50 1996/01/01 21:21:23 ahd v1-12r $
  *
  *     $Log: dcpsys.c $
+ *     Revision 1.50  1996/01/01 21:21:23  ahd
+ *     Annual Copyright Update
+ *
  *     Revision 1.49  1995/04/02 00:01:39  ahd
  *     Correct processing to not send files below requested call grade
  *
@@ -475,7 +478,7 @@ CONN_STATE sysend()
    char msg[80];
 
    wmsg("OOOOOO", KWTrue);
-   rmsg(msg, KWTrue, 5, sizeof msg);
+   rmsg(msg, SYNCH_DLE, 5, sizeof msg);
    wmsg("OOOOOO", KWTrue);
    ssleep(2);                 /* Wait for it to be transmitted       */
 
@@ -510,16 +513,16 @@ void wmsg(const char *msg, const KWBoolean synch)
 /*    read a ^P msg from UUCP                                         */
 /*--------------------------------------------------------------------*/
 
-int rmsg(char *msg, const char synch, unsigned int msgtime, int max_len)
+int rmsg(char *msg, SYNCH synch, unsigned int msgtime, int max_len)
 {
-   int i;
+   int i = 0;
    char ch = '?';       /* Initialize to non-zero value  */    /* ahd  */
 
 /*--------------------------------------------------------------------*/
 /*                        flush until next ^P                         */
 /*--------------------------------------------------------------------*/
 
-   if (synch == 1)
+   if (synch == SYNCH_DLE)
    {
       do {
 
@@ -533,11 +536,15 @@ int rmsg(char *msg, const char synch, unsigned int msgtime, int max_len)
    }
 
 /*--------------------------------------------------------------------*/
-/*   Read until timeout, next newline, or we fill the input buffer    */
+/*       Read until timeout, null character, newline (for             */
+/*       SYNCH_NONE and SYNCH_ECHO modes only), or until we fill      */
+/*       the input buffer                                             */
 /*--------------------------------------------------------------------*/
 
-   for (i = 0; (i < max_len) && (ch != '\0'); )
+   while((i < max_len) && (ch != '\0'))
    {
+      KWBoolean appendCharacter = KWTrue;
+
       if (sread(&ch, 1, msgtime) < 1)
       {
          printmsg(1 ,"rmsg: Timeout reading message");
@@ -548,47 +555,79 @@ int rmsg(char *msg, const char synch, unsigned int msgtime, int max_len)
 /*               Process backspaces if not in sync mode               */
 /*--------------------------------------------------------------------*/
 
-      if ((synch != 1) &&
-          (synch != 4) &&
-          (ch != '\r') &&
-          (ch != '\n') &&
-          (ch != '\0') &&
-          iscntrl( ch ))
+      if (( synch == SYNCH_NONE ) || ( synch == SYNCH_ECHO ))
       {
-         if ( i && ((ch == 0x7f) || (ch == '\b')))
-         {
-            i--;
-            if ( synch == 2 )
-               swrite( "\b \b", 3);
-         }
-         else {
+         char ASCIIch = (unsigned char) (0x7f & (unsigned char) ch);
 
-            swrite( "\a", 1 );   /* Beep in response to invalid
-                                    cntrl characters, including
-                                    extra backspaces                 */
-         } /* else */
+         switch( ASCIIch )
+         {
+
+            case '\0':
+               break;
+
+            case 0x7F:
+            case '\b':
+               appendCharacter = KWFalse;
+
+               if ( i )
+               {
+                  if ( synch == SYNCH_ECHO )
+                     swrite( "\b \b", 3);
+                  i--;
+               }
+               else
+                  swrite( "\a", 1 );      /* Invalid backspace */
+               break;
+
+            case '\r':
+            case '\n':
+               if ( synch == SYNCH_ECHO )
+                  swrite( &ch, 1 );
+               ch = 0;                 /* Terminate processing */
+               break;
+
+            default:
+               if ( ! isprint( ASCIIch ) )
+               {
+                  swrite( "\a", 1 );
+                  appendCharacter = KWFalse;
+               }
+               else {
+                  ch = ASCIIch;
+
+                  if ( synch == SYNCH_ECHO )
+                     swrite( &ch, 1 );
+               }
+               break;
+
+         } /* switch( ASCIIch ) */
 
       } /* if */
-      else {                  /* else a normal character             */
-
-/*--------------------------------------------------------------------*/
-/*             Echo the character if requested by caller              */
-/*--------------------------------------------------------------------*/
-
-         if ( synch == 2 )
-            swrite( &ch, 1);
-
-         ch = (unsigned char) (0x7f & (unsigned char) ch);
-
+      else if ( synch == SYNCH_DLE )
+      {
          if (ch == '\r' || ch == '\n')
             ch = '\0';
+
+      }
+      else if ( synch == SYNCH_BINARY )
+      {
+         /* No operation */
+      }
+      else {
+         printmsg(0,"rmsg: Invalid synch parameter %d",
+                    (int) synch );
+         panic();
+      }
+
+      if ( appendCharacter )
          msg[i++] = ch;
-      } /* else */
-   }
+
+   } /* while((i < max_len) && (ch != '\0')) */
 
    msg[max_len - 1] = '\0';
+
    printmsg( 4, "<== %s%s",
-                (synch == 1) ? "^p" : "",
+                (synch == SYNCH_DLE) ? "^p" : "",
                 msg);
 
    return (int) strlen(msg);
@@ -632,7 +671,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                      Begin normal processing                       */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, SYNCH_DLE, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for first message");
       return CONN_TERMINATE;
@@ -685,7 +724,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                  Second message is system is okay                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, SYNCH_DLE, M_startupTimeout, sizeof msg) == TIMEOUT)
    {
       printmsg(0,"Startup: Timeout for second message");
       return CONN_TERMINATE;
@@ -701,7 +740,7 @@ CONN_STATE startup_server(const char recvgrade )
 /*                Third message is protocol exchange                  */
 /*--------------------------------------------------------------------*/
 
-   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, SYNCH_DLE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (*msg != 'P')
@@ -789,7 +828,7 @@ CONN_STATE startup_client( char *sendGrade )
                               E_nodename : securep->myname );
    wmsg(msg, KWTrue);
 
-   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, SYNCH_DLE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    printmsg(2, "1st msg from remote = %s", msg);
@@ -940,7 +979,7 @@ CONN_STATE startup_client( char *sendGrade )
    sprintf(msg, "P%s", plist);
    wmsg(msg, KWTrue);
 
-   if (rmsg(msg, KWTrue, M_startupTimeout, sizeof msg) == TIMEOUT)
+   if (rmsg(msg, SYNCH_DLE, M_startupTimeout, sizeof msg) == TIMEOUT)
       return CONN_TERMINATE;
 
    if (msg[0] != 'U')

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.14 1995/07/21 13:27:00 ahd v1-12q $
+ *    $Id: dcpepkt.c 1.15 1996/01/01 21:20:01 ahd v1-12r $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ *    Revision 1.15  1996/01/01 21:20:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1995/07/21 13:27:00  ahd
  *    If modem is unable to dial, be sure to resume suspended UUCICO if needed
  *
@@ -298,7 +301,7 @@ short ewrmsg( char *s )
 short erdmsg( char *s)
 {
 
-   if (rmsg( s, 4, M_ePacketTimeout, (int) r_pktsize ))
+   if (rmsg( s, SYNCH_BINARY, M_ePacketTimeout, (int) r_pktsize ))
    {
       remote_stats.packets++;
       return(0);
