@@ -19,9 +19,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: NDIRNT.C 1.3 1993/04/10 21:22:29 dmwatt Exp $
+ *       $Id: ndirnt.c 1.4 1993/04/11 00:33:38 dmwatt Exp $
  *
- *       $Log: NDIRNT.C $
+ *       $Log: ndirnt.c $
+ *     Revision 1.4  1993/04/11  00:33:38  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
+ *     Revision 1.4  1993/04/11  00:33:38  dmwatt
+ *     Global edits for year, TEXT, etc.
+ *
  *     Revision 1.3  1993/04/10  21:22:29  dmwatt
  *     Windows/NT fixes
  *
@@ -177,11 +183,17 @@ void closedir(DIR *dirp)
 
    BOOL rc;
 
-   assert(strcmp(dirp->dirid, "DIR") == 0);
+   if ( (dirp == NULL) || ! equal(dirp->dirid, "DIR"))
+   {
+      printmsg(0,"closedir: Invalid pointer argument (%p)",
+                  dirp );
+      panic();
+   }
 
    printmsg(5,"closedir: Closing directory %s", pathname );
 
    rc = FindClose(dirHandle);
+
    if (rc == 0)
      printmsg(0,"closedir: Error %d on directory %s",
               (int) rc, pathname );
@@ -190,4 +202,5 @@ void closedir(DIR *dirp)
    dirp = NULL;
    free( pathname );
    pathname = NULL;
+
 } /*closedir*/
