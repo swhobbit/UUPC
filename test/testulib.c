@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id$
+ *    $Id: TESTULIB.C 1.1 1992/11/29 22:09:10 ahd Exp $
  *
- *    $Log$
+ *    $Log: TESTULIB.C $
+ * Revision 1.1  1992/11/29  22:09:10  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -41,6 +44,7 @@
 #include "ulib.h"
 #include "catcher.h"
 #include "timestmp.h"
+#include "comm.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -77,6 +81,43 @@ static void help( void )
    puts(text);
 }
 
+
+int CheckErrors( void )
+{
+   int far *stats;
+
+   stats = com_errors();
+
+   if( stats[COM_EOVFLOW] ) return( TRUE );
+   if( stats[COM_EOVRUN] ) return( TRUE );
+   if( stats[COM_EBREAK] ) return( TRUE );
+   if( stats[COM_EFRAME] ) return( TRUE );
+   if( stats[COM_EPARITY] ) return( TRUE );
+   if( stats[COM_EXMIT] ) return( TRUE );
+   if( stats[COM_EDSR] ) return( TRUE );
+   if( stats[COM_ECTS] ) return( TRUE );
+   return( FALSE );
+}
+
+
+void PrintErrors( void )
+{
+   int far *stats;
+
+   stats = com_errors();
+
+   printmsg(3, "Buffer overflows: %-4d", stats[COM_EOVFLOW]);
+   printmsg(3, "Receive overruns: %-4d", stats[COM_EOVRUN]);
+   printmsg(3, "Break characters: %-4d", stats[COM_EBREAK]);
+   printmsg(3, "Framing errors:   %-4d", stats[COM_EFRAME]);
+   printmsg(3, "Parity errors:    %-4d", stats[COM_EPARITY]);
+   printmsg(3, "Transmit errors:  %-4d", stats[COM_EXMIT]);
+   printmsg(3, "DSR errors:       %-4d", stats[COM_EDSR]);
+   printmsg(3, "CTS errors:       %-4d", stats[COM_ECTS]);
+}
+
+
+
 /*--------------------------------------------------------------------*/
 /*    o p e n i t                                                     */
 /*                                                                    */
@@ -108,13 +149,14 @@ static void openit( char *buf )
 
    strupr( port );
    printf("openline( %s, %d, %d ) -- ", port, speed, direct );
-   if ( openline( port, speed,  direct))
+   if ( CheckErrors() ) PrintErrors();
+  if ( openline( port, speed,  direct))
       printf("failed\n");
    else {
       printf("succeeded\n");
       opened = 1;
    }
-
+   if ( CheckErrors() ) PrintErrors();
 } /* openit */
 
 /*--------------------------------------------------------------------*/
@@ -146,6 +188,7 @@ static void sendit( char *buf )
    printf( "swrite( <text>, %d) -- ", len );
    len = swrite( first, len );
    printf("%d characters written\n", len);
+   if ( CheckErrors() ) PrintErrors();
 
 } /* sendit */
 
@@ -188,6 +231,7 @@ static void receiveit( char *buf )
       printf("sread( <buffer>,  %d, %d ) -- ", len, timeout );
       actual = sread( token, len, timeout );
       printf( "%d characters available\n", actual);
+      if ( CheckErrors() ) PrintErrors();
       timeout = 0;
 
       if ( terminate_processing )
@@ -237,6 +281,7 @@ static void sendfile( char *buf )
    }
 
    printf("Reading data from %s:\n",fname );
+   if ( CheckErrors() ) PrintErrors();
 
    for ( ;; )
    {
@@ -260,6 +305,7 @@ static void sendfile( char *buf )
       printf( "swrite( <text>, %d) -- ", len );
       actual = swrite( buf, len );
       printf("%d characters written\n", actual);
+     if ( CheckErrors() ) PrintErrors();
 
       if ( terminate_processing )
         return;
@@ -267,6 +313,7 @@ static void sendfile( char *buf )
       if ( actual != len)
          break;
    }
+   if ( CheckErrors() ) PrintErrors();
 
 } /* sendfile */
 
@@ -332,6 +379,7 @@ static void receivefile( char *buf )
          printf("sread( <buffer>,  %d, %d ) -- ", len, timeout );
          actual = sread( buf, len, timeout );
          printf( "%d characters available\n", actual);
+         if ( CheckErrors() ) PrintErrors();
 
          if ( terminate_processing )
              return;
@@ -362,6 +410,7 @@ static void shutdown( void )
 {
    if ( opened )
       closeline();
+   if ( CheckErrors() ) PrintErrors();
 }
 
 /*--------------------------------------------------------------------*/
@@ -484,6 +533,7 @@ void main( int argc, char ** argv )
             break;
 
       } /* switch */
+   if ( CheckErrors() ) PrintErrors();
    } /* for */
 
    exit(0);
