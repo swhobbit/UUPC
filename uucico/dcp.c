@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.c 1.42 1995/01/13 14:02:36 ahd Exp $
+ *    $Id: dcp.c 1.43 1995/01/30 04:08:36 ahd Exp $
  *
  *    $Log: dcp.c $
+ *    Revision 1.43  1995/01/30 04:08:36  ahd
+ *    Additional compiler warning fixes
+ *
  *    Revision 1.42  1995/01/13 14:02:36  ahd
  *    Correct NT VC++ 2.0 warnings
  *
@@ -221,6 +224,7 @@
 #include "commlib.h"
 #include "title.h"
 #include "execute.h"
+#include "pushpop.h"
 
 #if defined(_Windows)
 #include "winutil.h"
@@ -407,6 +411,9 @@ int dcpmain(int argc, char *argv[])
          panic();
       }
    }
+
+   PushDir(E_spooldir);
+   atexit( PopDir );
 
    if ( terminate_processing )
       return 100;

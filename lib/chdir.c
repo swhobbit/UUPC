@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: chdir.c 1.9 1995/01/30 04:03:57 dmwatt Exp $
+ *    $Id: chdir.c 1.10 1995/02/12 23:35:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: chdir.c $
+ *    Revision 1.10  1995/02/12 23:35:59  ahd
+ *    'compiler
+ *
  *    Revision 1.9  1995/01/30 04:03:57  dmwatt
  *    Optimize Windows NT processing
  *
@@ -51,7 +54,7 @@
 /*                          Local prototypes                          */
 /*--------------------------------------------------------------------*/
 
-static int changedir( const char *path);
+static int changedir( const char *path, const int drive );
 
 currentfile();
 
@@ -67,6 +70,7 @@ int CHDIR(const char *path)
 
    int result;
    int originalDrive = getDrive( NULL );  /* Remember should CD fail */
+   int newDrive = originalDrive;
 
    if (*path == '\0')
       return 0;
@@ -76,14 +80,15 @@ int CHDIR(const char *path)
 /*       drives when it changes directories in changedir()            */
 /*--------------------------------------------------------------------*/
 
-#ifndef WIN32
-
    if (path[1] == ':')
    {
       if (isalpha(*path))
       {
-         if (_chdrive( toupper(*path) - 'A' + 1))
+         newDrive = toupper(*path) - 'A' + 1;
+
+         if (_chdrive( newDrive ))
             return -1;                 /* Return if failure          */
+
       } /* if */
       else {
 
@@ -96,13 +101,11 @@ int CHDIR(const char *path)
 
    } /* if */
 
-#endif
-
 /*--------------------------------------------------------------------*/
 /*        Try to change directories, returning if successful          */
 /*--------------------------------------------------------------------*/
 
-   if (!changedir( path ))
+   if (!changedir( path, newDrive ))
       return 0;
 
 /*--------------------------------------------------------------------*/
@@ -115,15 +118,13 @@ int CHDIR(const char *path)
 /*                   Change to the directory again                    */
 /*--------------------------------------------------------------------*/
 
-   result = changedir(path);
+   result = changedir(path, newDrive );
 
    if ( result )
    {
       printerr("chdir");         /* Report the error, real problem   */
 
-#ifndef WIN32
       _chdrive( originalDrive - 'A' + 1); /* Return to original drive   */
-#endif
 
    }
 
@@ -137,26 +138,22 @@ int CHDIR(const char *path)
 /*       Like chdir() but also saves the path we changed into         */
 /*--------------------------------------------------------------------*/
 
-static int changedir(const char *path)
+static int changedir(const char *path, const int drive)
 {
 
-#ifdef WIN32
-   int result = !SetCurrentDirectory(path);
-                                    /* It's opposite the RTL normal  */
-#else
-
    int result = chdir((char *) path);     /* Perform the change      */
-
-#endif
 
    if ( ! result )                  /* Did it work?                  */
    {                                /* Yes --> Save directory name   */
 
-      char savePath[FILENAME_MAX];
+      static char savePath[FILENAME_MAX];
 
-      _getcwd(savePath, sizeof savePath);
-      E_cwd = newstr( savePath );   /* Yes --> Save directory        */
-      *E_cwd = (char) toupper( *E_cwd );
+      _getdcwd(drive, savePath, sizeof savePath);
+
+      E_cwd = savePath;             /* Yes --> Save directory        */
+
+      if ( isalpha( *E_cwd ) && islower( *E_cwd ))
+         *E_cwd = (char) toupper( *E_cwd );
                                     /* Insure driver letter is upper
                                        case                          */
 

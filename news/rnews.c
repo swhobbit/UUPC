@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.53 1995/02/05 00:36:38 ahd Exp $
+ *       $Id: rnews.c 1.54 1995/02/12 23:37:04 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.54  1995/02/12 23:37:04  ahd
+ *       compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *       Revision 1.53  1995/02/05 00:36:38  ahd
  *
  */
@@ -27,7 +30,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.53 1995/02/05 00:36:38 ahd Exp $";
+         "$Id: rnews.c 1.54 1995/02/12 23:37:04 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -304,20 +307,11 @@ static int Compressed( FILE *in_stream ,
 
                               /* Create uncompressed output file name */
 
-   workStream = FOPEN( unzfile, "r", IMAGE_MODE);
-   if ( workStream == NULL )
-   {
-      printerr( unzfile );
-      panic();
-   }
-
    queueNews( workStream, unzfile );
 
 /*--------------------------------------------------------------------*/
 /*                   Clean up and return to caller                    */
 /*--------------------------------------------------------------------*/
-
-   fclose( workStream );
 
    if ( unlink( unzfile ) )
       printerr( unzfile );

@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.2 1995/01/07 16:22:49 ahd Exp $
+ *    $Id: regsetup.c 1.3 1995/02/07 01:29:14 dmwatt Exp $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.3  1995/02/07 01:29:14  dmwatt
+ *    Clean up compile errors caused by ahd's VC++ warnings cleanup
+ *
  *    Revision 1.2  1995/01/07 16:22:49  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -57,7 +60,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.2 1995/01/07 16:22:49 ahd Exp $";
+         "$Id: regsetup.c 1.3 1995/02/07 01:29:14 dmwatt Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -374,18 +377,18 @@ KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 /*--------------------------------------------------------------------*/
    for (tptr = envtable; tptr->sym != nil(char); tptr++)
    {
-      if (tptr->bits & B_OBSOLETE)
+      if (tptr->flag & B_OBSOLETE)
          continue;      /* Skip obsolete stuff */
       if (*((char **)(tptr->loc)) == NULL)
          continue;  /* Skip uninitialized */
 
 /* For now, take it easy:  leave out KWBooleans, shorts, longs, and lists */
 
-     if (tptr->bits & B_BOOLEAN)
+     if (tptr->flag & B_BOOLEAN)
          continue;
-      if (tptr->bits & (B_SHORT|B_LONG))
+      if (tptr->flag & (B_SHORT|B_LONG))
          *((char **)(tptr->loc)) = NULL;
-      if (tptr->bits & (B_LIST | B_CLIST))
+      if (tptr->flag & (B_LIST | B_CLIST))
          *((char **)(tptr->loc)) = NULL;
 
 /* All that's left is strings */
@@ -480,7 +483,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
 
    for (tptr = table; tptr->sym != nil(char); tptr++)
    {
-      if (tptr->bits & B_OBSOLETE)
+      if (tptr->flag & B_OBSOLETE)
       {
          /* Skip obsolete stuff */
          continue;
@@ -490,12 +493,12 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
          /* Skip uninitialized */
          continue;
       }
-      else if (tptr->bits & B_BOOLEAN)
+      else if (tptr->flag & B_BOOLEAN)
       {
          /* For now, take it easy:  leave out KWBooleans */
          continue;
       }
-          else if (tptr->bits & B_CHAR)
+          else if (tptr->flag & B_CHAR)
           {
              /* characters */
                  char buf[2];
@@ -503,17 +506,17 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
                  buf[0] = *((char *)tptr->loc);
                  PutRegistry(hSystemHive, subKey, tptr->sym, buf);
           }
-      else if (tptr->bits & (B_SHORT|B_LONG))
+      else if (tptr->flag & (B_SHORT|B_LONG))
       {
          char buf[BUFSIZ];
 
-         if (tptr->bits & B_LONG)
+         if (tptr->flag & B_LONG)
             sprintf(buf, "%ld", *((long *) tptr->loc));
          else
             sprintf(buf, "%hu", *((KEWSHORT *) tptr->loc));
          PutRegistry(hSystemHive, subKey, tptr->sym, buf);
       }
-      else if (tptr->bits & (B_LIST | B_CLIST))
+      else if (tptr->flag & (B_LIST | B_CLIST))
       {
 
 /* Set delimiter to either space or colon (B_CLIST -> colon) */
@@ -525,7 +528,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
 
          delimiter[1] = '\0';
 
-         if (tptr->bits & B_CLIST)
+         if (tptr->flag & B_CLIST)
             delimiter[0] = ':';
          else
             delimiter[0] = ' ';

@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.48 1994/12/27 20:45:50 ahd Exp $
+ *       $Id: dcpxfer.c 1.49 1995/01/07 16:38:55 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ *       Revision 1.49  1995/01/07 16:38:55  ahd
+ *       Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *       Revision 1.48  1994/12/27 20:45:50  ahd
  *       Smoother call grading'
  *
@@ -633,7 +636,11 @@ XFER_STATE ssfile( void )
                                     /* Open stream to send           */
    if (xfer_stream == NULL)
    {
-      printmsg(0, "ssfile: Cannot open file %s (%s).", fileName, hostFile);
+      printmsg(0, "ssfile: Cannot open file %s (%s) from %s.",
+                           fileName,
+                           hostFile,
+                           E_cwd );
+
       printerr(hostFile);
       return XFER_FILEDONE;      /* Try next file in this job  */
    } /* if */
@@ -1241,10 +1248,12 @@ XFER_STATE rsfile( void )
    {
       printmsg(0, "rsfile: Cannot open file %s (%s).", fName, spolName);
       printerr(spolName);
+
       if (!pktsendstr("RN2"))    /* Report cannot send file       */
          return XFER_LOST;       /* School is out, die            */
       else
          return XFER_FILEDONE;   /* Tell them to send next file   */
+
    } /* if */
 
    if (setvbuf( xfer_stream, NULL, vbufsize ? _IOFBF : _IONBF, vbufsize))

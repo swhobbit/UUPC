@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.19 1995/01/30 04:05:08 ahd Exp $
+ *    $Id: expath.c 1.20 1995/02/12 23:37:04 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.20  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.19  1995/01/30 04:05:08  ahd
  *    Additional compiler warning fixes, optimize path normalizing
  *
@@ -176,9 +179,13 @@ char *expand_path(char *input,         /* Input/output path name      */
 
       renormalize( path );
 
+#ifdef UDEBUG
       printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
                   cur_dir ? cur_dir : E_cwd,
-                  input, path );
+                  input,
+                  path );
+#endif
+
       return strcpy( input, path );
 
    } /* if */
@@ -224,6 +231,7 @@ char *expand_path(char *input,         /* Input/output path name      */
          strcpy(path, userp->homedir);
 
       } /* else */
+
    } /* if (save[0] == '~') */
 
 /*--------------------------------------------------------------------*/
@@ -263,10 +271,13 @@ char *expand_path(char *input,         /* Input/output path name      */
 /*                       Return data to caller                        */
 /*--------------------------------------------------------------------*/
 
+#ifdef UDEBUG
    printmsg(5,"expand_path: cwd = %s, input = %s, output = %s",
                cur_dir ? cur_dir : E_cwd,
                input,
                path );
+#endif
+
    return strcpy( input, path );
 
 } /* expand_path */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pushpop.c 1.15 1994/12/22 00:10:26 ahd Exp $
+ *    $Id: pushpop.c 1.16 1995/02/12 23:37:04 ahd Exp $
  *
  *    $Log: pushpop.c $
+ *    Revision 1.16  1995/02/12 23:37:04  ahd
+ *    compiler cleanup, NNS C/news support, optimize dir processing
+ *
  *    Revision 1.15  1994/12/22 00:10:26  ahd
  *    Annual Copyright Update
  *
@@ -137,7 +140,14 @@ void PushDir( const char *directory )
       }
    }
 
-   dirstack[depth] = _getcwd( cwd, FILENAME_MAX);
+/*--------------------------------------------------------------------*/
+/*       We retrieve the current directory by drive letter because    */
+/*       the IBM OS/2 C compiler 2.01 returns @ for the drive         */
+/*       letter of the 0 (current) drive.  Windows NT is even more    */
+/*       evil, because it returns information for the wrong drive.    */
+/*--------------------------------------------------------------------*/
+
+   dirstack[depth] = _getdcwd(drivestack[depth], cwd, FILENAME_MAX);
 
    if (dirstack[depth] == NULL )
    {
@@ -147,12 +157,20 @@ void PushDir( const char *directory )
 
    dirstack[depth] = newstr( cwd );
 
-   depth++;
-
    if (equal(directory,"."))
-      E_cwd = dirstack[depth - 1];
+      E_cwd = dirstack[depth];
    else
       CHDIR( directory );        /* CHDIR sets E_cwd                 */
+
+#ifdef UDEBUG
+   printmsg(5,"PushDir: pushed from %c %s (depth %d) to %s",
+               drivestack[depth] + 'A' - 1,
+               dirstack[depth],
+               depth,
+               E_cwd );
+#endif
+
+  depth++;
 
 } /* PushDir */
 
@@ -166,6 +184,10 @@ void PopDir( void )
 {
    char cwd[FILENAME_MAX];
 
+#ifdef UDEBUG
+   char *oldCWD = E_cwd;
+#endif
+
    if ( depth-- == 0 )
       panic();
 
@@ -178,12 +200,16 @@ void PopDir( void )
       panic();
    }
 
-/*--------------------------------------------------------------------*/
-/*       We retrieve the current directory by drive letter because    */
-/*       the IBM OS/2 C compiler 2.01 returns @ for the drive         */
-/*       letter of the 0 (current) drive.                             */
-/*--------------------------------------------------------------------*/
+   E_cwd = _getdcwd(drivestack[depth], cwd, FILENAME_MAX);
+   E_cwd = newstr( E_cwd );
 
-   E_cwd = newstr( _getcwd( cwd, sizeof cwd ) );
+#ifdef UDEBUG
+   printmsg(5,"PopDir: popped from %s to %c %s (depth %d) %s",
+               oldCWD,
+               drivestack[depth] + 'A' - 1,
+               dirstack[depth],
+               depth,
+               E_cwd );
+#endif
 
 } /* PopDir */

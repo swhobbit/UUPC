@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uucico.c 1.10 1994/12/22 00:38:40 ahd Exp $
+ *    $Id: uucico.c 1.11 1995/01/07 16:41:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: uucico.c $
+ *    Revision 1.11  1995/01/07 16:41:19  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.10  1994/12/22 00:38:40  ahd
  *    Annual Copyright Update
  *
@@ -126,9 +129,6 @@ void main( int argc, char *argv[])
     }
 
 #endif
-
-   PushDir(E_spooldir);
-   atexit( PopDir );
 
 /*--------------------------------------------------------------------*/
 /*                   setup longjmp for error exit's                   */
