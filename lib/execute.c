@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.20 1993/12/06 01:59:07 ahd Exp rommel $
+ *    $Id: execute.c 1.21 1993/12/23 03:11:17 rommel Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ * Revision 1.21  1993/12/23  03:11:17  rommel
+ * OS/2 32 bit support for additional compilers
+ *
  * Revision 1.20  1993/12/06  01:59:07  ahd
  * Delete debug message from inner loop for search for internal commands
  *
@@ -343,7 +346,11 @@ int execute( const char *command,
        return -2;
      }
 
-     dup2(temp, 0);
+     if (dup2(temp, 0))
+     {
+         printerr( input );
+         panic();
+     }
      close(temp);
    }
 
@@ -369,7 +376,11 @@ int execute( const char *command,
 
      }
 
-     dup2(temp, 1);
+     if (dup2(temp, 1))
+     {
+         printerr( input );
+         panic();
+     }
      close(temp);
 
    } /* if (output != NULL) */
