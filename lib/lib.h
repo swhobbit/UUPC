@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.27 1995/01/07 16:16:05 ahd Exp $
+ *    $Id: lib.h 1.28 1995/01/28 23:13:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.28  1995/01/28 23:13:37  ahd
+ *    Delete GNU C reference
+ *
  *    Revision 1.27  1995/01/07 16:16:05  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -240,7 +243,7 @@
 
 typedef struct ConfigTable {
    char *sym;
-   char **loc;
+   void *loc;
    CONFIGBITS bits;
 } CONFIGTABLE;
 
@@ -280,7 +283,7 @@ extern FLAGTABLE configFlags[];
 void prterror(const size_t lineno, const char *fname, const char *prefix);
 
 extern void checkptr(const char *file,
-                     const int line);
+                     const size_t line);
 
 extern int MKDIR(const char *path);
                               /* Make a directory              ahd */
