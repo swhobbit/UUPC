@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.32 1993/11/06 13:04:13 ahd Exp $
+ *       $Id: dcpxfer.c 1.33 1993/11/06 17:56:09 rhg Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.33  1993/11/06  17:56:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.32  1993/11/06  13:04:13  ahd
  * Make sequence unqiue in session
  *
@@ -609,8 +612,12 @@ XFER_STATE ssfile( void )
 /*    Okay, we have a file to process; offer it to the other host     */
 /*--------------------------------------------------------------------*/
 
-   printmsg( equal(fName,dName) ? 2 : 0,
-            "Sending \"%s\" (%s) as \"%s\"", fName, hostFile, tName);
+   printmsg( (equal(fName,dName) && !bflag[F_SHOWSPOOL]) ? 2 : 0,
+            "Sending \"%s\" (%s) as \"%s\"",
+            fName,
+            hostFile,
+            tName);
+
    if (!pktsendstr( databuf ))   /* Tell them what is coming at them */
    {
       fclose(xfer_stream);
@@ -1083,8 +1090,11 @@ XFER_STATE rrfile( void )
 /*    Announce we are receiving the file to console and to remote     */
 /*--------------------------------------------------------------------*/
 
-   printmsg(spool ? 2 : 0 , "Receiving \"%s\" as \"%s\" (%s)",
-               fName,fileName,spolName);
+   printmsg((spool && !bflag[F_SHOWSPOOL]) ? 2 : 0 ,
+               "Receiving \"%s\" as \"%s\" (%s)",
+               fName,
+               fileName,
+               spolName);
 
    if (spool)
       printmsg(2,"Using temp name %s",tempName);
