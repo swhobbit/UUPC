@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: NBSTIME.C 1.5 1993/04/15 04:15:43 ahd Exp $
+ *    $Id: NBSTIME.C 1.6 1993/05/30 00:04:53 ahd Exp $
  *
  *    Revision history:
  *    $Log: NBSTIME.C $
+ * Revision 1.6  1993/05/30  00:04:53  ahd
+ * Multiple communications drivers support
+ *
  * Revision 1.5  1993/04/15  04:15:43  ahd
  * Twiddle OS/2 support and reduce number of #ifdef segments
  *
@@ -162,6 +165,10 @@ boolean nbstime( void )
          &tx.tm_hour, &tx.tm_min, &tx.tm_sec, &dst);
    tx.tm_mon--;               /* Tm record counts months from zero   */
 
+/*--------------------------------------------------------------------*/
+/*     mktime()'s "renormalizing" the tm struct is screwing up NT    */
+/*--------------------------------------------------------------------*/
+#if !defined(WIN32)
    today = mktime(&tx);       /* Current UTC (GMT) time in seconds   */
 
    if ( debuglevel > 2 )
@@ -182,6 +189,7 @@ boolean nbstime( void )
             ctime( &today ));
       return FALSE;
    }
+#endif
 
 /*--------------------------------------------------------------------*/
 /*     Borland C++ doesn't set the time properly; do a conversion     */
@@ -195,11 +203,13 @@ boolean nbstime( void )
    today -= timezone;
 #endif
 
+#if !defined(WIN32)
 /*--------------------------------------------------------------------*/
 /*                        Set the system clock                        */
 /*--------------------------------------------------------------------*/
 
    tp = localtime(&today);    /* Get local time as a record          */
+#endif
 
 #ifdef FAMILYAPI
 
@@ -243,12 +253,12 @@ boolean nbstime( void )
       (int) DateTime.wHour, (int) DateTime.wMinute,(int) DateTime.wSecond ,
       (int) DateTime.wDayOfWeek );
 
-   DateTime.wYear    = (WORD) tp->tm_year + 1900;
-   DateTime.wMonth   = (WORD) (tp->tm_mon + 1);
-   DateTime.wDay     = (WORD) tp->tm_mday;
-   DateTime.wHour    = (WORD) tp->tm_hour;
-   DateTime.wMinute  = (WORD) tp->tm_min;
-   DateTime.wSecond  = (WORD) tp->tm_sec;
+   DateTime.wYear    = (WORD) tx.tm_year + 1900;
+   DateTime.wMonth   = (WORD) tx.tm_mon + 1;
+   DateTime.wDay     = (WORD) tx.tm_mday;
+   DateTime.wHour    = (WORD) tx.tm_hour;
+   DateTime.wMinute  = (WORD) tx.tm_min;
+   DateTime.wSecond  = (WORD) tx.tm_sec;
 
    printmsg(3,"Date time: %2d/%2d/%2d %2d:%2d:%2d, weekday %d",
       (int) DateTime.wYear, (int) DateTime.wMonth, (int) DateTime.wDay ,
@@ -342,11 +352,13 @@ boolean nbstime( void )
 /*             Print debugging information, if requested              */
 /*--------------------------------------------------------------------*/
 
+#if !defined(WIN32)
    delta = today - time( NULL );
    printmsg(2,"nbstime: \"%s\"", buf);
    printmsg(2,"nbstime: Time delta is %ld seconds, zone offset %ld, \
 daylight savings %d",
                   delta, timezone, dst );
+#endif
 
    if ( sync == '*' )
       printmsg(2,"Warning: Was unable to synchonize with NBS master");
