@@ -33,9 +33,12 @@
 */
 
 /*
- *       $Id: dcpxfer.c 1.2 1992/11/15 20:09:50 ahd Exp $
+ *       $Id: dcpxfer.c 1.3 1992/11/17 13:44:24 ahd Exp ahd $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.3  1992/11/17  13:44:24  ahd
+ * Drop command[BUFSIZ], using databuf instead.
+ *
  * Revision 1.2  1992/11/15  20:09:50  ahd
  * Use unbuffered files to eliminate extra data copy
  * Clean up modem file support for different protocols
@@ -43,7 +46,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: dcpxfer.c 1.2 1992/11/15 20:09:50 ahd Exp $";
+         "$Id: dcpxfer.c 1.3 1992/11/17 13:44:24 ahd Exp ahd $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -82,7 +85,7 @@ static const char rcsid[] =
 /*--------------------------------------------------------------------*/
 
 static unsigned char *databuf = NULL;
-static unsigned int xfer_bufsize;
+static unsigned int xfer_bufsize = 0;
 
 static char fname[FILENAME_MAX], tname[FILENAME_MAX], dname[FILENAME_MAX];
 static char type, cmdopts[16];
@@ -373,14 +376,14 @@ XFER_STATE newrequest( void )
 /*    worked on in the file                                           */
 /*--------------------------------------------------------------------*/
 
-   if (fgets(databuf, BUFSIZ, fwork) == nil(char)) /* More data?     */
+   if (fgets(databuf, xfer_bufsize, fwork) == nil(char)) /* More data?     */
    {                          /* No --> clean up list of files       */
       printmsg(3, "newrequest: EOF for workfile %s",workfile);
       fclose(fwork);
       fwork = nil(FILE);
       unlink(workfile);       /* Delete completed call file          */
       return XFER_NEXTJOB;    /* Get next C.* file to process     */
-   } /* if (fgets(databuf, BUFSIZ, fwork) == nil(char)) */
+   } /* if (fgets(databuf, xfer_bufsize, fwork) == nil(char)) */
 
 /*--------------------------------------------------------------------*/
 /*                  We have a new request to process                  */
@@ -1173,8 +1176,15 @@ XFER_STATE reof( void )
 
 static boolean pktsendstr( char *s )
 {
+
    printmsg(2, ">>> %s", s);
-   if ( ! bflag[ F_MULTITASK ] )
+
+/*--------------------------------------------------------------------*/
+/*    We flush here because we know we're in control and not          */
+/*    waiting for remote data we could miss.                          */
+/*--------------------------------------------------------------------*/
+
+   if ( (! bflag[ F_MULTITASK ]) || (debuglevel > 2) )
       fflush( logfile );         /* Known safe place  to flush log      */
 
    if((*wrmsg)(s) != OK )
