@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.8 1998/03/01 19:42:17 ahd Exp $
+ *    $Id: smtpnetw.c 1.9 1998/03/03 03:51:53 ahd v1-12v $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.9  1998/03/03 03:51:53  ahd
+ *    Routines to handle messages within a POP3 mailbox
+ *
  *    Revision 1.8  1998/03/01 19:42:17  ahd
  *    First compiling POP3 server which accepts user id/password
  *
@@ -72,7 +75,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.8 1998/03/01 19:42:17 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.9 1998/03/03 03:51:53 ahd v1-12v $");
 
 currentfile();
 
@@ -302,11 +305,13 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
    char buf[BUFSIZ];
    size_t totalLength;
    KWBoolean buffered = KWFalse;
+   int printLevel = 2;
 
    switch(code)
    {
          case 0:
             strcpy(buf, "??? ");
+            printLevel = 0;
             break;
 
          case PR_DATA:
@@ -318,10 +323,26 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
             break;
 
          case PR_ERROR_GENERIC:
+            printLevel = 0;
+            /* Fall through to warning */
+
+         case PR_ERROR_WARNING:
             strcpy(buf, "-ERR ");
             break;
 
          default:
+            /* Numeric codes for SMTP */
+            switch( code / 100 )
+            {
+               case 4:
+               case 5:
+                  printLevel = 0;
+                  break;
+
+               default:
+                  break;
+            }
+
             sprintf(buf, "%03.3d%c",
                           (code < 0) ? - code : code,
                           (code < 0) ? '-' : ' ');
@@ -329,7 +350,10 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
 
    } /* switch(code) */
 
-   printmsg(2,"%d >>> %s%.75s", getClientSequence(client), buf, text);
+   printmsg(printLevel,"%d >>> %s%.75s",
+                       getClientSequence(client),
+                       buf,
+                       text);
 
    incrementClientLinesWritten(client);
    incrementClientBytesWritten(client, totalLength);
@@ -767,6 +791,10 @@ SMTPRead(SMTPClient *client)
       {
          shutdown(getClientHandle(client), 2);
                                       /* Fail both reads and writes  */
+
+         /* All write errors are treated as fatal, close the socket */
+         closeSocket( getClientHandle(client) );
+         setClientHandle( client, INVALID_SOCKET );
          return 0;                    /* Force termination of client */
       }
    }

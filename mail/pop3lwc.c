@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $
+ *       $Id: pop3lwc.c 1.2 1998/03/03 03:53:54 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: pop3lwc.c $
+ *       Revision 1.2  1998/03/03 03:53:54  ahd
+ *       Routines to handle messages within a POP3 mailbox
+ *
  *       Revision 1.1  1998/03/01 19:42:17  ahd
  *       Initial revision
  *
@@ -44,7 +47,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $");
+RCSID("$Id: pop3lwc.c 1.2 1998/03/03 03:53:54 ahd v1-12v $");
 
 currentfile();
 
@@ -217,6 +220,60 @@ commandSequenceIgnore(SMTPClient *client,
    return KWFalse;
 
 }  /* commandSequenceIgnore */
+
+/*--------------------------------------------------------------------*/
+/*       c o m m a n d X S E N D E R                                  */
+/*                                                                    */
+/*       Dummy command to report (no) authorized sender of message    */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+commandXSENDER(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands )
+{
+
+/*--------------------------------------------------------------------*/
+/*       Success is a loose description here, empty string keeps      */
+/*       Netscape happy.                                              */
+/*--------------------------------------------------------------------*/
+
+   SMTPResponse(client,
+                verb->successResponse,
+                "" );
+
+   return KWFalse;
+
+}  /* commandXSENDER */
+
+/*--------------------------------------------------------------------*/
+/*       c o m m a n d A U T H                                        */
+/*                                                                    */
+/*       Report to client we don't support AUTH command               */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+commandAUTH(SMTPClient *client,
+            struct _SMTPVerb* verb,
+            char **operands )
+{
+
+   if ( operands[0] == NULL )
+      SMTPResponse(client,
+                   PR_ERROR_WARNING,
+                   "AUTH capabilities listing not available" );
+   else {
+      sprintf( client->transmit.data,
+               "Cannot authenticate with %s method",
+               operands[0] );
+      SMTPResponse(client,
+                   PR_ERROR_GENERIC,
+                   client->transmit.data );
+   }
+
+   return KWFalse;
+
+}  /* commandXSENDER */
 
 /*--------------------------------------------------------------------*/
 /*       s e t D e l i v e r y G r a d e                              */

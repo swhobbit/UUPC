@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.2 1998/03/03 03:53:54 ahd Exp $
+ *       $Id: pop3user.c 1.3 1998/03/03 07:36:28 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: pop3user.c $
+ *       Revision 1.3  1998/03/03 07:36:28  ahd
+ *       Add deletion support
+ *
  *       Revision 1.2  1998/03/03 03:53:54  ahd
  *       Routines to handle messages within a POP3 mailbox
  *
@@ -46,7 +49,7 @@
 /*                            Global files                            */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3user.c 1.2 1998/03/03 03:53:54 ahd Exp $");
+RCSID("$Id: pop3user.c 1.3 1998/03/03 07:36:28 ahd v1-12v $");
 
 currentfile();
 
@@ -347,6 +350,7 @@ commandLIST(SMTPClient *client,
       if (current == NULL)
          return KWFalse;
       listOneMessage(client, current, verb->successResponse);
+      incrementClientMajorTransaction( client );
       return KWTrue;
    }
 
@@ -374,6 +378,7 @@ commandLIST(SMTPClient *client,
    SMTPResponse(client, PR_DATA, ".");
 
    /* Report success to caller */
+   incrementClientMajorTransaction( client );
    return KWTrue;
 
 } /* commandLIST */
@@ -437,6 +442,7 @@ commandRETR(SMTPClient *client,
 
    /* Write entire message out */
    writePopMessage( client, current, LONG_MAX );
+   incrementClientMajorTransaction( client );
 
    return KWTrue;
 
@@ -500,6 +506,7 @@ commandTOP(SMTPClient *client,
    if (current == NULL)
       return KWFalse;
 
+   incrementClientMajorTransaction( client );
    writePopMessage( client, current, atol(operands[1]));
 
    return KWTrue;
@@ -547,6 +554,7 @@ commandUIDL(SMTPClient *client,
       if (current == NULL)
          return KWFalse;
       identifyOneMessage(client, current, verb->successResponse);
+      incrementClientMajorTransaction( client );
       return KWTrue;
    }
 
@@ -569,6 +577,7 @@ commandUIDL(SMTPClient *client,
    SMTPResponse(client, PR_DATA, ".");
 
    /* Report success to caller */
+   incrementClientMajorTransaction( client );
    return KWTrue;
 
 } /* commandUIDL */
