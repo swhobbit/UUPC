@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: DCPXFER.C 1.13 1993/04/10 21:25:16 dmwatt Exp $
+ *       $Id: DCPXFER.C 1.14 1993/04/11 00:34:11 ahd Exp $
  *
  *       $Log: DCPXFER.C $
+ * Revision 1.14  1993/04/11  00:34:11  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.13  1993/04/10  21:25:16  dmwatt
  * Add Windows/NT support
  *
@@ -111,6 +114,7 @@ static char *databuf = NULL;
 static unsigned int xfer_bufsize = 0;
 
 static char fname[FILENAME_MAX], tname[FILENAME_MAX], dname[FILENAME_MAX];
+static char *lname;           // Name to report in syslog
 static char type, cmdopts[16];
 
 static long bytes;
@@ -123,6 +127,7 @@ static char spolname[FILENAME_MAX];
 static char tempname[FILENAME_MAX];
                               /* Temp name used to create received
                                  file                                */
+static char userid[20];
 
 currentfile();
 
@@ -216,7 +221,7 @@ static int bufwrite(char *buffer, int len)
    {
       printerr("bufwrite");
       printmsg(0, "bufwrite: Tried to write %d bytes, actually wrote %d",
-      	len, count);
+        len, count);
       clearerr(xfer_stream);
    }
 
@@ -283,7 +288,6 @@ XFER_STATE seof( const boolean purge_file )
    struct tm  *tmx;
    long ticks;
    struct timeb now;
-   char hostname[FILENAME_MAX];
 
 /*--------------------------------------------------------------------*/
 /*    Send end-of-file indication, and perhaps receive a              */
@@ -332,11 +336,11 @@ XFER_STATE seof( const boolean purge_file )
 /*                   If local spool file, delete it                   */
 /*--------------------------------------------------------------------*/
 
-   importpath(hostname, dname, rmtname);
-                              /* Local name also used by logging     */
 
    if (purge_file && !equal(dname,"D.0"))
    {
+     char hostname[FILENAME_MAX];
+     importpath(hostname, dname, rmtname);
      unlink( hostname );
      printmsg(4,"seof: Deleted file %s (%s)", dname, hostname );
    } /* if (purge_file && !equal(dname,"D.0")) */
@@ -367,8 +371,12 @@ XFER_STATE seof( const boolean purge_file )
             printerr(SYSLOG);
          else {
             fprintf( syslog,
-               "%s!%s (%s) (%d/%d-%02d:%02d:%02d) -> %ld / %ld.%02d secs\n",
-                   E_nodename, tname, hostname,
+                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) -> %ld"
+                           " / %ld.%02d secs\n",
+                   hostp->via,
+                   userid,
+                   type,
+                   lname,
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
@@ -376,15 +384,15 @@ XFER_STATE seof( const boolean purge_file )
             syslog = NULL;
          }
 
-      } /* if (bflag[F_SYSLOG] ) */
+      } /* if (bflag[F_SYSLOG]) */
 
    } /* if (bflag[F_SYSLOG] || (debuglevel > 2 )) */
 
 /*--------------------------------------------------------------------*/
-/*                          Return to caller                          */
+/*                      Return success to caller                      */
 /*--------------------------------------------------------------------*/
 
-   return XFER_FILEDONE;    /* go get the next file to send */
+   return XFER_FILEDONE;    /* go get the next file to process */
 
 } /*seof*/
 
@@ -430,8 +438,16 @@ XFER_STATE newrequest( void )
    if (databuf[i] == '\n')            /* remove new_line from card */
       databuf[i] = '\0';
 
-   sscanf(databuf, "%c %s %s %*s %s %s",
-         &type, fname, tname, cmdopts, dname);
+   *cmdopts = *dname = '\0';
+
+   sscanf(databuf, "%c %s %s %s %s %s",
+         &type, fname, tname, spolname, cmdopts, dname);
+
+   if ( !strlen( dname ))
+      strcpy( dname, "D.0");
+
+   spolname[ sizeof userid - 1] = '\0';
+   strcpy( userid, spolname );
 
 /*--------------------------------------------------------------------*/
 /*                           Reset counters                           */
@@ -474,6 +490,8 @@ XFER_STATE ssfile( void )
       filename = fname;       /* No --> Use the real name            */
    else
       filename = dname;       /* Yes --> Use it                      */
+
+   lname = fname;             // Always log the real name
 
 /*--------------------------------------------------------------------*/
 /*              Convert the file name to our local name               */
@@ -560,22 +578,22 @@ XFER_STATE ssfile( void )
 
 XFER_STATE srfile( void )
 {
-   char hostfile[FILENAME_MAX];
    struct  stat    statbuf;
 
 /*--------------------------------------------------------------------*/
 /*               Convert the filename to our local name               */
 /*--------------------------------------------------------------------*/
 
-   importpath(hostfile, tname, rmtname);
+   strcpy( spolname, normalize(tname));
+                                    // Assume the local user can type
 
 /*--------------------------------------------------------------------*/
 /*    If the destination is a directory, put the originating          */
 /*    original file name at the end of the path                       */
 /*--------------------------------------------------------------------*/
 
-   if ((hostfile[strlen(hostfile) - 1] == '/') ||
-       ((stat(hostfile , &statbuf) == 0) && (statbuf.st_mode & S_IFDIR)))
+   if ((spolname[strlen(spolname) - 1] == '/') ||
+       ((stat(spolname , &statbuf) == 0) && (statbuf.st_mode & S_IFDIR)))
    {
       char *slash = strrchr( fname, '/');
 
@@ -585,15 +603,15 @@ XFER_STATE srfile( void )
          slash ++ ;
 
       printmsg(3, "srfile: Destination \"%s\" is directory, \
-appending filename \"%s\"", hostfile, slash);
+appending filename \"%s\"", spolname, slash);
 
-      if (hostfile[strlen(hostfile) - 1] != '/')
-         strcat(hostfile, "/");
+      if (spolname[strlen(spolname) - 1] != '/')
+         strcat(spolname, "/");
 
-      strcat( hostfile, slash );
+      strcat( spolname, slash );
    } /* if */
 
-   printmsg(0, "Receiving \"%s\" as \"%s\" (%s)", fname, tname, hostfile);
+   printmsg(0, "Receiving \"%s\" as \"%s\" (%s)", fname, tname, spolname);
 
    if (!pktsendstr( databuf ))
       return XFER_LOST;
@@ -621,12 +639,12 @@ appending filename \"%s\"", hostfile, slash);
 /*    week; we'll just auto-create using FOPEN()                      */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN(hostfile, "w", BINARY_MODE);
+   xfer_stream = FOPEN(spolname, "w", BINARY_MODE);
                            /* Allow auto-create of directory      */
    if (xfer_stream == NULL)
    {
-      printmsg(0, "srfile: cannot create %s", hostfile);
-      printerr(hostfile);
+      printmsg(0, "srfile: cannot create %s", spolname);
+      printerr(spolname);
       return XFER_ABORT;
    }
 
@@ -637,17 +655,19 @@ appending filename \"%s\"", hostfile, slash);
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
       printmsg(0, "srfile: Cannot unbuffer file %s (%s).",
-          tname, hostfile);
-      printerr(hostfile);
+          tname, spolname);
+      printerr(spolname);
+      unlink(spolname);
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_ABORT;
    } /* if */
 
    spool = FALSE;             /* Do not rename file at completion */
+   lname = spolname;          // Use full name for local logging
    return XFER_RECVDATA;      /* Now start receiving the data     */
 
-} /*stfile*/
+} /*srfile*/
 
 /*--------------------------------------------------------------------*/
 /*    s i n i t                                                       */
@@ -787,8 +807,16 @@ XFER_STATE rheader( void )
 /*                  Begin transforming the file name                  */
 /*--------------------------------------------------------------------*/
 
-   sscanf(databuf, "%c %s %s %*s %s %s",
-         &type, fname, tname, cmdopts, dname);
+   *cmdopts = *dname = '\0';
+
+   sscanf(databuf, "%c %s %s %s %s %s",
+         &type, fname, tname, spolname, cmdopts, dname);
+
+   if ( !strlen( dname ))
+      strcpy( dname, "D.0");
+
+   spolname[ sizeof userid - 1] = '\0';
+   strcpy( userid, spolname );
 
 /*--------------------------------------------------------------------*/
 /*                           Reset counters                           */
@@ -958,6 +986,8 @@ XFER_STATE rrfile( void )
       return XFER_LOST;
    }
 
+   lname = spool ? tname : spolname;   // choose name to log
+
    return XFER_RECVDATA;   /* Switch to data state                */
 
 } /*rrfile*/
@@ -972,7 +1002,6 @@ XFER_STATE rrfile( void )
 XFER_STATE rsfile( void )
 {
    char filename[FILENAME_MAX];
-   char hostname[FILENAME_MAX];
    struct  stat    statbuf;
    size_t subscript;
 
@@ -985,9 +1014,7 @@ XFER_STATE rsfile( void )
 /*               Let host munge filename as appropriate               */
 /*--------------------------------------------------------------------*/
 
-   importpath(hostname, filename, rmtname);
-   printmsg(3, "rsfile: input \"%s\", source \"%s\", host \"%s\"",
-                                    fname, filename , hostname);
+   strcpy( spolname, filename );    // Assume remote can type
 
 /*--------------------------------------------------------------------*/
 /*       Check if the name is a directory name (end with a '/')       */
@@ -996,10 +1023,10 @@ XFER_STATE rsfile( void )
    subscript = strlen( filename ) - 1;
 
    if ((filename[subscript] == '/') ||
-       ((stat(hostname , &statbuf) == 0) && (statbuf.st_mode & S_IFDIR)))
+       ((stat(spolname , &statbuf) == 0) && (statbuf.st_mode & S_IFDIR)))
    {
       printmsg(3, "rsfile: source is directory \"%s\", rejecting",
-               hostname);
+               spolname);
 
       if (!pktsendstr("RN2"))    /* Report cannot send file       */
          return XFER_LOST;       /* School is out, die            */
@@ -1011,7 +1038,7 @@ XFER_STATE rsfile( void )
 /*                Check the access to the file desired                */
 /*--------------------------------------------------------------------*/
 
-   if ( !ValidateFile( hostname , ALLOW_READ ))
+   if ( !ValidateFile( spolname , ALLOW_READ ))
    {
       if (!pktsendstr("RN2")) /* Report access denied to requestor   */
          return XFER_LOST;
@@ -1023,12 +1050,12 @@ XFER_STATE rsfile( void )
 /*            The filename is transformed, try to open it             */
 /*--------------------------------------------------------------------*/
 
-   xfer_stream = FOPEN( hostname, "r" , BINARY_MODE);
+   xfer_stream = FOPEN( spolname, "r" , BINARY_MODE);
                               /* Open stream to transmit       */
    if (xfer_stream == NULL)
    {
-      printmsg(0, "rsfile: Cannot open file %s (%s).", fname, hostname);
-      printerr(hostname);
+      printmsg(0, "rsfile: Cannot open file %s (%s).", fname, spolname);
+      printerr(spolname);
       if (!pktsendstr("RN2"))    /* Report cannot send file       */
          return XFER_LOST;       /* School is out, die            */
       else
@@ -1037,9 +1064,9 @@ XFER_STATE rsfile( void )
 
    if (setvbuf( xfer_stream, NULL, _IONBF, 0))
    {
-      printmsg(0, "rsfile: Cannot unbuffer file %s (%s).", fname, hostname);
+      printmsg(0, "rsfile: Cannot unbuffer file %s (%s).", fname, spolname);
       pktsendstr("RN2");         /* Tell them we cannot handle it */
-      printerr(hostname);
+      printerr(spolname);
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_ABORT;
@@ -1056,8 +1083,9 @@ XFER_STATE rsfile( void )
       return XFER_LOST;
    }
 
-   printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, hostname, tname);
+   printmsg(0, "Sending \"%s\" (%s) as \"%s\"", fname, spolname, tname);
 
+   lname = spolname;       // Remember name of file to log
    return XFER_SENDDATA;   /* Switch to send data state        */
 
 } /*rsfile*/
@@ -1084,7 +1112,7 @@ XFER_STATE rdata( void )
       else
          used += len;
 
-   }  while (((used + r_pktsize) <= xfer_bufsize) && len);
+   }  while (((int) (used + r_pktsize) <= (int) xfer_bufsize) && len);
 
 /*--------------------------------------------------------------------*/
 /*                  Write incoming data to the file                   */
@@ -1123,7 +1151,8 @@ XFER_STATE reof( void )
    char *cy = "CY";
    char *cn = "CN";
    char *response = cy;
-   char *fname = spool ? tempname : spolname;
+   char *rname = spool ? tempname : spolname;
+                              // Name to delete if we have a problem
 
 /*--------------------------------------------------------------------*/
 /*            Close out the file, checking for I/O errors             */
@@ -1133,7 +1162,7 @@ XFER_STATE reof( void )
    if (ferror (xfer_stream ))
    {
       response = cn;          /* Report we had a problem             */
-      printerr( fname );
+      printerr( rname );
    }
 
    xfer_stream = NULL;        /* To make sure!                       */
@@ -1162,8 +1191,8 @@ XFER_STATE reof( void )
 
    if ( !equal(response, cy) )   /* If we had an error, delete file  */
    {
-      printmsg(0,"reof: Deleting corrupted file %s", fname );
-      unlink(fname );
+      printmsg(0,"reof: Deleting corrupted file %s", rname );
+      unlink(rname );
       return XFER_ABORT;
    } /* if ( !equal(response, cy) ) */
 
@@ -1182,7 +1211,7 @@ XFER_STATE reof( void )
       printmsg(2, "Transfer completed, %ld chars/sec",
                   (long) ((bytes * 1000) / (ticks ? ticks : 1) ));
 
-      if ( bflag[F_SYSLOG] )
+      if (bflag[F_SYSLOG])
       {
          tmx = localtime(&now.time);
          if ( bflag[F_MULTITASK] )
@@ -1193,8 +1222,12 @@ XFER_STATE reof( void )
             printerr(SYSLOG);
          else {
             fprintf( syslog,
-               "%s!%s (%s) (%d/%d-%02d:%02d:%02d) <- %ld / %ld.%02d secs\n",
-                   rmtname, tname, spolname,
+                   "%s!%s %c %s (%d/%d-%02d:%02d:%02d) <- %ld"
+                           " / %ld.%02d secs\n",
+                   hostp->via,
+                   userid,
+                   type,
+                   lname,
                    (tmx->tm_mon+1), tmx->tm_mday,
                    tmx->tm_hour, tmx->tm_min, tmx->tm_sec, bytes,
                    ticks / 1000 , (int) ((ticks % 1000) / 10) );
@@ -1202,14 +1235,16 @@ XFER_STATE reof( void )
             syslog = NULL;
          }
 
-      } /* if ( bflag[SYSLOG ) */
+      } /* if (bflag[F_SYSLOG]) */
+
    } /* if (bflag[F_SYSLOG] || (debuglevel > 2 )) */
 
 /*--------------------------------------------------------------------*/
 /*                      Return success to caller                      */
 /*--------------------------------------------------------------------*/
 
-   return XFER_FILEDONE;
+   return XFER_FILEDONE;    /* go get the next file to process */
+
 } /* reof */
 
 /*--------------------------------------------------------------------*/
