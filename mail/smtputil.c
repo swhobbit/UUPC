@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtputil.c 1.2 1997/11/25 05:05:06 ahd v1-12u $
+ *       $Id: smtputil.c 1.3 1998/03/01 01:32:04 ahd v1-13a $
  *
  *       Revision History:
  *       $Log: smtputil.c $
+ *       Revision 1.3  1998/03/01 01:32:04  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.2  1997/11/25 05:05:06  ahd
  *       More robust SMTP daemon
  *
@@ -45,7 +48,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtputil.c 1.2 1997/11/25 05:05:06 ahd v1-12u $");
+RCSID("$Id: smtputil.c 1.3 1998/03/01 01:32:04 ahd v1-13a $");
 
 currentfile();
 
@@ -56,18 +59,18 @@ currentfile();
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-stripAddress( char *address, char response[MAXADDR] )
+stripAddress(char *address, char response[MAXADDR])
 {
    int brackets = 0;
-   int len = strlen( address );
+   int len = strlen(address);
 
    *response = '\0';
 
 /*--------------------------------------------------------------------*/
-/*                      Handle our very space case                    */
+/*                      Handle our very special case                  */
 /*--------------------------------------------------------------------*/
 
-   if ( equal( address, "<>" ))     /* Postmaster?                   */
+   if (equal(address, "<>"))        /* Postmaster?                   */
       return KWTrue;                /* Yes --> Leave intact          */
 
 /*--------------------------------------------------------------------*/
@@ -76,20 +79,20 @@ stripAddress( char *address, char response[MAXADDR] )
 
    if (strchr(address, '@') == NULL)   /* Any host delimiters?       */
    {
-      strcpy( response, "Address does not contain at sign (@)");
+      strcpy(response, "Address does not contain at sign (@)");
       return KWFalse;
    }
 
    if (strpbrk(address, WHITESPACE))
    {
-      strcpy( response, "Address contains white space not support by "
+      strcpy(response, "Address contains white space not supported by "
                         "UUCP mailers");
       return KWFalse;
    }
 
    if (strpbrk(address, "()"))
    {
-      strcpy( response, "Address contains parantheses, not supported");
+      strcpy(response, "Address contains parantheses, not supported");
       return KWFalse;
    }
 
@@ -97,21 +100,21 @@ stripAddress( char *address, char response[MAXADDR] )
 /*              Strip angle brackets, checking for balance            */
 /*--------------------------------------------------------------------*/
 
-   if ( address[0] == '<' )
+   if (address[0] == '<')
    {
       brackets++;
-      MEMMOVE( address, address + 1, --len );
+      MEMMOVE(address, address + 1, --len);
    }
 
-   if ( address[len - 1] == '>' )
+   if (address[len - 1] == '>')
    {
       brackets++;
       address[--len] = '\0';
    }
 
-   if ( brackets == 1 )
+   if (brackets == 1)
    {
-      strcpy( response, "Unbalanced angle brackets (<>)");
+      strcpy(response, "Unbalanced angle brackets (<>)");
       return KWFalse;
    }
 
@@ -121,7 +124,7 @@ stripAddress( char *address, char response[MAXADDR] )
 
    if (strpbrk(address, "<>"))
    {
-      strcpy( response, "Address contains extra angle brackets, "
+      strcpy(response, "Address contains extra angle brackets, "
                         "not supported");
       return KWFalse;
    }
@@ -130,16 +133,16 @@ stripAddress( char *address, char response[MAXADDR] )
 /*                           Verify the length                        */
 /*--------------------------------------------------------------------*/
 
-   if ( len >= MAXADDR )
+   if (len >= MAXADDR)
    {
-      strcpy( response, "Address is too long for processing");
+      strcpy(response, "Address is too long for processing");
       return KWFalse;
 
    }
 
 /*--------------------------------------------------------------------*/
-/*       The address is safe for other (less paranoid) returns to     */
-/*       process it                                                   */
+/*       The address is safe for other (less paranoid) routines       */
+/*       to process it                                                */
 /*--------------------------------------------------------------------*/
 
    return KWTrue;
@@ -147,28 +150,31 @@ stripAddress( char *address, char response[MAXADDR] )
 } /* stripAddress */
 
 /*--------------------------------------------------------------------*/
-/*       i s V a l i d A d d r e s s                                   */
+/*       i s V a l i d A d d r e s s                                  */
 /*                                                                    */
 /*       Report if an address is valid for processing                 */
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-isValidAddress( const char *address,
+isValidAddress(const char *address,
                 char response[MAXADDR],
                 KWBoolean *ourProblem)
 {
    static const char mName[] = "isValidAddress";
    char node[MAXADDR];
    char user[MAXADDR];
+   char path[MAXADDR];
    struct HostTable *hostp;
+   ourProblem = KWTrue;          /* Assume it's our mail             */
 
 /*--------------------------------------------------------------------*/
 /*                    Perform basic syntax checks                     */
 /*--------------------------------------------------------------------*/
 
-   if ( equal( address, "<>" ))
+   if (equal(address, "<>"))
    {
-      strcpy( response, "Local postmaster");
+      strcpy(response, "SMTP Postmaster");
+      ourProblem = KWFalse;      /* Too generic to trust             */
       return KWTrue;
    }
 
@@ -176,7 +182,7 @@ isValidAddress( const char *address,
 /*                       Parse the address down                       */
 /*--------------------------------------------------------------------*/
 
-   if ( ! tokenizeAddress(address, response, node, user) )
+   if (! tokenizeAddress(address, path, node, user))
       return KWFalse;               /* Message already in buffer     */
 
    printmsg(4, "%s: Address %s is user %s at %s via %s",
@@ -184,17 +190,17 @@ isValidAddress( const char *address,
                address,
                user,
                node,
-               response );
+               path);
 
-   hostp = checkname( response );
+   hostp = checkname(node);
 
 /*--------------------------------------------------------------------*/
 /*                      Handle gateway delivery                       */
 /*--------------------------------------------------------------------*/
 
-   if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_GATEWAYED))
+   if ((hostp != BADHOST) && (hostp->status.hstatus == HS_GATEWAYED))
    {
-      strcpy( response, "Supported via gateway");
+      strcpy(response, "Supported via gateway");
       return KWTrue;
    }
 
@@ -202,9 +208,9 @@ isValidAddress( const char *address,
 /*                 Handle SMTP delivery, if supported                 */
 /*--------------------------------------------------------------------*/
 
-   if ( (hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
+   if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
    {
-      strcpy( response, "Address is remote (SMTP)");
+      strcpy(response, "Explicitly routed to SMTP");
       return KWTrue;
    }
 
@@ -212,22 +218,22 @@ isValidAddress( const char *address,
 /*                       Handle local delivery                        */
 /*--------------------------------------------------------------------*/
 
-   if (equal(response, E_nodename)) /* Route via Local node?          */
+   if (equal(path, E_nodename))     /* Route via Local node?          */
    {
-      if (equal( HostAlias( node ), E_nodename ))  /* To local node?  */
+      if (equal(HostAlias(node), E_nodename))  /* To local node?  */
       {
-         if ( isValidLocalAddress( user ))
+         if (isValidLocalAddress(user))
          {
-            strcpy( response, "Local address");
+            strcpy(response, "Valid local address");
             return KWTrue;
          }
          else {
-            strcpy( response, "Address is not known on local system");
+            strcpy(response, "Address not known on local system");
             return KWFalse;
          }
       }
       else {
-         strcpy( response, "No known delivery path for host" );
+         strcpy(response, "No known delivery path for host");
          return KWFalse;
       }
 
@@ -237,9 +243,9 @@ isValidAddress( const char *address,
 /*         Deliver mail to a system directly connected to us          */
 /*--------------------------------------------------------------------*/
 
-   if (equal(response,node)) /* Directly connected system?      */
+   if (equal(path,node))         /* Directly connected system?       */
    {
-      strcpy( response, "Neighborhood remote address");
+      strcpy(response, "Neighborhood remote address");
       return KWTrue;
    }
 
@@ -247,7 +253,8 @@ isValidAddress( const char *address,
 /*       Default remote delivery                                      */
 /*--------------------------------------------------------------------*/
 
-   strcpy( response, "Generic remote address");
+   strcpy(response, "Generic remote address");
+   ourProblem = KWFalse;         /* We don't know, their host        */
    return KWTrue;
 
 } /* isValidAddress */
@@ -259,28 +266,28 @@ isValidAddress( const char *address,
 /*--------------------------------------------------------------------*/
 
 KWBoolean
-isValidLocalAddress( const char *local )
+isValidLocalAddress(const char *local)
 {
 
 /*--------------------------------------------------------------------*/
 /*    RFC-821 requires we support postmaster, which in fact we do     */
 /*--------------------------------------------------------------------*/
 
-   if ( equali( local, "postmaster"))
+   if (equali(local, "postmaster"))
       return KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                      Try our local user table                      */
 /*--------------------------------------------------------------------*/
 
-   if ( checkuser(local) != BADUSER )  /* Good user id?              */
+   if (checkuser(local) != BADUSER)    /* Good user id?              */
       return KWTrue;                   /* Yes --> It passes          */
 
 /*--------------------------------------------------------------------*/
 /*         Try our system alias table last, since its slowest         */
 /*--------------------------------------------------------------------*/
 
-   if ( checkalias( local ) == NULL )  /* System alias?              */
+   if (checkalias(local) == NULL)      /* System alias?              */
       return KWFalse;                  /* Yes --> It passes          */
    else
       return KWTrue;                   /* No, complete failure       */
