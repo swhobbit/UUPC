@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.30 1993/10/03 20:43:08 ahd Exp $
+ *    $Id: modem.c 1.31 1993/10/03 22:34:33 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.31  1993/10/03  22:34:33  ahd
+ * Insure priority values are reset when loading modem information
+ *
  * Revision 1.30  1993/10/03  20:43:08  ahd
  * Move slowWrite to script.c
  *
@@ -181,7 +184,7 @@ KEWSHORT M_tPacketTimeout;       /* "t" procotol                  */
 KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 KEWSHORT M_MaxErr= 10;        /* Allowed errors per single packet    */
 KEWSHORT M_MaxErr;            /* Allowed errors per single packet    */
-KEWSHORT M_xfer_bufsize;      /* Buffering used for file transfers */
+KEWLONG  M_xfer_bufsize;      /* Buffering used for file transfers */
 static KEWSHORT M_priority = 999;
 static KEWSHORT M_prioritydelta = 999;
 
@@ -227,8 +230,9 @@ static CONFIGTABLE modemtable[] = {
    { "scripttimeout", (char **) &scriptTimeout,B_SHORT| B_UUCICO },
    { "startuptimeout",(char **) &M_startupTimeout, B_SHORT | B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
-   { "transferbuffer",(char **) &M_xfer_bufsize, B_SHORT| B_UUCICO },
+   { "transferbuffer",(char **) &M_xfer_bufsize, B_LONG| B_UUCICO },
    { "tpackettimeout",(char **) &M_tPacketTimeout, B_SHORT | B_UUCICO },
+   { "version",       &dummy,                  B_TOKEN  },
    { "vpacketsize",   (char **) &vPacketSize,  B_SHORT| B_UUCICO },
    { "vwindowsize",   (char **) &vWindowSize,  B_SHORT| B_UUCICO },
    { nil(char) }
