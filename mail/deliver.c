@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.65 1999/01/04 03:54:27 ahd Exp $
+ *    $Id: deliver.c 1.66 1999/01/08 02:21:01 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.66  1999/01/08 02:21:01  ahd
+ *    Convert currentfile() to RCSID()
+ *
  *    Revision 1.65  1999/01/04 03:54:27  ahd
  *    Annual copyright change
  *
@@ -183,7 +186,7 @@
 /*        Define current file name for panic() and printerr()         */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: deliver.c 1.66 1999/01/08 02:21:01 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                        Internal prototypes                         */
@@ -1070,9 +1073,11 @@ size_t Bounce( IMFILE *imf,
                   text );
 
    if ( data != NULL )
-      fprintf(newfile,
-             "The problem address or file in question was:  %s\n",
-             data );
+   {
+      fputs("The problem address or file in question was: ",newfile);
+      fputs(data, newfile);
+      fputc('\n', newfile);
+   }
 
       fprintf(newfile,
               "\nA copy of the failed mail follows.\n\n"
@@ -1109,77 +1114,6 @@ size_t Bounce( IMFILE *imf,
     return (1);
 
 } /* Bounce */
-
-/*--------------------------------------------------------------------*/
-/*       r e t r y S M T P d e l i v e r y                            */
-/*                                                                    */
-/*       Perform a pure SMTP delivery queue run to the routing        */
-/*       host for the first specified addressee                       */
-/*--------------------------------------------------------------------*/
-
-KWBoolean
-retrySMTPdelivery( IMFILE *imf,
-                   const MAIL_ADDR *sender,
-                   const char **address,
-                   int addressees )
-{
-
-   char path[MAXADDR];
-   char dummy[MAXADDR];
-   struct HostTable *hostp;
-   int subscript;
-
-   if ( ! tokenizeAddress(address[0], path, dummy, dummy) )
-   {
-      Bounce( imf,
-              sender,
-              path,
-              address[0],
-              address[0],
-              KWTrue );
-      return KWTrue;
-   }
-
-   hostp = checkname( path );
-
-   if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP))
-   {
-#ifdef TCPIP
-      if ( ConnectSMTP( imf,
-                        sender,
-                        hostp->via,
-                        address,
-                        addressees,
-                        KWTrue ))
-         return KWTrue;
-
-#else
-      printmsg(0, "retrySMTPdelivery: SMTP support not enabled, "
-                  "leaving mail queued for %s",
-                  hostp->via );
-#endif
-
-      return KWFalse;               /* Report we did not deliver     */
-
-   } /* if ((hostp != BADHOST) && (hostp->status.hstatus == HS_SMTP)) */
-
-/*--------------------------------------------------------------------*/
-/*       The routing tables have been changed, and the first          */
-/*       address is no longer routed via SMTP; process all the        */
-/*       mail through the standard routing/delivery routines.         */
-/*--------------------------------------------------------------------*/
-
-   printmsg(0, "retrySMTPdelivery: Routing tables changed, rerouting mail");
-
-   for ( subscript = 0; subscript < addressees; subscript++ )
-      Deliver( imf,
-               sender,
-               address[subscript],
-               KWTrue );
-
-   return KWTrue;
-
-} /* retrySMTPdelivery */
 
 /*--------------------------------------------------------------------*/
 /*       f l u s h Q u e u e s                                        */
