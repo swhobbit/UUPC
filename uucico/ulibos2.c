@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.33 1993/12/06 01:59:07 ahd Exp $
+ *       $Id: ulibos2.c 1.34 1993/12/24 05:12:54 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.34  1993/12/24  05:12:54  ahd
+ * Use far buffer for master communications buffer
+ *
  * Revision 1.33  1993/12/06  01:59:07  ahd
  * Use bit AND, not logical AND, to determine modem logic
  *
@@ -544,7 +547,10 @@ unsigned int nsread(char UUFAR *output, unsigned int wanted, unsigned int timeou
    time_t now ;
    USHORT com_error;
 
-   boolean firstPass = TRUE;
+   boolean firstPass = ( currentSpeed > 2400 ) || ( wanted == 1 );
+                              /* Perform extended read only on high-
+                                 speed modem links when looking for
+                                 packet data                         */
 
 #ifdef __OS2__
    ULONG ParmLengthInOut;
