@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.25 1995/03/11 22:29:58 ahd Exp $
+ *       $Id: inews.c 1.26 1995/08/27 23:33:15 ahd v1-12p $
  *
  * $Log: inews.c $
+ * Revision 1.26  1995/08/27 23:33:15  ahd
+ * Load and use ACTIVE file as tree structure
+ *
  * Revision 1.25  1995/03/11 22:29:58  ahd
  * Use macro for file delete to allow special OS/2 processing
  *
@@ -115,7 +118,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.25 1995/03/11 22:29:58 ahd Exp $";
+      "$Id: inews.c 1.26 1995/08/27 23:33:15 ahd v1-12p $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -271,7 +274,6 @@ main( int argc, char **argv)
               debuglevel );
    }
 
-
    result = execute( command,
                      commandOptions,
                      tempname,
@@ -324,7 +326,7 @@ static int get_header(FILE *input, char *buffer, int size, char *name)
 
   while (fgets(buffer, size, input) != NULL)
   {
-    if (strncmp(buffer, name, strlen(name)) == 0)  /* Find header?   */
+    if (equalni(buffer, name, strlen(name)))       /* Find header?   */
       return 0;                        /* Yes, return success        */
 
     if (buffer[0] == ' ' || buffer[0] == '\n' || buffer[0] == '\r')
@@ -357,7 +359,6 @@ static int complete_header(FILE *input, FILE *output )
   else
      fputs( buf, output );
 
-
   if (get_header(input, buf, sizeof(buf), "From:") == -1)
     fprintf(output,"From: %s@%s (%s)\n", E_mailbox, E_fdomain, E_name);
   else
@@ -376,7 +377,7 @@ static int complete_header(FILE *input, FILE *output )
   else
     fputs(buf, output);
 
-  if (strncmp(buf, "Subject: cmsg ", 14) == 0)
+  if (equalni(buf, "Subject: cmsg ", 14))
   {
     char cmsg[256]; /* for old-style control messages such as from TRN */
 
@@ -421,15 +422,16 @@ static int complete_header(FILE *input, FILE *output )
       OK = KWTrue;
       break;
     }
-    if (strncmp(buf,"Path:", 5) == 0 ||
-        strncmp(buf,"From:", 5) == 0 ||
-        strncmp(buf,"Newsgroups:", 11) == 0 ||
-        strncmp(buf,"Subject:", 8) == 0 ||
-        strncmp(buf,"Distribution:", 13) == 0 ||
-        strncmp(buf,"Message-ID:", 11) == 0 ||
-        strncmp(buf,"Lines:", 6) == 0 ||
-        strncmp(buf,"X-Posting-Software:", 19) == 0 ||
-        strncmp(buf,"Date:", 5) == 0)
+
+    if (equalni(buf,"Path:", 5) ||
+        equalni(buf,"From:", 5) ||
+        equalni(buf,"Newsgroups:", 11) ||
+        equalni(buf,"Subject:", 8) ||
+        equalni(buf,"Distribution:", 13) ||
+        equalni(buf,"Message-ID:", 11) ||
+        equalni(buf,"Lines:", 6) ||
+        equalni(buf,"X-Posting-Software:", 19) ||
+        equalni(buf,"Date:", 5))
       continue;
 
     if ((ptr = strchr(buf, ':')) == NULL)

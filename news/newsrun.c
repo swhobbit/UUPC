@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.8 1995/03/12 16:42:24 ahd Exp $
+ *       $Id: newsrun.c 1.9 1995/08/27 23:33:15 ahd v1-12p $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.9  1995/08/27 23:33:15  ahd
+ *       Load and use ACTIVE file as tree structure
+ *
  *       Revision 1.8  1995/03/12 16:42:24  ahd
  *       Don't both to call get_snum if we only need to know the group exists
  *
@@ -217,7 +220,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.8 1995/03/12 16:42:24 ahd Exp $";
+         "$Id: newsrun.c 1.9 1995/08/27 23:33:15 ahd v1-12p $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1070,7 +1073,7 @@ static void deliver_article( IMFILE *imf )
 /*                     Validate message id field                      */
 /*--------------------------------------------------------------------*/
 
-         if ( equal( table[subscript].name, MESSAGEID) &&
+         if ( equali( table[subscript].name, MESSAGEID) &&
               ! validateID( s ))
          {
             error = KWTrue;
@@ -1236,10 +1239,7 @@ static void control_message(const char *control,
 /*                     Parse the command verb off                     */
 /*--------------------------------------------------------------------*/
 
-  cmd = strtok(ctrl, WHITESPACE);      /* Discard first token         */
-
-  if ( cmd != NULL )
-     cmd = strtok(NULL, WHITESPACE);   /* Get second token, if any    */
+  cmd = strtok(ctrl, WHITESPACE);      /* Get second token, if any    */
 
   if ( cmd == NULL )
   {
