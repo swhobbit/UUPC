@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.4 1996/01/01 20:59:55 ahd v1-12r $
+ *    $Id: uupcmoah.h 1.5 1996/03/18 03:48:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: uupcmoah.h $
+ *    Revision 1.5  1996/03/18 03:48:14  ahd
+ *    Allow compilation under C++ compilers
+ *
  *    Revision 1.4  1996/01/01 20:59:55  ahd
  *    Annual Copyright Update
  *
@@ -86,9 +89,5 @@
 #include "confvars.h"
 #include "lib.h"
 #include "hlib.h"
-
-#ifdef __cplusplus
-   }
-#endif
 
 #endif /* __UUPCMOAH */

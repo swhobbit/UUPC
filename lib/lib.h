@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.35 1996/01/07 14:18:18 ahd v1-12r $
+ *    $Id: lib.h 1.36 1996/03/18 03:48:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.36  1996/03/18 03:48:14  ahd
+ *    Allow compilation under C++ compilers
+ *
  *    Revision 1.35  1996/01/07 14:18:18  ahd
  *    Provide external references to configuration functions and routines
  *    needed by regsetup.
@@ -162,7 +165,7 @@
 /*                 Macro for recording when UUPC dies                 */
 /*--------------------------------------------------------------------*/
 
-#define panic()  bugout( __LINE__, cfnptr)
+#define panic()  bugout( cfnptr, __LINE__)
 
 /*--------------------------------------------------------------------*/
 /*                 Macro for generic error messages from DOS          */
@@ -177,7 +180,7 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
-#define RCSID(x) static const char UUFAR rcsid[] = x
+#define RCSID(x) static const char UUFAR _rcsId[] = x
 
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
@@ -386,7 +389,7 @@ KWBoolean processconfig(char *buff,
 /*                           Abort function                           */
 /*--------------------------------------------------------------------*/
 
-void bugout( const size_t lineno, const char *fname);
+void bugout(  const char *fname, const size_t lineno);
 
 /*--------------------------------------------------------------------*/
 /*                Constant String allocation function                 */

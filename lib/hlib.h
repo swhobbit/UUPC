@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hlib.h 1.13 1996/01/01 20:57:21 ahd v1-12r $
+ *    $Id: hlib.h 1.14 1996/03/18 03:48:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: hlib.h $
+ *    Revision 1.14  1996/03/18 03:48:14  ahd
+ *    Allow compilation under C++ compilers
+ *
  *    Revision 1.13  1996/01/01 20:57:21  ahd
  *    Annual Copyright Update
  *
@@ -68,10 +71,6 @@
 #define BIT_BUCKET "NUL:"
 #else
 #define BIT_BUCKET "/dev/nul"    /* NOTE: DOS uses only one L in NUL */
-#endif
-
-#ifdef __cplusplus
-   extern "C" {
 #endif
 
 char *normalize( const char *path );
