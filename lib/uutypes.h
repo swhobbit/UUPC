@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.3 1993/04/15 03:21:30 ahd Exp $
+ *    $Id: UUTYPES.H 1.4 1993/05/09 03:50:05 ahd Exp $
  *
  *    Revision history:
- *    $Log: uutypes.h $
+ *    $Log: UUTYPES.H $
+ *     Revision 1.4  1993/05/09  03:50:05  ahd
+ *     Support longname, honordebug, senddebug options
+ *
  * Revision 1.3  1993/04/15  03:21:30  ahd
  * Add bounce to boolean option list
  *
@@ -30,6 +33,21 @@
  * Initial revision
  *
  */
+
+/*--------------------------------------------------------------------*/
+/*         Define unique FAR keyword for selected memory hogs         */
+/*--------------------------------------------------------------------*/
+
+#ifdef WIN32
+#define UUFAR
+#else
+#ifdef __TURBOC__
+#define UUFAR far
+#else
+#define UUFAR _far
+#endif
+#endif
+
 
 /*--------------------------------------------------------------------*/
 /*    Enumerated list used by the options= configuration line         */
