@@ -15,9 +15,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: IMPORT.C 1.3 1993/04/11 00:31:31 dmwatt Exp $
+ *    $Id: import.c 1.4 1993/09/02 12:08:17 ahd Exp $
  *
- *    $Log: IMPORT.C $
+ *    $Log: import.c $
+ *     Revision 1.4  1993/09/02  12:08:17  ahd
+ *     HPFS Support
+ *
  *     Revision 1.3  1993/04/11  00:31:31  dmwatt
  *     Global edits for year, TEXT, etc.
  *
@@ -40,6 +43,8 @@
 #define INCL_NOPM             // No need to include OS/2 PM info
 #define INCL_BASE
 #include <os2.h>
+#elif defined(WIN32)
+#include <windows.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -716,14 +721,39 @@ static boolean advancedFS( const char *path )
 
 static boolean advancedFS( const char *path )
 {
-   return FALSE;                 // Have fun Dave!
-} /* advancedFS */
+   char driveInfo[4];
+   char fsType[5];
+   BOOL result;
+
+
+   if ( isalpha( *path ) && (path[1] == ':') )
+      strncpy( driveInfo, path, 3 );
+   else
+      strncpy( driveInfo, E_cwd, 3 );
+
+   driveInfo[3] = '\0';          // Terminate drive string data
+
+   result = GetVolumeInformation(driveInfo, NULL, 0, NULL, NULL,
+         NULL, fsType, 5);
+
+   if ( !result )
+   {
+      printmsg(0, "advancedFS: Unable to query file system for %s, error = %d",
+                  driveInfo, (int) GetLastError() );
+      panic();
+   }
+
+   printmsg(4,"advancedFS: File system for \"%s\" has name \"%s\"",
+               driveInfo,
+               fsType );
+
+   return strcmp( fsType, "FAT");
+
+} /* advancedFS for WIN32 */
 
 #else
 
 static boolean advancedFS( const char *path )
 {
    return FALSE;                 // DOS is always dumb on file systems!
-} /* advancedFS */
-
-#endif
+} /* advancedFS for MS-DOS */
