@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.22 1997/05/11 04:28:53 ahd v1-12s $
+ *    $Id: cOMMLIB.H 1.23 1997/06/03 03:26:38 ahd Exp $
  *
  *    Revision history:
- *    $Log: commlib.h $
+ *    $Log: cOMMLIB.H $
+ *    Revision 1.23  1997/06/03 03:26:38  ahd
+ *    First compiling SMTP daemon
+ *
  *    Revision 1.22  1997/05/11 04:28:53  ahd
  *    SMTP client support for RMAIL/UUXQT
  *
@@ -134,45 +137,6 @@ typedef KWBoolean (*ref_WaitForNetConnect)(const unsigned int timeout);
 typedef int (*ref_GetComHandle)( void );
 
 typedef void (*ref_SetComHandle)( const int );
-
-/*--------------------------------------------------------------------*/
-/*                    Multiple connection support                     */
-/*--------------------------------------------------------------------*/
-
-#ifdef TCPIP
-typedef struct _RemoteConnection
-{
-   int handle;
-   size_t commBufferLength;
-   size_t commBufferUsed;
-   char UUFAR *commBuffer;
-
-   KWBoolean portActive;
-   KWBoolean traceEnabled;
-   KWBoolean carrierDetect;
-   KWBoolean direct;
-   KWBoolean network;
-   KWBoolean reportModemCarrierDirect;
-   union {
-      struct {
-         int masterSocket;
-         KWBoolean connectionDied;
-      } ip;
-      struct {
-         BPS speed;
-      } serial;
-   };
-} RemoteConnection ;
-
-void
-saveConnection( RemoteConnection *connection );
-
-void
-restoreConnection( RemoteConnection *connection );
-
-void
-freeConnection( RemoteConnection *connection );
-#endif
 
 /*--------------------------------------------------------------------*/
 /*       Define function to select communications driver functions;   */

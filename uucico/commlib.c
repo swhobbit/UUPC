@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.34 1997/05/11 18:15:50 ahd v1-12s $
+ *    $Id: COMMLIB.C 1.35 1997/06/03 03:25:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: commlib.c $
+ *    $Log: COMMLIB.C $
+ *    Revision 1.35  1997/06/03 03:25:31  ahd
+ *    First compiling SMTPD
+ *
  *    Revision 1.34  1997/05/11 18:15:50  ahd
  *    Allow faster SMTP delivery via fastsmtp flag
  *    Move TCP/IP dependent code from rmail.c to deliver.c
@@ -655,67 +658,3 @@ CD( void )
       return KWTrue;
 
 } /* CD */
-
-#ifdef TCPIP
-
-void
-saveConnection( RemoteConnection *connection )
-{
-   static const char mName[] = "saveConnection";
-
-   printmsg(5,"%s: Saving connection with handle %d",
-              mName,
-              GetComHandle() );
-
-   connection->carrierDetect            = carrierDetect;
-   connection->commBufferLength         = commBufferLength;
-   connection->commBufferUsed           = commBufferUsed;
-   connection->handle                   = GetComHandle();
-   connection->network                  = network;
-   connection->portActive               = portActive;
-   connection->traceEnabled             = traceEnabled;
-   connection->reportModemCarrierDirect = reportModemCarrierDirect;
-
-   if ( ! IsNetwork() )
-      connection->serial.speed   = GetSpeed();
-
-   if ((connection->commBuffer == NULL ) && (commBuffer != NULL ))
-   {
-      connection->commBuffer        = commBuffer;
-      commBuffer = malloc( commBufferLength );
-      checkref( commBuffer );
-   }
-
-} /* saveConnection */
-
-void
-restoreConnection( RemoteConnection *connection )
-{
-   static const char mName[] = "restoreConnection";
-
-   printmsg(5,"%s: Restoring connection with handle %d",
-              mName,
-              connection->handle );
-
-   SetComHandle( connection->handle );
-   commBufferLength           = connection->commBufferLength;
-   commBufferUsed             = connection->commBufferUsed;
-   commBuffer                 = connection->commBuffer;
-   carrierDetect              = connection->carrierDetect;
-   traceEnabled               = connection->traceEnabled;
-   network                    = connection->network;
-   portActive                 = connection->portActive;
-   reportModemCarrierDirect   = connection->reportModemCarrierDirect;
-
-   if ( ! IsNetwork() )
-      SIOSpeed( connection->serial.speed );
-}
-
-void
-freeConnection( RemoteConnection *connection )
-{
-   if ( commBuffer )
-      free( commBuffer );
-   free( connection );
-}
-#endif
