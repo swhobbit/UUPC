@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.h 1.24 1997/11/21 18:11:31 ahd v1-12u $
+ *    $Id: commlib.h 1.25 1998/03/01 01:42:09 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: commlib.h $
+ *    Revision 1.25  1998/03/01 01:42:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.24  1997/11/21 18:11:31  ahd
  *    Remove multiple port support for SMTP server
  *
@@ -56,51 +59,6 @@
  *
  * Revision 1.14  1994/01/24  03:05:37  ahd
  * Annual Copyright Update
- *
- * Revision 1.13  1994/01/01  19:22:43  ahd
- * Annual Copyright Update
- *
- * Revision 1.12  1993/12/24  05:22:49  ahd
- * Use UUFAR pointer for comm buffers
- *
- * Revision 1.11  1993/11/20  14:50:25  ahd
- * Add prototype for GetComHandle
- *
- * Revision 1.11  1993/11/20  14:50:25  ahd
- * Add prototype for GetComHandle
- *
- * Revision 1.10  1993/11/06  17:57:46  rhg
- * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
- *
- * Revision 1.9  1993/10/12  01:35:12  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.8  1993/10/07  22:32:45  ahd
- * Add commBuffer information
- *
- * Revision 1.7  1993/10/02  23:51:15  ahd
- * Reduce MAXPACK for 32 bit environments to 1024 bytes because
- * of NT aborts  with 4096
- *
- * Revision 1.6  1993/09/29  04:56:11  ahd
- * Suspend port by port name, not modem file name
- *
- * Revision 1.5  1993/09/25  03:13:04  ahd
- * Add priority altering prototypes
- *
- * Revision 1.4  1993/09/21  01:43:46  ahd
- * Move MAXPACK to commlib.h to allow use as standard comm buffer size
- *
- * Revision 1.3  1993/09/20  04:53:57  ahd
- * TCP/IP support from Dave Watt
- * 't' protocol support
- * OS/2 2.x support (BC++ 1.0 for OS/2 support)
- *
- * Revision 1.2  1993/05/30  15:27:22  ahd
- * Additional multiple comm driver support
- *
- * Revision 1.1  1993/05/30  00:11:03  ahd
- * Initial revision
  *
  */
 
@@ -151,6 +109,7 @@ KWBoolean chooseCommunications( const char *suite,
                                 char **deviceNamePtr );
 
 KWBoolean IsNetwork(void);   /* Report if suite is network oriented  */
+KWBoolean IsTAPI(void);      /* Report if suite is TAPI oriented     */
 
 /*--------------------------------------------------------------------*/
 /*       Trace functions for communications routines                  */

@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupcmoah.h 1.8 1998/03/01 01:28:18 ahd v1-12v $
+ *    $Id: UUPCMOAH.H 1.9 1998/03/08 23:12:28 ahd Exp $
  *
  *    Revision history:
- *    $Log: uupcmoah.h $
+ *    $Log: UUPCMOAH.H $
+ *    Revision 1.9  1998/03/08 23:12:28  ahd
+ *    Support debugging statements in 32 bit code only
+ *
  *    Revision 1.8  1998/03/01 01:28:18  ahd
  *    Annual Copyright Update
  *
@@ -68,7 +71,7 @@
 #error This only compiles with the Borland C++ 3.1 compiler and EasyWin, sorry!
 #endif
 
-#endif
+#endif /* __TURBOC__ */
 
 #if defined(WIN32) || defined(__OS2__) || defined(__32BIT__)
 #define BIT32ENV
@@ -87,6 +90,19 @@
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
+
+/*--------------------------------------------------------------------*/
+/*    Force our standard I/O into GUI functions if doing a GUI        */
+/*--------------------------------------------------------------------*/
+
+#if defined(WIN32) && defined(UUGUI)
+
+#define TAPI_SUPPORT
+
+#include <io.h>
+#include <process.h>
+#include "winstdio.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                Standard UUPC/extended include files                */

@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.20 1997/04/24 01:36:43 ahd v1-12u $
+ *    $Id: dcp.h 1.21 1998/03/01 01:42:13 ahd v1-12v $
  *
  *    $Log: dcp.h $
+ *    Revision 1.21  1998/03/01 01:42:13  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.20  1997/04/24 01:36:43  ahd
  *    Annual Copyright Update
  *
@@ -54,29 +57,6 @@
  *
  * Revision 1.12  1994/01/24  03:05:48  ahd
  * Annual Copyright Update
- *
- * Revision 1.11  1994/01/01  19:22:49  ahd
- * Annual Copyright Update
- *
- * Revision 1.10  1993/10/12  01:35:12  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.10  1993/10/12  01:35:12  ahd
- * Normalize comments to PL/I style
- *
- * Revision 1.9  1993/09/29  04:56:11  ahd
- * Suspend port by port name, not modem file name
- *
- * Revision 1.8  1993/09/27  00:50:57  ahd
- * Control of serial port in passive mode by K. Rommel
- *
- * Revision 1.7  1993/09/21  01:43:46  ahd
- * Move MAXPACK to commlib.h to allow use as standard comm buffer size
- *
- *      Mon May 15 19:54:43 1989 change portactive to port_active
- *      Mon May 15 19:51:13 1989 Add portactive flag
- *      19 Mar 1990  Add hostable.h header                           ahd
- *
  */
 
 #define SMALL_PACKET 64       /* Max packet size most UUCP's can
@@ -95,7 +75,8 @@
 /*    termination, but not during actual file transfers               */
 /*--------------------------------------------------------------------*/
 
-typedef enum {
+typedef enum
+{
       CONN_INITSTAT   = 'A',  /* Load host status file               */
       CONN_INITIALIZE,        /* Select system to call, if any       */
       CONN_CHECKTIME,         /* Check time to dial another          */
@@ -119,8 +100,9 @@ typedef enum {
       CONN_CLEANUP,           /* Cleanup after line termination      */
       CONN_UUXQT,             /* Execute UUXQT                       */
       CONN_WAIT,              /* Wait until told to continue         */
-      CONN_EXIT }             /* Exit state machine loop             */
-      CONN_STATE ;
+      CONN_EXIT,              /* Exit state machine loop             */
+      CONN_NO_RETURN          /* Special for for modem.c processing  */
+} CONN_STATE ;
 
 /*--------------------------------------------------------------------*/
 /*                        File transfer states                        */

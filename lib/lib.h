@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.41 1997/12/15 03:54:46 ahd Exp $
+ *       $Id: LIB.H 1.42 1998/03/01 01:26:54 ahd v1-12v $
  *
- *    Revision history:
- *    $Log: lib.h $
+ *       Revision history:
+ *       $Log: LIB.H $
+ *    Revision 1.42  1998/03/01 01:26:54  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.41  1997/12/15 03:54:46  ahd
  *    Only define RCSID() to be useful (and use memory) in 32 bit environments
  *

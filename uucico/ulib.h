@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.h 1.12 1997/04/24 01:38:02 ahd v1-12u $
+ *    $Id: ulib.h 1.13 1998/03/01 01:42:56 ahd v1-12v $
  *
  *    Revision history:
  *    $Log: ulib.h $
+ *    Revision 1.13  1998/03/01 01:42:56  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1997/04/24 01:38:02  ahd
  *    Annual Copyright Update
  *
@@ -42,20 +45,6 @@
  * Revision 1.7  1994/01/01  19:24:19  ahd
  * Annual Copyright Update
  *
- * Revision 1.6  1993/12/24  05:22:49  ahd
- * Use UUFAR pointer for comm buffers
- *
- * Revision 1.5  1993/11/20  14:50:25  ahd
- * Add prototype for GetComHandle
- *
- * Revision 1.4  1993/09/20  04:53:57  ahd
- * TCP/IP support from Dave Watt
- * 't' protocol support
- * OS/2 2.x support (BC++ 1.0 for OS/2 support)
- *
- * Revision 1.3  1993/05/30  00:11:03  ahd
- * Multiple communications drivers support
- *
  */
 
 extern int nopenline(char *name, BPS baud, const KWBoolean direct);
@@ -69,6 +58,11 @@ int nswrite(const char UUFAR *data, unsigned int len);
 void nssendbrk(unsigned int duration);
 
 void ncloseline(void);
+
+#ifdef TAPI_SUPPORT
+/* Hack for unique TAPI close function */
+void mcloseline(void);
+#endif
 
 void nSIOSpeed(BPS baud);
 
