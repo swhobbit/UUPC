@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.25 1994/02/23 04:20:27 ahd Exp $
+ *    $Id: rmail.c 1.26 1994/02/25 03:17:43 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.26  1994/02/25  03:17:43  ahd
+ * Perform more precise check for headers when in Resent- mode of
+ * Parse822
+ *
  * Revision 1.25  1994/02/23  04:20:27  ahd
  * Don't eat first line in the body of the message
  * Don't emit the Date: field in RFC-822 mode when one exists!
@@ -167,6 +171,7 @@
 
 #include <ctype.h>
 #include <io.h>
+#include <fcntl.h>
 #include <signal.h>
 
 #ifdef _Windows
@@ -249,6 +254,7 @@ void main(int argc, char **argv)
    boolean ReadHeader = FALSE;   /* TRUE = Parse RFC-822 headers      */
 
    int  option;                  /* For parsing option list           */
+   int  tempHandle;              /* For redirecting stdin             */
    char **address;               /* Pointer to list of target
                                     addresses                         */
    char *token;
@@ -460,15 +466,41 @@ void main(int argc, char **argv)
       fputc('\n', dataout);      /* If not, it is now ...            */
    }
 
-   fclose(datain);
-   fclose(dataout);
+/*--------------------------------------------------------------------*/
+/*       We always make sure standard input is open to a null         */
+/*       device because execute will redirect it, perhaps             */
+/*       improperly if we close it here and another routine (like     */
+/*       the alias functions) opens a file and gets file handler      */
+/*       zero.                                                        */
+/*                                                                    */
+/*       (Rich Gumpertz warned me about this one, and I ignored him.  */
+/*       Ooops.)                                                      */
+/*--------------------------------------------------------------------*/
 
-   if (DeleteInput)              /* Make room for more data on disk  */
+   if ( stdin != datain )           /* Insure input is closed too    */
+      fclose(datain);
+
+   if (DeleteInput)                 /* Make room for data on disk    */
       remove(namein);
 
+   if ((tempHandle = open(BIT_BUCKET, O_RDONLY | O_BINARY)) == -1)
+   {
+     printerr(BIT_BUCKET);          /* Aw, heck, bit bucket is full? */
+     panic();                       /* If we can't open it, kick it  */
+   }
+   else if (dup2(tempHandle, 0))    /* Swap stdin to empty input     */
+   {
+       printerr( "dup2" );
+       panic();
+   }
+
+   close(tempHandle);               /* Don't need original handle    */
+
 /*--------------------------------------------------------------------*/
-/*        Determine requestor node and user id for remote mail        */
+/*              Also close output file before we reread it            */
 /*--------------------------------------------------------------------*/
+
+   fclose(dataout);
 
 /*--------------------------------------------------------------------*/
 /*                    Perform delivery of the mail                    */
