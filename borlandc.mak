@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.11 1993/04/16 02:31:47 ahd Exp ahd $
+#     $Id: makefile 1.12 1993/04/16 02:43:27 ahd Exp $
 #
 #     Revision history:
 #     $Log: makefile $
+#         Revision 1.12  1993/04/16  02:43:27  ahd
+#         Do not archive bad rn source
+#
 #         Revision 1.11  1993/04/16  02:31:47  ahd
 #         Drop broken rn/newsetup from build for now
 #
@@ -106,7 +109,7 @@ SUFFIX  = $(MODEL)
 # *   distributed version number will confuse you AND me.              *
 # *--------------------------------------------------------------------*
 
-VERS = 1.11y
+VERS = 1.11z
 
 # *--------------------------------------------------------------------*
 # *   Hard Drive letter, and directories on the hard drive to be       *
