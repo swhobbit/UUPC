@@ -30,6 +30,7 @@
 #include "security.h"
 #include "ssleep.h"
 #include "catcher.h"
+#include "usrcatch.h"
 #include "commlib.h"
 
 /*--------------------------------------------------------------------*/
@@ -111,7 +112,7 @@ int expectstr(char *Search, unsigned int Timeout, char **failure)
                               /* The scan failed?                    */
          char *s;
 
-         if ( terminate_processing )
+         if ( terminate_processing || raised )
             return 0;
 
          while ( ptr > buf )

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.24 1993/09/27 04:04:06 ahd Exp $
+ *    $Id: modem.c 1.25 1993/09/28 01:38:19 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.25  1993/09/28  01:38:19  ahd
+ * Add configurable timeout for conversation start up phase
+ *
  * Revision 1.24  1993/09/27  04:04:06  ahd
  * Normalize references to modem speed to avoid incorrect displays
  *
@@ -131,12 +134,13 @@
 #include "security.h"
 #include "ssleep.h"
 #include "suspend.h"
+#include "usrcatch.h"
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-char *device = NULL;          /*Public to show in login banner     */
+char *M_device = NULL;          /*Public to show in login banner     */
 
 static char **answer, **initialize, **dropline, **ring, **connect;
 static char **noconnect;
@@ -159,6 +163,8 @@ KEWSHORT M_startupTimeout;       /* pre-procotol exchanges        */
 KEWSHORT M_MaxErr= 10;        /* Allowed errors per single packet    */
 KEWSHORT M_MaxErr;            /* Allowed errors per single packet    */
 KEWSHORT M_xfer_bufsize;      /* Buffering used for file transfers */
+static KEWSHORT M_priority = 999;
+static KEWSHORT M_prioritydelta = 999;
 
 boolean bmodemflag[MODEM_LAST];
 
@@ -173,45 +179,45 @@ static FLAGTABLE modemFlags[] = {
 
 static CONFIGTABLE modemtable[] = {
    { "answer",        (char **) &answer,       B_LIST   | B_UUCICO },
-   { "answertimeout", (char **) &answerTimeout,B_KEWSHORT| B_UUCICO },
-   { "biggpacketsize",(char **) &GPacketSize,  B_KEWSHORT| B_UUCICO },
-   { "biggwindowsize",(char **) &GWindowSize,  B_KEWSHORT| B_UUCICO },
-   { "chardelay",     (char **) &chardelay,    B_KEWSHORT| B_UUCICO },
+   { "answertimeout", (char **) &answerTimeout,B_SHORT| B_UUCICO },
+   { "biggpacketsize",(char **) &GPacketSize,  B_SHORT| B_UUCICO },
+   { "biggwindowsize",(char **) &GWindowSize,  B_SHORT| B_UUCICO },
+   { "chardelay",     (char **) &chardelay,    B_SHORT| B_UUCICO },
    { "connect",       (char **) &connect,      B_LIST   | B_UUCICO },
    { "description",   &dummy,                  B_TOKEN  },
-   { "device",        &device,    B_TOKEN  | B_UUCICO | B_REQUIRED },
+   { "device",        &M_device,               B_TOKEN| B_UUCICO | B_REQUIRED },
    { "dialprefix",    &dialPrefix,B_STRING | B_UUCICO | B_REQUIRED },
    { "dialsuffix",    &dialSuffix,             B_STRING | B_UUCICO },
-   { "dialtimeout",   (char **) &dialTimeout,  B_KEWSHORT| B_UUCICO },
-   { "fpacketsize",   (char **) &M_fPacketSize,B_KEWSHORT| B_UUCICO },
-   { "fpackettimeout",(char **) &M_fPacketTimeout, B_KEWSHORT | B_UUCICO },
-   { "gpacketsize",   (char **) &gPacketSize,  B_KEWSHORT| B_UUCICO },
-   { "gpackettimeout",(char **) &M_gPacketTimeout, B_KEWSHORT | B_UUCICO },
-   { "gwindowsize",   (char **) &gWindowSize,  B_KEWSHORT| B_UUCICO },
+   { "dialtimeout",   (char **) &dialTimeout,  B_SHORT| B_UUCICO },
+   { "fpacketsize",   (char **) &M_fPacketSize,B_SHORT| B_UUCICO },
+   { "fpackettimeout",(char **) &M_fPacketTimeout, B_SHORT | B_UUCICO },
+   { "gpacketsize",   (char **) &gPacketSize,  B_SHORT| B_UUCICO },
+   { "gpackettimeout",(char **) &M_gPacketTimeout, B_SHORT | B_UUCICO },
+   { "gwindowsize",   (char **) &gWindowSize,  B_SHORT| B_UUCICO },
    { "hangup",        (char **) &dropline,     B_LIST   | B_UUCICO },
    { "initialize",    (char **) &initialize,   B_LIST   | B_UUCICO },
    { "inspeed",       (char **) &inspeed,      B_LONG   | B_UUCICO },
-   { "maximumerrors", (char **) &M_MaxErr,     B_KEWSHORT| B_UUCICO },
-   { "modemtimeout",  (char **) &modemTimeout, B_KEWSHORT| B_UUCICO },
+   { "maximumerrors", (char **) &M_MaxErr,     B_SHORT| B_UUCICO },
+   { "modemtimeout",  (char **) &modemTimeout, B_SHORT| B_UUCICO },
    { "noconnect",     (char **) &noconnect,    B_LIST   | B_UUCICO },
    { "options",       (char **) bmodemflag,    B_ALL    | B_BOOLEAN},
    { "porttimeout",   NULL,                    B_OBSOLETE },
+   {"priority",       (char **) &M_priority,     B_SHORT |B_UUCICO},
+   {"prioritydelta",  (char **) &M_prioritydelta,B_SHORT |B_UUCICO},
    { "ring",          (char **) &ring,         B_LIST   | B_UUCICO },
-   { "scripttimeout", (char **) &scriptTimeout,B_KEWSHORT| B_UUCICO },
-   { "startuptimeout",(char **) &M_startupTimeout, B_KEWSHORT | B_UUCICO },
+   { "scripttimeout", (char **) &scriptTimeout,B_SHORT| B_UUCICO },
+   { "startuptimeout",(char **) &M_startupTimeout, B_SHORT | B_UUCICO },
    { "suite",         &M_suite,                B_TOKEN  | B_UUCICO },
-   { "transferbuffer",(char **) &M_xfer_bufsize, B_KEWSHORT| B_UUCICO },
-   { "tpackettimeout",(char **) &M_tPacketTimeout, B_KEWSHORT | B_UUCICO },
-   { "vpacketsize",   (char **) &vPacketSize,  B_KEWSHORT| B_UUCICO },
-   { "vwindowsize",   (char **) &vWindowSize,  B_KEWSHORT| B_UUCICO },
+   { "transferbuffer",(char **) &M_xfer_bufsize, B_SHORT| B_UUCICO },
+   { "tpackettimeout",(char **) &M_tPacketTimeout, B_SHORT | B_UUCICO },
+   { "vpacketsize",   (char **) &vPacketSize,  B_SHORT| B_UUCICO },
+   { "vwindowsize",   (char **) &vWindowSize,  B_SHORT| B_UUCICO },
    { nil(char) }
 }; /* modemtable */
 
 /*--------------------------------------------------------------------*/
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
-
-static boolean getmodem( const char *brand);
 
 static boolean dial(char *number, const BPS speed);
 
@@ -252,16 +258,6 @@ CONN_STATE callup( void )
    {
       printmsg(0,"callup: Modem speed %s is invalid.",
                   flds[FLD_SPEED]);
-      hostp->hstatus = invalid_device;
-      return CONN_INITIALIZE;
-   }
-
-/*--------------------------------------------------------------------*/
-/*                     Get the modem information                      */
-/*--------------------------------------------------------------------*/
-
-   if (!getmodem(flds[FLD_TYPE]))
-   {
       hostp->hstatus = invalid_device;
       return CONN_INITIALIZE;
    }
@@ -319,9 +315,6 @@ CONN_STATE callhot( const BPS xspeed )
       panic();
    } /* if */
 
-   if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
-      panic();                /* Avoid loop if bad modem name        */
-
 /*--------------------------------------------------------------------*/
 /*                        Set the modem speed                         */
 /*--------------------------------------------------------------------*/
@@ -336,7 +329,7 @@ CONN_STATE callhot( const BPS xspeed )
 /*--------------------------------------------------------------------*/
 
    norecovery = FALSE;           // Shutdown gracefully as needed
-   if (activeopenline(device, speed, bmodemflag[MODEM_DIRECT] ))
+   if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT] ))
       panic();
 
 /*--------------------------------------------------------------------*/
@@ -393,10 +386,6 @@ CONN_STATE callin( const time_t exit_time )
       panic();
    } /* if */
 
-   if (!getmodem(E_inmodem))  /* Initialize modem configuration      */
-      panic();                /* Avoid loop if bad modem name        */
-
-
 /*--------------------------------------------------------------------*/
 /*                    Open the communications port                    */
 /*--------------------------------------------------------------------*/
@@ -409,7 +398,7 @@ CONN_STATE callin( const time_t exit_time )
 
    if ( IsNetwork() )
    {
-      if (passiveopenline(device, inspeed, bmodemflag[MODEM_DIRECT]))
+      if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
          panic();
    }
    else {
@@ -420,7 +409,7 @@ CONN_STATE callin( const time_t exit_time )
          panic();
       } /* if */
 
-      if (passiveopenline(device, inspeed, bmodemflag[MODEM_DIRECT]))
+      if (passiveopenline(M_device, inspeed, bmodemflag[MODEM_DIRECT]))
          panic();
 
       while (sread(&c ,1,0)); /* Discard trailing trash from modem
@@ -445,7 +434,7 @@ CONN_STATE callin( const time_t exit_time )
 
    printmsg(1,"Monitoring port %s device %s"
                      " for %d minutes until %s",
-                     device, E_inmodem , (int) (offset / 60),
+                     M_device, E_inmodem , (int) (offset / 60),
                      (left > hhmm2sec(10000)) ?
                               "user hits Ctrl-Break" :
                               dater( exit_time , NULL));
@@ -460,7 +449,7 @@ CONN_STATE callin( const time_t exit_time )
          shutDown();
          if ( suspend_processing )        // Give up modem for another process?
          {
-           terminate_processing = FALSE;
+           raised = 0;
            return CONN_WAIT;
          }
          return CONN_INITIALIZE;
@@ -475,6 +464,11 @@ CONN_STATE callin( const time_t exit_time )
       {                          /* Did it ring?                        */
          interactive_processing = TRUE;
          shutDown();
+         if ( suspend_processing )        // Give up modem for another process?
+         {
+           raised = 0;
+           return CONN_WAIT;
+         }
          return CONN_INITIALIZE;     /* No --> Return to caller       */
       }
 
@@ -506,7 +500,8 @@ CONN_STATE callin( const time_t exit_time )
    time(&remote_stats.ltime); /* Remember time of last attempt conn  */
    remote_stats.calls ++ ;
 
-   setPrty();                 // Into warp drive for actual transfers
+   setPrty(M_priority, M_prioritydelta );
+                              // Into warp drive for actual transfers
 
    return CONN_LOGIN;
 
@@ -518,7 +513,7 @@ CONN_STATE callin( const time_t exit_time )
 /*    Read a modem configuration file                                 */
 /*--------------------------------------------------------------------*/
 
-static boolean getmodem( const char *brand)
+boolean getmodem( const char *brand)
 {
    char filename[FILENAME_MAX];
    static char *modem = NULL;
@@ -663,7 +658,7 @@ static boolean dial(char *number, const BPS speed)
    }
    else {
 
-      if (activeopenline(device, speed, bmodemflag[MODEM_DIRECT]))
+      if (activeopenline(M_device, speed, bmodemflag[MODEM_DIRECT]))
       {
 
          hostp->hstatus =  nodevice;
@@ -712,7 +707,7 @@ static boolean dial(char *number, const BPS speed)
    if ( !IsNetwork() )
       autobaud(speed);     /* Reset modem speed, if desired          */
 
-   setPrty();                 // Into warp drive for actual transfers
+   setPrty(M_priority, M_prioritydelta );
 
 /*--------------------------------------------------------------------*/
 /*                      Report success to caller                      */
@@ -865,7 +860,7 @@ static boolean sendalt( char *exp, int timeout, char **failure)
 
       ok = expectstr(exp, timeout, failure);
 
-      if ( terminate_processing )
+      if ( terminate_processing || raised )
       {
          shutDown();
          return FALSE;
