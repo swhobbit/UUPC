@@ -15,10 +15,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.5 1993/04/04 21:51:00 ahd Exp $
+ *    $Id: LIB.H 1.6 1993/05/30 00:11:03 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: LIB.H $
+ *     Revision 1.6  1993/05/30  00:11:03  ahd
+ *     Drop free() macro
+ *     Drop hardcoded PASSWD and SYSTEM file names
+ *     Add RCSID macro
+ *
  *     Revision 1.5  1993/04/04  21:51:00  ahd
  *     Update copyright
  *
@@ -77,7 +82,7 @@
 #define hhmm2sec(HHMM)    ((time_t)(((HHMM / 100) * 60L) + \
                            (time_t)(HHMM % 100)) * 60L)
 
-#define RCSID(x) static const char rcsid[] = x
+#define RCSID static const char UUFAR rcsid[] =
 
 /*--------------------------------------------------------------------*/
 /*                     Configuration file defines                     */
@@ -127,11 +132,9 @@
 #define  MESSAGESEP "\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\n"
 
 #define DCSTATUS    "hostatus"
-#define PASSNAME    "passwd"
 #define PATHS       "hostpath"
 #define PERMISSIONS "permissn"
 #define SYSLOG      "syslog"
-#define SYSNAME     "systems"
 #define ACTIVE      "active"
 
 #define WHITESPACE " \t\n\r"
