@@ -58,9 +58,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.1 1992/11/15 04:29:22 ahd Exp $
+ *    $Id: UUPOLL.C 1.2 1992/11/15 04:45:46 ahd Exp $
  *
  *    $Log: UUPOLL.C $
+ * Revision 1.2  1992/11/15  04:45:46  ahd
+ * Correct polling for days time zone changes
+ *
  * Revision 1.1  1992/11/15  04:29:22  ahd
  * Initial revision
  *
@@ -70,7 +73,7 @@
  */
 
 static const char rscid[] =
-         "$Id: UUPOLL.C 1.1 1992/11/15 04:29:22 ahd Exp $";
+         "$Id: UUPOLL.C 1.2 1992/11/15 04:45:46 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -835,7 +838,7 @@ static hhmm firstpoll(hhmm interval)
 
    if ( result != 0 )
    {
-      printf("UUXQT failed with a return code of %d",result);
+      printf("UUXQT failed with a return code of %d\n",result);
       panic();
    } /* if ( result != 0 ) */
 
