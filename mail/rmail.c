@@ -128,6 +128,9 @@ static boolean DaemonMail( const char *subject,
                            char **address,
                            int count );
 
+
+ static void usage( void );
+
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
@@ -207,7 +210,7 @@ void main(int argc, char **argv)
 /*                      Parse our operand flags                       */
 /*--------------------------------------------------------------------*/
 
-   while ((option = getopt(argc, argv, "ws:a:tF:f:x:")) != EOF)
+   while ((option = getopt(argc, argv, "ws:tF:f:x:")) != EOF)
    {
       switch (option) {
       case 'w':
@@ -235,8 +238,7 @@ void main(int argc, char **argv)
          break;
 
       case '?':
-         puts("\nUsage:\trmail  -t");
-         puts("\trmail [-x debug] addr1 addr2 addr3 ...");
+         usage();
          Terminate(4);
       } /* switch */
    } /* while */
@@ -951,3 +953,21 @@ static boolean DaemonMail( const char *subject,
    else                       /* Continuing line                     */
       fprintf(stream,",\n%-10s %s",label, operand);
  } /* PutHead */
+
+/*--------------------------------------------------------------------*/
+/*    u s a g e                                                       */
+/*                                                                    */
+/*    Report how the program works                                    */
+/*--------------------------------------------------------------------*/
+
+ static void usage( void )
+ {
+
+   static char syntax[] =
+      "Usage:\tRMAIL\t-t [-x debug] [-f | -F file]\n"
+      "\t\t-w [-x debug] [-f | -F file] [-s subject] addr1 [-c] addr2  [-b] addr3 ...\n"
+      "\t\t[-x debug] [-f | -F file] addr1 addr2 addr3 ...\n";
+
+   puts( syntax );
+   exit(3);
+ }
