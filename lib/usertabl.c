@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: USERTABL.C 1.2 1992/11/22 20:58:55 ahd Exp $
+ *    $Id: USERTABL.C 1.3 1993/04/11 00:31:04 ahd Exp $
  *
  *    $Log: USERTABL.C $
+ *     Revision 1.3  1993/04/11  00:31:04  ahd
+ *     Global edits for year, TEXT, etc.
+ *
  * Revision 1.2  1992/11/22  20:58:55  ahd
  * Use strpool to allocate const strings
  * Normalize directories as read
@@ -146,7 +149,7 @@ struct UserTable *inituser(char *name)
    {
       users[hit].uid      = newstr(name);
       checkref(users[hit].uid);
-      users[hit].realname = "????";
+      users[hit].realname = EMPTY_GCOS;
       users[hit].beep     = NULL;
       users[hit].homedir  = E_pubdir;
       users[hit].hsecure  = NULL;
