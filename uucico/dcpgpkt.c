@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: DCPGPKT.C 1.5 1992/11/19 03:00:29 ahd Exp $
+ *      $Id: dcpgpkt.c 1.6 1992/11/20 12:38:39 ahd Exp ahd $
  *
- *      $Log: DCPGPKT.C $
+ *      $Log: dcpgpkt.c $
+ * Revision 1.6  1992/11/20  12:38:39  ahd
+ * Add additional flags to avoid prematurely ending init sequence
+ *
  * Revision 1.5  1992/11/19  03:00:29  ahd
  * drop rcsid
  *
@@ -129,11 +132,11 @@
 #define MAXSEQ 8
 
 typedef enum {
-      I_CALLEE,
-      I_CALLER,
-      I_COMPLETE,
       I_EMPTY,
       I_ERROR,
+      I_RESTART,
+      I_CALLEE,
+      I_CALLER,
       I_GRPACK,
       I_INITA,
       I_INITA_SEND,
@@ -141,8 +144,8 @@ typedef enum {
       I_INITB_SEND,
       I_INITC,
       I_INITC_SEND,
-      I_RESTART }
-      I_STATE;
+      I_COMPLETE
+      } I_STATE;
 
 #define between(a,b,c) ((a<=b && b<c) || \
                         (c<a && a<=b) || \
@@ -241,9 +244,19 @@ int gopenpk(const boolean caller)
 static int initialize(const boolean caller, const char protocol )
 {
    int i, xxx, yyy, len, maxwindows;
-   boolean  sent_inita = FALSE, recv_inita = FALSE;
-   boolean  sent_initb = FALSE, recv_initb = FALSE;
-   boolean  sent_initc = FALSE, recv_initc = FALSE;
+
+#define B_SENT_INITA 0x01
+#define B_SENT_INITB 0x02
+#define B_SENT_INITC 0x04
+#define B_RECV_INITA 0x10
+#define B_RECV_INITB 0x20
+#define B_RECV_INITC 0x40
+#define B_INITA (B_SENT_INITA | B_RECV_INITA)
+#define B_INITB (B_SENT_INITB | B_RECV_INITB)
+#define B_INITC (B_SENT_INITC | B_RECV_INITC)
+
+   int  flags = 0x00;   /* Init state flags, as defined above  */
+
    I_STATE state;
 
 /*--------------------------------------------------------------------*/
@@ -339,8 +352,35 @@ static int initialize(const boolean caller, const char protocol )
 /*    code and associated bugs are all Drew's)                        */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    A note about the games with the variable "flags", which is      */
+/*    bit twiddled alot below.  The statement below:                  */
+/*                                                                    */
+/*          flags = (flags & B_SENT_INITA) | B_RECV_INITA;            */
+/*                                                                    */
+/*    works to turn off all the bits in flags except B_SENT_INITA     */
+/*    if it was already on, and then turns on flag B_RECV_INITA.      */
+/*    We use statements like this to reset most of the flags at       */
+/*    once, leaving one or two bits on; this in turn allows us to     */
+/*    check in later states that the previous two states were the     */
+/*    expected ones.                                                  */
+/*                                                                    */
+/*    Likewise, the following statement:                              */
+/*                                                                    */
+/*          state = (flags & B_SENT_INITA) ?                          */
+/*                         I_INITB_SEND : I_INITA_SEND;               */
+/*                                                                    */
+/*    tests to see if B_SENT_INITA was already set, and return the    */
+/*    "true" condition (I_INITB_SEND) otherwise return the "false"    */
+/*    (I_INITA_SEND).                                                 */
+/*--------------------------------------------------------------------*/
+
+
    while( state != I_COMPLETE )
    {
+      printmsg(4, "gopenpk: I State = %2d, flag = 0x%02x",
+               (int) state, (int) flags);
+
       switch( state )
       {
 
@@ -418,26 +458,25 @@ static int initialize(const boolean caller, const char protocol )
                nwindows = yyy;
                rwu = nwindows - 1;
             }
-            recv_inita = TRUE;
-            sent_initb = recv_initb = sent_initc = recv_initc = FALSE;
-            state = sent_inita ? I_INITB_SEND : I_INITA_SEND;
+            flags = (flags & B_SENT_INITA) | B_RECV_INITA;
+            state = (flags & B_SENT_INITA) ? I_INITB_SEND : I_INITA_SEND;
             break;
 
          case I_INITA_SEND:
             gspack(INITA, 0, 0, 0, pktsize, NULL);
-            sent_inita = TRUE;
+            flags = (flags & B_RECV_INITA) | B_SENT_INITA;
             state = I_GRPACK;
             break;
 
          case I_INITB:
-            if ( recv_inita &&  sent_inita )
+            if ((flags & (B_RECV_INITA | B_SENT_INITA)) ==
+                         (B_RECV_INITA | B_SENT_INITA))
             {
                i = (int) 8 * (2 << (yyy+1));
                if (i < (int) pktsize)
                   pktsize = i;
-               recv_initb = TRUE;
-               state = sent_initb ? I_INITC_SEND : I_INITB_SEND;
-               recv_inita = sent_inita = FALSE;
+               flags = (flags & B_SENT_INITB) | B_RECV_INITB;
+               state = (flags & B_SENT_INITB) ? I_INITC_SEND : I_INITB_SEND;
             } /* if */
             else
                state = I_RESTART;
@@ -446,20 +485,21 @@ static int initialize(const boolean caller, const char protocol )
          case I_INITB_SEND:
             gspack(INITB, 0, 0, 0, pktsize, NULL);
                                        /* Data segment (packet) size    */
-            sent_initb = TRUE;
+            flags = (flags & (B_INITA | B_RECV_INITB)) | B_SENT_INITB;
             state = I_GRPACK;
             break;
 
          case I_INITC:
-            if ( recv_initb &&  sent_initb )
+            if ((flags & (B_RECV_INITB | B_SENT_INITB)) ==
+                           (B_RECV_INITB | B_SENT_INITB))
             {
                if (yyy < (int) nwindows)
                {
                   nwindows = yyy;
                   rwu = nwindows - 1;
                }
-               recv_initc = TRUE;
-               state = sent_initc ? I_COMPLETE : I_INITC_SEND;
+               flags = (flags & B_SENT_INITC) | B_RECV_INITC;
+               state = (flags & B_SENT_INITC) ? I_COMPLETE : I_INITC_SEND;
             }
             else
                state = I_RESTART;
@@ -467,8 +507,8 @@ static int initialize(const boolean caller, const char protocol )
 
          case I_INITC_SEND:
             gspack(INITC, 0, 0, 0, pktsize, NULL);
-            sent_initc = TRUE;
-            state = recv_initc ? I_COMPLETE : I_GRPACK;
+            flags = (flags & (B_INITB | B_RECV_INITC)) | B_SENT_INITC;
+            state = (flags & B_RECV_INITC) ? I_COMPLETE : I_GRPACK;
             break;
 
 /*--------------------------------------------------------------------*/
@@ -488,8 +528,7 @@ static int initialize(const boolean caller, const char protocol )
          case I_RESTART:
             printmsg(2,"gopenpk: Restarting initialize sequence");
             nerr++;
-            sent_inita = recv_inita = sent_initb = recv_initb =
-                         sent_initc = recv_initc = FALSE;
+            flags = 0x00;
             state = I_INITA_SEND;
             break;
 
