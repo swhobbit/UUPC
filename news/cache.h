@@ -18,10 +18,13 @@
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
-/* $Id: cache.h 1.4 1996/11/19 00:23:52 ahd Exp $ */
+/* $Id: cache.h 1.5 1997/04/24 01:40:06 ahd v1-12t $ */
 
 /*
  * $Log: cache.h $
+ * Revision 1.5  1997/04/24 01:40:06  ahd
+ * Annual Copyright Update
+ *
  * Revision 1.4  1996/11/19 00:23:52  ahd
  * Revamp memory management, remove compile warnings
  *
@@ -72,12 +75,12 @@ extern CACHE UUFAR *cache_init(int file,
                                 const long items,
                                 const size_t itemsize);
 
-extern void cache_flush(CACHE *cache);
+extern void cache_flush(CACHE UUFAR *cache);
 
-extern void cache_exit(CACHE *cache);
+extern void cache_exit(CACHE UUFAR *cache);
 
-extern int cache_get(CACHE *cache, long item, void *buffer);
-extern int cache_put(CACHE *cache, long item, void *buffer);
+extern int cache_get(CACHE UUFAR *cache, long item, void *buffer);
+extern int cache_put(CACHE UUFAR *cache, long item, void *buffer);
 
 #endif /* _CACHE_H */
 
