@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.67 1994/12/22 00:42:15 ahd Exp $
+#     $Id: makefile. 1.68 1994/12/27 20:46:27 ahd Exp ahd $
 #
 #     Revision history:
-#     $Log: makefile $
+#     $Log: makefile. $
+#     Revision 1.68  1994/12/27 20:46:27  ahd
+#     Smoother call grading'
+#
 #     Revision 1.67  1994/12/22 00:42:15  ahd
 #     Go to version 1.12m (1.12l doesn't exist, because l looks like 1)
 #
@@ -571,7 +574,8 @@ ERASE=DEL
 test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
          genhist$(PSUFFIX).exe   \
          gensig$(PSUFFIX).exe inews$(PSUFFIX).exe mail$(PSUFFIX).exe    \
-         novrstr$(PSUFFIX).exe rmail$(PSUFFIX).exe rnews$(PSUFFIX).exe \
+         novrstr$(PSUFFIX).exe rmail$(PSUFFIX).exe rnews$(PSUFFIX).exe  \
+         sendbats$(PSUFFIX).exe                                         \
          uucico$(PSUFFIX).exe uucp$(PSUFFIX).exe uuname$(PSUFFIX).exe   \
          uupoll$(PSUFFIX).exe uuport$(PSUFFIX).exe uustat$(PSUFFIX).exe \
          uusub$(PSUFFIX).exe uutraf$(PSUFFIX).exe uux$(PSUFFIX).exe     \
@@ -581,6 +585,7 @@ test:    expire$(PSUFFIX).exe fmt$(PSUFFIX).exe fromwho$(PSUFFIX).exe   \
 
 test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
          gensig.com inews.exe mail.exe novrstrk.com rmail.exe rnews.exe \
+         sendbats.exe                                                   \
          uucico.exe uucp.exe uuname.exe uupoll.exe uuport.exe           \
          uustat.exe uusub.exe uutraf.exe uux.exe uuxqt.exe
 
@@ -590,7 +595,8 @@ test:    comm34.com expire.exe fmt.com fromwho.com genhist.exe          \
 # *      modules definitions, are really for furture expandsion.       *
 # *--------------------------------------------------------------------*
 
-windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe uucicow.exe        \
+windows: expirew.exe mailw.exe rmailw.exe rnewsw.exe                    \
+         sendbatw.exe uucicow.exe                                       \
          uucpw.exe uupollw.exe uuportw.exe uustatw.exe uusubw.exe       \
          uutrafw.exe uuxqtw.exe uuxw.exe
 
@@ -741,6 +747,14 @@ $(PROD)\rnews.exe: rnews$(PSUFFIX).exe
 !if !$d(__OS2__)
         - $(ERASE) $(?B: =.tds)
 !endif
+
+$(PROD)\sendbats.exe: sendbats$(PSUFFIX).exe
+        - $(ERASE) $<
+        move $? $<
+!if !$d(__OS2__)
+        - $(ERASE) $(?B: =.tds)
+!endif
+
 
 $(PROD)\uucico.exe: uucico$(PSUFFIX).exe
         - $(ERASE) $<
@@ -1263,6 +1277,9 @@ rn$(PSUFFIX).exe: commonm
 rnews$(PSUFFIX).exe: common
         $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
+sendbats$(PSUFFIX).exe: common
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFS) $<
+
 uucp$(PSUFFIX).exe: common
         $(MAKER) -f$(UUCP)\uucp.mak -DUUPCDEFS=$(UUPCDEFS) $<
 
@@ -1340,6 +1357,9 @@ rmailw.exe: commonw
         $(MAKER) -f$(MAIL)\mail.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 rnewsw.exe: commonw
+        $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
+
+sendbatw.exe: commonw
         $(MAKER) -f$(RNEWS)\rnews.mak -DUUPCDEFS=$(UUPCDEFW) $<
 
 uucicow.exe: commonw

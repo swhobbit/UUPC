@@ -8,12 +8,12 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: rnews.mak 1.6 1994/01/01 19:14:29 ahd v1-12k $
+#     $Id: rnews.mak 1.6 1994/01/01 19:14:29 ahd Exp $
 #
 #     Revision history:
 #     $Log: rnews.mak $
-#     Revision 1.6  1994/01/01 19:14:29  ahd
-#     Annual Copyright Update
+# Revision 1.6  1994/01/01  19:14:29  ahd
+# Annual Copyright Update
 #
 # Revision 1.5  1993/10/31  11:57:13  ahd
 # Add inews, genhist, and history support from Kai Uwe Rommel
@@ -43,11 +43,16 @@ LINKOPT=$(LINKOPTD)
 
 .path.c = $(RNEWS)
 
-RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.obj
+RNEWSOBJ = $(OBJ)\rnews.obj $(OBJ)\history.obj $(OBJ)\idx.obj \
+           $(OBJ)\hdbm.obj $(OBJ)\sys.obj $(OBJ)\batch.obj
+
+SENDBATSOBJ = $(OBJ)\sendbats.obj $(OBJ)\batch.obj $(OBJ)\sys.obj
 
 EXPIREOBJ = $(OBJ)\expire.obj $(OBJ)\history.obj \
            $(OBJ)\idx.obj $(OBJ)\hdbm.obj
+
 GENHISTOBJ = $(OBJ)\genhist.obj $(OBJ)\history.obj $(OBJ)\idx.obj $(OBJ)\hdbm.obj
+
 INEWSOBJ = $(OBJ)\inews.obj
 
 rnews$(PSUFFIX).exe: $(UUPCCFG)     $(RNEWSOBJ) $(LIBRARIES)
@@ -104,6 +109,19 @@ inews$(PSUFFIX).exe: $(UUPCCFG)     $(INEWSOBJ) $(LIBRARIES)
         $(LINKER) $(LINKOPT) @&&|
 $(STARTUP)+
 $(INEWSOBJ)
+$<
+$(MAP)
+$(LIBRARY)
+|
+!if !$d(__OS2__)
+        tdstrip -s $<
+!endif
+
+sendbats.exe: $(UUPCCFG)     $(SENDBATSOBJ) $(LIBRARIES)
+        - erase sendbats.com
+        $(LINKER) $(LINKOPT) @&&|
+$(STARTUP)+
+$(SENDBATSOBJ)
 $<
 $(MAP)
 $(LIBRARY)
