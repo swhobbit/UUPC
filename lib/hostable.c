@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.20 1995/01/29 16:43:03 ahd Exp $
+  *      $Id: hostable.c 1.21 1995/02/21 03:30:52 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.21  1995/02/21 03:30:52  ahd
+  *      More compiler warning cleanup, drop selected messages at compile
+  *      time if not debugging.
+  *
   *      Revision 1.20  1995/01/29 16:43:03  ahd
   *      IBM C/Set compiler warnings
   *
@@ -146,11 +150,13 @@ struct HostTable *checkName(const char *name,
 /*                       Validate the argument                        */
 /*--------------------------------------------------------------------*/
 
-   if ((name == NULL) || ((namel = strlen(name)) == 0))
+   if ((name == NULL) || (*name == '\0'))
    {
       printmsg(0,"checkName: Invalid (missing) hostname passed");
       bugout(line, function);
    }
+
+   namel = strlen(name);
 
 /*--------------------------------------------------------------------*/
 /*    If same argument as last time, return same result; otherwise    */
