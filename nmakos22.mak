@@ -1,10 +1,15 @@
-#       $Id: nmakos22.mak 1.3 1994/03/07 06:04:32 ahd Exp $
+#       $Id: nmakos22.mak 1.4 1994/04/24 20:30:40 ahd Exp $
 #
 #       Copyright (c) 1989-1994 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.4  1994/04/24  20:30:40  ahd
+#       Don't automatically generate pre-compiled headers
+#       Add 32 bit TCP/IP support
+#       Add title altering function
+#
 #       Revision 1.3  1994/03/07  06:04:32  ahd
 #       Additional multi-platform cleanup
 #
@@ -18,7 +23,8 @@
 
 ERASE    = del /f
 EXTRA2   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico
-EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd
+EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
+           $(PROD)\uucpd.cmd
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
            $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case
@@ -50,10 +56,10 @@ DBGOPT  = -Ti -DUDEBUG -Tx # -D__DEBUG_ALLOC__ -Wall -Wcnv- -Wext- -Wgen- -Wlan-
 !endif
 
 COMMOPT = -Sv -Q $(DBGOPT) -Gd
-CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@ # -Fi
+CCOPT   = $(COMMOPT) -Ss -c -Si -I$(UULIB) -Fo$@ -Fi
 LDOPT   = -b"/A:4 /BAT" $(COMMOPT) -Fe $@
 UUCICOOBJ3 = $(OBJ)\dcpepkt.obj $(OBJ)\dcptpkt.obj $(OBJ)\ulibos2.obj \
              $(OBJ)\ulibnmp.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj \
-             $(OBJ)\ulibip2.obj $(OBJ)\psos2err.obj
+             $(OBJ)\ulibip.obj $(OBJ)\psos2err.obj
 
 OTHERLIBS=   so32dll.lib tcp32dll.lib
