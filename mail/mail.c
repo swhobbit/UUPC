@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.6 1993/07/31 16:26:01 ahd Exp $
+ *    $Id: mail.c 1.7 1993/09/20 04:39:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ * Revision 1.7  1993/09/20  04:39:51  ahd
+ * OS/2 2.x support
+ *
  * Revision 1.6  1993/07/31  16:26:01  ahd
  * Changes in support of Robert Denny's Windows support
  *
@@ -67,7 +70,7 @@
 */
 
  static const char rcsid[] =
-      "$Id: mail.c 1.6 1993/07/31 16:26:01 ahd Exp $";
+      "$Id: mail.c 1.7 1993/09/20 04:39:51 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -817,18 +820,21 @@ static void Interactive_Mail( const boolean PrintOnly,
 
 #ifdef WIN32
                      "Windows NT",
-                     _osmajor,
+                     _winmajor,
+                     _winminor);
 #elif defined(__OS2__)
                     "OS/2(R)" ,
                     (int) _osmajor / 10,
+                      _osminor);
 #elif defined(__TURBOC__)
                     "DOS",
                     _osmajor,
+                    _osminor);
 #else
                     (_osmode == DOS_MODE) ? "DOS" : "OS/2(R)" ,
                     (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
+                     _osminor);
 #endif
-                      _osminor);
 #ifdef _Windows
                printf("Windows version: %s\t", compilew );
 #endif
