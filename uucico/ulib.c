@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ulib.c 1.14 1993/09/25 03:07:56 ahd Exp $
+ *    $Id: ulib.c 1.15 1993/09/27 00:45:20 ahd Exp $
  *
  *    $Log: ulib.c $
+ * Revision 1.15  1993/09/27  00:45:20  ahd
+ * Cosmetic clean up
+ *
  * Revision 1.14  1993/09/25  03:07:56  ahd
  * Add dummy priority function
  *
@@ -102,7 +105,7 @@ static void ShowModem( void );
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-static BPS current_bps;
+static unsigned short current_bps;
 static char current_direct;
 static boolean carrierdetect;
 
@@ -136,10 +139,10 @@ int nopenline(char *name, BPS bps, const boolean direct)
 {
    int   value;
 
-   if (portActive)              /* Was the port already active?     ahd   */
-      closeline();               /* Yes --> Shutdown it before open  ahd   */
+   if (portActive)              /* Was the port already active?     */
+      closeline();              /* Yes --> Shutdown it before open  */
 
-   printmsg(15, "openline: %s, %d", name, bps);
+   printmsg(15, "openline: %s, %ul", name, bps);
 
    current_direct = (char) (direct ? 'D' : 'M') ;
 
@@ -177,8 +180,8 @@ int nopenline(char *name, BPS bps, const boolean direct)
       return 1;
    }
 
-   open_com(bps, current_direct, 'N', STOPBIT, 'D');
    current_bps = bps;
+   open_com(current_bps, current_direct, 'N', STOPBIT, 'D');
    dtr_on();
    ssleep(2);                 /* Wait two seconds as required by V.24   */
    carrierdetect = FALSE;     /* No modem connected yet                 */
@@ -472,12 +475,12 @@ void nhangup( void )
 void nSIOSpeed(BPS bps)
 {
 
-   printmsg(4,"SIOSspeed: Changing port speed from %ld BPS to %ld BPS",
-               (long) current_bps, (long) bps);
-   ioctl_com(0, bps);
+   printmsg(4,"SIOSspeed: Changing port speed from %lu BPS to %lu BPS",
+               (unsigned long) current_bps, (unsigned long) bps);
+   current_bps = bps;
+   ioctl_com(0, current_bps);
 
    ShowModem();
-   current_bps = bps;
 
 } /* nSIOSpeed */
 

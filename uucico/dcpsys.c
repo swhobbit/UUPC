@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.19 1993/09/21 01:42:13 ahd Exp $
+ *     $Id: dcpsys.c 1.20 1993/09/27 00:48:43 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.20  1993/09/27  00:48:43  ahd
+ * Allow 't' protocol under 16 bit OS/2
+ *
  * Revision 1.19  1993/09/21  01:42:13  ahd
  * Move declare of protocol list into source from header
  *
@@ -593,8 +596,8 @@ CONN_STATE startup_server(const char recvgrade )
 /*    The connection is complete; report this and return to caller    */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s connected to %s: %ld bps, %c protocol, %c grade",
-         E_nodename, rmtname, (long) GetSpeed() , *s, recvgrade );
+   printmsg(0,"%s connected to %s: %lu bps, %c protocol, %c grade",
+         E_nodename, rmtname, (unsigned long) GetSpeed() , *s, recvgrade );
 
    return CONN_SERVER;
 
@@ -803,10 +806,10 @@ CONN_STATE startup_client( char *sendgrade )
 /*            Report that we connected to the remote host             */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"%s called by %s: %ld bps, %c protocol, %c grade",
+   printmsg(0,"%s called by %s: %lu bps, %c protocol, %c grade",
          E_nodename,
          hostp->via,
-         (long) GetSpeed(),
+         (unsigned long) GetSpeed(),
          msg[1],
          *sendgrade );
 

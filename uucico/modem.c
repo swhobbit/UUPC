@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.22 1993/09/25 03:07:56 ahd Exp $
+ *    $Id: modem.c 1.23 1993/09/27 00:45:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.23  1993/09/27  00:45:20  ahd
+ * Add suspend of serial port processing from K. Rommel
+ *
  * Revision 1.22  1993/09/25  03:07:56  ahd
  * Invoke set priority functions
  *
@@ -239,7 +242,7 @@ CONN_STATE callup( void )
    printmsg(1, "callup: Calling %s via %s at %s on %s",
           rmtname, flds[FLD_TYPE], flds[FLD_SPEED], arpadate());
 
-   speed = (BPS) atoi( flds[FLD_SPEED] );
+   speed = (BPS) atol( flds[FLD_SPEED] );
    if (speed < 300)
    {
       printmsg(0,"callup: Modem speed %s is invalid.",
@@ -746,7 +749,7 @@ static void autobaud( const BPS speed )
          token = strtok(buf,WHITESPACE);
          if (strlen(token))
          {
-            BPS new_speed = (unsigned) atoi(token);
+            BPS new_speed = (unsigned) atol(token);
             if ((new_speed != speed) && (new_speed > 300))
             {
                printmsg(2, "autobaud: speed select %s", token);

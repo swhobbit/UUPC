@@ -17,8 +17,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: ulibos2.c 1.17 1993/09/24 03:43:27 ahd Exp $
+ *       $Id: ulibos2.c 1.18 1993/09/25 03:07:56 ahd Exp $
  *       $Log: ulibos2.c $
+ * Revision 1.18  1993/09/25  03:07:56  ahd
+ * Convert to standard OS/2 error message call
+ *
  * Revision 1.17  1993/09/24  03:43:27  ahd
  * Use OS/2 error message routine
  *
@@ -164,7 +167,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
       closeline();               /* Yes --> Shutdown it before open  ahd   */
 
 #ifdef UDEBUG
-   printmsg(15, "nopenline: %s, %d", name, baud);
+   printmsg(15, "nopenline: %s, %lu", name, baud);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -1069,13 +1072,14 @@ void nSIOSpeed(BPS baud)
 
 #else
 
-   USHORT speed = baud;
+   USHORT speed = (USHORT) baud;
 
 #endif
 
 
 #ifdef UDEBUG
-   printmsg(15,"SIOSpeed: Setting baud rate to %u", (unsigned int) baud);
+   printmsg(15,"SIOSpeed: Setting baud rate to %ul",
+               (unsigned long) baud);
 #endif
 
 #ifdef __OS2__
@@ -1110,7 +1114,7 @@ void nSIOSpeed(BPS baud)
 
    if (rc && ! console )
    {
-      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",
+      printmsg(0,"SIOSPeed: Unable to set baud rate for port to %ul",
                baud);
       printOS2error( "DosDevIOCtl", rc );
       panic();
