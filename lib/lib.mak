@@ -8,10 +8,15 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#       $Id: lib.mak 1.8 1993/07/31 16:21:21 ahd Exp $
+#       $Id: lib.mak 1.9 1993/09/20 04:36:42 ahd Exp $
 #
 #       Revision history:
 #       $Log: lib.mak $
+#    Revision 1.9  1993/09/20  04:36:42  ahd
+#    TCP/IP support from Dave Watt
+#    't' protocol support
+#    BC++ 1.0 for OS/2 support
+#
 #    Revision 1.8  1993/07/31  16:21:21  ahd
 #    Windows 3.x support
 #
@@ -65,7 +70,7 @@ LIBLST5= $(OBJ)\safeout.obj $(OBJ)\security.obj $(OBJ)\ssleep.obj\
          $(OBJ)\strpool.obj $(OBJ)\trumpet.obj\
          $(TIMESTMP)
 LIBDOS = $(OBJ)\scrsize.obj $(OBJ)\ndir.obj
-LIBOS2 = $(OBJ)\scrsize2.obj $(OBJ)\ndiros2.obj
+LIBOS2 = $(OBJ)\scrsize2.obj $(OBJ)\ndiros2.obj  $(OBJ)\pos2err.obj
 LIBWIN = $(OBJ)\scrsize.obj $(OBJ)\ndirwin.obj  $(OBJ)\winutil.obj \
          $(OBJ)\pwinsock.obj
 LIBLST = $(LIBLST1) $(LIBLST2) $(LIBLST3) $(LIBLST4) $(LIBLST5)
