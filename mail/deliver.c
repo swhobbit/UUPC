@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.30 1994/02/26 17:18:57 ahd Exp $
+ *    $Id: deliver.c 1.31 1994/04/26 23:56:16 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.31  1994/04/26  23:56:16  ahd
+ * Correct gateway parameters
+ *
  * Revision 1.30  1994/02/26  17:18:57  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -179,8 +182,6 @@ currentfile();
 
 static size_t DeliverLocal( const char *input,  /* Input file name    */
                           char *user,     /* Target address           */
-                          const boolean sysalias,
-                                             /* Already sys alias     */
                           boolean validate); /* Validate/forward
                                                 local mail            */
 
@@ -190,7 +191,6 @@ static int DeliverFile( const char *input,
                         const long end,
                         boolean *announce,
                         struct UserTable *userp,
-                        const boolean sysalias,  /* Already sys alias */
                         const boolean validate,
                         const char *user );
 
@@ -241,7 +241,6 @@ size_t Bounce( const char *input,
 
 size_t Deliver(       const char *input,    /* Input file name        */
                             char *address,  /* Target address          */
-                      const boolean sysalias,  /* Already sys alias    */
                           boolean validate)  /* Validate/forward
                                                 local mail            */
 {
@@ -268,7 +267,7 @@ size_t Deliver(       const char *input,    /* Input file name        */
    {
       struct HostTable *hostx = checkname( node );
       if (hostx->status.hstatus == localhost)  /* Really the local node?     */
-         return DeliverLocal( input, user, sysalias, validate );
+         return DeliverLocal( input, user, validate );
                                  /* Yes!                              */
       else
          return Bounce( input,
@@ -349,8 +348,6 @@ size_t Deliver(       const char *input,    /* Input file name        */
 static size_t DeliverLocal( const char *input,
                                           /* Input file name          */
                           char *user,     /* Target address           */
-                          const boolean sysalias,
-                                          /* Already sys alias     */
                           boolean validate)  /* TRUE = validate,
                                                 forward user's mail   */
 {
@@ -384,27 +381,26 @@ static size_t DeliverLocal( const char *input,
 /*                     Process any system aliases                     */
 /*--------------------------------------------------------------------*/
 
-      if ( ! sysalias )
+      aliasp = checkalias( user );  /* System alias?             */
+
+      if ( (aliasp != NULL) && ! aliasp->recurse )
       {
-         aliasp = checkalias( user );  /* System alias?             */
+         aliasp->recurse = TRUE;
+         delivered += DeliverFile( input,
+                                   SysAliases,
+                                   aliasp->start,
+                                   aliasp->end,
+                                   &announce ,
+                                   userp,
+                                   validate,
+                                   user );
+         aliasp->recurse = FALSE;
 
-         if ( aliasp != NULL )
-         {
-            delivered += DeliverFile( input,
-                                      SysAliases,
-                                      aliasp->start,
-                                      aliasp->end,
-                                      &announce ,
-                                      userp,
-                                      TRUE,
-                                      validate,
-                                      user );
+         if ( announce && ( userp != BADUSER ) && remoteMail )
+            trumpet( userp->beep);  /* Yes --> Inform the user     */
 
-            if ( announce && ( userp != BADUSER ) && remoteMail )
-               trumpet( userp->beep);  /* Yes --> Inform the user     */
-            return delivered;
+         return delivered;
 
-         } /* if */
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -435,7 +431,6 @@ static size_t DeliverLocal( const char *input,
                                    LONG_MAX,
                                    &announce,
                                    userp,
-                                   FALSE,
                                    validate,
                                    user );
 
@@ -496,13 +491,12 @@ static int DeliverFile( const char *input,
                         const long end,
                         boolean *announce,
                         struct UserTable *userp,
-                        const boolean sysalias,  /* Already sys alias */
                         const boolean validate,
                         const char *user )
 {
    char buf[BUFSIZ];
    FILE *fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
-   char *cwd = (sysalias || ! userp) ? E_tempdir : userp->homedir;
+   char *cwd = ( ! userp) ? E_tempdir : userp->homedir;
    int delivered = 0;
 
    if ( fwrd == NULL )
@@ -517,6 +511,7 @@ static int DeliverFile( const char *input,
 
    if ( start != 0 )
       fseek( fwrd, start, SEEK_SET);
+
 
    while((ftell(fwrd) < end) && (fgets( buf, BUFSIZ, fwrd) != NULL ))
    {
@@ -540,7 +535,8 @@ static int DeliverFile( const char *input,
 /*                     Now process the input line                     */
 /*--------------------------------------------------------------------*/
 
-      printmsg(8,"Forwarding to \"%s\"", s);
+      printmsg(2,"Expanding %s via %s to \"%s\"", user, fwrdname, s);
+
 
       if ( equalni( buf, INCLUDE, strlen(INCLUDE)))
       {
@@ -587,13 +583,13 @@ static int DeliverFile( const char *input,
             executeCommand( s + 1, input, NULL, TRUE, FALSE );
             PopDir();
             delivered += 1;
-            fwrd = FOPEN(fwrdname, "r",TEXT_MODE);
+            fwrd = FOPEN(fwrdname, "r", TEXT_MODE);
             fseek( fwrd, here, SEEK_SET);
             break;
          } /* case */
 
          case '\\':              /* Deliver without forwarding */
-            delivered += Deliver( input, &s[1], TRUE, FALSE );
+            delivered += Deliver( input, &s[1], FALSE );
             *announce = TRUE;
             break;
 
@@ -602,9 +598,14 @@ static int DeliverFile( const char *input,
             char fname[FILENAME_MAX];
             strcpy( fname, nextfile);
             expand_path(nextfile, NULL, cwd, E_mailext);
-            delivered += DeliverFile( input, nextfile, 0, LONG_MAX,
-                                      announce, userp,
-                                      FALSE, TRUE, user );
+            delivered += DeliverFile( input,
+                                      nextfile,
+                                      0,
+                                      LONG_MAX,
+                                      announce,
+                                      userp,
+                                      TRUE,
+                                      user );
             break;
          }
 
@@ -624,12 +625,12 @@ static int DeliverFile( const char *input,
 
             }
             else
-               delivered += DeliverLocal( input, s, sysalias, FALSE );
+               delivered += DeliverLocal( input, s, FALSE );
             *announce = TRUE;
             break;
 
          default:                /* Deliver normally           */
-              delivered += Deliver( input, s, sysalias, validate );
+              delivered += Deliver( input, s, validate );
       } /* switch */
    } /* while */
 
@@ -807,7 +808,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
    static long seqno = 0;
    static char *SavePath = NULL;
    FILE *stream;              /* For writing out data                 */
-   static char everyone[BUFSIZ];
+   static char everyone[512];
 
    char msfile[FILENAME_MAX]; /* MS-DOS format name of files          */
    char msname[22];           /* MS-DOS format w/o path name          */
@@ -875,9 +876,16 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
       return 0;
    } /* if */
 
-   fprintf(stream, "R %s@%s\nU %s %s\nF %s\nI %s\nC %s\n",
-               ruser, rnode, uuser , E_nodename,
-               rdfile, rdfile, everyone);
+   fprintf(stream, "U %s %s\n", uuser , E_nodename );
+                                 /* Actual user running command      */
+   fprintf(stream, "R %s@%s\n", ruser, rnode );
+                                 /* Original requestor of command    */
+   fprintf(stream, "F %s\n", rdfile );
+                                 /* Required file for input          */
+   fprintf(stream, "I %s\n", rdfile );
+                                 /* stdin for command                */
+   fprintf(stream, "C %s\n", everyone);
+                                 /* Command to execute using file    */
    fclose(stream);
 
    if (SavePath != NULL)
@@ -1142,7 +1150,7 @@ size_t Bounce( const char *input,
       bounce = FALSE;
 
    if ( ! bounce )
-     return Deliver( input, E_postmaster, FALSE, validate );
+     return Deliver( input, E_postmaster, validate );
 
    mktempname( tname , "tmp");  /* Generate a temp file name           */
 
@@ -1196,7 +1204,7 @@ size_t Bounce( const char *input,
             sender );
 
     if ( execute( myProgramName, buf, NULL, NULL, TRUE, FALSE ))
-         DeliverLocal( input, E_postmaster, FALSE, validate);
+         DeliverLocal( input, E_postmaster, validate);
 
     return (1);
 

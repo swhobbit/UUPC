@@ -17,9 +17,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.5 1994/01/24 03:17:36 ahd Exp $
+ *    $Id: sysalias.c 1.6 1994/02/19 04:18:57 ahd Exp $
  *
  *    $Log: sysalias.c $
+ * Revision 1.6  1994/02/19  04:18:57  ahd
+ * Use standard first header
+ *
+ * Revision 1.6  1994/02/19  04:18:57  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/01/24  03:17:36  ahd
  * Annual Copyright Update
  *
@@ -89,6 +95,7 @@ ALIASTABLE *checkalias( const char *user )
    {
       if ( equali(aliasTable[subscript].alias , user ))
          return &aliasTable[subscript];
+
    } /* for */
 
 /*--------------------------------------------------------------------*/
@@ -96,6 +103,7 @@ ALIASTABLE *checkalias( const char *user )
 /*--------------------------------------------------------------------*/
 
    return NULL;
+
 } /* checkalias */
 
 /*--------------------------------------------------------------------*/
@@ -125,7 +133,9 @@ static void InitAlias( void )
    {
       if (debuglevel > 1)
          printerr( SysAliases );
+
       return;
+
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -173,6 +183,7 @@ static void InitAlias( void )
             aliasTable[subscript].start = here + (s - buf);
       }
       else {                           /* Start of a new alias */
+
          char *colon = strchr( s, ':' );
 
          if (s != buf )
@@ -207,7 +218,9 @@ static void InitAlias( void )
              aliasTable[subscript].start = here + ( s - buf );
 
           aliasTable[subscript].end  = -1;
+          aliasTable[subscript].recurse = FALSE;
           inAlias = TRUE;
+
       } /* if */
 
       here = ftell( stream );       /* Remember start of next line   */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.29 1994/08/07 21:28:54 ahd Exp $
+ *    $Id: rmail.c 1.30 1994/10/23 23:29:44 ahd Exp $
  *
  *    $Log: rmail.c $
+ * Revision 1.30  1994/10/23  23:29:44  ahd
+ * Start logging BEFORE we process the options
+ *
  * Revision 1.29  1994/08/07  21:28:54  ahd
  * Make To: line optional for processing such items as news
  * via mail.
@@ -506,7 +509,7 @@ void main(int argc, char **argv)
          if ( *address[count] == '-')
             delivered ++;     /* Ignore option flags on delivery     */
          else
-            delivered += Deliver(tempname, address[count], FALSE, TRUE);
+            delivered += Deliver(tempname, address[count], TRUE);
 
 /*--------------------------------------------------------------------*/
 /*                       Terminate the program                        */
