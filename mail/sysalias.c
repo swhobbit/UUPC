@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.15 1997/04/24 01:10:29 ahd v1-12u $
+ *    $Id: sysalias.c 1.16 1998/03/01 01:31:49 ahd v1-13b $
  *
  *    $Log: sysalias.c $
+ * Revision 1.16  1998/03/01  01:31:49  ahd
+ * Annual Copyright Update
+ *
  *    Revision 1.15  1997/04/24 01:10:29  ahd
  *    Annual Copyright Update
  *
@@ -175,6 +178,7 @@ static void InitAlias( void )
 /*--------------------------------------------------------------------*/
 
    aliasTable = malloc( sizeof *aliasTable * maxmimumAliases );
+   checkref(aliasTable);
 
    here = ftell( stream );       /* Remember location in file        */
 
@@ -271,8 +275,10 @@ static void InitAlias( void )
 
    if ( aliases == 0 )
       free( aliasTable );
-   else
+   else {
       aliasTable = realloc( aliasTable, aliases * sizeof *aliasTable );
+      checkref(aliasTable);
+   }
 
    printmsg(2,"InitAlias: Loaded %d system aliases from %s",
                aliases,
