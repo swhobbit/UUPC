@@ -17,9 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.16 1998/05/11 13:55:28 ahd Exp $
+ *    $Id: smtpserv.c 1.17 1998/05/15 03:13:48 ahd v1-13b $
  *
  *    $Log: smtpserv.c $
+ * Revision 1.17  1998/05/15  03:13:48  ahd
+ * When entering states where no read is required, set
+ * flag to skip the read to avoid hanging.
+ *
  *    Revision 1.16  1998/05/11 13:55:28  ahd
  *    When client times out, don't try to read buffer
  *
@@ -82,7 +86,7 @@
 #include "execute.h"
 #include "logger.h"
 
-RCSID("$Id: smtpserv.c 1.16 1998/05/11 13:55:28 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.17 1998/05/15 03:13:48 ahd v1-13b $");
 
 currentfile();
 
@@ -282,9 +286,6 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
             freed,
             total);
 
-   if (needUUXQT && runUUXQT )
-      executeQueue();
-
 /*--------------------------------------------------------------------*/
 /*       Consider spinning the log off if we dropped our last         */
 /*       active client                                                */
@@ -312,6 +313,11 @@ dropTerminatedClientList(SMTPClient *current, KWBoolean runUUXQT )
          nextSpin -= 200;           /* More clients, more often
                                        we spin                    */
    }
+
+   /* Run UUXQT as needed, we do this after spinning the log
+      any handles left open for UUXQT don't screw up log deletion */
+   if (needUUXQT && runUUXQT )
+      executeQueue();
 
 } /* dropTerminatedClientList */
 
