@@ -21,10 +21,13 @@
 
 #include "uupcmoah.h"
 
-static char *rcsid = "$Id: genhist.c 1.5 1994/01/01 19:14:13 ahd Exp $";
-static char *rcsrev = "$Revision: 1.5 $";
+static char *rcsid = "$Id: GENHIST.C 1.6 1994/02/19 04:21:26 ahd Exp rommel $";
+static char *rcsrev = "$Revision: 1.6 $";
 
-/* $Log: genhist.c $
+/* $Log: GENHIST.C $
+ * Revision 1.6  1994/02/19  04:21:26  ahd
+ * Use standard first header
+ *
  * Revision 1.5  1994/01/01  19:14:13  ahd
  * Annual Copyright Update
  *
@@ -171,6 +174,7 @@ void main( int argc, char **argv)
 
    close_history(history);
 
+   put_active();
    printmsg(1,"%s: Processed %ld total articles in %ld files (%ld bytes).",
                   argv[0], total_articles, total_files, total_bytes );
    exit(0);
@@ -303,7 +307,7 @@ static void IndexDirectory( struct grp *cur_grp,
    boolean not_built = TRUE;  /* Did not insure archive directory
                                  exists                           */
 
-   long low = LONG_MAX;  /* Oldest article number left             */
+   long number;
 
    long articles = 0;
    long files = 0;
@@ -343,6 +347,7 @@ static void IndexDirectory( struct grp *cur_grp,
 
       if ( numeric( dp->d_name ))/* Article format name?             */
       {                          /* Yes --> Examine it closer        */
+      number = atol(dp->d_name);
 
         printmsg(6,"Processing file %s from %s",
                  dp->d_name, dater( dp->d_modified, NULL));
@@ -351,6 +356,10 @@ static void IndexDirectory( struct grp *cur_grp,
 
         if ( add_histentry(history, messageID, histentry) )
           articles++;
+      if (number < cur_grp->grp_low) /* correct 'active' file too */
+        cur_grp->grp_low = number;
+      else if (number >= cur_grp->grp_high)
+        cur_grp->grp_high = number + 1;
 
         files++;
         bytes += dp->d_size;
