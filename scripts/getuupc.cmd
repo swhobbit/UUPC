@@ -11,9 +11,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: getuupc.cmd 1.5 1994/01/01 19:16:13 ahd Exp ahd $
+ *       $Id: getuupc.cmd 1.6 1994/01/18 13:31:15 ahd v1-13a $
  *
  *       $Log: getuupc.cmd $
+ *       Revision 1.6  1994/01/18 13:31:15  ahd
+ *       Use pos() to detect lack of leading path; verify() didn't seem to work!
+ *
  *      Revision 1.5  1994/01/01  19:16:13  ahd
  *      Annual Copyright Update
  *
@@ -98,6 +101,8 @@ select;
       return confdir;
    when ( keyword = 'SPOOLDIR' ) then
       return confdir || 'spool';
+   when ( keyword = 'LOGDIR' ) then
+      return confdir || 'log';
    when ( keyword = 'NEWSDIR' ) then
       return confdir || 'news';
    when ( keyword = 'ARCHIVEDIR' ) then

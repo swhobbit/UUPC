@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uuclean.cmd 1.13 1995/08/27 23:35:00 ahd v1-12r $
+ *       $Id: uuclean.cmd 1.14 1997/05/03 17:11:13 ahd v1-13a $
  *
  *       $Log: uuclean.cmd $
+ *       Revision 1.14  1997/05/03 17:11:13  ahd
+ *       Up limit for rotation to 50K
+ *
  *       Revision 1.13  1995/08/27 23:35:00  ahd
  *       Clean up spool directory under OS/2
  *
@@ -77,6 +80,13 @@ Call 'SysLoadFuncs'
 /*    directory, configuration directory, and temporary directory     */
 /*--------------------------------------------------------------------*/
 
+logdir = getuupc("LOGDIR" )
+if logdir == '' then
+do
+   say 'No log directory defined, cannot continue'
+   exit 99
+end
+
 spooldir = getuupc("SPOOLDIR" )
 if spooldir == '' then
 do
@@ -100,7 +110,7 @@ end
 
 call setlocal;
 call value 'UUPCDEBUG','','OS2ENVIRONMENT';
-savedir = directory(spooldir)
+savedir = directory(logdir)
 
 /*--------------------------------------------------------------------*/
 /*    Process odd logfiles which may have been left around by         */
@@ -108,20 +118,20 @@ savedir = directory(spooldir)
 /*--------------------------------------------------------------------*/
 
 say 'Processing generic logs';
-call process spooldir,'UUPC*.LOG', 'GENERIC',0
+call process logdir,'UUPC*.LOG', 'GENERIC',0
 
 /*--------------------------------------------------------------------*/
 /*             SYSLOG has funny name, so process explictly            */
 /*--------------------------------------------------------------------*/
 
 say 'Processing logs for SYSLOG';
-call process spooldir,'SYSLOG', 'SYSLOG'
+call process logdir,'SYSLOG', 'SYSLOG'
 
 /*--------------------------------------------------------------------*/
 /*                     Process all other log files                    */
 /*--------------------------------------------------------------------*/
 
-xrc = SysFileTree(spooldir || '\*.log', 'data.','F')
+xrc = SysFileTree(logdir || '\*.log', 'data.','F')
 
 if xrc == 0 then
 do count = 1 to data.0
@@ -131,8 +141,8 @@ do count = 1 to data.0
    if left( basename, 4 ) <> 'UUPC' then   /* Don't do UUPC*.LOG again */
    do;
       say 'Processing logs for' basename;
-      call process spooldir, stem || 'p.log', stem, 0
-      call process spooldir, basename, stem
+      call process logdir, stem || 'p.log', stem, 0
+      call process logdir, basename, stem
    end
 end
 
@@ -140,6 +150,7 @@ end
 /*           Clean up temporary files in the spool directory          */
 /*--------------------------------------------------------------------*/
 
+call directory spooldir
 call purge spooldir, '*.TMP'     /* Created by UUCICO                */
 call purge spooldir, '*.BAK'     /* Maybe created by UUCICO          */
 cmd = 'UNDELETE /f /s /a' spooldir || '\*';
@@ -174,7 +185,7 @@ return
 /*--------------------------------------------------------------------*/
 
 process:procedure
-parse upper arg spooldir, input, archive, maxsize, generation
+parse upper arg logdir, input, archive, maxsize, generation
 maxgen = 5
 aged   = 0                    /* Next older version was aged         */
 moved  = 0                    /* This version was aged               */
@@ -188,13 +199,13 @@ if maxsize = '' then
    maxsize = defaultmax;
 
 newgen = archive || '.' || right( generation, 3, '0')
-target = spooldir || '\' || newgen
+target = logdir || '\' || newgen
 
 /*--------------------------------------------------------------------*/
 /*          Determine if file exists  if not, return quietly          */
 /*--------------------------------------------------------------------*/
 
-xrc = SysFileTree(spooldir || '\' || input , 'data.','F')
+xrc = SysFileTree(logdir || '\' || input , 'data.','F')
 if xrc <> 0 then
    return 0
 /*--------------------------------------------------------------------*/
@@ -209,7 +220,7 @@ do count = 1 to data.0
    else if bytes > maxsize then
    do
       if \ aged then             /* Only age older files per run     */
-         aged = process(spooldir, newgen , archive, defaultmax, generation)
+         aged = process(logdir, newgen , archive, defaultmax, generation)
 
       if generation > maxgen then      /* Really old files go away   */
          call Purge fname
