@@ -72,35 +72,37 @@ char *expand_path(char *path,          /* Input/output path name     */
 /*               If a fully qualified path name, return               */
 /*--------------------------------------------------------------------*/
 
+#ifdef __GNUC__
    if (*path == '/')
       return path;            /* nothing to do */
+#endif
 
-/*--------------------------------------------------------------------*/
-/*      If non-default drive and not full path, reject the path       */
-/*--------------------------------------------------------------------*/
-
-   if (isalpha( *path ) && (path[1] == ':'))
+   if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
+#ifdef __GNUC__
       if (path[2] == '/')     /* Absolute path on drive?             */
          return path;         /* Yes --> Leave it alone              */
 
-#ifdef __GNUC__
       printf(0,"Relative path \"%s\" not supported in GNU C",
                path);
       return NULL;
 #else
       strcpy( save, path );
-      return (_fullpath( path, save, sizeof save ));
+      p = _fullpath( path, save, sizeof save );
+
+      while ((p = strchr(p,'\\')) != NULL)
+         *p++ = '/';
+
+      return path;
 #endif
 
    } /* if */
-   else
-      p = path;               /* Copy entire path                    */
 
 /*--------------------------------------------------------------------*/
 /*            Try to translate the file as a home directory path      */
 /*--------------------------------------------------------------------*/
 
+   p = path;                  /* Copy entire path                    */
    strcpy(save, p);
    if (save[0] == '~')  {
       if (save[1] == '/')  {
