@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.20 1994/02/20 19:11:18 ahd Exp $
+ *    $Id: uupoll.c 1.21 1994/05/06 03:55:50 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.21  1994/05/06  03:55:50  ahd
+ * Add support -U (auto run UUXQT) flag
+ *
  * Revision 1.20  1994/02/20  19:11:18  ahd
  * IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -159,7 +162,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.20 1994/02/20 19:11:18 ahd Exp $";
+         "$Id: uupoll.c 1.21 1994/05/06 03:55:50 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -1035,6 +1038,7 @@ __cdecl
     safeout("uupoll: Program aborted by user\r\n");
 
     _exit(100);
+
  } /* Catcher */
 
 #if _MSC_VER >= 700
@@ -1053,7 +1057,7 @@ __cdecl
    printf("Usage:\t%s"
           "\t[-a hhmm] [-d hhmm | -e hhmm] [-f hhmm] [-i hhmm]\n"
           "\t\t[-l logname] [-c hhmm] [-C command]\n"
-          "\t\t[-r 0 | 1] [-s system] [-x n]\n",name);
+          "\t\t[-r 0 | 1] [-s system] [-x n] [-U]\n",name);
    exit(4);
 
  } /* usage */
