@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.40 1994/01/01 19:20:13 ahd Exp $
+ *    $Id: modem.c 1.41 1994/02/14 01:03:56 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.41  1994/02/14  01:03:56  ahd
+ * Add AnswerDelay variable to allow delay before presenting login:
+ * prompt
+ *
  * Revision 1.40  1994/01/01  19:20:13  ahd
  * Annual Copyright Update
  *
@@ -636,7 +640,7 @@ boolean getmodem( const char *brand)
    scriptTimeout = 30;        /* Default is 30 seconds for script data*/
    scriptEchoTimeout = 5;     /* Default is 5 seconds for script echo */
    answerTimeout = 30;        /* Default is 30 seconds to answer phone*/
-   answerDelay   = 30;        /* No default delay before presenting
+   answerDelay   = 2;         /* No default delay before presenting
                                  login prompt to remote system        */
    M_xfer_bufsize = BUFSIZ;   /* Buffering used for file transfers    */
    M_MaxErr= 10;              /* Allowed errors per single packet     */
