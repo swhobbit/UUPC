@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.32 1995/07/21 13:28:20 ahd Exp $
+ *    $Id: active.h 1.10 1995/08/27 23:33:26 ahd v1-12q $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: active.h $
+ *    Revision 1.10  1995/08/27 23:33:26  ahd
+ *    Load and use ACTIVE file as tree structure
+ *
  */
 
 KWBoolean
@@ -48,17 +51,15 @@ setArticleNewest( const char *name, const long high );
 KWBoolean
 setArticleOldest( const char *name, const long low );
 
-char *
-walkActive( char *buf );
+void
+startActiveWalk( void (*walkOneNode)(const char *, void *),
+                 void *optional );
 
 char
 getModeration( const char *name );
 
 void
 writeActive( void );
-
-void
-startActiveWalk( void );
 
 #ifndef MAXGRP
 #define MAXGRP FILENAME_MAX   /* Max length of a news group name      */
