@@ -18,10 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.11 1993/08/08 17:39:55 ahd Exp $
+ *    $Id: security.h 1.2 1993/09/20 04:51:31 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: security.h $
+ *     Revision 1.2  1993/09/20  04:51:31  ahd
+ *     TCP Support from Dave Watt
+ *     't' protocol support
+ *     OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  */
 
 #define ANY_HOST     "OTHER"
@@ -49,28 +54,28 @@ struct DIRLIST {
 
 struct HostSecurity {
       char **validate;           /* List of machines allowed to use
-                                    logname when calling in             */
+                                    logname when calling in            */
       char *myname;              /* Name to use when communicating with
-                                    this remote system                  */
+                                    this remote system                 */
       char *pubdir;              /* Public directory to use for this
-                                    system                              */
-      char **commands;           /* Commands allowed for this system    */
+                                    system                             */
+      char **commands;           /* Commands allowed for this system   */
       struct DIRLIST *dirlist;   /* List of directories this system
-                                    can access                          */
-      size_t dirsize;            /* Size of the directory list          */
+                                    can access                         */
+      size_t dirsize;            /* Size of the directory list         */
       boolean request;           /* TRUE = Remote system can request
-                                    files FROM local system             */
+                                    files FROM local system            */
       boolean sendfiles;         /* TRUE = Send locally queued requests
                                     when other system has called us;
                                     default is FALSE, only send files
                                     when we are the caller.  (Stupid
                                     default if you fill in other para-
-                                    meters properly, but that's UUCP    */
+                                    meters properly, but that's UUCP   */
       boolean callback;          /* TRUE = Do not process work for
                                     system when it calls in, but rather
                                     call it back    */
       boolean local;             /* TRUE = Local system, grant all
-                                    requests                            */
+                                    requests                           */
       } ; /* HostSecurity */
 
 /*--------------------------------------------------------------------*/

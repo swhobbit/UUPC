@@ -13,20 +13,20 @@
 #ifndef __USERTABL
 #define __USERTABLE
 
-#define UUCPSHELL "uucp"         /* Shell for UUCP users                */
+#define UUCPSHELL "uucp"         /* Shell for UUCP users               */
 
 struct  UserTable {
-      char  *uid;                /* User id for this host to login via  */
-      char  *beep;               /* Tone to beep at upon delivery       */
+      char  *uid;                /* User id for this host to login via */
+      char  *beep;               /* Tone to beep at upon delivery      */
       char  *password;           /* Password for this host to login via */
-      char  *realname;           /* Name of the host in question        */
-      char  *homedir;            /* Home directory for user             */
-      char  *sh;                 /* Shell for this user                 */
-      struct HostSecurity *hsecure; /* Pointer to security information  */
+      char  *realname;           /* Name of the host in question       */
+      char  *homedir;            /* Home directory for user            */
+      char  *sh;                 /* Shell for this user                */
+      struct HostSecurity *hsecure; /* Pointer to security information */
    };
 
-extern struct UserTable *users;         /* Public to allow router.c to use it  */
-extern size_t UserElements;            /* Public to allow router.c to use it  */
+extern struct UserTable *users;         /* Public to allow router.c to use it */
+extern size_t UserElements;            /* Public to allow router.c to use it */
 
 struct UserTable *checkuser ( const char *user );
 

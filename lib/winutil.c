@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------*/
-/*       w i n u t i l . h                                            */
+/*       w i n u t i l . c                                            */
 /*                                                                    */
 /*       Windows 3.1 utility functions for UUPC/extended              */
 /*--------------------------------------------------------------------*/
@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.5 1993/10/02 19:07:49 ahd Exp $
+ *    $Id: winutil.c 1.6 1993/10/12 00:48:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ * Revision 1.6  1993/10/12  00:48:44  ahd
+ * Normalize comments
+ *
  * Revision 1.5  1993/10/02  19:07:49  ahd
  * Print module name when winexec() fails
  *
@@ -81,8 +84,8 @@ HWND hOurWindow;              /* Our EasyWin main window handle       */
 /*--------------------------------------------------------------------*/
 
 static HINSTANCE hChildInst;            /* Instance of child proc     */
-static HWND hTheWindow;                 /* Used by WindCatcher() during enumeration */
-
+static HWND hTheWindow;                 /* Used by WindCatcher()
+                                           during enumeration         */
 
 BOOL CALLBACK WindCatcher(HWND hWnd, LPARAM lparam);
 BOOL CALLBACK NotifyCatcher(WORD wID, DWORD dwData);
@@ -92,52 +95,57 @@ static FARPROC lpfnEnumWinCB;
 
 void _DoneEasyWin(void);      /* In TCWIN library                     */
 
-//------------------------------------------------------------------------
-//
-// CloseEasyWin() - Force EasyWin window to close on termination
-//
-// This function should be registered with a call to atexit() if
-// you want to force the EasyWin window to close, permitting the
-// application to exit, automatically. Normally, an EasyWin app
-// hangs out in the "inactive" state until the user manually closes
-// the window. Using an atexit() function assures that the app will
-// exit automatically, regardless of the means of generating the
-// exit action (such as Ctrl-SysReq signal handlers, etc.).
-//
-//------------------------------------------------------------------------
+/*--------------------------------------------------------------------*/
+/*       C l o s e E a s y W i n                                      */
+/*                                                                    */
+/*       Force EasyWin window to close on termination                 */
+/*                                                                    */
+/*       This function should be registered with a call to            */
+/*       atexit() if you want to force the EasyWin window to          */
+/*       close, permitting the application to exit, automatically.    */
+/*       Normally, an EasyWin app hangs out in the "inactive"         */
+/*       state until the user manually closes the window.  Using      */
+/*       an atexit() function assures that the app will exit          */
+/*       automatically, regardless of the means of generating the     */
+/*       exit action (such as Ctrl-SysReq signal handlers, etc.).     */
+/*--------------------------------------------------------------------*/
+
 void CloseEasyWin(void)
 {
    MSG msg;
 
-   //
-   // This will assure that the EasyWin task yields to the system
-   // at least once before exiting. See the comments next to the
-   // call to WinExec() below.
-   //
+/*--------------------------------------------------------------------*/
+/*       This will assure that the EasyWin task yields to the         */
+/*       system at least once before exiting.  See the comments       */
+/*       next to the call to WinExec() below.                         */
+/*--------------------------------------------------------------------*/
+
    PeekMessage(&msg, hOurWindow, NULL, NULL, PM_NOREMOVE);
    _DoneEasyWin();
 }
 
-
-//------------------------------------------------------------------------
-//
-// SpawnWait() - Spawn a child process, wait for termination
-//
-// Use WinExec() to fire off a child process, then synchronize with
-// its termination. For use with EasyWin applications.
-//
-// Inputs:
-//    cmdLine     Command line including executable name
-//    fuCmdShow   How to display new main window (see ShowWindow())
-//
-// Returns:
-//    -1          Big Trouble: NotifyRegister or WinExec failed
-//    >=0         Exit status of child
-//
-// On Error:
-//    Logs and displays an error message using printmsg()
-//
-//------------------------------------------------------------------------
+/*--------------------------------------------------------------------*/
+/*       S p a w n W a i t                                            */
+/*                                                                    */
+/*       Spawn a child process, wait for termination                  */
+/*                                                                    */
+/*       Use WinExec() to fire off a child process, then              */
+/*       synchronize with its termination.  For use with EasyWin      */
+/*       applications.                                                */
+/*                                                                    */
+/*       Inputs:                                                      */
+/*          cmdLine     Command line including executable name        */
+/*          fuCmdShow   How to display new main window (see           */
+/*                      ShowWindow())                                 */
+/*                                                                    */
+/*       Returns:                                                     */
+/*          -1          Big Trouble: NotifyRegister or WinExec        */
+/*          failed                                                    */
+/*          >=0         Exit status of child                          */
+/*                                                                    */
+/*       On Error:                                                    */
+/*          Logs and displays an error message using printmsg()       */
+/*--------------------------------------------------------------------*/
 
 int SpawnWait( const char *command,
                const char *parameters,
@@ -163,20 +171,24 @@ int SpawnWait( const char *command,
       }
    }
 
-   //
-   // Start up the child proc with the given command line. To start a DOS
-   // box, use a .PIF file as the executable name (1st arg).
-   //
-   // WARNING! The spawned task MUST give up control to the system at
-   // least once before exiting! An EasyWin app that calls _DoneEasyWin()
-   // in an atexit() proc may never yiend to the system. In this case
-   // WinExec() will not return here before the spawned task terminates.
-   // The Notification callback will be called before WinExec() returns,
-   // and the hInstChild will not be set yet. Result: This task will never
-   // see the termination notfication of the spawned task, and SpawnWait()
-   // will wait forever. CAVEAT!
-   //
-   // (To insure we do yield, banner() has a call to ddelay().)
+/*--------------------------------------------------------------------*/
+/*       Start up the child proc with the given command line.  To     */
+/*       start a DOS box, use a .PIF file as the executable name      */
+/*       (1st arg).                                                   */
+/*                                                                    */
+/*       WARNING!  The spawned task MUST give up control to the       */
+/*       system at least once before exiting!  An EasyWin app that    */
+/*       calls _DoneEasyWin() in an atexit() proc may never yiend     */
+/*       to the system.  In this case WinExec() will not return       */
+/*       here before the spawned task terminates.  The                */
+/*       Notification callback will be called before WinExec()        */
+/*       returns, and the hInstChild will not be set yet.  Result:    */
+/*       This task will never see the termination notfication of      */
+/*       the spawned task, and SpawnWait() will wait forever.         */
+/*       CAVEAT!                                                      */
+/*                                                                    */
+/*       (To insure we do yield, banner() has a call to ddelay().)    */
+/*--------------------------------------------------------------------*/
 
    if ( parameters == NULL )
       hChildInst = WinExec( command , fuCmdShow);
@@ -208,10 +220,11 @@ int SpawnWait( const char *command,
    if ( ! synchronous )
       return 0;
 
-   //
-   // LOCAL MESSAGE LOOP - Service Windows while waiting for
-   // child proc to terminate.
-   //
+/*--------------------------------------------------------------------*/
+/*       LOCAL MESSAGE LOOP - Service Windows while waiting for       */
+/*       child proc to terminate.                                     */
+/*--------------------------------------------------------------------*/
+
    while(bChildIsExecuting && GetMessage(&msg, NULL, NULL, NULL))
    {
       TranslateMessage(&msg);
@@ -232,11 +245,11 @@ int SpawnWait( const char *command,
 
 } /* SpawnWait */
 
-//------------------------------------------------------------------------
-//
-// NotifyCatcher() - Notification Callback
-//
-//------------------------------------------------------------------------
+/*--------------------------------------------------------------------*/
+/*       N o t i f y C a t c h e r                                    */
+/*                                                                    */
+/*       Notification Callback                                        */
+/*--------------------------------------------------------------------*/
 
 #ifdef __TURBOC__
 #pragma argsused
@@ -244,36 +257,43 @@ int SpawnWait( const char *command,
 
 BOOL CALLBACK NotifyCatcher (WORD wID, DWORD dwData)
 {
-   HTASK hCurTask;     // handle of the task that called the notification call back
+   HTASK hCurTask;                     /* handle of the task that     */
+                                       /* called notification call    */
+                                       /* back                        */
    TASKENTRY te;
 
+/*--------------------------------------------------------------------*/
+/*                        Check for task exiting                      */
+/*--------------------------------------------------------------------*/
 
-   // Check for task exiting
    switch (wID)
    {
       case NFY_EXITTASK:
-         //
-         // Obtain info about the task that is terminating
-         //
+/*--------------------------------------------------------------------*/
+/*            Obtain info about the task that is terminating          */
+/*--------------------------------------------------------------------*/
          hCurTask = GetCurrentTask();
          te.dwSize = sizeof(TASKENTRY);
          TaskFindHandle(&te, hCurTask);
-         //
-         // Check if the task that is terminating is our child task.
-         // Also check if the hInstance of the task that is terminating
-         // in the same as the hInstance of the task that was WinExec'd
-         // by us earlier in this file. This additional check is added
-         // because the Task List that is brought up by selecting
-         // 'Switch To ...' from the system menu is also run as a child
-         // task of the application and consequently the hInstance needs
-         // to be checked to determine which child task is terminating.
-         // Obviously, the parent may have intentionally WinExec'ed more
-         // than one child on purpose as well.
-         //
-         // Note that the PM_TASKEND message is sent with its LPARAM set
-         // to the dwData passed to this callback. The low byte of this
-         // is the child's exit status.
-         //
+
+/*--------------------------------------------------------------------*/
+/*       Check if the task that is terminating is our child task.     */
+/*       Also check if the hInstance of the task that is              */
+/*       terminating in the same as the hInstance of the task that    */
+/*       was WinExec'd by us earlier in this file.  This              */
+/*       additional check is added because the Task List that is      */
+/*       brought up by selecting 'Switch To ...' from the system      */
+/*       menu is also run as a child task of the application and      */
+/*       consequently the hInstance needs to be checked to            */
+/*       determine which child task is terminating.  Obviously,       */
+/*       the parent may have intentionally WinExec'ed more than       */
+/*       one child on purpose as well.                                */
+/*                                                                    */
+/*       Note that the PM_TASKEND message is sent with its LPARAM     */
+/*       set to the dwData passed to this callback.  The low byte     */
+/*       of this is the child's exit status.                          */
+/*--------------------------------------------------------------------*/
+
          if (te.hTaskParent == hOurTask && te.hInst == hChildInst)
             PostMessage(hOurWindow, PM_TASKEND, (WORD)hOurTask, dwData );
 
@@ -283,16 +303,20 @@ BOOL CALLBACK NotifyCatcher (WORD wID, DWORD dwData)
             break;
    }
 
-   // Pass notification to other callback functions
+/*--------------------------------------------------------------------*/
+/*             Pass notification to other callback functions          */
+/*--------------------------------------------------------------------*/
+
    return FALSE;
 
 }
 
-//------------------------------------------------------------------------
-//
-// FindTaskWindow() - Find handle to one of our windows, by name
-//
-//------------------------------------------------------------------------
+/*--------------------------------------------------------------------*/
+/*       F i n d T a s k W i n d o w                                  */
+/*                                                                    */
+/*       Find handle to one of our windows, by name                   */
+/*--------------------------------------------------------------------*/
+
 HWND FindTaskWindow (HTASK hTask, LPSTR lpszClassName)
 {
 
@@ -305,13 +329,13 @@ HWND FindTaskWindow (HTASK hTask, LPSTR lpszClassName)
    return(hTheWindow);
 }
 
+/*--------------------------------------------------------------------*/
+/*       W i n d C a t c h e r                                        */
+/*                                                                    */
+/*       Callback function for EnumTaskWindows().  Passes back a      */
+/*       copy of the next window handle.                              */
+/*--------------------------------------------------------------------*/
 
-//------------------------------------------------------------------------
-//
-// WindCatcher() - Callback function for EnumTaskWindows(). Passes
-//                 back a copy of the next window handle.
-//
-//------------------------------------------------------------------------
 #define BUF_LEN 32
 BOOL CALLBACK WindCatcher (HWND hWnd, LPARAM lparam)
 {
@@ -320,10 +344,11 @@ BOOL CALLBACK WindCatcher (HWND hWnd, LPARAM lparam)
 
     if ((i = GetClassName(hWnd, (LPSTR)buf, BUF_LEN)) == 0)
        return(FALSE);                      /* OOPS!                   */
-    buf[i] = '\0';                          /* Make cstr              */
+
+    buf[i] = '\0';                         /* Make cstr               */
     if (lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) /* If we found it */
     {
-                hTheWindow = hWnd;                  /* Save it for called func */
+        hTheWindow = hWnd;                 /* Save it for called func */
         return(FALSE);
     }
     return(TRUE);

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.13 1993/09/29 04:56:11 ahd Exp rhg $
+ *    $Id: lib.h 1.14 1993/10/09 15:48:20 rhg Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *     Revision 1.14  1993/10/09  15:48:20  rhg
+ *     ANSIfy the source
+ *
  *     Revision 1.13  1993/09/29  04:56:11  ahd
  *     Revise B_KEWSHORT to B_SHORT
  *
@@ -87,7 +90,7 @@
 
 #define SYSRCSYM "UUPCSYSRC"
 #define USRRCSYM  "UUPCUSRRC"
-#define SYSDEBUG  "UUPCDEBUG"    /* Initialize debug level ahd       */
+#define SYSDEBUG  "UUPCDEBUG"    /* Initialize debug level ahd        */
 
 /*--------------------------------------------------------------------*/
 /*                 Macro for recording when UUPC dies                 */
@@ -130,7 +133,7 @@
 #define B_UUSTAT   0x00000800L /* UUSTAT, UUSUB, UUNAME programs      */
 #define B_UUXQT    0x00001000L /* Used by queue processor UUXQT       */
 #define B_INSTALL  0x00002000L /* Used by install program only        */
-#define B_BATCH    0x00004000L // Used by news batching program - GMM
+#define B_BATCH    0x00004000L /* Used by news batching program - GMM */
 #define B_MAIL     (B_MUA | B_MTA | B_MUSH)
 #define B_SPOOL    (B_MTA | B_NEWS | B_UUCICO | B_UUXQT | B_UUCP | B_UUSTAT)
 #define B_ALL      (B_MAIL|B_SPOOL|B_NEWS|B_UUPOLL|B_UUSTAT|B_BATCH)

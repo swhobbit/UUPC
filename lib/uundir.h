@@ -28,10 +28,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUNDIR.H 1.2 1993/04/05 04:38:55 ahd Exp $
+ *    $Id: uundir.h 1.3 1993/04/10 21:35:30 dmwatt Exp $
  *
  *    Revision history:
- *    $Log: UUNDIR.H $
+ *    $Log: uundir.h $
+ *     Revision 1.3  1993/04/10  21:35:30  dmwatt
+ *     Windows/NT fixes
+ *
  *     Revision 1.2  1993/04/05  04:38:55  ahd
  *     Add time stamp/size information
  *
@@ -39,7 +42,7 @@
 
 #define MSDOS_MAXNAMLEN 12
 
-#define MAXNAMLEN FILENAME_MAX   // For OS/2, Win/NT compatability
+#define MAXNAMLEN FILENAME_MAX   /* For OS/2, Win/NT compatability     */
 
 struct direct {
    long d_ino;

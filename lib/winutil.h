@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.h 1.2 1993/07/31 16:28:59 ahd Exp $
+ *    $Id: winutil.h 1.3 1993/08/02 03:26:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.h $
+ * Revision 1.3  1993/08/02  03:26:05  ahd
+ * Further changes in support of Robert Denny's Windows 3.x support
+ *
  * Revision 1.2  1993/07/31  16:28:59  ahd
  * Changes in support of Robert Denny's Windows Support
  *
@@ -35,9 +38,9 @@
  * Initial revision
  */
 
-extern HTASK hOurTask;           // Our task handle
-extern HWND hOurWindow;          // Our EasyWin main window handle
-extern HINSTANCE _hInstance;     // Defined/set by TCWIN runtime
+extern HTASK hOurTask;           /* Our task handle                    */
+extern HWND hOurWindow;          /* Our EasyWin main window handle     */
+extern HINSTANCE _hInstance;     /* Defined/set by TCWIN runtime      */
 
 
 HWND FindTaskWindow(HTASK hTask, LPSTR lpszClassName);

@@ -9,4 +9,4 @@
  */
 
 char *arpadate( void );          /* Returns current date in static
-                                    buffer                           */
+                                    buffer                            */

@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.9 1993/09/20 04:51:31 ahd Exp $
+ *    $Id: uutypes.h 1.10 1993/10/02 19:09:59 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *     Revision 1.10  1993/10/02  19:09:59  ahd
+ *     Treat UUFAR as true FAR under Windows 3.x
+ *
  *     Revision 1.9  1993/09/20  04:51:31  ahd
  *     TCP Support from Dave Watt
  *     't' protocol support
@@ -73,27 +76,27 @@ typedef enum {
 /*                          Per user options                          */
 /*--------------------------------------------------------------------*/
 
-               F_ASKCC,       /* TRUE = ask for Carbon copies              */
+               F_ASKCC,       /* TRUE = ask for Carbon copies          */
                F_DOSKEY,      /* TRUE = Use DOSKEY under DOS 5 if available*/
-               F_BACKUP,      /* TRUE = Backup mailbox before rewriting    */
-               F_DOT,         /* TRUE = period ends a message              */
-               F_AUTOPRINT,   /* TRUE = print next message automatically   */
-               F_AUTOEDIT,    /* TRUE = no line prompt, always edit        */
-               F_AUTOINCLUDE, /* TRUE = Perform automatic INCLUDE command  */
-               F_AUTOSIGN,    /* TRUE = append the signature file          */
+               F_BACKUP,      /* TRUE = Backup mailbox before rewriting */
+               F_DOT,         /* TRUE = period ends a message          */
+               F_AUTOPRINT,   /* TRUE = print next message automatically  */
+               F_AUTOEDIT,    /* TRUE = no line prompt, always edit    */
+               F_AUTOINCLUDE, /* TRUE = Perform automatic INCLUDE command */
+               F_AUTOSIGN,    /* TRUE = append the signature file      */
                F_EXPERT,      /* TRUE = Let user shoot self in foot w/o
-                                        a message.                         */
-               F_FROMSEP,     /* TRUE = Allow From to split messages       */
+                                        a message.                     */
+               F_FROMSEP,     /* TRUE = Allow From to split messages   */
                F_PAGER,       /* TRUE = Invert meaning of P/p T/t commands */
-               F_PURGE,       /* TRUE = Delete mailbox, if empty           */
+               F_PURGE,       /* TRUE = Delete mailbox, if empty       */
                F_SAVE,        /* TRUE = Save read messages in =mbox when
-                                        reading new mail.                  */
-               F_SAVERESENT,  /* TRUE = Save forwarded mail a second time  */
+                                        reading new mail.              */
+               F_SAVERESENT,  /* TRUE = Save forwarded mail a second time */
                F_SUPPRESSCOPYRIGHT,
-                              /* Skip copyright message                    */
+                              /* Skip copyright message                */
                F_SPEEDOVERMEMORY,
-                              /* TRUE = Be lazy in strpool()               */
-               F_VERBOSE,     /* TRUE = Verbose RMAIL output               */
+                              /* TRUE = Be lazy in strpool()           */
+               F_VERBOSE,     /* TRUE = Verbose RMAIL output           */
                F_WINDOWS,     /* TRUE = Run RMAIL/RNEWS as Windows programs*/
 
 /*--------------------------------------------------------------------*/
@@ -101,34 +104,34 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
                F_BANG,        /* TRUE = re-write addresses in bang (!) form*/
-               F_BOUNCE,      /* TRUE = Bounce bad mail to sender          */
+               F_BOUNCE,      /* TRUE = Bounce bad mail to sender      */
                F_COLLECTSTATS,/* TRUE = Report additional information in
-                                        various logs                       */
+                                        various logs                   */
                F_DIRECT,      /* TRUE = Deliver to subdirectories, not
-                                        files                              */
+                                        files                          */
                F_HONORDEBUG,  /* True = Accept -x flag from remote systems */
-               F_ESCAPE,      /* TRUE = Allow ESCAPE to act as Ctrl-Break  */
+               F_ESCAPE,      /* TRUE = Allow ESCAPE to act as Ctrl-Break */
                F_HISTORY,     /* TRUE = Maintain history of of articles
-                                        read and posted                    */
-               F_KANJI,       /* TRUE = enable Kanji (Japanese) support    */
-               B_LONGNAME,      /* TRUE = Exploit long names under OS/2, NT  */
+                                        read and posted                */
+               F_KANJI,       /* TRUE = enable Kanji (Japanese) support */
+               B_LONGNAME,      /* TRUE = Exploit long names under OS/2, NT */
                F_MULTI,       /* TRUE = Deliver to multiple addresses on
-                                        remote host at once                */
+                                        remote host at once            */
                F_MULTITASK,   /* TRUE = System is multitasking, watch
-                                        for race conditions                */
-               F_ONECASE,     /* TRUE = Remote host is case insensitive    */
-               F_SENDDEBUG,   /* True = Send -x flag to remote systems     */
-               F_SNEWS,       /* TRUE = Use Simple news delivery           */
+                                        for race conditions            */
+               F_ONECASE,     /* TRUE = Remote host is case insensitive */
+               F_SENDDEBUG,   /* True = Send -x flag to remote systems */
+               F_SNEWS,       /* TRUE = Use Simple news delivery       */
                F_SYMMETRICGRADES,
-                              /* TRUE = Use send grade as receive grade    */
+                              /* TRUE = Use send grade as receive grade */
                F_SYSLOG,      /* TRUE = Write syslog with name and time of
-                                        each file transferred              */
+                                        each file transferred          */
                F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
-                                 support                                   */
-               F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file   */
-                              // GMM - Batched ouytbound news support
+                                 support                               */
+               F_USESYSFILE,  /* TRUE = RNEWS forwards news per SYS file  */
+                              /* GMM - Batched ouytbound news support  */
                F_LAST }       /* Dummy - Must be last - defines array size */
-               B_FLAG;        /* Boolean flag array - ahd                  */
+               B_FLAG;        /* Boolean flag array - ahd              */
 
 /*--------------------------------------------------------------------*/
 /*                  Your basic Boolean logic values                   */
@@ -156,8 +159,8 @@ typedef enum {
 /*--------------------------------------------------------------------*/
 
 typedef unsigned long CONFIGBITS;
-typedef unsigned short KEWSHORT; /* Integers in the config file      */
-typedef unsigned long  KEWLONG;    /* Integers in the config file      */
+typedef unsigned short KEWSHORT; /* Integers in the config file       */
+typedef unsigned long  KEWLONG;    /* Integers in the config file     */
 typedef unsigned long  BPS;
 
 #endif

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.11 1993/10/09 15:47:51 rhg Exp $
+ *    $Id: ssleep.c 1.12 1993/10/12 00:41:51 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *     Revision 1.12  1993/10/12  00:41:51  ahd
+ *     Normalize comments
+ *
  *     Revision 1.11  1993/10/09  15:47:51  rhg
  *     ANSIify the source
  *
@@ -141,9 +144,9 @@ static void WindowsDelay( const int milliseconds )
    WORD TimerId = 1;
    BOOL bTimerDone = FALSE;
 
-   //
-   //    A 0-delay call means give up control to Windows
-   //
+/*--------------------------------------------------------------------*/
+/*          A 0-delay call means give up control to Windows           */
+/*--------------------------------------------------------------------*/
 
    if (milliseconds == 0)
    {
@@ -167,10 +170,10 @@ static void WindowsDelay( const int milliseconds )
       return;
    } /* if */
 
-   //
-   // LOCAL MESSAGE LOOP - Service Windows while waiting for
-   // the timer message.
-   //
+/*--------------------------------------------------------------------*/
+/*       LOCAL MESSAGE LOOP - Service Windows while waiting for       */
+/*       the timer message.                                           */
+/*--------------------------------------------------------------------*/
 
    while(!bTimerDone && GetMessage(&msg, NULL, NULL, NULL))
    {

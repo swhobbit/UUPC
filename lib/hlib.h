@@ -23,14 +23,14 @@
 
 #define MAXADDR   128            /* Max length of address strings      ahd */
 #define MAXLIST   99             /* Max number of entries in arg
-                                    arrays                                 */
+                                    arrays                             */
 
 void mkfilename(char *pathname,
                 const char *path,
-                const char *name);                             /* ahd   */
+                const char *name);                             /* ahd  */
 
 char *mktempname( char *input,
-                  char *extension);                            /* ahd   */
+                  char *extension);                            /* ahd  */
 
 char *mkmailbox(char *buf, const char *userid);
 

@@ -20,5 +20,5 @@ void put_active(void);     /* Write the active newsgroups file */
 void validate_newsgroups(void);  /* Make sure the directory structure exists */
 
 #ifndef MAXGRP
-#define MAXGRP FILENAME_MAX   /* Max length of a news group name     */
+#define MAXGRP FILENAME_MAX   /* Max length of a news group name      */
 #endif

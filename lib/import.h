@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.h 1.2 1993/09/02 12:08:49 ahd Exp $
+ *    $Id: import.h 1.3 1993/10/09 15:48:20 rhg Exp $
  *
  *    Revision history:
  *    $Log: import.h $
+ *     Revision 1.3  1993/10/09  15:48:20  rhg
+ *     ANSIfy the source
+ *
  *     Revision 1.2  1993/09/02  12:08:49  ahd
  *     HPFS Support
  *
@@ -33,7 +36,7 @@
 #define DOSCHARS  "!#$%&'()-0123456789@^_`abcdefghijklmnopqrstuvwxyz{}~"
                               /* List of allowed characters in MS-DOS
                                  file names; from Page 1.15 of Zenith
-                                 MS-DOS 3 manual                     */
+                                 MS-DOS 3 manual                      */
 #define UNIX_START_C '#'      /* First character in the UNIX char set */
                               /* we map to the DOS character set      */
 #define UNIX_END_C   'z'      /* last UNIX char we map                */
