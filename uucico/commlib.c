@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: commlib.c 1.21 1994/02/22 02:59:10 ahd Exp $
+ *    $Id: commlib.c 1.22 1994/02/26 17:21:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: commlib.c $
+ * Revision 1.22  1994/02/26  17:21:15  ahd
+ * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
+ *
  * Revision 1.21  1994/02/22  02:59:10  ahd
  * Always insure buffer is at least BUFSIZ long, in case any
  * random buffer wants to snarf BUFSIZ data.
@@ -97,9 +100,9 @@
 /*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
-#ifndef BIT32ENV
 #include "uupcmoah.h"
 
+#ifndef BIT32ENV
 #include <malloc.h>        /* _fmalloc, etc.                         */
 #endif
 
