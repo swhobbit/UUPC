@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.15 1998/04/08 11:35:35 ahd Exp $
+ *    $Id: smtpnetw.c 1.16 1998/04/19 15:30:08 ahd Exp $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.16  1998/04/19 15:30:08  ahd
+ *    Improved error messages for network errors
+ *
  *    Revision 1.15  1998/04/08 11:35:35  ahd
  *    CHange error processing for bad sockets
  *
@@ -96,7 +99,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.15 1998/04/08 11:35:35 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.16 1998/04/19 15:30:08 ahd Exp $");
 
 currentfile();
 
@@ -655,7 +658,7 @@ openMaster(const char *name)
    printmsg(NETDEBUG + 1, "%s: doing setsockopt()", mName);
 
    if (setsockopt(pollingSock, SOL_SOCKET, SO_REUSEADDR,
-         (char UUFAR *)&sockopt, sizeof(int)) == SOCKET_ERROR)
+         (char UUFAR *)&sockopt, sizeof sockopt) == SOCKET_ERROR)
    {
       int wsErr = WSAGetLastError();
 
@@ -677,6 +680,7 @@ openMaster(const char *name)
       return INVALID_SOCKET;
    }
 
+
    return pollingSock;              /* Return success to caller      */
 
 } /* openMaster */
@@ -691,7 +695,8 @@ openMaster(const char *name)
 SOCKET
 openSlave(SOCKET pollingSock)
 {
-   static const char mName[] = "slaveOpen";
+   static const char mName[] = "openSlave";
+   int bufferSize = 48 * 1024;
 
    SOCKET connectedSock = accept(pollingSock, NULL, NULL);
 
@@ -701,6 +706,100 @@ openSlave(SOCKET pollingSock)
 
       printmsg(0, "%s: could not accept a connection", mName);
       printWSerror("accept", wsErr);
+   }
+
+#ifdef UDEBUG
+   if (debuglevel > NETDEBUG)
+   {
+      static int option[] = { SO_SNDBUF, SO_RCVBUF, SO_SNDLOWAT, SO_RCVLOWAT };
+      static int optionCount = (sizeof option / sizeof option[0]);
+      int subscript;
+
+      printmsg(NETDEBUG, "%s: Printing %d options for socket %d",
+                         mName,
+                         optionCount,
+                         connectedSock );
+
+      for ( subscript = 0;
+            subscript < optionCount;
+            subscript ++ )
+      {
+         int sockopt = 0xdeadbeef;
+         int optlen = sizeof sockopt;
+
+         if ( getsockopt( connectedSock,
+                          SOL_SOCKET,
+                          option[subscript],
+                          (char UUFAR *) &sockopt,
+                          &optlen ))
+         {
+            printmsg(0,"%s: getsockopt(%d, SOL_SOCKET, %0d, &%08x, &%d) failed",
+                      mName,
+                      connectedSock,
+                      option[subscript],
+                      sockopt,
+                      sizeof sockopt );
+         }
+         else {
+            printmsg(NETDEBUG, "%s: Socket %d option %d is x%08x",
+                     mName,
+                     connectedSock,
+                     option[subscript],
+                     sockopt );
+         } /* else */
+
+      } /* for */
+
+   } /* if ( debuglevel > NETDEBUG } */
+
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    Set transmission buffer size                    */
+/*--------------------------------------------------------------------*/
+
+   printmsg(NETDEBUG + 1,"%s: setsockopt(%d, SOL_SOCKET, SO_SNDBUF, &%08x, %d)",
+             mName,
+             connectedSock,
+             bufferSize,
+             sizeof bufferSize );
+
+   if (setsockopt(connectedSock,
+                  SOL_SOCKET,
+                  SO_SNDBUF,
+                  (char UUFAR *) &bufferSize,
+                  sizeof bufferSize) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0,"%s: setsockopt(%d, SOL_SOCKET, SO_SNDBUF, &%08x, %d) failed",
+                mName,
+                connectedSock,
+                bufferSize,
+                sizeof bufferSize );
+      printWSerror("setsockopt", wsErr);
+   }
+
+/*--------------------------------------------------------------------*/
+/*                    Set receive buffer size                         */
+/*--------------------------------------------------------------------*/
+
+   printmsg(NETDEBUG + 1,"%s: setsockopt(%d, SOL_SOCKET, SO_RCVBUF, &%08x, %d)",
+             mName,
+             connectedSock,
+             bufferSize,
+             sizeof bufferSize );
+
+   if (setsockopt(connectedSock, SOL_SOCKET, SO_RCVBUF,
+         (char UUFAR *)&bufferSize, sizeof bufferSize) == SOCKET_ERROR)
+   {
+      int wsErr = WSAGetLastError();
+
+      printmsg(0,"%s: setsockopt(%d, SOL_SOCKET, SO_RCVBUF, &%08x) failed",
+                mName,
+                connectedSock,
+                bufferSize );
+      printWSerror("setsockopt", wsErr);
    }
 
    return connectedSock;

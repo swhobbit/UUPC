@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SMTPSERV.C 1.10 1998/03/08 23:10:20 ahd Exp $
+ *    $Id: smtpserv.c 1.11 1998/04/08 11:35:35 ahd Exp $
  *
- *    $Log: SMTPSERV.C $
+ *    $Log: smtpserv.c $
+ *    Revision 1.11  1998/04/08 11:35:35  ahd
+ *    CHange error processing for bad sockets
+ *
  *    Revision 1.10  1998/03/08 23:10:20  ahd
  *    Better UUXQT support
  *
@@ -57,7 +60,7 @@
 #include "smtpnetw.h"
 #include "execute.h"
 
-RCSID("$Id: SMTPSERV.C 1.10 1998/03/08 23:10:20 ahd Exp $");
+RCSID("$Id: smtpserv.c 1.11 1998/04/08 11:35:35 ahd Exp $");
 
 currentfile();
 
@@ -88,12 +91,14 @@ flagReadyClientList(SMTPClient *master)
    do {
 #ifdef UDEBUG
       printmsg(8,"%s: Processing client %d, handle %d, "
-                  "mode 0x%04x, %d bytes buffered",
+                  "mode 0x%04x, %s lines buffered (%ld used and %ld parsed bytes) ",
                   mName,
                   getClientSequence(current),
                   getClientHandle(current),
                   getClientMode(current),
-                  getClientBufferedData(current));
+                  getClientBufferedData(current) ? "at least one" : "no",
+                  current->receive.used,
+                  current->receive.parsed );
 #endif
 
       if (isClientEOF(current))
@@ -186,10 +191,16 @@ processReadyClientList(SMTPClient *current)
 {
    while (current != NULL)
    {
-      if (getClientProcess(current))
+      while (getClientProcess(current))
       {
          setClientProcess(current, KWFalse);
          processClient(current);
+
+         /* Special processing for input mode, keep processing
+            until buffer is empty */
+         if ((getClientMode(current) ==  SM_DATA) &&
+             getClientBufferedData(current))
+            setClientProcess(current, KWTrue);
       }
 
       current = current->next;

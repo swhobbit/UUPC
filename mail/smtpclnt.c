@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: SMTPCLNT.C 1.13 1998/03/08 23:10:20 ahd Exp $
+ *       $Id: smtpclnt.c 1.14 1998/04/08 11:35:35 ahd Exp $
  *
  *       Revision History:
- *       $Log: SMTPCLNT.C $
+ *       $Log: smtpclnt.c $
+ *       Revision 1.14  1998/04/08 11:35:35  ahd
+ *       CHange error processing for bad sockets
+ *
  *       Revision 1.13  1998/03/08 23:10:20  ahd
  *       Improve timeout processing, UUXQT support
  *
@@ -82,7 +85,7 @@
 
 currentfile();
 
-RCSID("$Id: SMTPCLNT.C 1.13 1998/03/08 23:10:20 ahd Exp $");
+RCSID("$Id: smtpclnt.c 1.14 1998/04/08 11:35:35 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -145,7 +148,7 @@ initializeClient(SOCKET handle, KWBoolean master)
 /*                  Allocate remaining buffers we need                */
 /*--------------------------------------------------------------------*/
 
-   client->receive.length = 10240;
+   client->receive.length = 10 * 1024;
    client->receive.data   = malloc((size_t) client->receive.length);
    checkref(client->receive.data);
 
@@ -591,11 +594,37 @@ getClientProcess(const SMTPClient *client)
    return client->process;
 } /* getClientProcess */
 
+char *memstr( const char *haystack,
+              const char *needle,
+              size_t len )
+{
+   size_t needleLength = strlen(needle);
+   char *here = memchr(haystack, needle[0], len - needleLength + 1);
+
+   if (here == NULL)
+      return NULL;
+
+   if (!strncmp(here, needle, needleLength))
+      return here;
+
+   if (len > 1)
+      return memstr(here + 1, needle, len - (here - haystack) - 1);
+   else
+      return NULL;
+}
+
 KWBoolean
 getClientBufferedData(const SMTPClient *client)
 {
    if (client->receive.parsed < client->receive.used)
-      return KWTrue;
+   {
+      if (memstr(client->receive.data + client->receive.parsed,
+                 "\r\n",
+                 client->receive.used - client->receive.parsed ) != NULL)
+         return KWTrue;
+      else
+         return KWFalse;
+   }
    else
       return KWFalse;
 
