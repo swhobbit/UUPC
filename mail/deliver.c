@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.11 1993/06/13 14:06:00 ahd Exp $
+ *    $Id: deliver.c 1.12 1993/06/21 02:17:31 ahd Exp $
  *
  *    $Log: deliver.c $
+ * Revision 1.12  1993/06/21  02:17:31  ahd
+ * Correct errors in mail routing via HOSTPATH
+ *
  * Revision 1.11  1993/06/13  14:06:00  ahd
  * Save invoked program name and use it for recursive calls
  * Loosen up bounced mail copy loop to avoid NT crashes
@@ -73,24 +76,6 @@
 /*    messages to Shift-JIS.                                          */
 /*--------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------------*/
-/*    Use a complex beep upon mail delivery if way to control the     */
-/*    speaker is available; if using MS C 6.0 under DOS, we can't     */
-/*    so don't try                                                    */
-/*--------------------------------------------------------------------*/
-
-#ifdef __TURBOC__
-#define SMARTBEEP
-#endif
-
-#ifdef FAMILYAPI
-#define SMARTBEEP
-#endif
-
-#ifdef WIN32
-#define SMARTBEEP
-#endif
-
 #define INCLUDE ":include:"
 
 /*--------------------------------------------------------------------*/
@@ -106,16 +91,8 @@
 #include <process.h>
 #include <limits.h>
 
-#ifdef __TURBOC__
-#include <dos.h>
-#endif
-
-#ifdef WIN32
+#ifdef _Windows
 #include <windows.h>
-#endif
-
-#ifdef FAMILYAPI
-#include <os2.h>
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -137,9 +114,10 @@
 #include "usertabl.h"
 #include "sysalias.h"
 #include "timestmp.h"
+#include "trumpet.h"
 
-#ifdef SMARTBEEP
-#include "ssleep.h"
+#ifdef _Windows
+#include "winutil.h"
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -169,8 +147,6 @@ static int DeliverFile( const char *input,
                         const boolean validate,
                         const char *user );
 
-static void trumpet( const char *tune);
-
 static size_t DeliverRemote( const char *input, /* Input file name    */
                              const char *address,  /* Target address  */
                              const char *path);
@@ -178,7 +154,8 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
 static size_t DeliverGateway(   const char *input,
                                 const char *user,
                                 const char *node,
-                                const struct HostTable *hostp);
+                                const struct HostTable *hostp,
+                                const boolean validate );
 
 static int CopyData(   const boolean remotedelivery,
                        const char *input,
@@ -266,7 +243,7 @@ size_t Deliver(       const char *input,    /* Input file name       */
 
    hostp = checkname( path );
    if ( (hostp != BADHOST) && (hostp->hstatus == gatewayed))
-      return DeliverGateway( input, user, node, hostp );
+      return DeliverGateway( input, user, node, hostp, validate );
 
 /*--------------------------------------------------------------------*/
 /*         Deliver mail to a system directory connected to us         */
@@ -371,7 +348,7 @@ static size_t DeliverLocal( const char *input,
                                       validate,
                                       user );
 
-            if ( announce && ( userp != BADUSER ))
+            if ( announce && ( userp != BADUSER ) && remoteMail )
                trumpet( userp->beep);  /* Yes --> Inform the user    */
             return delivered;
 
@@ -410,8 +387,8 @@ static size_t DeliverLocal( const char *input,
                                    validate,
                                    user );
 
-         if (announce)        /* Did we deliver mail locally?        */
-            trumpet( userp->beep);  /* Yes --> Inform the user       */
+         if (announce && remoteMail)   /* Did we deliver mail locally?        */
+            trumpet( userp->beep);     /* Yes --> Inform the user       */
          return delivered;
 
       } /* if */
@@ -436,7 +413,7 @@ static size_t DeliverLocal( const char *input,
                         remoteMail ? rnode : "",
                          user );
 
-   if ( announce )
+   if ( announce && remoteMail )
       trumpet( userp->beep);  /* Local delivery, inform the user     */
 
    mbox = FOPEN( mboxname , "a",TEXT_MODE );
@@ -533,6 +510,13 @@ static int DeliverFile( const char *input,
             break;            /* Empty line, ignore         */
 
          case '|':               /* Pipe mail into a command   */
+#ifdef _Windows                  // Fix this later -- ahd
+            return Bounce(input,
+                          "Piping into commands not supported under Windows",
+                          command,
+                          user,
+                          validate );
+#else
          {
             long here = ftell(fwrd);
             fclose(fwrd);
@@ -546,6 +530,7 @@ static int DeliverFile( const char *input,
             fseek( fwrd, here, SEEK_SET);
             break;
          } /* case */
+#endif
 
          case '\\':              /* Deliver without forwarding */
             delivered += Deliver( input, &s[1], TRUE, FALSE );
@@ -590,82 +575,21 @@ static int DeliverFile( const char *input,
 
 } /* DeliverFile */
 
-
-/*--------------------------------------------------------------------*/
-/*    t r u m p e t                                                   */
-/*                                                                    */
-/*    Trumpet the arrival of remote mail to a local user              */
-/*--------------------------------------------------------------------*/
-
-static void trumpet( const char *tune)
-{
-#ifdef SMARTBEEP
-   char buf[BUFSIZ];
-   char *token = buf;
-   size_t tone, duration;
-#endif
-
-   if ((tune == NULL) || !remoteMail) /* Should we announce?  */
-      return;                 /* No --> Return quietly (literally)   */
-
-/*--------------------------------------------------------------------*/
-/*             We are to announce the arrival of the mail             */
-/*--------------------------------------------------------------------*/
-
-#ifdef SMARTBEEP
-   strcpy(buf,tune);          /* Save the data                       */
-
-   while( (token = strtok( token, ",")) != NULL)
-   {
-      tone = (size_t) atoi(token);
-      token = strtok( NULL, ",");
-      duration = (token == NULL) ? 500 : (size_t) atoi(token);
-
-#ifdef __TURBOC__
-      if (tone == 0)
-         nosound();
-      else
-         sound( tone );
-      ddelay( duration );
-#else
-      if (tone == 0)
-         ddelay(duration);
-      else {
-#ifdef WIN32
-         Beep( tone, duration );
-#else
-         DosBeep( tone, duration );
-#endif
-      }
-#endif /* __TURBOC__ */
-
-      token = NULL;           /* Look at next part of string   */
-   } /* while */
-
-#ifdef __TURBOC__
-   nosound();
-#endif
-#else /* SMARTBEEP */
-
-/*--------------------------------------------------------------------*/
-/*      We cannot play the requested tune; just beep at the user      */
-/*--------------------------------------------------------------------*/
-
-   fputc('\a', stdout);
-#endif /* SMARTBEEP */
-
-} /* trumpet */
-
 /*--------------------------------------------------------------------*/
 /*    D e l i v e r G a t e w a y                                     */
 /*                                                                    */
 /*    Deliver mail via a gateway program                              */
 /*--------------------------------------------------------------------*/
 
+#if !defined(_Windows) && defined(__TURBOC__)
+#pragma argsused
+#endif
+
 static size_t DeliverGateway(   const char *input,
                                 const char *user,
                                 const char *node,
-                                const struct HostTable *hostp)
+                                const struct HostTable *hostp,
+                                const boolean validate )
 {
    char command[BUFSIZ];
 
@@ -680,18 +604,28 @@ static size_t DeliverGateway(   const char *input,
                      user,                /* user on "node" for delivery*/
                      input);              /* The data to forward        */
 
+   printmsg(3,"DeliverGateway: %s",command);
+
+#ifdef _Windows
+    return Bounce(input,
+                  "Piping into commands not supported under Windows",
+                  command,
+                  user,
+                  validate );
+#else
    printmsg(1,
       "Gatewaying mail %sfrom %s@%s to %s@%s via %s using \"%s\"",
        stats( input ),
        ruser, rnode, user, node, hostp->hostname, hostp->via);
-   printmsg(3,"DeliverGateway: %s",command);
 
 /*--------------------------------------------------------------------*/
 /*  Run the command and return caller with count of mail delivered    */
 /*--------------------------------------------------------------------*/
 
    system(command);
+
    return 1;
+#endif
 
 } /* DeliveryGateway */
 
@@ -1000,6 +934,10 @@ size_t Bounce( const char *input,
     char buf[BUFSIZ];
     char sender[MAXADDR];
 
+#ifdef _Windows
+    char wincmd[BUFSIZ];
+#endif
+
     boolean bounce = bflag[F_BOUNCE];
 
    sprintf(sender, "%s%s%s",
@@ -1078,6 +1016,17 @@ size_t Bounce( const char *input,
 /*--------------------------------------------------------------------*/
 
     putenv("LOGNAME=uucp");
+
+#ifdef _Windows
+   sprintf( wincmd, "%s -w -F %s -s %s %s -c postmaster",
+            myProgramName,
+            tname,
+            buf,
+            sender );
+
+   if ( SpawnWait( wincmd, SW_SHOWMINNOACTIVE ))
+      DeliverLocal( input, E_postmaster, FALSE, validate);
+#else
     if (spawnlp(P_WAIT,
             myProgramName,
             myProgramName,
@@ -1093,6 +1042,7 @@ size_t Bounce( const char *input,
          printerr("spawn");
          DeliverLocal( input, E_postmaster, FALSE, validate);
     }
+#endif
 
     return (1);
 

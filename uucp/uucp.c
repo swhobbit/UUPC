@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUCP.C 1.3 1993/04/05 04:35:40 ahd Exp $
+ *    $Id: UUCP.C 1.4 1993/04/11 00:35:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: UUCP.C $
+ * Revision 1.4  1993/04/11  00:35:46  ahd
+ * Global edits for year, TEXT, etc.
+ *
  * Revision 1.3  1993/04/05  04:35:40  ahd
  * Use timestamp/file size information returned by directory search
  *
@@ -57,6 +60,10 @@
 #include  <sys/types.h>
 #include  <sys/stat.h>
 
+#ifdef _Windows
+#include <windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
 /*--------------------------------------------------------------------*/
@@ -71,6 +78,11 @@
 #include  "uundir.h"
 #include  "security.h"
 #include  "timestmp.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#include "logger.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                          Global variables                          */
@@ -234,8 +246,14 @@ int   do_uux(char *remote,
 /*                              OK - GO!                              */
 /*--------------------------------------------------------------------*/
 
-      system(xcmd);
-      return(1);
+#ifdef _Windows
+   return SpawnWait(xcmd, SW_SHOWMINNOACTIVE);
+#else
+   system(xcmd);
+
+   return(1);
+#endif
+
 
 } /* do_uux */
 
@@ -516,6 +534,12 @@ void  main(int argc, char *argv[])
          usage();
          exit(1);
       }
+
+#if defined(_Windows)
+   openlog( NULL );
+   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+#endif
+
 /*--------------------------------------------------------------------*/
 /*       Now - posibilities:                                          */
 /*       Sources - 1 or more, local or 1 hop away (NOT > 1 hop!)      */

@@ -9,8 +9,6 @@
       more advanced features of UUX.
 
       Usage:      uuxqt -xDEBUG -sSYSTEM
-
-      Last Revised: 26-Jan-1993
 */
 
 /*--------------------------------------------------------------------*/
@@ -26,10 +24,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.10 1993/07/20 21:45:37 ahd Exp $
+ *    $Id: uuxqt.c 1.11 1993/07/24 03:40:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ * Revision 1.11  1993/07/24  03:40:55  ahd
+ * Agressively trap carriage returns at ends of lines (from X.* files
+ * being edited by elves with DOS editors!)
+ *
  * Revision 1.10  1993/07/20  21:45:37  ahd
  * Don't delete file after -2 abort from UUXQT
  *
@@ -54,9 +56,7 @@
  *
  * Revision 1.3  1992/11/19  03:03:33  ahd
  * drop rcsid
- *
  */
-
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -73,6 +73,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
+
+#ifdef _Windows
+#include <windows.h>
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -94,6 +98,11 @@
 #include "security.h"
 #include "timestmp.h"
 #include "usertabl.h"
+#include "execute.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#endif
 
 currentfile();
 
@@ -183,8 +192,6 @@ static boolean MailStatus(char *tempfile,
                           char *address,
                           char *subject);
 
-static boolean internal( char *command );
-
 /*--------------------------------------------------------------------*/
 /*    m a i n                                                         */
 /*                                                                    */
@@ -273,6 +280,10 @@ void main( int argc, char **argv)
       printmsg(0,"Unable to initialize security, see previous message");
       exit(2);
    } /* if (!LoadSecurity()) */
+
+#if defined(_Windows)
+   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                Set up search path for our programs                 */
@@ -776,34 +787,41 @@ static int shell(char *command,
                  const char *remotename,
                  boolean xflag[])
 {
-   char  *argv[50];
-   int    argc;
    int    result = 0;
    char   inlocal[FILENAME_MAX];
    char   outlocal[FILENAME_MAX];
-   char   savecmd[BUFSIZ];
+   char   buf[255];
+
+   char   *cmdname;
+   char   *parameters;
 
    if (xflag[X_USEEXEC])
       printmsg(2, "exec(2) not supported, executing using spawn");
 
-   strcpy( savecmd, command );
-   argc = getargs(command, argv);
+/*--------------------------------------------------------------------*/
+/*         Determine the command name and parameters, if any          */
+/*--------------------------------------------------------------------*/
 
-   printmsg(2,"uux: command arg count = %d", argc);
-   if (debuglevel >= 2) {
-      char **argvp = argv;
-      int i = 0;
-      while (i < argc)
-         printmsg(2, "shell: argv[%d]=\"%s\"", i++, *argvp++);
-   }
+   cmdname = strtok( command, WHITESPACE );
+   parameters = strtok( NULL, "\r\n" );
+
+   if ( parameters != NULL )
+   {
+      while (isspace( *parameters ) || iscntrl( *parameters ))
+         parameters++;
+
+      if ( !strlen( parameters ))
+         parameters = NULL;
+
+   } /* if ( parameters != NULL ) */
 
 /*--------------------------------------------------------------------*/
 /*    Verify we support the command, and get it's real name, if so    */
 /*--------------------------------------------------------------------*/
 
-   if ( (!equal(remotename, E_nodename)) && (!ValidateCommand( argv[0] )) )
+   if ( (!equal(remotename, E_nodename)) && (!ValidateCommand( cmdname )) )
    {
-      printmsg(0,"Command \"%s\" not allowed at this site", argv[0]);
+      printmsg(0,"Command \"%s\" not allowed at this site", cmdname);
       xflag[E_NOEXE] = TRUE;
       return 99;
    }
@@ -813,124 +831,132 @@ static int shell(char *command,
 /*--------------------------------------------------------------------*/
 
    if (inname != NULL)
-   {
       importpath(inlocal, inname, remotename);
-      printmsg(2, "shell: opening %s for input", inlocal);
-      if (freopen(inlocal, "rb", stdin) == NULL)
-      {
-         printmsg(0, "shell: couldn't open %s (%s), errno=%d.",
-            inname, inlocal, errno);
-         printerr(inlocal);
-         xflag[S_CORRUPT] = TRUE;
-         return -2;
-      }
-   }
 
-   if (outname != NULL)
-   {
+   if ( outname != NULL )
       importpath(outlocal, outname, remotename);
-      printmsg(2, "shell: opening %s for output", outlocal);
-      if (freopen(outlocal, "wt", stdout) == NULL) {
-         printmsg(0, "shell: couldn't open %s (%s), errno=%d.",
-            outname, outlocal, errno);
-         printerr(outlocal);
-         if ( inname != NULL)
-            freopen("con", "rt", stdin);
-         xflag[S_NOWRITE] = TRUE;
-         return -2;
-      }
-   }
 
 /*--------------------------------------------------------------------*/
 /*               We support the command; execute it                   */
 /*--------------------------------------------------------------------*/
 
-   argv[argc] = NULL;
    fflush(logfile);
 
-   if (equal(argv[0],RMAIL) && ( inname != NULL )) /* Rmail w/input? */
-   {
-      int addr = 1;
+/*--------------------------------------------------------------------*/
+/*               RNEWS may be special, handle it if so                */
+/*--------------------------------------------------------------------*/
 
-      while (( addr < argc )  && (result != -1 ))
+   if (equal(cmdname,RNEWS) &&
+       bflag[F_WINDOWS] &&
+       ( inname != NULL ))       /* rnews w/input? */
+   {
+      strcpy( buf, "-f " );
+      strcat( buf, inlocal );
+      parameters = buf;          // We explicitly ignore all parameters
+                                 // on the RNEWS command
+
+      result = execute( RNEWS,
+                        buf,
+                        NULL,
+                        outname == NULL ? NULL : outlocal,
+                        TRUE,
+                        FALSE );
+   }
+
+/*--------------------------------------------------------------------*/
+/*        RMAIL is special, we need to break up the parameters        */
+/*--------------------------------------------------------------------*/
+
+   else if (equal(cmdname,RMAIL) && ( inname != NULL )) /* rmail w/input? */
+   {
+      parameters = strtok( parameters, WHITESPACE );
+
+      while (( parameters != NULL ) && (result != -1 ))
       {
+
+         boolean firstPass = TRUE;
+
 #ifdef __TURBOC__
          size_t rlen =  126 ;
 #else
          size_t rlen = (_osmode == DOS_MODE) ? 126 :  254;
 #endif
-         char buf[255];
-         rlen -= strlen( argv[0] );
-                              /* Compute space left on command line  */
-         *buf = '\0';         /* Terminate the buffer string         */
+
+#ifdef _Windows
+         if ( bflag[F_WINDOWS] )
+         {
+            strcpy( buf, "-f ");
+            strcat( buf, inlocal);
+            strcat( buf, " ");
+         }
+#endif
+         rlen -= strlen( buf ) + strlen( RMAIL ) + 1;
 
 /*--------------------------------------------------------------------*/
 /*                   Copy addresses into the buffer                   */
 /*--------------------------------------------------------------------*/
 
-         while (( addr < argc ) && (rlen > strlen( argv[addr] )))
+         while ((parameters != NULL) &&
+                (rlen - strlen( parameters) > 0))
          {
-            if ( *argv[addr] == '-')   /* Option flag for mail?      */
-            {
-               printmsg(0,"Disallowed option %s ignored",argv[addr]);
-               continue;
+            char *next = strtok( NULL, "");
+
+
+            if ( *parameters == '-')   /* Option flag for mail?      */
+               printmsg(0,"Disallowed option %s ignored",parameters);
+            else {                     // Not option, add to param list
+               strcat( buf, " ");
+               strcat( buf, parameters );
+               rlen -= strlen( parameters ) + 1;
+               firstPass = FALSE;
             }
 
-            strcat( buf, argv[addr] );
-            rlen -= strlen( argv[addr++] ) + 1;
+/*--------------------------------------------------------------------*/
+/*                       Step to next parameter                       */
+/*--------------------------------------------------------------------*/
 
-            if (rlen > 1)     /* Room for another address?           */
-               strcat( buf, " ");   /* Yes --> Add space after addr  */
+            if ( next == NULL )
+               parameters = NULL;
+            else
+               parameters = strtok( next, WHITESPACE );
 
-         } /* while (( addr < argc ) && (rlen >= strlen( argv[addr] ) */
+         } /* while ( parameters != NULL ) */
 
-         if (*buf == '\0')    /* Did we process at least one addr?   */
+         if (firstPass)       /* Did we process at least one addr?   */
          {                    /* No --> Serious problem!             */
             printmsg(0,"shell: address \"%s\" too long to process!",
-                  argv[addr] );
+                        parameters );
             panic();
          } /* if (*buf = '\0') */
+
+      } /* while */
 
 /*--------------------------------------------------------------------*/
 /*               Execute one command line of addresses                */
 /*--------------------------------------------------------------------*/
 
-         printmsg(2, "shell: %s %s", argv[0], buf );
+      result = execute( RMAIL,
+                        buf,
+                        bflag[F_WINDOWS] ? NULL : inlocal,
+                        outname == NULL ? NULL : outlocal,
+                        TRUE,
+                        FALSE );
 
-         result = spawnlp( P_WAIT, argv[0], argv[0], buf , NULL);
+      if ( result != 0 )    // Did command execution fail?
+      {
+         printmsg(0,"shell: command \"%s %s\" returned error code %d",
+               cmdname, buf, result);
+         panic();
+      }
 
-         if (freopen(inlocal, "rb", stdin) == NULL)
-         {
-            printmsg(0, "shell: couldn't reopen %s (%s), errno=%d.",
-               inname, inlocal, errno);
-            printerr(inlocal);
-            panic();
-         } /* if */
-
-         if (result == -1)          /* Did spawn fail?               */
-         {
-            printerr(argv[0]);      /* Yes --> Report error          */
-            panic();
-         }
-         else if ( result != 0 )    // Did command execution fail?
-         {
-            printmsg(0,"shell: command \"%s %s\" returned error code %d",
-                  argv[0], buf, result);
-            panic();
-         }
-
-      } /* while (( addr < argc )  && (result != -1 )) */
-
-   } /* if (equal(argv[0],RMAIL) && ( inname != NULL )) */
-   else if (internal(argv[0]))  /* Internal command?             */
-   {
-      result = system( savecmd );
-                              /* Use COMMAND.COM to run command   */
-   } /* else  if (internal(argv[0])) */
-   else  {                    /* No --> Invoke normally           */
-      result = spawnvp( P_WAIT, argv[0], argv );
-
-   } /* else */
+   } /* if (equal(cmdname,RMAIL) && ( inname != NULL )) */
+   else
+      result = execute( command,
+                        parameters,
+                        inlocal,
+                        outlocal,
+                        TRUE,
+                        FALSE );
 
 /*--------------------------------------------------------------------*/
 /*                    Determine result of command                     */
@@ -941,41 +967,11 @@ static int shell(char *command,
    else if ( result > 0 )
       xflag[E_STATUS] = TRUE;
 
-   if (result == -1)       /* Did spawn fail?                     */
-      printerr(argv[0]);   /* Yes --> Report error                */
-
-/*--------------------------------------------------------------------*/
-/*                  Re-open our standard i/o streams                  */
-/*--------------------------------------------------------------------*/
-
-   errno = 0;
-
-   if ( outname != NULL )
-      freopen("con", "wt", stdout);
-
-   errno = 0;
-
-   if ( inname != NULL )
-   {
-      FILE *temp = freopen("con", "rt", stdin);
-      if ( (temp == NULL) && (errno != 0) )
-      {
-         printerr("stdin");
-         panic();
-      }
-   } /* if ( inname != NULL ) */
-
-/*--------------------------------------------------------------------*/
-/*                     Report results of command                      */
-/*--------------------------------------------------------------------*/
-
-   printmsg( (result == 0 ) ? 8 : 1,"Result of spawn %s is ... %d",
-                                 argv[0], result);
    fflush(logfile);
 
    return result;
 
-} /*shell*/
+} /* shell */
 
 /*--------------------------------------------------------------------*/
 /*    u s a g e                                                       */
@@ -1377,6 +1373,7 @@ static boolean MailStatus(char *tempfile,
 {
    boolean status;
    char **envp;
+   char buf[BUFSIZ];
 
 /*--------------------------------------------------------------------*/
 /*                            Invoke RMAIL                            */
@@ -1384,12 +1381,17 @@ static boolean MailStatus(char *tempfile,
 
    envp = create_environment( "uucp", NULL );
 
-   if ( subject == NULL )
-      status = spawnlp( P_WAIT, RMAIL, RMAIL,
-                        "-f", tempfile, "-w", address, NULL);
-   else
-      status = spawnlp( P_WAIT, RMAIL, RMAIL,
-                        "-f", tempfile, "-w", "-s", subject, address, NULL);
+   strcpy(buf, "-w -f " );
+   strcat(buf, tempfile );
+   if ( subject != NULL )
+   {
+      strcat(buf, " -s " );
+      strcat(buf, subject );
+   }
+   strcat( buf, " " );
+   strcat( buf, address );
+
+   status = execute( RMAIL, buf, NULL, NULL, TRUE, FALSE );
 
    delete_environment( envp );
 
@@ -1413,53 +1415,3 @@ static boolean MailStatus(char *tempfile,
    return (status == 0 );
 
 } /*MailStatus*/
-
-/*--------------------------------------------------------------------*/
-/*    i n t e r n a l                                                 */
-/*                                                                    */
-/*    Determine if command is internal DOS command                    */
-/*--------------------------------------------------------------------*/
-
-static boolean internal( char *command )
-{
-   static char *commands[] = { "break",   "cd",    "chdir",    "copy",
-                               "ctty",    "date",  "del",      "dir",
-                               "echo",    "erase", "for",      "md",
-                               "mkdir",   "rd",    "rem",      "ren",
-                               "rename",  "rmdir", "time",     "ver",
-                               "verify",  "vol",
-                               NULL };
-   char **list;
-
-/*--------------------------------------------------------------------*/
-/*                   Determine command list to use                    */
-/*--------------------------------------------------------------------*/
-
-   if (E_internal == NULL )
-      list = commands;
-   else
-      list = E_internal;
-
-/*--------------------------------------------------------------------*/
-/*                   Scan the list for the command                    */
-/*--------------------------------------------------------------------*/
-
-   while( *list != NULL )
-   {
-      printmsg(5,"Searching for \"%s\", comparing to \"%s\"",
-                  *list, command);
-      if (equali(*list++,command))
-      {
-         printmsg(4,"\"%s\" is an internal command",command);
-         return TRUE;
-      } /* if */
-   } /* while( *list != NULL ) */
-
-/*--------------------------------------------------------------------*/
-/*  The command is not in the list; return FALSE (external command)   */
-/*--------------------------------------------------------------------*/
-
-   printmsg(4,"\"%s\" is an external command",command);
-   return FALSE;
-
-} /* internal */

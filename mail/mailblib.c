@@ -1,19 +1,44 @@
 /*--------------------------------------------------------------------*/
-/*    Support routines for UUPC/extended mail user agent              */
+/*       m a i l b l i b . c                                          */
 /*                                                                    */
-/*    History:                                                        */
-/*                                                                    */
-/*    12 Feb 1991    Created for 1.09d                   ahd          */
+/*       Support routines for UUPC/extended mail user agent           */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*                           include files                            */
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+#if defined(_Windows)
+#include <windows.h>
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "address.h"
@@ -461,6 +486,16 @@ boolean ForwardItem( const int item , const char *string )
 
 void subshell( char *command )
 {
+#if defined(_Windows)
+   char buf[128];
+   //
+   // Here we simply use the Windows DOSPRMPT.PIF and fire off
+   // an ASYNCHRONOUS DOS box. Under 286 mode, this will be
+   // synchronous. But who in the hell cares!
+   //
+   sprintf(buf, "dosprmpt.pif %s", command);
+   WinExec(buf, SW_SHOWMAXIMIZED);
+#else
    if ( command == NULL )
    {
       static char *new_prompt = NULL;
@@ -492,6 +527,7 @@ void subshell( char *command )
    } /* if */
    else
       system ( command );
+#endif
 } /* subshell */
 
 /*--------------------------------------------------------------------*/

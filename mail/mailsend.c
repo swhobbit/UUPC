@@ -2,12 +2,29 @@
 /*    m a i l s e n d . c                                             */
 /*                                                                    */
 /*    Subroutines for sending mail for UUPC/extended                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    Changes copyright 1990, Andrew H. Derbyshire                    */
-/*                                                                    */
-/*    Change History:                                                 */
-/*                                                                    */
-/*    15 Sep 90   - Create from maillib.c                         ahd */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
 /*--------------------------------------------------------------------*/
 
 #include <ctype.h>
@@ -17,6 +34,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <process.h>
+
+#if defined(_Windows)
+#include <windows.h>
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "arpadate.h"
 #include "expath.h"
@@ -31,7 +56,9 @@
 #include "safeio.h"
 #include "address.h"
 
-#define  INDENT "> "
+#if defined(_Windows)
+#include "winutil.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                     Local function prototypes                      */
@@ -359,6 +386,23 @@ boolean Send_Mail(FILE *datain,
 /*                  Invoke the mail delivery program                  */
 /*--------------------------------------------------------------------*/
 
+
+#if defined(_Windows)
+
+   sprintf(buf, "%s -t -f %s", RMAIL, pipename);
+   status = SpawnWait(buf, SW_SHOWMINNOACTIVE);
+
+   if ( status < 0 )
+   {
+      printerr( RMAIL );
+      printmsg(0,"Unable to execute rmail; mail not delivered.");
+   }
+   else if ( status > 0 )
+      printmsg(0,
+         "rmail returned non-zero status; delivery may be incomplete.");
+
+#else /* Not Windows */
+
    if ( freopen( pipename, "r" , stdin) == NULL )
    {
       printerr(CONSOLE);
@@ -377,6 +421,8 @@ boolean Send_Mail(FILE *datain,
    } /* else */
 
    freopen( CONSOLE, "r", stdin);
+
+#endif
 
 /*--------------------------------------------------------------------*/
 /*               Log a copy of the mail for the sender                */
@@ -578,7 +624,7 @@ boolean Collect_Mail(FILE *stream,
    if (editonly)              /* Enter editor immediately?     ahd   */
    {                          /* Yes --> Go to it                    */
       fclose(fmailbag);
-      Invoke_Editor(E_editor, tmailbag);
+      Invoke(E_editor, tmailbag);
    } /* if */
    else {                     /* No  --> prompt for data       ahd   */
       Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
@@ -595,6 +641,12 @@ boolean Collect_Mail(FILE *stream,
             puts("Continue");
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             Prompt_Input( tmailbag , fmailbag , Subuffer, current_msg );
+#if defined(_Windows)
+            //
+            // Prompt_Input() comes back with EOF on stdin!
+            //
+            rewind(stdin);
+#endif
             fclose(fmailbag);
             break;
 
@@ -619,7 +671,7 @@ boolean Collect_Mail(FILE *stream,
 
          case 'e':
             puts("Edit");
-            Invoke_Editor(E_editor, tmailbag);
+            Invoke(E_editor, tmailbag);
             break;
 
          case 'a':
@@ -737,7 +789,7 @@ static boolean Subcommand( char *buf,
          case 'e':
             /* invoke editor with current msg */
             fclose(fmailbag);
-            Invoke_Editor(E_editor, tmailbag);
+            Invoke(E_editor, tmailbag);
             fmailbag = FOPEN(tmailbag, "a",TEXT_MODE);
             fputs("(continue)\n", stdout);
             break;
@@ -803,7 +855,10 @@ static boolean Subcommand( char *buf,
                break;
             stream = FOPEN( fname, "r",TEXT_MODE);
             if (stream == NULL )
+            {
                printerr(fname);
+               break;
+            }
             else while( fgets( buf, LSIZE, stream ))
             {
                fputs( buf, fmailbag);
@@ -892,8 +947,18 @@ static boolean Subcommand( char *buf,
 /*    Filter the next of an outgoing program into the output mail     */
 /*--------------------------------------------------------------------*/
 
+#ifdef _Windows
+#pragma argsused
+
 static void filter( char *tmailbag, char *command)
 {
+   printmsg(0,"Pipes not supported under Windows at this time");
+} /* filter */
+#else
+
+static void filter( char *tmailbag, char *command)
+{
+
    char pipename[FILENAME_MAX];
    char *argv[50];
    struct stat statbuf;
@@ -959,6 +1024,7 @@ static void filter( char *tmailbag, char *command)
    remove( pipename );
 
 } /* filter */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    G e t S t r i n g                                               */

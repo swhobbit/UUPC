@@ -73,6 +73,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef _Windows
+#include <windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*         Local include files                                        */
 /*--------------------------------------------------------------------*/
@@ -87,6 +91,11 @@
 #include  "security.h"
 #include  "hostable.h"
 #include  "timestmp.h"
+
+#ifdef _Windows
+#include "winutil.h"
+#include "logger.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*        Define current file name for panic() and printerr()         */
@@ -284,7 +293,7 @@ static boolean CopyData( const char *input, const char *output)
 
    while ( (len = fread( buf, 1, BUFSIZ, datain)) != 0)
    {
-      if (fwrite( buf, 1, len, dataout ) != len)     /* I/O error?               */
+      if ((int) fwrite( buf, 1, len, dataout ) != len)     /* I/O error?               */
       {
          printerr("dataout");
          printmsg(0,"I/O error on \"%s\"", output);
@@ -1081,6 +1090,11 @@ void main(int  argc, char  **argv)
       usage();
       exit(1);
    }
+
+#if defined(_Windows)
+   openlog( NULL );
+   atexit( CloseEasyWin );               // Auto-close EasyWin on exit
+#endif
 
    if (!do_remote(optind, argc, argv))
    {

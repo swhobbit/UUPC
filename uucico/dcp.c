@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCP.C 1.11 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: dcp.c 1.12 1993/07/22 23:22:27 ahd Exp $
  *
- *    $Log: DCP.C $
+ *    $Log: dcp.c $
+ * Revision 1.12  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.11  1993/05/30  00:01:47  ahd
  * Allow tracing connection via UUCICO -t flag
  *
@@ -92,6 +95,10 @@
 #include <limits.h>
 #include <time.h>
 
+#ifdef _Windows
+#include <Windows.h>
+#endif
+
 /*--------------------------------------------------------------------*/
 /*                      UUPC/extended prototypes                      */
 /*--------------------------------------------------------------------*/
@@ -116,6 +123,10 @@
 #include "security.h"
 #include "ssleep.h"
 #include "commlib.h"
+
+#if defined(_Windows)
+#include "winutil.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 /*    Define passive and active polling modes; passive is             */
@@ -294,6 +305,10 @@ int dcpmain(int argc, char *argv[])
 
    if ( terminate_processing )
       return 100;
+
+#if defined(_Windows)
+   atexit(CloseEasyWin);       // Auto-close EasyWin window on exit
+#endif
 
    atexit( shutdown );        /* Insure port is closed by panic()    */
    remote_stats.save_hstatus = nocall;

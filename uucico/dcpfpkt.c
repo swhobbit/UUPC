@@ -31,9 +31,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: DCPFPKT.C 1.8 1993/05/30 00:01:47 ahd Exp $
+ *    $Id: dcpfpkt.c 1.9 1993/07/22 23:22:27 ahd Exp $
  *
- *    $Log: DCPFPKT.C $
+ *    $Log: dcpfpkt.c $
+ * Revision 1.9  1993/07/22  23:22:27  ahd
+ * First pass at changes for Robert Denny's Windows 3.1 support
+ *
  * Revision 1.8  1993/05/30  00:01:47  ahd
  * Multiple communications driver support
  *
@@ -215,7 +218,7 @@ short fgetpkt(char *packet, short *bytes)
    if ( eof )
    {
       eof = FALSE;
-      printmsg(0,"fgetpkt: EOF from other host");
+      printmsg(2,"fgetpkt: EOF from other host");
       *bytes = 0;
       if (fsendresp(DCP_OK) == DCP_OK)
          return DCP_OK;
@@ -449,7 +452,7 @@ short feofpkt( void )
 /*               Transmit EOF with an attached checksum               */
 /*--------------------------------------------------------------------*/
 
-   printmsg(0,"feofpkt: sending EOF");
+   printmsg(2,"feofpkt: sending EOF");
    sprintf(ibuf, "\176\176%04x", chksum);
    printmsg(2,"--> %s", ibuf);
    fwrmsg(ibuf);

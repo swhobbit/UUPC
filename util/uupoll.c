@@ -69,9 +69,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: UUPOLL.C 1.10 1993/06/06 15:04:05 ahd Exp $
+ *    $Id: uupoll.c 1.11 1993/07/19 02:52:11 ahd Exp $
  *
- *    $Log: UUPOLL.C $
+ *    $Log: uupoll.c $
+ * Revision 1.11  1993/07/19  02:52:11  ahd
+ * Up memory access room
+ *
  * Revision 1.10  1993/06/06  15:04:05  ahd
  * Allow for batch command to run before regularly scheduled poll out
  *
@@ -111,7 +114,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: UUPOLL.C 1.10 1993/06/06 15:04:05 ahd Exp $";
+         "$Id: uupoll.c 1.11 1993/07/19 02:52:11 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -129,18 +132,15 @@ static const char rcsid[] =
 #include <direct.h>
 #include <signal.h>           /* Ctrl-Break handler               */
 
-#ifdef __TURBOC__
+#if  defined(WIN32) || defined(FAMILYAPI) || defined(_Windows) || defined(__OS2__)
+#define NOCBREAK
+#elif defined(__TURBOC__)
 #include <alloc.h>
 unsigned _stklen = 3172;            /* Reduce memory usage           */
 unsigned _heaplen = 2048;           /* Reduce memory usage           */
-#else /* __TURBOC__ */
-#ifndef FAMILYAPI
+#else
 static int setcbrk(char state);
-#ifdef WIN32     /* In this module, WIN32 is a synonym for FAMILYAPI -- dmw 4/5/93 */
-#define FAMILYAPI
-#endif /* WIN32 */
-#endif /* FAMILYAPI */
-#endif /* __TURBOC__ */
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -153,6 +153,7 @@ static int setcbrk(char state);
 #include "arpadate.h"
 #include "safeio.h"
 #include "dater.h"
+#include "execute.h"
 
 /*--------------------------------------------------------------------*/
 /*                        Typedefs and macros                         */
@@ -167,7 +168,7 @@ typedef int hhmm;
 void   Catcher( void );
  static active(char *Rmtname, int debuglevel, const char *logname);
 static void    busywork( time_t next);
-static int     execute( char *command );
+static int     runCommand( char *command );
 static time_t  nextpoll( hhmm first, hhmm interval );
 static boolean     notanumber( char *number);
 static void    usage( char *name );
@@ -183,7 +184,7 @@ static time_t LifeSpan( time_t duration, time_t stoptime );
 
 static time_t now;            /* Current time, updated at start of
                                  program and by busywork() and
-                                 execute()                           */
+                                 runCommand()                        */
 
 currentfile();
 
@@ -215,7 +216,7 @@ currentfile();
    char *batchCommand   = NULL;
    int returnCode = 0;
 
-#ifndef FAMILYAPI
+#ifndef NOCBREAK
    boolean cbrk;
 #endif
 
@@ -408,8 +409,8 @@ currentfile();
 /*            If running under MS-DOS, enable Cntrl-Break.            */
 /*--------------------------------------------------------------------*/
 
-#ifndef FAMILYAPI
-#ifdef __TURBOC__
+#ifndef NOCBREAK
+#if defined(__TURBOC__)
 
    cbrk = getcbrk();                /* Get original Cntrl-Break setting */
 
@@ -419,7 +420,6 @@ currentfile();
 #else /*dmw*/
 
    cbrk = setcbrk(1);      /* Turn it on to allow abort; get previous state */
-   printf("BREAK ON has been set\n");
 
 #endif
 #endif
@@ -478,7 +478,7 @@ currentfile();
          {
             printf("Performing auto-clean with command: %s\n",
                      CleanCommand );
-            if (system( CleanCommand ))
+            if (runCommand( CleanCommand ))
                printerr( CleanCommand );
             cleannext = nextpoll(cleanup,  2400);
          }
@@ -526,7 +526,7 @@ currentfile();
       {
          if ( batchCommand != NULL )
          {
-            returnCode = system( batchCommand );
+            returnCode = runCommand( batchCommand );
             if ( returnCode != 0 )
             {
                printmsg(0,
@@ -552,7 +552,7 @@ currentfile();
 
    uuxqt( debuglevel );          /* One last call to UUXQT                 */
 
-#ifndef FAMILYAPI
+#ifndef NOCBREAK
    if (!cbrk)
       setcbrk(0);                /* Restore original Cntrl-Break setting   */
 #endif
@@ -666,7 +666,7 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
 
       if ( logname != NULL )
          strcat( strcat( buf, " -l ") , logname );
-      result = execute(buf);
+      result = runCommand(buf);
       if ( result == 0 )
          uuxqt( debuglevel );
 
@@ -704,7 +704,7 @@ static void busywork( time_t next)
 
 
 /*--------------------------------------------------------------------*/
-/*    e x e c u t e                                                   */
+/*    r u n C o m m a n d                                             */
 /*                                                                    */
 /*    Executes a command via a spawn() system call.  This avoids      */
 /*    the storage overhead of COMMAND.COM and returns the actual      */
@@ -714,11 +714,10 @@ static void busywork( time_t next)
 /*    not a problem for the intended argv[0]s of UUCICO.              */
 /*--------------------------------------------------------------------*/
 
- static int execute( char *command )
+ static int runCommand( char *command )
  {
-   char *argv[20];
-   int argc = 0;
    int result;
+
 #ifdef DEBUG
    FILE *stream = NULL;
 #endif
@@ -735,26 +734,18 @@ static void busywork( time_t next)
    fclose(stream);
 #endif /* DEBUG */
 
-   argv[argc] = strtok(command," \t");
-
-   while ( argv[argc++] != NULL )
-      argv[argc] = strtok( NULL," \t");
-
-   result = spawnvp(P_WAIT , argv[0] , argv );
+   result = executeCommand( command, NULL, NULL, TRUE, FALSE );
 
    if ( result < 0 )
    {
-      printerr( argv[0] );
-      printf("\a\nCommand \"%s\" failed completely.\n\a", argv[0]);
+      printf("\a\nCommand \"%s\" failed completely.\n\a", command);
       panic();
    }
 
    time( & now );
 
-   printmsg(2,"execute: %s return code = %d",
-            argv[0], result );
    return result;
-}
+} /* runCommand */
 
 /*--------------------------------------------------------------------*/
 /*    n e x t p o l l                                                 */
@@ -867,7 +858,7 @@ static hhmm firstpoll(hhmm interval)
                      const char *logname,
                      const char *modem )
  {
-   char buf[128];             /* Buffer for execute() commands          */
+   char buf[128];             /* Buffer for runCommand() commands       */
    time_t seconds = (next - now + 59);
    time_t minutes;
    int result;
@@ -887,7 +878,7 @@ static hhmm firstpoll(hhmm interval)
    if ( modem != NULL )
       strcat( strcat( buf, " -m ") , modem );
 
-   result = execute(buf);
+   result = runCommand(buf);
    if ( result == 0 )
       uuxqt( debuglevel );
 
@@ -905,10 +896,10 @@ static hhmm firstpoll(hhmm interval)
  static void uuxqt( int debuglevel)
  {
    int result;
-   char buf[128];             /* Buffer for execute() commands          */
+   char buf[128];             /* Buffer for runCommand() commands       */
 
    sprintf(buf,"uuxqt -x %d", debuglevel);
-   result = execute(buf);
+   result = runCommand(buf);
 
    if ( result != 0 )
    {
@@ -947,7 +938,7 @@ static hhmm firstpoll(hhmm interval)
    exit(4);
  }
 
-#ifndef FAMILYAPI
+#ifndef NOCBREAK
 #ifndef __TURBOC__
 /*--------------------------------------------------------------------*/
 /*    s e t c b r k                                                   */

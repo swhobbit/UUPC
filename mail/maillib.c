@@ -2,41 +2,55 @@
 /*    m a i l l i b . c                                               */
 /*                                                                    */
 /*    Mail user agent subroutine library for UUPC/extended            */
-/*                                                                    */
-/*    Changes Copyright (c) 1990-1993 by Kendra Electronic            */
-/*    Wonderworks; all rights reserved except those explicitly        */
-/*    granted by the UUPC/extended license.                           */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Change History:                                                 */
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*       3 May 90 Create from mail.c                                  */
-/*       16 Jun 90:  Added support for mail (~) subcommands      pdm  */
-/*                   chgd calling seq of Collect_Mail to support      */
-/*                         above                                      */
-/*                   chges to CopyMsg to support ~i subcmd            */
-/*                   mods to SendMail to support autosign option      */
-/*                   broke out signature append code to seperate fn   */
-/*                   added support for alternate signature file       */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: MAILLIB.C 1.3 1993/04/11 00:33:05 ahd Exp $
+ *    $Id: maillib.c 1.4 1993/06/13 14:06:00 ahd Exp $
  *
- *    $Log: MAILLIB.C $
+ *    $Log: maillib.c $
+ * Revision 1.4  1993/06/13  14:06:00  ahd
+ * Add precedence to the standard ignore list
+ *
  * Revision 1.3  1993/04/11  00:33:05  ahd
  * Global edits for year, TEXT, etc.
  *
  * Revision 1.2  1992/11/27  14:36:10  ahd
  * Use scrsize() for screen size
  *
+ *       3 May 90 Create from mail.c
+ *       16 Jun 90:  Added support for mail (~) subcommands      pdm
+ *                   chgd calling seq of Collect_Mail to support
+ *                         above
+ *                   chges to CopyMsg to support ~i subcmd
+ *                   mods to SendMail to support autosign option
+ *                   broke out signature append code to seperate fn
+ *                   added support for alternate signature file
  */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "address.h"
@@ -112,7 +126,7 @@ boolean Pager(const int msgnum,
       CopyMsg(msgnum, fmailbag, received, FALSE);
       fclose(fmailbag);
 
-      L_invoke_pager(E_pager, browse);
+      Invoke(E_pager, browse);
       remove(browse);
       free(browse);
 
@@ -192,7 +206,7 @@ void Sub_Pager(const char *tinput,
       external = ! external;
 
    if ( external && (E_pager != nil(char)) )
-      L_invoke_pager(E_pager, tinput);
+      Invoke(E_pager, tinput);
    else {
       FILE *finput;
       char buf[BUFSIZ];
@@ -234,7 +248,12 @@ void PageReset()
 boolean PageLine(char *line)
 {
 
+#ifdef _Windows
    short pagesize = scrsize() - 3;
+#else
+   short pagesize = scrsize() - 3;
+#endif
+
    fputs(line, stdout);
 
    PageCount = PageCount + 1 + strlen(line) / 81; /* Handle long lines  */

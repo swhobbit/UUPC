@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.9 1993/07/19 02:53:32 ahd Exp $
+ *    $Id: ulibwin.c 1.1 1993/07/22 23:24:23 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: ulibwin.c $
+ * Revision 1.1  1993/07/22  23:24:23  ahd
+ * Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -57,6 +60,7 @@
 #include "lib.h"
 #include "ulib.h"
 #include "ssleep.h"
+#include "commlib.h"
 
 //
 // Finally, Microsoft has documented a way to see the Modem Status
@@ -122,11 +126,8 @@ int nopenline(char *name, BPS baud, const boolean direct )
         int rc;
         int value;
 
-   if (port_active)              /* Was the port already active?     ahd   */
+   if (portActive)               /* Was the port already active?     ahd   */
       closeline();               /* Yes --> Shutdown it before open  ahd   */
-
-   if ( port_active )
-      panic();
 
    printmsg(15, "openline: %s, %d", name, baud);
 
@@ -156,7 +157,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 
    if ( equal(name,"CON"))
    {
-      port_active = TRUE;     /* record status for error handler        */
+      portActive = TRUE;      /* record status for error handler        */
       carrierdetect = FALSE;  /* Modem is not connected                 */
       console = TRUE;
       return 0;
@@ -264,7 +265,7 @@ int nopenline(char *name, BPS baud, const boolean direct )
 /*                     Wait for port to stablize                      */
 /*--------------------------------------------------------------------*/
 
-   ssleep(2)               /* Allow port to stabilize per V.24  */
+   ssleep(2);              /* Allow port to stabilize per V.24  */
 
    return 0;
 
@@ -303,18 +304,18 @@ int nopenline(char *name, BPS baud, const boolean direct )
 unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 
 {
-        int rc, received;
-        time_t stop_time;
-        time_t now;
-        COMSTAT stat;
-        MSG msg;
+   int rc, received;
+   time_t stop_time;
+   time_t now;
+   COMSTAT stat;
+   MSG msg;
 
+   //
+   // This catches a fencepost condition later...
+   //
 
-        //
-        // This catches a fencepost condition later...
-        //
-        if(wanted == 0)
-           return(0);
+   if (wanted == 0)
+      return(0);
 
 /*--------------------------------------------------------------------*/
 /*                      Report our modem status                       */
@@ -340,81 +341,89 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*       Watch RX Queue till wanted bytes available or timeout        */
 /*--------------------------------------------------------------------*/
 
-        while(TRUE)
+   while(TRUE)
    {
-                //
-                // Be friendly to Windows' cooperative multitasking...
-                //
+      //
+      // Be friendly to Windows' cooperative multitasking...
+      //
 
-                while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-                {
-                TranslateMessage(&msg);
-                        DispatchMessage(&msg);
-                }
-                //
-                // Check & clear the comm port. This gets the #chars in the
+      while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+      {
+         TranslateMessage(&msg);
+         DispatchMessage(&msg);
+      }
+
+      //
+      // Check & clear the comm port. This gets the #chars in the
       // receive queue as well, in the COMSTAT structure.
       //
-                if ((rc = GetCommError(nCid, &stat)) != 0)
-                {
+
+      if ((rc = GetCommError(nCid, &stat)) != 0)
+      {
          printmsg(0,"sread: Read of %d bytes failed.", wanted);
          printmsg(0,"       return code from GetCommError was %#04x (%d)",
                                                 rc , rc);
          ShowError(rc);
-                        return 0;
-                }
-                //
-                // If wanted # bytes are available, break out and read 'em.
-                //
-                if (stat.cbInQue >= wanted)
-                        break;               // We have enough, break out!
+         return 0;
+      }
 
-                //
-                // If timeout is zero, return immediately.
-                //
-                if (stop_time == 0)
-        return(stat.cbInQue);
+      //
+      // If wanted # bytes are available, break out and read 'em.
+      //
 
-                //
+      if (stat.cbInQue >= wanted)
+         break;               // We have enough, break out!
+
+      //
+      // If timeout is zero, return immediately.
+      //
+
+      if (stop_time == 0)
+         return(stat.cbInQue);
+
+      //
       // Check for timeout. If timed out, return.
-                time( &now );
-                if(stop_time <= now)
+      //
+
+      time( &now );
+      if(stop_time <= now)
       {
-                        printmsg(15, "sread: timeout(%d) - %d chars avail",
-                                        timeout, stat.cbInQue);
-                        return(stat.cbInQue);
-                }
-        } // end of while(TRUE)
+         printmsg(15, "sread: timeout(%d) - %d chars avail",
+                         timeout, stat.cbInQue);
+         return(stat.cbInQue);
+      }
 
-        //
-        // We have enough in the RX queue. Grab 'em right into the
-        // caller's buffer.
-        //
-        received = ReadComm(nCid, output, wanted);
+   } // end of while(TRUE)
 
-        printmsg(15, "sread: Got %d characters, %d still in RX queue.",
-                        (int)received, (int)(stat.cbInQue - received));
-
-
-        //
-        // Be friendly to Windows' cooperative multitasking...
    //
-        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-        TranslateMessage(&msg);
-                DispatchMessage(&msg);
-        }
+   // We have enough in the RX queue. Grab 'em right into the
+   // caller's buffer.
+   //
+
+   received = ReadComm(nCid, output, wanted);
+
+   printmsg(15, "sread: Got %d characters, %d still in RX queue.",
+                   (int)received, (int)(stat.cbInQue - received));
+
+   //
+   // Be friendly to Windows' cooperative multitasking...
+   //
+
+   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+   {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                    Log the newly received data                     */
 /*--------------------------------------------------------------------*/
 
-         traceData( input, wanted, FALSE );
+   traceData( output, wanted, FALSE );
 
-        return(received);
+    return(received);
 
 } /* nsread */
-
 
 /*--------------------------------------------------------------------*/
 /*    ns w r i t e                                                    */
@@ -422,11 +431,11 @@ unsigned int nsread(char *output, unsigned int wanted, unsigned int timeout)
 /*    Write to the serial port                                        */
 /*--------------------------------------------------------------------*/
 
-int nswrite(char *data, unsigned int len)
+int nswrite(const char *data, unsigned int len)
 {
    int bytes;
    int rc;
-        MSG msg;
+   MSG msg;
 
    hangup_needed = TRUE;      /* Flag that the port is now dirty  */
 
@@ -434,40 +443,43 @@ int nswrite(char *data, unsigned int len)
 /*                      Report our modem status                       */
 /*--------------------------------------------------------------------*/
 
-        ShowModem();
+   ShowModem();
 
-        //
-        // Be friendly to Windows' cooperative multitasking...
    //
-        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-        TranslateMessage(&msg);
-                DispatchMessage(&msg);
-        }
+   // Be friendly to Windows' cooperative multitasking...
+   //
+
+   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+   {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+   }
 
 /*--------------------------------------------------------------------*/
 /*         Write the data out as the queue becomes available          */
 /*--------------------------------------------------------------------*/
 
-        bytes = WriteComm(nCid, data, len);
+   bytes = WriteComm(nCid, data, len);
 
    rc = GetCommError(nCid, NULL);
-   if (rc) {
-                printmsg(0,"swrite: WriteComm failed.");
-                printmsg(0,"        return code from GetCommError was %#04x (%d)",
-                                  rc , rc);
+   if (rc)
+   {
+      printmsg(0,"nswrite: WriteComm failed, "
+                 "return code from GetCommError was %#04x (%d)",
+                        rc , rc);
       ShowError(rc);
-                return bytes;
+      return bytes;
    }
 
-        //
-        // Be friendly to Windows' cooperative multitasking...
    //
-        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-        TranslateMessage(&msg);
-                DispatchMessage(&msg);
-        }
+   // Be friendly to Windows' cooperative multitasking...
+   //
+
+   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+   {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+   }
 
 /*--------------------------------------------------------------------*/
 /*                        Log the data written                        */
@@ -485,18 +497,18 @@ int nswrite(char *data, unsigned int len)
 
 
 /*--------------------------------------------------------------------*/
-/*    s s e n d b r k                                                 */
+/*    n s s e n d b r k                                               */
 /*                                                                    */
 /*    send a break signal out the serial port                         */
 /*--------------------------------------------------------------------*/
 
-void ssendbrk(unsigned int duration)
+void nssendbrk(unsigned int duration)
 {
 
    printmsg(12, "ssendbrk: %d", duration);
-        SetCommBreak(nCid);
+   SetCommBreak(nCid);
    ddelay(duration == 0 ? 200 : duration);
-        ClearCommBreak(nCid);
+   ClearCommBreak(nCid);
 
 } /*ssendbrk*/
 
@@ -509,18 +521,18 @@ void ssendbrk(unsigned int duration)
 void ncloseline(void)
 {
 
-   if ( ! port_active )
+   if ( ! portActive )
       panic();
 
-   port_active = FALSE;    /* flag port closed for error handler  */
-   hangup_needed = FALSE;  /* Don't fiddle with port any more  */
+   portActive = FALSE;     /* flag port closed for error handler  */
+   hangup_needed = FALSE;  /* Don't fiddle with port any more     */
 
 /*--------------------------------------------------------------------*/
 /*                             Lower DTR                              */
 /*--------------------------------------------------------------------*/
 
-        if (EscapeCommFunction(nCid, CLRDTR | CLRRTS) != 0)
-                printmsg(0,"closeline: Unable to lower DTR/RTS");
+    if (EscapeCommFunction(nCid, CLRDTR | CLRRTS) != 0)
+        printmsg(0,"closeline: Unable to lower DTR/RTS");
 
 /*--------------------------------------------------------------------*/
 /*                      Actually close the port                       */
@@ -595,17 +607,18 @@ void nSIOSpeed(BPS baud)
 {
    WORD rc;
 
-        printmsg(15,"SIOSpeed: Setting baud rate to %d", (int) baud);
+   printmsg(15,"SIOSpeed: Setting baud rate to %d", (int) baud);
 
    ShowModem();
-        GetCommState (nCid, &dcb);
+   GetCommState (nCid, &dcb);
    dcb.BaudRate = baud;
-        rc = SetCommState (&dcb);
-   if ((rc != 0) && !console) {
+   rc = SetCommState (&dcb);
+   if ((rc != 0) && !console)
+   {
       printmsg(0,"SIOSPeed: Unable to set baud rate for port to %d",baud);
       panic();
-
    }
+
    current_baud = baud;
 
 } /* nSIOSpeed */

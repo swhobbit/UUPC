@@ -17,10 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *    $Id: mail.c 1.5 1993/07/24 03:40:55 ahd Exp $
  *
  *    Revision history:
- *    $Log: lib.h $
+ *    $Log: mail.c $
+ * Revision 1.5  1993/07/24  03:40:55  ahd
+ * Change description of "-" command, previous command.
  *
  * version  1.0   Stuart Lynne
  * version 1.5 Samuel Lam <skl@van-bc.UUCP>  August/87
@@ -62,7 +64,7 @@
 */
 
  static const char rcsid[] =
-      "$Id$";
+      "$Id: mail.c 1.5 1993/07/24 03:40:55 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -77,6 +79,11 @@
 #include <time.h>
 #include <dos.h>
 #include <direct.h>
+
+#ifdef _Windows
+#include <windows.h>
+#include <alloc.h>
+#endif
 
 /*--------------------------------------------------------------------*/
 /*                    UUPC/extended include files                     */
@@ -97,6 +104,19 @@
 #include "pushpop.h"
 #include "stater.h"
 #include "timestmp.h"
+
+#if defined(_Windows)
+#include "winutil.h"
+#endif
+
+/*--------------------------------------------------------------------*/
+/*                          Global variables                          */
+/*--------------------------------------------------------------------*/
+
+#ifdef _Windows
+unsigned _stklen = 10 * 1024;
+unsigned _heaplen = 30 * 1024;
+#endif
 
 currentfile();
 
@@ -401,8 +421,13 @@ void main(int argc, char **argv)
 
          Collect_Mail(stdin, argc+2 , argv , -1, FALSE);
       } /* if ( subject != NULL ) */
-      else
+      else {
          Collect_Mail(stdin, argc, &argv[optind], -1, FALSE);
+
+#ifdef _Windows
+         atexit ( CloseEasyWin );
+#endif
+      }
 
    } /* if (sendmail) */
    else  {
@@ -433,7 +458,6 @@ void Cleanup()
       fclose(fmailbox);
       fmailbox = NULL;
    }
-
 
    unlink(tmailbox);
 
@@ -541,6 +565,10 @@ static void Interactive_Mail( const boolean PrintOnly,
 
    if (!bflag[F_EXPERT])
       printf("Enter \"?\" for short help or \"help\" for long help.\n");
+
+#ifdef _Windows
+   atexit ( CloseEasyWin );
+#endif
 
    while( ! done )
    {
@@ -680,13 +708,19 @@ static void Interactive_Mail( const boolean PrintOnly,
             case M_FASTHELP:
             {
                size_t subscript = 0;
+#ifndef _Windows
                size_t column    = 0;
+#endif
                fputs("Valid commands are:\n",stdout);
                while( table[subscript].sym != NULL)
                {
                   if ( !(table[subscript].bits & NODISPLAY ))
                   {
+#ifdef _Windows
+                     fputc( '\n' , stdout );
+#else
                      fputc( ( column++ % 2 ) ? ' ' : '\n' , stdout );
+#endif
                      printf("%-9s%-30s",table[subscript].sym,
                                        table[subscript].help );
                   } /* if */
@@ -779,7 +813,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                        compilep, compilev, compiled, compilet,
 
 #ifdef WIN32
-                     "Windows",
+                     "Windows NT",
                      _osmajor,
 #elif defined( __TURBOC__ )
                     "DOS",
@@ -789,14 +823,17 @@ static void Interactive_Mail( const boolean PrintOnly,
                     (_osmode == DOS_MODE) ? _osmajor : ((int) _osmajor / 10 ),
 #endif
                       _osminor);
+#ifdef _Windows
+               printf("Windows version: %s\t", compilew );
+#endif
                printf("Magic Word:\t%s\n","flarp");
                printf("Return address:\t\"%s\" <%s@%s>\n"
                       "Domain name:\t%s\tNodename:\t%s\n",
                         E_name, E_mailbox, E_fdomain, E_domain, E_nodename );
                printf("Current File:\t%s\tNumber of items: %d\n"
                       "File size:\t%ld bytes\tLast updated:\t%s",
-
-                     mfilename, letternum + 1 , mboxsize , ctime( & mboxage ) );
+                        mfilename, letternum + 1 , mboxsize ,
+                        ctime( & mboxage ) );
                break;
 
             case M_WRITE:

@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: RNEWS.C 1.11 1993/05/03 02:41:57 ahd Exp $
+ *       $Id: rnews.c 1.12 1993/07/22 23:19:50 ahd Exp $
  *
- *       $Log: RNEWS.C $
+ *       $Log: rnews.c $
+ * Revision 1.12  1993/07/22  23:19:50  ahd
+ * First pass for Robert Denny's Windows 3.x support changes
+ *
  * Revision 1.11  1993/05/03  02:41:57  ahd
  * Correct name of file to set into binary mode
  *
@@ -70,7 +73,7 @@
  */
 
 static const char rcsid[] =
-         "$Id: RNEWS.C 1.11 1993/05/03 02:41:57 ahd Exp $";
+         "$Id: rnews.c 1.12 1993/07/22 23:19:50 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -99,6 +102,8 @@ static const char rcsid[] =
 #include "importng.h"
 #include "logger.h"
 #include "timestmp.h"
+
+#include "execute.h"
 
 /*--------------------------------------------------------------------*/
 /*                           Global defines                           */
@@ -516,6 +521,7 @@ static int Compressed( char *filename , FILE *in_stream )
       {
          fclose( work_stream );
          printerr( zfile );
+         unlink( zfile );     /* Kill the compressed input file      */
          panic();
       }
 
@@ -581,9 +587,9 @@ static int Compressed( char *filename , FILE *in_stream )
          while (isspace(*args))
             args++;
 
-   }
+   } /* else */
 
-   status = spawnlp(P_WAIT, program, program, args, NULL);
+   status = execute( program, args, NULL, NULL, TRUE, FALSE);
 
    unlink( zfile );           /* Kill the compressed input file      */
 

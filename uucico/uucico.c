@@ -1,5 +1,27 @@
+/*--------------------------------------------------------------------*/
+/*       u u c i c o . c                                              */
+/*                                                                    */
+/*       UUCICO main program                                          */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
 /*
- * History:4,1
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ *
  * Mon May 15 19:56:44 1989 Add c_break handler                   ahd
  * 20 Sep 1989 Add check for SYSDEBUG in MS-DOS environment       ahd
  * 22 Sep 1989 Delete kermit and password environment
@@ -34,14 +56,6 @@
 #include "timestmp.h"
 #include "catcher.h"
 
-#if defined(_Windows)
-#include "winutil.h"
-#endif
-
-#ifdef WIN32
-#include "win32.h"
-#endif
-
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -59,18 +73,6 @@ void main( int argc, char *argv[])
 /*--------------------------------------------------------------------*/
 
    banner( argv );
-
-#if defined(_Windows)
-
-   //
-   // Find our task handle and TCWIN "EasyWin" window handle
-   //
-   hOurTask = GetCurrentTask();
-   hOurWindow = FindTaskWindow(hOurTask, "BCEasyWin");
-   SetWindowText(hOurWindow, "uucico");
-   atexit(CloseEasyWin);       // Auto-close EasyWin window on exit
-
-#endif
 
 #if defined(__CORE__)
    copywrong = strdup(copyright);

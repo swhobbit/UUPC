@@ -1,6 +1,34 @@
+/*--------------------------------------------------------------------*/
+/*       m l i b . c                                                  */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1993 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/*
+ *    $Id: lib.h 1.10 1993/07/22 23:26:19 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: lib.h $
+ *
+ * 13 May 89      Use PC format path names for editor
+ * 01 Oct 89      Make Console_fgets use far pointers
+ *                Alter Console_fgets and Is_Console to type boolean
+ *
+ * 29 Jul 90      Use PC format path names for pager
+ */
+
 /*
    ibmpc/mlib.c   by <skl@van-bc.UUCP>   August/87
-
 
    Mailer UA system-dependent library
 
@@ -12,14 +40,11 @@
    Get a line from the console.
    Invoke a local pager on a given file.
 
-   Update history:
-
-   13 May 89      Use PC format path names for editor                   ahd
-   01 Oct 89      Make Console_fgets use far pointers
-                  Alter Console_fgets and Is_Console to type boolean
-                                                                        ahd
-   29 Jul 90      Use PC format path names for pager                    ahd
 */
+
+/*--------------------------------------------------------------------*/
+/*                        System include files                        */
+/*--------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,22 +53,22 @@
 #include <io.h>
 #include <dos.h>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
+/*--------------------------------------------------------------------*/
+/*                    UUPC/extended include files                     */
+/*--------------------------------------------------------------------*/
 
 #include "lib.h"
 #include "hlib.h"
+#include "execute.h"
 
-#ifdef FAMILYAPI
+/*--------------------------------------------------------------------*/
+/*                    Set up for console services                     */
+/*--------------------------------------------------------------------*/
+
+#if defined(FAMILYAPI) || defined(WIN32) || defined(_Windows)
 #define SIMPLE_CONSOLE_FGETS
-#endif
+#else
 
-#ifdef WIN32
-#define SIMPLE_CONSOLE_FGETS
-#endif
-
-#ifndef SIMPLE_CONSOLE_FGETS
 #define MULTIPLEX 0x2f        /* 8086 DOS Interrupt for multiplexing */
 
 static int DOSRead( char *buff, const int buflen);
@@ -54,12 +79,11 @@ static int DOSKeyRead( char *buff , int buflen );
 
 #endif
 
-
-/*
-   G e t _ O n e
-
-   Get a single character from the console
-*/
+/*--------------------------------------------------------------------*/
+/*       G e t _ O n e                                                */
+/*                                                                    */
+/*       Get a single character from the console                      */
+/*--------------------------------------------------------------------*/
 
 int Get_One()
 {
@@ -68,71 +92,94 @@ int Get_One()
 
 } /*Get_One*/
 
+/*--------------------------------------------------------------------*/
+/*       I n v o k e                                                  */
+/*                                                                    */
+/*       Invoke the user's editor or pager to handle a text file      */
+/*--------------------------------------------------------------------*/
 
-/*
-   I n v o k e _ E d i t o r
-
-   Invoke the user's editor to edit a text file
-*/
-
-int Invoke_Editor(const char *ecmd, const char *filename)
+int Invoke(const char *ecmd, const char *filename)
 {
    char command[FILENAME_MAX*2 + 1];
-   char tempname[FILENAME_MAX];                          /* ahd   */
-   int  column = 0;                                      /* ahd   */
+   char tempname[FILENAME_MAX];
+   char *p = tempname;
 
-   if (ecmd == nil(char)) {
-      printf("Invoke_Editor: No editor specified.\n");
+   if (ecmd == nil(char))
+   {
+      printf("Invoke: No program specified to invoke.\n");
       return 1;
    }
 
-   puts("\nInvoking editor ...\n");
+   strcpy(tempname,filename);
 
-   strcpy(tempname,filename);                            /* ahd   */
+   while( (p = strchr(p,'/')) != NULL )
+      *p++ = '\\';            // Normalize the DOS path name
 
-   while (tempname[column] != '\0') {                    /* ahd   */
-      if (tempname[column] ==  '/')                      /* ahd   */
-         tempname[column] = '\\';                        /* ahd   */
-      column = column + 1;                               /* ahd   */
-  }                                                      /* ahd   */
+   sprintf(command, ecmd, tempname);
 
-
-   sprintf(command, ecmd, tempname);                     /* ahd   */
-   if (system(command) != 0) {
-      printf("Invoke_Editor: system(\"%s\") failed.\n", command);
-      return 2;
+   if(executeCommand(command, NULL, NULL, TRUE, TRUE ) != 0)
+   {
+      printf("Invoke: \"%s\" failed.\n", command);
+      return(2);
    }
 
    return 0;
 
-} /*Invoke_Editor*/
+} /* Invoke */
 
+/*--------------------------------------------------------------------*/
+/*       I s _ C o n s o l e                                          */
+/*                                                                    */
+/*       Determine if stream is from the console                      */
+/*                                                                    */
+/*       Note:  isatty() actually returns if the stream is a          */
+/*       character device, thus causing device NUL to appear          */
+/*       interactive; this is not acceptable, but there is not a      */
+/*       trivial fix.                                                 */
+/*--------------------------------------------------------------------*/
 
-/*
-   Is_Console - is this stream from the console?
-
-   Note: isatty actually returns if the stream is a character device,
-         thus causing device NUL to appear interactive; this is not
-         acceptable, but I don't know a trivial fix.           ahd
-*/
-
-boolean Is_Console(FILE *stream)                                  /* ahd   */
+boolean Is_Console(FILE *stream)
 {
 
    return isatty(fileno(stream));
 
 } /*Is_Console*/
 
+#ifdef SIMPLE_CONSOLE_FGETS
 
-/*
-   Console_fgets - get a line of input from the local console
+/*--------------------------------------------------------------------*/
+/*       C o n s o l e _ f g e t s                                    */
+/*                                                                    */
+/*       Read a full line from the console under non-DOS systems      */
+/*--------------------------------------------------------------------*/
 
-   This is a hook to allow for using the local system's facility
-   for input line editing.  We call DOS to perform a line read,
-   thus allowing utilities like DOSEDIT or CED to do their fancy work.
-*/
+boolean Console_fgets(char *buff, int buflen, char *prompt)
+{
 
-#ifndef SIMPLE_CONSOLE_FGETS
+   if (bflag[F_DOSKEY] )
+   {
+     printmsg(0,"DOSKEY support not available, option disabled");
+     bflag[F_DOSKEY] = FALSE;
+   }
+
+   fputs(prompt, stdout);
+
+   return (fgets(buff, buflen, stdin) != nil(char)) ? TRUE : FALSE;
+
+} /*Console_fgets*/
+
+#else
+
+/*--------------------------------------------------------------------*/
+/*       C o n s o l e _ f g e t s                                    */
+/*                                                                    */
+/*       Get a line of input from the local console                   */
+/*                                                                    */
+/*       This is a hook to allow for using the local system's         */
+/*       facility for input line editing.  We call DOS to perform     */
+/*       a line read, thus allowing utilities like DOSEDIT or CED     */
+/*       to do their fancy work.                                      */
+/*--------------------------------------------------------------------*/
 
 boolean Console_fgets(char *buff, int buflen, char *prompt)
 {
@@ -189,9 +236,11 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
 } /*Console_fgets*/
 
 /*--------------------------------------------------------------------*/
-/*    D O S R e a d                                                   */
+/*       D O S R e a d                                                */
 /*                                                                    */
-/*    Read from console under DOS without DOSKEY                      */
+/*       Read from console under DOS without DOSKEY.  We use DOS      */
+/*       services rather than the C library to insure we such hooks   */
+/*       are CED are used if the user installed them.                 */
 /*--------------------------------------------------------------------*/
 
 static int DOSRead( char *buff, const int buflen)
@@ -232,9 +281,9 @@ static int DOSRead( char *buff, const int buflen)
 } /* DOSRead */
 
 /*--------------------------------------------------------------------*/
-/*    D O S K e y A c t i v e                                         */
+/*       D O S K e y A c t i v e                                      */
 /*                                                                    */
-/*    Determine if the DOS Key command line editor is active          */
+/*       Determine if the DOS Key command line editor is active       */
 /*--------------------------------------------------------------------*/
 
 static boolean DOSKeyActive( void )
@@ -270,11 +319,11 @@ static boolean DOSKeyActive( void )
 
    if ( bflag[F_DOSKEY] && ! active )
    {
-     printmsg(0,"DOSKEY support not enabled, option disabled");
+     printmsg(0,"DOSKEY support not installed, option disabled");
      bflag[F_DOSKEY] = FALSE;
    }
 
-   return bflag[F_DOSKEY] && active;
+   return active;
 
 } /* DOSKeyActive */
 
@@ -334,90 +383,40 @@ static int DOSKeyRead( char *buff , int buflen )
 
 } /* DOSKeyRead */
 
-#else
-
-boolean Console_fgets(char *buff, int buflen, char *prompt)
-{
-
-   if (bflag[F_DOSKEY] )
-   {
-     printmsg(0,"DOSKEY support not available, option disabled");
-     bflag[F_DOSKEY] = FALSE;
-   }
-
-   fputs(prompt, stdout);
-
-   return (fgets(buff, buflen, stdin) != nil(char)) ? TRUE : FALSE;
-
-} /*Console_fgets*/
-
 #endif
 
+/*--------------------------------------------------------------------*/
+/*       C l e a r                                                    */
+/*                                                                    */
+/*       Clear the screen                                             */
+/*--------------------------------------------------------------------*/
 
-/*
-   L _ i n v o k e _ p a g e r
-
-   Invoke the user's pager to view a text file
-*/
-
-int L_invoke_pager(const char *pcmd, const char *filename)
-{
-   char command[FILENAME_MAX*2 + 1];
-   char tempname[FILENAME_MAX];                          /* ahd   */
-   int  column = 0;                                      /* ahd   */
-
-   if (pcmd == nil(char)) {
-      printf("L_invoke_pager: No pager specified.\n");
-      return 1;
-   }
-
-   strcpy(tempname,filename);                            /* ahd   */
-
-   while (tempname[column] != '\0') {                    /* ahd   */
-      if (tempname[column] ==  '/')                      /* ahd   */
-         tempname[column] = '\\';                        /* ahd   */
-      column += 1;                                       /* ahd   */
-  }                                                      /* ahd   */
-
-   sprintf(command, pcmd, tempname);
-   if (system(command) != 0) {
-      printf("L_invoke_pager: system(\"%s\") failed.\n", command);
-      return 2;
-   }
-
-   return 0;
-
-} /*L_invoke_pager*/
-
-/*
-      C l e a r
-
-      Clear the screen
- */
 void ClearScreen()
 {
-#ifdef WIN32
-   long	mode;
-   static COORD	coord = {0, 0};
+
+#ifdef __TURBOC__
+
+   clrscr();
+
+#elif defined(WIN32)
+
+   long mode;
+   static COORD coord = {0, 0};
    static HANDLE cons_hnd = INVALID_HANDLE_VALUE;
-#endif
 
-#ifdef __TURBOC__                                           /* pdm */
-      clrscr();                                             /* ahd */
-#else                                                       /* pdm */
-#ifdef WIN32                                                /* ebr */
-
-   if (cons_hnd == INVALID_HANDLE_VALUE) {
+   if (cons_hnd == INVALID_HANDLE_VALUE)
+   {
       cons_hnd = GetStdHandle(STD_OUTPUT_HANDLE);
       GetConsoleMode(cons_hnd, &mode);
       mode |= ENABLE_PROCESSED_OUTPUT;
       SetConsoleMode(cons_hnd, mode);
    }
+
    SetConsoleCursorPosition(cons_hnd, coord);
    FillConsoleOutputCharacter(cons_hnd, 0x20, 60*132, coord, &mode);
 
 #else
-      fputs("\033[2J", stdout);     /* ANSI Erase screen       ahd */
-#endif /* WIN32 */                                          /* pdm */
-#endif /* __TURBOC__ */
-}
+   fputs("\033[2J", stdout);        /* ANSI Erase screen           */
+#endif
+
+} /* ClearScreen */
