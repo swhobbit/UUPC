@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: imfile.h 1.10 1998/03/01 01:26:46 ahd v1-12v $
+ *    $Id: IMFILE.H 1.11 1998/03/09 01:20:41 ahd Exp $
  *
  *    Revision history:
- *    $Log: imfile.h $
+ *    $Log: IMFILE.H $
+ *    Revision 1.11  1998/03/09 01:20:41  ahd
+ *    Add flag for imtell() being called
+ *
  *    Revision 1.10  1998/03/01 01:26:46  ahd
  *    Annual Copyright Update
  *
@@ -63,6 +66,9 @@
 #define IM_FLAG_ERROR  0x04
 #define IM_FLAG_TEXT   0x08
 #define IM_FLAG_TELL   0x10         /* imtell() called for file */
+#define IM_FLAG_DISKR  0x20         /* We reported the file is on disk */
+
+#define IM_FLAG_ALL    0xff
 
 typedef struct _IMFILE
 {
