@@ -21,8 +21,7 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
             $(OBJ)\ulibfs.obj $(OBJ)\ulib.obj $(OBJ)\uucico.obj \
             $(OBJ)\fossil.obj
 
-UUCICOLDOBJ = $(UUCICOCOM) $(OBJ)\comm.obj
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\commfifo.obj
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\comm.obj
 
 # *--------------------------------------------------------------------*
 # *                Begin rules for building modules.                   *
@@ -40,4 +39,4 @@ $(LIBRARY)
 |
         tdstrip -s $<
 
-$(OBJ)\commfifo.obj: $(UUCICO)\commfifo.asm
+$(OBJ)\comm.obj: $(UUCICO)\comm.asm
