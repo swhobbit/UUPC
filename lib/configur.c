@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.42 1994/02/20 19:05:02 ahd Exp $
+ *    $Id: configur.c 1.43 1994/02/25 02:23:42 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *     Revision 1.43  1994/02/25  02:23:42  ahd
+ *     Add Ignore, ReplyToList for Mail user agent (mail)
+ *
  *     Revision 1.42  1994/02/20  19:05:02  ahd
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -366,6 +369,8 @@ FLAGTABLE configFlags[] = {
  { "escape",      F_ESCAPE,      B_GLOBAL},
  { "history",     F_HISTORY,     B_GLOBAL},
  { "honordebug",  F_HONORDEBUG,  B_GLOBAL},
+ { "honorcontrol",
+                  F_HONORCTRL,   B_GLOBAL},
  { "kanji",       F_KANJI,       B_GLOBAL},
  { "longname",    B_LONGNAME,    B_GLOBAL},
  { "monocase",    F_ONECASE,     B_GLOBAL},
