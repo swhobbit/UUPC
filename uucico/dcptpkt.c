@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcptpkt.c 1.4 1993/09/24 03:43:27 ahd Exp $
+ *    $Id: dcptpkt.c 1.5 1993/10/12 01:32:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcptpkt.c $
+ * Revision 1.5  1993/10/12  01:32:46  ahd
+ * Normalize comments to PL/I style
+ *
  * Revision 1.4  1993/09/24  03:43:27  ahd
  * Correct byte reordering functions
  *
@@ -184,7 +187,9 @@ short tgetpkt(char *packet, short *bytes)
       return -1;
    }
 
-   if (sread( packet, recv, M_tPacketTimeout) < recv)
+   if ( ! recv )
+      printmsg(4,"tgetpkt: Received empty packet");
+   else if (sread( packet, recv, M_tPacketTimeout) < recv)
    {
       printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
       return -1;
@@ -212,7 +217,9 @@ short tsendpkt(char *ip, short len)
    if ( swrite( (char *) &nxmit, sizeof nxmit ) != sizeof nxmit )
       return -1;
 
-   if ( len && (swrite( ip , len ) != len ))
+   if ( ! len )
+      printmsg(0,"tsendpkt: Sending empty packet");
+   else if ( swrite( ip , len ) != len )
       return -1;
 
    remote_stats.packets++;
