@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.15 1994/12/09 03:48:15 ahd v1-12k $
+ *    $Id: uuport.c 1.16 1994/12/22 00:38:51 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ *    Revision 1.16  1994/12/22 00:38:51  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/12/09 03:48:15  ahd
  *    Use B_UUSTAT to limit variables loaded by configuration
  *
@@ -215,7 +218,7 @@ void main(int argc, char **argv)
 
 #endif
 
-  if ( (file = open(pipe, O_RDWR, 0)) == -1 )
+  if ( (file = open(pipe, O_RDWR | O_BINARY, 0)) == -1 )
   {
     printf("No port '%s' currently used by any uucico.\n", name);
     exit(2);

@@ -33,9 +33,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: newsrun.c 1.5 1995/03/08 03:01:54 ahd Exp $
+ *       $Id: newsrun.c 1.6 1995/03/11 01:59:57 ahd Exp $
  *
  *       $Log: newsrun.c $
+ *       Revision 1.6  1995/03/11 01:59:57  ahd
+ *       Trap possible bad message ids before they corrupt history
+ *       Correct report of retained articles
+ *
  *       Revision 1.5  1995/03/08 03:01:54  ahd
  *       Delete redundent buggy check for too many hops
  *
@@ -207,7 +211,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: newsrun.c 1.5 1995/03/08 03:01:54 ahd Exp $";
+         "$Id: newsrun.c 1.6 1995/03/11 01:59:57 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -461,7 +465,6 @@ main( int argc, char **argv)
          panic();
    }
 
-
 /*--------------------------------------------------------------------*/
 /*       Get sequence numbers for groups from active file.  The       */
 /*       file is optional only if we are not updating it.             */
@@ -561,7 +564,7 @@ main( int argc, char **argv)
    exit_sys();
 
    if ( deleteInput && (status == 0 ))
-      remove( inputName );
+      REMOVE( inputName );
 
    exit(status);
 
@@ -1060,12 +1063,11 @@ static void deliver_article( IMFILE *imf )
 /*                     Validate message id field                      */
 /*--------------------------------------------------------------------*/
 
-         if ( equal( table[subscript].name, MESSAGEID) )
+         if ( equal( table[subscript].name, MESSAGEID) &&
+              ! validateID( s ))
          {
-            error = validateID( s );
-
-            if ( error )
-               continue;
+            error = KWTrue;
+            continue;
          }
 
 /*--------------------------------------------------------------------*/
@@ -1875,7 +1877,7 @@ static KWBoolean deliver_remote(const struct sys *node,
       copy_rmt_article(fname, imf );
 
       result = xmit_remote( node->sysname, node->command, fname );
-      if ( unlink( fname ) )
+      if ( REMOVE( fname ) )
          printerr( fname );
 
       return result;
