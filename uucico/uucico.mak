@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.13 1993/10/02 23:12:12 dmwatt Exp $
+#     $Id: uucico.mak 1.14 1993/10/02 23:27:59 ahd Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.14  1993/10/02  23:27:59  ahd
+# Add continue character
+#
 # Revision 1.13  1993/10/02  23:12:12  dmwatt
 # Add TCP/Ip error messages
 #
@@ -74,7 +77,7 @@ UUCICOCOM = $(OBJ)\checktim.obj $(OBJ)\commlib.obj $(OBJ)\dcp.obj \
 
 !if $d(__OS2__)
 UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
-            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend.obj
+            $(OBJ)\dcptpkt.obj $(OBJ)\prtyos2.obj $(OBJ)\suspend2.obj
 !elif $d(WINDOWS)
 
 # *--------------------------------------------------------------------*
