@@ -8,6 +8,20 @@
 /*         Berkeley-style directory reading routine on Windows NT     */
 /*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/*    Changes Copyright (c) 1990-1992 by Kendra Electronic            */
+/*    Wonderworks.                                                    */
+/*                                                                    */
+/*    All rights reserved except those explicitly granted by the      */
+/*    UUPC/extended license agreement.                                */
+/*--------------------------------------------------------------------*/
+
+/*
+ *       $Id$
+ *
+ *       $Log$
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -34,6 +48,7 @@
 static char *pathname = NULL;
 static HANDLE dirHandle;
 static WIN32_FIND_DATA dirData;
+currentfile();
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r                                                   */
@@ -41,7 +56,7 @@ static WIN32_FIND_DATA dirData;
 /*    Open a directory                                                */
 /*--------------------------------------------------------------------*/
 
-extern DIR *opendirx( char *dirname, char *pattern)
+extern DIR *opendirx( const char *dirname, char *pattern)
 {
 
    DIR *dirp;
@@ -97,7 +112,7 @@ struct direct *readdir(DIR *dirp)
    {
       printmsg(5,"readdir: Opening directory %s", pathname );
       dirp->dirfirst = 0;
-   }else {
+   }else {
       printmsg(5, "dirhandle = %d\n",dirHandle);
       rc = FindNextFile(dirHandle, &dirData);
    }
@@ -110,7 +125,7 @@ struct direct *readdir(DIR *dirp)
    if (!strcmp(dirData.cFileName,".."))
       rc = FindNextFile(dirHandle, &dirData);
 
-	printmsg(9, "file = %s\n", dirData.cFileName);
+        printmsg(9, "file = %s\n", dirData.cFileName);
 
    if ( rc )
    {
@@ -125,7 +140,8 @@ struct direct *readdir(DIR *dirp)
       dirp->dirent.d_reclen = sizeof(struct direct) - (MAXNAMLEN + 1) +
          ((((dirp->dirent.d_namlen + 1) + 3) / 4) * 4);
       return &(dirp->dirent);
-   } else {
+   } else {
+
       printmsg(5,"readdir: Error on directory %s",pathname );
       return NULL;
    }
@@ -141,7 +157,7 @@ void closedir(DIR *dirp)
 {
 
    BOOL rc;
-   
+
    assert(strcmp(dirp->dirid, "DIR") == 0);
 
    printmsg(5,"closedir: Closing directory %s", pathname );
