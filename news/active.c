@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.10 1994/03/15 03:02:26 ahd v1-12k $
+ *    $Id: active.c 1.11 1994/12/22 00:07:04 ahd Exp ahd $
  *
  *    $Log: active.c $
+ *    Revision 1.11  1994/12/22 00:07:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.10  1994/03/15 03:02:26  ahd
  *    Update copyright, move include for mother of all headers
  *
@@ -151,9 +154,16 @@ void get_active( void )
       g = FOPEN(active_filename,"r",TEXT_MODE);
    } /* if */
 
-   if (g == NULL) {
-      printerr(active_filename);
-      panic();
+/*--------------------------------------------------------------------*/
+/*       We don't seem to have an active file.  If we have a SYS      */
+/*       file, we'll wing it from there.                              */
+/*--------------------------------------------------------------------*/
+
+   if (bflag[F_USESYSFILE])
+     return;
+   else {
+     printerr(active_filename);
+     panic();
    }
 
    prev_grp = NULL;

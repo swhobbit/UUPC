@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.31 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: rmail.c 1.32 1994/12/22 00:19:47 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.32  1994/12/22 00:19:47  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.31  1994/12/09 03:42:09  ahd
  *    Modify alias support to recurse in system aliases file
  *    Put 'U' line first to work with brain dead MKS systems
@@ -239,7 +242,7 @@ static boolean DaemonMail( const char *subject,
  char fromUser[MAXADDR] = ""; /* User id of originator               */
  char fromNode[MAXADDR] = ""; /* Node id of originator               */
  char *myProgramName = NULL;  /* Name for recursive invocation       */
- char grade  = 'C';           /* Grade for mail sent                 */
+ char grade ;                 /* Grade for mail sent                 */
 
  static char received[] = "Received:";
  static char receivedlen = sizeof( received) - 1;
@@ -269,6 +272,8 @@ void main(int argc, char **argv)
    char *subject = NULL;
    char *logname = NULL;
    myProgramName = newstr( argv[0] );   /* Copy before banner() mangles it  */
+
+   grade = E_mailGrade;          /* Get grade from configuration     */
 
 /*--------------------------------------------------------------------*/
 /*    Make a copy of the Borland copyright for debugging purposes     */

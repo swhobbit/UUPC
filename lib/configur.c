@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.50 1994/12/22 00:07:46 ahd Exp $
+ *    $Id: configur.c 1.51 1994/12/27 20:47:55 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.51  1994/12/27 20:47:55  ahd
+ *    Smoother call grading'
+ *
  *    Revision 1.50  1994/12/22 00:07:46  ahd
  *    Annual Copyright Update
  *
@@ -50,15 +53,6 @@
  *     IBM C/Set 2 Conversion, memory leak cleanup
  *
  *     Revision 1.41  1994/02/19  04:40:04  ahd
- *     Use standard first header
- *
- *     Revision 1.40  1994/02/19  04:04:54  ahd
- *     Use standard first header
- *
- *     Revision 1.39  1994/02/19  03:48:35  ahd
- *     Use standard first header
- *
- *     Revision 1.38  1994/02/18  23:08:10  ahd
  *     Use standard first header
  *
  *     Revision 1.37  1994/01/01  19:00:55  ahd
@@ -217,6 +211,7 @@ char *E_archivedir = NULL;
 char *E_backup = NULL;
 char *E_banner = NULL;
 char *E_charset = NULL;
+char *E_compress= NULL;
 char *E_passwd  = NULL;
 char *E_systems = NULL;
 char *E_confdir = NULL;
@@ -256,8 +251,14 @@ char **E_ignoreList;           /* Headers not displayed by print      */
 char **E_replyToList;          /* Primary Addr used to reply to mail  */
 char E_firstGrade = 'C';       /* First class (and above) UUCICO
                                   searches for                        */
+
+char E_mailGrade = 'C';        /* Class mail is transferred at        */
+char E_newsGrade = 'n';        /* Class news is transferred at        */
+
 KEWSHORT E_maxhops = 20;                                    /* ahd */
 KEWSHORT E_maxuuxqt = 0;      /* Max length of command line for remote */
+
+long     E_batchsize = 65536L;
 
 static char *dummy = NULL;
 static char *E_tz = NULL;
@@ -306,7 +307,9 @@ CONFIGTABLE envtable[] = {
    {"archivedir",   &E_archivedir,   B_GLOBAL|B_PATH|B_ALL},
    {"backupext",    &E_backup,       B_TOKEN|B_MUA},
    {"banner",       &E_banner,       B_GLOBAL|B_PATH|B_UUCICO},
+   {"batchsize",    (char **) &E_batchsize, B_GLOBAL|B_LONG|B_BATCH},
    {"charset",      &E_charset,      B_TOKEN|B_GLOBAL|B_SPOOL},
+   {"compress",     &E_compress,     B_GLOBAL|B_STRING|B_BATCH|B_NEWS},
    {"confdir",      &E_confdir,      B_GLOBAL|B_PATH|B_ALL},
    {"domain",       &E_domain,       B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
    {"editor",       &E_editor,       B_STRING|B_MUA|B_NEWS},
@@ -315,7 +318,7 @@ CONFIGTABLE envtable[] = {
    {"fromdomain",   &E_fdomain,      B_GLOBAL|B_ALL|B_TOKEN},
    {"home",         &E_homedir,      B_PATH|B_REQUIRED|B_ALL},
    {"ignore",       (char **) &E_ignoreList, B_MUA|B_LIST},
-   {"firstGrade",   (char **) &E_firstGrade, B_UUCICO|B_LIST},
+   {"firstGrade",   (char **) &E_firstGrade, B_UUCICO|B_CHAR},
    {"inmodem",      &E_inmodem,      B_GLOBAL|B_TOKEN|B_UUCICO},
    {"internalcommands", (char **)   &E_internal, B_GLOBAL|B_LIST|B_ALL},
    {"localdomain",  &E_localdomain,  B_GLOBAL|B_TOKEN|B_MAIL},
@@ -323,11 +326,13 @@ CONFIGTABLE envtable[] = {
    {"maildir",      &E_maildir,      B_GLOBAL|B_PATH|B_ALL},
    {"mailext",      &E_mailext,      B_TOKEN|B_MAIL},
    {"mailserv",     &E_mailserv,     B_REQUIRED|B_GLOBAL|B_TOKEN|B_ALL},
+   {"newsgrade",   (char **) &E_newsGrade, B_BATCH|B_CHAR},
    {"maximumhops",  (char **) &E_maxhops, B_MTA | B_SHORT | B_GLOBAL},
    {"maximumuuxqt", (char **) &E_maxuuxqt, B_MTA | B_SHORT | B_GLOBAL},
    {"motd",         &E_motd,         B_GLOBAL|B_PATH|B_UUCICO},
    {"mushdir",      &dummy,          B_GLOBAL|B_PATH|B_MUSH},
    {"name",         &E_name,         B_REQUIRED|B_MAIL|B_NEWS|B_STRING},
+   {"mailgrade",   (char **) &E_mailGrade, B_MTA|B_CHAR},
    {"newsdir",      &E_newsdir,      B_GLOBAL|B_PATH|B_ALL},
    {"newsserv",     &E_newsserv,     B_GLOBAL|B_TOKEN|B_NEWS},
    {"nickname",     &E_nickname,     B_TOKEN|B_MUA},
@@ -390,11 +395,14 @@ FLAGTABLE configFlags[] = {
  { "bang",                    F_BANG,                  B_GLOBAL},
  { "bounce",                  F_BOUNCE,                B_GLOBAL},
  { "collect",                 F_COLLECTSTATS,          B_GLOBAL},
+ { "compressbatch",           F_COMPRESSBATCH,         B_GLOBAL},
  { "directory",               F_DIRECT,                B_GLOBAL},
  { "escape",                  F_ESCAPE,                B_GLOBAL},
+ { "fullbatch",               F_FULLBATCH,             B_GLOBAL},
  { "history",                 F_HISTORY,               B_GLOBAL},
  { "honorcontrol",            F_HONORCTRL,             B_GLOBAL},
  { "honordebug",              F_HONORDEBUG,            B_GLOBAL},
+ { "junk",                    F_JUNK,                  B_GLOBAL},
  { "kanji",                   F_KANJI,                 B_GLOBAL},
  { "longname",                F_LONGNAME,              B_GLOBAL},
  { "monocase",                F_ONECASE,               B_GLOBAL},
@@ -408,6 +416,7 @@ FLAGTABLE configFlags[] = {
  { "suppressfrom",            F_SUPPRESSFROM,          B_GLOBAL},
  { "symmetricgrades",         F_SYMMETRICGRADES,       B_GLOBAL},
  { "syslog",                  F_SYSLOG,                B_GLOBAL},
+ { "usesysfile",              F_USESYSFILE,            B_GLOBAL},
  { "uupcnewsserv",            F_UUPCNEWSSERV,          B_GLOBAL},
  { nil(char) }
 }           ;

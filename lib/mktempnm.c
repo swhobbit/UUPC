@@ -18,21 +18,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.11 1994/02/19 04:44:03 ahd v1-12k $
+ *    $Id: mktempnm.c 1.12 1994/12/22 00:09:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.12  1994/12/22 00:09:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1994/02/19 04:44:03  ahd
  *    Use standard first header
- *
- *     Revision 1.10  1994/02/19  04:09:02  ahd
- *     Use standard first header
- *
- *     Revision 1.9  1994/02/19  03:54:08  ahd
- *     Use standard first header
- *
- *     Revision 1.8  1994/02/18  23:11:49  ahd
- *     Use standard first header
  *
  *     Revision 1.7  1994/01/01  19:03:21  ahd
  *     Annual Copyright Update
@@ -84,7 +78,7 @@ currentfile();
 /*    Generate a temporary name with a pre-defined extension          */
 /*--------------------------------------------------------------------*/
 
-char *mktempname( char *buf, char *extension)
+char *mktempname( char *buf, const char *extension)
 {
    static size_t file = 0;
    boolean slash;
@@ -140,3 +134,25 @@ char *mktempname( char *buf, char *extension)
    return buf;
 
 } /* mktempname */
+
+/*--------------------------------------------------------------------*/
+/*    m k d i r f i l e n a m e                                       */
+/*                                                                    */
+/*    Generate a temporary name with a pre-defined extension in given */
+/*    directory                                                       */
+/*--------------------------------------------------------------------*/
+
+char *mkdirfilename( char *buf, const char *dir, const char *extension)
+{
+   char *result;
+   char *savePath = E_tempdir;      /* Save normal path              */
+
+   E_tempdir = (char *) dir;        /* Use new path for file         */
+
+   result = mktempname( buf, extension );
+
+   E_tempdir = savePath;            /* Restore original temp path    */
+
+   return result;
+
+} /* mkdirfilename */
