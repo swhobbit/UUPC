@@ -82,9 +82,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uupoll.c 1.19 1994/01/01 19:17:22 ahd Exp $
+ *    $Id: uupoll.c 1.20 1994/02/20 19:11:18 ahd Exp $
  *
  *    $Log: uupoll.c $
+ * Revision 1.20  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.19  1994/01/01  19:17:22  ahd
  * Annual Copyright Update
  *
@@ -156,7 +159,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: uupoll.c 1.19 1994/01/01 19:17:22 ahd Exp $";
+         "$Id: uupoll.c 1.20 1994/02/20 19:11:18 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -192,6 +195,7 @@ static int setcbrk(char state);
 #include "safeio.h"
 #include "dater.h"
 #include "execute.h"
+#include "title.h"
 
 /*--------------------------------------------------------------------*/
 /*                        Typedefs and macros                         */
@@ -209,7 +213,10 @@ __cdecl
 #endif
  Catcher( int sig );
 
-static active(char *Rmtname, int debuglevel, const char *logname);
+static active(const char *Rmtname,
+              const int debuglevel,
+              const char *logname,
+              const boolean autoUUXQT );
 
 static void    busywork( time_t next);
 
@@ -224,13 +231,16 @@ static void    usage( char *name );
  static int passive( time_t next,
                      int debuglevel,
                      const char *logname,
-                     const char *modem );
+                     const char *modem,
+                     const boolean autoUUXQT );
 
 static hhmm    firstpoll(hhmm interval);
 
-static void    uuxqt( const int debuglevel, const boolean sync);
+static void    uuxqt( const int debuglevel,
+                      const boolean sync);
 
-static time_t LifeSpan( time_t duration, time_t stoptime );
+static time_t LifeSpan( time_t duration,
+                        time_t stoptime );
 
 static time_t now;            /* Current time, updated at start of
                                  program and by busywork() and
@@ -255,6 +265,7 @@ currentfile();
    hhmm autowait = -1;
    hhmm cleanup  = -1;
    time_t cleannext = LONG_MAX;
+   boolean autoUUXQT = FALSE;
 
    time_t exittime;
    int nopassive = 2;
@@ -283,7 +294,8 @@ currentfile();
         panic();
     }
 
-   while((option = getopt(argc, argv, "m:a:B:c:C:d:e:f:l:i:s:r:x:")) != EOF)
+   while((option = getopt(argc, argv, "m:a:B:c:C:d:e:f:l:i:s:r:x:U")) != EOF)
+
    switch(option)
    {
 
@@ -349,6 +361,8 @@ currentfile();
 
       case 'm':
          modem = optarg;
+         if ( nopassive > 1 )
+            nopassive = 0;
          break;
 
 /*--------------------------------------------------------------------*/
@@ -408,6 +422,11 @@ currentfile();
          if (notanumber(optarg))
             usage( argv[0] );
          nopassive = atoi(optarg);
+         break;
+
+
+      case 'U':
+         autoUUXQT = TRUE;
          break;
 
 /*--------------------------------------------------------------------*/
@@ -536,7 +555,10 @@ currentfile();
          else {
             time_t spin;
             returnCode = passive(next < cleannext ? next : cleannext ,
-                                 debuglevel, logname , modem );
+                                 debuglevel,
+                                 logname ,
+                                 modem,
+                                 autoUUXQT );
 
             if (returnCode == 69 )  /* Error in UUCICO?              */
             {                       /* Yes --> Allow time to fix it  */
@@ -558,7 +580,10 @@ currentfile();
 
                   if ( poll )
                   {
-                     returnCode = active("any", debuglevel, logname);
+                     returnCode = active("any",
+                                          debuglevel,
+                                          logname,
+                                          autoUUXQT );
                      autonext = now + autowait;
                   } /* if */
 
@@ -594,7 +619,10 @@ currentfile();
             }
          }
 
-         returnCode = active(Rmtname,debuglevel,logname);
+         returnCode = active(Rmtname,
+                             debuglevel,
+                             logname,
+                             autoUUXQT );
 
          if ( returnCode == 100 )
             done = TRUE;
@@ -706,26 +734,37 @@ static time_t LifeSpan( time_t duration, time_t stoptime )
 /*    Perform an active (outgoing) poll of other hosts                */
 /*--------------------------------------------------------------------*/
 
- static active(char *Rmtname, int debuglevel, const char *logname)
+ static active(const char *Rmtname,
+               const int debuglevel,
+               const char *logname,
+               const boolean autoUUXQT )
  {
    int result;
 
    if (Rmtname == NULL)             /* Default?                       */
    {                                /* Yes --> do -s all and -s any   */
-      if (active("all",debuglevel, logname ) < 100)
-         return active("any",debuglevel, logname);
+
+      if (active("all",debuglevel, logname, FALSE ) < 100)
+         return active("any",debuglevel, logname, autoUUXQT );
       else
          return 100;
    }
    else {
       char buf[128];
-      sprintf(buf,"uucico -r 1 -s %s -x %d",Rmtname,debuglevel);
+
+      sprintf(buf,"uucico -r1 -s%s -x%d",
+              Rmtname,
+              debuglevel);
 
       if ( logname != NULL )
-         strcat( strcat( buf, " -l ") , logname );
+         strcat( strcat( buf, " -l") , logname );
+
+      if ( autoUUXQT )
+         strcat( buf, " -U" );
 
       result = runCommand(buf, TRUE);
-      if ( result == 0 )
+
+      if (( result == 0 ) && ! autoUUXQT )
          uuxqt( debuglevel, TRUE );
 
       printmsg(2,"active: Return code = %d", result );
@@ -751,6 +790,8 @@ static void busywork( time_t next)
    hours   = (naptime / 3600) % 24;    /* Get pretty time to display... */
    minutes = (naptime / 60) % 60;
    seconds = naptime % 60;
+
+   setTitle( "Sleeping until %.24s", ctime( &next ));
 
    printf("Going to sleep for %02ld:%02ld:%02ld, next poll is %s",
              hours, minutes, seconds, ctime(&next) );
@@ -778,6 +819,8 @@ static void busywork( time_t next)
    FILE *stream = NULL;
 #endif
 
+   setTitle("Executing %s", command );
+
    printf("Executing command: %s\n",command);
 #ifdef DEBUG                  /* ahd */
    stream = fopen("UUPOLL.LOG","a");
@@ -801,6 +844,7 @@ static void busywork( time_t next)
    time( & now );
 
    return result;
+
 } /* runCommand */
 
 /*--------------------------------------------------------------------*/
@@ -910,7 +954,8 @@ static hhmm firstpoll(hhmm interval)
  static int passive( time_t next,
                      int debuglevel,
                      const char *logname,
-                     const char *modem )
+                     const char *modem,
+                     const boolean autoUUXQT )
  {
    char buf[128];             /* Buffer for runCommand() commands     */
    time_t seconds = (next - now + 59);
@@ -922,15 +967,18 @@ static hhmm firstpoll(hhmm interval)
 
    minutes = seconds / 60;
 
-   sprintf(buf,"uucico -r 0 -x %d -d %02ld%02ld",
+   sprintf(buf,"uucico -r0 -x%d -d%02ld%02ld",
                debuglevel,
                minutes / 60, minutes % 60);
 
    if ( logname != NULL )
-      strcat( strcat( buf, " -l ") , logname );
+      strcat( strcat( buf, " -l") , logname );
 
    if ( modem != NULL )
-      strcat( strcat( buf, " -m ") , modem );
+      strcat( strcat( buf, " -m") , modem );
+
+   if ( autoUUXQT )
+      strcat( buf, " -U" );
 
    result = runCommand(buf, TRUE);
 
