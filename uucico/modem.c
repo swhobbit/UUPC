@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Header: E:\SRC\UUPC\UUCICO\RCS\modem.c 1.1 1992/11/12 12:32:18 ahd Exp ahd $
+ *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $
  *
  *    Revision history:
- *    $Log: modem.c $
+ *    $Log: MODEM.C $
+ * Revision 1.2  1992/11/15  20:12:17  ahd
+ * Clean up modem file support for different protocols
+ *
  * Revision 1.1  1992/11/12  12:32:18  ahd
  * Initial revision
  *
@@ -27,7 +30,7 @@
  *
  */
 
-static char rcsid[] = "$Id: modem.c 1.1 1992/11/12 12:32:18 ahd Exp ahd $";
+static char rcsid[] = "$Id: MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $";
 
 #include <limits.h>
 #include <stdio.h>
@@ -143,45 +146,11 @@ currentfile();
 /*    script processor - nothing fancy!                               */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE callup(char callgrade)
+CONN_STATE callup( void )
 {
    char *exp;
    int i;
    size_t speed;
-
-/*--------------------------------------------------------------------*/
-/*      Determine if the window for calling this system is open       */
-/*--------------------------------------------------------------------*/
-
-   if ( !callgrade && equal(flds[FLD_CCTIME],"Never" ))
-   {
-      hostp->hstatus = wrong_time;
-      return CONN_INITIALIZE;
-   }
-
-   time(&hostp->hstats->ltime); /* Save time of last attempt to call   */
-
-/*--------------------------------------------------------------------*/
-/*    Check the time of day and whether or not we should call now.    */
-/*                                                                    */
-/*    If calling a system to set the clock and we determine the       */
-/*    system clock is bad (we fail the sanity check of the last       */
-/*    connected a host to being in the future), then we ignore the    */
-/*    time check field.                                               */
-/*--------------------------------------------------------------------*/
-
-   if (!callgrade)
-   {
-
-      if ((*flds[FLD_PROTO] != '*') ||       /* Not setting clock?   */
-          ((hostp->hstats->ltime >  hostp->hstats->lconnect) &&
-           (hostp->hstats->ltime >  630720000L )))
-                                             /* Clock okay?          */
-      {                                      /* Yes--> Return        */
-         hostp->hstatus = wrong_time;
-         return CONN_INITIALIZE;
-      }
-   } /* if */
 
 /*--------------------------------------------------------------------*/
 /*             Announce we are trying to call the system              */

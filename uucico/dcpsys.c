@@ -39,9 +39,12 @@
 */
 
 /*
- *     $Id: DCPSYS.C 1.3 1992/11/16 02:14:17 ahd Exp $
+ *     $Id: DCPSYS.C 1.4 1992/11/17 13:46:42 ahd Exp $
  *
  *     $Log: DCPSYS.C $
+ * Revision 1.4  1992/11/17  13:46:42  ahd
+ * If host lookup fails, issue real error message, not malloc failure!
+ *
  * Revision 1.3  1992/11/16  02:14:17  ahd
  * Initialize previous directory scanned variable in scandir
  *
@@ -51,7 +54,7 @@
  */
 
  static const char rcsid[] =
-      "$Id: DCPSYS.C 1.3 1992/11/16 02:14:17 ahd Exp $";
+      "$Id: DCPSYS.C 1.4 1992/11/17 13:46:42 ahd Exp $";
 
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
@@ -895,3 +898,52 @@ static char HostGrade( const char *fname, const char *remote )
    return tempname[len + 2 ];
 
 } /* HostGrade */
+
+/*--------------------------------------------------------------------*/
+/*    C a l l W i n d o w                                             */
+/*                                                                    */
+/*    Determine if we can call a system                               */
+/*--------------------------------------------------------------------*/
+
+boolean CallWindow( const char callgrade )
+{
+
+/*--------------------------------------------------------------------*/
+/*      Determine if the window for calling this system is open       */
+/*--------------------------------------------------------------------*/
+
+   if ( !callgrade && equal(flds[FLD_CCTIME],"Never" ))
+   {
+      hostp->hstatus = wrong_time;
+      return FALSE;
+   }
+
+/*--------------------------------------------------------------------*/
+/*    Check the time of day and whether or not we should call now.    */
+/*                                                                    */
+/*    If calling a system to set the clock and we determine the       */
+/*    system clock is bad (we fail the sanity check of the last       */
+/*    connected a host to being in the future), then we ignore the    */
+/*    time check field.                                               */
+/*--------------------------------------------------------------------*/
+
+   if (!callgrade)
+   {
+      if ((*flds[FLD_PROTO] != '*') ||       /* Not setting clock?   */
+          ((hostp->hstats->ltime >  hostp->hstats->lconnect) &&
+           (hostp->hstats->ltime >  630720000L )))
+                                             /* Clock okay?          */
+      {                                      /* Yes--> Return        */
+         hostp->hstatus = wrong_time;
+         time(&hostp->hstats->ltime);  /* Save time of last attempt to call   */
+         return FALSE;
+      }
+   } /* if */
+
+/*--------------------------------------------------------------------*/
+/*       We pass the time check                                       */
+/*--------------------------------------------------------------------*/
+
+   return TRUE;
+
+} /* CallWindow */

@@ -4,6 +4,13 @@
 /*    Prototypes for high level modem support routines                */
 /*--------------------------------------------------------------------*/
 
+/*
+ *    $Header: E:\src\uupc\uucico\RCS\MODEM.C 1.2 1992/11/15 20:12:17 ahd Exp $
+ *
+ *    Revision history:
+ *    $Log: MODEM.C $
+ */
+
 /*--------------------------------------------------------------------*/
 /*                           Defined types                            */
 /*--------------------------------------------------------------------*/
@@ -21,7 +28,7 @@ typedef enum {
 /*                        Function prototypes                         */
 /*--------------------------------------------------------------------*/
 
-CONN_STATE callup(char callgrade);
+CONN_STATE callup(void );
 
 CONN_STATE callin( time_t exit_time );
 

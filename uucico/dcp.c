@@ -305,24 +305,28 @@ int dcpmain(int argc, char *argv[])
                break;
 
             case CONN_CALLUP1:
-               if ( LockSystem( hostp->hostname , B_UUCICO))
-               {
-                  dialed = TRUE;
-                  hostp->hstatus = autodial;
-                  m_state = CONN_CALLUP2;
-               }
-               else
-                  m_state = CONN_INITIALIZE;
-               break;
-
-            case CONN_CALLUP2:
                sendgrade = checktime(flds[FLD_CCTIME]);
 
                if ( (override_grade && sendgrade) || callnow )
                   sendgrade = recvgrade;
 
-               m_state = callup( sendgrade );
+               if ( !CallWindow( sendgrade ))
+                  m_state = CONN_INITIALIZE;
+               else if ( LockSystem( hostp->hostname , B_UUCICO))
+               {
+                  dialed = TRUE;
+                  time(&hostp->hstats->ltime);
+                                 /* Save time of last attempt to call   */
+                  hostp->hstatus = autodial;
+                  m_state = CONN_CALLUP2;
+               }
+               else
+                  m_state = CONN_INITIALIZE;
 
+               break;
+
+            case CONN_CALLUP2:
+               m_state = callup( );
 
                break;
 

@@ -49,3 +49,5 @@ extern int (*wrmsg)(char *data);
 extern int (*rdmsg)(char *data);
 extern int (*eofpkt)(void);
 extern int (*filepkt)(void);
+
+boolean CallWindow( const char callgrade );
