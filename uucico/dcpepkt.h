@@ -1,5 +1,5 @@
-#ifndef _DCPTPKT_H
-#define _DCPTPKT_H
+#ifndef _DCPEPKT_H
+#define _DCPEPKT_H
 
 /*--------------------------------------------------------------------*/
 /*       d c p t p k t . h                                            */
@@ -21,9 +21,9 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcptpkt.h 1.1 1993/09/18 19:47:42 ahd Exp $
+  *      $Id: DCPEPKT.h 1.1 1993/09/18 19:47:42 ahd Exp $
   *
-  *      $Log: dcptpkt.h $
+  *      $Log: DCPEPKT.h $
  * Revision 1.1  1993/09/18  19:47:42  ahd
  * Initial revision
  *
@@ -32,20 +32,20 @@
  *
   */
 
-short  topenpk(const boolean master);
+short  eopenpk(const boolean master);
 
-short  tclosepk(void);
+short  eclosepk(void);
 
-short  tgetpkt(char  *data,short  *len);
+short  egetpkt(char  *data,short  *len);
 
-short  tsendpkt(char  *data,short  len);
+short  esendpkt(char  *data,short  len);
 
-short  twrmsg(char *str);
+short  ewrmsg(char *str);
 
-short  trdmsg(char *str);
+short  erdmsg(char *str);
 
-short  teofpkt( void );
+short  eeofpkt( void );
 
-short  tfilepkt( void );
+short  efilepkt( const boolean master );
 
 #endif

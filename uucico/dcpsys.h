@@ -45,6 +45,6 @@ extern short (*closepk)(void);
 extern short (*wrmsg)(char *data);
 extern short (*rdmsg)(char *data);
 extern short (*eofpkt)(void);
-extern short (*filepkt)(void);
+extern short (*filepkt)(const boolean master);
 
 boolean CallWindow( const char callgrade );

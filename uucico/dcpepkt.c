@@ -59,10 +59,6 @@
 /*       characters with NULLs, then sends the entire file with no    */
 /*       further packet headers.                                      */
 /*                                                                    */
-/*       Note:  Many of the functions (msg write, msg read, start     */
-/*       of file, file eof) for this protocol are as the same as      */
-/*       the functions for 'g' protocol, and we use the actual 'g'    */
-/*       protocol copies as defined in dcpsys.c.                      */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -102,7 +98,7 @@
 
 static unsigned long efilelength;
 static unsigned long ebytesdone;
-static boolean emaster;
+static boolean counting;
 
 /*--------------------------------------------------------------------*/
 /*    e o p e n p k                                                   */
@@ -118,7 +114,6 @@ short eopenpk(const boolean master)
 {
    s_pktsize = r_pktsize = 1024;    /* Fixed for 'e' procotol         */
 
-   emaster = master;
    printmsg(5, "eopenpk:  called, master = %d", master);
 
    return DCP_OK;
@@ -136,13 +131,19 @@ short egetpkt(char *packet, short *bytes)
    unsigned short recv;
    printmsg(5, "egetpkt: called");
 
-   if (ebytesdone > efilelength)
-   {
-      printmsg(0, "egetpkt:  received file larger than length!");
-      return -1;
-   }
+   if (counting) {
+      if (ebytesdone > efilelength)
+      {
+         printmsg(0, "egetpkt:  received more bytes than file length!");
+         printmsg(0, "egetpkt:  done = %lu, length = %lu", ebytesdone,
+            efilelength);
+         return -1;
+      }
 
-   recv = min(efilelength - ebytesdone, r_pktsize);
+      recv = min(efilelength - ebytesdone, r_pktsize);
+   } else {
+      recv = 1;
+   }
 
    if ( recv > r_pktsize )
    {
@@ -154,10 +155,12 @@ short egetpkt(char *packet, short *bytes)
 
    if ( ! recv )
       printmsg(4,"tgetpkt: Received empty packet");
-   else if (sread( packet, recv, M_tPacketTimeout) < recv)
+   else {
    {
-      printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
-      return -1;
+      do {
+         len = sread( packet, recv, M_tPacketTimeout);
+         if (len < 0)
+            printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
    }
 
    remote_stats.packets++;
@@ -205,49 +208,29 @@ short eclosepk()
    return DCP_OK;
 } /* tclosepk */
 
-short efilepkt(void)
+short efilepkt(const boolean master)
 {
+   char startbuf[20];
+
    ebytesdone = 0;
    efilelength = 0;
 
-   return DCP_OK;
-}
-
-short eeofpkt(void)
-{
-   printmsg(5, "eeofpkt: called");
-
-   if (ebytesdone != efilelength)
-   {
-      printmsg(0, "eeofpkt:  I don't think we're done! "
-         " done = %lu, length = %lu\n", ebytesdone, efilelength);
-
-      return DCP_FAILED;
-   }
-   return DCP_OK;
-}
-
-boolean estartfile(FILE *xfer_stream)
-{
-   char startbuf[20];
-   printmsg(5, "estartfile: called");
+   printmsg(5, "efilepkt: called");
 
 /* If we're the master, then send our file length, otherwise receive it */
 
-   ebytesdone = 0;
-
-   if (emaster) {
+   if (master) {
       efilelength = _filelength(xfer_stream->_file);
 
-      printmsg(5, "estartpacket: sending file length is %lu", efilelength);
+      printmsg(0, "estartpacket: sending file length is %lu", efilelength);
 
       memset(startbuf, 0, sizeof startbuf);
       sprintf(startbuf, "%ld", efilelength);
-      if (swrite( (char *)&startbuf, sizeof startbuf ) <
+      if (swrite( startbuf, sizeof startbuf ) <
          sizeof startbuf)
       {
-         printmsg(0, "estartfile: Length write failed");
-         return FALSE;
+         printmsg(0, "efilepkt: Length write failed");
+         return DCP_OK;  /* What's the right error return? */
       }
 
    } else {
@@ -255,15 +238,34 @@ boolean estartfile(FILE *xfer_stream)
       if (sread( (char *) &startbuf, sizeof startbuf, M_tPacketTimeout) <
          sizeof startbuf)
       {
-         printmsg(0,"estartfile: Length read failed");
-         return FALSE;
+         printmsg(0,"efilepkt: Length read failed");
+         return DCP_OK; /* What's the right error return? */
       }
 
 /* Read the file length */
 
       efilelength = strtol(startbuf, NULL, 10);
-      printmsg(5, "estartpacket: received file length %lu", efilelength);
+      printmsg(0, "estartpacket: received file length %lu", efilelength);
    }
 
-   return TRUE;
+   counting = TRUE;
+   return DCP_OK;
 }
+
+short eeofpkt(void)
+{
+   printmsg(5, "eeofpkt: called");
+
+   counting = FALSE;
+
+   if (ebytesdone != efilelength)
+   {
+      printmsg(0, "eeofpkt:  I don't think we're done! "
+         " done = %lu, length = %lu", ebytesdone, efilelength);
+
+      return DCP_FAILED;
+   }
+
+   return DCP_OK;
+}
+

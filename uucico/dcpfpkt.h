@@ -21,9 +21,14 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: DCPFPKT.H 1.3 1993/04/05 12:27:31 ahd Exp $
+  *      $Id: dcpfpkt.h 1.4 1993/09/20 04:53:57 ahd Exp $
   *
-  *      $Log: DCPFPKT.H $
+  *      $Log: dcpfpkt.h $
+ * Revision 1.4  1993/09/20  04:53:57  ahd
+ * TCP/IP support from Dave Watt
+ * 't' protocol support
+ * OS/2 2.x support (BC++ 1.0 for OS/2 support)
+ *
  * Revision 1.3  1993/04/05  12:27:31  ahd
  * Correct protypes to match gpkt
  *
@@ -49,6 +54,6 @@ short  frdmsg(char *str);
 
 short  feofpkt( void );
 
-short  ffilepkt( void );
+short  ffilepkt( const boolean master );
 
 #endif

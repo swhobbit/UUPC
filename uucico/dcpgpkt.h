@@ -18,9 +18,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: dcpgpkt.h 1.2 1992/11/15 20:08:46 ahd Exp ahd $
+  *      $Id: DCPGPKT.H 1.3 1993/04/05 12:27:31 ahd Exp $
   *
-  *      $Log: dcpgpkt.h $
+  *      $Log: DCPGPKT.H $
+ * Revision 1.3  1993/04/05  12:27:31  ahd
+ * Correct protypes to match gpkt
+ *
  * Revision 1.2  1992/11/15  20:08:46  ahd
  * Clean up modem file support for different protocols
  *
@@ -35,4 +38,4 @@ short  gsendpkt(char  *data,short  len);
 short  gwrmsg(char *str);
 short  grdmsg(register char *str);
 short  geofpkt( void );
-short  gfilepkt( void );
+short  gfilepkt( const boolean master );

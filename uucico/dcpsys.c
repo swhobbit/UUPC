@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: dcpsys.c 1.30 1993/11/06 17:56:09 rhg Exp $
+ *     $Id: dcpsys.c 1.31 1993/11/14 20:51:37 ahd Exp $
  *
  *     $Log: dcpsys.c $
+ * Revision 1.31  1993/11/14  20:51:37  ahd
+ * Normalize internal speed for network links to 115200 (a large number)
+ *
  * Revision 1.30  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -156,6 +159,7 @@
 #include "dcpfpkt.h"
 #include "dcpgpkt.h"
 #include "dcptpkt.h"
+#include "dcpepkt.h"
 #include "dcplib.h"
 #include "dcpsys.h"
 #include "export.h"
@@ -189,7 +193,7 @@ typedef struct {
         short (*rdmsg)(char *data);
         short (*wrmsg)(char *data);
         short (*eofpkt)(void);
-        short (*filepkt)(void);
+        short (*filepkt)(const boolean master);
         boolean network;
 } Proto;
 
@@ -218,6 +222,10 @@ Proto Protolst[] = {
               grdmsg,  gwrmsg,   geofpkt, gfilepkt, /* Yup, same as 'g'  */
               TRUE,
        } ,
+       { 'e', egetpkt, esendpkt, eopenpk, eclosepk,
+              grdmsg,  gwrmsg,   geofpkt, efilepkt,
+              TRUE,
+       } ,
 #endif
    { '\0' }
    };
@@ -229,7 +237,7 @@ short (*closepk)(void);
 short (*wrmsg)(char *data);
 short (*rdmsg)(char *data);
 short (*eofpkt)(void);
-short (*filepkt)(void);
+short (*filepkt)(const boolean master);
 
 char *flds[60];
 int kflds;

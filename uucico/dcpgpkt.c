@@ -24,9 +24,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *      $Id: dcpgpkt.c 1.22 1993/10/13 01:47:46 ahd Exp $
+ *      $Id: dcpgpkt.c 1.23 1993/10/24 12:48:56 ahd Exp $
  *
  *      $Log: dcpgpkt.c $
+ * Revision 1.23  1993/10/24  12:48:56  ahd
+ * Correct timeouts to user specified, rather than double user specified
+ *
+ * Revision 1.23  1993/10/24  12:48:56  ahd
+ * Correct timeouts to user specified, rather than double user specified
+ *
  * Revision 1.22  1993/10/13  01:47:46  ahd
  * Don't NAK upon startup
  *
@@ -688,7 +694,7 @@ static short initialize(const boolean caller, const char protocol )
 /*    Begin a file transfer (not used by "g" protocol)                */
 /*--------------------------------------------------------------------*/
 
-short gfilepkt( void )
+short gfilepkt( const boolean MASTER )
 {
 
    return DCP_OK;

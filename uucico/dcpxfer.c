@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.33 1993/11/06 17:56:09 rhg Exp $
+ *       $Id: dcpxfer.c 1.34 1993/11/14 20:51:37 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.34  1993/11/14  20:51:37  ahd
+ * Add showspool option to show xfers of spool files
+ *
  * Revision 1.33  1993/11/06  17:56:09  rhg
  * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
  *
@@ -362,7 +365,7 @@ XFER_STATE seof( const boolean purge_file )
          printmsg(0, "Remote system asks that the file be resent");
          fseek(xfer_stream, 0L, SEEK_SET);
          bytes = 0;
-         (*filepkt)();           /* warmstart file-transfer protocol */
+         (*filepkt)(TRUE);           /* warmstart file-transfer protocol */
          return XFER_SENDDATA;   /* stay in data phase */
 
       case DCP_FAILED:
@@ -529,7 +532,6 @@ XFER_STATE newrequest( void )
 
    bytes = 0;
    ftime(&startTime);
-   (*filepkt)();              /* Init for file transfer */
 
 /*--------------------------------------------------------------------*/
 /*             Process the command according to its type              */
@@ -538,10 +540,16 @@ XFER_STATE newrequest( void )
    switch( type )
    {
       case 'R':
+      {
+         (*filepkt)(FALSE);    /* Init for file transfer */
          return XFER_GETFILE;
+      }
 
       case 'S':
+      {
+         (*filepkt)(TRUE);     /* Init for file transfer */
          return XFER_PUTFILE;
+      }
 
       default:
          return XFER_FILEDONE;   /* Ignore the line                  */
@@ -924,7 +932,6 @@ XFER_STATE rheader( void )
 
    ftime(&startTime);
    bytes = 0;
-   (*filepkt)();              /* Init for file transfer */
 
 /*--------------------------------------------------------------------*/
 /*                 Return with next state to process                  */
@@ -933,10 +940,17 @@ XFER_STATE rheader( void )
    switch (type)
    {
       case 'R':
-         return XFER_GIVEFILE;
+      {
+         (*filepkt)(TRUE);              /* Init for file transfer */
 
+         return XFER_GIVEFILE;
+      }
       case 'S':
+      {
+         (*filepkt)(FALSE);             /* Init for file transfer */
+
          return XFER_TAKEFILE;
+      }
 
       default:
          printmsg(0,"rheader: Unsupported verb \"%c\" rejected",type);

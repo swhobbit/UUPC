@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpfpkt.c 1.13 1993/10/09 22:21:55 rhg Exp $
+ *    $Id: dcpfpkt.c 1.14 1993/11/06 17:57:09 rhg Exp $
  *
  *    Revision history:
  *    $Log: dcpfpkt.c $
+ * Revision 1.14  1993/11/06  17:57:09  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.13  1993/10/09  22:21:55  rhg
  * ANSIfy source
  *
@@ -463,7 +466,7 @@ short fsendpkt(char *ip, short len)
 /*    Prepare for processing an "f" procotol file transfer            */
 /*--------------------------------------------------------------------*/
 
-short ffilepkt( void)
+short ffilepkt( const boolean master )
 {
    chksum = 0xffff;
    printmsg(3,"ffilepkt: Checksum reset");
