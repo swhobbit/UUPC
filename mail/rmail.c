@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: LIB.H 1.3 1992/12/01 04:39:34 ahd Exp $
+ *    $Id: RMAIL.C 1.4 1992/12/04 01:00:27 ahd Exp $
  *
- *    $Log: LIB.H $
+ *    $Log: RMAIL.C $
+ * Revision 1.4  1992/12/04  01:00:27  ahd
+ * Add copyright messages
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -406,13 +409,6 @@ static void Terminate( const int rc)
       if (datain != stdin)       /* Non-standard input?              */
         fclose(stdin);           /* Yes --> Close it                 */
       remove(tempname);          /* Purge temporary file, if exists  */
-   } /* if */
-
-   if (logfile != stdout )       /* Was the disk logfile open?       */
-   {                             /* Yes --> Close it                 */
-      if ( logfile != NULL )     /* Was it REALLY open?              */
-         fclose(logfile);        /* Yes --> Close it                 */
-      logfile = stdout;          /* Restore for late breaking msgs   */
    } /* if */
 
    exit( rc );                   /* Return to operating systems      */
