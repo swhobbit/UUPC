@@ -11,14 +11,25 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
+/*       The red/black tree balancing and supporting rotate           */
+/*       functions is adapted from "Classical Algorithms in C++"      */
+/*       by Nicholas Wilt.                                            */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
 /*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.25 1995/12/03 13:51:44 ahd Exp $
+ *    $Id: active.C 1.26 1995/12/12 13:48:54 ahd Exp $
  *
  *    Revision history:
- *    $Log: active.c $
+ *    $Log: active.C $
+ *    Revision 1.26  1995/12/12 13:48:54  ahd
+ *    Use binary tree for news group active file
+ *    Use large buffers in news programs to avoid overflow of hist db recs
+ *    Use true recursive function to walk entire active file
+ *
  *    Revision 1.25  1995/12/03 13:51:44  ahd
  *    Use binary search after tree is built
  *
@@ -54,6 +65,7 @@
 #include "uupcmoah.h"
 
 #include <ctype.h>
+#include <types.h>
 #include <malloc.h>
 
 #include "active.h"
@@ -97,44 +109,42 @@
 /*       data space, which wasn't designed to handle (literally)      */
 /*       10000 strings crammed into it.                               */
 /*                                                                    */
-/*       Once the lists are loaded, the top level is converted to     */
-/*       a binary tree.  Then if any other list of sibling groups     */
-/*       is searched, it too is converted on a demand basis into      */
-/*       a binary tree.                                               */
+/*                                                                    */
+/*       The actual lists at each level are done as red-black         */
+/*       trees, which provide good worst case performance with        */
+/*       miminal overhead.                                            */
 /*--------------------------------------------------------------------*/
+
+#define F_COLOR_RED       0x01
+#define F_VALID_GROUP     0x02
+#define F_LONGGROUP       0x04
+
+#define F_MODERATED       0x10
+#define F_UNMODERATED     0x20
+#define F_NOPOSTING       0x40
 
 typedef struct _GROUP
 {
 
    union
    {
-      struct {
-         char   flag;               /* Binary zero if namePtr used   */
-         char   *namePtr;           /* Pointer to simple name        */
-      } remote;
-      char   name[15];              /* simple name                   */
+      char   *namePtr;              /* Pointer to simple name        */
+      char   name[15];              /* Simple name                   */
    } n;
 
-   char   moderation;               /* m, n, x, or y                  */
+   u_char flags;                    /* Bit flags, see above          */
 
-   union {
-      struct {
-         struct _GROUP UUFAR *left; /* Binary tree at this level     */
-         struct _GROUP UUFAR *right;/* Binary tree at this level     */
-      } s;
-      struct _GROUP UUFAR *branch[2];  /* Binary tree as array       */
-   } p;
+   struct _GROUP UUFAR *left;       /* Binary tree at this level     */
+   struct _GROUP UUFAR *right;      /* Binary tree at this level     */
+   struct _GROUP UUFAR *parent;     /* Parent node in current level  */
 
-   struct _GROUP UUFAR *parent;     /* Group at previous level       */
-   struct _GROUP UUFAR *child;      /* First group at next level     */
+   struct _GROUP UUFAR *prevLevel;  /* Group at previous level       */
+   struct _GROUP UUFAR *nextLevel;  /* First group at next level     */
 
    long   high;                     /* Next article number to store  */
    long   low;                      /* Lowest unexpired article num  */
 
 } GROUP;
-
-#define LEFT_BRANCH  0
-#define RIGHT_BRANCH 1
 
 #ifdef BIT32ENV
 #define GROUPS_PER_BLOCK      (0x10000 / sizeof (GROUP))
@@ -142,9 +152,10 @@ typedef struct _GROUP
 #define GROUPS_PER_BLOCK      200
 #endif
 
-static GROUP UUFAR *top = NULL;     /* Top of group tree             */
 static GROUP UUFAR *cachedGroup = NULL;   /* Last group walked       */
 static char *cachedGroupName = NULL;      /* Name of cachedGroup     */
+
+static GROUP UUFAR *topNode;        /* Top of group tree             */
 
 currentfile();
 
@@ -156,14 +167,12 @@ static long walked = 0;             /* Nodes written during output   */
 
 static long nodes = 0;              /* Nodes in tree created         */
 static long siblings = 0;           /* Nodes visited during load     */
-static long parents = 0;            /* Parents recursed during load  */
+static long prevLevels = 0;         /* Parents recursed during load  */
 
 static long searches = 0;           /* Number of searches performed  */
 static long cacheHits = 0;          /* Number of cache hits in search*/
 static long searchNodes = 0;        /* Nodes walked during search    */
 static long searchLevels = 0;       /* Levels walked during search   */
-static long balanced = 0;           /* Number of levels balanced     */
-static long balancedBranches = 0;   /* None leaf nodes balanced      */
 
 static long pushed = 0;             /* Current uses of pushGroup     */
 static long maxPushed = 0;          /* MAx uses of pushGroup         */
@@ -171,25 +180,28 @@ static long maxPushed = 0;          /* MAx uses of pushGroup         */
 #endif
 
 /*--------------------------------------------------------------------*/
-/*                Macros to handle tree balance flags                 */
-/*--------------------------------------------------------------------*/
-
-#define IS_UNBALANCED( _group )  \
-           (((_group->p.s.left == NULL) && (_group->p.s.right != NULL)) || \
-            ((_group->p.s.left != NULL) && (_group->p.s.right == NULL)))
-#define SET_BALANCED( _group )
-
-/*--------------------------------------------------------------------*/
 /*                    Moderation/valid group flags                    */
 /*--------------------------------------------------------------------*/
 
-#define GET_MODERATION( _group ) _group->moderation
+#define bitOn( _group, _bitName ) (_group->flags = (u_char) \
+         (_group->flags | (u_char) _bitName ))
 
-#define IS_GROUP( _group ) GET_MODERATION( _group )
+#define bitOff( _group, _bitName ) (_group->flags = (u_char) \
+         (_group->flags & (u_char) (0xff - _bitName) ))
 
-#define SET_MODERATION( _group,_c ) _group->moderation = _c
+#define GET_MODERATION( _group )    translateModeration( _group->flags )
+#define SET_MODERATION( _group,_c ) bitOn( _group, encodeModeration( _c ))
 
-#define SET_NOT_GROUP( _group )     SET_MODERATION( _group, 0)
+#define IS_GROUP( _group )       ( _group->flags & F_VALID_GROUP )
+#define SET_NOT_GROUP( _group )  bitOff( _group, F_VALID_GROUP )
+#define SET_GROUP( _group )      bitOn( _group, F_VALID_GROUP )
+
+#define setBlack( _group ) bitOff( _group, F_COLOR_RED )
+#define setRed( _group )   bitOn( _group, F_COLOR_RED )
+#define isRed( _group )    ( _group->flags & F_COLOR_RED )
+
+#define SET_LONGGROUP( _group )   bitOn( _group, F_LONGGROUP )
+#define IS_LONGGROUP( _group )    ( _group->flags & F_LONGGROUP )
 
 /*--------------------------------------------------------------------*/
 /*       g e t S i m p l e N a m e                                    */
@@ -197,27 +209,64 @@ static long maxPushed = 0;          /* MAx uses of pushGroup         */
 /*       Get simple news group name                                   */
 /*--------------------------------------------------------------------*/
 
-#ifdef COMPILED_GET_SIMPLE_NAME
+#define getSimpleName( _group ) ((char UUFAR *)          \
+            ( IS_LONGGROUP( _group ) ?                   \
+               _group->n.namePtr : _group->n.name ))
 
-static char UUFAR *
-getSimpleName( const GROUP UUFAR *group )
+/*--------------------------------------------------------------------*/
+/*       e n c o d e M o d e r a t i o n                              */
+/*                                                                    */
+/*       Encode character moderation flag as bit flag                 */
+/*--------------------------------------------------------------------*/
+;
+
+u_char
+encodeModeration( const char moderation )
 {
-   if ( group->n.remote.flag )      /* First character in use?       */
-      return group->n.name;         /* Yes --> It's a local array    */
-   else if ( group->n.remote.namePtr )
-      return group->n.remote.namePtr;  /* No --> Pointer to string   */
-   else
-       return "";                   /* Empty String!                 */
+   switch( moderation )
+   {
+      case 'y':
+         return (u_char) F_UNMODERATED;
 
-} /* getSimpleName */
+      case 'm':
+         return (u_char) F_MODERATED;
 
-#else
+      case 'n':
+         return (u_char) F_NOPOSTING;
 
-#define getSimpleName( _group ) ((char UUFAR *)                \
-      ( _group->n.remote.flag ?                                \
-            _group->n.name :                                   \
-            (_group->n.remote.namePtr ? _group->n.remote.namePtr : "")))
-#endif
+      default:
+         return (u_char) 0;
+
+   }
+
+} /* encodeModeration */
+
+/*--------------------------------------------------------------------*/
+/*       t r a n s l a t e M o d e r a t i o n                        */
+/*                                                                    */
+/*       Translate bit flags to character moderation flag             */
+/*--------------------------------------------------------------------*/
+
+char
+translateModeration( const u_char flag )
+{
+   switch( flag & ( F_MODERATED | F_UNMODERATED | F_NOPOSTING ))
+   {
+      case F_MODERATED:
+         return 'm';
+
+      case F_UNMODERATED:
+         return 'y';
+
+      case F_NOPOSTING:
+         return 'n';
+
+      default:
+         return 'x';
+
+   }
+
+} /* translateModeration */
 
 /*--------------------------------------------------------------------*/
 /*       m a k e G r o u p N a m e                                    */
@@ -229,10 +278,11 @@ getSimpleName( const GROUP UUFAR *group )
 static char *
 makeGroupName( char *buf, GROUP UUFAR *group )
 {
-   if ( group->parent == NULL )
+
+   if ( group->prevLevel == NULL )
       *buf = '\0';
    else {
-      makeGroupName( buf, group->parent );
+      makeGroupName( buf, group->prevLevel );
       strcat( buf, "." );
    }
 
@@ -295,11 +345,11 @@ printTree( GROUP UUFAR *current, const char *side, const int depth )
 
    if ( ! depth )
       printmsg(2,"printTree **** %s.%s ****",
-                  current->parent ?
-                     getSimpleName( current->parent ) : "(top)",
+                  current->prevLevel ?
+                     getSimpleName( current->prevLevel ) : "(top)",
                   getSimpleName( current ) );
 
-   printTree( current->p.s.right, "right", depth + 1 );
+   printTree( current->right, "right", depth + 1 );
 
    {
       printmsg(IS_GROUP( current ) ? 3 : 4,
@@ -312,157 +362,26 @@ printTree( GROUP UUFAR *current, const char *side, const int depth )
                   IS_GROUP( current ) ? "\tgroup" : "" );
    }
 
-   printTree( current->p.s.left, "left", depth + 1 );
+   printTree( current->left, "left", depth + 1 );
 
 } /* printTree */
 
 #endif
 
 /*--------------------------------------------------------------------*/
-/*       b a l a n c e L i s t                                        */
-/*                                                                    */
-/*       Convert a linked list into a binary tree                     */
-/*--------------------------------------------------------------------*/
-
-static GROUP UUFAR *
-balanceList( GROUP UUFAR * elder,
-             const size_t siblings,
-             const size_t forward,
-             const size_t backward )
-{
-   size_t nodesPreceding;
-   size_t nodesFollowing;
-   size_t i;
-   GROUP UUFAR *current;
-
-/*--------------------------------------------------------------------*/
-/*       Handle terminating case of a branch with only one right at   */
-/*       most.                                                        */
-/*--------------------------------------------------------------------*/
-
-   if ( siblings == 1 )
-   {
-      elder->p.branch[backward]  = NULL;
-      elder->p.branch[forward] = NULL;
-      return elder;
-   }
-
-/*--------------------------------------------------------------------*/
-/*       Step to center of tree.  Note if this branch only has two    */
-/*       siblings, we make the right side the root to invert the      */
-/*       NULL pointer from right to left side, resetting the          */
-/*       unbalanced tree flag.                                        */
-/*--------------------------------------------------------------------*/
-
-   current = elder;
-
-   nodesPreceding  = siblings / 2;
-   nodesFollowing = siblings - nodesPreceding - 1;
-
-   for ( i = 0; nodesPreceding > i; i++ )
-      current = current->p.branch[forward];
-
-   if ( nodesFollowing )
-      current->p.branch[forward]  = balanceList( current->p.branch[forward],
-                                                 nodesFollowing,
-                                                 forward,
-                                                 backward );
-   else
-      current->p.branch[forward] = NULL;
-
-   if ( nodesPreceding )
-      current->p.branch[backward] = balanceList( elder,
-                                                 nodesPreceding,
-                                                 forward,
-                                                 backward );
-   else
-      current->p.branch[backward] = NULL;
-
-   return current;
-
-} /* balanceList */
-
-/*--------------------------------------------------------------------*/
-/*       b a l a n c e                                                */
-/*                                                                    */
-/*       Initialize balancing a branch of of our tree                 */
-/*--------------------------------------------------------------------*/
-
-static GROUP UUFAR *
-balance( GROUP UUFAR * elder )
-{
-   GROUP UUFAR *current = elder;
-   size_t siblings = 0;
-
-   size_t forward, backward;
-
-   if ( elder->p.s.left == NULL )
-   {
-
-      backward = LEFT_BRANCH;
-      forward  = RIGHT_BRANCH;
-   }
-   else {
-      backward = RIGHT_BRANCH;
-      forward  = LEFT_BRANCH;
-   }
-
-/*--------------------------------------------------------------------*/
-/*       If this branch has two nodes, we can't balance it using      */
-/*       our simple routine.  We balance the two branches under       */
-/*       this node, but we don't try to balance the rest of the       */
-/*       linked list prior to this node.                              */
-/*--------------------------------------------------------------------*/
-
-   do {
-
-      if ( current->p.branch[backward] != NULL )
-      {
-         current->p.branch[backward] = balance( current->p.branch[backward] );
-
-         if ( current->p.branch[forward] != NULL )
-            current->p.branch[forward] =  balance( current->p.branch[forward] );
-
-         SET_BALANCED( elder );
-         return elder;
-      }
-
-      siblings++;
-
-   } while( (current = current->p.branch[forward]) != NULL );
-
-   current = balanceList( elder, siblings, forward, backward );
-
-#ifdef UDEBUG
-
-   balanced++;
-   balancedBranches += (long) siblings;
-
-   if ( debuglevel > ((elder == top ) ? 3 : 2 ))
-      printTree(  current, (elder == top ) ? "===> top <===" : "top", 0);
-
-#endif
-
-   SET_BALANCED( balanced );
-
-   return current;
-
-} /* balance */
-
-/*--------------------------------------------------------------------*/
 /*       c r e a t e N o d e                                          */
 /*                                                                    */
 /*       Create current level as right node of "previous", or         */
-/*       under parent node if no previous node is specified.          */
+/*       under previous level node if no previous node is specified.  */
 /*--------------------------------------------------------------------*/
 
 GROUP UUFAR *
 createNode( const char *level,
-            GROUP UUFAR *parent,
-            GROUP UUFAR **node,
-            GROUP UUFAR *left,
-            GROUP UUFAR *right )
+            GROUP UUFAR *prevLevel,
+            GROUP UUFAR *parent )
 {
+
+   static GROUP UUFAR *newNode     = NULL;
    static GROUP UUFAR *blockAnchor = NULL;
    static size_t blockGroups;          /* Entries used in block      */
 
@@ -472,7 +391,7 @@ createNode( const char *level,
 
    if ( blockAnchor == NULL )
    {
-      blockAnchor = MALLOC( sizeof (*(*node)) * GROUPS_PER_BLOCK );
+      blockAnchor = MALLOC( sizeof (*newNode) * GROUPS_PER_BLOCK );
       checkref( blockAnchor );
 
 #ifdef UDEBUG
@@ -483,13 +402,13 @@ createNode( const char *level,
       blockGroups = 0;
    }
 
-   (*node) = blockAnchor++;
+   newNode = blockAnchor++;
    blockGroups++;
 
    if ( blockGroups == GROUPS_PER_BLOCK ) /* Full block?             */
       blockAnchor = NULL;                 /* Get new one next pass   */
 
-   MEMSET( (*node), 0, sizeof *(*node) );
+   MEMSET( newNode, 0, sizeof *newNode );
 
    if ( strchr( level, '.' ))
    {
@@ -505,23 +424,18 @@ createNode( const char *level,
 /*       poll.                                                        */
 /*--------------------------------------------------------------------*/
 
-   if ( strlen( level ) >= sizeof (*node)->n.name )
-      (*node)->n.remote.namePtr = newstr( level );
+   if ( strlen( level ) >= sizeof newNode->n.name )
+   {
+      newNode->n.namePtr = newstr( level );
+      SET_LONGGROUP( newNode );
+   }
    else
-      STRCPY( (*node)->n.name, level );
+      STRCPY( newNode->n.name, level );
 
-   (*node)->parent = parent;
-   (*node)->p.s.right  = right;
-   (*node)->p.s.left   = left;
+   newNode->prevLevel = prevLevel;
+   newNode->parent    = parent;
 
-#if  defined(UDEBUG) && defined(BIT32ENV)
-      printmsg(9,"createNode: Inserted %s.%s, first child is %s, right node is %s",
-                  parent  ? getSimpleName( parent ) : "(top)",
-                  level,
-                  parent  ? getSimpleName( parent->child ) : "(end of list)",
-                  right   ? getSimpleName( right ) : "(end of list)");
-
-#endif
+   setRed( newNode );
 
 /*--------------------------------------------------------------------*/
 /*                     Return newly created node                      */
@@ -531,107 +445,224 @@ createNode( const char *level,
    nodes++;
 #endif
 
-   return *node;
+   return newNode;
 
 } /* createNode */
+
+/*--------------------------------------------------------------------*/
+/*       L e f t R o t a t e                                          */
+/*                                                                    */
+/*       Rotate the specified branch to the left                      */
+/*--------------------------------------------------------------------*/
+
+GROUP UUFAR *
+LeftRotate(GROUP UUFAR *root, GROUP UUFAR *current)
+{
+    GROUP UUFAR *ret = root;
+    GROUP UUFAR *y = current->right;
+
+    current->right = y->left;
+
+    if (current->right)
+        current->right->parent = (GROUP UUFAR *) current;
+
+    y->parent = current->parent;
+
+    if (current->parent) {
+        if (current == current->parent->left)
+            current->parent->left = y;
+        else
+            current->parent->right = y;
+    }
+    else
+        ret = y;
+
+    y->left = (GROUP UUFAR *) current;
+    current->parent = y;
+
+    return ret;
+
+} /* LeftRotate */
+
+/*--------------------------------------------------------------------*/
+/*       R i g h t R o t a t e                                        */
+/*                                                                    */
+/*       Rotate current node in tree right                            */
+/*--------------------------------------------------------------------*/
+
+GROUP UUFAR *
+RightRotate(GROUP UUFAR *root, GROUP UUFAR *current)
+{
+    GROUP UUFAR *ret = root;
+    GROUP UUFAR *x = current->left;
+
+    current->left = x->right;
+
+    if (current->left)
+        current->left->parent = (GROUP UUFAR *) current;
+
+    x->parent = current->parent;
+
+    if (current->parent) {
+
+        if (current == current->parent->left)
+          current->parent->left = x;
+        else
+          current->parent->right = x;
+
+    }
+    else
+        ret = x;
+
+    x->right = (GROUP UUFAR *) current;
+
+    current->parent = x;
+
+    return ret;
+}
 
 /*--------------------------------------------------------------------*/
 /*       i n s e r t N o d e                                          */
 /*                                                                    */
 /*       Locate a node in the group tree, creating it if needed.      */
-/*                                                                    */
-/*       This function is strongly biased towards inserting nodes     */
-/*       into the right hand side of tree, since the simple           */
-/*       balance routine we use is biased towards this as well.       */
-/*       This normally works very fast since the active file is       */
-/*       sorted when written out and this function correctly          */
-/*       handles quickly inserting in strict ascending sequence.      */
-/*                                                                    */
-/*       If we have to insert on the left to keep the tree            */
-/*       ordered we can and will, although balancing of the           */
-/*       particular list will impacted.  This in turn may impact      */
-/*       search speed, although not the final result.                 */
-/*--------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------*/
-/*       NOTE NOTE NOTE                                               */
-/*                                                                    */
-/*       Because we initialize linear to FALSE below, the right       */
-/*       hand bias is disabled.  I don't know what the exact          */
-/*       problem is, and don't have time to fix it at this point.     */
-/*                                                                    */
-/*       Send any improved version to software@kew.com                */
 /*--------------------------------------------------------------------*/
 
 static GROUP UUFAR *
-insertNode( GROUP UUFAR *current, GROUP UUFAR *parent, char *name )
+insertNode( GROUP UUFAR *root, GROUP UUFAR *prevLevel, char *name )
 {
 
+   GROUP UUFAR *x = root;
+   GROUP UUFAR *y = NULL;
+   GROUP UUFAR *addMe;
+   GROUP UUFAR *newNode;
+   int hit = 0;
    char *level = makeLevelName( name );
-   static KWBoolean linear = KWFalse;     /* Lock into slow mode!    */
-
-   if ( current == NULL )
-   {
-      if ( parent == NULL )
-         return createNode( level, NULL, &top, NULL, NULL );
-      else
-         return createNode( level, parent, &parent->child, NULL, NULL );
-   }
 
 /*--------------------------------------------------------------------*/
 /*                   Locate the name if it exists                     */
 /*--------------------------------------------------------------------*/
 
-   for ( ;; )
+   while ( x != NULL )
    {
-      int hit = STRCMP( level, getSimpleName( current ) );
+      hit = STRCMP( level, getSimpleName( x ) );
+
+      y = x;
 
       if ( ! hit )                  /* Did we find the exact name?   */
-         return current;            /* Yes --> Return it to caller   */
+         return x;                  /* Yes --> Return it to caller   */
       else if ( hit > 0 )           /* We greater than current?      */
-      {
-         if ( current->p.s.left != NULL )
-         {
-            if ( linear )
-            {
-               linear = KWFalse;
-               printmsg(1,"insertNode: active file not sorted on left,"
-                           " switching to slow insert mode after %ld groups",
-                           groups );
-            }
-            current = current->p.s.left;
-         }
-         else if (( current == top ) && linear)
-            return createNode( level, parent, &top, NULL, current);
-         else if ((parent != NULL) && ( parent->child == current ) && linear )
-            return createNode( level, parent, &(parent->child), NULL, current);
-         else
-            return createNode( level, parent, &(current->p.s.left), NULL, NULL );
-      }
-      else {
-         if ( linear )
-         {
-            linear = KWFalse;
-            printmsg(1,"insertNode: active file not sorted on right,"
-                       " switching to slow insert mode after %ld groups",
-                       groups );
-         }
-         if ( current->p.s.right == NULL )
-            return createNode( level, parent, &(current->p.s.right), NULL, NULL );
-         else {
-            current = current->p.s.right;
-         }
-      }
+         x = x->right;
+      else
+         x = x->left;
 
 #ifdef UDEBUG
       siblings++;
 #endif
 
-   } /* for ( ;; ) */
+   } /* while ( x != NULL ) */
 
-#ifndef __TURBOC__
-   return NULL;
-#endif
+   if ( y == NULL )
+      addMe = root = createNode( level, prevLevel, NULL );
+   else if ( hit > 0 )
+      addMe = y->right = createNode( level, prevLevel, y );
+   else
+      addMe = y->left    = createNode( level, prevLevel, y );
+
+   newNode = addMe;                 /* Save for caller               */
+
+/*--------------------------------------------------------------------*/
+/*                    Insure the tree is balanced                     */
+/*--------------------------------------------------------------------*/
+
+   while (addMe != root &&
+          addMe->parent->parent &&
+          isRed( addMe->parent )) {
+
+       GROUP UUFAR *y;
+
+       if (addMe->parent == addMe->parent->parent->left) {
+
+           y = addMe->parent->parent->right;
+
+           if (y && isRed( y )) {
+
+               /* Case 1: x's uncle is red                            */
+
+               setBlack( addMe->parent );
+               setBlack( y );
+               setRed( addMe->parent->parent );
+               addMe = addMe->parent->parent;
+           }
+           else {
+               if (addMe == addMe->parent->right) {
+
+                   /* Case 2: x is a right child                      */
+                   /* Rotate to transform to case 3                   */
+
+                   addMe = addMe->parent;
+                   root = LeftRotate(root, addMe);
+               }
+
+               /* Case 3: x is a left child                           */
+
+               setBlack( addMe->parent );
+
+               if (addMe->parent->parent) {
+
+                   setRed( addMe->parent->parent );
+                   root = RightRotate(root,addMe->parent->parent);
+
+               }
+
+               /* The while loop will terminate                       */
+               /* on the next iteration.                              */
+           }
+       }
+       else {
+
+           y = addMe->parent->parent->left;
+
+           if (y && isRed( y )) {
+
+               setBlack( addMe->parent );
+               setBlack( y );
+               setRed( addMe->parent->parent );
+               addMe = addMe->parent->parent;
+
+           }
+           else {
+
+               if (addMe == addMe->parent->left) {
+                 addMe = addMe->parent;
+                 root = RightRotate(root,addMe);
+               }
+
+               setBlack( addMe->parent );
+
+               if (addMe->parent->parent) {
+                   setRed( addMe->parent->parent );
+                   root = LeftRotate(root,addMe->parent->parent);
+               }
+           }
+       }
+   }
+
+   setBlack( root );
+
+/*--------------------------------------------------------------------*/
+/*        Always keep our root pointer for this level current         */
+/*--------------------------------------------------------------------*/
+
+   if ( prevLevel == NULL )
+      topNode = root;
+   else
+      prevLevel->nextLevel = root;
+
+/*--------------------------------------------------------------------*/
+/*                 Return the new node to the caller                  */
+/*--------------------------------------------------------------------*/
+
+   return newNode;
 
 } /* insertNode */
 
@@ -647,7 +678,7 @@ addGroup( const char *group,
           const long low,
           const char moderation )
 {
-   GROUP UUFAR *parent;
+   GROUP UUFAR *prevLevel;
    char  *level = (char *) group;
    static GROUP UUFAR *current = NULL;
 
@@ -676,10 +707,10 @@ addGroup( const char *group,
          }
          else if ( fullName[index] == '\0' )
          {
-            return KWFalse;         /* Perfect match, group exists!     */
+            return KWFalse;         /* Perfect match, group exists!   */
          }
 
-         index += 1;                /* Step to next char in each string */
+         index += 1;                /* Step to next char in each string*/
 
       } /* while( fullName[index] == group [index] ) */
 
@@ -693,23 +724,20 @@ addGroup( const char *group,
 
          while( (lastMatch = strchr( lastMatch + 1 ,'.' )) != NULL )
          {
-            current = current->parent;
+            current = current->prevLevel;
 #ifdef UDEBUG
             backSteps++;
 #endif
          }
 
 /*--------------------------------------------------------------------*/
-/*   If group is out of order, begin at front of siblings on insert   */
+/*                Begin at front of siblings on insert                */
 /*--------------------------------------------------------------------*/
 
-         if ( fullName[index] > group[index] )
-         {
-            current = current->parent;
+         current = current->prevLevel;
 
-            if ( current != NULL )
-               current = current->child;
-         }
+         if ( current != NULL )
+            current = current->nextLevel;
 
       } /* else */
 
@@ -722,19 +750,19 @@ addGroup( const char *group,
 #endif
 
 #ifdef UDEBUG
-      parents += backSteps;
+      prevLevels += backSteps;
 #endif
 
    } /* if ( current != NULL ) */
 
    if ( current == NULL )
    {
-      current = top;
-      parent = NULL;
+      current = topNode;
+      prevLevel = NULL;
       level = (char *) group;
    }
    else
-      parent = current->parent;
+      prevLevel = current->prevLevel;
 
 /*--------------------------------------------------------------------*/
 /*        Loop to walk tree to node, adding branches as needed        */
@@ -743,7 +771,7 @@ addGroup( const char *group,
    for ( ;; )
    {
 
-      current = insertNode( current, parent, level );
+      current = insertNode( current, prevLevel, level );
 
       if ( current == NULL )
       {
@@ -756,8 +784,8 @@ addGroup( const char *group,
 
       if ( level != NULL )
       {
-         parent = current;          /* Remember parent node          */
-         current = parent->child;   /* Get first group on next level */
+         prevLevel = current;       /* Remember prevLevel node       */
+         current = prevLevel->nextLevel; /* First group on next level*/
          level++;                   /* Step past period in name      */
       }
       else
@@ -776,7 +804,7 @@ addGroup( const char *group,
       printmsg(0,"Group %s already found as %s, moderation status is %c",
                   group,
                   makeGroupName( buf, current ),
-                  current->moderation );
+                  GET_MODERATION( current ) );
       return KWFalse;
    }
 
@@ -786,6 +814,7 @@ addGroup( const char *group,
 
    current->high = high;
    current->low  = low;
+   SET_GROUP( current );
 
    switch( moderation )
    {
@@ -830,10 +859,10 @@ addGroup( const char *group,
                   high,
                   low,
                   moderation ? moderation : '-',
-                  current->parent  ? getSimpleName( current->parent ) :
+                  current->prevLevel  ? getSimpleName( current->prevLevel ) :
                                      "(none)",
-                  current->p.s.right ? ", sibling " : "",
-                  current->p.s.right ? getSimpleName( current->p.s.right ) :
+                  current->right ? ", sibling " : "",
+                  current->right ? getSimpleName( current->right ) :
                                        "" );
 #endif
 
@@ -866,7 +895,6 @@ loadActive( const KWBoolean mustExist )
 {
    char fname[FILENAME_MAX];
    FILE *stream;
-   GROUP UUFAR *current;
 
    mkfilename(fname, E_confdir, ACTIVE);
    stream = FOPEN(fname,"r",TEXT_MODE);
@@ -971,43 +999,12 @@ loadActive( const KWBoolean mustExist )
 /*     Verify we had a valid active file with at least one entry      */
 /*--------------------------------------------------------------------*/
 
-   if (top == NULL)
+   if (topNode == NULL)
    {
       printmsg(0,"active: Active file %s is empty, cannot continue",
                   fname );
       panic();
    }
-
-/*--------------------------------------------------------------------*/
-/*       Balance second level of tree, assuming we're at most of a    */
-/*       pair simple linked lists off the top node.  (If any trees    */
-/*       got inserted, we don't bother to balance them; this is       */
-/*       rare, and searches will be still valid, if slower.)          */
-/*--------------------------------------------------------------------*/
-
-   current = top;
-
-   do {
-
-      if ( current->child != NULL )
-         current->child = balance( current->child );
-
-   } while(( current = current->p.s.right ) != NULL );
-
-   current = top;
-
-   while(( current = current->p.s.left ) != NULL )
-   {
-      if ( current->child != NULL )
-         current->child = balance( current->child );
-   }
-
-
-/*--------------------------------------------------------------------*/
-/*                    Also balance top level of tree                  */
-/*--------------------------------------------------------------------*/
-
-   top = balance( top );            /* Balance top level of tree     */
 
 #ifdef UDEBUG
    printmsg( 1, "loadActive: %ld groups in %ld nodes, "
@@ -1015,7 +1012,7 @@ loadActive( const KWBoolean mustExist )
                 groups,
                 nodes,
                 siblings,
-                parents );
+                prevLevels );
 #endif
 
    return KWTrue;
@@ -1034,7 +1031,7 @@ findGroup( const char *group )
    char *name = (char *) group;
 
    GROUP UUFAR *current = NULL;
-   GROUP UUFAR *nextLevel = top;
+   GROUP UUFAR *nextLevel = topNode;
 
 #ifdef UDEBUG
    searches++;
@@ -1090,9 +1087,9 @@ findGroup( const char *group )
             break;                  /* Go to next level of tree      */
 
          if ( hit > 0 )
-            current = current->p.s.left;
+            current = current->right;
          else if ( hit < 0 )
-            current = current->p.s.right;
+            current = current->left;
 
          if (current == NULL )      /* Name before this?             */
             return NULL;            /* Yes --> Does not exist        */
@@ -1116,14 +1113,8 @@ findGroup( const char *group )
       else {
          name++;                    /* Step past period              */
 
-         nextLevel = current->child;  /* Move down tree as well      */
+         nextLevel = current->nextLevel;  /* Move down tree as well  */
 
-         if (( nextLevel != NULL ) &&
-               IS_UNBALANCED( nextLevel ))
-         {
-               nextLevel = nextLevel->parent->child =
-                           balance( nextLevel );
-         }
       }
 
    } /* while ( name != NULL ) */
@@ -1290,12 +1281,12 @@ nextActiveGroup(  GROUP UUFAR *node,
 
 /*--------------------------------------------------------------------*/
 /*       Since we would have to perform four different checks, we     */
-/*       always just recursively walk the right hand node rather      */
+/*       always just recursively walk the left hand node rather       */
 /*       than attempting tail-end recursion.                          */
 /*--------------------------------------------------------------------*/
 
-      if (node->p.s.right != NULL)
-         nextActiveGroup( node->p.s.right, walkOneGroup, optional );
+      if (node->left != NULL)
+         nextActiveGroup( node->left, walkOneGroup, optional );
 
 /*--------------------------------------------------------------------*/
 /*       Handle the current node; default action is to perform        */
@@ -1330,39 +1321,21 @@ nextActiveGroup(  GROUP UUFAR *node,
 
 /*--------------------------------------------------------------------*/
 /*       For the last node at this level, we perform tail end         */
-/*       recursive to limit blowing the stack.                        */
-/*                                                                    */
-/*       Note that for child groups, we balance the level if          */
-/*       calling an external function; that's because any search      */
-/*       from that function could redistribute the tree, causing      */
-/*       us serious problems, and to avoid overly deep recursions.    */
+/*       recursion to limit blowing the stack.                        */
 /*--------------------------------------------------------------------*/
 
-      if ( node->child != NULL )
+      if ( node->nextLevel != NULL )
       {
 
-#ifndef BIT32ENV
-
-/*--------------------------------------------------------------------*/
-/*       To limit stack recursion in bit 16 environments, we          */
-/*       balance the tree as we walk it.  This doesn't help           */
-/*       performance, so we don't bother in 32 bit environments.      */
-/*--------------------------------------------------------------------*/
-
-         if (IS_UNBALANCED( node->child) )
-            node->child = balance( node->child );
-
-#endif
-
-         if ( node->p.s.left == NULL )
-            node = node->child;
+         if ( node->right == NULL )
+            node = node->nextLevel;
          else {
-            nextActiveGroup( node->child, walkOneGroup, optional );
-            node = node->p.s.left;
+            nextActiveGroup( node->nextLevel, walkOneGroup, optional );
+            node = node->right;
          }
       }
       else
-         node = node->p.s.left;
+         node = node->right;
 
    } while ( node != NULL );
 
@@ -1388,7 +1361,7 @@ startActiveWalk( void (*walkOneGroup)(const char *, void *),
    if ( walkOneGroup == NULL )      /* They want default action?     */
       panic();                      /* Not allowed from extern calls */
    else
-      nextActiveGroup( top, walkOneGroup, optional);
+      nextActiveGroup( topNode, walkOneGroup, optional);
 
 } /* startWalk */
 
@@ -1405,7 +1378,7 @@ writeActive()
    char fname[FILENAME_MAX];
    char aname[FILENAME_MAX];
 
-   if ( top == NULL )
+   if ( topNode == NULL )
    {
       printmsg(0, "put_active: Attempt to update empty ACTIVE file");
       panic();
@@ -1426,26 +1399,22 @@ writeActive()
 /*           Loop to actually write out the updated groups            */
 /*--------------------------------------------------------------------*/
 
-   nextActiveGroup( top, 0, (void *) stream );
+   nextActiveGroup( topNode, 0, (void *) stream );
 
    fclose( stream );
 
 #ifdef UDEBUG
-   printmsg( 1, "writeActive: Balanced %ld hierarchies with %ld "
-                "branches, maximum depth %ld",
-               balanced,
-               balancedBranches,
-               maxPushed);
 
    if ( searches > cacheHits )
    {
       long realSearches = searches - cacheHits;
 
       printmsg( 1, "writeActive: %ld searches, %ld cache hits, "
-                   "%ld tree searches.",
+                   "%ld tree searches, maximum depth %ld.",
                    searches,
                    cacheHits,
-                   realSearches );
+                   realSearches,
+                   maxPushed);
 
       printmsg( 1, "writeActive: %ld levels (%ld.%ld/search), "
                    "%ld nodes (%ld.%ld/search), "
