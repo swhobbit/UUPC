@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.c 1.14 1994/04/24 20:35:08 ahd v1-12k $
+ *    $Id: timestmp.c 1.15 1994/12/22 00:11:37 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: timestmp.c $
+ *    Revision 1.15  1994/12/22 00:11:37  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/04/24 20:35:08  ahd
  *    Add title setting
  *
@@ -199,7 +202,12 @@ void banner (char **argv)
 /*    Now print out the version, operating system and time stamp      */
 /*--------------------------------------------------------------------*/
 
-      fprintf(stderr,"%s %s (%s mode, %2.2s%3.3s%2.2s %5.5s)\n",
+      fprintf(stderr,"%s %s (%s mode, %2.2s%3.3s%2.2s %5.5s)"
+#ifdef UDEBUG
+                  " [debug enabled]"
+#endif /* UDEBUG */
+
+                  "\n",
                   compilep,
                   compilev,
 
