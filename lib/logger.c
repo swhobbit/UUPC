@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.30 1998/05/17 21:12:13 ahd v1-13b $
+ *    $Id: logger.c 1.31 1998/07/27 01:03:54 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.31  1998/07/27 01:03:54  ahd
+ *    Report exact problem with failure to remove file
+ *
  *    Revision 1.30  1998/05/17  21:12:13  ahd
  *    Correct RCSID
  *
@@ -79,7 +82,7 @@
 /*--------------------------------------------------------------------*/
 
 currentfile();
-RCSID("$Id: logger.c 1.30 1998/05/17 21:12:13 ahd v1-13b $");
+RCSID("$Id: logger.c 1.31 1998/07/27 01:03:54 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*                          Local variables                           */
@@ -313,10 +316,12 @@ void copylog(void)
       printerr(currentLogName);
    }
 
+#ifdef UDEBUG
    printmsg(0,"%s: Spun off log %s to %s",
                mName,
                currentLogName,
                permanentLogName);
+#endif
 
    fclose(logfile);
    logfile = stderr;
