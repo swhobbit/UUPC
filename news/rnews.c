@@ -33,9 +33,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.46 1995/01/08 21:02:02 ahd Exp $
+ *       $Id: rnews.c 1.47 1995/01/13 14:02:36 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.47  1995/01/13 14:02:36  ahd
+ *       News debugging fixes from Dave Watt
+ *       Add new checks for possible I/O errors
+ *
  *       Revision 1.46  1995/01/08 21:02:02  ahd
  *       Correct BC++ 3.1 compiler warnings
  *
@@ -165,7 +169,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.46 1995/01/08 21:02:02 ahd Exp $";
+         "$Id: rnews.c 1.47 1995/01/13 14:02:36 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -796,7 +800,7 @@ static void fixEOF( char *buf, const int bytes )
 /*    Handle batched, uncompressed news                               */
 /*--------------------------------------------------------------------*/
 
-static int Batched( FILE *stream)
+static int Batched( FILE *streamIn)
 {
 
    char buf[BUFSIZ * 2];
@@ -805,13 +809,36 @@ static int Batched( FILE *stream)
    KWBoolean gotsize = KWFalse;
    int chars_read;
    int chars_written;
+   int handle;
+   FILE *stream;
 
 /*--------------------------------------------------------------------*/
-/*    This is an uncompressed batch.  Copy it to the working          */
-/*    directory and then distribute the individual articles.          */
+/*       This is uncompressed batch.  We will be distributing the     */
+/*       articles as we read the batch, so use a unique stream        */
+/*       (not stdin) to process the data                              */
 /*--------------------------------------------------------------------*/
 
-   fseek(stream, 0L, SEEK_SET);        /* Back to the beginning       */
+   fseek(streamIn, 0L, SEEK_SET);     /* Back to the beginning       */
+
+   handle = dup(fileno( streamIn ));
+   if ( handle == -1 )
+   {
+      printerr( "Batched: dup:" );
+      panic();
+   }
+
+   stream = fdopen( handle, "r" );
+   if ( stream == NULL)
+   {
+      printerr( "Batched: fdopen:" );
+      panic();
+   }
+
+   streamIn = freopen( BIT_BUCKET, "r",  streamIn );
+
+/*--------------------------------------------------------------------*/
+/*                    Main loop to read our stream                    */
+/*--------------------------------------------------------------------*/
 
    while( ! feof( stream ) && ! ferror( stream ))
    {
