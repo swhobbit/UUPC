@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.91 2000/05/12 12:29:45 ahd v1-13g $
+ *    $Id: configur.c 1.92 2000/09/15 00:18:38 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.92  2000/09/15 00:18:38  ahd
+ *    Annual copyright update
+ *
  *    Revision 1.91  2000/05/12 12:29:45  ahd
  *    Annual copyright update
  *
@@ -173,7 +176,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: configur.c 1.91 2000/05/12 12:29:45 ahd v1-13g $");
+RCSID("$Id: configur.c 1.92 2000/09/15 00:18:38 ahd Exp ahd $");
 
 #define HOMEDIRLIT "*HOME*"
 
@@ -228,6 +231,8 @@ char **E_ignoreList;           /* Headers not displayed by print      */
 char **E_replyToList;          /* Primary Addr used to reply to mail  */
 char E_firstGrade = 'C';       /* First class (and above) UUCICO
                                   searches for                        */
+char **E_RelayToDomainList;    /* Domains are willing to relay to     */
+char **E_RelayFromNetworkList; /* Networks willing to relay from      */
 
 char E_mailGrade = 'C';        /* Class mail is transferred at        */
 char E_newsGrade = 'n';        /* Class news is transferred at        */
@@ -337,6 +342,8 @@ CONFIGTABLE rcTable[] = {
    {"priority",     0,               B_OBSOLETE  },
    {"prioritydelta",0,               B_OBSOLETE  },
    {"pubdir",       &E_pubdir,       B_UUCICO|B_UUXQT,   B_GLOBAL|B_PATH },
+   {"relayfromnetworks",&E_RelayFromNetworkList, B_UUSMTPD,  B_GLOBAL|B_LIST },
+   {"relaytodomains",   &E_RelayToDomainList,    B_UUSMTPD,  B_GLOBAL|B_LIST },
    {"replyto",      &E_replyto,      B_NEWS|B_MAIL, B_TOKEN },
    {"replytolist",  &E_replyToList,  B_MUA,     B_LIST },
    {"rmail",        0,               B_OBSOLETE  },
