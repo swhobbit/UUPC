@@ -17,10 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.35 1993/10/28 12:19:01 ahd Exp $
+ *    $Id: modem.c 1.36 1993/11/14 20:51:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ * Revision 1.36  1993/11/14  20:51:37  ahd
+ * Drop modem speed from network dialing/connection messages
+ * Normalize internal speed for network links to 115200 (a large number)
+ *
  * Revision 1.35  1993/10/28  12:19:01  ahd
  * Cosmetic time formatting twiddles and clean ups
  *
@@ -292,10 +296,12 @@ CONN_STATE callup( void )
                 flds[FLD_TYPE],
                 ctime( &now ));
    else {
-      printmsg(1, "callup: Calling %s via %s on %.24s",
+      printmsg(1, "callup: Calling %s via %s at %s on %.24s",
+          rmtname,
           flds[FLD_TYPE],
           flds[FLD_SPEED],
           ctime( &now ));
+
       speed = (BPS) atol( flds[FLD_SPEED] );
 
       if (speed < 300)
