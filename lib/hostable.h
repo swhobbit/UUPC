@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.6 1994/01/24 03:10:11 ahd Exp $
+  *   $Id: hostable.h 1.7 1994/02/20 19:16:21 ahd Exp $
   *
   *   $Log: hostable.h $
+ *     Revision 1.7  1994/02/20  19:16:21  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.6  1994/01/24  03:10:11  ahd
  *     Annual Copyright Update
  *
@@ -133,9 +136,17 @@ struct  HostTable {
 
 struct HostTable *searchname(const char *name, const size_t namel);
 
-struct HostTable *checkname(const char *name);
+#define checkname(host) checkName(host, __LINE__, cfnptr )
 
-struct HostTable *checkreal(const char *name);
+struct HostTable *checkName(const char *name,
+                            const int line,
+                            const char *function);
+
+#define checkreal(host) checkReal(host, __LINE__, cfnptr )
+
+struct HostTable *checkReal(const char *name,
+                            const int line,
+                            const char *function);
 
 struct HostTable *nexthost( const boolean start );
 
