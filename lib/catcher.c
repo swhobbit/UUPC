@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.11 1994/02/19 04:01:06 ahd Exp $
+ *    $Id: catcher.c 1.12 1994/02/19 04:47:57 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *     Revision 1.12  1994/02/19  04:47:57  ahd
+ *     Use standard first header
+ *
  *     Revision 1.11  1994/02/19  04:01:06  ahd
  *     Use standard first header
  *
@@ -143,7 +146,7 @@ ctrlchandler( int sig )
 /*          Don't ask if the program doesn't think we should          */
 /*--------------------------------------------------------------------*/
 
-    if ( ! interactive_processing )
+    if ( ! interactive_processing || (sig == SIGTERM))
     {
 
       safeout( "\r\n" );
@@ -182,47 +185,6 @@ ctrlchandler( int sig )
 
       return;
     }
-
-#if 0 /* defined(_Windows) || defined(WIN32) */
-
-      if ( terminate_processing )
-         ch = MessageBox( hOurWindow,
-                          "Termination already in progess; "
-                              "select OK for immediate abort or CANCEL to "
-                              "continue orderly shutdown" ,
-                           compilen,
-                           MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2 );
-      else
-         ch = MessageBox( hOurWindow,
-                          "Select OK to terminate processing",
-                           compilen,
-                           MB_ICONQUESTION | MB_OKCANCEL );
-
-      switch( ch )
-      {
-         case 0:
-            printmsg(0,"Could not create message box");
-            panic();
-            break;
-
-         case IDOK:
-            if ( terminate_processing || norecovery )
-               _exit(100);
-
-            terminate_processing = TRUE;  /* Controlled shutdown  */
-            panic_rc = 100;
-            break;
-
-         case IDCANCEL:
-            break;
-
-         default:
-            panic();
-            break;
-
-      } /* switch( ch ) */
-
-#else
 
     if ( terminate_processing )
       safeout( "Termination already in progress ... answer Y to SCRAM program");
@@ -274,8 +236,6 @@ ctrlchandler( int sig )
 
       } /* switch  */
    } /* for */
-
-#endif
 
 /*--------------------------------------------------------------------*/
 /*    The CTRL+C interrupt must be reset to our handler since by      */
