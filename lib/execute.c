@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.39 1995/03/08 03:00:20 ahd Exp $
+ *    $Id: execute.c 1.40 1995/03/11 15:49:23 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.40  1995/03/11 15:49:23  ahd
+ *    Clean up compiler warnings, modify dcp/dcpsys/nbstime for better msgs
+ *
  *    Revision 1.39  1995/03/08 03:00:20  ahd
  *    Work around IBM C/Set++ bug which generates spurious operand
  *    when no operands are passed to program.
@@ -331,12 +334,12 @@ int execute( const char *command,
 
    if ( useBat )
    {
-      int unlinkResult = unlink( perfect );
+      int unlinkResult = REMOVE( perfect );
 
       if (( result == 0 ) && (unlinkResult != 0))
          result = 255;
 
-      if (unlink( batchFile ))
+      if (REMOVE( batchFile ))
       {
 
          printmsg(0,"Cannot delete batch file %s", batchFile );

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: filebkup.c 1.7 1994/02/20 19:05:02 ahd v1-12k $
+ *    $Id: filebkup.c 1.8 1995/01/29 14:07:59 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: filebkup.c $
+ *    Revision 1.8  1995/01/29 14:07:59  ahd
+ *    Clean up most IBM C/Set Compiler Warnings
+ *
  *    Revision 1.7  1994/02/20 19:05:02  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -101,7 +104,7 @@ int filebkup( const char *input )
    _makepath( backup , fdrive, fpath, fname, E_backup );
 #endif /* __TURBOC__ */
 
-   remove( backup );
+   REMOVE( backup );
 
    if (rename( input, backup ))
    {
