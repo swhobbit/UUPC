@@ -28,10 +28,15 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuxqt.c 1.51 1995/07/21 13:18:16 ahd v1-12o $
+ *    $Id: uuxqt.c 1.52 1995/09/11 00:20:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: uuxqt.c $
+ *    Revision 1.52  1995/09/11 00:20:45  ahd
+ *    Use "--" on RMAIL commands to prevent destructive behavior from
+ *    untrusted nodes, make loop to process overlength RMAIL lines
+ *    simpler.
+ *
  *    Revision 1.51  1995/07/21 13:18:16  ahd
  *    Correct scope of loop for rmail deliveries
  *
@@ -1313,6 +1318,12 @@ static int shell(char *command,
       parameters = commandBuf;
    }
 
+   if (equali(cmdname, "newsrun") && (parameters == NULL))
+   {
+      sprintf( commandBuf, "-x %d" , debuglevel );
+      parameters = commandBuf;
+   }
+
 #endif
 
    if (equal(cmdname,RNEWS) &&
@@ -1338,7 +1349,7 @@ static int shell(char *command,
 
    else if (equal(cmdname,RMAIL) && ( inname != NULL )) /* rmail w/input?  */
    {
-      while (( parameters != NULL ) && (result != -1 ))
+      for ( ;; )
       {
 
          size_t parametersLength = strlen( parameters );
@@ -1373,7 +1384,9 @@ static int shell(char *command,
 
 #endif
 
-         strcat( commandBuf, "-- " );   /* Ignore other major options */
+         if ( *parameters == '-' )        /* Funny user id or
+                                             funnier options?     */
+            strcat( commandBuf, "-- " );  /* Treat as addresses   */
 
          lastCharacter -= strlen( commandBuf ) + strlen( RMAIL ) + 1;
 
@@ -1434,7 +1447,7 @@ static int shell(char *command,
 /*--------------------------------------------------------------------*/
 
          if ( lastCharacter == parametersLength )
-            parameters = NULL;
+            break;
          else {
             parameters += lastCharacter + 1;
 
@@ -1442,11 +1455,11 @@ static int shell(char *command,
                                     /* Drop leading whitespace       */
 
             if ( *parameters == '\0' )
-               parameters = NULL;
+               break;
 
          } /* else */
 
-      } /* while */
+      } /* for ( ;; ) */
 
    } /* if (equal(cmdname,RMAIL) && ( inname != NULL )) */
    else
@@ -1463,7 +1476,9 @@ static int shell(char *command,
 
    if ( result == 0 )
       xflag[E_NORMAL] = KWTrue;
-   else if ( equal(cmdname, RNEWS) && bflag[F_NEWSPANIC] )
+   else if ( (equali(cmdname, RNEWS) ||
+              equali(cmdname, "newsrun")) &&
+             bflag[F_NEWSPANIC] )
                            /* Did command execution fail?            */
    {
       printmsg(0,"shell: command %s returned error code %d",

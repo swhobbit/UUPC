@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend.c 1.10 1994/12/22 00:36:09 ahd Exp $
+ *    $Id: suspend.c 1.11 1995/01/07 16:39:48 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: suspend.c $
+ *    Revision 1.11  1995/01/07 16:39:48  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.10  1994/12/22 00:36:09  ahd
  *    Annual Copyright Update
  *
@@ -142,5 +145,9 @@ CONN_STATE suspend_wait(void)
 
 void suspend_ready(void)
 {
-   // No operation under DOS or Windows for now
+
+/*--------------------------------------------------------------------*/
+/*       No operation under DOS or Windows for now                    */
+/*--------------------------------------------------------------------*/
+
 } /* suspend_ready */
