@@ -34,9 +34,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.27 1994/02/19 04:22:37 ahd Exp $
+ *       $Id: rnews.c 1.28 1994/02/20 19:11:18 ahd Exp $
  *
  *       $Log: rnews.c $
+ * Revision 1.28  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.27  1994/02/19  04:22:37  ahd
  * Use standard first header
  *
@@ -123,7 +126,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.27 1994/02/19 04:22:37 ahd Exp $";
+         "$Id: rnews.c 1.28 1994/02/20 19:11:18 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -1038,7 +1041,7 @@ static boolean deliver_article(char *art_fname, long art_size)
          if (get_snum("duplicates",snum))
          {
             memcpy(newsgroups, "duplicates\0\0", 12);
-            sprintf(messageID, "Message-ID: <%s.duplicate.%s@%s>\n",
+            sprintf(messageID, "%s.duplicate.%s@%s",
                     snum, E_nodename, E_domain); /* we need a new unique ID */
             b_xref = FALSE;
          }
