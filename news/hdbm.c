@@ -5,11 +5,26 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  */
- 
-static char *rcsid = "$Id: HDBM.C 1.1 1993/09/05 10:56:49 rommel Exp $";
-static char *rcsrev = "$Revision: 1.1 $";
 
-/* $Log: HDBM.C $
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1994 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
+/*                                                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+static char *rcsid = "$Id: hdbm.c 1.2 1993/11/06 17:54:55 rhg Exp $";
+static char *rcsrev = "$Revision: 1.2 $";
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
+/*--------------------------------------------------------------------*/
+
+/* $Log: hdbm.c $
+ * Revision 1.2  1993/11/06  17:54:55  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.1  1993/09/05  10:56:49  rommel
  * Initial revision
  * */
@@ -23,6 +38,10 @@ static char *rcsrev = "$Revision: 1.1 $";
 #include "hdbm.h"
 #include "idx.h"
 
+#include "lib.h"        /* For error message support  */
+
+currentfile();
+
 datum nullitem = {NULL, 0};
 
 DBM *dbm_open(char *name, int flags, int mode)
@@ -30,23 +49,38 @@ DBM *dbm_open(char *name, int flags, int mode)
   DBM *db;
   char filename[_MAX_PATH];
 
-  if ((db = (DBM *) malloc(sizeof(DBM))) == NULL)
-    return NULL;
+  db = (DBM *) malloc(sizeof(DBM));
+  checkref( db );             /* Panic if malloc() failed      */
+
 
   strcpy(filename, name);
   strcat(filename, DBM_EXT_DBF);
 
   if ((db -> dbffile = open(filename, flags | O_BINARY, mode)) == -1)
+  {
+    printerr( filename );
+    free(db);
     return NULL;
+  }
 
   strcpy(filename, name);
   strcat(filename, DBM_EXT_IDX);
 
   if ((db -> idxfile = open(filename, flags | O_BINARY, mode)) == -1)
-    return close(db -> dbffile), NULL;
+  {
+    printerr( filename );
+    close(db -> dbffile);
+    free(db);
+    return (DBM *) NULL;
+  }
 
   if ((db -> idx = idx_init(db -> idxfile)) == NULL)
-    return close(db -> dbffile), close(db -> idxfile), NULL;
+  {
+    close(db -> dbffile);
+    close(db -> idxfile);
+    free(db);
+    return (DBM *) NULL;
+  }
 
   db -> magic = DBM_MAGIC;
 
@@ -95,7 +129,10 @@ int dbm_store(DBM *db, datum key, datum val, int flag)
     return -1;
 
   if (write(db -> dbffile, buffer, size) != size)
+  {
+    printerr( "dbm_store" );
     return -1;
+  }
 
   return 0;
 }
@@ -179,7 +216,10 @@ datum dbm_firstkey(DBM *db)
     return nullitem;
 
   if ((db -> stream = fdopen(handle, "rb")) == NULL)
+  {
+    printerr( "dbm_firstkey" );
     return nullitem;
+  }
 
   do /* skip blanked out records */
   {

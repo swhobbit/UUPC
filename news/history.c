@@ -11,10 +11,13 @@
  * Created: Sun Aug 15 1993
  */
 
-static char *rcsid = "$Id: HISTORY.C 1.2 1993/10/30 11:39:26 rommel Exp $";
-static char *rcsrev = "$Revision: 1.2 $";
+static char *rcsid = "$Id: history.c 1.3 1993/11/06 17:54:55 rhg Exp $";
+static char *rcsrev = "$Revision: 1.3 $";
 
-/* $Log: HISTORY.C $
+/* $Log: history.c $
+ * Revision 1.3  1993/11/06  17:54:55  rhg
+ * Drive Drew nuts by submitting cosmetic changes mixed in with bug fixes
+ *
  * Revision 1.2  1993/10/30  11:39:26  rommel
  * fixed some function error returns missing a value
  *
@@ -109,7 +112,7 @@ char *get_histentry(void *hdbm_file, char *messageID)
 /*--------------------------------------------------------------------*/
 
 static int get_entry(void *hdbm_file, char **messageID, char **histentry,
-		     datum (*dbm_getkey)(DBM *hdbm_file))
+                     datum (*dbm_getkey)(DBM *hdbm_file))
 {
   datum key, val;
 
@@ -199,11 +202,11 @@ int count_postings(char *histentry)
   long article;
 
   strcpy(value, histentry);
-  strtok(value, " ");	/* strip off date */
-  strtok(NULL, " ");	/* strip off size */
+  strtok(value, " ");   /* strip off date */
+  strtok(NULL, " ");    /* strip off size */
   count = 0;
-  
-  while ((ptr = strtok(NULL, " ,\n")) != NULL) 
+
+  while ((ptr = strtok(NULL, " ,\n")) != NULL)
   {
     num = strchr(ptr, ':') + 1;
 
@@ -238,13 +241,13 @@ static int matches(char *group, char **grouplist)
     if (strnicmp(group, *grouplist, min(len1, len2)) == 0)
     {
       if (len1 < len2)
-	continue;
+        continue;
       else if (len1 == len2)
-	return TRUE;
+        return TRUE;
       else /* len1 > len2 */
       {
-	if (group[len2] == '.' && subgroups)
-	  return TRUE;
+        if (group[len2] == '.' && subgroups)
+          return TRUE;
       }
 
       return TRUE;
@@ -263,15 +266,15 @@ char *purge_article(char *histentry, char **groups)
   long article, remaining;
 
   strcpy(value, histentry);
-  num = strtok(value, " ");	/* strip off date */
+  num = strtok(value, " ");     /* strip off date */
   strcpy(remain, num);
   strcat(remain, " ");
-  num = strtok(NULL, " ");	/* strip off size */
+  num = strtok(NULL, " ");      /* strip off size */
   strcat(remain, num);
   strcat(remain, " ");
   remaining = 0;
-  
-  while ((group = strtok(NULL, " ,\n")) != NULL) 
+
+  while ((group = strtok(NULL, " ,\n")) != NULL)
   {
     num = strchr(group, ':');
     *num++ = 0;
@@ -280,8 +283,8 @@ char *purge_article(char *histentry, char **groups)
     {
       if ((article = atol(num)) != 0)
       {
-	ImportNewsGroup(filename, group, article);
-	unlink(filename);
+        ImportNewsGroup(filename, group, article);
+        unlink(filename);
       }
     }
     else
@@ -316,7 +319,7 @@ void cancel_article(void *hdbm_file, char *messageID)
 
   val = dbm_fetch(hdbm_file, key);
 
-  if (val.dptr == NULL) 
+  if (val.dptr == NULL)
     printmsg(4,"Cannot find article to cancel in history");
   else
   {
