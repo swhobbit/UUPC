@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpserv.c 1.7 1997/11/28 23:11:38 ahd v1-12u $
+ *    $Id: smtpserv.c 1.8 1998/03/01 01:31:59 ahd Exp $
  *
  *    $Log: smtpserv.c $
+ *    Revision 1.8  1998/03/01 01:31:59  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1997/11/28 23:11:38  ahd
  *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -47,7 +50,7 @@
 #include "smtpserv.h"
 #include "smtpnetw.h"
 
-RCSID("$Id: smtpserv.c 1.7 1997/11/28 23:11:38 ahd v1-12u $");
+RCSID("$Id: smtpserv.c 1.8 1998/03/01 01:31:59 ahd Exp $");
 
 currentfile();
 
@@ -177,8 +180,8 @@ processReadyClientList(SMTPClient *current)
    {
       if (getClientProcess(current))
       {
-         processClient(current);
          setClientProcess(current, KWFalse);
+         processClient(current);
       }
 
       current = current->next;

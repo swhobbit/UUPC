@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.7 1997/12/14 02:41:14 ahd v1-12u $
+ *       $Id: smtprecv.c 1.8 1998/03/01 01:32:25 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.8  1998/03/01 01:32:25  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.7  1997/12/14 02:41:14  ahd
  *       Change allocation of SMTP sender address
  *
@@ -64,7 +67,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.7 1997/12/14 02:41:14 ahd v1-12u $");
+RCSID("$Id: smtprecv.c 1.8 1998/03/01 01:32:25 ahd Exp $");
 
 currentfile();
 
@@ -288,7 +291,7 @@ commandDATA(SMTPClient *client,
             "%-10s from %s by %s (%s %s) with %sSMTP\n"
                            "%-10s for %s; %s\n",
             "Received:",
-            client->SMTPName,
+            client->clientName,
             E_domain,
             compilep,
             compilev,
@@ -430,7 +433,7 @@ commandPeriod(SMTPClient *client,
 
    memset( &sender, 0, sizeof sender );
    sender.address = client->transaction->sender;
-   sender.relay   = client->SMTPName;
+   sender.relay   = client->clientName;
    sender.host    = fHost;
    sender.user    = fUser;
 

@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.22 1997/11/28 04:51:14 ahd v1-12u $
+#       $Id: nmakos22.mak 1.23 1998/03/01 01:22:14 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.23  1998/03/01 01:22:14  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.22  1997/11/28 04:51:14  ahd
 #       SMTPD initial OS/2 support
 #
@@ -84,10 +87,11 @@
 
 ERASE    = del /f
 EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
-           $(PROD)\uucicon.exe $(PROD)\rmailn.exe $(PROD)\uusmtpd.exe
+           $(PROD)\uucicon.exe $(PROD)\rmailn.exe $(PROD)\uusmtpd.exe  \
+           $(PROD)\uupopd.exe
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd \
            $(PROD)\uucpd.cmd $(PROD)\uuhour.cmd
-EXTRAT   = uusmtpd.exe
+EXTRAT   = uusmtpd.exe  uupopd.exe
 LIBOSLIST= $(OBJ)\ndiros2.obj $(OBJ)\scrsize2.obj $(OBJ)\pos2err.obj \
            $(OBJ)\remove2.obj $(OBJ)\title2.obj
 MODEL    = 2                    # Really OS/2 version in this case

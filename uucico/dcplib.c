@@ -23,9 +23,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcplib.c 1.28 1997/04/24 01:33:40 ahd v1-12u $
+ *    $Id: dcplib.c 1.29 1998/03/01 01:39:30 ahd Exp $
  *
  *    $Log: dcplib.c $
+ *    Revision 1.29  1998/03/01 01:39:30  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.28  1997/04/24 01:33:40  ahd
  *    Annual Copyright Update
  *
@@ -338,6 +341,14 @@ KWBoolean login(void)
          if (*token != '\0')           /* If at least one good char    */
             printmsg(0,"login: login for user %s failed, bad user id",
                   user);               /* Log the error for ourselves  */
+      }
+      else if ( userp->group && equal(POP3_GROUP, userp->group))
+      {
+         wmsg("\r\nlogin failed", KWFalse);
+         printmsg(0,"login: login user %s (%s) failed, in group %s",
+                  userp->uid,
+                  userp->realname,
+                  POP3_GROUP );
       }
       else if ( userp->password && equal(pswd, userp->password ))
                                        /* Correct password?            */

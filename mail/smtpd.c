@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpd.c 1.9 1997/12/14 02:41:14 ahd v1-12u $
+ *    $Id: smtpd.c 1.10 1998/03/01 01:33:00 ahd Exp $
  *
  *    $Log: smtpd.c $
+ *    Revision 1.10  1998/03/01 01:33:00  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1997/12/14 02:41:14  ahd
  *    restore proper support for UUCP grades during delivery
  *
@@ -62,6 +65,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "uupcmoah.h"
+
 #include <signal.h>
 #include <limits.h>
 #include <ctype.h>
@@ -73,12 +77,13 @@
 #include "deliver.h"
 #include "getopt.h"
 #include "logger.h"
+#include "smtpcmds.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpd.c 1.9 1997/12/14 02:41:14 ahd v1-12u $");
+RCSID("$Id: smtpd.c 1.10 1998/03/01 01:33:00 ahd Exp $");
 
 currentfile();
 
@@ -166,11 +171,12 @@ daemonMode( char *port, time_t exitTime, KWBoolean runUUXQT )
 /*--------------------------------------------------------------------*/
 
 void
-usage( void )
+usage( const char *myName )
 {
-   fprintf(stderr, "\nUsage:\tuusmtpd\t"
+   fprintf(stderr, "\nUsage:\t%s\t"
             "[-l logfile] [-t] [-U] [-x debug]\n"
-            "\t\t[-h handle | -d hhmm]");
+            "\t\t[-h handle | -d hhmm]",
+            myName );
    exit(4);
 }
 
@@ -184,7 +190,7 @@ main( int argc, char ** argv )
 {
    int exitStatus;
    char *logfile_name = NULL;
-   char *port = "smtp";
+   char *port = defaultPortName;
 
    int option;
    time_t exitTime = LONG_MAX;
@@ -232,7 +238,7 @@ main( int argc, char ** argv )
                setDeliveryGrade(*optarg);
             else {
                printmsg(0,"Invalid grade for mail: %s", optarg );
-               usage();
+               usage( argv[0] );
             }
             break;
 
@@ -257,7 +263,7 @@ main( int argc, char ** argv )
             /* FALL THROUGH */
 
          case '?':
-            usage();
+            usage( argv[0] );
             break;
 
       } /* switch( option ) */

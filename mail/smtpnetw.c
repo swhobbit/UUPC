@@ -5,7 +5,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
+/*    Changes Copyright (c) 1989-1998 by Kendra Electronic            */
 /*    Wonderworks.                                                    */
 /*                                                                    */
 /*    All rights reserved except those explicitly granted by the      */
@@ -17,9 +17,14 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpnetw.c 1.6 1997/11/28 23:11:38 ahd Exp $
+ *    $Id: smtpnetw.c 1.7 1997/11/29 13:03:13 ahd v1-12u $
  *
  *    $Log: smtpnetw.c $
+ *    Revision 1.7  1997/11/29 13:03:13  ahd
+ *    Clean up single client (hot handle) mode for OS/2, including correct
+ *    network initialization, use unique client id (pid), and invoke all
+ *    routines needed in main client loop.
+ *
  *    Revision 1.6  1997/11/28 23:11:38  ahd
  *    Additional SMTP auditing, normalize formatting, more OS/2 SMTP fixes
  *
@@ -64,7 +69,7 @@
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpnetw.c 1.6 1997/11/28 23:11:38 ahd Exp $");
+RCSID("$Id: smtpnetw.c 1.7 1997/11/29 13:03:13 ahd v1-12u $");
 
 currentfile();
 
@@ -301,11 +306,15 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
             strcpy(buf, "??? ");
             break;
 
-         case POP_OKAY:
-            strcpy(buf, "-OK ");
+         case PR_DATA:
+            *buf = '\0';
             break;
 
-         case POP_ERROR:
+         case PR_OK_GENERIC:
+            strcpy(buf, "+OK ");
+            break;
+
+         case PR_ERROR_GENERIC:
             strcpy(buf, "-ERR ");
             break;
 
@@ -313,6 +322,7 @@ SMTPResponse(SMTPClient *client, int code, const char *text)
             sprintf(buf, "%03.3d%c",
                           (code < 0) ? - code : code,
                           (code < 0) ? '-' : ' ');
+            break;
 
    } /* switch(code) */
 

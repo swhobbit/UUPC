@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpverb.c 1.7 1997/11/30 04:21:39 ahd v1-12u $
+ *       $Id: smtpverb.c 1.8 1998/03/01 01:31:54 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpverb.c $
+ *       Revision 1.8  1998/03/01 01:31:54  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.7  1997/11/30 04:21:39  ahd
  *       Always compare up to four characters of input to
  *       avoid accidently tripping on a leading period
@@ -51,13 +54,14 @@
 
 #include "uupcmoah.h"
 #include "smtpverb.h"
+#include "smtpcmds.h"
 #include "smtpnetw.h"
 
 /*--------------------------------------------------------------------*/
 /*                      Global defines/variables                      */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtpverb.c 1.7 1997/11/30 04:21:39 ahd v1-12u $");
+RCSID("$Id: smtpverb.c 1.8 1998/03/01 01:31:54 ahd Exp $");
 
 /*--------------------------------------------------------------------*/
 /*       f r e e O p e r a n d s                                      */

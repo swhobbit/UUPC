@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtpclnt.c 1.8 1997/11/29 13:03:13 ahd v1-12u $
+ *       $Id: smtpclnt.c 1.9 1998/03/01 01:32:44 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtpclnt.c $
+ *       Revision 1.9  1998/03/01 01:32:44  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.8  1997/11/29 13:03:13  ahd
  *       Clean up single client (hot handle) mode for OS/2, including correct
  *       network initialization, use unique client id (pid), and invoke all
@@ -67,7 +70,7 @@
 
 currentfile();
 
-RCSID("$Id: smtpclnt.c 1.8 1997/11/29 13:03:13 ahd v1-12u $");
+RCSID("$Id: smtpclnt.c 1.9 1998/03/01 01:32:44 ahd Exp $");
 
 static size_t clientSequence = 0;
 
@@ -254,10 +257,10 @@ freeClient(SMTPClient *client)
 /*          Drop the memory we have pointers to which we own          */
 /*--------------------------------------------------------------------*/
 
-   if (client->SMTPName)
+   if (client->clientName)
    {
-      free(client->SMTPName);
-      client->SMTPName = NULL;
+      free(client->clientName);
+      client->clientName = NULL;
    }
 
    if (client->receive.data)
@@ -321,6 +324,11 @@ processClient(SMTPClient *client)
             setClientMode(client, SM_ABORT);
             break;
          }
+         /* Fall through */
+
+      /* Loading data (used by POP only) also never reads data */
+      case SM_LOAD_MBOX:
+      case SM_SEND_DATA:
          /* Fall through */
 
       /* Master socket also never reads data */

@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.22 1997/11/26 03:33:57 ahd v1-12u $
+#       $Id: nmakewnt.mak 1.23 1998/03/01 01:22:09 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.23  1998/03/01 01:22:09  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.22  1997/11/26 03:33:57  ahd
 #       Correct SMTP timeouts, break out protocol from rest of daemon
 #
@@ -111,7 +114,7 @@ LDOPT    = $(COMMOPT) -Fe$@
 
 OTHERLIBS=ADVAPI32.LIB WSOCK32.LIB kernel32.lib libcmt.lib OLDNAMES.LIB $(MYUULIBS)
 
-EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe
-EXTRA1=$(PROD)\uusmtpd.exe
+EXTRAT=regsetup.exe uupcdll.dll uusmtpd.exe uupopd.exe
+EXTRA1=$(PROD)\uusmtpd.exe  $(PROD)\uupopd.exe
 EXTRA2=$(PROD)\regsetup.exe
 EXTRA3=$(PROD)\uupcdll.dll

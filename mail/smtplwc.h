@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtplwc.h 1.2 1997/11/24 02:53:26 ahd v1-12u $
+ *       $Id: smtplwc.h 1.3 1998/03/01 01:28:37 ahd Exp $
  *
  *       Revision History:
  *       $Log: smtplwc.h $
+ *       Revision 1.3  1998/03/01 01:28:37  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.2  1997/11/24 02:53:26  ahd
  *       First working SMTP daemon which delivers mail
  *
@@ -33,11 +36,6 @@
  */
 
 #include "smtpverb.h"
-
-KWBoolean
-commandAccept(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
 
 KWBoolean
 commandInit(SMTPClient *client,
@@ -50,43 +48,8 @@ commandHELO(SMTPClient *client,
             char **operands );
 
 KWBoolean
-commandNOOP(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandRSET(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandQUIT(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
 commandSequenceIgnore(SMTPClient *client,
             struct _SMTPVerb* verb,
             char **operands );
-
-KWBoolean
-commandExiting(SMTPClient *client,
-            struct _SMTPVerb* verb,
-            char **operands );
-
-KWBoolean
-commandTerminated(SMTPClient *client,
-                  struct _SMTPVerb* verb,
-                  char **operands );
-
-KWBoolean
-commandTimeout(SMTPClient *client,
-               struct _SMTPVerb* verb,
-               char **operands );
-
-KWBoolean
-commandSyntax(SMTPClient *client,
-              struct _SMTPVerb* verb,
-              char **operands );
 
 #endif /* _SMTPLWC_H */

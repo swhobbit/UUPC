@@ -2,19 +2,27 @@
 /*       u s e r t a b l . c                                          */
 /*                                                                    */
 /*       User table routines for UUPC/extended                        */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*       Copyright (C) 1989, 1990 by Andrew H. Derbyshire             */
-/*                                                                    */
-/*       See file README.SCR for restrictions on re-distribution.     */
-/*                                                                    */
-/*       History:                                                     */
-/*          Create from hostable.c                                    */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
+/*--------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------*/
+/*                          RCS Information                           */
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.16 1995/12/26 16:55:43 ahd v1-12u $
+ *    $Id: usertabl.c 1.17 1998/01/03 05:27:58 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *    Revision 1.17  1998/01/03 05:27:58  ahd
+ *    Password file overrides environment variable
+ *
  *    Revision 1.16  1995/12/26 16:55:43  ahd
  *    Don't scan table for every user
  *    Correct failure user table reallocation
@@ -175,6 +183,7 @@ struct UserTable *inituser(char *name)
    users[userElements].homedir  = E_pubdir;
    users[userElements].hsecure  = NULL;
    users[userElements].password = NULL;
+   users[userElements].group    = UUCP_GROUP;
    users[userElements].sh       = uucpsh;
 
    return &users[userElements++];
@@ -283,7 +292,10 @@ static size_t loaduser( void )
       if (token != NULL)
          userp->beep = newstr( token );
 
-      token = NextField(NULL);   /* Skip UNIX group number            */
+      token = NextField(NULL);   /* UNIX group number                 */
+
+      if (token != NULL)         /* Did they provide a group?         */
+         userp->group = newstr(token); /* Yes --> Copy                */
 
       token = NextField(NULL);   /* Get the formal user name          */
 
@@ -329,11 +341,13 @@ static size_t loaduser( void )
          duplicate = KWTrue;
       }
 
-      printmsg(duplicate ? 0: 8,"loaduser: user[%d] user id(%s) no(%s) name(%s) "
-                 "home directory(%s) shell(%s)",
+      printmsg(duplicate ? 0: 8,
+                 "loaduser: user[%d]\tlogin(%s)\tno(%s)\tgroup(%s)"
+                 "\tname(%s)\thome(%s)\tshell(%s)",
          subscript,
          users[subscript].uid,
          users[subscript].beep == NULL ? "NONE" : users[subscript].beep,
+         users[subscript].group,
          users[subscript].realname,
          users[subscript].homedir,
          users[subscript].sh);

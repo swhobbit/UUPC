@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.h 1.8 1997/03/31 07:07:33 ahd v1-12u $
+ *    $Id: usertabl.h 1.9 1998/03/01 01:28:01 ahd Exp $
  *
  *    Revision history:
  *    $Log: usertabl.h $
+ *    Revision 1.9  1998/03/01 01:28:01  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1997/03/31 07:07:33  ahd
  *    Annual Copyright Update
  *
@@ -41,13 +44,16 @@
 #ifndef __USERTABL
 #define __USERTABLE
 
-#define UUCPSHELL "uucp"         /* Shell for UUCP users               */
+#define UUCPSHELL "uucp"         /* Shell for UUCP users             */
+#define POP3_GROUP "pop3"        /* Required group for POP3 users    */
+#define UUCP_GROUP "uucp"        /* Required group for normal users  */
 
 struct HostSecurity;             /* Suppress warning for undefined struct */
 
 struct  UserTable {
       char  *uid;                /* User id for this host to login via */
       char  *beep;               /* Tone to beep at upon delivery      */
+      char  *group;              /* Group user is member of (for POP3) */
       char  *password;           /* Password for this host to login via */
       char  *realname;           /* Name of the host in question       */
       char  *homedir;            /* Home directory for user            */

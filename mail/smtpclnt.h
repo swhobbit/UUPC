@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Changes Copyright (c) 1989-1998 by Kendra Electronic         */
 /*       Wonderworks.                                                 */
 /*                                                                    */
 /*       All rights reserved except those explicitly granted by       */
@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: smtpclnt.h 1.7 1997/11/28 23:13:35 ahd Exp $
+ *    $Id: smtpclnt.h 1.8 1997/11/29 13:06:52 ahd v1-12u $
  *
  *    Revision history:
  *    $Log: smtpclnt.h $
+ *    Revision 1.8  1997/11/29 13:06:52  ahd
+ *    Correct compiler warnings under OS/2, copyright notice
+ *
  *    Revision 1.7  1997/11/28 23:13:35  ahd
  *    Additional auditing, including DNS support
  *
@@ -47,8 +50,12 @@
 
 #include "../uucico/uutcpip.h"
 #include "imfile.h"
-#include "smtptrns.h"
 #include "smtpconn.h"
+
+#ifndef SMTPTransaction
+#include "smtptrns.h"
+#endif
+
 
 typedef enum
 {
@@ -63,7 +70,11 @@ typedef enum
    SM_DATA           = 0x0080,      /* Processing message body       */
    SM_ABORT          = 0x0100,      /* We unexpectedly lost client   */
    SM_TIMEOUT        = 0x0200,      /* Client idle too long          */
-   SM_EXITING        = 0x0400       /* Server is shutting down       */
+   SM_EXITING        = 0x0400,      /* Server is shutting down       */
+
+   SM_PASSWORD       = 0x1000,      /* POP3 read password            */
+   SM_LOAD_MBOX      = 0x2000,      /* POP3 load mailbox             */
+   SM_SEND_DATA      = 0x4000       /* POP3 send data to client      */
 };
 
 typedef unsigned long SMTPMode;
@@ -93,7 +104,7 @@ typedef struct _SMTPClient
    SMTPTransaction *transaction;    /* Actual transaction client owns*/
    SMTPMode mode;
 
-   char *SMTPName;                  /* Name client *claims* to be    */
+   char *clientName;                /* Name client *claims* to be    */
 
    size_t trivialTransactions;
    size_t majorTransactions;        /* Major commands processed      */
