@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: timestmp.h 1.5 1994/12/22 00:13:57 ahd Exp $
+ *    $Id: timestmp.h 1.6 1995/01/02 05:04:57 ahd v1-12o $
  *
  *    Revision history:
  *    $Log: timestmp.h $
+ *    Revision 1.6  1995/01/02 05:04:57  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.5  1994/12/22 00:13:57  ahd
  *    Annual Copyright Update
  *
@@ -44,7 +47,7 @@
  */
 
 extern char compilev[];           /* UUPC version number           */
-extern char compilep[];           /* Suuite name (UUPC/extended)   */
+extern char compilep[];           /* Suite name (UUPC/extended)    */
 extern char compilet[];           /* UUPC compile time             */
 extern char compiled[];           /* UUPC compile date             */
 extern char *compilen;            /* Current program name          */
