@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: SCRSIZE.C 1.1 1992/11/27 14:36:10 ahd Exp $
+ *    $Id: SCRSIZE.C 1.2 1992/11/29 22:09:10 ahd Exp $
  *
  *    $Log: SCRSIZE.C $
+ * Revision 1.2  1992/11/29  22:09:10  ahd
+ * Add stdlib.h for _osmajor under MSC
+ *
  * Revision 1.1  1992/11/27  14:36:10  ahd
  * Initial revision
  *
@@ -40,6 +43,12 @@
 
 short scrsize( void )
 {
+#ifdef __TURBOC__
+   static unsigned far char *bios_rows = MK_FP( 0x0040, 0x0084 );
+/* static unsigned far char *bios_cols = MK_FP( 0x40, 0x4a ); */
+#else
+   static unsigned far char *bios_rows = 0x0484;
+#endif
 
    static boolean error = FALSE;
 
@@ -68,7 +77,7 @@ short scrsize( void )
 /*--------------------------------------------------------------------*/
 
    if ((_osmajor < 4) || error )
-      return PAGESIZE;
+      return (short) *bios_rows; /* Faster, but not well documented  */
 
 /*--------------------------------------------------------------------*/
 /*             Fill in information to perform processing              */
@@ -87,12 +96,12 @@ short scrsize( void )
 
    intdos(&regs, &regs );
    if ( regs.x.cflag )
-   {
-      printmsg(0,"DOS error %d retrieving screen size", (int) regs.x.ax );
+      return info.dmRows;
+   else {
+      printmsg(2,"DOS error %d retrieving screen size", (int) regs.x.ax );
       error = TRUE;
-      return PAGESIZE;
    }
 
-   return info.dmRows;
+   return (short) *bios_rows;    /* Faster, but not well documented  */
 
 } /* scrsize */
