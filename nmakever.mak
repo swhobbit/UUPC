@@ -16,9 +16,12 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#        $Id: nmakever.mak 1.8 2000/05/12 12:08:51 ahd v1-13g $
+#        $Id: nmakever.mak 1.9 2000/09/15 00:21:04 ahd Exp $
 #
 #        $Log: nmakever.mak $
+#        Revision 1.9  2000/09/15 00:21:04  ahd
+#        Update to Version 1.13h
+#
 #        Revision 1.8  2000/05/12 12:08:51  ahd
 #        Annual copyright update
 #
@@ -55,5 +58,5 @@
 # *--------------------------------------------------------------------*
 
 !ifndef VERS
-VERS = 1.13h
+VERS = 1.13j
 !endif
