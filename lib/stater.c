@@ -1,15 +1,15 @@
 /*--------------------------------------------------------------------*/
-/*    s t a t e r . c                                                 */
+/*       s t a t e r . c                                              */
 /*                                                                    */
-/*    File time and size routines                                     */
+/*       File time and size routines                                  */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
-/*    Changes Copyright (c) 1989-1997 by Kendra Electronic            */
-/*    Wonderworks.                                                    */
+/*       Changes Copyright (c) 1989-1997 by Kendra Electronic         */
+/*       Wonderworks.                                                 */
 /*                                                                    */
-/*    All rights reserved except those explicitly granted by the      */
-/*    UUPC/extended license agreement.                                */
+/*       All rights reserved except those explicitly granted by       */
+/*       the UUPC/extended license agreement.                         */
 /*--------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------*/
@@ -17,46 +17,18 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: stater.c 1.12 1996/01/01 20:52:14 ahd v1-12r $
+ *    $Id: stater.c 1.13 1997/03/31 07:06:55 ahd v1-12t $
  *
  *    Revision history:
  *    $Log: stater.c $
+ *    Revision 1.13  1997/03/31 07:06:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1996/01/01 20:52:14  ahd
  *    Annual Copyright Update
  *
  *    Revision 1.11  1995/01/07 15:43:07  ahd
  *    Don't try to dereference size pointer if NULL
- *
- *    Revision 1.10  1994/12/22 00:11:25  ahd
- *    Annual Copyright Update
- *
- *    Revision 1.9  1994/02/19 04:48:36  ahd
- *    Use standard first header
- *
- *     Revision 1.8  1994/02/19  04:12:13  ahd
- *     Use standard first header
- *
- *     Revision 1.7  1994/02/19  03:58:56  ahd
- *     Use standard first header
- *
- *     Revision 1.6  1994/02/18  23:15:32  ahd
- *     Use standard first header
- *
- *     Revision 1.5  1994/01/01  19:06:07  ahd
- *     Annual Copyright Update
- *
- *     Revision 1.4  1993/10/28  12:19:01  ahd
- *     Cosmetic time formatting twiddles and clean ups
- *
- *     Revision 1.3  1993/10/09  15:47:51  rhg
- *     ANSIify the source
- *
- *     Revision 1.3  1993/10/09  15:47:51  rhg
- *     ANSIify the source
- *
- *     Revision 1.2  1993/07/20  21:45:37  ahd
- *     Report last modified time, not created time, per Kae Uwe Rommel
- *
  */
 
 /*--------------------------------------------------------------------*/
@@ -66,17 +38,14 @@
 #include "uupcmoah.h"
 
 #include <fcntl.h>
-
 #include <sys/stat.h>
-
-/*--------------------------------------------------------------------*/
-/*                    UUPC/extended include files                     */
-/*--------------------------------------------------------------------*/
+#include <errno.h>
 
 /*--------------------------------------------------------------------*/
 /*                      Define current file name                      */
 /*--------------------------------------------------------------------*/
 
+RCSID("$Id$");
 currentfile();
 
 /*--------------------------------------------------------------------*/
@@ -95,12 +64,25 @@ time_t stater(const char *file, long *size)
 
    if(stat((char *) file, &statbuf) < 0 )
    {
-      printmsg(0,"cannot stat %s",file);
+      printmsg(0,"stater: cannot stat %s",file);
       printerr( file );
       if ( size != NULL )
          *size = 0;
-      return (time_t) -1L;    /* Flag file as missing          */
+      return (time_t) -1L;          /* Flag file as missing          */
    }
+
+#ifdef S_IFDIR
+   if ( statbuf.st_mode & S_IFDIR )
+   {
+      printmsg( 0, "stater: %s is a directory", file);
+#ifdef EISDIR
+      errno = EISDIR;
+#endif
+      return (time_t)   -1;         /* Report file as missing        */
+   }
+#else
+#error Directory flag S_IFDIR is not defined!
+#endif
 
 /*--------------------------------------------------------------------*/
 /*          We have the information; return it to the caller          */
