@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.27 1998/03/01 01:29:26 ahd v1-12v $
+ *    $Id: MAILLIB.C 1.28 1998/03/16 06:39:32 ahd Exp $
  *
- *    $Log: maillib.c $
+ *    $Log: MAILLIB.C $
+ *    Revision 1.28  1998/03/16 06:39:32  ahd
+ *    Suppress UIDL headers on resent
+ *
  *    Revision 1.27  1998/03/01 01:29:26  ahd
  *    Annual Copyright Update
  *
@@ -685,13 +688,16 @@ void ReturnAddress(char *result, const long adr )
       char *begin = buffer;
 
 #ifdef UDEBUG
-   printmsg(15,"ReturnAddress: Return address is %p", result );
+      printmsg(15,"ReturnAddress: Return address is %p", result );
 #endif
 
       while (isgraph(*begin))    /* Find end of header name          */
          begin++;
 
-      printmsg(4,"ReturnAddress: Input buffer: %s",buffer);
+      while( !isgraph(*begin) && *begin)  /* Find actual addr start  */
+         begin++;
+
+      printmsg(4,"ReturnAddress: Input buffer: \"%s\"",buffer);
 
       if (strlen(begin))
          ExtractName(result,begin);       /* Yes --> Return name     */
