@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uuport.c 1.11 1994/02/19 05:13:11 ahd Exp ahd $
+ *    $Id: uuport.c 1.12 1994/03/09 02:29:49 rommel Exp $
  *
  *    Revision history:
  *    $Log: uuport.c $
+ * Revision 1.12  1994/03/09  02:29:49  rommel
+ * Exit with status 4 if UUCICO unable to respond to request
+ *
  * Revision 1.11  1994/02/19  05:13:11  ahd
  * Use standard first header
  *
@@ -117,7 +120,7 @@ static void usage(const char *program)
 /*       Main program, of course                                      */
 /*--------------------------------------------------------------------*/
 
-int main(int argc, char **argv)
+void main(int argc, char **argv)
 {
 
   int file;
