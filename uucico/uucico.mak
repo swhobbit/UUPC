@@ -8,10 +8,13 @@
 # *     UUPC/extended license agreement.                               *
 # *--------------------------------------------------------------------*
 
-#     $Id: uucico.mak 1.12 1993/09/29 13:17:37 ahd Exp $
+#     $Id: uucico.mak 1.13 1993/10/02 23:12:12 dmwatt Exp $
 #
 #     Revision history:
 #     $Log: uucico.mak $
+# Revision 1.13  1993/10/02  23:12:12  dmwatt
+# Add TCP/Ip error messages
+#
 # Revision 1.12  1993/09/29  13:17:37  ahd
 # Correct build of uuport.com under DOS
 #
@@ -80,7 +83,7 @@ UUCICOOBJ = $(UUCICOCOM) $(OBJ)\ulibos2.obj $(OBJ)\ulibnmp.obj\
 # *      try to include the suite's definition.                        *
 # *--------------------------------------------------------------------*
 
-UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj
+UUCICOOBJ = $(UUCICOCOM) $(OBJ)\dcptpkt.obj \
             $(OBJ)\ulibwin.obj $(OBJ)\suspend.obj \
             $(OBJ)\ulibip.obj $(OBJ)\pwserr.obj
 !else
