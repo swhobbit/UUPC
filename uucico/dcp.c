@@ -26,6 +26,12 @@
    18 Mar 90      Change checktime() calls to Microsoft C 5.1        ahd
 */
 
+/*
+ *    $Id$
+ *
+ *    $Log$
+ */
+
 /* "DCP" a uucp clone. Copyright Richard H. Lamb 1985,1986,1987 */
 
 /*
@@ -189,7 +195,7 @@ int dcpmain(int argc, char *argv[])
          break;
 
       case 's':
-         Rmtname = strdup(optarg);
+         Rmtname = optarg;
          break;
 
       case 'x':
