@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.9 1993/05/09 03:41:47 ahd Exp $
+ *    $Id: rmail.c 1.10 1993/06/13 14:06:00 ahd Exp $
  *
- *    $Log: RMAIL.C $
+ *    $Log: rmail.c $
+ * Revision 1.10  1993/06/13  14:06:00  ahd
+ * Save invoked program name and use it for recursive calls
+ *
  * Revision 1.9  1993/05/09  03:41:47  ahd
  * Don't use debuglevel -1, it suppresses important configuration errors
  *
@@ -1008,5 +1011,5 @@ static boolean DaemonMail( const char *subject,
       "\t\t[-x debug] [-f | -F file] addr1 addr2 addr3 ...\n";
 
    puts( syntax );
-   exit(3);
+   exit(99);
  }
