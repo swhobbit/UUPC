@@ -24,9 +24,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcp.h 1.6 1993/09/20 04:53:57 ahd Exp $
+ *    $Id: dcp.h 1.7 1993/09/21 01:43:46 ahd Exp $
  *
- *    $Log$
+ *    $Log: dcp.h $
+ * Revision 1.7  1993/09/21  01:43:46  ahd
+ * Move MAXPACK to commlib.h to allow use as standard comm buffer size
+ *
  *      Mon May 15 19:54:43 1989 change portactive to port_active
  *      Mon May 15 19:51:13 1989 Add portactive flag
  *      19 Mar 1990  Add hostable.h header                           ahd
@@ -66,6 +69,7 @@ typedef enum {
       CONN_CLIENT,            /* Process files after being called    */
       CONN_TERMINATE,         /* Terminate procotol                  */
       CONN_DROPLINE,          /* Hangup the telephone                */
+      CONN_WAIT,              /* Wait until told to continue         */
       CONN_EXIT }             /* Exit state machine loop             */
       CONN_STATE ;
 
