@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.37 1995/02/12 23:37:04 ahd Exp $
+ *    $Id: deliver.c 1.38 1995/02/14 04:40:42 ahd v1-12n $
  *
  *    $Log: deliver.c $
+ *    Revision 1.38  1995/02/14 04:40:42  ahd
+ *    Make compare for postmaster case insensitive
+ *
  *    Revision 1.37  1995/02/12 23:37:04  ahd
  *    compiler cleanup, NNS C/news support, optimize dir processing
  *
@@ -736,9 +739,9 @@ static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
                           KWBoolean validate)  /* Validate/forward
                                                 local mail            */
 {
-   char *saveTemp = E_tempdir;
    char dname[FILENAME_MAX];
    char xname[FILENAME_MAX];
+   char *seq = jobNumber( getSeq(), 4, KWTrue );
    FILE *stream;
 
    if (( E_vmsQueueDir == NULL ) || (E_vmail == NULL ))
@@ -750,12 +753,8 @@ static size_t DeliverVMS( IMFILE *imf,          /* Input file name    */
                      user,
                      validate );
 
-   E_tempdir = E_vmsQueueDir;    /* Need to generate names for VMS   */
-
-   mktempname( dname, "D");
-   mktempname( xname, "X");
-
-   E_tempdir = saveTemp;         /* Restore true directory name      */
+   sprintf( dname, "%s/uupc%s.d", E_vmsQueueDir, seq );
+   sprintf( xname, "%s/uupc%s.x", E_vmsQueueDir, seq );
 
 /*--------------------------------------------------------------------*/
 /*                  Now create the actual data file                   */
