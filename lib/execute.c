@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.37 1995/01/05 03:41:36 ahd Exp $
+ *    $Id: execute.c 1.38 1995/01/07 16:12:13 ahd v1-12n $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.38  1995/01/07 16:12:13  ahd
+ *    Change boolean to KWBoolean to avoid VC++ 2.0 conflict
+ *
  *    Revision 1.37  1995/01/05 03:41:36  ahd
  *    Print more precise error messages for file errors
  *
@@ -490,7 +493,11 @@ int execute( const char *command,
 
       result = spawnl(  P_WAIT,
                         (char *) path,
+#ifdef __IBMC__
+                        (char *) (parameters ? command : NULL),
+#else
                         (char *) command,
+#endif
                         (char *) parameters,
                         NULL);
 
