@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: modem.c 1.46 1994/04/27 00:02:15 ahd Exp $
+ *    $Id: modem.c 1.47 1994/05/08 02:43:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: modem.c $
+ *        Revision 1.47  1994/05/08  02:43:07  ahd
+ *        Handle carrier detect option internal to CD()
+ *
  *        Revision 1.46  1994/04/27  00:02:15  ahd
  *        Pick one: Hot handles support, OS/2 TCP/IP support,
  *                  title bar support
@@ -553,7 +556,7 @@ CONN_STATE callin( const time_t exit_time )
       }
 
       interactive_processing = TRUE;
-      printmsg(14, "callin: Modem reports connected");
+      printmsg(14, "callin: Network reports connected");
 
    }
    else {
@@ -807,7 +810,8 @@ static boolean dial(char *number, const BPS speed)
 
    }  /* if ( !IsNetwork() ) */
 
-   printmsg(3, "dial: Modem reports connected");
+   printmsg(3, "dial: %s reports connected",
+               IsNetwork() ? "Network" : "Modem" );
 
    time( &remote_stats.lconnect );
    remote_stats.calls ++ ;
