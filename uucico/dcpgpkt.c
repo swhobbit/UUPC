@@ -26,9 +26,12 @@
 */
 
 /*
- *      $Id: dcpgpkt.C 1.9 1993/04/05 04:32:19 ahd Exp $
+ *      $Id: DCPGPKT.C 1.10 1993/04/13 02:26:30 ahd Exp $
  *
- *      $Log: dcpgpkt.C $
+ *      $Log: DCPGPKT.C $
+ * Revision 1.10  1993/04/13  02:26:30  ahd
+ * Move buffers to FAR memory
+ *
  * Revision 1.9  1993/04/05  04:32:19  ahd
  * Allow unique send and receive packet sizes
  *
@@ -204,7 +207,7 @@ static short timeouts, outsequence, naksin, naksout, screwups;
 static short reinit, shifts, badhdr, resends;
 static unsigned char *grpkt = NULL;
 #ifndef WIN32
-static unsigned char *gspkt = NULL;
+static char *gspkt = NULL;
 #endif
 static boolean variablepacket;  /* "v" or in modem file              */
 
