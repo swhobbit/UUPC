@@ -22,9 +22,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailaddr.h 1.1 1997/12/13 18:11:33 ahd v1-12u $
+ *    $Id: mailaddr.h 1.2 1998/03/01 01:30:57 ahd v1-12v $
  *
  *    $Log: mailaddr.h $
+ *    Revision 1.2  1998/03/01 01:30:57  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.1  1997/12/13 18:11:33  ahd
  *    Initial revision
  *
@@ -35,7 +38,9 @@ typedef struct _MAIL_ADDR
    char *address;
    char *relay;
    char *host;
-   char *user;
+   char *user;                   /* Mailbox of sender address        */
+   char *activeUser;             /* Local user executing program     */
+   KWBoolean remote;             /* Address is non-local             */
 }  MAIL_ADDR;
 
 #endif /* _MAILADDR_H */
