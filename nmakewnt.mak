@@ -1,10 +1,13 @@
-#       $Id: nmakewnt.mak 1.27 1998/04/19 23:55:04 ahd Exp $
+#       $Id: nmakewnt.mak 1.28 1998/04/20 02:47:11 ahd Exp $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakewnt.mak $
+#       Revision 1.28  1998/04/20 02:47:11  ahd
+#       TAPI/32 Windows GUI support
+#
 #       Revision 1.27  1998/04/19 23:55:04  ahd
 #       *** empty log message ***
 #
@@ -100,6 +103,7 @@ UDEBUGFLAG=
 UDEBUGFLAG=-DUDEBUG
 !endif
 
+ICONS    = icons.win
 !ifdef GUI
 GUIOPT  = -DUUGUI
 

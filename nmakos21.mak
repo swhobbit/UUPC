@@ -1,10 +1,13 @@
-#       $Id: nmakos21.mak 1.11 1997/04/24 01:01:43 ahd v1-12u $
+#       $Id: nmakos21.mak 1.12 1998/03/01 01:22:12 ahd v1-12x $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos21.mak $
+#       Revision 1.12  1998/03/01 01:22:12  ahd
+#       Annual Copyright Update
+#
 #       Revision 1.11  1997/04/24 01:01:43  ahd
 #       Annual Copyright Update
 #
@@ -46,6 +49,7 @@
 #
 #
 
+ICONS    = icons.os2
 ERASE    = del /f               # Assumes actually building on OS/2 2.x
 EXTRA1   = $(PROD)\mail.ico $(PROD)\uucico.ico
 EXTRAS   = $(PROD)\pnews.cmd $(PROD)\mailchek.cmd $(PROD)\getuupc.cmd   \

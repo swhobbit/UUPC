@@ -1,10 +1,13 @@
-#       $Id: nmakos22.mak 1.23 1998/03/01 01:22:14 ahd Exp $
+#       $Id: nmakos22.mak 1.24 1998/03/01 19:36:36 ahd v1-12x $
 #
 #       Copyright (c) 1989-1998 by Kendra Electronic Wonderworks;
 #       all rights reserved except those explicitly granted by
 #       the UUPC/extended license.
 #
 #       $Log: nmakos22.mak $
+#       Revision 1.24  1998/03/01 19:36:36  ahd
+#       First compiling POP3 server which accepts user id/password
+#
 #       Revision 1.23  1998/03/01 01:22:14  ahd
 #       Annual Copyright Update
 #
@@ -85,6 +88,7 @@
 #
 #
 
+ICONS    = icons.os2
 ERASE    = del /f
 EXTRA1   = $(DLLPROD)\$(DLLNAME) $(PROD)\mail.ico $(PROD)\uucico.ico \
            $(PROD)\uucicon.exe $(PROD)\rmailn.exe $(PROD)\uusmtpd.exe  \
