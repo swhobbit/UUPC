@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3user.c 1.1 1998/03/01 19:42:17 ahd Exp $
+ *       $Id: mailnewm.c 1.1 1998/03/03 03:51:53 ahd v1-12v $
  *
  *       Revision History:
- *       $Log: pop3user.c $
+ *       $Log: mailnewm.c $
+ *       Revision 1.1  1998/03/03 03:51:53  ahd
+ *       Initial revision
+ *
  */
 
 /*--------------------------------------------------------------------*/
@@ -36,7 +39,7 @@
 /*                          Local constants                           */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id$");
+RCSID("$Id: mailnewm.c 1.1 1998/03/03 03:51:53 ahd v1-12v $");
 
 currentfile();
 
@@ -115,7 +118,7 @@ IncludeNew(const char *target, const char *user)
 
    if (stream_in == NULL)
    {
-      if (debuglevel > 1)
+      if (debuglevel > 2)
          printerr(sysbox);
       return KWTrue;
    }
