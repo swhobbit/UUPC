@@ -37,9 +37,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: regsetup.c 1.1 1994/03/27 19:11:18 dnwatt Exp $
+ *    $Id: regsetup.c 1.1 1994/04/24 20:24:43 dmwatt v1-12k $
  *
  *    $Log: regsetup.c $
+ *    Revision 1.1  1994/04/24 20:24:43  dmwatt
+ *    Initial revision
+ *
  *
  * Revision 1.1  1994/03/27  19:11:18  dmwatt
  * Initial revision
@@ -49,7 +52,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: regsetup.c 1.1 1994/03/27 19:11:18 dmwatt Exp $";
+         "$Id: regsetup.c 1.1 1994/04/24 20:24:43 dmwatt v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include file                         */
@@ -81,8 +84,8 @@ void PutRegistry(HKEY hBaseHive, char *subKeyName, char *keyName, char *keyValue
 void CopyTable(HKEY hSystemHive, char *subkey, CONFIGTABLE *table);
 void ClearRegistry(void);
 void DeleteTree(HKEY hTreeBase);
-boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive);
-boolean getrcnames(char **sysp,char **usrp);
+KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive);
+KWBoolean getrcnames(char **sysp,char **usrp);
 void Usage(void);
 
 static char *E_tz;
@@ -98,9 +101,9 @@ extern CONFIGTABLE envtable[];
  {
 
    int option;
-   boolean doSystem = FALSE;
-   boolean doUser = FALSE;
-   boolean doClear = FALSE;
+   KWBoolean doSystem = KWFalse;
+   KWBoolean doUser = KWFalse;
+   KWBoolean doClear = KWFalse;
    HKEY hSystemHive = INVALID_HANDLE_VALUE;
    HKEY hUserHive = INVALID_HANDLE_VALUE;
 
@@ -113,18 +116,18 @@ extern CONFIGTABLE envtable[];
 /*   Copy the contents of UUPC.RC into HKEY_LOCAL_MACHINE             */
 /*--------------------------------------------------------------------*/
       case 's':
-         doSystem = TRUE;
+         doSystem = KWTrue;
          break;
 
 /*--------------------------------------------------------------------*/
 /*   Copy the contents of [userid].RC into HKEY_CURRENT_USER          */
 /*--------------------------------------------------------------------*/
       case 'u':
-         doUser = TRUE;
+         doUser = KWTrue;
          break;
 
       case 'c':
-         doClear = TRUE;
+         doClear = KWTrue;
          break;
    }
 
@@ -176,11 +179,11 @@ HKEY CreateHive(HKEY topLevel)
    return hResultKey;
 }
 
-boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
+KWBoolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 {
    char *sysrc, *usrrc;
    FILE *fp;
-   boolean success;
+   KWBoolean success;
    char buf[BUFSIZ];
    int subscript = 0;
    char *s, *ptr;
@@ -199,20 +202,20 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    typedef struct _DEFAULTS {
       char **value;
       char *literal;
-      boolean path;
+      KWBoolean path;
    } DEFAULTS;
 
    static DEFAULTS deflist[] = {
-        {&E_archivedir,   "archive" , TRUE },
-        {&E_maildir,      "mail"    , TRUE },
-        {&E_newsdir,      "news"    , TRUE },
-        {&E_pubdir,       "public"  , TRUE },
-        {&E_spooldir,     "spool"   , TRUE },
-        {&E_tempdir,      "tmp"     , TRUE },
-        {&E_systems,      "systems" , TRUE },
-        {&E_passwd,       "passwd"  , TRUE },
-        {&E_permissions,  "permissn", TRUE },
-        {&E_tz,           "tz"      , FALSE},
+        {&E_archivedir,   "archive" , KWTrue },
+        {&E_maildir,      "mail"    , KWTrue },
+        {&E_newsdir,      "news"    , KWTrue },
+        {&E_pubdir,       "public"  , KWTrue },
+        {&E_spooldir,     "spool"   , KWTrue },
+        {&E_tempdir,      "tmp"     , KWTrue },
+        {&E_systems,      "systems" , KWTrue },
+        {&E_passwd,       "passwd"  , KWTrue },
+        {&E_permissions,  "permissn", KWTrue },
+        {&E_tz,           "tz"      , KWFalse},
         { NULL  }
         } ;
 
@@ -226,7 +229,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
 #endif
 
    if (!getrcnames(&sysrc, &usrrc))
-      return FALSE;
+      return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*          Extract selected variables from our environment           */
@@ -291,7 +294,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    for (ptr = sysrc; *ptr != '\0'; ptr++)       /* Convert to slashes */
       if (*ptr == '\\')
          *ptr = '/';
-           
+
    PutRegistry(hSystemHive, NULL, SYSRCSYM, sysrc);
 
 /*--------------------------------------------------------------------*/
@@ -302,7 +305,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    {
       printmsg(0, "Cannot open system configuration file \"%s\"", sysrc);
       printerr(sysrc);
-      return FALSE;
+      return KWFalse;
    }
 
    PushDir( E_confdir );
@@ -313,7 +316,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
    if (!success)
    {
       PopDir();
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -344,7 +347,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
       for (ptr = usrrc; *ptr != '\0'; ptr++)    /* Convert to slashes */
          if (*ptr == '\\')
             *ptr = '/';
-           
+
 /*--------------------------------------------------------------------*/
 /*      Put the UUPCUSRRC environment variable into the registry      */
 /*--------------------------------------------------------------------*/
@@ -358,7 +361,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
          PopDir();
-         return FALSE;
+         return KWFalse;
       }
 
 /*--------------------------------------------------------------------*/
@@ -371,7 +374,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
       if (*(tptr->loc) == NULL)
          continue;  /* Skip uninitialized */
 
-/* For now, take it easy:  leave out booleans, shorts, longs, and lists */
+/* For now, take it easy:  leave out KWBooleans, shorts, longs, and lists */
       if (tptr->bits & B_BOOLEAN)
          continue;
       if (tptr->bits & (B_SHORT|B_LONG))
@@ -393,7 +396,7 @@ boolean regconfigure( CONFIGBITS program, HKEY hSystemHive, HKEY hUserHive)
       if (!success)
       {
          PopDir();
-         return FALSE;
+         return KWFalse;
       }
 
    }
@@ -482,7 +485,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
       }
       else if (tptr->bits & B_BOOLEAN)
       {
-         /* For now, take it easy:  leave out booleans */
+         /* For now, take it easy:  leave out KWBooleans */
          continue;
       }
       else if (tptr->bits & (B_SHORT|B_LONG))
@@ -523,7 +526,7 @@ void CopyTable(HKEY hSystemHive, char *subKey, CONFIGTABLE *table)
 			   strcat(buf, delimiter);
 			else
 			   break;
-			   
+			
          }
          PutRegistry(hSystemHive, subKey, tptr->sym, buf);
       } else

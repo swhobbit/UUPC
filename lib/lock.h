@@ -13,11 +13,11 @@ typedef struct {
    FILE *locket;
    } LOCKSTACK;
 
-extern boolean locked;
+extern KWBoolean locked;
 
 void UnlockSystem( void );
 
-boolean LockSystem( const char *system , long program );
+KWBoolean LockSystem( const char *system , long program );
 
 /*--------------------------------------------------------------------*/
 /*                   Allow an additional local lock                   */

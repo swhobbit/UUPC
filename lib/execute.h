@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.h 1.2 1994/01/01 19:08:10 ahd v1-12k $
+ *    $Id: execute.h 1.3 1994/12/22 00:12:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.h $
+ *    Revision 1.3  1994/12/22 00:12:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.2  1994/01/01 19:08:10  ahd
  *    Annual Copyright Update
  *
@@ -40,11 +43,11 @@ int execute( const char *command,
              const char *parameters,
              const char *input,
              const char *output,
-             const boolean synchronous,
-             const boolean foreground );
+             const KWBoolean synchronous,
+             const KWBoolean foreground );
 
 int executeCommand( const char *command,
                     const char *input,
                     const char *output,
-                    const boolean synchronous,
-                    const boolean foreground );
+                    const KWBoolean synchronous,
+                    const KWBoolean foreground );

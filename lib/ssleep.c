@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: ssleep.c 1.23 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: ssleep.c 1.24 1994/12/22 00:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: ssleep.c $
+ *    Revision 1.24  1994/12/22 00:11:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.23  1994/12/09 03:42:09  ahd
  *    All suppressbeep support to allow NOT making any sound
  *
@@ -167,7 +170,7 @@ void ddelay( KEWSHORT milliseconds )
 {
    MSG msg;
    WORD TimerId = 1;
-   BOOL bTimerDone = FALSE;
+   BOOL bTimerDone = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*          A 0-delay call means give up control to Windows           */
@@ -208,7 +211,7 @@ void ddelay( KEWSHORT milliseconds )
       switch( msg.message )
       {
          case WM_TIMER:
-            bTimerDone = TRUE;
+            bTimerDone = KWTrue;
             /* Fall through and dispatch message   */
 
          default:
@@ -357,7 +360,7 @@ static void WinGiveUpTimeSlice(void)
 /*--------------------------------------------------------------------*/
 /*    R u n n i n g U n d e r D e s q v i e w                         */
 /*                                                                    */
-/*    Returns TRUE if running under that OTHER DOS multi-tasker.      */
+/*    Returns KWTrue if running under that OTHER DOS multi-tasker.     */
 /*--------------------------------------------------------------------*/
 
 static int RunningUnderDesqview(void)
@@ -432,7 +435,7 @@ void   ddelay   (KEWSHORT interval )
 
    if (bflag[F_ESCAPE])       /* Special Ctrl-C processing avail?     */
    {
-      boolean beep = TRUE;
+      KWBoolean beep = KWTrue;
 
       while (safepeek())      /* Yes --> While character in buffer    */
       {
@@ -444,7 +447,7 @@ void   ddelay   (KEWSHORT interval )
              if ( ! bflag[F_SUPPRESSBEEP] )
              {
                 putchar('\a');   /* No --> Complain to user           */
-                beep = FALSE;    /* But be nice about it ...
+                beep = KWFalse;   /* But be nice about it ...
                                     only once per pass through here   */
              }
 

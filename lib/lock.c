@@ -13,10 +13,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lock.c 1.13 1994/02/19 04:08:14 ahd Exp $
+ *    $Id: lock.c 1.14 1994/02/19 04:43:20 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: lock.c $
+ *    Revision 1.14  1994/02/19 04:43:20  ahd
+ *    Use standard first header
+ *
  *     Revision 1.13  1994/02/19  04:08:14  ahd
  *     Use standard first header
  *
@@ -91,7 +94,7 @@ currentfile();
 static FILE *locket = NULL;
 static char lname[FILENAME_MAX];
 
-boolean locked = FALSE;
+KWBoolean locked = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*    L o c k S y s t e m                                             */
@@ -99,7 +102,7 @@ boolean locked = FALSE;
 /*    Get the lock for a system                                       */
 /*--------------------------------------------------------------------*/
 
-boolean LockSystem( const char *system , long program )
+KWBoolean LockSystem( const char *system , long program )
 {
    time_t age;
    char fname[FILENAME_MAX];
@@ -110,7 +113,7 @@ boolean LockSystem( const char *system , long program )
 /*--------------------------------------------------------------------*/
 
    if ( ! bflag[ F_MULTITASK ] )
-      return TRUE;
+      return KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                Verify our lock is not already in use               */
@@ -179,7 +182,7 @@ boolean LockSystem( const char *system , long program )
       printmsg(1, "System %s already locked since %s",
                system,
                (size > 0) ? dater( age, NULL ) : "UNKNOWN" );
-      return FALSE;
+      return KWFalse;
    }
 
    setvbuf( locket, NULL, _IONBF, 0);
@@ -193,8 +196,8 @@ boolean LockSystem( const char *system , long program )
 /*     We don't close the file, since the open file *is* the lock     */
 /*--------------------------------------------------------------------*/
 
-   locked = TRUE;
-   return TRUE;
+   locked = KWTrue;
+   return KWTrue;
 
 } /* LockSystem */
 
@@ -230,7 +233,7 @@ void UnlockSystem( void )
 
    fclose( locket );
    locket = NULL;
-   locked = FALSE;
+   locked = KWFalse;
 
    unlink( lname );
 
@@ -250,7 +253,7 @@ void PushLock( LOCKSTACK *top )
       strcpy( top->lname, lname );
       locket =  NULL;
    }
-   locked = FALSE;
+   locked = KWFalse;
 
 }
 
@@ -267,7 +270,7 @@ void PopLock( LOCKSTACK *top )
    if ( locket !=  NULL )
    {
       strcpy( lname, top->lname );
-      locked = TRUE;
+      locked = KWTrue;
    }
 
 } /* PopLock */

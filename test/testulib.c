@@ -16,9 +16,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: TESTULIB.C 1.1 1992/11/29 22:09:10 ahd Exp $
+ *    $Id: testulib.c 1.2 1992/12/30 12:26:32 plummer v1-12k $
  *
- *    $Log: TESTULIB.C $
+ *    $Log: testulib.c $
+ *    Revision 1.2  1992/12/30 12:26:32  plummer
+ *    Report errors
+ *
  * Revision 1.1  1992/11/29  22:09:10  ahd
  * Initial revision
  *
@@ -88,15 +91,15 @@ int CheckErrors( void )
 
    stats = com_errors();
 
-   if( stats[COM_EOVFLOW] ) return( TRUE );
-   if( stats[COM_EOVRUN] ) return( TRUE );
-   if( stats[COM_EBREAK] ) return( TRUE );
-   if( stats[COM_EFRAME] ) return( TRUE );
-   if( stats[COM_EPARITY] ) return( TRUE );
-   if( stats[COM_EXMIT] ) return( TRUE );
-   if( stats[COM_EDSR] ) return( TRUE );
-   if( stats[COM_ECTS] ) return( TRUE );
-   return( FALSE );
+   if( stats[COM_EOVFLOW] ) return( KWTrue );
+   if( stats[COM_EOVRUN] ) return( KWTrue );
+   if( stats[COM_EBREAK] ) return( KWTrue );
+   if( stats[COM_EFRAME] ) return( KWTrue );
+   if( stats[COM_EPARITY] ) return( KWTrue );
+   if( stats[COM_EXMIT] ) return( KWTrue );
+   if( stats[COM_EDSR] ) return( KWTrue );
+   if( stats[COM_ECTS] ) return( KWTrue );
+   return( KWFalse );
 }
 
 
@@ -450,7 +453,7 @@ void main( int argc, char ** argv )
 /*--------------------------------------------------------------------*/
 
    atexit( shutdown );
-   interactive_processing = FALSE;     /* Quit immediately           */
+   interactive_processing = KWFalse;    /* Quit immediately           */
 
    while ( ! done )
    {
@@ -460,7 +463,7 @@ void main( int argc, char ** argv )
       if ( opened )
          printf("Opened, debuglevel %d, CD reports: %s\n",
                   debuglevel,
-                  CD() ? "TRUE" : "FALSE" );
+                  CD() ? "KWTrue" : "KWFalse" );
       else
          printf("Closed, debuglevel %d\n", debuglevel );
 

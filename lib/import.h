@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.h 1.5 1994/01/01 19:08:58 ahd v1-12k $
+ *    $Id: import.h 1.6 1994/12/22 00:13:09 ahd Exp $
  *
  *    Revision history:
  *    $Log: import.h $
+ *    Revision 1.6  1994/12/22 00:13:09  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/01/01 19:08:58  ahd
  *    Annual Copyright Update
  *
@@ -55,5 +58,5 @@ void importpath(char *host,
                 const char *canon,
                 const char *remote);
 
-boolean ValidDOSName( const char *s,
-                      const boolean longname );
+KWBoolean ValidDOSName( const char *s,
+                      const KWBoolean longname );

@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.h 1.5 1994/01/01 19:10:27 ahd v1-12k $
+ *    $Id: winutil.h 1.6 1994/12/22 00:14:46 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.h $
+ *    Revision 1.6  1994/12/22 00:14:46  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/01/01 19:10:27  ahd
  *    Annual Copyright Update
  *
@@ -55,7 +58,7 @@ void SetWndFixedFont(HWND hWnd, int nPtSize, char *lfFaceName);
 
 int SpawnWait( const char *cmdLine,
                const char *parameters,
-               const boolean synchronous,
+               const KWBoolean synchronous,
                const UINT fuCmdShow);
 
 void CloseEasyWin(void);

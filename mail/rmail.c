@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: rmail.c 1.32 1994/12/22 00:19:47 ahd Exp $
+ *    $Id: rmail.c 1.33 1994/12/31 03:41:08 ahd Exp $
  *
  *    $Log: rmail.c $
+ *    Revision 1.33  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.32  1994/12/22 00:19:47  ahd
  *    Annual Copyright Update
  *
@@ -210,11 +213,11 @@
 /*                   Prototypes for internal files                    */
 /*--------------------------------------------------------------------*/
 
-static boolean CopyTemp( void );
+static KWBoolean CopyTemp( void );
 
 static void ParseFrom( const char *forwho);
 
-static char **Parse822( boolean *header,
+static char **Parse822( KWBoolean *header,
                         size_t *count);
 
 static void Terminate( const int rc);
@@ -222,9 +225,9 @@ static void Terminate( const int rc);
  static void PutHead( const char *label,
                       const char *operand,
                       FILE *stream,
-                      const boolean resent);
+                      const KWBoolean resent);
 
-static boolean DaemonMail( const char *subject,
+static KWBoolean DaemonMail( const char *subject,
                            char **address,
                            int count );
 
@@ -253,7 +256,7 @@ static boolean DaemonMail( const char *subject,
 
 void main(int argc, char **argv)
 {
-   boolean ReadHeader = FALSE;   /* TRUE = Parse RFC-822 headers      */
+   KWBoolean ReadHeader = KWFalse;  /* KWTrue = Parse RFC-822 headers    */
 
    int  option;                  /* For parsing option list           */
    int  tempHandle;              /* For redirecting stdin             */
@@ -264,10 +267,10 @@ void main(int argc, char **argv)
    size_t count;                 /* Loop variable for delivery        */
    size_t delivered = 0;         /* Count of successful deliveries    */
    int user_debug  = -1;
-   boolean header = TRUE;        /* Assume terminated header         */
-   boolean DeleteInput = FALSE;
+   KWBoolean header = KWTrue;      /* Assume terminated header         */
+   KWBoolean DeleteInput = KWFalse;
 
-   boolean daemon = FALSE;
+   KWBoolean daemon = KWFalse;
 
    char *subject = NULL;
    char *logname = NULL;
@@ -317,7 +320,7 @@ void main(int argc, char **argv)
       {
 
       case 'F':
-         DeleteInput = TRUE;
+         DeleteInput = KWTrue;
          /* Fall through to regular file name choice */
 
       case 'f':
@@ -340,15 +343,15 @@ void main(int argc, char **argv)
 
       case 's':
          subject = optarg;
-         daemon = TRUE;
+         daemon = KWTrue;
          break;
 
       case 't':
-         ReadHeader = TRUE;
+         ReadHeader = KWTrue;
          break;
 
       case 'w':
-         daemon = TRUE;
+         daemon = KWTrue;
          break;
 
       case 'x':
@@ -443,7 +446,7 @@ void main(int argc, char **argv)
       addressees = argc - optind;
       address = &argv[optind];
       DaemonMail( subject, address, addressees );
-      header = FALSE;
+      header = KWFalse;
    }
    else if (ReadHeader)
       address = Parse822( &header, &addressees );
@@ -518,7 +521,7 @@ void main(int argc, char **argv)
          if ( *address[count] == '-')
             delivered ++;     /* Ignore option flags on delivery     */
          else
-            delivered += Deliver(tempname, address[count], TRUE);
+            delivered += Deliver(tempname, address[count], KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*                       Terminate the program                        */
@@ -569,7 +572,7 @@ static void ParseFrom( const char *forwho)
 
    char *token;
    char buf[BUFSIZ];
-   boolean hit;
+   KWBoolean hit;
 
    uuser = "uucp";            /* Effective id is always our daemon   */
    *fromUser = '\0';          /* Initialize for later tests          */
@@ -754,7 +757,7 @@ static void ParseFrom( const char *forwho)
 /*    original headers.                                               */
 /*--------------------------------------------------------------------*/
 
-static char **Parse822( boolean *header,
+static char **Parse822( KWBoolean *header,
                         size_t *count)
 {
 
@@ -785,26 +788,26 @@ static char **Parse822( boolean *header,
    {
       const char *text;
       char  *address;
-      const boolean blind;
-      const boolean required;
-      const boolean output;
-      boolean found;
+      const KWBoolean blind;
+      const KWBoolean required;
+      const KWBoolean output;
+      KWBoolean found;
    } HEADERS;
 
-   boolean blind = FALSE;
-   boolean output = FALSE;
+   KWBoolean blind = KWFalse;
+   KWBoolean output = KWFalse;
 
    char sender[MAXADDR];
    char from[MAXADDR];
 
    static HEADERS headerTable[] =
    {
-      { "From:",   NULL,  FALSE, TRUE,  FALSE, FALSE },
-      { "Sender:", NULL,  FALSE, FALSE, FALSE, FALSE },
-      { "To:",     NULL,  FALSE, FALSE, TRUE,  FALSE },
-      { "Cc:",     NULL,  FALSE, FALSE, TRUE,  FALSE },
-      { "Bcc:",    NULL,  TRUE,  FALSE, TRUE,  FALSE },
-      { "Date:",   NULL,  FALSE, FALSE, FALSE, FALSE },
+      { "From:",   NULL,  KWFalse, KWTrue,  FALSE, FALSE },
+      { "Sender:", NULL,  KWFalse, FALSE, FALSE, FALSE },
+      { "To:",     NULL,  KWFalse, FALSE, KWTrue,  FALSE },
+      { "Cc:",     NULL,  KWFalse, FALSE, KWTrue,  FALSE },
+      { "Bcc:",    NULL,  KWTrue,  KWFalse, TRUE,  FALSE },
+      { "Date:",   NULL,  KWFalse, FALSE, FALSE, FALSE },
       { NULL }
    };
 
@@ -825,7 +828,7 @@ static char **Parse822( boolean *header,
       else if ( equal( headerTable[subscript].text, "Sender:" ))
          senderID = subscript;
 
-      headerTable[subscript].found = FALSE;
+      headerTable[subscript].found = KWFalse;
 
    } /* for */
 
@@ -858,7 +861,7 @@ static char **Parse822( boolean *header,
 
    sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
    PutHead("Message-ID:", buf, dataout , offset != 0 );
-   PutHead(NULL, NULL, dataout , FALSE ); /* Terminate header        */
+   PutHead(NULL, NULL, dataout , KWFalse ); /* Terminate header       */
 
 /*--------------------------------------------------------------------*/
 /*                        Find the From: line                         */
@@ -870,8 +873,8 @@ static char **Parse822( boolean *header,
 
       if ( *buf == '\n')         /* end of the header?               */
       {
-         output = *header = FALSE;  /* Yes --> reset all our flags   */
-         blind = TRUE;           /* We'll print terminator later     */
+         output = *header = KWFalse;  /* Yes --> reset all our flags  */
+         blind = KWTrue;          /* We'll print terminator later     */
       }
 
 /*--------------------------------------------------------------------*/
@@ -880,7 +883,7 @@ static char **Parse822( boolean *header,
 
       else if ( isgraph( *buf )) /* Start of a new header?           */
       {
-         blind = output = FALSE; /* Reset processing flags for this
+         blind = output = KWFalse; /* Reset processing flags for this
                                     header                           */
 
          if ( equalni( buf, resent, resentLen ))   /* Msg a resend?  */
@@ -908,7 +911,7 @@ static char **Parse822( boolean *header,
                   return NULL;
                }
 
-               headerTable[subscript].found = TRUE;
+               headerTable[subscript].found = KWTrue;
                blind  = headerTable[subscript].blind;
                output = headerTable[subscript].output;
 
@@ -929,7 +932,7 @@ static char **Parse822( boolean *header,
                {
                   ExtractAddress( headerTable[subscript].address,
                                   startAddress,
-                                  FALSE );
+                                  KWFalse );
                }
 
 /*--------------------------------------------------------------------*/
@@ -977,7 +980,7 @@ static char **Parse822( boolean *header,
       while( *outputBuffer &&
              (! output || (strlen(outputBuffer) > MAXADDR )))
       {
-         char *next = ExtractAddress( address, outputBuffer, FALSE );
+         char *next = ExtractAddress( address, outputBuffer, KWFalse );
                                  /* Get address to add to list    */
 
          if (allocated == (*count+1))  /* Do we have room for addr?  */
@@ -1084,7 +1087,7 @@ static char **Parse822( boolean *header,
 /*                        Terminate the header                        */
 /*--------------------------------------------------------------------*/
 
-   PutHead(NULL, NULL, dataout , FALSE ); /* End the headers         */
+   PutHead(NULL, NULL, dataout , KWFalse ); /* End the headers        */
    fputc('\n', dataout );
 
 /*--------------------------------------------------------------------*/
@@ -1101,18 +1104,18 @@ static char **Parse822( boolean *header,
 /*    Copy the un-parsed parts of a message into the holding file     */
 /*--------------------------------------------------------------------*/
 
-static boolean CopyTemp( void )
+static KWBoolean CopyTemp( void )
 {
-   boolean header = TRUE;
+   KWBoolean header = KWTrue;
    char buf[BUFSIZ];
-   boolean newline = TRUE;
+   KWBoolean newline = KWTrue;
 
    while (fgets(buf, BUFSIZ, datain) != NULL)
    {
       if (header)
       {
          if (*buf == '\n')
-            header = FALSE;
+            header = KWFalse;
          else if (equalni(received, buf, receivedlen))
             hops++;
       }
@@ -1124,7 +1127,7 @@ static boolean CopyTemp( void )
          printerr(tempname);
          printmsg(0,"I/O error on \"%s\"", tempname);
          fclose(dataout);
-         return FALSE;
+         return KWFalse;
       } /* if */
    } /* while */
 
@@ -1149,7 +1152,7 @@ static boolean CopyTemp( void )
 /*    Send text in a mailbag file to address(es) specified by address */
 /*--------------------------------------------------------------------*/
 
-static boolean DaemonMail( const char *subject,
+static KWBoolean DaemonMail( const char *subject,
                           char **address,
                           int count )
 {
@@ -1160,7 +1163,7 @@ static boolean DaemonMail( const char *subject,
    struct UserTable *userp;
    char *header = "To:";
    char *cc     = "Cc:";
-   boolean print = TRUE;
+   KWBoolean print = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*                         Validate the input                         */
@@ -1169,7 +1172,7 @@ static boolean DaemonMail( const char *subject,
    if ( count == 0 )
    {
       printmsg(0,"rmail: No addresseses to deliver to!");
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1218,10 +1221,10 @@ static boolean DaemonMail( const char *subject,
 /*--------------------------------------------------------------------*/
 
    sprintf(buf, "<%lx.%s@%s>", time( NULL ) , E_nodename, E_domain);
-   PutHead("Message-ID:", buf, dataout , FALSE );
-   PutHead(NULL, NULL, dataout , FALSE );
+   PutHead("Message-ID:", buf, dataout , KWFalse );
+   PutHead(NULL, NULL, dataout , KWFalse );
 
-   PutHead("Date:", arpadate() , dataout, FALSE);
+   PutHead("Date:", arpadate() , dataout, KWFalse);
 
    if (bflag[F_BANG])
       sprintf(buf, "(%s) %s!%s", moi, E_nodename, username );
@@ -1229,10 +1232,10 @@ static boolean DaemonMail( const char *subject,
       sprintf(buf, "\"%s\" <%s@%s>", moi, username , E_fdomain );
    }
 
-   PutHead("From:", buf, dataout, FALSE );
+   PutHead("From:", buf, dataout, KWFalse );
 
    if (E_organization != NULL )
-      PutHead("Organization:", E_organization, dataout, FALSE);
+      PutHead("Organization:", E_organization, dataout, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*                      Write the address out                         */
@@ -1249,7 +1252,7 @@ static boolean DaemonMail( const char *subject,
             cc = "";
          }
          else if (token[1] == 'b')
-            print = FALSE;
+            print = KWFalse;
          else
             printmsg(0,"rmail: Invalid flag \"%s\" ignored!", token);
       } /* if ( token == '-') */
@@ -1264,7 +1267,7 @@ static boolean DaemonMail( const char *subject,
             token = buf;
          }
 
-         PutHead(header , token, dataout, FALSE);
+         PutHead(header , token, dataout, KWFalse);
          header = "";         /* Continue same field by default      */
       }
    } /* while( (count-- > 0) && print ) */
@@ -1274,9 +1277,9 @@ static boolean DaemonMail( const char *subject,
 /*--------------------------------------------------------------------*/
 
    if (subject != NULL)
-      PutHead("Subject:", subject, dataout, FALSE);
+      PutHead("Subject:", subject, dataout, KWFalse);
 
-   PutHead(NULL, "", dataout, FALSE);  /* Terminate the header line   */
+   PutHead(NULL, "", dataout, KWFalse);  /* Terminate the header line  */
    fputc('\n',dataout );               /* Terminate the header        */
 
 /*--------------------------------------------------------------------*/
@@ -1290,7 +1293,7 @@ static boolean DaemonMail( const char *subject,
                               /* Use full domain address, if possible */
 
    strcpy(fromNode, E_nodename);/* Declare as local system           */
-   return TRUE;
+   return KWTrue;
 
 } /*DaemonMail*/
 
@@ -1303,16 +1306,16 @@ static boolean DaemonMail( const char *subject,
  static void PutHead( const char *label,
                       const char *operand,
                       FILE *stream,
-                      const boolean resent)
+                      const KWBoolean resent)
  {
-   static boolean terminate = TRUE;
+   static KWBoolean terminate = KWTrue;
 
    if (label == NULL )        /* Terminate call?                     */
    {                          /* Yes --> Reset Flag and return       */
       if ( ! terminate )
       {
          fputc('\n', stream); /* Terminate the current line          */
-         terminate = TRUE;
+         terminate = KWTrue;
       }
       return;
    } /* if */
@@ -1326,7 +1329,7 @@ static boolean DaemonMail( const char *subject,
          fprintf(stream,"Resent-%s %s",label, operand);
       else
          fprintf(stream,"%-10s %s",label, operand);
-      terminate = FALSE;          /* Flag that we did not end file   */
+      terminate = KWFalse;         /* Flag that we did not end file   */
    } /* if */
    else                       /* Continuing line                     */
       fprintf(stream,",\n%-10s %s",label, operand);

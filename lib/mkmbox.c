@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mkmbox.c 1.9 1994/02/19 04:43:55 ahd v1-12k $
+ *    $Id: mkmbox.c 1.10 1994/12/22 00:09:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: mkmbox.c $
+ *    Revision 1.10  1994/12/22 00:09:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/02/19 04:43:55  ahd
  *    Use standard first header
  *
@@ -67,7 +70,7 @@ currentfile();
 
 char *mkmailbox(char *buf, const char *userid)
 {
-   boolean append = ( E_mailext != NULL );
+   KWBoolean append = ( E_mailext != NULL );
 
    if (buf == NULL)           /* Do we need to allocate buffer?       */
    {
@@ -87,7 +90,7 @@ char *mkmailbox(char *buf, const char *userid)
       if (strchr(userid, '.') == NULL )
          tuser[8] = '\0';        /* Auto-truncate mbox name           */
       else
-         append = FALSE;
+         append = KWFalse;
 
       mkfilename(buf, E_maildir, tuser);
    } /* else */

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printmsg.c 1.14 1994/02/25 02:23:42 ahd v1-12k $
+ *    $Id: printmsg.c 1.15 1994/12/22 00:10:20 ahd Exp $
  *
  *    $Log: printmsg.c $
+ *    Revision 1.15  1994/12/22 00:10:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/02/25 02:23:42  ahd
  *    Suppress compile warning with IBM ICC compiler
  *
@@ -146,7 +149,7 @@ static void printEnv( void )
 {
    int subscript1 = 0;
    int subscript2 = 0;
-   static boolean changed = FALSE;
+   static KWBoolean changed = KWFalse;
 
    static char UUFAR envBuf[32768];
    static size_t offset = 0;
@@ -196,7 +199,7 @@ static void printEnv( void )
    printmsg(0,"%d entries in local copy, %d entries in live copy",
                subscript1, subscript2 );
 
-   changed = TRUE;               /* After first pass, always report  */
+   changed = KWTrue;              /* After first pass, always report  */
 
 } /* printEnv */
 
@@ -209,12 +212,12 @@ static void printEnv( void )
 static void checkEnv( void )
 {
    int subscript = 0;
-   static boolean recurse = FALSE;
+   static KWBoolean recurse = KWFalse;
 
    if ( recurse )
       return;
 
-   recurse = TRUE;
+   recurse = KWTrue;
 
    while( myEnv[subscript] && environ[subscript] )
    {
@@ -232,7 +235,7 @@ static void checkEnv( void )
    if ( myEnv[subscript] || environ[subscript] )
       printEnv();
 
-   recurse = FALSE;
+   recurse = KWFalse;
 
 }  /* checkEnv */
 
@@ -260,7 +263,7 @@ void printmsg(int level, char *fmt, ...)
 #endif
 
 #ifdef __HEAPCHECK__
-      static boolean recurse = FALSE;
+      static KWBoolean recurse = KWFalse;
       int heapstatus;
 
       heapstatus = heapcheck();
@@ -322,7 +325,7 @@ void printmsg(int level, char *fmt, ...)
 #ifdef __HEAPCHECK__
       if ( !recurse )
       {
-         recurse = TRUE;
+         recurse = KWTrue;
 #ifdef __CORE__
          if (*lowcore != 0L)
             panic();
@@ -331,7 +334,7 @@ void printmsg(int level, char *fmt, ...)
 #endif
          if (heapstatus == _HEAPCORRUPT)
             panic();
-         recurse = FALSE;
+         recurse = KWFalse;
       }
 #endif
 

@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: lib.h 1.25 1994/12/27 20:50:28 ahd Exp $
+ *    $Id: lib.h 1.26 1994/12/31 03:51:25 ahd Exp $
  *
  *    Revision history:
  *    $Log: lib.h $
+ *    Revision 1.26  1994/12/31 03:51:25  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.25  1994/12/27 20:50:28  ahd
  *    Smoother call grading
  *
@@ -175,7 +178,7 @@
 
 #define B_SHORT    0x80000000L /* Pointer is to short int, not string */
 #define B_TOKEN    0x40000000L /* Pointer is one word, ignore blanks  */
-#define B_BOOLEAN  0x20000000L /* Pointer is to boolean keywords      */
+#define B_BOOLEAN  0x20000000L /* Pointer is to KWBoolean keywords     */
 #define B_LIST     0x10000000L /* Pointer to array of char pointers   */
 #define B_CLIST    0x08000000L /* Pointer to array of char pointers,
                                   using colon delimiter               */
@@ -263,7 +266,7 @@ struct file_queue {
 
 extern int debuglevel;
 extern FILE *logfile;
-extern boolean bflag[F_LAST];
+extern KWBoolean bflag[F_LAST];
 
 extern FLAGTABLE configFlags[];
 
@@ -295,22 +298,22 @@ extern FILE *FSOPEN(const char *name,
 extern void options(char *s,
                     SYSMODE sysmode ,
                     FLAGTABLE *flags,
-                    boolean *xflag);
+                    KWBoolean *xflag);
 
 int getargs(char *line,
             char **flds);                                   /* ahd */
 
 void printmsg(int level, char *fmt, ...);
 
-boolean configure( CONFIGBITS program );
+KWBoolean configure( CONFIGBITS program );
 
-boolean getconfig(FILE *fp,
+KWBoolean getconfig(FILE *fp,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
                   FLAGTABLE *btable);
 
-boolean processconfig(char *buff,
+KWBoolean processconfig(char *buff,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
@@ -332,7 +335,7 @@ char *normalize( const char *path );
    while ((xxp = strchr(xxp,'/')) != NULL)  \
       *xxp++ = '\\';  }
 
-boolean IsDOS( void );
+KWBoolean IsDOS( void );
 
 #ifdef __GNUC__
 char *strlwr( char *s );

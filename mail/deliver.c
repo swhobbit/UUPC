@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.c 1.32 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: deliver.c 1.33 1994/12/22 00:19:04 ahd Exp $
  *
  *    $Log: deliver.c $
+ *    Revision 1.33  1994/12/22 00:19:04  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.32  1994/12/09 03:42:09  ahd
  *    Modify alias support to recurse in system aliases file
  *    Put 'U' line first to work with brain dead MKS systems
@@ -186,16 +189,16 @@ currentfile();
 
 static size_t DeliverLocal( const char *input,  /* Input file name    */
                           char *user,     /* Target address           */
-                          boolean validate); /* Validate/forward
+                          KWBoolean validate); /* Validate/forward
                                                 local mail            */
 
 static int DeliverFile( const char *input,
                         const char *mboxname,
                         const long start,
                         const long end,
-                        boolean *announce,
+                        KWBoolean *announce,
                         struct UserTable *userp,
-                        const boolean validate,
+                        const KWBoolean validate,
                         const char *user );
 
 static size_t DeliverRemote( const char *input, /* Input file name    */
@@ -204,16 +207,16 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
 
 static size_t DeliverVMS( const char *input,    /* Input file name    */
                           char *user,     /* Target address           */
-                          boolean validate); /* Validate/forward
+                          KWBoolean validate); /* Validate/forward
                                                 local mail            */
 
 static size_t DeliverGateway(   const char *input,
                                 const char *user,
                                 const char *node,
                                 const struct HostTable *hostp,
-                                const boolean validate );
+                                const KWBoolean validate );
 
-static int CopyData(   const boolean remotedelivery,
+static int CopyData(   const KWBoolean remotedelivery,
                        const char *input,
                        FILE *mbox);
 
@@ -223,7 +226,7 @@ size_t Bounce( const char *input,
                const char *text,
                const char *data,
                const char *address,
-               const boolean validate );
+               const KWBoolean validate );
 
 /*--------------------------------------------------------------------*/
 /*   Global (set by rmail.c) for number of hops this mail has seen    */
@@ -231,7 +234,7 @@ size_t Bounce( const char *input,
 
  KEWSHORT hops = 0;
 
- boolean remoteMail = FALSE;
+ KWBoolean remoteMail = KWFalse;
 
  char *ruser = NULL;
  char *rnode = NULL;
@@ -245,7 +248,7 @@ size_t Bounce( const char *input,
 
 size_t Deliver(       const char *input,    /* Input file name        */
                             char *address,  /* Target address          */
-                          boolean validate)  /* Validate/forward
+                          KWBoolean validate)  /* Validate/forward
                                                 local mail            */
 {
    char node[MAXADDR];
@@ -352,14 +355,14 @@ size_t Deliver(       const char *input,    /* Input file name        */
 static size_t DeliverLocal( const char *input,
                                           /* Input file name          */
                           char *user,     /* Target address           */
-                          boolean validate)  /* TRUE = validate,
+                          KWBoolean validate)  /* KWTrue = validate,
                                                 forward user's mail   */
 {
    char mboxname[FILENAME_MAX];
    struct UserTable *userp = NULL;
    ALIASTABLE *aliasp = NULL;
    int delivered = 0;
-   boolean announce = FALSE;
+   KWBoolean announce = KWFalse;
    FILE *mbox;
 
 /*--------------------------------------------------------------------*/
@@ -389,7 +392,7 @@ static size_t DeliverLocal( const char *input,
 
       if ( (aliasp != NULL) && ! aliasp->recurse )
       {
-         aliasp->recurse = TRUE;
+         aliasp->recurse = KWTrue;
          delivered += DeliverFile( input,
                                    SysAliases,
                                    aliasp->start,
@@ -398,7 +401,7 @@ static size_t DeliverLocal( const char *input,
                                    userp,
                                    validate,
                                    user );
-         aliasp->recurse = FALSE;
+         aliasp->recurse = KWFalse;
 
          if ( announce && ( userp != BADUSER ) && remoteMail )
             trumpet( userp->beep);  /* Yes --> Inform the user     */
@@ -427,7 +430,7 @@ static size_t DeliverLocal( const char *input,
       mkfilename(mboxname, userp->homedir, DOTFORWARD);
 
       if (access( mboxname, 0 )) /* The .forward file exists?         */
-         announce = TRUE;        /* No --> Fall through               */
+         announce = KWTrue;       /* No --> Fall through               */
       else {
          delivered += DeliverFile( input,
                                    mboxname,
@@ -479,7 +482,7 @@ static size_t DeliverLocal( const char *input,
    if (!isatty(fileno(mbox)))
       fputs(MESSAGESEP,mbox); /* Write separator line                 */
 
-   return CopyData( FALSE, input , mbox );
+   return CopyData( KWFalse, input , mbox );
 
 } /* DeliverLocal */
 
@@ -493,9 +496,9 @@ static int DeliverFile( const char *input,
                         const char *fwrdname,
                         const long start,
                         const long end,
-                        boolean *announce,
+                        KWBoolean *announce,
                         struct UserTable *userp,
-                        const boolean validate,
+                        const KWBoolean validate,
                         const char *user )
 {
    char buf[BUFSIZ];
@@ -584,7 +587,7 @@ static int DeliverFile( const char *input,
                         user,
                         s + 1 );
 
-            executeCommand( s + 1, input, NULL, TRUE, FALSE );
+            executeCommand( s + 1, input, NULL, KWTrue, KWFalse );
             PopDir();
             delivered += 1;
             fwrd = FOPEN(fwrdname, "r", TEXT_MODE);
@@ -593,8 +596,8 @@ static int DeliverFile( const char *input,
          } /* case */
 
          case '\\':              /* Deliver without forwarding */
-            delivered += Deliver( input, &s[1], FALSE );
-            *announce = TRUE;
+            delivered += Deliver( input, &s[1], KWFalse );
+            *announce = KWTrue;
             break;
 
          case ':':
@@ -608,7 +611,7 @@ static int DeliverFile( const char *input,
                                       LONG_MAX,
                                       announce,
                                       userp,
-                                      TRUE,
+                                      KWTrue,
                                       user );
             break;
          }
@@ -629,8 +632,8 @@ static int DeliverFile( const char *input,
 
             }
             else
-               delivered += DeliverLocal( input, s, FALSE );
-            *announce = TRUE;
+               delivered += DeliverLocal( input, s, KWFalse );
+            *announce = KWTrue;
             break;
 
          default:                /* Deliver normally           */
@@ -654,7 +657,7 @@ static size_t DeliverGateway(   const char *input,
                                 const char *user,
                                 const char *node,
                                 const struct HostTable *hostp,
-                                const boolean validate )
+                                const KWBoolean validate )
 {
    char command[BUFSIZ];
    int rc;
@@ -682,7 +685,7 @@ static size_t DeliverGateway(   const char *input,
 /*  Run the command and return caller with count of mail delivered    */
 /*--------------------------------------------------------------------*/
 
-   rc = executeCommand( command, input, NULL, TRUE, FALSE );
+   rc = executeCommand( command, input, NULL, KWTrue, KWFalse );
 
    if ( rc == 0 )
       return 1;
@@ -709,7 +712,7 @@ static size_t DeliverGateway(   const char *input,
 
 static size_t DeliverVMS( const char *input,    /* Input file name    */
                           char *user,     /* Target address           */
-                          boolean validate)  /* Validate/forward
+                          KWBoolean validate)  /* Validate/forward
                                                 local mail            */
 {
    char *saveTemp = E_tempdir;
@@ -748,7 +751,7 @@ static size_t DeliverVMS( const char *input,    /* Input file name    */
                      validate );
    }
 
-   if (!CopyData( FALSE, input , stream ))
+   if (!CopyData( KWFalse, input , stream ))
    {
       remove( dname );
       return 0;
@@ -912,7 +915,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
       return 0;
    }
 
-   if (!CopyData( TRUE, input , stream ))
+   if (!CopyData( KWTrue, input , stream ))
    {
       remove( msfile );
       return 0;
@@ -950,7 +953,7 @@ static size_t DeliverRemote( const char *input, /* Input file name    */
 /* Copy data into its final resting spot                              */
 /*--------------------------------------------------------------------*/
 
-static int CopyData( const boolean remotedelivery,
+static int CopyData( const KWBoolean remotedelivery,
                      const char *input,
                      FILE *dataout)
 {
@@ -958,7 +961,7 @@ static int CopyData( const boolean remotedelivery,
    char buf[BUFSIZ];
    char trailer[BUFSIZ];
    int column = 0;
-   boolean success = TRUE;
+   KWBoolean success = KWTrue;
 
    int (*put_string) (char *, FILE *) = (int (*)(char *, FILE *)) fputs;
                               /* Assume no Kanji translation needed   */
@@ -1097,7 +1100,7 @@ static int CopyData( const boolean remotedelivery,
    {
       printerr(input);
       clearerr(datain);
-      success = FALSE;
+      success = KWFalse;
    }
 
    fclose(datain);
@@ -1122,14 +1125,14 @@ size_t Bounce( const char *input,
                const char *text,
                const char *data,
                const char *address ,
-               const boolean validate )
+               const KWBoolean validate )
 {
    FILE *newfile, *otherfile;
    char tname[FILENAME_MAX]; /* name of temporary file used */
    char buf[BUFSIZ];
    char sender[MAXADDR];
 
-   boolean bounce = bflag[F_BOUNCE];
+   KWBoolean bounce = bflag[F_BOUNCE];
 
    sprintf(sender, "%s%s%s",
                ruser,
@@ -1151,7 +1154,7 @@ size_t Bounce( const char *input,
         equali( ruser, "root") ||
         equali( ruser, "mmdf") ||
         equali( ruser, "mailer-daemon"))
-      bounce = FALSE;
+      bounce = KWFalse;
 
    if ( ! bounce )
      return Deliver( input, E_postmaster, validate );
@@ -1207,7 +1210,7 @@ size_t Bounce( const char *input,
             address,
             sender );
 
-    if ( execute( myProgramName, buf, NULL, NULL, TRUE, FALSE ))
+    if ( execute( myProgramName, buf, NULL, NULL, KWTrue, KWFalse ))
          DeliverLocal( input, E_postmaster, validate);
 
     return (1);

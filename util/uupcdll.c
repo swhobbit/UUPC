@@ -21,8 +21,11 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: uupcdll.c 1.2 1994/05/30 02:20:00 ahd v1-12k $
+ *       $Id: uupcdll.c 1.3 1994/12/22 00:31:20 ahd Exp $
  *       $Log: uupcdll.c $
+ *       Revision 1.3  1994/12/22 00:31:20  ahd
+ *       Annual Copyright Update
+ *
  *       Revision 1.2  1994/05/30 02:20:00  ahd
  *       Add missing definition for Dllmain
  *
@@ -76,7 +79,7 @@ DllExport BOOL UUPCSendMail(char *message);
 
 CRITICAL_SECTION UUPCCritSec;
 static char tempDir[FILENAME_MAX];  /* Temp file name */
-static BOOL initialized = FALSE;
+static BOOL initialized = KWFalse;
 
 
 DllExport BOOL WINAPI DllMain(HANDLE hInst, ULONG reason, LPVOID reserved)
@@ -101,7 +104,7 @@ DllExport BOOL WINAPI DllMain(HANDLE hInst, ULONG reason, LPVOID reserved)
     break;
     }
 
-    return TRUE;
+    return KWTrue;
 }
 
 DllExport BOOL UUPCInit()
@@ -119,8 +122,8 @@ DllExport BOOL UUPCInit()
     1) Check to see if the registry hive is there
     2) Check to see if rmail is on the path
 
-    If those are both true, then initialize tempDir and return TRUE.
-    Otherwise, return FALSE.
+    If those are both true, then initialize tempDir and return KWTrue.
+    Otherwise, return KWFalse.
 */
 
 /*
@@ -133,7 +136,7 @@ DllExport BOOL UUPCInit()
         result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, UUPCHIVE, 0, KEY_ALL_ACCESS, &hSystemKey);
 
     if (result != ERROR_SUCCESS)
-        return FALSE;
+        return KWFalse;
 
     if (hUserKey != INVALID_HANDLE_VALUE)
         RegCloseKey(hUserKey);
@@ -149,7 +152,7 @@ DllExport BOOL UUPCInit()
     result = SearchPath(NULL, "RMAIL.EXE", NULL, FILENAME_MAX, tempFileName, &ptr);
 
     if (result == 0)
-        return FALSE;
+        return KWFalse;
 
     /* Construct initial tempName here */
 
@@ -179,9 +182,9 @@ DllExport BOOL UUPCInit()
 
     strcat(tempDir, "\\");                  /* Then add one of my own */
 
-    initialized = TRUE;
+    initialized = KWTrue;
 
-    return TRUE;
+    return KWTrue;
 }
 
 BOOL UUPCGetSysRCHive(PHKEY hSysKey)
@@ -203,7 +206,7 @@ BOOL UUPCGetSysRCHive(PHKEY hSysKey)
             if (result == ERROR_SUCCESS) {
                 RegCloseKey(hUserKey);
                 *hSysKey = hResultKey;
-                return TRUE;
+                return KWTrue;
             }
         }
     }
@@ -220,7 +223,7 @@ BOOL UUPCGetSysRCHive(PHKEY hSysKey)
             if (result == ERROR_SUCCESS) {
                 RegCloseKey(hSystemKey);
                 *hSysKey = hResultKey;
-                return TRUE;
+                return KWTrue;
             }
         }
     }
@@ -228,7 +231,7 @@ BOOL UUPCGetSysRCHive(PHKEY hSysKey)
     if (hSystemKey != INVALID_HANDLE_VALUE)
         RegCloseKey(hSystemKey);
 
-    return FALSE;
+    return KWFalse;
 }
 
 
@@ -239,10 +242,10 @@ DllExport BOOL UUPCGetParm(char *parmName, char *resultBuf, int bufSize)
     DWORD type;
 
     if (!initialized)
-        return FALSE;
+        return KWFalse;
 
     if (!UUPCGetSysRCHive(&sysKey))
-      return FALSE;
+      return KWFalse;
 
     result = RegQueryValueEx(sysKey, parmName, NULL, &type, resultBuf, &bufSize);
 
@@ -254,8 +257,8 @@ DllExport BOOL UUPCGetParm(char *parmName, char *resultBuf, int bufSize)
 
     resultBuf[bufSize] = '\0';  /* Paranoia:  put in the '\0' at the end of the string */
     if (result != ERROR_SUCCESS)
-        return FALSE;
-    return TRUE;
+        return KWFalse;
+    return KWTrue;
 }
 
 DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes)
@@ -269,10 +272,10 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
     LONG fileCount = 0;
 
     if (!initialized)
-        return FALSE;
+        return KWFalse;
 
     if (!UUPCGetParm("SpoolDir", spoolDirBuf, BUFSIZ))
-        return FALSE;
+        return KWFalse;
 
 /*  Convert to backslashes  */
 
@@ -286,7 +289,7 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
     searchHandle = FindFirstFile(nameBuf, &fData);
 
     if (searchHandle == INVALID_HANDLE_VALUE)
-        return FALSE;
+        return KWFalse;
 
     do {
         if (!(fData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
@@ -297,34 +300,34 @@ DllExport BOOL UUPCGetNewsSpoolSize(const char *system, long *count, long *bytes
 
     *count = fileCount;
     *bytes = totalSize;
-    return TRUE;
+    return KWTrue;
 }
 
 
 BOOL UUPCCheckMessage(char *message)
 {
     char *headerEnd;
-    BOOL gotTo = FALSE, gotFrom = FALSE;
+    BOOL gotTo = KWFalse, gotFrom = FALSE;
 
     headerEnd = strstr(message, "\n\n");
 
     if (!headerEnd)
-        return FALSE;
+        return KWFalse;
 
     *headerEnd = '\0';
 
     if (strstr(message, "\nTo:") || (strncmp(message, "To:", 3) == 0))
-        gotTo = TRUE;
+        gotTo = KWTrue;
 
     if (strstr(message, "\nFrom:") || (strncmp(message, "From:", 5) == 0))
-        gotFrom = TRUE;
+        gotFrom = KWTrue;
 
     *headerEnd = '\n';
 
     if (gotTo && gotFrom)
-        return TRUE;
+        return KWTrue;
 
-    return FALSE;
+    return KWFalse;
 }
 
 /*
@@ -351,10 +354,10 @@ DllExport BOOL UUPCSendMail(char *message)
     char *ptr;          /* Pointer to environment strings, and temp ptr */
 
     if (!initialized)
-        return FALSE;
+        return KWFalse;
 
     if (!UUPCCheckMessage(message))
-        return FALSE;
+        return KWFalse;
 
     msgLen = strlen(message);
 
@@ -368,7 +371,7 @@ DllExport BOOL UUPCSendMail(char *message)
 
     if (!ptr) {
         LeaveCriticalSection(&UUPCCritSec);
-        return FALSE;
+        return KWFalse;
     }
 
     strcpy(tempFileName, tempDir);
@@ -380,7 +383,7 @@ DllExport BOOL UUPCSendMail(char *message)
     LeaveCriticalSection(&UUPCCritSec);
 
     if (hFile == INVALID_HANDLE_VALUE) {
-        return FALSE;
+        return KWFalse;
     }
 
     result = WriteFile(hFile, message, msgLen, &written, NULL);
@@ -388,7 +391,7 @@ DllExport BOOL UUPCSendMail(char *message)
     if (!result) {
         CloseHandle(hFile);
         LeaveCriticalSection(&UUPCCritSec);
-        return FALSE;
+        return KWFalse;
     }
 
     CloseHandle(hFile);
@@ -402,12 +405,12 @@ DllExport BOOL UUPCSendMail(char *message)
     si.wShowWindow = SW_MINIMIZE;
     si.lpTitle = "UUPC/Extended RMail";
 
-    result = CreateProcess(NULL, cmdLine, NULL, NULL, FALSE, DETACHED_PROCESS,
+    result = CreateProcess(NULL, cmdLine, NULL, NULL, KWFalse, DETACHED_PROCESS,
         NULL, NULL, &si, &pi);
 
     if (!result) {
         _unlink(tempFileName);
-        return FALSE;
+        return KWFalse;
     }
 
     WaitForSingleObject(pi.hProcess, INFINITE);
@@ -417,16 +420,16 @@ DllExport BOOL UUPCSendMail(char *message)
     _unlink(tempFileName);
 
     if (result != 0)
-        return FALSE;
+        return KWFalse;
 
-    return TRUE;
+    return KWTrue;
 }
 
 BOOL UUPCSendNews(const char *remoteSystem, const char *newsFileName, const char *compressCmd)
 {
 
     if (!initialized)
-        return FALSE;
+        return KWFalse;
 
-    return FALSE;
+    return KWFalse;
 }

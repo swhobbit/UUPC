@@ -5,32 +5,32 @@
 
 void ShowAlias( const char *alias);
 
-boolean DeliverMail( char *addresses , int item);
+KWBoolean DeliverMail( char *addresses , int item);
 
-boolean Reply( const int current );
+KWBoolean Reply( const int current );
 
 int Position(int absolute, int relative, int letter);
 
-boolean SaveItem( const int letter,
-               const boolean delete,
+KWBoolean SaveItem( const int letter,
+               const KWBoolean delete,
                copyopt headers,
                char *fname,
                const ACTION verb);
 
-boolean ForwardItem( const int item , const char *string );
+KWBoolean ForwardItem( const int item , const char *string );
 
 void subshell( char *command );
 
-boolean SetItem( int item );
+KWBoolean SetItem( int item );
 
-boolean SelectItems( char **input, int current , int bits);
+KWBoolean SelectItems( char **input, int current , int bits);
 
-boolean Get_Operand( int *item,
+KWBoolean Get_Operand( int *item,
                            char **token,
                            int bits,
-                           boolean first_pass );
+                           KWBoolean first_pass );
 
-boolean SetTrailing( char **input, int bits );
+KWBoolean SetTrailing( char **input, int bits );
 
 int PushItemList( int **save_list );
 

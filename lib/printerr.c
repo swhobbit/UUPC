@@ -14,10 +14,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: printerr.c 1.8 1993/10/12 00:45:27 ahd Exp $
+ *    $Id: printerr.c 1.9 1994/02/20 19:07:38 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: printerr.c $
+ *    Revision 1.9  1994/02/20 19:07:38  ahd
+ *    IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.8  1993/10/12  00:45:27  ahd
  *     Normalize comments
  *
@@ -72,7 +75,7 @@ void prterror(const size_t lineno, const char *fname, const char *prefix)
    char *s = strerror(errno);
    int l = strlen( s );
 
-   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
 /*--------------------------------------------------------------------*/
 /*    Drop extra new from error message if we have room in our        */

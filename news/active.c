@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.13 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: active.c 1.14 1995/01/03 05:32:26 ahd Exp $
  *
  *    $Log: active.c $
+ *    Revision 1.14  1995/01/03 05:32:26  ahd
+ *    Drop validate function, we don't exploit it anyway
+ *
  *    Revision 1.13  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -119,7 +122,7 @@
 
 currentfile();
 
-static boolean fallback = FALSE;
+static KWBoolean fallback = KWFalse;
 
 struct grp *group_list = NULL;      /* List of all groups */
 
@@ -157,7 +160,7 @@ void get_active( void )
       printerr(active_filename);
 
       mkfilename(active_filename, E_newsdir, ACTIVE);
-      fallback= TRUE;
+      fallback= KWTrue;
       g = FOPEN(active_filename,"r",TEXT_MODE);
    } /* if */
 
@@ -328,7 +331,7 @@ struct grp *find_newsgroup(const char *grp)
 /*    Add a news group to our list                                    */
 /*--------------------------------------------------------------------*/
 
-boolean add_newsgroup(const char *grp, const boolean moderated)
+KWBoolean add_newsgroup(const char *grp, const boolean moderated)
 {
    struct grp *cur = group_list;
 
@@ -337,7 +340,7 @@ boolean add_newsgroup(const char *grp, const boolean moderated)
       if (cur->grp_next != NULL)
       {
          if ( equali( cur->grp_name, grp ) ) /* Group exists?        */
-            return FALSE;           /* Yes --> Cannot add it again   */
+            return KWFalse;          /* Yes --> Cannot add it again   */
 
          cur = cur->grp_next;
       }
@@ -364,7 +367,7 @@ boolean add_newsgroup(const char *grp, const boolean moderated)
 /*                We added the group, return success.                 */
 /*--------------------------------------------------------------------*/
 
-   return TRUE;
+   return KWTrue;
 
 } /* add_newsgroup */
 
@@ -374,7 +377,7 @@ boolean add_newsgroup(const char *grp, const boolean moderated)
 /*    Remove a news group from our list                               */
 /*--------------------------------------------------------------------*/
 
-boolean del_newsgroup(const char *grp)
+KWBoolean del_newsgroup(const char *grp)
 {
    struct grp *cur = group_list;
    struct grp *prev = NULL;
@@ -387,7 +390,7 @@ boolean del_newsgroup(const char *grp)
          cur = cur->grp_next;
       }
       else {
-         return FALSE;
+         return KWFalse;
       }
    }
 
@@ -400,7 +403,7 @@ boolean del_newsgroup(const char *grp)
 
    /* name string is not free'ed because it's in the string pool */
 
-   return TRUE;
+   return KWTrue;
 
 } /* del_newsgroup */
 
@@ -410,16 +413,16 @@ boolean del_newsgroup(const char *grp)
 /*    Get highest article number of newsgroup                         */
 /*--------------------------------------------------------------------*/
 
-boolean get_snum(const char *group, char *snum)
+KWBoolean get_snum(const char *group, char *snum)
 {
    struct grp *cur;
 
    strcpy(snum, "0");
    cur = find_newsgroup(group);
    if (cur == NULL)
-      return FALSE;
+      return KWFalse;
 
    sprintf(snum, "%ld", cur->grp_high);
-   return TRUE;
+   return KWTrue;
 
 } /* snum */

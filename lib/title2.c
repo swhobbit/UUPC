@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: title2.c 1.4 1994/05/31 00:08:11 ahd v1-12k $
+ *    $Id: title2.c 1.5 1994/12/22 00:11:48 ahd Exp $
  *
  *    Revision history:
  *    $Log: title2.c $
+ *    Revision 1.5  1994/12/22 00:11:48  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/05/31 00:08:11  ahd
  *    Add missing title.h header file
  *
@@ -73,14 +76,14 @@ void setTitle( const char *fmt, ... )
    int pid = getpid();
    va_list arg_ptr;
 
-   static boolean firstPass = TRUE;
+   static KWBoolean firstPass = KWTrue;
 
    hSwitch = WinQuerySwitchHandle(NULL, pid );
    WinQuerySwitchEntry(hSwitch, &swctl);
 
    if ( firstPass )
    {
-      firstPass = FALSE;
+      firstPass = KWFalse;
       atexit( restoreOriginalTitle );
       memcpy( &swctlSave, &swctl, sizeof swctl );
    }

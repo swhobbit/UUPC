@@ -7,7 +7,7 @@ void add(unsigned char *number,
       const unsigned range,
       const unsigned digits);
 
-boolean adiv( unsigned char *number,
+KWBoolean adiv( unsigned char *number,
              const unsigned divisor,
                    unsigned *remain,
              const unsigned digits);

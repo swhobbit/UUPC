@@ -25,10 +25,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: batch.c 1.4 1995/01/05 03:43:49 ahd Exp $
+ *    $Id: batch.c 1.5 1995/01/07 15:43:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: batch.c $
+ *    Revision 1.5  1995/01/07 15:43:07  ahd
+ *    Get the file length BEFORE we close the file.
+ *
  *    Revision 1.4  1995/01/05 03:43:49  ahd
  *    rnews SYS file support
  *
@@ -88,7 +91,7 @@ static void queue_news( const char *sysName, const char *fname )
            debuglevel,
            sysName );
 
-   status = execute( "UUX", commandOptions, fname, NULL, TRUE, FALSE );
+   status = execute( "UUX", commandOptions, fname, NULL, KWTrue, KWFalse );
 
    if ( status )
    {
@@ -172,7 +175,7 @@ void compress_batch(const char *system, const char *batchName)
 
    sprintf( command, E_compress, batchName, zfile );
 
-   status = executeCommand(command, NULL, NULL, TRUE, FALSE);
+   status = executeCommand(command, NULL, NULL, KWTrue, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*                  Check the result of the compression               */
@@ -235,14 +238,14 @@ void compress_batch(const char *system, const char *batchName)
 /*--------------------------------------------------------------------*/
 
 static void build_batchName(char *batchName,
-                            const boolean nocompress )
+                            const KWBoolean nocompress )
 {
    char fileName[FILENAME_MAX];
 
    if (nocompress )
      mktempname( batchName, "TMP" );
    else {
-      boolean needtemp = TRUE;
+      KWBoolean needtemp = KWTrue;
 
       while( needtemp )
       {
@@ -252,7 +255,7 @@ static void build_batchName(char *batchName,
          batchName[ strlen(batchName)-2 ] = '\0';
 
          if ( access( batchName, 0 ))  /* Does the host file exist?       */
-            needtemp = FALSE;        /* No, we have a good pair         */
+            needtemp = KWFalse;       /* No, we have a good pair         */
          else
             printmsg(3, "Had compressed name %s, found %s already exists!",
                      fileName, batchName );
@@ -279,7 +282,7 @@ void process_batch(const struct sys *node,
    FILE    *names;
    FILE    *listCopy;
    long    where;
-   int     done = FALSE;
+   int     done = KWFalse;
 
    char batchName[FILENAME_MAX];
    char listCopyName[FILENAME_MAX];
@@ -458,7 +461,7 @@ void process_batch(const struct sys *node,
        rewind(names);
      }
      else
-        done = TRUE;
+        done = KWTrue;
 
      unlink(batchName);
 

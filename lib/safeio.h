@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.h 1.5 1994/01/01 19:09:34 ahd v1-12k $
+ *    $Id: safeio.h 1.6 1994/12/22 00:13:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.h $
+ *    Revision 1.6  1994/12/22 00:13:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/01/01 19:09:34  ahd
  *    Annual Copyright Update
  *
@@ -32,7 +35,7 @@
 #include "uutypes.h"        /* Include UUPC/extended types           */
 
 int  safein( void );
-boolean safepeek( void );
+KWBoolean safepeek( void );
 void safeout( char *str );
 void safeflush( void );
 

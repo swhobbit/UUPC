@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.c 1.17 1994/10/23 23:29:44 ahd v1-12k $
+ *    $Id: alias.c 1.18 1994/12/22 00:18:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.c $
+ *    Revision 1.18  1994/12/22 00:18:29  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1994/10/23 23:29:44  ahd
  *    Add additional checks for format of aliases
  *
@@ -117,9 +120,9 @@ currentfile();
 /*    Verify, initialize the global routing data                      */
 /*--------------------------------------------------------------------*/
 
-boolean InitRouter()
+KWBoolean InitRouter()
 {
-   boolean success = TRUE;       /* Assume the input data is good      */
+   KWBoolean success = KWTrue;     /* Assume the input data is good      */
    struct HostTable *Hptr;
 
 /*--------------------------------------------------------------------*/
@@ -131,13 +134,13 @@ boolean InitRouter()
    {
       printmsg(0, "mail server '%s' must be listed in SYSTEMS file",
          E_mailserv);
-      success = FALSE;
+      success = KWFalse;
    }
    else if (Hptr->status.hstatus == localhost)  /* local system?     */
    {
       printmsg(0, "'%s' is name of this host and cannot be mail server",
             E_mailserv);
-      success = FALSE;
+      success = KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -220,7 +223,7 @@ void BuildAddress(char *result, const char *input)
 /*   then see if we know the person by address                        */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(addr, input, FALSE);   /* Get user e-mail addr     */
+      ExtractAddress(addr, input, KWFalse);  /* Get user e-mail addr     */
       user_at_node(addr, path, node, user);  /* Break address down       */
 
       fulladdr = AliasByAddr(node, user);  /* Alias for the address?   */
@@ -235,7 +238,7 @@ void BuildAddress(char *result, const char *input)
 /*   and then normalize the address                                   */
 /*--------------------------------------------------------------------*/
 
-      ExtractAddress(name, input, TRUE);    /* Also get their name      */
+      ExtractAddress(name, input, KWTrue);   /* Also get their name      */
 
       if (strlen(name))             /* Did we find a name for user?   */
       {                             /* Yes --> Return it              */
@@ -270,8 +273,8 @@ void BuildAddress(char *result, const char *input)
 /*--------------------------------------------------------------------*/
 /*    A l i a s B y N i c k                                           */
 /*                                                                    */
-/*    Locate a mail address by search the alias table.  Returns TRUE  */
-/*    if alias found and has address, otherwise FALSE.                */
+/*    Locate a mail address by search the alias table.  Returns KWTrue  */
+/*    if alias found and has address, otherwise KWFalse.               */
 /*--------------------------------------------------------------------*/
 
 char *AliasByNick(const char *nick)
@@ -323,8 +326,8 @@ char *AliasByNick(const char *nick)
 /*--------------------------------------------------------------------*/
 /*    A l i a s B y A d d r                                           */
 /*                                                                    */
-/*    Locate a mail address by search the alias table.  Returns TRUE  */
-/*    if alias found and has address, otherwise FALSE                 */
+/*    Locate a mail address by search the alias table.  Returns KWTrue  */
+/*    if alias found and has address, otherwise KWFalse                */
 /*--------------------------------------------------------------------*/
 
 char *AliasByAddr(const char *node, const char *user)
@@ -533,7 +536,7 @@ size_t LoadAliases(void)
 /*     Extract the address components for lookups by host and userid  */
 /*--------------------------------------------------------------------*/
 
-            ExtractAddress(addr, target.afull, FALSE);
+            ExtractAddress(addr, target.afull, KWFalse);
 
             user_at_node(addr, path, node, user);
 

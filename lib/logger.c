@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: logger.c 1.19 1994/10/23 23:29:44 ahd v1-12k $
+ *    $Id: logger.c 1.20 1994/12/22 00:09:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: logger.c $
+ *    Revision 1.20  1994/12/22 00:09:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.19  1994/10/23 23:29:44  ahd
  *    Allow multiple calls to logger to change log name on the fly
  *
@@ -127,7 +130,7 @@ void openlog( const char *log )
    char fname[FILENAME_MAX];
    FILE *stream = NULL;
 
-   static boolean firstPass = TRUE;
+   static KWBoolean firstPass = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*       If we already had a log file, spin it off and copy it        */
@@ -205,7 +208,7 @@ void openlog( const char *log )
    if ( firstPass )
    {
       atexit( copylog );
-      firstPass = FALSE;
+      firstPass = KWFalse;
    }
 
 /*--------------------------------------------------------------------*/

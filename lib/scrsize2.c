@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize2.c 1.3 1994/02/19 03:57:54 ahd Exp $
+ *    $Id: scrsize2.c 1.4 1994/02/19 04:46:26 ahd v1-12k $
  *
  *    $Log: scrsize2.c $
+ *    Revision 1.4  1994/02/19 04:46:26  ahd
+ *    Use standard first header
+ *
  *     Revision 1.3  1994/02/19  03:57:54  ahd
  *     Use standard first header
  *
@@ -56,7 +59,7 @@ short scrsize( void )
 {
    VIOMODEINFO info;
    USHORT result;
-   static boolean error = FALSE;
+   static KWBoolean error = KWFalse;
 
    if ( error )
       return PAGESIZE;
@@ -68,7 +71,7 @@ short scrsize( void )
    {
       printmsg(0,"OS/2 error code %d retrieving video information",
                (int) result );
-      error = TRUE;
+      error = KWTrue;
       return PAGESIZE;
    }
 

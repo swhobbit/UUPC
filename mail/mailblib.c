@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailblib.c 1.17 1994/08/07 21:28:54 ahd v1-12k $
+ *    $Id: mailblib.c 1.18 1994/12/22 00:19:20 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailblib.c $
+ *    Revision 1.18  1994/12/22 00:19:20  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1994/08/07 21:28:54  ahd
  *    Clean up OS/2 processing to not use new sessions, but rather simply
  *    use command processor to allow firing off PM programs such as E and
@@ -102,9 +105,9 @@ currentfile();
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static boolean SearchUser( char *token , char **input, const int bits);
+static KWBoolean SearchUser( char *token , char **input, const int bits);
 
-static boolean SearchSubject( char *token,
+static KWBoolean SearchSubject( char *token,
                               char **input,
                               char *trailing,
                               const int bits);
@@ -171,7 +174,7 @@ void ShowAlias( const char *alias)
             char path[MAXADDR];
             char node[MAXADDR];
 
-            ExtractAddress(user,fullname, FALSE);
+            ExtractAddress(user,fullname, KWFalse);
             user_at_node(user,path,node,user);
                                     /* Reduce address to basics */
             column = level * 2 + 2;
@@ -206,8 +209,8 @@ void ShowAlias( const char *alias)
 /*    Save an item in another mailbox                                 */
 /*--------------------------------------------------------------------*/
 
-boolean SaveItem( const int item,
-               const boolean delete,
+KWBoolean SaveItem( const int item,
+               const KWBoolean delete,
                copyopt headers,
                char *fname,
                const ACTION verb)
@@ -246,7 +249,7 @@ boolean SaveItem( const int item,
                                   NULL,
                                   E_homedir,
                                   E_mailext ) == NULL)
-               return FALSE;
+               return KWFalse;
             break;
    }  /* end switch */
 
@@ -278,10 +281,10 @@ boolean SaveItem( const int item,
    if ((stream = FOPEN(filename, "a",TEXT_MODE)) == nil(FILE))
    {
       printf("Cannot append to %s\n", filename);
-      return FALSE;
+      return KWFalse;
    } /* if */
 
-   CopyMsg(item, stream, headers, FALSE);
+   CopyMsg(item, stream, headers, KWFalse);
    fclose(stream);
 
 /*--------------------------------------------------------------------*/
@@ -291,7 +294,7 @@ boolean SaveItem( const int item,
    if (letters[item].status < M_DELETED)
       letters[item].status = delete ? M_DELETED : M_SAVED;
 
-   return TRUE;
+   return KWTrue;
 } /* SaveItem */
 
 /*--------------------------------------------------------------------*/
@@ -385,13 +388,13 @@ int Position(int absolute, int relative, int start)
 /*    Compose interactive outgoing mail                               */
 /*--------------------------------------------------------------------*/
 
-boolean DeliverMail( char *addresses , int item)
+KWBoolean DeliverMail( char *addresses , int item)
 {
    char *Largv[MAXADDRS];
    int   Largc;
 
    Largc = getargs(addresses , Largv );
-   return Collect_Mail(stdin, Largc , Largv, item , FALSE);
+   return Collect_Mail(stdin, Largc , Largv, item , KWFalse);
 } /* DeliverMail */
 
 /*--------------------------------------------------------------------*/
@@ -400,7 +403,7 @@ boolean DeliverMail( char *addresses , int item)
 /*    Reply to incoming mail                                          */
 /*--------------------------------------------------------------------*/
 
-boolean Reply( const int current )
+KWBoolean Reply( const int current )
 {
    char *Largv[MAXADDRS];
    char subject[LSIZE];
@@ -418,7 +421,7 @@ boolean Reply( const int current )
    if (!RetrieveLine(letters[current].replyto, addr, LSIZE))
    {
       printf("Cannot determine return address\n");
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -461,7 +464,7 @@ boolean Reply( const int current )
    if (letters[current].status < M_ANSWERED)
       letters[current].status = M_ANSWERED;
 
-   return Collect_Mail(stdin, Largc, Largv, current, TRUE);
+   return Collect_Mail(stdin, Largc, Largv, current, KWTrue);
 
 } /* Reply */
 
@@ -471,14 +474,14 @@ boolean Reply( const int current )
 /*    Forward (resend) mail to another address                        */
 /*--------------------------------------------------------------------*/
 
-boolean ForwardItem( const int item , const char *string )
+KWBoolean ForwardItem( const int item , const char *string )
 {
    FILE *stream;
    char  *Largv[MAXADDRS];
    char buf[LSIZE];
    char tmailbag[FILENAME_MAX];
    int   Largc;
-   boolean success;
+   KWBoolean success;
 
 /*--------------------------------------------------------------------*/
 /*              copy current message to a temporary file              */
@@ -489,10 +492,10 @@ boolean ForwardItem( const int item , const char *string )
    if (stream == NULL )
    {
       printerr(tmailbag);
-      return FALSE;
+      return KWFalse;
    } /* if */
 
-   CopyMsg(item, stream, autoresent,FALSE);
+   CopyMsg(item, stream, autoresent,KWFalse);
 
    fclose(stream);
 
@@ -509,7 +512,7 @@ boolean ForwardItem( const int item , const char *string )
 
    strcpy( buf , string );
    Largc = getargs( buf , Largv );
-   success = Send_Mail(stream, Largc , Largv, NULL, TRUE);
+   success = Send_Mail(stream, Largc , Largv, NULL, KWTrue);
 
 /*--------------------------------------------------------------------*/
 /*                   Clean up and return to caller                    */
@@ -561,16 +564,16 @@ void subshell( char *command )
       executeCommand( getenv( "COMSPEC" ),
                       NULL,
                       NULL,
-                      TRUE,
-                      TRUE);
+                      KWTrue,
+                      KWTrue);
 
    } /* if */
    else
       executeCommand( command,
                       NULL,
                       NULL,
-                      TRUE,
-                      TRUE );
+                      KWTrue,
+                      KWTrue );
 
 } /* subshell */
 
@@ -580,13 +583,13 @@ void subshell( char *command )
 /*    Select mail items to be processed by the current command        */
 /*--------------------------------------------------------------------*/
 
-boolean SelectItems( char **input, int current , int bits)
+KWBoolean SelectItems( char **input, int current , int bits)
 {
    char *next_token = *input;
    char *token = NULL;
    char trailing[LSIZE];      /* for saving trailing part of line    */
    int item;
-   boolean hit = FALSE;
+   KWBoolean hit = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                 Reset all mail items to unselected                 */
@@ -634,7 +637,7 @@ boolean SelectItems( char **input, int current , int bits)
 
    while ( token != NULL)
    {
-      boolean success = TRUE;
+      KWBoolean success = KWTrue;
       next_token = strtok( NULL , "");
                               /* Remember next of line for next pass */
 
@@ -663,7 +666,7 @@ boolean SelectItems( char **input, int current , int bits)
          else if (!Numeric( start ))
          {
             printf("%s: Operand is not numeric\n", start );
-            return FALSE;
+            return KWFalse;
          } /* if */
          else
             istart = atoi( start );
@@ -671,7 +674,7 @@ boolean SelectItems( char **input, int current , int bits)
          if ( (end == NULL) )
          {
             printf("Missing end of item range\n" );
-            return FALSE;
+            return KWFalse;
          } /* if */
 
          if (equal(end,"$"))
@@ -681,7 +684,7 @@ boolean SelectItems( char **input, int current , int bits)
          else if (!Numeric( end ))
          {
             printf("%s: Operand is not numeric\n", end );
-            return FALSE;
+            return KWFalse;
          } /* if */
          else
             iend = atoi( end );
@@ -690,7 +693,7 @@ boolean SelectItems( char **input, int current , int bits)
          {
             printf("Ending item (%d) is less than starting item (%d)\n",
                    iend , istart );
-            return FALSE;
+            return KWFalse;
          } /* if */
 
          for ( item = istart; (item <= iend) && success; item++ )
@@ -701,7 +704,7 @@ boolean SelectItems( char **input, int current , int bits)
          break ;
 
       if ( !success )
-         return FALSE;
+         return KWFalse;
 
       if ( next_token != NULL )
       {
@@ -761,7 +764,7 @@ boolean SelectItems( char **input, int current , int bits)
 /*    Search for mail items to select by the subject                  */
 /*--------------------------------------------------------------------*/
 
-static boolean SearchSubject( char *token,
+static KWBoolean SearchSubject( char *token,
                               char **input,
                               char *trailing,
                               const int bits)
@@ -769,13 +772,13 @@ static boolean SearchSubject( char *token,
    char line[LSIZE];
    int item;
    char *next_token;
-   boolean hit = FALSE;
+   KWBoolean hit = KWFalse;
 
    token = strtok(trailing,"/");    /* Get subject to search      */
    if ( token == NULL )
    {
       printf("Missing subject to search for\n");
-      return FALSE;
+      return KWFalse;
    }
    token = strlwr(token);  /* Case insensitive search             */
    next_token = strtok(NULL,"");
@@ -790,7 +793,7 @@ static boolean SearchSubject( char *token,
                            /* This item have subject?             */
       {
          SetItem( item );
-         hit = TRUE;
+         hit = KWTrue;
       } /* if */
    } /* for */
 
@@ -804,7 +807,7 @@ static boolean SearchSubject( char *token,
    } /* if (hit) */
    else {
       printf("No mail items found with subject \"%s\"\n",token);
-      return FALSE;
+      return KWFalse;
    }  /* else */
 } /* SearchSubject */
 
@@ -814,11 +817,11 @@ static boolean SearchSubject( char *token,
 /*    Search for a user id on mail items                              */
 /*--------------------------------------------------------------------*/
 
-static boolean SearchUser( char *token , char **input, const int bits)
+static KWBoolean SearchUser( char *token , char **input, const int bits)
 {
    char line[LSIZE];
    int item;
-   boolean hit = FALSE;
+   KWBoolean hit = KWFalse;
 
    token = strlwr(token);  /* Case insensitive search          */
 
@@ -898,7 +901,7 @@ static boolean SearchUser( char *token , char **input, const int bits)
       return SetTrailing( input , bits ); /* Yes --> Success   */
    else {
       printf("No mail items found from \"%s\"\n",token);
-      return FALSE;
+      return KWFalse;
    }  /* else */
 
 }  /* SearchUser */
@@ -909,7 +912,7 @@ static boolean SearchUser( char *token , char **input, const int bits)
 /*    Determine success of command parse based on trailing operands   */
 /*--------------------------------------------------------------------*/
 
-boolean SetTrailing( char **input, int bits )
+KWBoolean SetTrailing( char **input, int bits )
 {
 
 /*--------------------------------------------------------------------*/
@@ -932,7 +935,7 @@ boolean SetTrailing( char **input, int bits )
 /*--------------------------------------------------------------------*/
 
    if (( bits & USER_OP ) || ( *input == NULL ))
-      return TRUE;            /* Let Get_Operand check operands      */
+      return KWTrue;           /* Let Get_Operand check operands      */
 
 /*--------------------------------------------------------------------*/
 /*                        Trailing file name?                         */
@@ -944,11 +947,11 @@ boolean SetTrailing( char **input, int bits )
       token = strtok( NULL , "" );
 
       if ( token == NULL )
-         return TRUE;
+         return KWTrue;
       else {
          printf("%s: Only one file operand allowed on command\n",
             token);
-         return FALSE;
+         return KWFalse;
       } /* else */
    } /* if */
 
@@ -957,7 +960,7 @@ boolean SetTrailing( char **input, int bits )
 /*--------------------------------------------------------------------*/
 
    printf("%s: Unknown operand on command\n", *input);
-   return FALSE;
+   return KWFalse;
 
 } /* SetTrailing */
 
@@ -967,7 +970,7 @@ boolean SetTrailing( char **input, int bits )
 /*    Validate and select a single item                               */
 /*--------------------------------------------------------------------*/
 
-boolean SetItem( int item )
+KWBoolean SetItem( int item )
 {
    if ( item_list == NULL )
    {
@@ -978,11 +981,11 @@ boolean SetItem( int item )
    if ((item > 0) && ( item <= letternum ))
    {
       item_list[ next_item++ ] = item - 1;
-      return TRUE;
+      return KWTrue;
    }
    else {
       printf("Invalid item (%d) selected for processing\n",item);
-      return FALSE;
+      return KWFalse;
    } /* else */
 } /* SetItem */
 
@@ -992,10 +995,10 @@ boolean SetItem( int item )
 /*    Get next operand to process                                     */
 /*--------------------------------------------------------------------*/
 
-boolean Get_Operand( int *item,
+KWBoolean Get_Operand( int *item,
                      char **token,
                      int bits,
-                     boolean first_pass )
+                     KWBoolean first_pass )
 {
 
 /*--------------------------------------------------------------------*/
@@ -1008,7 +1011,7 @@ boolean Get_Operand( int *item,
          return first_pass;
       else {
          printf("Operands not allowed on this command!\n");
-         return FALSE;
+         return KWFalse;
       } /* else */
    }
 
@@ -1019,7 +1022,7 @@ boolean Get_Operand( int *item,
    if ( (bits & (USER_OP|TOKEN_OP)) && (*token == NULL))
    {
       printf("Missing addressees for command\n");
-      return FALSE;
+      return KWFalse;
    }
 /*--------------------------------------------------------------------*/
 /*                       Handle letter operand                        */
@@ -1033,12 +1036,12 @@ boolean Get_Operand( int *item,
       if (subscript < next_item)
       {
          *item = item_list[subscript];
-         return TRUE;
+         return KWTrue;
       } /* else */
       else {
          free( item_list );
          item_list = NULL;
-         return FALSE;
+         return KWFalse;
       } /* else */
    } /* if*/
 
@@ -1080,7 +1083,7 @@ boolean Get_Operand( int *item,
       }
       else {
          rest = strtok( NULL , "" );
-         return TRUE;
+         return KWTrue;
       } /* else */
    } /* if */
 
@@ -1101,7 +1104,7 @@ boolean Get_Operand( int *item,
       if (!Numeric( p ))
       {
          printf("%s: Operand is not numeric\n", p );
-         return FALSE;
+         return KWFalse;
       } /* if */
 
       *item = atoi( p );
@@ -1109,9 +1112,9 @@ boolean Get_Operand( int *item,
       if (p != NULL )
       {
          printf("%s: extra operand not allowed on command\n", p);
-         return FALSE;
+         return KWFalse;
       }
-      return TRUE;
+      return KWTrue;
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -1120,7 +1123,7 @@ boolean Get_Operand( int *item,
 
    printf("Unknown processing option = %x, cannot process command\n",
          bits);
-   return FALSE;
+   return KWFalse;
 
 } /* Get_Operand */
 

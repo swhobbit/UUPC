@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.c 1.21 1994/02/21 16:38:58 ahd v1-12k $
+ *    $Id: security.c 1.22 1994/12/22 00:11:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.c $
+ *    Revision 1.22  1994/12/22 00:11:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.21  1994/02/21 16:38:58  ahd
  *    Delete public directory debugging message
  *
@@ -116,11 +119,11 @@
 /*                           Local defines                            */
 /*--------------------------------------------------------------------*/
 
-static boolean InitEntry( char *buf, const char *fname);
+static KWBoolean InitEntry( char *buf, const char *fname);
 
 static size_t InitDir( char *directories,
          const REMOTE_ACCESS access,
-         const boolean grant,
+         const KWBoolean grant,
          struct HostSecurity *anchor,
          size_t max_elements );
 
@@ -143,11 +146,11 @@ currentfile();
 /*--------------------------------------------------------------------*/
 /*    L o a d S e c u r i t y                                         */
 /*                                                                    */
-/*    Initialize security processing; returns TRUE if security        */
-/*    initialized, otherewise FALSE                                   */
+/*    Initialize security processing; returns KWTrue if security       */
+/*    initialized, otherewise KWFalse                                  */
 /*--------------------------------------------------------------------*/
 
-boolean LoadSecurity( void )
+KWBoolean LoadSecurity( void )
 {
    char buffer[BUFSIZ*4];     /* Allows around 2K for the data        */
    struct HostTable *hostp;
@@ -161,7 +164,7 @@ boolean LoadSecurity( void )
    if ( hostp == NULL )
       panic();
    hostp->hsecure = &localSecurity;
-   hostp->hsecure->local = TRUE;
+   hostp->hsecure->local = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*      Generate a filename for the permissions file and open it      */
@@ -172,7 +175,7 @@ boolean LoadSecurity( void )
    if ( stream == NULL )      /* Did the file open?                   */
    {                          /* No --> Report failure to caller      */
       printerr( E_permissions );
-      return FALSE;
+      return KWFalse;
    } /* ( stream == NULL ) */
 
 /*--------------------------------------------------------------------*/
@@ -211,7 +214,7 @@ boolean LoadSecurity( void )
             printmsg(0,"LoadSecurity: buffer overflow while reading %s",
                        E_permissions );
             fclose( stream );
-            return FALSE;
+            return KWFalse;
          }
 
          while( isspace( *next ))   /* Dump trailing white space      */
@@ -231,7 +234,7 @@ boolean LoadSecurity( void )
       {
          printerr( E_permissions );
          clearerr( stream );
-         return FALSE;
+         return KWFalse;
       } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -242,7 +245,7 @@ boolean LoadSecurity( void )
       if ((*next != '\0') && !InitEntry( buffer , E_permissions))
       {
          fclose( stream );
-         return FALSE;
+         return KWFalse;
       }
 
    } /* while ( !feof( stream ) ) */
@@ -252,7 +255,7 @@ boolean LoadSecurity( void )
 /*--------------------------------------------------------------------*/
 
    fclose( stream );
-   return TRUE;
+   return KWTrue;
 
 } /* LoadSecurity */
 
@@ -262,7 +265,7 @@ boolean LoadSecurity( void )
 /*    Initialize a single permissions file entry                      */
 /*--------------------------------------------------------------------*/
 
-static boolean InitEntry( char *buf, const char *fname)
+static KWBoolean InitEntry( char *buf, const char *fname)
 {
 
 /*--------------------------------------------------------------------*/
@@ -303,7 +306,7 @@ static boolean InitEntry( char *buf, const char *fname)
 /*                          Other variables                           */
 /*--------------------------------------------------------------------*/
 
-   boolean success = TRUE;
+   KWBoolean success = KWTrue;
    CONFIGTABLE *tptr;
    char *token = buf;
    char *parameter;
@@ -342,7 +345,7 @@ static boolean InitEntry( char *buf, const char *fname)
       {
          printmsg(0,
           "Unknown keyword \"%s\" in %s ignored",parameter, fname);
-         success = FALSE;
+         success = KWFalse;
       } /* if */
    } /* while ( (parameter = strtok( token, WHITESPACE )) != NULL) */
 
@@ -357,7 +360,7 @@ static boolean InitEntry( char *buf, const char *fname)
    {
       printmsg(0,"InitEntry: No machine or logname given in %s",
                   fname );
-      success = FALSE;
+      success = KWFalse;
    } /* if ((logname == NULL) && (machine == NULL)) */
 
 /*--------------------------------------------------------------------*/
@@ -372,14 +375,14 @@ static boolean InitEntry( char *buf, const char *fname)
       {
          printmsg(0,"InitEntry: Invalid user id in %s, LOGNAME=%s",
                      fname, logname );
-         success = FALSE;
+         success = KWFalse;
       } /* if ( userp == BADUSER ) */
       else if (userp->hsecure == NULL)
          userp->hsecure = anchor;
       else {
          printmsg(0,"InitEntry: Duplicate user id in %s, LOGNAME=%s",
                      fname, logname );
-         success = FALSE;
+         success = KWFalse;
       } /* else */
    } /* if (logname != NULL) */
 
@@ -402,7 +405,7 @@ static boolean InitEntry( char *buf, const char *fname)
             printmsg(0,"InitEntry: "
                        "Multiple MACHINE entries in %s which specify OTHER",
                        fname);
-            success = FALSE;
+            success = KWFalse;
          } /* else */
       } /* if ( equal( host , ANY_HOST ) ) */
       else {
@@ -411,14 +414,14 @@ static boolean InitEntry( char *buf, const char *fname)
          {
             printmsg(0,"InitEntry: Invalid host id in %s, MACHINE=%s",
                         fname, host );
-            success = FALSE;
+            success = KWFalse;
          } /* if ( hostp == BADUSER ) */
          else if (hostp->hsecure == NULL)
             hostp->hsecure = anchor;
          else {
             printmsg(0,"InitEntry: Duplicate host id in %s, MACHINE=%s",
                         fname, token );
-            success = FALSE;
+            success = KWFalse;
          } /* else */
       } /* else */
    } /* while( token != NULL ) */
@@ -442,10 +445,10 @@ static boolean InitEntry( char *buf, const char *fname)
          {
             printmsg(0,"InitEntry: Invalid host id in %s, VALIDATE=%s",
                         fname, *plist);
-            success = FALSE;
+            success = KWFalse;
          } /* if ( hostp == BADUSER ) */
          else
-            hostp->anylogin = FALSE;   /* Flag we must use specific
+            hostp->anylogin = KWFalse;  /* Flag we must use specific
                                           login                       */
 
          plist++;             /* Step to next hostname in list        */
@@ -461,13 +464,13 @@ static boolean InitEntry( char *buf, const char *fname)
    if ( callback != NULL )
    {
       if (equal(strlwr(callback),"no"))
-         anchor->callback = FALSE;
+         anchor->callback = KWFalse;
       else if (equal(callback,"yes"))
-         anchor->callback = TRUE;
+         anchor->callback = KWTrue;
       else {
          printmsg(0,"InitEntry: Invalid value in %s, CALLBACK=%s",
                      fname, callback );
-         success = FALSE;
+         success = KWFalse;
       } /* else */
    } /* if ( callback != NULL ) */
 
@@ -478,13 +481,13 @@ static boolean InitEntry( char *buf, const char *fname)
    if ( request != NULL )
    {
       if (equal(strlwr(request),"no"))
-         anchor->request = FALSE;
+         anchor->request = KWFalse;
       else if (equal(request,"yes"))
-         anchor->request = TRUE;
+         anchor->request = KWTrue;
       else {
          printmsg(0,"InitEntry: Invalid value in %s, REQUEST=%s",
                      fname, request );
-         success = FALSE;
+         success = KWFalse;
       } /* else */
 
    } /* if ( request != NULL ) */
@@ -496,13 +499,13 @@ static boolean InitEntry( char *buf, const char *fname)
    if ( sendfiles != NULL)
    {
       if (equal(strlwr(sendfiles),"call"))
-         anchor->sendfiles = FALSE;
+         anchor->sendfiles = KWFalse;
       else if (equal(sendfiles,"yes"))
-         anchor->sendfiles = TRUE;
+         anchor->sendfiles = KWTrue;
       else {
          printmsg(0,"InitEntry: Invalid value in %s, SENDFILES=%s",
                      fname, sendfiles );
-         success = FALSE;
+         success = KWFalse;
       } /* else */
    } /* if */
 
@@ -535,7 +538,7 @@ static boolean InitEntry( char *buf, const char *fname)
       {
          printmsg(0, "Unable to expand path \"%s\"",path );
          anchor->pubdir = E_pubdir;
-         success = FALSE;
+         success = KWFalse;
       } /* else */
       else
          anchor->pubdir = newstr(path );
@@ -548,16 +551,16 @@ static boolean InitEntry( char *buf, const char *fname)
    anchor->dirlist = malloc( sizeof anchor->dirlist[0] * max_elements );
    checkref( anchor->dirlist );
 
-   max_elements = InitDir( read,    ALLOW_READ,  TRUE,  anchor,
+   max_elements = InitDir( read,    ALLOW_READ,  KWTrue,  anchor,
             max_elements );
    free( read );
-   max_elements = InitDir( noread,  ALLOW_READ,  FALSE, anchor,
+   max_elements = InitDir( noread,  ALLOW_READ,  KWFalse, anchor,
             max_elements );
    free( noread );
-   max_elements = InitDir( write,   ALLOW_WRITE, TRUE,  anchor,
+   max_elements = InitDir( write,   ALLOW_WRITE, KWTrue,  anchor,
             max_elements );
    free( write );
-   max_elements = InitDir( nowrite, ALLOW_WRITE, FALSE, anchor,
+   max_elements = InitDir( nowrite, ALLOW_WRITE, KWFalse, anchor,
                            max_elements );
    free( nowrite );
 
@@ -567,14 +570,14 @@ static boolean InitEntry( char *buf, const char *fname)
 
    if ( anchor->dirsize == 0)
    {
-      max_elements = InitDir( anchor->pubdir, ALLOW_READ, TRUE,
+      max_elements = InitDir( anchor->pubdir, ALLOW_READ, KWTrue,
                               anchor, max_elements );
-      max_elements = InitDir( anchor->pubdir, ALLOW_WRITE, TRUE,
+      max_elements = InitDir( anchor->pubdir, ALLOW_WRITE, KWTrue,
                               anchor, max_elements );
    }
 
    if ( max_elements == 0 )
-      success = FALSE;
+      success = KWFalse;
    else {
       size_t subscript;
       anchor->dirlist = realloc( anchor->dirlist,
@@ -608,7 +611,7 @@ static boolean InitEntry( char *buf, const char *fname)
 
 static size_t InitDir( char *directories,
          const REMOTE_ACCESS access,
-         const boolean grant,
+         const KWBoolean grant,
          struct HostSecurity *anchor,
          size_t max_elements )
 {
@@ -751,7 +754,7 @@ int dircmp( const void *a , const void *b )
 /*    Determine that a host is allowed for a specific login           */
 /*--------------------------------------------------------------------*/
 
-boolean ValidateHost( const char *host )
+KWBoolean ValidateHost( const char *host )
 {
    char **target;
 
@@ -760,7 +763,7 @@ boolean ValidateHost( const char *host )
 /*--------------------------------------------------------------------*/
 
    if ( securep == NULL )
-      return FALSE;
+      return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*    If we allow any host on this user id, use it if the calling     */
@@ -785,14 +788,14 @@ boolean ValidateHost( const char *host )
    while (*target != NULL)
    {
       if ( equal(*target++, host ))
-         return TRUE;
+         return KWTrue;
    } /* (*target != NULL) */
 
 /*--------------------------------------------------------------------*/
 /*                 We didn't find the host; reject it                 */
 /*--------------------------------------------------------------------*/
 
-   return FALSE;
+   return KWFalse;
 
 } /* ValidateHost */
 
@@ -802,7 +805,7 @@ boolean ValidateHost( const char *host )
 /*    Allow or reject access to a file by name                        */
 /*--------------------------------------------------------------------*/
 
-boolean ValidateFile( const char *input,  /* Full path name           */
+KWBoolean ValidateFile( const char *input,  /* Full path name          */
                       const REMOTE_ACCESS needed )
 {
    char path[FILENAME_MAX];
@@ -819,7 +822,7 @@ boolean ValidateFile( const char *input,  /* Full path name           */
    {
       printmsg(0,"ValidateFile: Access rejected, name too long: %s",
                  input);
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -830,7 +833,7 @@ boolean ValidateFile( const char *input,  /* Full path name           */
    {
       printmsg(0,"ValidateFile: Access rejected, name not normalized: %s",
                  input);
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -848,7 +851,7 @@ boolean ValidateFile( const char *input,  /* Full path name           */
 /*--------------------------------------------------------------------*/
 
    if ( securep->local )      /* Local system?                        */
-      return TRUE;            /* Yes --> Bless the request            */
+      return KWTrue;           /* Yes --> Bless the request            */
 
 /*--------------------------------------------------------------------*/
 /*       Determine if the user is allowed to request files            */
@@ -858,7 +861,7 @@ boolean ValidateFile( const char *input,  /* Full path name           */
    {
       printmsg(0,"ValidateFile: access rejected, "
                  "REQUEST not enabled in permissions file");
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -917,7 +920,7 @@ boolean ValidateFile( const char *input,  /* Full path name           */
 \"%s\", access denied",
             needed == ALLOW_READ ? "read" : "write" ,
             input);
-   return FALSE;
+   return KWFalse;
 
 } /* ValidateFile */
 

@@ -21,11 +21,11 @@ void put_active(void);     /* Write the active newsgroups file */
 
 struct grp *find_newsgroup(const char *grp); /* Find pointer for group     */
 
-boolean add_newsgroup(const char *grp, const boolean moderated);
+KWBoolean add_newsgroup(const char *grp, const boolean moderated);
 
-boolean del_newsgroup(const char *grp);
+KWBoolean del_newsgroup(const char *grp);
 
-boolean get_snum(const char *group, char *snum);
+KWBoolean get_snum(const char *group, char *snum);
 
 #ifndef MAXGRP
 #define MAXGRP FILENAME_MAX   /* Max length of a news group name      */

@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mktempnm.c 1.12 1994/12/22 00:09:40 ahd Exp $
+ *    $Id: mktempnm.c 1.13 1994/12/31 03:41:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: mktempnm.c $
+ *    Revision 1.13  1994/12/31 03:41:08  ahd
+ *    First pass of integrating Mike McLagan's news SYS file suuport
+ *
  *    Revision 1.12  1994/12/22 00:09:40  ahd
  *    Annual Copyright Update
  *
@@ -81,7 +84,7 @@ currentfile();
 char *mktempname( char *buf, const char *extension)
 {
    static size_t file = 0;
-   boolean slash;
+   KWBoolean slash;
 
 /*--------------------------------------------------------------------*/
 /*                   Initialize the file name counter                 */
@@ -109,9 +112,9 @@ char *mktempname( char *buf, const char *extension)
 /*--------------------------------------------------------------------*/
 
    if ( E_tempdir[ strlen( E_tempdir ) - 1 ] == '/' )
-      slash = TRUE;
+      slash = KWTrue;
    else
-      slash = FALSE;
+      slash = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*        Loop looking for the non-existent file of our dreams        */

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: safeio.c 1.13 1994/02/20 19:07:38 ahd v1-12k $
+ *    $Id: safeio.c 1.14 1994/12/22 00:10:45 ahd Exp $
  *
  *    Revision history:
  *    $Log: safeio.c $
+ *    Revision 1.14  1994/12/22 00:10:45  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.13  1994/02/20 19:07:38  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -188,7 +191,7 @@ int safein( void )
 /*    Written by ahd based on safein (above).                         */
 /*--------------------------------------------------------------------*/
 
-boolean safepeek( void )
+KWBoolean safepeek( void )
 {
 
 #ifdef _Windows
@@ -206,8 +209,8 @@ boolean safepeek( void )
    PeekConsoleInput(hConsoleIn, &Buffer, 1, &nEventsRead);
 
    if (nEventsRead != 0 && Buffer.EventType == KEY_EVENT)
-      return TRUE;
-   return FALSE;
+      return KWTrue;
+   return KWFalse;
 
 #elif defined( FAMILYAPI ) || defined(__OS2__)
 

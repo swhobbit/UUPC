@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: winutil.c 1.14 1994/02/19 04:45:12 ahd v1-12k $
+ *    $Id: winutil.c 1.15 1994/12/22 00:12:11 ahd Exp $
  *
  *    Revision history:
  *    $Log: winutil.c $
+ *    Revision 1.15  1994/12/22 00:12:11  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/02/19 04:45:12  ahd
  *    Use standard first header
  *
@@ -172,11 +175,11 @@ void CloseEasyWin(void)
 
 int SpawnWait( const char *command,
                const char *parameters,
-               const boolean synchronous,
+               const KWBoolean synchronous,
                const UINT fuCmdShow)
 {
 
-   BOOL bChildIsExecuting = TRUE;
+   BOOL bChildIsExecuting = KWTrue;
    MSG msg;
    int iChildExitStatus = 0;
 
@@ -255,7 +258,7 @@ int SpawnWait( const char *command,
       switch( msg.message )
       {
          case PM_TASKEND:
-            bChildIsExecuting = FALSE;
+            bChildIsExecuting = KWFalse;
             iChildExitStatus = (int)(LOBYTE(msg.lParam));
             /* Fall through and dispatch message   */
 
@@ -336,7 +339,7 @@ BOOL CALLBACK _export NotifyCatcher (WORD wID, DWORD dwData)
 /*             Pass notification to other callback functions          */
 /*--------------------------------------------------------------------*/
 
-   return FALSE;
+   return KWFalse;
 
 }
 
@@ -372,13 +375,13 @@ BOOL CALLBACK _export WindCatcher (HWND hWnd, LPARAM lparam)
     int i;
 
     if ((i = GetClassName(hWnd, (LPSTR)buf, BUF_LEN)) == 0)
-       return(FALSE);                      /* OOPS!                   */
+       return(KWFalse);                     /* OOPS!                   */
 
     buf[i] = '\0';                         /* Make cstr               */
     if (lstrcmpi((LPCSTR)buf, (LPCSTR)lparam) == 0) /* If we found it */
     {
         hTheWindow = hWnd;                 /* Save it for called func */
-        return(FALSE);
+        return(KWFalse);
     }
-    return(TRUE);
+    return(KWTrue);
 }

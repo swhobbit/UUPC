@@ -73,10 +73,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.c 1.4 1995/01/05 03:43:49 ahd Exp $
+ *    $Id: sys.c 1.5 1995/01/07 15:43:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.c $
+ *    Revision 1.5  1995/01/07 15:43:07  ahd
+ *    Use string pool, not disk, for various saved parameters from SYS file
+ *
  *    Revision 1.4  1995/01/05 03:43:49  ahd
  *    rnews SYS file support
  *
@@ -281,14 +284,14 @@ void process_sys( char *buf)
 
     t = strchr(f3, 'c');            /* Do _not_ compress batches     */
 
-    node->flag.c = (t == NULL) ? FALSE : TRUE;
+    node->flag.c = (t == NULL) ? KWFalse : KWTrue;
 
     if (t != NULL)
       *t = ' ';
 
     t = strchr(f3, 'B');            /* Do not send undersized batches   */
 
-    node->flag.B = (t == NULL) ? FALSE : TRUE;
+    node->flag.B = (t == NULL) ? KWFalse : KWTrue;
 
     if (t != NULL)
       *t = ' ';
@@ -299,19 +302,19 @@ void process_sys( char *buf)
 
     t = strchr(f3, 'f');
 
-    node->flag.f = (t == NULL) ? FALSE : TRUE;
+    node->flag.f = (t == NULL) ? KWFalse : KWTrue;
 
     if (t != NULL)
       *t = ' ';
 
     t = strchr(f3, 'F');
-    node->flag.F = (t == NULL) ? FALSE : TRUE;
+    node->flag.F = (t == NULL) ? KWFalse : KWTrue;
 
     if (t != NULL)
       *t = ' ';
 
     t = strchr(f3, 'I');
-    node->flag.I = (t == NULL) ? FALSE : TRUE;
+    node->flag.I = (t == NULL) ? KWFalse : KWTrue;
     if (t != NULL)
       *t = ' ';
 
@@ -337,17 +340,17 @@ void process_sys( char *buf)
     }
 
     t = strchr(f3, 'm');
-    node->flag.m = (t == NULL) ? FALSE : TRUE;
+    node->flag.m = (t == NULL) ? KWFalse : KWTrue;
     if (t != NULL)
       *t = ' ';
 
     t = strchr(f3, 'n');
-    node->flag.n = (t == NULL) ? FALSE : TRUE;
+    node->flag.n = (t == NULL) ? KWFalse : KWTrue;
     if (t != NULL)
       *t = ' ';
 
     t = strchr(f3, 'u');
-    node->flag.u = (t == NULL) ? FALSE : TRUE;
+    node->flag.u = (t == NULL) ? KWFalse : KWTrue;
     if (t != NULL)
       *t = ' ';
 
@@ -523,7 +526,7 @@ void init_sys()
   char       line[BUFSIZ];
   char       *t;
   char       buf[BUFSIZ * 8];
-  boolean    wantMore = TRUE;
+  KWBoolean   wantMore = KWTrue;
 
   mkfilename(sysFileName, E_confdir, "SYS");
 
@@ -599,7 +602,7 @@ void init_sys()
         * spaces after '\' before end of line.
         */
 
-       wantMore = (*t == '\\') ? TRUE : FALSE;
+       wantMore = (*t == '\\') ? KWTrue : KWFalse;
 
     }  /* else if (*t != '#') */
 
@@ -629,7 +632,7 @@ void init_sys()
  * intensive.
  */
 
-boolean excluded(char *list, char *path)
+KWBoolean excluded(char *list, char *path)
 {
   char    *t1, *t2, *t3;
   int     temp;
@@ -652,7 +655,7 @@ boolean excluded(char *list, char *path)
         /* is this the only entry left ? */
 
         if (equal(t1, t2))
-          return TRUE;
+          return KWTrue;
 
         /* must be directly followed by a '!' */
 
@@ -664,7 +667,7 @@ boolean excluded(char *list, char *path)
           temp = strcmp(t1, t2);
           *t3 = '!';
           if (temp == 0)
-            return TRUE;
+            return KWTrue;
         }
       }
 
@@ -677,8 +680,8 @@ boolean excluded(char *list, char *path)
 
   } /* while (t1 != NULL) */
 
-  printmsg(5, "exclude: results in FALSE");
-  return FALSE;
+  printmsg(5, "exclude: results in KWFalse");
+  return KWFalse;
 
 } /* excluded */
 
@@ -690,15 +693,15 @@ boolean excluded(char *list, char *path)
 /*       matches all unless an negation exists!  :(                   */
 /*--------------------------------------------------------------------*/
 
-boolean distributions(char *list, const char *distrib)
+KWBoolean distributions(char *list, const char *distrib)
 {
 
   char *listPtr;
 
-  boolean bAll  = FALSE;      /* We saw "all" or "world"             */
-  boolean bRet  = FALSE;      /* Non-global forward status           */
-  boolean bFail = FALSE;      /* Punted by at least one distribution */
-  boolean bDef  = TRUE;       /* We have yet to see anything but
+  KWBoolean bAll  = KWFalse;    /* We saw "all" or "world"             */
+  KWBoolean bRet  = KWFalse;    /* Non-global forward status           */
+  KWBoolean bFail = KWFalse;    /* Punted by at least one distribution */
+  KWBoolean bDef  = KWTrue;     /* We have yet to see anything but
                                  negations                           */
 
   while (isspace(*distrib))
@@ -718,7 +721,7 @@ boolean distributions(char *list, const char *distrib)
     char  *distribPtr = tempDistrib;
     char  *nextDistrib = tempDistrib;
 
-    const boolean bNot = (*listPtr == '!') ? TRUE : FALSE;
+    const KWBoolean bNot = (*listPtr == '!') ? KWTrue : KWFalse;
 
     strcpy( tempDistrib, distrib );
 
@@ -727,7 +730,7 @@ boolean distributions(char *list, const char *distrib)
     if ( bNot )
       listPtr++;                 /* Step to beginning of word        */
     else
-      bDef  = FALSE;             /* We had a inclusive distribution  */
+      bDef  = KWFalse;            /* We had a inclusive distribution  */
 
     bAll = bAll || (!bNot && equali(listPtr, "all"));
     bAll = bAll || (!bNot && equali(listPtr, "world"));
@@ -749,9 +752,9 @@ boolean distributions(char *list, const char *distrib)
       {
 
          if ( bNot )
-            bFail = TRUE;
+            bFail = KWTrue;
          else
-            bRet = TRUE;
+            bRet = KWTrue;
       }
 
 #ifdef UDEBUG
@@ -759,10 +762,10 @@ boolean distributions(char *list, const char *distrib)
                  "bAll = %s, bFail = %s, bRet = %s, bDef = %s",
                  listPtr,
                  distrib,
-                 bAll  ? "TRUE" : "FALSE",
-                 bFail ? "TRUE" : "FALSE",
-                 bRet  ? "TRUE" : "FALSE",
-                 bDef  ? "TRUE" : "FALSE" );
+                 bAll  ? "KWTrue" : "KWFalse",
+                 bFail ? "KWTrue" : "KWFalse",
+                 bRet  ? "KWTrue" : "KWFalse",
+                 bDef  ? "KWTrue" : "KWFalse" );
 #endif
 
     } /* while ((distribPtr = strtok(nextDistrib, ", ")) != NULL ) */
@@ -785,7 +788,7 @@ boolean distributions(char *list, const char *distrib)
 
   bRet = bFail ? bRet : (bRet || bAll || bDef);
 
-  printmsg(5, "distributions: results %s", bRet ? "TRUE" : "FALSE");
+  printmsg(5, "distributions: results %s", bRet ? "KWTrue" : "KWFalse");
 
   return bRet;
 
@@ -797,13 +800,13 @@ boolean distributions(char *list, const char *distrib)
 /*       Perform matching on news groups                              */
 /*--------------------------------------------------------------------*/
 
-boolean match(char *group, char *pattern, int *iSize)
+KWBoolean match(char *group, char *pattern, int *iSize)
 {
 
-  boolean bMatch;
+  KWBoolean bMatch;
   char *t1, *t2, *t3, *t4;
 
-  bMatch = TRUE;
+  bMatch = KWTrue;
   *iSize = 0;
   t1 = group;
   t3 = pattern;
@@ -829,7 +832,7 @@ boolean match(char *group, char *pattern, int *iSize)
       if (equal(t1, t3))
         *iSize += 10;
       else
-        bMatch = FALSE;
+        bMatch = KWFalse;
 
     t3 = t4;
     if (t3 != NULL)
@@ -851,24 +854,24 @@ boolean match(char *group, char *pattern, int *iSize)
     bMatch = (t3 == NULL);
 
   printmsg(5, "match: matching %s to %s resulting in %s with size %i",
-              group, pattern, bMatch ? "TRUE" : "FALSE", *iSize);
+              group, pattern, bMatch ? "KWTrue" : "KWFalse", *iSize);
 
   return bMatch;
 
 } /* match */
 
-boolean newsgroups(char *list, char *groups)
+KWBoolean newsgroups(char *list, char *groups)
 {
   char    *t1, *t2, *t3, *t4;
-  boolean bMatch, bNoMatch, bNot;
+  KWBoolean bMatch, bNoMatch, bNot;
   int     iMatch, iNoMatch, iSize;
 
   printmsg(5, "newsgroups: checking %s against %s", list, groups);
 
   iMatch   = 0;
   iNoMatch = 0;
-  bMatch = FALSE;
-  bNoMatch = FALSE;
+  bMatch = KWFalse;
+  bNoMatch = KWFalse;
 
   t1 = groups;
   while (t1 != NULL)
@@ -894,12 +897,12 @@ boolean newsgroups(char *list, char *groups)
       if (match(t1, t3, &iSize))
         if (bNot)
         {
-          bNoMatch = TRUE;
+          bNoMatch = KWTrue;
           if (iSize > iNoMatch)
             iNoMatch = iSize;
         }
         else {
-          bMatch = TRUE;
+          bMatch = KWTrue;
           if (iSize > iMatch)
             iMatch = iSize;
         }
@@ -919,7 +922,7 @@ boolean newsgroups(char *list, char *groups)
     printmsg(7, "newsgroups: mismatch found, size is %d", iNoMatch);
 
   printmsg(5, "newsgroups: results in %s",
-              bMatch && (!bNoMatch || (iMatch > iNoMatch)) ? "TRUE" : "FALSE");
+              bMatch && (!bNoMatch || (iMatch > iNoMatch)) ? "KWTrue" : "KWFalse");
 
   return (bMatch &&
           (!bNoMatch ||
@@ -932,10 +935,10 @@ boolean newsgroups(char *list, char *groups)
 /*       Process posting criteria for a given article                 */
 /*--------------------------------------------------------------------*/
 
-boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
+KWBoolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
 {
 
-  boolean bRet;
+  KWBoolean bRet;
 
   printmsg(5, "check_sys: node: %s", entry->sysname);
   printmsg(5, "check_sys: groups: %s", groups);
@@ -968,7 +971,7 @@ boolean check_sys(struct sys *entry, char *groups, char *distrib, char *path)
     bRet = newsgroups(strcpy( cache, entry->groups ), groups);
   }
 
-  printmsg(3, "check_sys: returning %s", bRet ? "TRUE" : "FALSE");
+  printmsg(3, "check_sys: returning %s", bRet ? "KWTrue" : "KWFalse");
 
   return bRet;
 

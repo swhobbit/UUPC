@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: inews.c 1.18 1995/01/03 05:32:26 ahd Exp $
+ *       $Id: inews.c 1.19 1995/01/05 03:43:49 ahd Exp $
  *
  * $Log: inews.c $
+ * Revision 1.19  1995/01/05 03:43:49  ahd
+ * rnews SYS file support
+ *
  * Revision 1.18  1995/01/03 05:32:26  ahd
  * Further SYS file support cleanup
  *
@@ -94,7 +97,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: inews.c 1.18 1995/01/03 05:32:26 ahd Exp $";
+      "$Id: inews.c 1.19 1995/01/05 03:43:49 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -231,7 +234,7 @@ void main( int argc, char **argv)
 /*                         deliver locally                            */
 /*--------------------------------------------------------------------*/
 
-  result = execute(RNEWS, NULL, tempname, NULL, TRUE, FALSE);
+  result = execute(RNEWS, NULL, tempname, NULL, KWTrue, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*                             cleanup                                */
@@ -356,14 +359,14 @@ static int complete_header(FILE *input, FILE *output )
 
   fprintf(output, "Date: %s\n", arpadate());
 
-  OK = FALSE;
+  OK = KWFalse;
   rewind(input);
 
   while (fgets(buf, sizeof(buf), input) != NULL)
   {
     if (buf[0] == ' ' || buf[0] == '\n' || buf[0] == '\r')
     {
-      OK = TRUE;
+      OK = KWTrue;
       break;
     }
     if (strncmp(buf,"Path:", 5) == 0 ||

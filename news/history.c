@@ -13,9 +13,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: history.c 1.7 1994/12/27 23:35:28 ahd Exp $";
+      "$Id: history.c 1.8 1995/01/03 05:32:26 ahd Exp $";
 
 /* $Log: history.c $
+/* Revision 1.8  1995/01/03 05:32:26  ahd
+/* Further SYS file support cleanup
+/*
 /* Revision 1.7  1994/12/27 23:35:28  ahd
 /* Various contributed news fixes; make processing consistent, improve logging,
 /* use consistent host names
@@ -129,19 +132,19 @@ static int get_entry(void *hdbm_file, char **messageID, char **histentry,
   datum key, val;
 
   if (hdbm_file == NULL)
-    return FALSE;
+    return KWFalse;
 
   key = dbm_getkey(hdbm_file);
 
   if (key.dptr == NULL)
-    return FALSE;
+    return KWFalse;
 
   val = dbm_fetch(hdbm_file, key);
 
   *messageID = key.dptr;
   *histentry = val.dptr;
 
-  return TRUE;
+  return KWTrue;
 }
 
 int get_first_histentry(void *hdbm_file, char **messageID, char **histentry)
@@ -167,7 +170,7 @@ int add_histentry(void *hdbm_file,
   datum key, val;
 
   if (hdbm_file == NULL)
-    return FALSE;
+    return KWFalse;
 
   key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
@@ -175,9 +178,9 @@ int add_histentry(void *hdbm_file,
   val.dsize = strlen(val.dptr) + 1;
 
   if (dbm_store(hdbm_file, key, val, DBM_REPLACE))
-    return FALSE;
+    return KWFalse;
 
-  return TRUE;
+  return KWTrue;
 }
 
 /*--------------------------------------------------------------------*/
@@ -191,15 +194,15 @@ int delete_histentry(void *hdbm_file, const char *messageID)
   datum key;
 
   if (hdbm_file == NULL)
-    return FALSE;
+    return KWFalse;
 
   key.dptr = (char *) messageID;
   key.dsize = strlen(key.dptr) + 1;
 
   if (dbm_delete(hdbm_file, key))
-    return FALSE;
+    return KWFalse;
 
-  return TRUE;
+  return KWTrue;
 }
 
 /*--------------------------------------------------------------------*/
@@ -241,33 +244,33 @@ static int matches(const char *group, char **grouplist)
   int len1 = strlen(group), len2, subgroups;
 
   if (grouplist == NULL)
-    return TRUE;
+    return KWTrue;
 
   for (; *grouplist != NULL; grouplist++)
   {
     len2 = strlen(*grouplist);
-    subgroups = FALSE;
+    subgroups = KWFalse;
 
     if ((*grouplist)[len2 - 1] == '*')
-      len2--, subgroups = TRUE;
+      len2--, subgroups = KWTrue;
 
     if (strnicmp(group, *grouplist, min(len1, len2)) == 0)
     {
       if (len1 < len2)
         continue;
       else if (len1 == len2)
-        return TRUE;
+        return KWTrue;
       else /* len1 > len2 */
       {
         if (group[len2] == '.' && subgroups)
-          return TRUE;
+          return KWTrue;
       }
 
-      return TRUE;
+      return KWTrue;
     }
   }
 
-  return FALSE;
+  return KWFalse;
 }
 
 char *purge_article(char *histentry, char **groups)

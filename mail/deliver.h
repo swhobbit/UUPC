@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.11 1994/12/09 03:54:15 ahd v1-12k $
+ *    $Id: deliver.h 1.12 1994/12/22 00:20:10 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.12  1994/12/22 00:20:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.11  1994/12/09 03:54:15  ahd
  *    Support recursely processing system aliases file for same address
  *
@@ -61,11 +64,11 @@
 
 size_t Deliver( const char *input, /* Input file name                */
                 char *address,     /* Target address               */
-                boolean validate); /* Validate/forward local mail  */
+                KWBoolean validate); /* Validate/forward local mail  */
 
 extern KEWSHORT hops;
 
-extern boolean remoteMail;
+extern KWBoolean remoteMail;
 
 extern char *now;
 

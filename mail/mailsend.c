@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mailsend.c 1.17 1994/08/08 00:21:00 ahd v1-12k $
+ *    $Id: mailsend.c 1.18 1994/12/22 00:19:34 ahd Exp $
  *
  *    Revision history:
  *    $Log: mailsend.c $
+ *    Revision 1.18  1994/12/22 00:19:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.17  1994/08/08 00:21:00  ahd
  *    Further OS/2 cleanup
  *
@@ -98,22 +101,22 @@
  static char *ExplodeAlias(char *header ,
                       const char *alias,
                       FILE *stream,
-                      const boolean resent);
+                      const KWBoolean resent);
 
  static void PutHead( const char *label,
                       const char *operand,
                       FILE *stream,
-                      const boolean resent);
+                      const KWBoolean resent);
 
- static boolean Append_Signature(FILE *mailbag,
-                     const boolean alternate);
+ static KWBoolean Append_Signature(FILE *mailbag,
+                     const KWBoolean alternate);
 
  static void Prompt_Input( char *tmailbag,
                           FILE *fmailbag,
                            char *subject,
                           const int current);
 
- static boolean Subcommand( char *buf,
+ static KWBoolean Subcommand( char *buf,
                            FILE *fmailbag,
                            char *tmailbag,
                            char *subject,
@@ -136,7 +139,7 @@ currentfile();                /* Define current file for panic()     */
  static char *ExplodeAlias(char *header ,
                       const char *alias,
                       FILE *stream,
-                      const boolean resent)
+                      const KWBoolean resent)
 {
    char *fullname;
    char buffer[LSIZE];
@@ -159,7 +162,7 @@ currentfile();                /* Define current file for panic()     */
       char path[MAXADDR];
       char bucket[MAXADDR];
 
-      ExtractAddress(bucket, (char *) alias, FALSE);
+      ExtractAddress(bucket, (char *) alias, KWFalse);
       user_at_node(bucket, path, node, user);
       fullname = AliasByAddr( node, user);
 
@@ -180,7 +183,7 @@ currentfile();                /* Define current file for panic()     */
                strcat(node,E_localdomain);
             }
 
-            ExtractAddress(path, (char *) alias, TRUE);
+            ExtractAddress(path, (char *) alias, KWTrue);
             if (strlen( path ) == 0)
                sprintf(buffer,"%s@%s", hisuser, node );
             else
@@ -192,7 +195,7 @@ currentfile();                /* Define current file for panic()     */
       }
    }
    else {
-      ExtractAddress(buffer,fullname,TRUE);
+      ExtractAddress(buffer,fullname,KWTrue);
       if (strlen(buffer) == 0)      /* A list of users?              */
       {                             /* Yes --> Do recursive call     */
          char *current = buffer;    /* Current token being processed */
@@ -237,8 +240,8 @@ currentfile();                /* Define current file for panic()     */
 /*    Returns:  0 on success, 1 if signature file not found           */
 /*--------------------------------------------------------------------*/
 
-static boolean Append_Signature(FILE *mailbag_fp ,
-                     const boolean alternate)
+static KWBoolean Append_Signature(FILE *mailbag_fp ,
+                     const KWBoolean alternate)
 {
    FILE *sigfp;
    char *sig;
@@ -271,11 +274,11 @@ static boolean Append_Signature(FILE *mailbag_fp ,
 /*    Send text in a mailbag file to address(es) specified by line.   */
 /*--------------------------------------------------------------------*/
 
-boolean Send_Mail(FILE *datain,
+KWBoolean Send_Mail(FILE *datain,
                int argc,
                char *argv[],
                char *subject,
-               const boolean resent)
+               const KWBoolean resent)
 {
    int argx = 0;
    char buf[LSIZE];
@@ -294,7 +297,7 @@ boolean Send_Mail(FILE *datain,
    {
       printerr(pipename);
       free(pipename);
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -408,7 +411,7 @@ boolean Send_Mail(FILE *datain,
 /*--------------------------------------------------------------------*/
 
    if ( bflag[F_AUTOSIGN] )
-      Append_Signature(stream, FALSE);
+      Append_Signature(stream, KWFalse);
 
    fclose(stream);
 
@@ -417,7 +420,7 @@ boolean Send_Mail(FILE *datain,
 /*--------------------------------------------------------------------*/
 
    sprintf(buf, "-t -f %s", pipename);
-   status = execute(RMAIL, buf, NULL, NULL, TRUE, TRUE );
+   status = execute(RMAIL, buf, NULL, NULL, KWTrue, TRUE );
 
    if ( status < 0 )
    {
@@ -510,9 +513,9 @@ static void CopyOut( const char* input)
  static void PutHead( const char *label,
                       const char *operand,
                       FILE *stream,
-                      const boolean resent)
+                      const KWBoolean resent)
  {
-   static boolean terminate = TRUE;
+   static KWBoolean terminate = KWTrue;
                               /* If previous line was terminated     */
 
    if (label == NULL )        /* Terminate call?                     */
@@ -520,7 +523,7 @@ static void CopyOut( const char* input)
       fputc('\n', stream);    /* Terminate the current line          */
       if (!resent)
          fputc('\n', stream); /* Terminate the header file           */
-      terminate = TRUE;
+      terminate = KWTrue;
       return;
    } /* if */
 
@@ -532,7 +535,7 @@ static void CopyOut( const char* input)
          fprintf(stream,"Resent-%s %s",label, operand);
       else
          fprintf(stream,"%-10s %s",label, operand);
-      terminate = FALSE;          /* Flag that we did not end file   */
+      terminate = KWFalse;         /* Flag that we did not end file   */
    } /* if */
    else                       /* Continuing line                     */
       fprintf(stream,",\n%-10s %s",label, operand);
@@ -544,24 +547,24 @@ static void CopyOut( const char* input)
 /*    Create mailbox file for delivery                                */
 /*--------------------------------------------------------------------*/
 
-boolean Collect_Mail(FILE *stream,
+KWBoolean Collect_Mail(FILE *stream,
                   int argc,
                   char **argv,
                   const int current_msg,
-                  const boolean reply)
+                  const KWBoolean reply)
 {
-   boolean editonly = FALSE;
+   KWBoolean editonly = KWFalse;
    char Subuffer[LSIZE];
    char *subject = NULL;
    char *tmailbag;
    int  c;                    /* Really a 'char', but who cares?     */
-   boolean done = FALSE;
+   KWBoolean done = KWFalse;
    FILE  *fmailbag;
 
    if ( argc < (equal(argv[0], "-s" ) ? 3 : 1 ))
    {
       printmsg(0,"Cannot send mail, no addressees provided" );
-      return FALSE;           /* Actually doesn't mean anything      */
+      return KWFalse;          /* Actually doesn't mean anything      */
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -572,9 +575,9 @@ boolean Collect_Mail(FILE *stream,
    if (!Is_Console(stream))
    {
       if ( equal(argv[0], "-s" ) )
-         return Send_Mail( stream, argc-2, argv+2, argv[1], FALSE);
+         return Send_Mail( stream, argc-2, argv+2, argv[1], KWFalse);
       else
-         return Send_Mail( stream , argc , argv, NULL , FALSE);
+         return Send_Mail( stream , argc , argv, NULL , KWFalse);
    } /* if */
 
 /*--------------------------------------------------------------------*/
@@ -622,7 +625,7 @@ boolean Collect_Mail(FILE *stream,
 
    if ( bflag[F_AUTOINCLUDE] && reply)
    {
-       CopyMsg(current_msg, fmailbag, fromheader , TRUE);
+       CopyMsg(current_msg, fmailbag, fromheader , KWTrue);
        fprintf(stdout, "Message %d Included\n", current_msg+1);
    } /* if ( bflag[F_AUTOINCLUDE] && reply) */
 
@@ -680,8 +683,8 @@ boolean Collect_Mail(FILE *stream,
             }
             if ( strlen( Subuffer ))
                subject = Subuffer;
-            Send_Mail(fmailbag, argc, argv, subject, FALSE);
-            done = TRUE;
+            Send_Mail(fmailbag, argc, argv, subject, KWFalse);
+            done = KWTrue;
             break;
 
          case 'e':
@@ -698,7 +701,7 @@ boolean Collect_Mail(FILE *stream,
             switch (tolower(c)) {      /* unravel these two calls */
             case 'y':
                puts("Yes");
-               done = TRUE;
+               done = KWTrue;
                break;
             default:
                puts("No");
@@ -709,14 +712,14 @@ boolean Collect_Mail(FILE *stream,
             puts("\n\aEnter A, C, E, L, or S.");
             fflush(stdout);
             safeflush();
-            done = FALSE;
+            done = KWFalse;
       } /*switch*/
    } while (!done);
 
    remove(tmailbag);
    free(tmailbag);
 
-   return TRUE;
+   return KWTrue;
 } /*Collect_Mail*/
 
 /*--------------------------------------------------------------------*/
@@ -767,7 +770,7 @@ static void Prompt_Input( char *tmailbag,
 /*    Handle tilde (~) subcommands for Interactive mail               */
 /*--------------------------------------------------------------------*/
 
-static boolean Subcommand( char *buf,
+static KWBoolean Subcommand( char *buf,
                            FILE *fmailbag,
                            char *tmailbag,
                            char *subject,
@@ -789,7 +792,7 @@ static boolean Subcommand( char *buf,
 
          case '~':
             memmove( buf, buf + 1, strlen( buf + 1 ));
-            return FALSE;        /* Treat as normal line              */
+            return KWFalse;       /* Treat as normal line              */
 
 /*--------------------------------------------------------------------*/
 /*              Put signature file into current message               */
@@ -829,7 +832,7 @@ static boolean Subcommand( char *buf,
             else {
                int *item_list;
                int next_item = PushItemList( &item_list );
-               boolean first_pass = TRUE;
+               KWBoolean first_pass = KWTrue;
 
                token = GetString( &buf[2] );
 
@@ -840,7 +843,7 @@ static boolean Subcommand( char *buf,
                            islower(buf[1]) ? fromheader : noseperator ,
                            tolower(buf[1]) != 'f');
                   fprintf(stdout, "Message %d included\n", message + 1);
-                  first_pass = FALSE;
+                  first_pass = KWFalse;
                } /* while */
 
                PopItemList( item_list, next_item );
@@ -919,7 +922,7 @@ static boolean Subcommand( char *buf,
          case '?':
          {
             mkfilename(fname, E_confdir, "tilde.hlp");
-            Sub_Pager( fname, TRUE );
+            Sub_Pager( fname, KWTrue );
             break;
          }
 
@@ -953,10 +956,10 @@ static boolean Subcommand( char *buf,
             break;
       } /* switch */
 
-      return TRUE;
+      return KWTrue;
    } /* if */
    else
-      return FALSE;           /* It wasn't a sub-command             */
+      return KWFalse;          /* It wasn't a sub-command             */
 
 } /*SubCommand*/
 
@@ -991,7 +994,7 @@ static void filter( char *tmailbag, char *command)
 /*                          Run the command                           */
 /*--------------------------------------------------------------------*/
 
-   result = executeCommand( command, tmailbag, pipename, TRUE, TRUE );
+   result = executeCommand( command, tmailbag, pipename, KWTrue, TRUE );
 
    if (result == -1)       /* Did spawn fail?            */
          ;                 /* No operation               */

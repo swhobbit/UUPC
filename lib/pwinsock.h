@@ -24,10 +24,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.h 1.4 1994/01/01 19:09:28 ahd v1-12k $
+ *    $Id: pwinsock.h 1.5 1994/12/22 00:13:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: pwinsock.h $
+ *    Revision 1.5  1994/12/22 00:13:36  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/01 19:09:28  ahd
  *    Annual Copyright Update
  *
@@ -103,7 +106,7 @@ extern int PASCAL FAR (*pshutdown) (SOCKET s, int how);
 /*     Our one "real" prototype to initialize the other functions     */
 /*--------------------------------------------------------------------*/
 
-boolean pWinSockInit( void );
+KWBoolean pWinSockInit( void );
 
 void pWinSockExit( void );
 

@@ -39,7 +39,7 @@ currentfile();
 
 static DIR *thisDirP = NULL;
 static DIR *lastDirP = NULL;
-static openForBusiness = FALSE;
+static openForBusiness = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*    o p e n d i r x                                                 */
@@ -102,7 +102,7 @@ extern DIR *opendirx( const char *dirname, char *pattern)
    printmsg(2,"opendir: Address is %p", thisDirP );
 #endif
 
-   openForBusiness = TRUE;
+   openForBusiness = KWTrue;
    return thisDirP;
 
 } /*opendir*/
@@ -210,7 +210,7 @@ void closedir(DIR *dirp)
 
    strcpy(dirp->dirid, "CLO");
    lastDirP = dirp;
-   openForBusiness = FALSE;
+   openForBusiness = KWFalse;
 #ifdef UDEBUG
    printmsg(2,"closedir: Freeing dirp at %p", dirp );
 #endif

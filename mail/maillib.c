@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.c 1.18 1994/08/07 21:28:54 ahd v1-12k $
+ *    $Id: maillib.c 1.19 1994/12/22 00:19:27 ahd Exp $
  *
  *    $Log: maillib.c $
+ *    Revision 1.19  1994/12/22 00:19:27  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.18  1994/08/07 21:28:54  ahd
  *    Clean up OS/2 processing to not use new sessions, but rather simply user
  *    command processor to allow firing off PM programs such as E and EPM.
@@ -141,15 +144,15 @@ currentfile();                /* Define current file for panic()     */
 /*    to do the browsing.                                             */
 /*--------------------------------------------------------------------*/
 
-boolean Pager(const int msgnum,
-              boolean external,
+KWBoolean Pager(const int msgnum,
+              KWBoolean external,
               copyopt received,
-              const boolean reset)
+              const KWBoolean reset)
 {
-   boolean exitNow  = FALSE;     /* Flag for PRE-MATURE exit   ahd   */
+   KWBoolean exitNow  = KWFalse;   /* Flag for PRE-MATURE exit   ahd   */
 
    if (msgnum == -1)
-      return FALSE;
+      return KWFalse;
 
    if (bflag[F_PAGER])           /* User want pager option inverted? */
       external = ! external;     /* Yes --> Do the inversion         */
@@ -168,10 +171,10 @@ boolean Pager(const int msgnum,
       {
          printerr(browse);
          printmsg(0,"Cannot open browse file %s",browse);
-         return FALSE;
+         return KWFalse;
       } /* if */
 
-      CopyMsg(msgnum, fmailbag, received, FALSE);
+      CopyMsg(msgnum, fmailbag, received, KWFalse);
       fclose(fmailbag);
 
       Invoke(E_pager, browse );
@@ -197,13 +200,13 @@ boolean Pager(const int msgnum,
              (!exitNow) &&
              (fgets(buf, sizeof buf, fmailbox) != nil(char)))
       {
-         boolean print = TRUE;
+         KWBoolean print = KWTrue;
 
          switch(received)
          {
             case nocontinue:
                if ((*buf != '\n') && !isgraph(*buf)) {
-                  print = FALSE;
+                  print = KWFalse;
                   break;
                }
                else
@@ -219,7 +222,7 @@ boolean Pager(const int msgnum,
                         buf,
                         strlen(E_ignoreList[entry])))
                   {
-                     print = FALSE;
+                     print = KWFalse;
                      received = nocontinue;
                   }
                   else
@@ -234,7 +237,7 @@ boolean Pager(const int msgnum,
                received = seperators;
 
          if (print && PageLine(buf))   /* Exit if the user hits Q    */
-               exitNow = TRUE;
+               exitNow = KWTrue;
 
       } /* while */
 
@@ -256,9 +259,9 @@ boolean Pager(const int msgnum,
 /*--------------------------------------------------------------------*/
 
 void Sub_Pager(const char *tinput,
-                     boolean external )
+                     KWBoolean external )
 {
-   boolean exitNow  = FALSE;     /* Flag for PRE-MATURE exit   ahd   */
+   KWBoolean exitNow  = KWFalse;   /* Flag for PRE-MATURE exit   ahd   */
 
    if (bflag[ F_PAGER ])
       external = ! external;
@@ -282,7 +285,7 @@ void Sub_Pager(const char *tinput,
       while ( (!exitNow) && fgets(buf, sizeof buf, finput) != nil(char))
       {
         if (PageLine(buf))         /* Exit if the user hits Q  */
-           exitNow = TRUE;
+           exitNow = KWTrue;
       }
 
       fclose(finput);
@@ -308,7 +311,7 @@ void PageReset()
 /*    Print one line when paging through a file                       */
 /*--------------------------------------------------------------------*/
 
-boolean PageLine(char *line)
+KWBoolean PageLine(char *line)
 {
 
    int pagesize = scrsize() - 3;
@@ -332,7 +335,7 @@ boolean PageLine(char *line)
                                              keep Pressing           */
          case 'x':
             fputs("\rAborted.\n", stdout);
-            return TRUE;
+            return KWTrue;
 
          case 'd':
             PageCount = pagesize / 2;     /* Half a Page More */
@@ -348,7 +351,7 @@ boolean PageLine(char *line)
       fputs("\r      \r",stdout);
    }
 
-   return FALSE;
+   return KWFalse;
 
 } /* PageLine */
 
@@ -361,14 +364,14 @@ boolean PageLine(char *line)
 /*    specified in the copyopt data type.                             */
 /*--------------------------------------------------------------------*/
 
-boolean CopyMsg(const int msgnum,
+KWBoolean CopyMsg(const int msgnum,
                 FILE *f,
                 const copyopt headerFlag,
-                const boolean indent)
+                const KWBoolean indent)
 {
    long nextloc;
-   boolean print;                   /* Header line should be printed */
-   boolean printX;                  /* Header line gets X- prefix    */
+   KWBoolean print;                  /* Header line should be printed */
+   KWBoolean printX;                 /* Header line gets X- prefix    */
    char buf[BUFSIZ];
    copyopt headers = headerFlag;
    char **ignoreList = (headerFlag == ignoresome) ?
@@ -434,18 +437,18 @@ boolean CopyMsg(const int msgnum,
 /*               Determine if we should write the line                */
 /*--------------------------------------------------------------------*/
 
-      print = TRUE;
-      printX = FALSE;
+      print = KWTrue;
+      printX = KWFalse;
 
       switch (headers)
       {
          case noheader:
-            print = FALSE;
+            print = KWFalse;
             break;
 
          case nocontinue:
             if ((*buf != '\n') && !isgraph(*buf)) {
-               print = FALSE;
+               print = KWFalse;
                break;
             }
             else
@@ -455,7 +458,7 @@ boolean CopyMsg(const int msgnum,
          case autoresent:
             if (( headerFlag == autoresent) &&  /* Allow Fall Through   */
                 ( equalni(buf, "Resent-", 7)))
-                     printX = TRUE;
+                     printX = KWTrue;
 
             /* Fall through again ... */
 
@@ -468,7 +471,7 @@ boolean CopyMsg(const int msgnum,
                               buf,
                               strlen(ignoreList[entry])))
                   {
-                     print = FALSE;
+                     print = KWFalse;
                      headers = nocontinue;
                   }
                   else
@@ -528,22 +531,22 @@ boolean CopyMsg(const int msgnum,
 
    } /*while*/
 
-   return TRUE;
+   return KWTrue;
 } /*CopyMsg*/
 
 /*--------------------------------------------------------------------*/
 /*    N u m e r i c                                                   */
 /*                                                                    */
-/*    Determine if a string is numeric.  Returns TRUE if string is    */
-/*    numeric, else FALSE.                                            */
+/*    Determine if a string is numeric.  Returns KWTrue if string is   */
+/*    numeric, else KWFalse.                                           */
 /*--------------------------------------------------------------------*/
 
- boolean Numeric( const char *number)
+ KWBoolean Numeric( const char *number)
  {
    char *column = (char *) number;
 
    if (*column == '\0')
-      return FALSE;
+      return KWFalse;
 
    while( isdigit(*column) )  /* Scan to string end or 1st non-digit */
       column++;
@@ -558,7 +561,7 @@ boolean CopyMsg(const int msgnum,
 /*    Read a line from a mail header, if available                    */
 /*--------------------------------------------------------------------*/
 
-boolean RetrieveLine(const long adr,
+KWBoolean RetrieveLine(const long adr,
                      char *line,
                      const size_t len)
 {
@@ -568,7 +571,7 @@ boolean RetrieveLine(const long adr,
    *line = '\0';              /* Insure nothing to find              */
 
    if (adr == MISSING)        /* No information to read?             */
-      return FALSE;           /* Report this to caller               */
+      return KWFalse;          /* Report this to caller               */
 
    if (fseek(fmailbox, adr, SEEK_SET)) /* Position to data           */
    {                          /* Have a problem?                     */
@@ -576,7 +579,7 @@ boolean RetrieveLine(const long adr,
                adr );
 
       printerr("mailbox");    /* Yes --> Report and return           */
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -596,7 +599,7 @@ boolean RetrieveLine(const long adr,
    if ((count < (len-1)) && ferror( fmailbox ))
    {
       printerr( "RetrieveLine");
-      return FALSE;
+      return KWFalse;
    }
 
    line[count] = '\0';        /* Terminate the string read           */
@@ -626,7 +629,7 @@ boolean RetrieveLine(const long adr,
       } /* else */
    } /* while */
 
-   return TRUE;
+   return KWTrue;
 
 } /* RetrieveLine */
 

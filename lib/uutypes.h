@@ -16,10 +16,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: uutypes.h 1.24 1995/01/02 05:04:57 ahd Exp $
+ *    $Id: uutypes.h 1.25 1995/01/07 15:49:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: uutypes.h $
+ *    Revision 1.25  1995/01/07 15:49:37  ahd
+ *    Add imfile flag fpr im-memory file support
+ *
  *    Revision 1.24  1995/01/02 05:04:57  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -86,7 +89,7 @@
  *     Support longname, honordebug, senddebug options
  *
  * Revision 1.3  1993/04/15  03:21:30  ahd
- * Add bounce to boolean option list
+ * Add bounce to KWBoolean option list
  *
  * Revision 1.2  1993/04/11  00:36:59  dmwatt
  * Global edits for year, TEXT, etc.
@@ -134,65 +137,65 @@ typedef enum {
 /*                          Per user options                          */
 /*--------------------------------------------------------------------*/
 
-               F_ASKCC,       /* TRUE = ask for Carbon copies          */
-               F_DOSKEY,      /* TRUE = Use DOSKEY under when available*/
-               F_BACKUP,      /* TRUE = Backup mailbox before rewriting */
-               F_DOT,         /* TRUE = period ends a message          */
-               F_AUTOPRINT,   /* TRUE = print next msg automatically   */
-               F_AUTOEDIT,    /* TRUE = no line prompt, always edit    */
-               F_AUTOINCLUDE, /* TRUE = Perform automatic INCLUDE cmd  */
-               F_AUTOSIGN,    /* TRUE = append the signature file      */
-               F_EXPERT,      /* TRUE = Let user shoot self in foot
+               F_ASKCC,       /* KWTrue = ask for Carbon copies         */
+               F_DOSKEY,      /* KWTrue = Use DOSKEY under when available*/
+               F_BACKUP,      /* KWTrue = Backup mailbox before rewriting */
+               F_DOT,         /* KWTrue = period ends a message         */
+               F_AUTOPRINT,   /* KWTrue = print next msg automatically  */
+               F_AUTOEDIT,    /* KWTrue = no line prompt, always edit   */
+               F_AUTOINCLUDE, /* KWTrue = Perform automatic INCLUDE cmd  */
+               F_AUTOSIGN,    /* KWTrue = append the signature file     */
+               F_EXPERT,      /* KWTrue = Let user shoot self in foot
                                         w/o a message.                 */
-               F_FROMSEP,     /* TRUE = Allow From to split messages   */
-               F_IMFILE,      /* TRUE = Use in memory files            */
-               F_PAGER,       /* TRUE = Invert meaning of P/p T/t cmds */
-               F_PURGE,       /* TRUE = Delete mailbox, if empty       */
-               F_SAVE,        /* TRUE = Save read messages in =mbox
+               F_FROMSEP,     /* KWTrue = Allow From to split messages  */
+               F_IMFILE,      /* KWTrue = Use in memory files           */
+               F_PAGER,       /* KWTrue = Invert meaning of P/p T/t cmds */
+               F_PURGE,       /* KWTrue = Delete mailbox, if empty      */
+               F_SAVE,        /* KWTrue = Save read messages in =mbox
                                         when reading new mail.         */
-               F_SAVERESENT,  /* TRUE = Save forwarded mail second time*/
+               F_SAVERESENT,  /* KWTrue = Save forwarded mail second time*/
                F_SUPPRESSCOPYRIGHT,
                               /* Skip copyright message                */
                F_SUPPRESSBEEP,/* Never beep at the user                */
                F_SPEEDOVERMEMORY,
-                              /* TRUE = Be lazy in strpool()           */
-               F_VERBOSE,     /* TRUE = Verbose RMAIL output           */
-               F_WINDOWS,     /* TRUE = Run RMAIL/RNEWS as Windows pgms*/
+                              /* KWTrue = Be lazy in strpool()          */
+               F_VERBOSE,     /* KWTrue = Verbose RMAIL output          */
+               F_WINDOWS,     /* KWTrue = Run RMAIL/RNEWS as Windows pgms*/
 
 /*--------------------------------------------------------------------*/
 /*                    Per system (GLOBAL) options                     */
 /*--------------------------------------------------------------------*/
 
-               F_BANG,        /* TRUE = re-write addrs in bang (!) form*/
-               F_BOUNCE,      /* TRUE = Bounce bad mail to sender      */
-               F_COLLECTSTATS,/* TRUE = Report additional information in
+               F_BANG,        /* KWTrue = re-write addrs in bang (!) form*/
+               F_BOUNCE,      /* KWTrue = Bounce bad mail to sender     */
+               F_COLLECTSTATS,/* KWTrue = Report additional information in
                                         various logs                   */
                F_COMPRESSBATCH,
-                              /* TRUE = Compress outgoing news batches */
-               F_DIRECT,      /* TRUE = Deliver to subdirectories, not
+                              /* KWTrue = Compress outgoing news batches */
+               F_DIRECT,      /* KWTrue = Deliver to subdirectories, not
                                         files                          */
                F_HONORDEBUG,  /* True = Use -x flag from remote system */
                F_HONORCTRL,   /* True = Honor USENET control messahes  */
-               F_ESCAPE,      /* TRUE = ESCAPE acts as Ctrl-Break      */
-               F_FULLBATCH,   /* TRUE = Batch only sends batches that
+               F_ESCAPE,      /* KWTrue = ESCAPE acts as Ctrl-Break     */
+               F_FULLBATCH,   /* KWTrue = Batch only sends batches that
                                  are full size.                        */
-               F_KANJI,       /* TRUE = enable Kanji (Japanese) support*/
-               F_LONGNAME,    /* TRUE = Exploit OS/2 and NT long names */
-               F_MULTI,       /* TRUE = Deliver to multiple addresses
+               F_KANJI,       /* KWTrue = enable Kanji (Japanese) support*/
+               F_LONGNAME,    /* KWTrue = Exploit OS/2 and NT long names */
+               F_MULTI,       /* KWTrue = Deliver to multiple addresses
                                         on one remote host at once     */
-               F_MULTITASK,   /* TRUE = System is multitasking, watch
+               F_MULTITASK,   /* KWTrue = System is multitasking, watch
                                         for race conditions            */
-               F_ONECASE,     /* TRUE = Remote host is case insensitive*/
+               F_ONECASE,     /* KWTrue = Remote host is case insensitive*/
                F_SENDDEBUG,   /* True = Send -x flag to remote systems */
-               F_SHORTFROM,   /* TRUE = Use short From remote header   */
-               F_SHOWSPOOL,   /* TRUE = Print files xferred from spool */
-               F_SNEWS,       /* TRUE = Use Simple news delivery       */
+               F_SHORTFROM,   /* KWTrue = Use short From remote header  */
+               F_SHOWSPOOL,   /* KWTrue = Print files xferred from spool */
+               F_SNEWS,       /* KWTrue = Use Simple news delivery      */
                F_SUPPRESSFROM,/* Suppress writing From lines in Mail   */
                F_SYMMETRICGRADES,
-                              /* TRUE = Use send grade as receive grade*/
-               F_SYSLOG,      /* TRUE = Write syslog with name and
+                              /* KWTrue = Use send grade as receive grade*/
+               F_SYSLOG,      /* KWTrue = Write syslog with name and
                                         time of each file transferred  */
-               F_UNDELETE,    /* TRUE = Do not override OS/2 undelete
+               F_UNDELETE,    /* KWTrue = Do not override OS/2 undelete
                                  support                               */
                F_SUPPRESSEMPTYPASSWORD,
                               /* Don't prompt for null passwords       */
@@ -203,14 +206,14 @@ typedef enum {
 /*                  Your basic Boolean logic values                   */
 /*--------------------------------------------------------------------*/
 
-#undef FALSE
-#undef TRUE
+#undef KWFalse
+#undef KWTrue
 
 typedef enum
       {
-         FALSE = 0,
-         TRUE = 1
-      }  boolean;
+         KWFalse = 0,
+         KWTrue = 1
+      }  KWBoolean;
 
 /*--------------------------------------------------------------------*/
 /*                      Configuration mode flags                      */

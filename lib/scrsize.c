@@ -9,9 +9,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: scrsize.c 1.11 1994/02/19 04:11:25 ahd Exp $
+ *    $Id: scrsize.c 1.12 1994/02/19 04:46:18 ahd v1-12k $
  *
  *    $Log: scrsize.c $
+ *    Revision 1.12  1994/02/19 04:46:18  ahd
+ *    Use standard first header
+ *
  *     Revision 1.11  1994/02/19  04:11:25  ahd
  *     Use standard first header
  *
@@ -77,7 +80,7 @@ short scrsize( void )
    static unsigned char far *bios_rows = (unsigned char far *) 0x0484L;
 #endif
 
-   static boolean error = FALSE;
+   static KWBoolean error = KWFalse;
    static short default_rows = 0;
 
    typedef struct _DISPLAYMODE   /* Page 310 MS-DOS 5.0 PGMR Reference */
@@ -139,7 +142,7 @@ short scrsize( void )
       printmsg(2,"DOS error %d retrieving screen size, using BIOS value %d",
                   (int) regs.x.ax,
                   (short) (default_rows ? default_rows : *bios_rows ));
-      error = TRUE;
+      error = KWTrue;
       return (short) (default_rows ? default_rows : *bios_rows);
                                  /* Faster, but not well documented   */
    }

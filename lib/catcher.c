@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.c 1.14 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: catcher.c 1.15 1994/12/22 00:07:26 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.c $
+ *    Revision 1.15  1994/12/22 00:07:26  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/12/09 03:42:09  ahd
  *    All suppressbeep support to allow NOT making any sound
  *
@@ -102,7 +105,7 @@
 
 #if defined(WIN32) && defined(UUCICO)
 BOOL AbortComm(void);
-boolean IsNetwork(void);
+KWBoolean IsNetwork(void);
 BOOL AbortNetwork(void);
 #endif
 
@@ -110,12 +113,12 @@ BOOL AbortNetwork(void);
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-boolean terminate_processing = FALSE;
-boolean interactive_processing = TRUE;
-boolean norecovery = TRUE;
+KWBoolean terminate_processing = KWFalse;
+KWBoolean interactive_processing = KWTrue;
+KWBoolean norecovery = KWTrue;
 
 #if defined(WIN32) || defined(_Windows)
-boolean winsockActive = FALSE;      /* Set/reset in ulibip.c          */
+KWBoolean winsockActive = KWFalse;    /* Set/reset in ulibip.c          */
 
 currentfile();
 #endif
@@ -159,7 +162,7 @@ ctrlchandler( int sig )
       safeout( "\r\n" );
       safeout( compilen );
       panic_rc = 100;
-      terminate_processing = interactive_processing = TRUE;
+      terminate_processing = interactive_processing = KWTrue;
       safeout(": *** Termination in progress ***\r\n");
 
 #if defined(WIN32) || defined(_Windows)
@@ -219,7 +222,7 @@ ctrlchandler( int sig )
                _exit(100);
             }
 
-            terminate_processing = TRUE;  /* Controlled shutdown  */
+            terminate_processing = KWTrue;  /* Controlled shutdown  */
             panic_rc = 100;
             safeout("\n\r*** Termination in progress ***\r\n");
 #if defined(WIN32) && defined(UUCICO)

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *      $Id: hostable.c 1.17 1994/12/22 00:08:50 ahd Exp $
+  *      $Id: hostable.c 1.18 1994/12/27 20:49:47 ahd Exp $
   *
   *      $Log: hostable.c $
+  *      Revision 1.18  1994/12/27 20:49:47  ahd
+  *      Revise confusing local domain message
+  *
   *      Revision 1.17  1994/12/22 00:08:50  ahd
   *      Annual Copyright Update
   *
@@ -331,7 +334,7 @@ struct HostTable *searchname(const char *name, const size_t namel)
 /*    Returns next host in table with requested attribute             */
 /*--------------------------------------------------------------------*/
 
-struct HostTable *nexthost( const boolean start )
+struct HostTable *nexthost( const KWBoolean start )
 {
    static size_t current = 0;
 
@@ -408,7 +411,7 @@ struct HostTable *inithost(char *name)
       memset( &hosts[hit] , 0, sizeof hosts[hit] );
       hosts[hit].hostname = newstr(name);
       checkref( hosts[hit].hostname );
-      hosts[hit].anylogin = TRUE;   /* Allow generic login by default */
+      hosts[hit].anylogin = KWTrue;  /* Allow generic login by default */
       HostElements ++ ;
    } /* if */
 
@@ -528,7 +531,7 @@ static size_t loadhost()
 
       while (! feof(ff))
       {
-         boolean freeit = FALSE;
+         KWBoolean freeit = KWFalse;
 
          if (fgets(buf,BUFSIZ,ff) == NULL)   /* Try to read a line    */
             break;                  /* Exit if end of file            */
@@ -547,7 +550,7 @@ static size_t loadhost()
          {
             printmsg(0,"loadhost: Missing path name for host \"%s\"",
                         hostp->hostname);
-            freeit = TRUE;
+            freeit = KWTrue;
          }
 /*--------------------------------------------------------------------*/
 /*                              Gate way                              */
@@ -557,7 +560,7 @@ static size_t loadhost()
             token = strtok(NULL,"\n");
 
             if (( hostp->via != NULL ) || ( token == NULL ))
-               freeit = TRUE;
+               freeit = KWTrue;
             else {
                hostp->status.hstatus = gatewayed;
 
@@ -565,7 +568,7 @@ static size_t loadhost()
                   token++;
 
                if (*token == '\0')        /* Empty string?            */
-                  freeit = TRUE;          /* Yes --> Flag for error   */
+                  freeit = KWTrue;         /* Yes --> Flag for error   */
                else
                   hostp->via = token = newstr(token);
             } /* else if */
@@ -587,7 +590,7 @@ static size_t loadhost()
             else {
                printmsg(0,"loadhost: Invalid/duplicate alias of \"%s\"",
                      hostp->hostname );
-               freeit = TRUE;
+               freeit = KWTrue;
             } /* else */
          } /* else if (equal(token,"=")) */
 /*--------------------------------------------------------------------*/
@@ -600,7 +603,7 @@ static size_t loadhost()
             else {
                printmsg(0,"loadhost: Invalid/duplicate route for \"%s\"",
                      hostp->hostname );
-               freeit = TRUE;
+               freeit = KWTrue;
             } /* else */
 
          } /* else */
@@ -614,7 +617,7 @@ static size_t loadhost()
                printmsg(0,
      "loadhost: Wildcard \"%s\" not allowed for real name of host \"%s\"",
          token, hostp->hostname);
-               freeit = TRUE;
+               freeit = KWTrue;
             } /* if (*token == '*') */
          } /* if ( ! freeit ) */
 

@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.c 1.7 1994/12/09 03:42:09 ahd v1-12k $
+ *    $Id: sysalias.c 1.8 1994/12/22 00:19:55 ahd Exp $
  *
  *    $Log: sysalias.c $
+ *    Revision 1.8  1994/12/22 00:19:55  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/12/09 03:42:09  ahd
  *    Modify alias support to recurse in system aliases file
  *    Put 'U' line first to work with brain dead MKS systems
@@ -121,7 +124,7 @@ static void InitAlias( void )
    char buf[BUFSIZ];
    int subscript  = -1;
    int maxaliases = 64;
-   boolean inAlias = FALSE;
+   KWBoolean inAlias = KWFalse;
    FILE *stream;
    long here;
 
@@ -173,7 +176,7 @@ static void InitAlias( void )
       {                          /* Yes --> 'tis end of alias        */
          if ( inAlias )
          {
-            inAlias = FALSE;
+            inAlias = KWFalse;
             if (aliasTable[subscript].start == -1 )
                printmsg(0,"%s: Invalid alias %s, no data defined!",
                   SysAliases, aliasTable[subscript].alias );
@@ -222,8 +225,8 @@ static void InitAlias( void )
              aliasTable[subscript].start = here + ( s - buf );
 
           aliasTable[subscript].end  = -1;
-          aliasTable[subscript].recurse = FALSE;
-          inAlias = TRUE;
+          aliasTable[subscript].recurse = KWFalse;
+          inAlias = KWTrue;
 
       } /* if */
 

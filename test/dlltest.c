@@ -93,7 +93,7 @@ BOOL LoadUUPCDLL(void)
 	hUUPCLib = LoadLibrary("UUPCDLL.DLL");
 
 	if (!hUUPCLib)
-		return FALSE;
+		return KWFalse;
 
 	pUUPCInit = 				(LPVOID)GetProcAddress(hUUPCLib, "UUPCInit");
 	pUUPCGetParm =				(LPVOID)GetProcAddress(hUUPCLib, "UUPCGetParm");
@@ -104,7 +104,7 @@ BOOL LoadUUPCDLL(void)
 		pUUPCGetParm == NULL ||
 		pUUPCGetNewsSpoolSize == NULL ||
 		pUUPCSendMail == NULL)
-		return FALSE;
+		return KWFalse;
 
-	return TRUE;
+	return KWTrue;
 }

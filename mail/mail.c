@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mail.c 1.30 1994/12/09 03:53:30 ahd v1-12k $
+ *    $Id: mail.c 1.31 1994/12/22 00:19:13 ahd Exp $
  *
  *    Revision history:
  *    $Log: mail.c $
+ *    Revision 1.31  1994/12/22 00:19:13  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.30  1994/12/09 03:53:30  ahd
  *    Allocate mailbox of 1000 letters, not 100, on first try in
  *    32 bit mode.
@@ -142,7 +145,7 @@
 #include "uupcmoah.h"
 
  static const char rcsid[] =
-      "$Id: mail.c 1.30 1994/12/09 03:53:30 ahd v1-12k $";
+      "$Id: mail.c 1.31 1994/12/22 00:19:13 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -204,7 +207,7 @@ static char *tmailbox;
 static char mfilename[FILENAME_MAX];
 int letternum = 0;
 
-static boolean useto = FALSE;
+static KWBoolean useto = KWFalse;
 
 FILE *fmailbox;
 
@@ -222,15 +225,15 @@ struct ldesc UUFAR  *letters;
 
 static void    Cleanup(void);
 
-static void Interactive_Mail( const boolean PrintOnly,
-                              const boolean postoffice );
+static void Interactive_Mail( const KWBoolean PrintOnly,
+                              const KWBoolean postoffice );
 
 static void    IncludeNew( const char *target, const char *user);
 
 static void    PrintSubject(const int msgnum,
                             const int letternum);
 
-static void    UpdateMailbox(int letternum, boolean postoffice);
+static void    UpdateMailbox(int letternum, KWBoolean postoffice);
 
 static int     CreateBox(FILE *rmailbox,
                          FILE *fmailbox,
@@ -350,7 +353,7 @@ static struct CommandTable {
   {"save",        M_SAVE,     LETTER_OP | FILE_OP | POSITION | AUTOPRINT ,
          "Copy item, delete"},
   {"set",         M_SET,      STRING_OP,
-         "Print/set boolean options"},
+         "Print/set KWBoolean options"},
   {"status",     M_STATUS,  NO_OPERANDS,
          "Report version/status info"},
   {"type",        M_EXTTYPE,  LETTER_OP | POSITION,
@@ -378,10 +381,10 @@ static struct CommandTable {
 void main(int argc, char **argv)
 {
 
-   boolean PrintOnly = FALSE;
-   boolean postoffice = TRUE;
-   boolean readmail   = FALSE;
-   boolean sendmail   = FALSE;
+   KWBoolean PrintOnly = KWFalse;
+   KWBoolean postoffice = KWTrue;
+   KWBoolean readmail  = KWFalse;
+   KWBoolean sendmail  = KWFalse;
    int option;
    char    *subject = NULL;
 
@@ -429,7 +432,7 @@ void main(int argc, char **argv)
       switch (option)
       {
       case 'f':
-         readmail = TRUE;
+         readmail = KWTrue;
          strcpy( mfilename, optarg );
          if (expand_path( mfilename, NULL, E_homedir, E_mailext ) == NULL )
             usage();
@@ -450,18 +453,18 @@ void main(int argc, char **argv)
              equali( oname , mfilename ))
                            /* Our outgoing filename?              */
             useto = ! useto;  /* Yes --> Automatically switch     */
-         postoffice = FALSE;
+         postoffice = KWFalse;
          break;
 
       case 'p':
-         readmail = TRUE;
-         PrintOnly = TRUE;
+         readmail = KWTrue;
+         PrintOnly = KWTrue;
          break;
 
       case 'u':                  /* Read alternate mailbox?       */
-         readmail = TRUE;
+         readmail = KWTrue;
          mkmailbox(mfilename, optarg);
-         postoffice = FALSE;
+         postoffice = KWFalse;
          break;
 
       case 'x':
@@ -469,12 +472,12 @@ void main(int argc, char **argv)
          break;
 
       case 's':
-         sendmail = TRUE;
+         sendmail = KWTrue;
          subject = optarg;
          break;
 
       case 't':
-         readmail = TRUE;
+         readmail = KWTrue;
          useto = ! useto;
          break;
 
@@ -518,10 +521,10 @@ void main(int argc, char **argv)
          argv[0] = "-s";
          argv[1] = subject;
 
-         Collect_Mail(stdin, argc+2 , argv , -1, FALSE);
+         Collect_Mail(stdin, argc+2 , argv , -1, KWFalse);
       } /* if ( subject != NULL ) */
       else {
-         Collect_Mail(stdin, argc, &argv[optind], -1, FALSE);
+         Collect_Mail(stdin, argc, &argv[optind], -1, KWFalse);
 
 #ifdef _Windows
          atexit ( CloseEasyWin );
@@ -568,13 +571,13 @@ void Cleanup()
 /*    main procedure for reading mail                                 */
 /*--------------------------------------------------------------------*/
 
-static void Interactive_Mail( const boolean PrintOnly,
-                              const boolean postoffice )
+static void Interactive_Mail( const KWBoolean PrintOnly,
+                              const KWBoolean postoffice )
 {
    char resp[LSIZE];
    int current = 0;                                               /* ahd  */
-   boolean done      = FALSE;                                     /* ahd  */
-   boolean modified;
+   KWBoolean done     = KWFalse;                                    /* ahd  */
+   KWBoolean modified;
    FILE *rmailbox;
 
 /*--------------------------------------------------------------------*/
@@ -681,7 +684,7 @@ static void Interactive_Mail( const boolean PrintOnly,
       int j = 0;
       while (j < letternum)
       {
-         Pager(j, TRUE, ignoresome, !j );
+         Pager(j, KWTrue, ignoresome, !j );
          j++ ;
       }
       return;
@@ -714,17 +717,17 @@ static void Interactive_Mail( const boolean PrintOnly,
    {
       char *command, *operand;
       int integer;
-      boolean first_pass = TRUE;
+      KWBoolean first_pass = KWTrue;
       int previous = current;
       struct CommandTable *cmd_ptr = table;
-      boolean success = TRUE;
-      boolean crlf    = FALSE;      /* crlf after delete command?    */
+      KWBoolean success = KWTrue;
+      KWBoolean crlf   = KWFalse;     /* crlf after delete command?    */
 
       printf("%d%s",current + 1,
                (letters[current].status == M_DELETED) ? "*" : " ");
       if (!Console_fgets(resp, LSIZE, "? ")) /* End of file?         */
       {
-         done = TRUE;
+         done = KWTrue;
          continue;            /* Yes --> Exit loop                   */
       }
       PageReset();
@@ -790,7 +793,7 @@ static void Interactive_Mail( const boolean PrintOnly,
 
             case M_COPY:
                success = SaveItem( integer,
-                         FALSE,        /* Do not delete */
+                         KWFalse,       /* Do not delete */
                          seperators,   /* Do save headers */
                          (operand == NULL) ? "PRN:" : operand ,
                          cmd_ptr->verb );
@@ -802,7 +805,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                break;
 
             case M_DELETEQ:
-               done = TRUE;
+               done = KWTrue;
             case M_DELETE:
                if (letters[integer].status < M_DELETED)
                {
@@ -811,7 +814,7 @@ static void Interactive_Mail( const boolean PrintOnly,
                      printf("Deleting item(s) %d",integer + 1 );
                   else
                      printf(" %d",integer + 1 );
-                  crlf  = modified = TRUE;
+                  crlf  = modified = KWTrue;
                }
                break;
 
@@ -824,25 +827,25 @@ static void Interactive_Mail( const boolean PrintOnly,
                {
                   printf("DOSKEY active, empty line ignored\n");
                   PrintSubject( current , letternum );
-                  success = FALSE;
+                  success = KWFalse;
                }
                else if (letters[current].status == M_UNREAD)
-                  success = Pager( current , TRUE, ignoresome, first_pass);
+                  success = Pager( current , KWTrue, ignoresome, first_pass);
                else
                   current = Position( 0 , 1 , current );
                break;
 
             case M_EXIT:
-               modified = FALSE;
-               done     = TRUE;
+               modified = KWFalse;
+               done     = KWTrue;
                break;
 
             case M_EXTPRINT:
-               success = Pager( integer , TRUE, ignoresome, first_pass);
+               success = Pager( integer , KWTrue, ignoresome, first_pass);
                break;
 
             case M_EXTTYPE:
-               success = Pager( integer , TRUE, noseperator, first_pass);
+               success = Pager( integer , KWTrue, noseperator, first_pass);
                break;
 
             case M_FASTHELP:
@@ -888,16 +891,16 @@ static void Interactive_Mail( const boolean PrintOnly,
             {
                char filename[FILENAME_MAX];
                mkfilename(filename, E_confdir, "mail.hlp");
-               Sub_Pager(filename, TRUE );
+               Sub_Pager(filename, KWTrue );
                break;
             }
 
             case M_INTPRINT:
-               success = Pager( integer , FALSE, ignoresome, first_pass);
+               success = Pager( integer , KWFalse, ignoresome, first_pass);
                break;
 
             case M_INTTYPE:
-               success = Pager( integer , FALSE, noseperator, first_pass);
+               success = Pager( integer , KWFalse, noseperator, first_pass);
                break;
 
             case M_INVALID:
@@ -917,16 +920,16 @@ static void Interactive_Mail( const boolean PrintOnly,
                break;
 
             case M_QUIT:
-               done = TRUE;
+               done = KWTrue;
                break;
 
             case M_SAVE:
                success = SaveItem( integer,
-                         TRUE,         /* Do delete */
+                         KWTrue,        /* Do delete */
                          seperators,   /* Do save headers */
                          operand ,
                          cmd_ptr->verb );
-               modified = TRUE;
+               modified = KWTrue;
                break;
 
             case M_SET:
@@ -992,18 +995,18 @@ static void Interactive_Mail( const boolean PrintOnly,
 
             case M_WRITE:
                success = SaveItem( integer,
-                         TRUE,      /* Do delete */
+                         KWTrue,     /* Do delete */
                          noheader,  /* Do not save headers */
                          operand,
                          cmd_ptr->verb );
-               modified = TRUE;
+               modified = KWTrue;
          } /* switch */
 
-         first_pass = FALSE;
+         first_pass = KWFalse;
 
 #ifdef UDEBUG
          printmsg( 2, "success %s, integer %d",
-                     success ? "TRUE" : "FALSE",
+                     success ? "KWTrue" : "KWFalse",
                      integer );
 #endif
 
@@ -1025,7 +1028,7 @@ static void Interactive_Mail( const boolean PrintOnly,
             if ( (cmd_ptr->bits & AUTOPRINT ) &&
                   bflag[F_AUTOPRINT] &&
                   (letters[current].status != M_DELETED) )
-               Pager( current , TRUE, ignoresome, TRUE);
+               Pager( current , KWTrue, ignoresome, TRUE);
             else if ( !(cmd_ptr->bits & NOAUTOHEADER ) )
                PrintSubject( current , letternum );
          } /* if */
@@ -1146,7 +1149,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
 /*--------------------------------------------------------------------*/
 
    int letternum = 0;
-   boolean inHeader = FALSE;
+   KWBoolean inHeader = KWFalse;
    char line[LSIZE];
    char **list;
    size_t replyprior = 0;
@@ -1161,7 +1164,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
       if (inHeader)
       {
          if (*line == '\n')
-            inHeader = FALSE;
+            inHeader = KWFalse;
       }  /* inHeader */
       else {               /* Determine if starting new message   */
 
@@ -1212,7 +1215,7 @@ int CreateBox(FILE *rmailbox, FILE *fmailbox , const char *tmailbox)
              letters[current].adr     = position;
              letters[current].status  = M_UNREAD;
              letters[current].lines   = 0L;
-             inHeader = TRUE;
+             inHeader = KWTrue;
 
              printf("Reading message %d (%d%% done)\r",
                         letternum,
@@ -1409,11 +1412,11 @@ void PrintSubject(const int msgnum,
 /*    Update the permanent mailbox for the user                       */
 /*--------------------------------------------------------------------*/
 
-void UpdateMailbox(int letternum, boolean postoffice)
+void UpdateMailbox(int letternum, KWBoolean postoffice)
 {
    int current;
-   boolean changed = FALSE;
-   boolean problem = FALSE;
+   KWBoolean changed = KWFalse;
+   KWBoolean problem = KWFalse;
    FILE *fmailbag;
    FILE *mbox = NULL;
    char *mboxname = NULL;
@@ -1439,10 +1442,10 @@ void UpdateMailbox(int letternum, boolean postoffice)
         current++)
    {
       if (letters[current].status == M_DELETED)
-         changed = TRUE;
+         changed = KWTrue;
 
       if (postoffice && (letters[current].status != M_UNREAD))
-         changed = TRUE;
+         changed = KWTrue;
    }
 
    if (!changed)
@@ -1459,7 +1462,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
    {
       printf("%s size has changed from %ld to %ld bytes\n",
             mfilename, mboxsize, newsize );
-      problem = TRUE;
+      problem = KWTrue;
    }
 
    if ( mboxage != newage )
@@ -1468,7 +1471,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
       char newbuf[DATEBUF];
       printf("%s date stamp has changed from %s to %s\n",
             mfilename, dater(mboxage, mboxbuf), dater(newage, newbuf) );
-      problem = TRUE;
+      problem = KWTrue;
    }
 
    while ( problem )
@@ -1486,7 +1489,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
       {
          case 'y':
             puts("Yes");
-            problem = FALSE;
+            problem = KWFalse;
             break;
 
          case 'n':
@@ -1559,7 +1562,7 @@ void UpdateMailbox(int letternum, boolean postoffice)
             if (mbox == NULL) /* Open fail?                          */
             {                  /* Yes --> Disable postoffice autosave*/
                printf("\nUpdateMailbox: can't append to %s.\n", mboxname);
-               postoffice = FALSE;
+               postoffice = KWFalse;
                current--;     /* Process this entry again            */
             } /* if */
             else
@@ -1570,14 +1573,14 @@ void UpdateMailbox(int letternum, boolean postoffice)
          {
             fputc('+', stdout);
             fflush(stdout);
-            CopyMsg(current, mbox, seperators, FALSE);
+            CopyMsg(current, mbox, seperators, KWFalse);
             msave++;
          } /* mbox */
       }
       else {
          fputc('*', stdout);
          fflush(stdout);
-         CopyMsg(current, fmailbag, seperators, FALSE);
+         CopyMsg(current, fmailbag, seperators, KWFalse);
          psave ++;
       } /* else */
 

@@ -69,19 +69,19 @@
 
 int fputs_shiftjis(unsigned char *buf, FILE *fp)
 {
-   int shiftin = FALSE;
+   int shiftin = KWFalse;
    unsigned char hi, lo;
 
    while (*buf) {
       if ((*buf == '\033') && (*(buf+1) == '$') &&
          ((*(buf+2) == 'B') || (*(buf+2) == '@'))) {
-         shiftin = TRUE;
+         shiftin = KWTrue;
          buf += 3;
          }
       else if ((*buf == '\033') && (*(buf+1) == '(')
           && ((*(buf+2) == 'J') || (*(buf+2) == 'B') ||
               (*(buf+2) == 'H'))) {
-         shiftin = FALSE;
+         shiftin = KWFalse;
          buf += 3;
          }
       else if (shiftin) {
@@ -122,18 +122,18 @@ int fputs_shiftjis(unsigned char *buf, FILE *fp)
 
 int fputs_jis7bit(unsigned char *buf, FILE *fp)
 {
-   int kanjiflag = FALSE;
+   int kanjiflag = KWFalse;
    unsigned char hi, lo;
    int written = 0;
 
    while (*buf) {
       if (iskanji(*buf) && iskanji2(*(buf+1))) {
-         if (kanjiflag == FALSE) {
-            kanjiflag = TRUE;
+         if (kanjiflag == KWFalse) {
+            kanjiflag = KWTrue;
             written = fputs(SEQ_TO_JIS90, fp);
             if (ferror(fp))
                return EOF;
-         } /* if (kanjiflag == FALSE) */
+         } /* if (kanjiflag == KWFalse) */
 
          hi = *buf++;
          if ((lo = *buf++) == '\0')
@@ -155,8 +155,8 @@ int fputs_jis7bit(unsigned char *buf, FILE *fp)
             }
          }
       else {
-         if (kanjiflag == TRUE) {
-            kanjiflag = FALSE;
+         if (kanjiflag == KWTrue) {
+            kanjiflag = KWFalse;
             written = fputs(SEQ_TO_ASCII, fp);
 
             if (ferror(fp))

@@ -1,7 +1,10 @@
 /*
- *    $Id: scrsiznt.c 1.9 1994/02/19 04:46:33 ahd v1-12k $
+ *    $Id: scrsiznt.c 1.10 1994/12/22 00:10:58 ahd Exp $
  *
  *    $Log: scrsiznt.c $
+ *    Revision 1.10  1994/12/22 00:10:58  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/02/19 04:46:33  ahd
  *    Use standard first header
  *
@@ -27,7 +30,7 @@
  *     Windows/NT fixes
  *
  *     Revision 1.3  1992/12/30  13:09:25  dmwatt
- *     Correct boolean compare
+ *     Correct KWBoolean compare
  *
  */
 
@@ -78,7 +81,7 @@ short scrsize( void )
 
    result = GetConsoleScreenBufferInfo(hStdout, &info);
 
-   if ( result != TRUE )
+   if ( result != KWTrue )
    {
       DWORD dwError = GetLastError();
       printmsg(0,"scrsize:  could not retrieve screen information");

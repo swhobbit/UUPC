@@ -18,10 +18,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: security.h 1.4 1994/01/01 19:09:40 ahd v1-12k $
+ *    $Id: security.h 1.5 1994/12/22 00:13:44 ahd Exp $
  *
  *    Revision history:
  *    $Log: security.h $
+ *    Revision 1.5  1994/12/22 00:13:44  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.4  1994/01/01 19:09:40  ahd
  *    Annual Copyright Update
  *
@@ -50,8 +53,8 @@ typedef enum {
 struct DIRLIST {
    char *path;                /* Directory we are authorizing        */
    REMOTE_ACCESS priv;        /* ALLOW_READ/ALLOW_WRITE              */
-   boolean grant;             /* TRUE = excplitly Allow access,
-                                 FALSE = explicit deny access        */
+   KWBoolean grant;            /* KWTrue = excplitly Allow access,
+                                 KWFalse = explicit deny access       */
    } ;
 
 /*--------------------------------------------------------------------*/
@@ -69,18 +72,18 @@ struct HostSecurity {
       struct DIRLIST *dirlist;   /* List of directories this system
                                     can access                         */
       size_t dirsize;            /* Size of the directory list         */
-      boolean request;           /* TRUE = Remote system can request
+      KWBoolean request;          /* KWTrue = Remote system can request
                                     files FROM local system            */
-      boolean sendfiles;         /* TRUE = Send locally queued requests
+      KWBoolean sendfiles;        /* KWTrue = Send locally queued requests
                                     when other system has called us;
-                                    default is FALSE, only send files
+                                    default is KWFalse, only send files
                                     when we are the caller.  (Stupid
                                     default if you fill in other para-
                                     meters properly, but that's UUCP   */
-      boolean callback;          /* TRUE = Do not process work for
+      KWBoolean callback;         /* KWTrue = Do not process work for
                                     system when it calls in, but rather
                                     call it back    */
-      boolean local;             /* TRUE = Local system, grant all
+      KWBoolean local;            /* KWTrue = Local system, grant all
                                     requests                           */
       } ; /* HostSecurity */
 
@@ -88,14 +91,14 @@ struct HostSecurity {
 /*                             Prototypes                             */
 /*--------------------------------------------------------------------*/
 
-boolean ValidateFile( const char *input,  /* Full path name          */
+KWBoolean ValidateFile( const char *input,  /* Full path name         */
                       const REMOTE_ACCESS needed );
 
-boolean ValidateHost( const char *host );
+KWBoolean ValidateHost( const char *host );
 
-boolean ValidateCommand( const char *command);
+KWBoolean ValidateCommand( const char *command);
 
-boolean LoadSecurity( void );
+KWBoolean LoadSecurity( void );
 
 struct HostSecurity *GetSecurity( struct HostTable *hostp);
 

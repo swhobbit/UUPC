@@ -31,7 +31,7 @@ currentfile();
 /*    Determine if a command is allowed for a host                    */
 /*--------------------------------------------------------------------*/
 
-boolean ValidateCommand( const char *command)
+KWBoolean ValidateCommand( const char *command)
 {
    char **p;
 
@@ -54,7 +54,7 @@ boolean ValidateCommand( const char *command)
             command );
 #endif
 
-      return TRUE;            /* Yes --> Bless the request            */
+      return KWTrue;           /* Yes --> Bless the request            */
    }
 
 /*--------------------------------------------------------------------*/
@@ -64,7 +64,7 @@ boolean ValidateCommand( const char *command)
    p = securep->commands;
    while (*p != NULL)
    {
-      boolean global;
+      KWBoolean global;
 
 #ifdef UDEBUG
       printmsg(10,"ValidateCommand: Comparing \"%s\" to \"%s\"",
@@ -72,15 +72,15 @@ boolean ValidateCommand( const char *command)
 #endif
 
       if equal(*p, ANY_COMMAND )
-         global = TRUE;
+         global = KWTrue;
       else
-         global = FALSE;
+         global = KWFalse;
 
       if (global || equali(*p, command ))
       {
          printmsg(5,"ValidateCommand: Command \"%s\" %splicitly allowed",
                   command, global ? "im" : "ex" );
-         return TRUE;
+         return KWTrue;
       }
       p++ ;
    } /* while */
@@ -91,6 +91,6 @@ boolean ValidateCommand( const char *command)
 
    printmsg(5,"ValidateCommand: Command \"%s\" not allowed",
             command );
-   return FALSE;
+   return KWFalse;
 
 } /* ValidateCommand */

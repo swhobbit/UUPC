@@ -8,14 +8,14 @@
 /*    15 Sep 1990   Created                                       ahd */
 /*--------------------------------------------------------------------*/
 
-boolean Send_Mail(FILE *datain,
+KWBoolean Send_Mail(FILE *datain,
                int argc,
                char *argv[],
                char *subject,
-               const boolean resent);
+               const KWBoolean resent);
 
-boolean Collect_Mail(FILE *handle,
+KWBoolean Collect_Mail(FILE *handle,
                   int argc,
                   char **argv,
                   const int current_msg,
-                  const boolean reply);
+                  const KWBoolean reply);

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pnterr.c 1.7 1994/02/19 04:44:57 ahd v1-12k $
+ *    $Id: pnterr.c 1.8 1994/12/22 00:10:08 ahd Exp $
  *
  *    Revision history:
  *    $Log: pnterr.c $
+ *    Revision 1.8  1994/12/22 00:10:08  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.7  1994/02/19 04:44:57  ahd
  *    Use standard first header
  *
@@ -79,9 +82,9 @@ void pNTErr(const size_t lineno,
              DWORD rc)
 {
    char buf[BUFSIZ];
-   static boolean recursion  = FALSE;
+   static KWBoolean recursion  = KWFalse;
    int l;
-   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
    DWORD xrc;
    xrc = FormatMessage(
@@ -93,9 +96,9 @@ void pNTErr(const size_t lineno,
 
       if ( ! recursion )
       {
-         recursion = TRUE;
+         recursion = KWTrue;
          printNTerror( "FormatMessage", xrc );
-         recursion = FALSE;
+         recursion = KWFalse;
       } /* recursion */
 
       sprintf(buf, "NT API error %u in %s at line %d, cannot find message",

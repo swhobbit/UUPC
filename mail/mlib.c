@@ -15,10 +15,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.c 1.12 1994/08/07 21:28:54 ahd v1-12k $
+ *    $Id: mlib.c 1.13 1994/12/22 00:19:40 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.c $
+ *    Revision 1.13  1994/12/22 00:19:40  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1994/08/07 21:28:54  ahd
  *    Clean up OS/2 processing to not use new sessions, but rather simply user
  *    command processor to allow firing off PM programs such as E and EPM.
@@ -53,7 +56,7 @@
  *
  * 13 May 89      Use PC format path names for editor
  * 01 Oct 89      Make Console_fgets use far pointers
- *                Alter Console_fgets and Is_Console to type boolean
+ *                Alter Console_fgets and Is_Console to type KWBoolean
  *
  * 29 Jul 90      Use PC format path names for pager
  */
@@ -108,7 +111,7 @@
 
 static int DOSRead( char *buff, const int buflen);
 
-static boolean DOSKeyActive( void );
+static KWBoolean DOSKeyActive( void );
 
 static int DOSKeyRead( char *buff , int buflen );
 
@@ -160,7 +163,7 @@ int Invoke(const char *ecmd,
 /*          Execute command, report results if interesting.           */
 /*--------------------------------------------------------------------*/
 
-   rc = execute("", command, NULL, NULL, TRUE, TRUE );
+   rc = execute("", command, NULL, NULL, KWTrue, TRUE );
 
    if( rc )
    {
@@ -186,7 +189,7 @@ int Invoke(const char *ecmd,
 /*       trivial fix.                                                 */
 /*--------------------------------------------------------------------*/
 
-boolean Is_Console(FILE *stream)
+KWBoolean Is_Console(FILE *stream)
 {
 
    return isatty(fileno(stream));
@@ -201,19 +204,19 @@ boolean Is_Console(FILE *stream)
 /*       Read a full line from the console under non-DOS systems      */
 /*--------------------------------------------------------------------*/
 
-boolean Console_fgets(char *buff, int buflen, char *prompt)
+KWBoolean Console_fgets(char *buff, int buflen, char *prompt)
 {
 
    if (bflag[F_DOSKEY] )
    {
      printmsg(0,"DOSKEY support not available, option disabled");
-     bflag[F_DOSKEY] = FALSE;
+     bflag[F_DOSKEY] = KWFalse;
    }
 
    fputs(prompt, stdout);
    fflush(stdout);
 
-   return (fgets(buff, buflen, stdin) != nil(char)) ? TRUE : FALSE;
+   return (fgets(buff, buflen, stdin) != nil(char)) ? KWTrue : KWFalse;
 
 } /*Console_fgets*/
 
@@ -230,15 +233,15 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
 /*       to do their fancy work.                                      */
 /*--------------------------------------------------------------------*/
 
-boolean Console_fgets(char *buff, int buflen, char *prompt)
+KWBoolean Console_fgets(char *buff, int buflen, char *prompt)
 {
-   static boolean eof = FALSE;    /* pending EOF flag  */
+   static KWBoolean eof = KWFalse;  /* pending EOF flag  */
 
    char *eofptr;
 
    if (eof) {           /* have a pending EOF?  */
-      eof = FALSE;      /* no more pending EOF  */
-      return FALSE;     /* signal the EOF    */
+      eof = KWFalse;     /* no more pending EOF  */
+      return KWFalse;    /* signal the EOF    */
    }
 
 /*--------------------------------------------------------------------*/
@@ -262,7 +265,7 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
    if ( buflen == -1 )
    {
       *buff = '\0';
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -273,15 +276,15 @@ boolean Console_fgets(char *buff, int buflen, char *prompt)
    buff[buflen + 1] = '\0';
 
    if ((eofptr = strchr(buff, '\x1a')) == nil(char))
-      return TRUE;      /* an ordinary successful read   */
+      return KWTrue;     /* an ordinary successful read   */
    else if (eofptr == buff)
    {
-      return FALSE;     /* signal EOF right away      */
+      return KWFalse;    /* signal EOF right away      */
    }
    else {
-      eof = TRUE;       /* we now have a pending EOF  */
+      eof = KWTrue;      /* we now have a pending EOF  */
       *eofptr = '\0';
-      return TRUE;      /* read successful but EOF next  */
+      return KWTrue;     /* read successful but EOF next  */
    } /* else */
 
 } /*Console_fgets*/
@@ -337,14 +340,14 @@ static int DOSRead( char *buff, const int buflen)
 /*       Determine if the DOS Key command line editor is active       */
 /*--------------------------------------------------------------------*/
 
-static boolean DOSKeyActive( void )
+static KWBoolean DOSKeyActive( void )
 {
-   static boolean first_pass = TRUE;
-   static boolean active = FALSE;
+   static KWBoolean first_pass = KWTrue;
+   static KWBoolean active = KWFalse;
 
    if ( first_pass )
    {
-      first_pass = FALSE;
+      first_pass = KWFalse;
       if ((_osmajor > 4) )
       {
          union REGS regs;
@@ -359,7 +362,7 @@ static boolean DOSKeyActive( void )
             regs.x.ax = 0x4800;     /* Request for DOS Key active */
             int86( MULTIPLEX , &regs, &regs );
             if ( regs.h.al != 0x00 )
-               active = TRUE;
+               active = KWTrue;
          }
       } /* if (_osmajor > 4 ) */
    } /* if ( first_pass ) */
@@ -371,7 +374,7 @@ static boolean DOSKeyActive( void )
    if ( bflag[F_DOSKEY] && ! active )
    {
      printmsg(0,"DOSKEY support not installed, option disabled");
-     bflag[F_DOSKEY] = FALSE;
+     bflag[F_DOSKEY] = KWFalse;
    }
 
    return active;

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: arbmath.c 1.5 1994/02/20 19:11:18 ahd v1-12k $
+ *    $Id: arbmath.c 1.6 1994/12/22 00:07:10 ahd Exp $
  *
  *    Revision history:
  *    $Log: arbmath.c $
+ *    Revision 1.6  1994/12/22 00:07:10  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/02/20 19:11:18  ahd
  *    IBM C/Set 2 Conversion, memory leak cleanup
  *
@@ -58,13 +61,13 @@ currentfile();
 /*    Returns true if input number was non-zero                       */
 /*--------------------------------------------------------------------*/
 
-boolean adiv( unsigned char *number,
+KWBoolean adiv( unsigned char *number,
              const unsigned divisor,
              unsigned *remain,
              const unsigned digits)
 {
    unsigned subscript;
-   boolean nonzero = FALSE;
+   KWBoolean nonzero = KWFalse;
    *remain = 0;
 
    for ( subscript = 0; subscript < digits; subscript++)

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: execute.c 1.36 1994/12/22 00:08:08 ahd Exp $
+ *    $Id: execute.c 1.37 1995/01/05 03:41:36 ahd Exp $
  *
  *    Revision history:
  *    $Log: execute.c $
+ *    Revision 1.37  1995/01/05 03:41:36  ahd
+ *    Print more precise error messages for file errors
+ *
  *    Revision 1.36  1994/12/22 00:08:08  ahd
  *    Annual Copyright Update
  *
@@ -185,16 +188,16 @@ currentfile();
 /*                    Internal function prototypes                    */
 /*--------------------------------------------------------------------*/
 
-static boolean internal( const char *command );
+static KWBoolean internal( const char *command );
 
-static boolean batch( const char *input, char *output);
+static KWBoolean batch( const char *input, char *output);
 
 #if defined(__OS2__) || defined(FAMILYAPI) || defined(WIN32)
 
 static int executeAsync( const char *command,
                          const char *parameters,
-                         const boolean synchronous,
-                         const boolean foreground );
+                         const KWBoolean synchronous,
+                         const KWBoolean foreground );
 #endif
 
 #ifdef _Windows
@@ -209,12 +212,12 @@ int execute( const char *command,
              const char *parameters,
              const char *input,
              const char *output,
-             const boolean synchronous,
-             const boolean foreground )
+             const KWBoolean synchronous,
+             const KWBoolean foreground )
 {
    int result;
 
-   boolean useBat = (input != NULL) || (output != NULL );
+   KWBoolean useBat = (input != NULL) || (output != NULL );
 
    char path[FILENAME_MAX];         /* String for executable file   */
    char batchFile[FILENAME_MAX];    /* String for batch driver file */
@@ -239,7 +242,7 @@ int execute( const char *command,
    if ( internal( command ) )
    {
       strcpy( path , command );
-      useBat = TRUE;
+      useBat = KWTrue;
    }
    else if (batch( command, path ))
    {
@@ -362,13 +365,13 @@ int execute( const char *command,
              const char *parameters,
              const char *input,
              const char *output,
-             const boolean synchronous,
-             const boolean foreground )
+             const KWBoolean synchronous,
+             const KWBoolean foreground )
 {
    int result;
    int tempHandle;
    char path[BUFSIZ];
-   boolean redirected;
+   KWBoolean redirected;
 
    printmsg(3,"Command = %s, parameters = \"%s\"%s%s%s%s, %s, %s.",
                command,
@@ -386,7 +389,7 @@ int execute( const char *command,
 
    if ( (input != NULL) || (output != NULL) )
    {
-      redirected = TRUE;
+      redirected = KWTrue;
 
       if ( ! synchronous )
       {
@@ -398,7 +401,7 @@ int execute( const char *command,
       } /* if ( ! synchronous ) */
    }
    else
-      redirected = FALSE;
+      redirected = KWFalse;
 
    if (input != NULL)
    {
@@ -553,8 +556,8 @@ int execute( const char *command,
 int executeCommand( const char *command,
                     const char *input,
                     const char *output,
-                    const boolean synchronous,
-                    const boolean foreground )
+                    const KWBoolean synchronous,
+                    const KWBoolean foreground )
 {
    char *cmdname;
    char *parameters;
@@ -592,7 +595,7 @@ int executeCommand( const char *command,
 /*    Determine if command is internal DOS command                    */
 /*--------------------------------------------------------------------*/
 
-static boolean internal( const char *command )
+static KWBoolean internal( const char *command )
 {
    static char *commands[] = { "break",   "cd",    "chdir",    "copy",
                                "ctty",    "date",  "del",      "dir",
@@ -611,7 +614,7 @@ static boolean internal( const char *command )
    if ( *command == '\0' )
    {
       printmsg(4,"internal: Empty command, using command processor");
-      return TRUE;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -632,18 +635,18 @@ static boolean internal( const char *command )
       if (equali(*list++,command))
       {
          printmsg(4,"\"%s\" is an internal command",command);
-         return TRUE;
+         return KWTrue;
       } /* if */
 
    } /* while( *list != NULL ) */
 
 /*--------------------------------------------------------------------*/
-/*       The command is not in the list; return FALSE (external       */
+/*       The command is not in the list; return KWFalse (external      */
 /*       command)                                                     */
 /*--------------------------------------------------------------------*/
 
    printmsg(4,"\"%s\" is an external command",command);
-   return FALSE;
+   return KWFalse;
 
 } /* internal */
 
@@ -653,7 +656,7 @@ static boolean internal( const char *command )
 /*    Determine if a command is batch file                            */
 /*--------------------------------------------------------------------*/
 
-static boolean batch( const char *input, char *output)
+static KWBoolean batch( const char *input, char *output)
 {
    char *search = getenv("PATH");
    char *gotPath;
@@ -707,7 +710,7 @@ static boolean batch( const char *input, char *output)
       {
 
          printerr( input );
-         return FALSE;
+         return KWFalse;
 
       }  /* if ( ! *output ) */
 
@@ -791,7 +794,7 @@ static boolean batch( const char *input, char *output)
 
    *output = '\0';                  /* Flag no file found!            */
 
-   return FALSE;
+   return KWFalse;
 
 } /* batch */
 
@@ -805,8 +808,8 @@ static boolean batch( const char *input, char *output)
 
 static int executeAsync( const char *command,
                          const char *parameters,
-                         const boolean synchronous,
-                         const boolean foreground )
+                         const KWBoolean synchronous,
+                         const KWBoolean foreground )
 {
    STARTDATA sd;
    PID   childPID;
@@ -985,8 +988,8 @@ static int executeAsync( const char *command,
 
 int executeAsync( const char *command,
              const char *parameters,
-             const boolean synchronous,
-             const boolean foreground )
+             const KWBoolean synchronous,
+             const KWBoolean foreground )
 {
    int result;
    char path[BUFSIZ];
@@ -1025,7 +1028,7 @@ int executeAsync( const char *command,
                           path,
                           NULL,
                           NULL,
-                          TRUE,
+                          KWTrue,
                           fdwCreate,
                           NULL,
                           NULL,

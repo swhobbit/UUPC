@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: expath.c 1.14 1994/02/19 04:40:47 ahd v1-12k $
+ *    $Id: expath.c 1.15 1994/12/22 00:08:15 ahd Exp $
  *
  *    Revision history:
  *    $Log: expath.c $
+ *    Revision 1.15  1994/12/22 00:08:15  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.14  1994/02/19 04:40:47  ahd
  *    Use standard first header
  *
@@ -123,7 +126,7 @@ char *expand_path(char *input,         /* Input/output path name      */
 
    if ((*path == '/') || (isalpha( *path ) && (path[1] == ':')))
    {
-      boolean push = (cur_dir != NULL );
+      KWBoolean push = (cur_dir != NULL );
       strcpy( save, path );
 
       if (push)

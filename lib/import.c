@@ -13,9 +13,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: import.c 1.27 1994/12/22 00:09:09 ahd Exp $
+ *    $Id: import.c 1.28 1995/01/03 05:32:26 ahd Exp $
  *
  *    $Log: import.c $
+ *    Revision 1.28  1995/01/03 05:32:26  ahd
+ *    Reduce, clarify logging in OS/2 Advanced FS function
+ *
  *    Revision 1.27  1994/12/22 00:09:09  ahd
  *    Annual Copyright Update
  *
@@ -152,9 +155,9 @@ currentfile();
 static void ImportName( char *local,
                         const char *canon,
                         size_t charsetsize,
-                        const boolean longname );
+                        const KWBoolean longname );
 
-static boolean advancedFS( const char *path );
+static KWBoolean advancedFS( const char *path );
 
 /*--------------------------------------------------------------------*/
 /*                                                                    */
@@ -315,7 +318,7 @@ void importpath(char *local, const char *canon, const char *remote)
                               /* Arbitary length number, for base
                                  conversions                        */
 
-      boolean longname;
+      KWBoolean longname;
 
       longname = bflag[F_LONGNAME] && advancedFS( E_spooldir ) ;
 
@@ -420,7 +423,7 @@ void importpath(char *local, const char *canon, const char *remote)
    else {         /* Not file for spooling directory, convert it  */
 
       char *in = (char *) canon;
-      boolean longname ;
+      KWBoolean longname ;
 
       longname = advancedFS( canon );
 
@@ -485,7 +488,7 @@ void importpath(char *local, const char *canon, const char *remote)
 static void ImportName( char *local,
                         const char *canon,
                         size_t charsetsize,
-                        const boolean longname )
+                        const KWBoolean longname )
 {
 
    char *in = (char *) canon;
@@ -626,8 +629,8 @@ static void ImportName( char *local,
 /*    Validate an MS-DOS file name                                    */
 /*--------------------------------------------------------------------*/
 
-boolean ValidDOSName( const char *s,
-                      const boolean longname )
+KWBoolean ValidDOSName( const char *s,
+                      const KWBoolean longname )
 {
    char *ptr;
    size_t len = strlen ( s );
@@ -670,7 +673,7 @@ boolean ValidDOSName( const char *s,
 
 #endif
          if ( result == 0 )
-            return TRUE;
+            return KWTrue;
 
          printmsg(2,
                   "ValidDOSName: Invalid name %s, syntax error code %d",
@@ -690,7 +693,7 @@ boolean ValidDOSName( const char *s,
       if (strspn(s, longCharSet) == len)
       {
          printmsg(9,"ValidDOSName: \"%s\" is valid long name", s);
-         return TRUE;
+         return KWTrue;
       }
 
    } /* if ( longname ) */
@@ -700,7 +703,7 @@ boolean ValidDOSName( const char *s,
 /*--------------------------------------------------------------------*/
 
    if (len > 12)
-      return FALSE;
+      return KWFalse;
 
    strcpy( tempname, s);      /* Make a temp copy we can alter        */
 
@@ -713,7 +716,7 @@ boolean ValidDOSName( const char *s,
    if (ptr == NULL)
    {
       if (len > 8)
-         return FALSE;
+         return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -722,21 +725,21 @@ boolean ValidDOSName( const char *s,
 
    else {
       if ((ptr == tempname) || (ptr > &tempname[8]))
-         return FALSE;
+         return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*             Extension must be three characters or less             */
 /*--------------------------------------------------------------------*/
 
       if ( strlen( ptr ) > 4) /* Three characters plus the period?    */
-         return FALSE;        /* No --> Too much                      */
+         return KWFalse;       /* No --> Too much                      */
 
 /*--------------------------------------------------------------------*/
 /*                          Only one period                           */
 /*--------------------------------------------------------------------*/
 
       if (ptr != strchr(tempname, '.'))
-         return FALSE;
+         return KWFalse;
    } /* else */
 
 /*--------------------------------------------------------------------*/
@@ -751,10 +754,10 @@ boolean ValidDOSName( const char *s,
    if (strspn(tempname, E_charset ) == len)
    {
       printmsg(9,"ValidDOSName: \"%s\" is valid", s);
-      return TRUE;
+      return KWTrue;
    }
    else
-      return FALSE;
+      return KWFalse;
 
 } /* ValidateDOSName */
 
@@ -786,16 +789,16 @@ static int IsFileNameValid(char *name)
      case ERROR_FILENAME_EXCED_RANGE:
         if ( debuglevel > 1 )
             printOS2error( name, result );
-        return FALSE;
+        return KWFalse;
 
      case NO_ERROR:                 /* Hmmm, why does the file exist? */
         DosClose(hf);
-        return TRUE;                /* But worked, so we have answer */
+        return KWTrue;               /* But worked, so we have answer */
 
      default:
         if ( debuglevel > 1 )
             printOS2error( name, result );
-        return TRUE;
+        return KWTrue;
 
   } /* switch */
 
@@ -808,7 +811,7 @@ static int IsFileNameValid(char *name)
 /*       8.3 file names)                                              */
 /*--------------------------------------------------------------------*/
 
-static boolean advancedFS( const char *input )
+static KWBoolean advancedFS( const char *input )
 {
    static char UUFAR cache[256] = "";  /* Initialize cache to zeroes  */
 
@@ -845,7 +848,7 @@ static boolean advancedFS( const char *input )
          break;
    }
 
-   return cache[ (unsigned char) *fdrive ] == 'L' ? TRUE : FALSE;
+   return cache[ (unsigned char) *fdrive ] == 'L' ? KWTrue : KWFalse;
 
 } /* advancedFS */
 
@@ -858,7 +861,7 @@ static boolean advancedFS( const char *input )
 /*       8.3 file names)                                              */
 /*--------------------------------------------------------------------*/
 
-static boolean advancedFS( const char *path )
+static KWBoolean advancedFS( const char *path )
 {
    char driveInfo[128];
    char fsType[5];
@@ -881,11 +884,11 @@ static boolean advancedFS( const char *path )
    else /* It's a shared drive... parse out the share name and ask */
    {
       if (strncmp(path, "//", 2) != 0) /* Just double-checking */
-         return FALSE;  /* Don't know what it is, don't want to know */
+         return KWFalse;  /* Don't know what it is, don't want to know */
 
       shareNameEnd = strchr(path + 2, '/');
       if (!shareNameEnd)  /* Probably bad:  server name only */
-         return FALSE;
+         return KWFalse;
 
       shareNameEnd = strchr(shareNameEnd + 1, '/');
       if (shareNameEnd)
@@ -908,7 +911,7 @@ static boolean advancedFS( const char *path )
             shareNameEnd++;
          }
       } else
-         return FALSE;
+         return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -949,9 +952,9 @@ static boolean advancedFS( const char *path )
 #pragma warning(disable:4100)   /* suppress unref'ed formal param. warnings */
 #endif
 
-static boolean advancedFS( const char *path )
+static KWBoolean advancedFS( const char *path )
 {
-   return FALSE;                 /* DOS is always dumb on file systems! */
+   return KWFalse;                /* DOS is always dumb on file systems! */
 } /* advancedFS for MS-DOS */
 
 #if _MSC_VER >= 700

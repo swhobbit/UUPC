@@ -11,10 +11,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: install.c 1.3 1993/04/11 00:33:54 ahd Exp $
+ *    $Id: install.c 1.4 1994/02/19 05:02:21 ahd v1-12k $
  *
  *    Revision history:
  *    $Log: install.c $
+ *    Revision 1.4  1994/02/19 05:02:21  ahd
+ *    Use standard first header
+ *
  * Revision 1.3  1993/04/11  00:33:54  ahd
  * Global edits for year, TEXT, etc.
  *
@@ -32,7 +35,7 @@
 #include "uupcmoah.h"
 
 static char rcsid[] =
-      "$Id: install.c 1.3 1993/04/11 00:33:54 ahd Exp $";
+      "$Id: install.c 1.4 1994/02/19 05:02:21 ahd v1-12k $";
 
 /*--------------------------------------------------------------------*/
 /*                      Standard C include files                      */
@@ -68,7 +71,7 @@ void main( int argc, char **argv )
 /*--------------------------------------------------------------------*/
 
    if (getenv(UUPCSYSRC) == NULL )
-      installed = FALSE;
+      installed = KWFalse;
 
    if (installed)
       update();

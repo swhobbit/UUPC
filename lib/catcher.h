@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: catcher.h 1.3 1994/01/01 19:07:28 ahd v1-12k $
+ *    $Id: catcher.h 1.4 1994/12/22 00:12:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: catcher.h $
+ *    Revision 1.4  1994/12/22 00:12:18  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/01/01 19:07:28  ahd
  *    Annual Copyright Update
  *
@@ -43,7 +46,7 @@ __cdecl
 #endif
 ctrlchandler( int sig );
 
-extern boolean terminate_processing;
-extern boolean norecovery;
-extern boolean interactive_processing;
+extern KWBoolean terminate_processing;
+extern KWBoolean norecovery;
+extern KWBoolean interactive_processing;
 extern int panic_rc;

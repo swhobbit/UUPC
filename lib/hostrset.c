@@ -19,10 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: hostrset.c 1.12 1994/02/26 17:17:32 ahd v1-12k $
+ *    $Id: hostrset.c 1.13 1994/12/22 00:09:02 ahd Exp $
  *
  *    Revision history:
  *    $Log: hostrset.c $
+ *    Revision 1.13  1994/12/22 00:09:02  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.12  1994/02/26 17:17:32  ahd
  *    Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -88,7 +91,7 @@ currentfile();
 
 void HostReset( const char *name )
 {
-   boolean firsthost = TRUE;
+   KWBoolean firsthost = KWTrue;
    struct HostTable *host;
    char fname[FILENAME_MAX];
    FILE *stream;
@@ -128,7 +131,7 @@ void HostReset( const char *name )
       len1 = (unsigned short) strlen( host->hostname );
       len2 = sizeof host->status;
 
-      firsthost = FALSE;
+      firsthost = KWFalse;
 
       fwrite( &len1, sizeof len1, 1, stream );
       fwrite( &len2, sizeof len2, 1, stream );

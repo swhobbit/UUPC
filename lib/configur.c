@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: configur.c 1.54 1995/01/02 05:03:27 ahd Exp $
+ *    $Id: configur.c 1.55 1995/01/07 15:43:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: configur.c $
+ *    Revision 1.55  1995/01/07 15:43:07  ahd
+ *    Add in-memory file flag
+ *
  *    Revision 1.54  1995/01/02 05:03:27  ahd
  *    Pass 2 of integrating SYS file support from Mike McLagan
  *
@@ -40,7 +43,7 @@
  *    All suppressbeep support to allow NOT making any sound
  *
  *     Revision 1.48  1994/05/24  03:44:04  ahd
- *     Sort boolean options
+ *     Sort KWBoolean options
  *     Add suppressemptypassword option
  *
  *     Revision 1.47  1994/05/04  02:03:11  ahd
@@ -53,7 +56,7 @@
  *     Correct spelling of LONGNAME flag
  *
  *     Revision 1.44  1994/02/28  01:02:06  ahd
- *     Add 'HonorControl' boolean option
+ *     Add 'HonorControl' KWBoolean option
  *
  *     Revision 1.43  1994/02/25  02:23:42  ahd
  *     Add Ignore, ReplyToList for Mail user agent (mail)
@@ -210,7 +213,7 @@
 
 currentfile();
 
-boolean bflag[F_LAST];        /* Initialized to zero by compiler      */
+KWBoolean bflag[F_LAST];       /* Initialized to zero by compiler      */
 
 char **E_internal = NULL;
 char *E_nickname = NULL;
@@ -299,7 +302,7 @@ static ENV_TYPE active_env = ENV_OS2_32BIT | ENV_OS2 | ENV_BIT32;
 static ENV_TYPE active_env = ENV_DOS | ENV_BIT16;
 #endif
 
-boolean getrcnames(char **sysp,char **usrp);
+KWBoolean getrcnames(char **sysp,char **usrp);
 
 #ifdef WIN32
 static char *getregistry(char *envName, char **value);
@@ -431,7 +434,7 @@ FLAGTABLE configFlags[] = {
 /*    Handle a single line of a configuration file                    */
 /*--------------------------------------------------------------------*/
 
-boolean processconfig(char *buff,
+KWBoolean processconfig(char *buff,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
@@ -451,7 +454,7 @@ boolean processconfig(char *buff,
    {
       printmsg(0,"Missing equals sign after keyword \"%s\", ignored",
                   buff);
-      return TRUE;
+      return KWTrue;
    }
    *cp++ = '\0';
    strlwr(buff);
@@ -510,7 +513,7 @@ boolean processconfig(char *buff,
       {
          printmsg(0,"Unknown environment \"%s\", keyword \"%s\" ignored",
                buff, keyword );
-         return FALSE;
+         return KWFalse;
       }
 
    } /* else */
@@ -521,7 +524,7 @@ boolean processconfig(char *buff,
 
    for (tptr = table; tptr->sym != nil(char); tptr++)
    {
-      boolean error = FALSE;
+      KWBoolean error = KWFalse;
       if (equal(keyword, tptr->sym)) {
 /*--------------------------------------------------------------------*/
 /*            Skip the keyword because of the environment?            */
@@ -546,7 +549,7 @@ boolean processconfig(char *buff,
 /*--------------------------------------------------------------------*/
          else {
             if (tptr->bits & B_BOOLEAN)
-               options(cp, sysmode, btable, (boolean *) tptr->loc);
+               options(cp, sysmode, btable, (KWBoolean *) tptr->loc);
 
 
 /*--------------------------------------------------------------------*/
@@ -566,7 +569,7 @@ boolean processconfig(char *buff,
                      printmsg(0,
                         "Unable to convert \"%s\" value \"%s\" to integer",
                         keyword, cp);
-                     error = TRUE;
+                     error = KWTrue;
                   } /* if */
                } /* else */
 
@@ -617,7 +620,7 @@ boolean processconfig(char *buff,
                else {
                   printmsg(0,"No parameters given for keyword \"%s\"",
                            keyword);
-                  error = TRUE;
+                  error = KWTrue;
                } /* else */
             } /* else if */
 /*--------------------------------------------------------------------*/
@@ -630,7 +633,7 @@ boolean processconfig(char *buff,
 
                if (*cp == '\0')
                {
-                  error = TRUE;
+                  error = KWTrue;
                   printmsg(0,"No parameter given for keyword \"%s\""
                            ", ignored.",
                            keyword);
@@ -650,7 +653,7 @@ boolean processconfig(char *buff,
                                 "length exceeds one character",
                                 keyword,
                                 cp );
-                     error = TRUE;
+                     error = KWTrue;
                   }
                   else
                      *((char *) tptr->loc) = *cp;
@@ -670,7 +673,7 @@ boolean processconfig(char *buff,
 
          if (!error)
             tptr->bits |= B_FOUND;
-         return TRUE;         /* Report we found the keyword      */
+         return KWTrue;        /* Report we found the keyword      */
 
       } /* if (equal(keyword, tptr->sym)) */
 
@@ -683,7 +686,7 @@ boolean processconfig(char *buff,
    if ( period )
       *period = '.';          /* Restore period in keyword           */
 
-   return FALSE;
+   return KWFalse;
 
 } /* processconfig */
 
@@ -693,7 +696,7 @@ boolean processconfig(char *buff,
 /*    Process a single configuration file                             */
 /*--------------------------------------------------------------------*/
 
-boolean getconfig(FILE *fp,
+KWBoolean getconfig(FILE *fp,
                   SYSMODE sysmode,
                   CONFIGBITS program,
                   CONFIGTABLE *table,
@@ -738,17 +741,17 @@ boolean getconfig(FILE *fp,
 
    } /*while*/
 
-   return TRUE;
+   return KWTrue;
 
 } /*getconfig*/
 
 /*--------------------------------------------------------------------*/
 /*    o p t i o n s                                                   */
 /*                                                                    */
-/*    Process a line of boolean option flags.                         */
+/*    Process a line of KWBoolean option flags.                        */
 /*--------------------------------------------------------------------*/
 
-void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, boolean *barray)
+void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, KWBoolean *barray)
 {
    char *token;
 
@@ -758,8 +761,8 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, boolean *barray)
    while (token != NULL)
    {
       size_t subscript;
-      boolean hit = FALSE;
-      boolean negate;
+      KWBoolean hit = KWFalse;
+      KWBoolean negate;
       negate = equaln(token,"no",2) && (strlen(token) > 2);
 
       for ( subscript=0; (flags[subscript].sym != NULL ) && !hit; subscript++)
@@ -770,15 +773,15 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, boolean *barray)
          {
             if (equal(&token[2],flags[subscript].sym))
             {
-               barray[ flags[subscript].position ] = FALSE;
-               hit = TRUE;
+               barray[ flags[subscript].position ] = KWFalse;
+               hit = KWTrue;
             }
          } /* if negate */
          else {
             if (equal(token,flags[subscript].sym))
             {
-               barray[ flags[subscript].position ] = TRUE;
-               hit = TRUE;
+               barray[ flags[subscript].position ] = KWTrue;
+               hit = KWTrue;
             }
          } /* else */
       } /* for */
@@ -797,11 +800,11 @@ void options(char *s, SYSMODE sysmode , FLAGTABLE *flags, boolean *barray)
 /*    Define the global parameters of UUPC/extended                   */
 /*--------------------------------------------------------------------*/
 
-boolean configure( CONFIGBITS program)
+KWBoolean configure( CONFIGBITS program)
 {
    char *sysrc, *usrrc;
    FILE *fp;
-   boolean success;
+   KWBoolean success;
    char buf[BUFSIZ];
    int subscript = 0;
    char *s;
@@ -821,20 +824,20 @@ boolean configure( CONFIGBITS program)
    typedef struct _DEFAULTS {
       char **value;
       char *literal;
-      boolean path;
+      KWBoolean path;
    } DEFAULTS;
 
    static DEFAULTS deflist[] = {
-        {&E_archivedir,   "archive" , TRUE },
-        {&E_maildir,      "mail"    , TRUE },
-        {&E_newsdir,      "news"    , TRUE },
-        {&E_pubdir,       "public"  , TRUE },
-        {&E_spooldir,     "spool"   , TRUE },
-        {&E_tempdir,      "tmp"     , TRUE },
-        {&E_systems,      "systems" , TRUE },
-        {&E_passwd,       "passwd"  , TRUE },
-        {&E_permissions,  "permissn", TRUE },
-        {&E_tz,           "tz"      , FALSE},
+        {&E_archivedir,   "archive" , KWTrue },
+        {&E_maildir,      "mail"    , KWTrue },
+        {&E_newsdir,      "news"    , KWTrue },
+        {&E_pubdir,       "public"  , KWTrue },
+        {&E_spooldir,     "spool"   , KWTrue },
+        {&E_tempdir,      "tmp"     , KWTrue },
+        {&E_systems,      "systems" , KWTrue },
+        {&E_passwd,       "passwd"  , KWTrue },
+        {&E_permissions,  "permissn", KWTrue },
+        {&E_tz,           "tz"      , KWFalse},
         { NULL  }
         } ;
 
@@ -860,7 +863,7 @@ boolean configure( CONFIGBITS program)
 #endif
 
    if (!getrcnames(&sysrc, &usrrc))
-      return FALSE;
+      return KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*          Extract selected variables from our environment           */
@@ -927,7 +930,7 @@ boolean configure( CONFIGBITS program)
    {
       printmsg(0, "Cannot open system configuration file \"%s\"", sysrc);
       printerr(sysrc);
-      return FALSE;
+      return KWFalse;
    }
 
    PushDir( E_confdir );
@@ -938,7 +941,7 @@ boolean configure( CONFIGBITS program)
    if (!success)
    {
       PopDir();
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -952,7 +955,7 @@ boolean configure( CONFIGBITS program)
       {
          printmsg(0, "Cannot open user configuration file \"%s\"", usrrc);
          PopDir();
-         return FALSE;
+         return KWFalse;
       }
 
       success = getconfig(fp, USER_CONFIG, program, envtable, configFlags);
@@ -961,7 +964,7 @@ boolean configure( CONFIGBITS program)
       if (!success)
       {
          PopDir();
-         return FALSE;
+         return KWFalse;
       }
 
    }
@@ -991,7 +994,7 @@ boolean configure( CONFIGBITS program)
          printmsg(0, "%s configuration parameter \"%s\" must be set.",
             (tptr->bits & B_GLOBAL) ? "System" : "User",
             tptr->sym);
-         success = FALSE;
+         success = KWFalse;
       } /* if */
 
    } /* for */
@@ -1035,7 +1038,7 @@ boolean configure( CONFIGBITS program)
 /*    Return the name of the configuration files                      */
 /*--------------------------------------------------------------------*/
 
-boolean getrcnames(char **sysp,char **usrp)
+KWBoolean getrcnames(char **sysp,char **usrp)
 {
    char *debugp = NULL;      /* Pointer to debug environment variable */
 
@@ -1046,7 +1049,7 @@ boolean getrcnames(char **sysp,char **usrp)
    )
    {
       printf("environment variable %s must be specified\n", SYSRCSYM);
-      return FALSE;
+      return KWFalse;
    }
 
    *usrp = getenv(USRRCSYM);
@@ -1061,7 +1064,7 @@ boolean getrcnames(char **sysp,char **usrp)
    if ( debugp != nil(char))        /* Debug specified in environment? */
       debuglevel = atoi(debugp);    /* Yes --> preset debuglevel for user */
 
-   return TRUE;
+   return KWTrue;
 
 } /*getrcnames*/
 
@@ -1071,12 +1074,12 @@ boolean getrcnames(char **sysp,char **usrp)
 /*       Reports if current enviroment is DOS                         */
 /*--------------------------------------------------------------------*/
 
-boolean IsDOS( void )
+KWBoolean IsDOS( void )
 {
    if ( active_env & ENV_DOS )
-      return TRUE;
+      return KWTrue;
    else
-      return FALSE;
+      return KWFalse;
 
 } /* IsDOS */
 

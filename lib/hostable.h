@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
  /*
-  *   $Id: hostable.h 1.9 1994/12/22 00:13:02 ahd Exp $
+  *   $Id: hostable.h 1.10 1994/12/27 23:36:37 ahd Exp $
   *
   *   $Log: hostable.h $
+  *   Revision 1.10  1994/12/27 23:36:37  ahd
+  *   Allow hostable.h, usertable.h to be included without others
+  *
   *   Revision 1.9  1994/12/22 00:13:02  ahd
   *   Annual Copyright Update
   *
@@ -135,10 +138,10 @@ struct  HostTable {
       char  *realname;           /* Alias of this host name            */
       struct HostSecurity *hsecure; /* Security Information, real hosts
                                        only                            */
-      boolean anylogin;          /* TRUE = Can login with any generic
+      KWBoolean anylogin;         /* KWTrue = Can login with any generic
                                     user id                            */
-      boolean  aliased;          /* TRUE = alias has been optimized    */
-      boolean  routed;           /* TRUE = route has been optimized    */
+      KWBoolean  aliased;         /* KWTrue = alias has been optimized   */
+      KWBoolean  routed;          /* KWTrue = route has been optimized   */
       struct HostStats status;   /* Status info for real hosts only    */
    };
 
@@ -156,6 +159,6 @@ struct HostTable *checkReal(const char *name,
                             const int line,
                             const char *function);
 
-struct HostTable *nexthost( const boolean start );
+struct HostTable *nexthost( const KWBoolean start );
 
 #endif

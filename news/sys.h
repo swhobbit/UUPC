@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sys.h 1.3 1995/01/03 05:33:54 ahd Exp $
+ *    $Id: sys.h 1.4 1995/01/07 15:49:37 ahd Exp $
  *
  *    Revision history:
  *    $Log: sys.h $
+ *    Revision 1.4  1995/01/07 15:49:37  ahd
+ *    Covnert SYS file to keep strings in memory, not on disk
+ *
  *    Revision 1.3  1995/01/03 05:33:54  ahd
  *    Add process count to struct
  *
@@ -50,23 +53,23 @@ typedef struct sys
 
    struct
    {
-      boolean c;              /* Do not compress batch               */
+      KWBoolean c;             /* Do not compress batch               */
                               /* (supported by UUPC/extended only)   */
-      boolean B;              /* Do not send underlength batch       */
+      KWBoolean B;             /* Do not send underlength batch       */
                               /* (supported by UUPC/extended only)   */
-      boolean F;              /* Batch, write file name only         */
-      boolean f;              /* Batch, write file name and length   */
-      boolean I;              /* Batch, write article message id     */
-      boolean n;              /* Batch, write file name and msg ID   */
-      boolean m;              /* Only batch moderated articles       */
-      boolean u;              /* Only batch unmoderated articles     */
+      KWBoolean F;             /* Batch, write file name only         */
+      KWBoolean f;             /* Batch, write file name and length   */
+      KWBoolean I;             /* Batch, write article message id     */
+      KWBoolean n;             /* Batch, write file name and msg ID   */
+      KWBoolean m;             /* Only batch moderated articles       */
+      KWBoolean u;             /* Only batch unmoderated articles     */
    }  flag;
 
 } NEWS_SYS;
 
 void    init_sys( );
 
-boolean check_sys(struct sys *entry,char *group,char *distrib,char *path);
+KWBoolean check_sys(struct sys *entry,char *group,char *distrib,char *path);
 
 void    exit_sys(void);
 

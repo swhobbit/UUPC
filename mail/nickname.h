@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: alias.h 1.2 1994/03/05 21:15:49 ahd v1-12k $
+ *    $Id: alias.h 1.3 1994/12/22 00:20:05 ahd Exp $
  *
  *    Revision history:
  *    $Log: alias.h $
+ *    Revision 1.3  1994/12/22 00:20:05  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.2  1994/03/05 21:15:49  ahd
  *    Revamp header copyrights, line buffer lengths
  *
@@ -41,4 +44,4 @@ char *AliasByNick(const char *input);
 
 char *AliasByAddr(const char *node, const char *user);
 
-boolean InitRouter( void );
+KWBoolean InitRouter( void );

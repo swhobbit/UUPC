@@ -22,9 +22,12 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: genhist.c 1.9 1994/12/22 00:24:30 ahd Exp $";
+         "$Id: genhist.c 1.10 1995/01/02 05:03:27 ahd Exp $";
 
 /* $Log: genhist.c $
+/* Revision 1.10  1995/01/02 05:03:27  ahd
+/* Pass 2 of integrating SYS file support from Mike McLagan
+/*
 /* Revision 1.9  1994/12/22 00:24:30  ahd
 /* Annual Copyright Update
 /*
@@ -87,7 +90,7 @@ static void IndexAll( void );
 static void IndexOneGroup( struct grp *cur_grp );
 static void IndexDirectory( struct grp *cur_grp, const char *directory );
 
-static boolean numeric( char *start);
+static KWBoolean numeric( char *start);
 
 static void usage( void );
 
@@ -307,7 +310,7 @@ static void GetHistoryData(char *group, struct direct *dp,
 static void IndexDirectory( struct grp *cur_grp,
                             const char *directory )
 {
-   boolean not_built = TRUE;  /* Did not insure archive directory
+   KWBoolean not_built = KWTrue;  /* Did not insure archive directory
                                  exists                           */
 
    long number;
@@ -392,19 +395,19 @@ static void IndexDirectory( struct grp *cur_grp,
 /*    Examines string, returns true if numeric with period            */
 /*--------------------------------------------------------------------*/
 
-static boolean numeric( char *start)
+static KWBoolean numeric( char *start)
 {
    char *number = start;
 
    while (*number != '\0')
    {
       if (!isdigit(*number) && (*number != '.'))
-         return FALSE;
+         return KWFalse;
 
       number++;
    }
 
-   return TRUE;
+   return KWTrue;
 } /* numeric */
 
 /*--------------------------------------------------------------------*/

@@ -21,9 +21,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pwinsock.c 1.9 1994/02/19 04:45:42 ahd v1-12k $
+ *    $Id: pwinsock.c 1.10 1994/12/22 00:10:32 ahd Exp $
  *
  *    $Log: pwinsock.c $
+ *    Revision 1.10  1994/12/22 00:10:32  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.9  1994/02/19 04:45:42  ahd
  *    Use standard first header
  *
@@ -150,7 +153,7 @@ currentfile();
 /*       Initialize winsock.dll for Windows 3.1                       */
 /*--------------------------------------------------------------------*/
 
-boolean pWinSockInit( void )
+KWBoolean pWinSockInit( void )
 {
 
 /*--------------------------------------------------------------------*/
@@ -167,7 +170,7 @@ boolean pWinSockInit( void )
    if (!hWinsock)
    {
       printmsg(0, "pWinSockInit: could not find Winsock.DLL");
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -205,7 +208,7 @@ boolean pWinSockInit( void )
 #pragma warn .sus
 #endif
 
-   return TRUE;
+   return KWTrue;
 
 } /* pWinSockInit */
 

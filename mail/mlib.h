@@ -20,10 +20,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: mlib.h 1.6 1994/08/08 00:32:53 ahd v1-12k $
+ *    $Id: mlib.h 1.7 1994/12/22 00:20:28 ahd Exp $
  *
  *    Revision history:
  *    $Log: mlib.h $
+ *    Revision 1.7  1994/12/22 00:20:28  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.6  1994/08/08 00:32:53  ahd
  *    Drop new session support from Invoke
  *
@@ -46,13 +49,13 @@
 
 extern int Get_One( void );
 
-extern boolean Console_fgets(char *buff,
+extern KWBoolean Console_fgets(char *buff,
                               int buflen, char *prompt);          /* ahd  */
 
 int Invoke(const char *ecmd,
            const char *filename );
 
-extern boolean Is_Console(FILE *stream);                          /* ahd  */
+extern KWBoolean Is_Console(FILE *stream);                         /* ahd  */
 
 extern void ClearScreen( void );                                  /* ahd  */
 

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: pos2err.c 1.8 1994/03/09 04:53:53 ahd v1-12k $
+ *    $Id: pos2err.c 1.9 1994/12/22 00:10:14 ahd Exp $
  *
  *    Revision history:
  *    $Log: pos2err.c $
+ *    Revision 1.9  1994/12/22 00:10:14  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.8  1994/03/09 04:53:53  ahd
  *    Add missing <ctype.h> header
  *
@@ -82,10 +85,10 @@ void pOS2Err(const size_t lineno,
              unsigned int rc)
 {
    char buf[BUFSIZ];
-   static boolean recursion  = FALSE;
+   static KWBoolean recursion  = KWFalse;
    int l;
    static char sysMsgs[] = "oso001.msg";
-   boolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
+   KWBoolean redirect = ((logfile != stdout) && !isatty(fileno(stdout)));
 
 #ifdef __OS2__
    ULONG len, xrc;
@@ -117,9 +120,9 @@ void pOS2Err(const size_t lineno,
 
             if ( ! recursion )
             {
-               recursion = TRUE;
+               recursion = KWTrue;
                printOS2error( "DosGetMessage", xrc );
-               recursion = FALSE;
+               recursion = KWFalse;
             } /* recursion */
 
             sprintf(buf, "OS/2 API error %d in %s at line %d,"

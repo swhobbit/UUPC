@@ -13,9 +13,12 @@
  * Author:  Kai Uwe Rommel <rommel@ars.muc.de>
  * Created: Sun Aug 15 1993
  *
- *    $Id: expire.c 1.7 1994/06/14 01:19:24 ahd v1-12k $
+ *    $Id: expire.c 1.8 1995/01/02 05:03:27 ahd Exp $
  *
  *    $Log: expire.c $
+ *    Revision 1.8  1995/01/02 05:03:27  ahd
+ *    Pass 2 of integrating SYS file support from Mike McLagan
+ *
  *    Revision 1.7  1994/06/14 01:19:24  ahd
  *    Clean yp RCS information
  *    patches from Kai Uwe Rommel
@@ -37,7 +40,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-      "$Id: expire.c 1.7 1994/06/14 01:19:24 ahd v1-12k $";
+      "$Id: expire.c 1.8 1995/01/02 05:03:27 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -217,7 +220,7 @@ void main( int argc, char **argv)
    if ( groups != NULL )
    {
 
-#ifndef FALSE
+#ifndef KWFalse
       printmsg(0,"Cannot expire by group name!  (yet!)" );
       panic();
 #else

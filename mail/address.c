@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: address.c 1.15 1994/05/08 21:43:33 ahd v1-12k $
+ *    $Id: address.c 1.16 1994/12/22 00:18:21 ahd Exp $
  *
  *    Revision history:
  *    $Log: address.c $
+ *    Revision 1.16  1994/12/22 00:18:21  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.15  1994/05/08 21:43:33  ahd
  *    Trap hostname missing normal user@node RFC-822 address
  *
@@ -402,7 +405,7 @@ char *HostAlias( char *input)
       return hostp->realname;
    } /* if */
 
-   hostp->aliased = TRUE;        /* Prevent limitless recursion       */
+   hostp->aliased = KWTrue;       /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
@@ -470,7 +473,7 @@ char *HostPath( char *input, char *best)
 
    } /* if (hostp->routed) */
 
-   hostp->routed  = TRUE;        /* Prevent limitless recursion       */
+   hostp->routed  = KWTrue;       /* Prevent limitless recursion       */
 
 /*--------------------------------------------------------------------*/
 /*                  Determine next host in the chain                  */
@@ -525,7 +528,7 @@ char *ExtractAddress(char *result,
    char newstate = 'A';             /* Next state to process      */
    int bananas = 0;                 /* No () being processed now  */
    int len;
-   boolean quoted = FALSE;
+   KWBoolean quoted = KWFalse;
 
 #ifdef UDEBUG
    printmsg(15,"ExtractAddress: Return address is %p", result );

@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: maillib.h 1.3 1994/03/11 01:50:58 ahd v1-12k $
+ *    $Id: maillib.h 1.4 1994/12/22 00:20:22 ahd Exp $
  *
  *    Revision history:
  *    $Log: maillib.h $
+ *    Revision 1.4  1994/12/22 00:20:22  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.3  1994/03/11 01:50:58  ahd
  *    Make mail box description array UUFAR
  *
@@ -33,28 +36,28 @@
 /*                        Function prototypes                         */
 /*--------------------------------------------------------------------*/
 
-boolean Pager(const int msgnum,
-              boolean external,
+KWBoolean Pager(const int msgnum,
+              KWBoolean external,
               copyopt received,
-              const boolean reset);
+              const KWBoolean reset);
 
 void PageReset( void );
 
-boolean PageLine(char *line);
+KWBoolean PageLine(char *line);
 
-boolean CopyMsg(const int msgnum,
+KWBoolean CopyMsg(const int msgnum,
                 FILE *f,
                 const copyopt headers,
-                const boolean indent);
+                const KWBoolean indent);
 
  void Sub_Pager(const char *tmailbag,
-                        boolean builtin );
+                        KWBoolean builtin );
 
- boolean Numeric( const char *number);
+ KWBoolean Numeric( const char *number);
                                  /* return 1 if number all digits,
                                     else return 0                    */
 
- boolean RetrieveLine(const long adr,
+ KWBoolean RetrieveLine(const long adr,
                       char *line,
                       const size_t len);
 

@@ -9,11 +9,11 @@
 /*    1993/06/12:                                                     */
 /*                                                                    */
 /*    Rewritten by Mike McLagan (mmclagan@invlogic.com) to make code  */
-/*    behave much more like a typical RNEWS.  Using a boolean config  */
+/*    behave much more like a typical RNEWS.  Using a KWBoolean config  */
 /*    option USESYSFILE causes RNEWS to read and interpret the sys    */
 /*    file entries for redistributing news to other sites.  Each      */
 /*    article is reviewed seperately for all systems listed in that   */
-/*    file.  Later, using a boolean config option BATCHNEWS and       */
+/*    file.  Later, using a KWBoolean config option BATCHNEWS and      */
 /*    COMPRESSNEWS with optional BATCHSIZE=n, articles will be        */
 /*    combined into batches for delivery to other systems.  This      */
 /*    will be accomplished by using UUX, rather than generating       */
@@ -33,9 +33,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: rnews.c 1.40 1995/01/03 05:32:26 ahd Exp $
+ *       $Id: rnews.c 1.41 1995/01/05 03:43:49 ahd Exp $
  *
  *       $Log: rnews.c $
+ *       Revision 1.41  1995/01/05 03:43:49  ahd
+ *       rnews SYS file support
+ *
  *       Revision 1.40  1995/01/03 05:32:26  ahd
  *       Further SYS file support cleanup
  *
@@ -147,7 +150,7 @@
 #include "uupcmoah.h"
 
 static const char rcsid[] =
-         "$Id: rnews.c 1.40 1995/01/03 05:32:26 ahd Exp $";
+         "$Id: rnews.c 1.41 1995/01/05 03:43:49 ahd Exp $";
 
 /*--------------------------------------------------------------------*/
 /*                        System include files                        */
@@ -259,23 +262,23 @@ static int Batched( const char *filename, FILE *stream);
 
 static void shadow_news(const char *fname );
 
-static boolean deliver_local(FILE *tfile,
+static KWBoolean deliver_local(FILE *tfile,
                              const long art_size,
                              const char *groups,
                              const char *msgID,
                              const char *control);
 
-static boolean deliver_remote(const struct sys *node,
+static KWBoolean deliver_remote(const struct sys *node,
                               FILE *tfile,
                               const char *fname,
                               const char *msgID,
                               const char *path);
 
-static boolean batch_remote(const struct sys *node,
+static KWBoolean batch_remote(const struct sys *node,
                             FILE *tfile,
                             const char *msgID );
 
-static boolean copy_file(FILE *f,
+static KWBoolean copy_file(FILE *f,
                       const char *group,
                       const char *xref);      /* Copy file (f) to newsgroup */
 
@@ -637,7 +640,7 @@ static int Compressed( const char *filename ,
    long cfile_size = 0L;
    size_t chars_read, i;
    int status = 0;
-   boolean needtemp = TRUE;
+   KWBoolean needtemp = KWTrue;
 
    char *sysname;             /* For reading systems to process   */
 
@@ -653,7 +656,7 @@ static int Compressed( const char *filename ,
       unzfile[ strlen(unzfile)-2 ] = '\0';
 
       if ( access( unzfile, 0 ))  /* Does the host file exist?        */
-         needtemp = FALSE;        /* No, we have a good pair          */
+         needtemp = KWFalse;       /* No, we have a good pair          */
       else
          printmsg(0, "Had compressed name %s, found %s already exists!",
                   zfile, unzfile );
@@ -720,7 +723,7 @@ static int Compressed( const char *filename ,
       sprintf(buf, E_uncompress, zfile, unzfile );
 
    printmsg(4, "Executing command: %s", buf );
-   status = executeCommand( buf, NULL, NULL, TRUE, FALSE);
+   status = executeCommand( buf, NULL, NULL, KWTrue, KWFalse);
 
    unlink( zfile );           /* Kill the compressed input file       */
 
@@ -771,7 +774,7 @@ static int Compressed( const char *filename ,
 
 static void fixEOF( char *buf, const int bytes )
 {
-   static warn = TRUE;
+   static warn = KWTrue;
    int left = bytes;
 
    while ( left-- )
@@ -782,7 +785,7 @@ static void fixEOF( char *buf, const int bytes )
          if ( warn )
          {
             printmsg(0, "Altered Cntl-Z to Z");
-            warn = FALSE;
+            warn = KWFalse;
          } /* if */
       } /* if */
    } /* while */
@@ -801,7 +804,7 @@ static int Batched( const char *filename, FILE *stream)
    char buf[BUFSIZ * 2];
    int status = 0;
    long article_size;
-   boolean gotsize = FALSE;
+   KWBoolean gotsize = KWFalse;
    int chars_read;
    int chars_written;
 
@@ -834,7 +837,7 @@ static int Batched( const char *filename, FILE *stream)
          {
             article_size = 0;
             sscanf(buf, "#! rnews %ld \n", &article_size);
-            gotsize = TRUE;
+            gotsize = KWTrue;
          }
          else {
             skipped_lines ++;
@@ -862,7 +865,7 @@ static int Batched( const char *filename, FILE *stream)
       }
 
       article_left = article_size;
-      gotsize = FALSE;
+      gotsize = KWFalse;
 
 /*--------------------------------------------------------------------*/
 /*                   Open up our next working file                    */
@@ -934,7 +937,7 @@ static int Batched( const char *filename, FILE *stream)
             if ( equaln( "#! rnews", buf, 8) )
             {
                sscanf(buf, "#! rnews %ld \n", &article_size);
-               gotsize = TRUE;
+               gotsize = KWTrue;
             }
             else if ( chars_read > 0 )
             {
@@ -1050,9 +1053,9 @@ static void deliver_article(const char *art_fname, const long art_size)
       { NULL }
    };
 
-   boolean delivered = FALSE;
-   boolean searchHeader = TRUE;     /* Each article begins w/header  */
-   boolean error     = FALSE;       /* Presume successful hdr scan   */
+   KWBoolean delivered = KWFalse;
+   KWBoolean searchHeader = KWTrue;   /* Each article begins w/header  */
+   KWBoolean error    = KWFalse;      /* Presume successful hdr scan   */
    int subscript;                   /* For walking header table      */
 
    articles++;
@@ -1079,9 +1082,9 @@ static void deliver_article(const char *art_fname, const long art_size)
       char input[LARGEBUF];
 
       if ( fgets(input, sizeof input, tfile) == NULL )   /* eof ?    */
-         searchHeader = FALSE;      /* Yes --> Exit loop ...         */
+         searchHeader = KWFalse;     /* Yes --> Exit loop ...         */
       else if ( *input == '\n' )    /* Last of the red hot headers?  */
-         searchHeader = FALSE;      /* Yes --> Exit loop gracefully  */
+         searchHeader = KWFalse;     /* Yes --> Exit loop gracefully  */
       else for ( subscript = 0; table[subscript].name != NULL; subscript++ )
       {
          char *s;
@@ -1126,7 +1129,7 @@ static void deliver_article(const char *art_fname, const long art_size)
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
-            error = TRUE;
+            error = KWTrue;
             continue;
 
          } /* if ( table[subscript].data ) */
@@ -1138,7 +1141,7 @@ static void deliver_article(const char *art_fname, const long art_size)
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
-            error = TRUE;
+            error = KWTrue;
             continue;
 
          } /* if ( s == '\0' ) */
@@ -1204,7 +1207,7 @@ static void deliver_article(const char *art_fname, const long art_size)
                         getHeader( table, MESSAGEID, "Unknown" ),
                         table[subscript].name );
 
-            error = TRUE;
+            error = KWTrue;
 
       } /* if ( ! table[subscript].data && ! table[subscript].defaultData ) */
 
@@ -1239,7 +1242,7 @@ static void deliver_article(const char *art_fname, const long art_size)
                            getHeader(table, NEWSGROUPS, NULL),
                            getHeader(table, MESSAGEID, NULL),
                            getHeader(table, CONTROL, NULL)))
-          delivered = TRUE;
+          delivered = KWTrue;
         else
           ignored++;
       }
@@ -1251,7 +1254,7 @@ static void deliver_article(const char *art_fname, const long art_size)
       {
          fwd_articles++;
          sysnode->processed ++;
-         delivered = TRUE;
+         delivered = KWTrue;
       }
 
     }
@@ -1287,7 +1290,7 @@ static void control_message(const char *control,
 {
   char *ctrl = strdup(control);
   char *cmd, *mod;
-  boolean moderated;
+  KWBoolean moderated;
   char buf[200];
   char *operand;
 
@@ -1347,7 +1350,7 @@ static void control_message(const char *control,
            control,
            E_postmaster );          /* Do we need newsmaster as well? */
 
-  (void) execute( "rmail", buf, NULL, NULL, TRUE, FALSE);
+  (void) execute( "rmail", buf, NULL, NULL, KWTrue, KWFalse);
 
 /*--------------------------------------------------------------------*/
 /*         Other messages require user authorize the commands         */
@@ -1397,7 +1400,7 @@ static void control_message(const char *control,
 /*    Write an article to it's final resting place                    */
 /*--------------------------------------------------------------------*/
 
-static boolean copy_file(FILE *input,
+static KWBoolean copy_file(FILE *input,
                          const char *group,
                          const char *xref)
 {
@@ -1405,7 +1408,7 @@ static boolean copy_file(FILE *input,
    char filename[FILENAME_MAX];
    char buf[BUFSIZ];
    FILE *output;
-   boolean header = TRUE;
+   KWBoolean header = KWTrue;
 
 /*--------------------------------------------------------------------*/
 /*           Determine if the news has been already posted            */
@@ -1416,7 +1419,7 @@ static boolean copy_file(FILE *input,
    if (cur == NULL)
    {
       printmsg(3, "rnews: Article cross-posted to %s", group);
-      return FALSE;
+      return KWFalse;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1436,7 +1439,7 @@ static boolean copy_file(FILE *input,
    {
       printerr( filename );
       printmsg(0, "rnews: Unable to save article");
-      return FALSE;
+      return KWFalse;
    }
 
    rewind(input);
@@ -1456,7 +1459,7 @@ static boolean copy_file(FILE *input,
       if ( ! header )
          ;                 /* No operation after end of header        */
       else if ( *buf == '\n' )
-         header = FALSE;
+         header = KWFalse;
       else if (equalni(buf, PATH, strlen(PATH)))
       {
          fprintf(output,
@@ -1478,7 +1481,7 @@ static boolean copy_file(FILE *input,
 
    fclose(output);
 
-   return TRUE;         /* Report the file is posted                  */
+   return KWTrue;        /* Report the file is posted                  */
 
 } /* copy_file */
 
@@ -1561,7 +1564,7 @@ void shadow_news( const char *fname )
                 debuglevel,
                 sysName );
 
-        execute( "UUX", commandOptions, fname, NULL, TRUE, FALSE );
+        execute( "UUX", commandOptions, fname, NULL, KWTrue, KWFalse );
 
         sysName = strtok( NULL, WHITESPACE );
      }
@@ -1578,7 +1581,7 @@ void shadow_news( const char *fname )
 /*       Deliver an article locally to one or more news groups        */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_local(FILE *tfile,
+static KWBoolean deliver_local(FILE *tfile,
                              const long art_size,
                              const char *newsgroups_in,
                              const char *messageID,
@@ -1596,15 +1599,15 @@ static boolean deliver_local(FILE *tfile,
   char *gc_ptr;
   char *gc_ptr1;
 
-  boolean b_xref = FALSE;
-  boolean posted = FALSE;  /* Used to determine if article goes to "JUNK" */
+  KWBoolean b_xref = KWFalse;
+  KWBoolean posted = KWFalse;  /* Used to determine if article goes to "JUNK" */
 
   loc_articles++;
 
    if (control)
    {
       control_message(control, BIT_BUCKET );
-      return TRUE;
+      return KWTrue;
    }
 
 /*--------------------------------------------------------------------*/
@@ -1635,7 +1638,7 @@ static boolean deliver_local(FILE *tfile,
       }
       else {
          free( newsgroups );
-         return FALSE;
+         return KWFalse;
       }
 
       ignored++;
@@ -1681,7 +1684,7 @@ static boolean deliver_local(FILE *tfile,
    {
      printmsg(2, "rnews: no group to deliver to: %s", messageID );
      memcpy(newsgroups, "junk\0\0", 6);
-     b_xref = FALSE;
+     b_xref = KWFalse;
 
      /* try "junk" group if none of the target groups is known here */
 
@@ -1689,7 +1692,7 @@ static boolean deliver_local(FILE *tfile,
        sprintf(hist_record, "%ld %ld junk:%s", now, art_size, snum);
      else {
        free( newsgroups );
-       return FALSE;
+       return KWFalse;
      }
    }
 
@@ -1750,7 +1753,7 @@ static boolean deliver_local(FILE *tfile,
       strcpy(groupy, gc_ptr);
 
       if ( copy_file(tfile, groupy, b_xref ? hist_record : NULL))
-         posted = TRUE;
+         posted = KWTrue;
 
    } /* for (gc_ptr = newsgroups; gc_ptr != NULL; gc_ptr = gc_ptr1) */
 
@@ -1767,7 +1770,7 @@ static boolean deliver_local(FILE *tfile,
 
    free( newsgroups );
 
-   return TRUE;
+   return KWTrue;
 
 } /* deliver_local */
 
@@ -1785,8 +1788,8 @@ static void copy_rmt_article(const char *filename, FILE *input)
 
   char buf[BUFSIZ];
 
-  boolean searchHeaders = TRUE;
-  boolean skipHeader    = FALSE;
+  KWBoolean searchHeaders = KWTrue;
+  KWBoolean skipHeader   = KWFalse;
 
   rewind( input );
 
@@ -1810,7 +1813,7 @@ static void copy_rmt_article(const char *filename, FILE *input)
      {
 
          if ( *buf == '\n' )        /* End of header?                */
-            searchHeaders = FALSE;
+            searchHeaders = KWFalse;
          else if (equalni(buf, PATH, strlen(PATH)))
          {
            fprintf(output,
@@ -1819,8 +1822,8 @@ static void copy_rmt_article(const char *filename, FILE *input)
                    E_domain,
                    strtok( buf + strlen(PATH) + 1, WHITESPACE ));
 
-            searchHeaders = FALSE;
-            skipHeader = TRUE;
+            searchHeaders = KWFalse;
+            skipHeader = KWTrue;
          }
       }
 
@@ -1830,7 +1833,7 @@ static void copy_rmt_article(const char *filename, FILE *input)
         panic();
      }
 
-     skipHeader = FALSE;
+     skipHeader = KWFalse;
 
   } /* while */
 
@@ -1844,7 +1847,7 @@ static void copy_rmt_article(const char *filename, FILE *input)
 /*       Queue a file to be sent to a remote system                   */
 /*--------------------------------------------------------------------*/
 
-static boolean batch_remote(const struct sys *node,
+static KWBoolean batch_remote(const struct sys *node,
                             FILE *tfile,
                             const char *msgID )
 {
@@ -1926,7 +1929,7 @@ static boolean batch_remote(const struct sys *node,
   fputc( '\n', batchListStream );    /* Terminate the line of data    */
   fclose(batchListStream);
 
-  return TRUE;
+  return KWTrue;
 
 } /* batch_remote */
 
@@ -1936,7 +1939,7 @@ static boolean batch_remote(const struct sys *node,
 /*       Special hack for creating mirror images of the news feed     */
 /*--------------------------------------------------------------------*/
 
-static boolean xmit_remote( const char *sysname,
+static KWBoolean xmit_remote( const char *sysname,
                             const char *commandIn,
                             const char *articleName)
 {
@@ -1946,7 +1949,7 @@ static boolean xmit_remote( const char *sysname,
 
    sprintf(command, commandIn, sysname );
 
-   status = executeCommand( command, articleName, NULL, TRUE, FALSE );
+   status = executeCommand( command, articleName, NULL, KWTrue, KWFalse );
 
    if ( status )
    {
@@ -1957,7 +1960,7 @@ static boolean xmit_remote( const char *sysname,
       panic();
    }
 
-   return TRUE;
+   return KWTrue;
 
 } /* xmit_remote */
 
@@ -1967,7 +1970,7 @@ static boolean xmit_remote( const char *sysname,
 /*       Queue a file to be sent to a remote system                   */
 /*--------------------------------------------------------------------*/
 
-static boolean deliver_remote(const struct sys *node,
+static KWBoolean deliver_remote(const struct sys *node,
                               FILE *tfile,
                               const char *fname,
                               const char *msgID,

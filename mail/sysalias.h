@@ -17,9 +17,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: sysalias.h 1.5 1994/12/09 03:54:15 ahd v1-12k $
+ *    $Id: sysalias.h 1.6 1994/12/22 00:20:34 ahd Exp $
  *
  *    $Log: sysalias.h $
+ *    Revision 1.6  1994/12/22 00:20:34  ahd
+ *    Annual Copyright Update
+ *
  *    Revision 1.5  1994/12/09 03:54:15  ahd
  *    Support recursely processing system aliases file for same address
  *
@@ -47,7 +50,7 @@ typedef struct _ALIASTABLE
          char *alias;
          long start;
          long end;
-         boolean recurse;
+         KWBoolean recurse;
       } ALIASTABLE;
 
 extern char *SysAliases;      /* Name of system alias file           */
