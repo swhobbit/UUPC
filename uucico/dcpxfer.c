@@ -19,9 +19,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: dcpxfer.c 1.43 1994/02/26 17:20:48 ahd Exp $
+ *       $Id: dcpxfer.c 1.44 1994/03/05 21:12:05 ahd Exp $
  *
  *       $Log: dcpxfer.c $
+ * Revision 1.44  1994/03/05  21:12:05  ahd
+ * Do not allow anonymous systems to feed us files (or cause
+ * us to abort processing)
+ *
  * Revision 1.43  1994/02/26  17:20:48  ahd
  * Change BINARY_MODE to IMAGE_MODE to avoid IBM C/SET 2 conflict
  *
@@ -348,7 +352,7 @@ XFER_STATE sbreak( void )
 
    if ((*databuf != 'H') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",databuf);
+      printmsg(0,"Invalid response from remote: %.50s",databuf);
       return XFER_ABORT;
    }
 
@@ -414,7 +418,7 @@ XFER_STATE seof( const boolean purge_file )
 
    if ((*databuf != 'C') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",
+      printmsg(0,"Invalid response from remote: %.50s",
                   ( char *) databuf);
       return XFER_ABORT;
    }
@@ -662,7 +666,7 @@ XFER_STATE ssfile( void )
 
    if ((*databuf != 'S') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",databuf);
+      printmsg(0,"Invalid response from remote: %.50s",databuf);
       fclose(xfer_stream);
       xfer_stream = NULL;
       return XFER_ABORT;
@@ -749,7 +753,7 @@ appending file name \"%s\"", spolName, slash);
 
    if ((*databuf != 'R') || ((databuf[1] != 'N') && (databuf[1] != 'Y')))
    {
-      printmsg(0,"Invalid response from remote: %s",
+      printmsg(0,"Invalid response from remote: %.50s",
                   databuf);
       return XFER_ABORT;
    }
