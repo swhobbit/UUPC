@@ -23,10 +23,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: suspend2.c 1.5 1993/10/12 01:32:46 ahd Exp $
+ *    $Id: suspend2.c 1.6 1993/10/24 21:51:14 ahd Exp ahd $
  *
  *    Revision history:
  *    $Log: suspend2.c $
+ * Revision 1.6  1993/10/24  21:51:14  ahd
+ * Delay if suspending/resuming same port multiple times
+ *
  * Revision 1.5  1993/10/12  01:32:46  ahd
  * Normalize comments to PL/I style
  *
@@ -464,7 +467,7 @@ int suspend_other(const boolean suspend,
       if (rc)
       {
         if ( debuglevel >= 4 )          /* No error if no passive UUCICO  */
-           printOS2error( "DosOpen", rc); /* So this is only for info  */
+           printOS2error( szPipe, rc);  /* So this is only for info  */
 
         if ((rc == ERROR_PIPE_BUSY) && firstPass )
         {
