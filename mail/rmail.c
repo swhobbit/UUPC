@@ -19,9 +19,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: RMAIL.C 1.7 1993/04/13 02:26:30 ahd Exp $
+ *    $Id: RMAIL.C 1.8 1993/04/15 03:17:21 ahd Exp $
  *
  *    $Log: RMAIL.C $
+ * Revision 1.8  1993/04/15  03:17:21  ahd
+ * Correct conditions under which name in userp structure used
+ *
  * Revision 1.7  1993/04/13  02:26:30  ahd
  * Make return codes more unique
  *
@@ -197,6 +200,7 @@ void main(int argc, char **argv)
    size_t addressees;            /* Number of targets in address      */
    size_t count;                 /* Loop variable for delivery        */
    size_t delivered = 0;         /* Count of successfull deliveries   */
+   int user_debug  = -1;
    boolean header = TRUE;
    boolean DeleteInput = FALSE;
 
@@ -216,7 +220,7 @@ void main(int argc, char **argv)
    banner( argv);
 
    now = arpadate();          /* Set the current date                */
-   debuglevel = -1;           /* Set default so we can detect it     */
+   debuglevel =  0;
 
 /*--------------------------------------------------------------------*/
 /* Load the UUPC/extended configuration file, and exit if any errors  */
@@ -262,7 +266,7 @@ void main(int argc, char **argv)
          break;
 
       case 'x':
-         debuglevel = atoi(optarg);
+         user_debug = debuglevel = atoi(optarg);
          break;
 
       case 'F':
@@ -299,7 +303,7 @@ void main(int argc, char **argv)
 /*    routine delivery messages                                       */
 /*--------------------------------------------------------------------*/
 
-   if ( debuglevel == -1 )
+   if (( user_debug == -1 ) && (debuglevel == 0))
    {
       if (remoteMail)
          debuglevel = 1;
