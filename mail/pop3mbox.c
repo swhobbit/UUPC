@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $
+ *       $Id: pop3mbox.c 1.1 1998/03/03 03:51:53 ahd Exp $
  *
  *       Revision History:
- *       $Log: pop3lwc.c $
+ *       $Log: pop3mbox.c $
+ *       Revision 1.1  1998/03/03 03:51:53  ahd
+ *       Initial revision
+ *
  *       Revision 1.1  1998/03/01 19:42:17  ahd
  *       Initial revision
  *
@@ -46,7 +49,7 @@
 /*                            Global constants                        */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: pop3lwc.c 1.1 1998/03/01 19:42:17 ahd Exp $");
+RCSID("$Id: pop3mbox.c 1.1 1998/03/03 03:51:53 ahd Exp $");
 
 currentfile();
 
@@ -108,7 +111,6 @@ popBoxLoad(SMTPClient *client)
    MailMessage *current = NULL;
    long position = -1;
    long length;
-   char buffer[BUFSIZ];
 
    client->transaction->mailboxStream =
                   FOPEN(client->transaction->mailboxName,
@@ -140,16 +142,16 @@ popBoxLoad(SMTPClient *client)
 /*              Loop to copy and parse the input mailbox              */
 /*--------------------------------------------------------------------*/
 
-   while (fgets(buffer,
-                sizeof buffer,
+   while (fgets(client->transmit.data,
+                client->transmit.length,
                 client->transaction->mailboxStream) != NULL)
    {
-      size_t bytes = strlen(buffer);
+      size_t bytes = strlen(client->transmit.data);
 
       position = imtell(client->transaction->imf);
 
       /* Handle the delimiter line which flags a new message */
-      if (equaln(buffer, sep, strlen(sep)))
+      if (equaln(client->transmit.data, sep, strlen(sep)))
       {
          /* Add new message into the message queue */
          current = newPopMessage(client, current, position);
@@ -171,7 +173,7 @@ popBoxLoad(SMTPClient *client)
       current->octets += bytes + 1; /* UNIX is LF, POP3 is CR/LF  */
 
       /* Now write it out, with error checking */
-      if (imwrite(buffer,
+      if (imwrite(client->transmit.data,
                   sizeof(char),
                   bytes,
                   client->transaction->imf) != bytes)
@@ -185,12 +187,14 @@ popBoxLoad(SMTPClient *client)
       /* Perform limited header parsing */
       if (current->startBodyPosition == 0)
       {
-         if (equal(buffer, "\n"))
+         if (equal(client->transmit.data, "\n"))
             current->startBodyPosition = position;
-         else if (equaln(buffer, uidl, sizeof uidl - 1))
+         else if (equaln(client->transmit.data, uidl, sizeof uidl - 1))
          {
             /* Destructively parse the buffer for the UIDL */
-            char *token = strtok(buffer + sizeof uidl - 1, WHITESPACE);
+            char *token = strtok(client->transmit.data +
+                                    sizeof uidl - 1,
+                                 WHITESPACE);
 
             if (token != NULL)
             {
@@ -209,7 +213,7 @@ popBoxLoad(SMTPClient *client)
                            uidl,
                            current->sequence);
 
-         } /* else if (equaln(buffer, uidl, sizeof uidl - 1)) */
+         } /* else if (equaln(client->transmit.data, ... )) */
 
       } /* if (current->startBodyPosition == 0) */
 
@@ -243,6 +247,156 @@ popBoxLoad(SMTPClient *client)
    return KWTrue;
 
 } /* popBoxLoad */
+
+/*--------------------------------------------------------------------*/
+/*       p o p M e s s a g e U n l o a d                              */
+/*                                                                    */
+/*       Unload messages back to permanent storage                    */
+/*--------------------------------------------------------------------*/
+
+static KWBoolean
+popMessageUnload( SMTPClient *client,
+                  MailMessage *current )
+{
+   /* Go to the beginning of the message */
+   if (imseek(client->transaction->imf,
+               current->startPosition,
+               SEEK_SET) == -1)
+   {
+      printerr("imfile");
+      return KWFalse;
+   }
+
+   /* Delimit the message */
+   fprintf( client->transaction->mailboxStream,"%s", sep);
+
+   /* Loop for entire input message and copy it */
+   for (;;)
+   {
+      long position = imtell(client->transaction->imf);
+      size_t length;
+
+      if (position < 0)
+         break;
+
+      if (position >= current->endPosition)
+         break;
+
+      if (imgets(client->transmit.data,
+                 client->transmit.length - 2,
+                 client->transaction->imf) == NULL)
+         break;
+
+      /* If we need to write our UIDL, write at first empty line,
+         which defines the end of the header */
+      if (current->fakeUIDL && equal(client->transmit.data, "\n"))
+      {
+         current->fakeUIDL = KWFalse;  /* Don't write it twice! */
+
+         fprintf( client->transaction->mailboxStream,
+                  "%s %s\n",
+                  uidl,
+                  current->uidl );
+      }
+
+      /* Now write out the input line */
+      length = strlen(client->transmit.data);
+
+      if (fwrite(client->transmit.data,
+                  sizeof(char),
+                  length,
+                  client->transaction->mailboxStream) != length)
+      {
+         printerr( client->transaction->mailboxName );
+         return KWFalse;
+      }
+
+   } /* for (;;) */
+
+   /* Verify we didn't have an input problem */
+   if (imerror(client->transaction->imf))
+   {
+      printerr( client->transaction->mailboxName );
+      return KWFalse;
+   }
+
+   /* Return success */
+   return KWTrue;
+
+} /* popMessageUnload */
+
+/*--------------------------------------------------------------------*/
+/*       p o p B o x U n l o a d                                      */
+/*                                                                    */
+/*       Write out a POP3 mailbox to disk                             */
+/*--------------------------------------------------------------------*/
+
+KWBoolean
+popBoxUnload( SMTPClient *client )
+{
+   KWBoolean success = KWTrue;
+   MailMessage *current;
+
+   /* Handle degenerate case of the entire mailbox being empty */
+   if (bflag[F_PURGE] &&
+       (getMessageOctetCount(client->transaction->top, NULL) == 0))
+   {
+
+      /* Close and remove as fast we can */
+      imclose( client->transaction->imf );
+      client->transaction->imf = NULL;
+
+      fclose(client->transaction->mailboxStream);
+      client->transaction->mailboxStream = NULL;
+      REMOVE(client->transaction->mailboxName);
+
+      printmsg(1,"Empty mail box %s has been deleted.\n",
+               client->transaction->mailboxName);
+
+      return KWTrue;
+
+   } /* if (bflag[F_PURGE] && ... */
+
+   /* Truncate the mailbox in order to rewrite it */
+   client->transaction->mailboxStream =
+                     freopen(client->transaction->mailboxName,
+                             "wt",
+                             client->transaction->mailboxStream);
+
+   if ( client->transaction->mailboxStream == NULL )
+   {
+      printerr( client->transaction->mailboxName );
+      return KWFalse;
+   }
+
+/*--------------------------------------------------------------------*/
+/*            Loop through the messages and write them out            */
+/*--------------------------------------------------------------------*/
+
+   current = client->transaction->top;
+
+   while((current != NULL) && success)
+   {
+      if ( ! popBoxIsDeleted( current ))
+         success = popMessageUnload( client, current );
+
+      current = current->next;
+
+   } /* while((current != NULL) && success) */
+
+/*--------------------------------------------------------------------*/
+/*          Close up shop and return with saved error status          */
+/*--------------------------------------------------------------------*/
+
+   imclose( client->transaction->imf );
+   client->transaction->imf = NULL;
+
+   fclose(client->transaction->mailboxStream);
+   client->transaction->mailboxStream = NULL;
+
+   return success;
+
+} /* popBoxUnload */
 
 /*--------------------------------------------------------------------*/
 /*       p o p B o x G e t                                            */
@@ -364,7 +518,10 @@ popBoxUIDL( MailMessage *current )
       return current->uidl;
 
    /* Build a fake UIDL */
-   sprintf( buffer, "%d.%d", current->sequence, current->octets );
+   sprintf( buffer, "<%x.%x.%d>",
+                   time(NULL),
+                   current->octets,
+                   current->sequence);
 
    current->fakeUIDL = KWTrue;
    current->uidl = strdup(buffer);
@@ -375,7 +532,6 @@ popBoxUIDL( MailMessage *current )
 
 /*--------------------------------------------------------------------*/
 /*       c l e a n u p M a i l b o x                                  */
-/*                                                                    */
 /*                                                                    */
 /*       Clean up in-memory mailbox structures                        */
 /*--------------------------------------------------------------------*/
