@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *       $Id: smtprecv.c 1.8 1998/03/01 01:32:25 ahd Exp $
+ *       $Id: smtprecv.c 1.9 1998/03/01 19:43:33 ahd v1-12v $
  *
  *       Revision History:
  *       $Log: smtprecv.c $
+ *       Revision 1.9  1998/03/01 19:43:33  ahd
+ *       First compiling POP3 server which accepts user id/password
+ *
  *       Revision 1.8  1998/03/01 01:32:25  ahd
  *       Annual Copyright Update
  *
@@ -67,7 +70,7 @@
 /*                          Global variables                          */
 /*--------------------------------------------------------------------*/
 
-RCSID("$Id: smtprecv.c 1.8 1998/03/01 01:32:25 ahd Exp $");
+RCSID("$Id: smtprecv.c 1.9 1998/03/01 19:43:33 ahd v1-12v $");
 
 currentfile();
 
@@ -323,9 +326,12 @@ commandDataInput(SMTPClient *client,
                  struct _SMTPVerb* verb,
                  char **operands)
 {
+   static const char mName[] = "commandDataInput";
    char *token = client->receive.data;
    char *first = token;
-   size_t len = (size_t) client->receive.parsed - 2;
+   size_t lineLength = (size_t) client->receive.parsed - 2;
+   size_t stringLength;
+
    int written;
 
    if (client->transaction->imf == NULL)     /* Previously flushed?  */
@@ -341,14 +347,24 @@ commandDataInput(SMTPClient *client,
    if (token == '\0')               /* Was it EOS?                   */
    {
       first++;                      /* Yes --> Skip quoting period   */
-      len--;
+      lineLength--;
    }
 
-   if (strlen(token) < len)
+   stringLength = strlen(first);
+   if ( stringLength < lineLength)
    {
       SMTPResponse(client,
-                    SR_PE_SYNTAX,
+                    SR_PE_TEMP_SYNTAX,
                     "Data contains Null (0x00) characters");
+
+      printmsg(0,"%s: NULL in data after %d characters, "
+                 "total line length %d",
+                 mName,
+                 strlen( token ),
+                 lineLength );
+      printmsg(0, "%s Line in error begins: \"%s\"",
+                 mName,
+                 client->receive.data );
 
       /* Flush the receipt of data */
       imclose(client->transaction->imf);
@@ -357,14 +373,14 @@ commandDataInput(SMTPClient *client,
    }
 
 #ifdef UDEBUG
-   if (strlen(token) > len)
+   if (strlen(token) > lineLength)
    {
       sprintf(client->transmit.data,
                "Internal error: Data line (%d bytes)"
                " longer than expected (%d bytes)",
                strlen(token),
-               len);
-      SMTPResponse(client, SR_PE_SYNTAX, client->transmit.data);
+               lineLength);
+      SMTPResponse(client, SR_PE_TEMP_SYNTAX, client->transmit.data);
       return KWFalse;
    }
 #endif
@@ -373,7 +389,7 @@ commandDataInput(SMTPClient *client,
 /*                          Write the data out                        */
 /*--------------------------------------------------------------------*/
 
-   written = imwrite(first, 1, len, client->transaction->imf);
+   written = imwrite(first, 1, lineLength, client->transaction->imf);
 
    if (written < (int) strlen(first))
    {
