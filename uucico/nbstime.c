@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: nbstime.c 1.17 1994/02/19 05:09:17 ahd Exp $
+ *    $Id: nbstime.c 1.18 1994/02/20 19:11:18 ahd Exp $
  *
  *    Revision history:
  *    $Log: nbstime.c $
+ * Revision 1.18  1994/02/20  19:11:18  ahd
+ * IBM C/Set 2 Conversion, memory leak cleanup
+ *
  * Revision 1.17  1994/02/19  05:09:17  ahd
  * Use standard first header
  *
@@ -139,6 +142,9 @@ boolean nbstime( void )
    int dst= 0;
    char sync = '?';
    unsigned rc;
+   int errors = 0;
+   static const char model[] =
+         "##### ##-##-## ##:##:## ## # ?.# ###.# UTC(NIST) *";
 
 #if !defined(WIN32)
    time_t delta;
@@ -179,21 +185,76 @@ boolean nbstime( void )
 /*                  Begin main loop to get the time                   */
 /*--------------------------------------------------------------------*/
 
-   while ((rmsg(buf, 2, 2, sizeof buf) != TIMEOUT) && cycles--)
+   while ((sync != '#') &&
+           cycles &&
+          (rmsg(buf, 2, 2, sizeof buf) != TIMEOUT))
    {
-      sync = buf[ strlen( buf ) - 1 ];
+      int column;
+      boolean error = FALSE;
 
-      if (sync == '#')
-         break;
-      else if (sync != '*')
-         *buf = '\0';
+      if ( ! *buf )                 /* Empty line?                   */
+         continue;                  /* Yes --> Ignore it             */
+
+      cycles--;                     /* Count this line as read       */
+
+/*--------------------------------------------------------------------*/
+/*       Verify entire contents of the buffer, including the          */
+/*       terminating null character.                                  */
+/*--------------------------------------------------------------------*/
+
+      for ( column = 0;
+            (column < sizeof model) && (!error);
+            column++ )
+      {
+         switch( model[column] )
+         {
+            case '?':               /* Any character, ignore it      */
+               break;
+
+            case '#':               /* Numeric digit expected?       */
+               if (!isdigit(buf[column] ))
+                  error = TRUE;     /* Bad character, throw buf away */
+               break;
+
+            case '*':               /* Synchronize flag?             */
+               if ( buf[column] == '#' ) /* Sync char?             */
+                  sync = buf[column];    /* Yes --> We're all done */
+               else if ( buf[column] != '*' )
+                                    /* Correct but not sync?         */
+                  error = TRUE;     /* No --> Bad character          */
+               break;
+
+            default:                /* Perfect match required        */
+               if (model[column] != buf[column] )
+                  error = TRUE;     /* Bad character, throw buf away */
+               break;
+
+         } /* switch( model[column] ) */
+
+      } /* for */
+
+      if ( error )                 /* Found a bad character?         */
+      {
+         if ( debuglevel > 2 )
+            printmsg(3, "nbstime: Buffer error at column %d: \"%s\"",
+                         column,
+                         buf );
+         errors++;
+         *buf = '\0';      /* Insure we don't use bad buffer below   */
+      } /* if ( error ) */
 
    } /* while */
 
-   if ( (cycles && (sync == '*')) || (*buf == '\0'))
+/*--------------------------------------------------------------------*/
+/*                    Verify we got a valid buffer                    */
+/*--------------------------------------------------------------------*/
+
+   if ( ! *buf )
    {
-      printmsg(0,"nbstime: Did not get good buffer: \"%s\"", buf );
-                  return FALSE;
+      printmsg(0,"nbstime: Buffer reads failed with "
+                 "%d errors, rerun with debug -x 3 for details",
+                 errors );
+      return FALSE;
    }
 
 /*--------------------------------------------------------------------*/
@@ -220,10 +281,12 @@ boolean nbstime( void )
    }
 
 /*--------------------------------------------------------------------*/
-/*    Perform a sanity check; the time must be 20 years past 1970     */
+/*       Perform a sanity check; the time must be 24 years past       */
+/*       1970 and not exactly midnight GMT.                           */
 /*--------------------------------------------------------------------*/
 
-   if ( today < 630720000L )
+   if (( today < (24L * 365L * 24L * 86400L)) &&
+       !( tx.tm_hour || tx.tm_min || tx.tm_sec ))
    {
       printmsg(0,"nbstime: Time warp error (%.24s), clock not set",
             ctime( &today ));
@@ -398,7 +461,7 @@ boolean nbstime( void )
 #endif
 
    if ( sync == '*' )
-      printmsg(2,"Warning: Was unable to synchronize with NBS master");
+      printmsg(2,"Warning: Was unable to synchronize with NIST master");
 
 /*--------------------------------------------------------------------*/
 /*                Announce new time, return to caller                 */
