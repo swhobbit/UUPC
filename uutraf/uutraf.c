@@ -289,8 +289,10 @@ main(argc, argv, envp)
             (void) fprintf(stderr, "%s: Can't open %s for reading -- ", argv0, argv[optind]);
             perror(optarg);
 #ifdef UUPC
-            fprintf(stderr,"Do you have options=syslog set in %s\n",
-                           getenv( SYSRCSYM ));
+            fprintf(stderr,
+                    "Do you have options=syslog set in %s?\n  "
+                    "Have you transfered files since SYSLOG was last deleted?\n",
+                    getenv( SYSRCSYM ));
             panic();
 #endif
          }
