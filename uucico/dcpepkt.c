@@ -17,10 +17,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: dcpepkt.c 1.3 1993/12/02 13:49:58 ahd Exp $
+ *    $Id: dcpepkt.c 1.4 1993/12/06 01:59:07 ahd Exp $
  *
  *    Revision history:
  *    $Log: dcpepkt.c $
+ * Revision 1.4  1993/12/06  01:59:07  ahd
+ * Delete unneeded pwinsock header
+ *
  * Revision 1.3  1993/12/02  13:49:58  ahd
  * 'e' protocol support
  *
@@ -114,7 +117,7 @@ short egetpkt(char *packet, short *bytes)
    else
       recv = (short) min(efilelength - ebytesdone, r_pktsize);
 
-   if ( sread( packet, recv, M_tPacketTimeout) < recv )
+   if ( sread( packet, recv, M_ePacketTimeout) < recv )
       printmsg(0,"tgetpkt: Data read failed for %d bytes", (int) recv);
 
    remote_stats.packets++;
@@ -198,7 +201,7 @@ short efilepkt(const boolean xmit, const unsigned long bytes)
 
    } else {
 
-      if (sread( (char *) &startbuf, sizeof startbuf, M_tPacketTimeout) <
+      if (sread( (char *) &startbuf, sizeof startbuf, M_ePacketTimeout) <
          sizeof startbuf)
       {
          printmsg(0,"efilepkt: Length read failed");
@@ -263,7 +266,7 @@ short ewrmsg( char *s )
 
 short erdmsg( char *s)
 {
-   if (rmsg( s, 4, M_tPacketTimeout, r_pktsize ))
+   if (rmsg( s, 4, M_ePacketTimeout, r_pktsize ))
       return(0);
    else
       return -1;
