@@ -31,10 +31,13 @@
 # *             but life is hard.                                      *
 # *--------------------------------------------------------------------*
 #
-#     $Id: makefile 1.81 1995/12/12 13:47:08 ahd Exp $
+#     $Id: makefile 1.82 1996/01/01 20:48:04 ahd v1-12r $
 #
 #     Revision history:
 #     $Log: makefile $
+#     Revision 1.82  1996/01/01 20:48:04  ahd
+#     Annual Copyright Update
+#
 #     Revision 1.81  1995/12/12 13:47:08  ahd
 #     Update to 1.12r
 #
@@ -311,7 +314,7 @@
 
 WINMODEL=m
 
-SRC=\src\uupc/
+#SRC=\src\uupc/
 #       Silly hack to allow back slash as last character in variable
 !if !$d(SRCSLASH) && !$d(SHORTPATH)
 !if $d(__OS2__)
@@ -319,8 +322,9 @@ SRCSLASH=
 !else
 !if !$d(SRC)
 SRC      = ./
-!endif
+!else
 SRCSLASH = $(SRC:/=\)
+!endif
 !endif
 !endif
 
