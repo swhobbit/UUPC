@@ -21,10 +21,13 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: active.c 1.28 1995/12/31 21:16:57 ahd Exp $
+ *    $Id: active.c 1.29 1996/01/01 23:57:29 ahd Exp $
  *
  *    Revision history:
  *    $Log: active.c $
+ *    Revision 1.29  1996/01/01 23:57:29  ahd
+ *    Use one large red/black tree for entire active file, not small trees at each level
+ *
  *    Revision 1.28  1995/12/31 21:16:57  ahd
  *    Encode moderation as single byte
  *
@@ -530,8 +533,12 @@ insertNode( GROUP UUFAR *prevLevel, const char *name )
          char buf[MAXGRP];
          makeGroupName( buf, x );
          hit = strcmp( fullName, buf );
+
+#ifdef UDEBUG
          parents++;
-      }
+#endif
+
+      } /* else */
 
       y = x;
 
