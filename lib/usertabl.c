@@ -12,9 +12,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: usertabl.c 1.10 1993/11/06 16:56:13 ahd Exp $
+ *    $Id: usertabl.c 1.11 1994/02/20 19:05:02 ahd Exp $
  *
  *    $Log: usertabl.c $
+ *     Revision 1.11  1994/02/20  19:05:02  ahd
+ *     IBM C/Set 2 Conversion, memory leak cleanup
+ *
  *     Revision 1.10  1993/11/06  16:56:13  ahd
  *     Correct reference to userid in password warning message
  *
@@ -59,7 +62,7 @@
 
 struct UserTable *users = NULL;  /* Public to allow router.c to use it */
 
-size_t  UserElements = 0;        /* Public to allow router.c to use it */
+size_t  userElements = 0;        /* Public to allow router.c to use it */
 
 static size_t loaduser( void );
 
@@ -94,11 +97,11 @@ struct UserTable *checkuser(const char *name)
  /*             Initialize the host name table if needed              */
  /*-------------------------------------------------------------------*/
 
-   if (UserElements == 0)           /* host table initialized yet?    */
-      UserElements = loaduser();        /* No --> load it             */
+   if (userElements == 0)           /* host table initialized yet?    */
+      userElements = loaduser();        /* No --> load it             */
 
    lower = 0;
-   upper = UserElements - 1;
+   upper = userElements - 1;
 
 /*--------------------------------------------------------------------*/
 /*              Peform a binary search on the user table              */
@@ -138,7 +141,7 @@ struct UserTable *inituser(char *name)
 {
 
    static int allocUsers = 100;    /* Number of users allocated */
-   size_t hit = UserElements;
+   size_t hit = userElements;
    size_t element = 0;
 
    if (users == NULL)
@@ -162,7 +165,7 @@ struct UserTable *inituser(char *name)
          element++;
    }
 
-   if (hit == UserElements)
+   if (hit == userElements)
    {
       if ( (hit-1) == allocUsers)
       {
@@ -178,7 +181,7 @@ struct UserTable *inituser(char *name)
       users[hit].hsecure  = NULL;
       users[hit].password = NULL;
       users[hit].sh       = uucpsh;
-      UserElements++;
+      userElements++;
 
    } /* if */
 
@@ -216,9 +219,9 @@ static size_t loaduser( void )
    if ((stream = FOPEN(E_passwd, "r",TEXT_MODE)) == NULL)
    {
       printmsg(2,"loaduser: Cannot open password file %s",E_passwd);
-      users = realloc(users, UserElements *  sizeof(*users));
+      users = realloc(users, userElements *  sizeof(*users));
       checkref(users);
-      return UserElements;
+      return userElements;
    } /* if */
 
    PushDir( E_confdir );      /* Use standard reference point for     */
@@ -280,12 +283,12 @@ static size_t loaduser( void )
    PopDir();
 
    fclose(stream);
-   users = realloc(users, UserElements *  sizeof(*users));
+   users = realloc(users, userElements *  sizeof(*users));
    checkref(users);
 
-   qsort(users, UserElements ,sizeof(users[0]) , usercmp);
+   qsort(users, userElements ,sizeof(users[0]) , usercmp);
 
-   for (hit = 0 ; hit < UserElements; hit ++)
+   for (hit = 0 ; hit < userElements; hit ++)
    {
       printmsg(8,"loaduser: user[%d] user id(%s) no(%s) name(%s) "
                  "home directory(%s) shell(%s)",
@@ -297,7 +300,7 @@ static size_t loaduser( void )
          users[hit].sh);
    } /* for */
 
-   return UserElements;
+   return userElements;
 } /* loaduser */
 
 /*--------------------------------------------------------------------*/
