@@ -1,8 +1,14 @@
 	TITLE	COMM
 	PAGE	83,132
-;	$Id: commfifo.asm 1.2 1992/12/18 12:08:25 ahd Exp $
+;	$Id: commfifo.asm 1.3 1992/12/30 05:27:50 plummer Exp $
 ;
 ;	$Log: commfifo.asm $
+;; Revision 1.3  1992/12/30  05:27:50  plummer
+;; *** empty log message ***
+;;
+
+;  29-Dec-92 plummer	Make receive_com() return FAIL if carrier lost
+;			Make TBuff case consistent
 ;; Revision 1.2  1992/12/18  12:08:25  ahd
 ;; Add Plummer's fix for bad TASM assemble of com_errors
 ;;
@@ -1062,14 +1068,21 @@ _receive_com PROC FAR
 	PUSH SI
 	PUSH ES
 	MOV	SI,CURRENT_AREA 	; SI POINTS TO DATA AREA
-	mov	ax,-1			; -1 if bad call
-	TEST	INSTALLED[SI],1 	; PORT INSTALLED?
-	 JZ	RECVX			; ABORT IF NOT
-	CLI
-	CMP	SIZE_RDATA[SI],0	; ANY CHARACTERS?
+	CLI				; Freeze status of buffer
+	MOV AX,-1			; -1 if bad call
+	TEST INSTALLED[SI],1		; Port installed?
+	 JZ RECVX			; Return -1 if not
+	MOV DX,MSR[SI]			; Modem status register
+	IN AL,DX			; Read it.
+	MOV BL,AL			; Move so AX can be used
+	MOV AX,-1			; -1 if bad call
+	AND BL,80H+20H			; Leave CD and DSR
+	CMP BL,80H+20H			; Both on?
+	 JNE RECVX			; No.  Return the -1 in AX.
+	CMP SIZE_RDATA[SI],0		; Any characters?
 	 JE RECVX			; Return -1 in AX
 
-	mov ah,0			; good call
+	MOV AH,0			; Good call
 	LES	BX,RBuff[SI]		; Location of receive buffer
 	ADD	BX,START_RDATA[SI]	; GET POINTER TO OLDEST CHAR
 	MOV AL,ES:[BX]			; Get character from buffer
@@ -1154,7 +1167,7 @@ _send_com PROC FAR
 SEND1:	CMP	SIZE_TDATA[SI],S_SIZE-1 ; BUFFER FULL? (Leave room for SENDII)
 	 JGE SEND1			; Wait for interrupts to empty buffer
 	CLI
-	LES BX,TBUFF[SI]		; Pointer to buffer
+	LES BX,TBuff[SI]		; Pointer to buffer
 	ADD BX,END_TDATA[SI]		; ES:BX points to free space
 	MOV AL,[BP+6]			; Character to send
 	MOV ES:[BX],AL			; Move character to buffer
@@ -1542,7 +1555,7 @@ TXI9:	MOV DX,IER[SI]
 ;	Must preserve: CX  (Caller has count here).
 
 TX_CHR	PROC NEAR
-	LES BX,TBUFF[SI]		; Pointer to buffer
+	LES BX,TBuff[SI]		; Pointer to buffer
 	ADD BX,START_TDATA[SI]		; ES:BX points to next char to send
 	MOV AL,ES:[BX]			; Get character from buffer
 	MOV DX,DATREG[SI]		; I/O address of data register
