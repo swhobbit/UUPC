@@ -20,9 +20,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *    $Id: deliver.h 1.13 1995/01/07 16:19:37 ahd Exp $
+ *    $Id: deliver.h 1.14 1995/01/08 19:54:01 ahd Exp $
  *
  *    $Log: deliver.h $
+ *    Revision 1.14  1995/01/08 19:54:01  ahd
+ *    Add in-memory files to RMAIL
+ *
  *    Revision 1.13  1995/01/07 16:19:37  ahd
  *    Change KWBoolean to KWBoolean to avoid VC++ 2.0 conflict
  *
@@ -68,6 +71,10 @@
 size_t Deliver( IMFILE *imf,           /* Input file name            */
                 char *address,         /* Target address             */
                 KWBoolean validate);   /* Validate/forward local mail*/
+
+size_t DeliverRemote( IMFILE *imf,        /* Input file name          */
+                    const char *address,  /* Target address           */
+                    const char *path);
 
 extern KEWSHORT hops;
 
