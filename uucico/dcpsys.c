@@ -39,9 +39,12 @@
 /*--------------------------------------------------------------------*/
 
 /*
- *     $Id: DCPSYS.C 1.10 1992/12/11 12:45:11 ahd Exp ahd $
+ *     $Id: dcpsys.C 1.11 1993/01/23 19:08:09 ahd Exp $
  *
- *     $Log: DCPSYS.C $
+ *     $Log: dcpsys.C $
+ * Revision 1.11  1993/01/23  19:08:09  ahd
+ * Don't update system stats in sysend()
+ *
  * Revision 1.10  1992/12/11  12:45:11  ahd
  * Shorten remote display to improve OS/2 windowed scrolling
  *
@@ -100,7 +103,7 @@
 #include "modem.h"
 #include "lock.h"
 #include "nbstime.h"
-#include "ndir.h"
+#include "uundir.h"
 #include "ssleep.h"
 #include "security.h"
 #include "ulib.h"
