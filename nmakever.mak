@@ -16,9 +16,12 @@
 # *                         RCS Information                            *
 # *--------------------------------------------------------------------*
 
-#        $Id$
+#        $Id: nmakever.mak 1.1 1998/04/19 15:28:07 ahd v1-13a $
 #
-#        $Log$
+#        $Log: nmakever.mak $
+#        Revision 1.1  1998/04/19 15:28:07  ahd
+#        Initial revision
+#
 
 # *--------------------------------------------------------------------*
 # *   Our release number.  This is updated each time we ship it        *
@@ -31,5 +34,5 @@
 # *--------------------------------------------------------------------*
 
 !ifndef VERS
-VERS = 1.13a
+VERS = 1.13b
 !endif
