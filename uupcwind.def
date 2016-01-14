@@ -1,0 +1,5 @@
+EXETYPE WINDOWS
+DATA MOVABLE MULTIPLE
+STACKSIZE 8182
+HEAPSIZE 12288
+Description 'UUPC/extended 1.13b, Changes Copyright (c) 1989-1998 Kendra Electronic Wonderworks, All Rights Reserved'

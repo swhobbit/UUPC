@@ -1,0 +1,8 @@
+LIBRARY uupcdll BASE=000D0000
+DESCRIPTION 'UUPC/extended 1.13m  Copyright (c) 1989-2002 Kendra Electronic Wonderworks, All Rights Reserved'
+CODE    execute,read
+EXPORTS
+        UUPCGetNewsSpoolSize
+        UUPCGetParm
+        UUPCInit
+        UUPCSendMail
